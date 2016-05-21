@@ -1,0 +1,363 @@
+<apex:page controller="admin_ctrl_releaseNotes3" sidebar="false">
+<apex:form >
+	
+	<apex:stylesheet value="{!URLFOR($Resource.modalDirectory, 'reveal/reveal.css')}" />
+	
+	<apex:includeScript value="{!URLFOR($Resource.modalDirectory, 'reveal/jquery-1.4.4.min.js')}" />
+	<apex:includeScript value="{!URLFOR($Resource.modalDirectory, 'reveal/jquery.reveal.js')}" />
+	
+	
+	
+	<div id="locationTypeModal" class="reveal-modal large" style="width:520px; top:-50px;">
+		
+		<apex:outputPanel id="modalOP">
+
+			<b>{!changeRequest.Subject__c}</b> - <a href="/{!changeRequest.Id}" target="_blank">{!changeRequest.Name}</a> 
+			
+			
+			<br/><br/><br/>
+			
+			<b>Release Notes Details</b>
+			<br />
+			<apex:inputTextarea value="{!changeRequest.Release_Notes_Details__c}" cols="100" rows="10" /> 
+			
+			<br/><br/>
+			
+			<!--  -->
+			<apex:commandButton value="Save" action="{!closeModal}" styleClass="saveModal" reRender="soqlDebug,errors,pbtSearch,qtyOP,modalOP" />
+	        
+        </apex:outputPanel>
+        
+        <apex:commandLink styleclass="close-reveal-modal" action="{!nullPR}" rerender="modalOP">
+            &#215;
+            <!-- 
+            <apex:param name="locationType" value="" assignTo="{!locationType}" />
+             -->
+        </apex:commandLink>
+        
+    </div>
+    
+    
+    <div id="previewModal" class="reveal-modal large" style="top:-50px;">  <!--  style="width:520px; top:-50px;"> -->
+		<apex:outputPanel id="modalOP2">
+        	
+        	<apex:iframe src="/apex/admin_pdfReleaseNotesGenerator?fromDate={!fromDatePicker}&toDate={!toDatePicker}" height="400px" />
+        	
+        	<br /><br /><br />
+        	
+        	<apex:inputTextArea value="{!chatterBody}" cols="75" rows="6" />
+        	
+        	<br /><br />
+        	
+        	<apex:commandButton value="Share" action="{!createPDF}" />
+        	
+        </apex:outputPanel>
+        
+        <apex:commandLink styleclass="close-reveal-modal" action="{!nullPR}" rerender="modalOP2">
+            &#215;
+        </apex:commandLink>
+    </div>
+    
+	
+	<script>
+    	function setFocusOnLoad() {}
+    </script>
+    
+	<c:tabPanel > 
+    	
+    	<c:tabPanelTabs >
+    		<c:tabInactive tabLabel="Publish CRs" tabURL="/apex/admin_ReleaseNotes2" />
+    		<c:tabActive tabLabel="Preview and Generate" tabURL="/apex/admin_ReleaseNotes3" />
+    	</c:tabPanelTabs>
+    	<c:tabPanelBody >
+    		
+    		<apex:pageMessages id="errors" />
+    		
+    		<apex:outputPanel id="successOP" rendered="{!showChatterLink}">
+    			<br /><br />
+    			<apex:outputLabel style="color:green;" value="Group Chatter Post has been submitted. " />
+    			<apex:outputLink value="/{!newChatterPostId}">Link to record</apex:outputLink>
+    			<br /><br /><br />
+    		</apex:outputPanel>
+    		
+    		<apex:pageBlock title="Published Change Requests">
+    		
+    			<apex:pageBlockButtons location="top">
+    				<!-- 
+    				<apex:commandButton value="Preview" action="{!nullPR}" />
+    				 -->
+    				<apex:outputLink value="#" styleClass="btn previewModalButton" style="text-decoration:none;">
+    					Preview
+    					<apex:actionSupport event="onclick" action="{!nullPR}" rerender="modalOP2" />
+   					</apex:outputLink>
+    				
+    			</apex:pageBlockButtons>
+    			
+    			
+    			<apex:toolbar id="toolbar"
+		                    style="background: transparent url('/img/alohaSkin/metaBar_sprite.png') left -104px repeat-x; border: 1px solid #e1e0e0; 
+		                                border-top-color: #d1d1d1; -moz-border-radius: 5px; -webkit-border-radius: 5px; height: 33px; 
+		                                border-top-left-radius: 5px 5px; border-top-right-radius: 5px 5px; border-bottom-right-radius: 5px 5px; 
+		                                border-bottom-left-radius: 5px 5px; border-bottom: 1px solid #C1C1C1;">
+		                    
+		            
+		            <apex:toolbarGroup id="toolbarMainTitle" location="left" style="padding-top:8px;">
+		                
+		                <apex:outputPanel id="qtyOP">
+		                	<apex:outputText value="Displaying <b>{!crQty}</b> Change Request(s)" style="color:#606060; font-size:14px; font-weight:normal;" escape="false" />
+		                </apex:outputPanel>
+		                
+		            </apex:toolbarGroup> 
+		            
+		            <!-- <apex:toolbarGroup location="right" style="padding-top:6px;"> -->
+		            <apex:toolbarGroup location="right">
+		                <!-- Search elements below
+		                --------------------------------------------
+		            	<script type="text/javascript">
+		                    function doSearch() { 
+		                        var t = setTimeout(function() {
+		                            searchServer(document.getElementById("crName").value);
+		                        }, 500);
+		                    }
+		                </script>  
+		                
+		                <apex:actionFunction name="searchServer" action="{!runSearch}" status="status2" rerender="soqlDebug,errors,pbtSearch,qtyOP">
+		                    <apex:param name="crName" value="" />
+		                </apex:actionFunction>      
+		                
+		                <input name="quickSearch" id="crName" onkeyup="doSearch();" type="text" style="width:220px;" />
+		                 -->
+		                 
+		                <!-- Filter by date elements below -->
+						
+						<script type="text/javascript">
+		                    function doFilter() { 
+		                        var t = setTimeout(function() {
+		                            searchServer(document.getElementById("fromDatePicker").value, document.getElementById("toDatePicker").value);
+		                        }, 500);
+		                    }
+		                </script>
+			                
+		                <apex:actionFunction name="searchServer" action="{!runFilter}" status="status2" rerender="soqlDebug,errors,pbtSearch,qtyOP">
+		                    <apex:param name="fromDatePicker" value="" />
+		                    <apex:param name="toDatePicker" value="" />
+		                </apex:actionFunction>
+		               
+		               <div style="padding:6px 150px 0px 0px;"> 	
+		                	<label for="quickSearch" style="color:#666;">from: </label>
+			                <span class="dateInput dateOnlyInput">
+								<input id="fromDatePicker" onblur="doFilter();" onfocus="DatePicker.pickDate(false, 'fromDatePicker', false);" size="12" type="text" data-uidsfdc="3" />
+							</span>
+		                	
+		                	<label for="quickSearch" style="color:#666;">to: </label>
+			                <span class="dateInput dateOnlyInput">
+								<input id="toDatePicker" onblur="doFilter();" onfocus="DatePicker.pickDate(false, 'toDatePicker', false);" size="12" type="text" data-uidsfdc="3" />
+							</span>
+						</div>
+						
+						
+		            </apex:toolbarGroup>
+		              
+		                
+		        </apex:toolbar>
+		        
+		        <div style="position:relative; overflow:auto;"> 
+        
+		        <apex:outputPanel >
+		            <apex:actionStatus id="status2">
+		                <apex:facet name="start">
+		                    <div style="width: 100%; height: 100%; background-color:#fbfbfb; opacity:0.65;" class="waitingSearchDiv" id="el_loading">
+		                        <div class="waitingHolder" style="top: 60px; ">
+		                            <img src="/img/loading.gif" class="waitingImage" title="Please Wait..." />
+		                            <span class="waitingDescription">Loading...</span>
+		                        </div>
+		                    </div>
+		                </apex:facet>
+		            </apex:actionStatus>
+		        </apex:outputPanel>
+		
+		        <apex:outputPanel id="pbtSearch">
+		        
+		        <table class="list" border="0" cellspacing="0" cellpadding="0">
+		            <tbody>
+		            	
+		            	<tr class="headerRow"> 
+		                    <!-- <th scope="row" class=" deemphasize"> -->
+		                    <th scope="row" class="actionColumn">
+		                        <apex:outputLabel value="Action" />
+		                    </th>
+		                    <th scope="row" class=" deemphasize">
+		                    	
+		                    	<apex:outputPanel id="sortWrapper2">
+		                            <apex:outputPanel id="ascArrow2" rendered="{!sortDir == 'ASC'}">
+		                                <apex:commandLink value="Name" action="{!toggleSort}" status="status2" rerender="soqlDebug,pbtSearch,errors,qtyOP">
+		                                    <apex:param name="sortField" value="Name" assignTo="{!sortField}"/>
+		                                    <apex:outputPanel rendered="{!sortField == 'Name'}">
+		                                    	<img src="/img/s.gif" class="sortAsc" />
+		                                    </apex:outputPanel>
+		                                </apex:commandLink>
+		                            </apex:outputPanel> 
+		                            <apex:outputPanel id="descArrow2" rendered="{!sortDir == 'DESC'}">
+		                                <apex:commandLink value="Name" action="{!toggleSort}" status="status2" rerender="soqlDebug,pbtSearch,errors,qtyOP">
+		                                    <apex:param name="sortField" value="Name" assignTo="{!sortField}"/>
+		                                    <apex:outputPanel rendered="{!sortField == 'Name'}">
+		                                    	<img src="/img/s.gif" class="sortDesc" />
+		                                    </apex:outputPanel>
+		                                </apex:commandLink>
+		                            </apex:outputPanel>
+		                        </apex:outputPanel>
+		                    	
+		                    </th>
+		                    <th scope="row" class=" deemphasize">
+		                    	
+		                    	<apex:outputPanel id="sortWrapper29999">
+		                            <apex:outputPanel id="ascArrow299999" rendered="{!sortDir == 'ASC'}">
+		                                <apex:commandLink value="Date Completed" action="{!toggleSort}" status="status2" rerender="soqlDebug,pbtSearch,errors,qtyOP">
+		                                    <apex:param name="sortField" value="Date_Completed__c" assignTo="{!sortField}"/>
+		                                    <apex:outputPanel rendered="{!sortField == 'Date_Completed__c'}">
+		                                    	<img src="/img/s.gif" class="sortAsc" />
+		                                    </apex:outputPanel>
+		                                </apex:commandLink>
+		                            </apex:outputPanel> 
+		                            <apex:outputPanel id="descArrow29999999" rendered="{!sortDir == 'DESC'}">
+		                                <apex:commandLink value="Date Completed" action="{!toggleSort}" status="status2" rerender="soqlDebug,pbtSearch,errors,qtyOP">
+		                                    <apex:param name="sortField" value="Date_Completed__c" assignTo="{!sortField}"/>
+		                                    <apex:outputPanel rendered="{!sortField == 'Date_Completed__c'}">
+		                                    	<img src="/img/s.gif" class="sortDesc" />
+		                                    </apex:outputPanel>
+		                                </apex:commandLink>
+		                            </apex:outputPanel>
+		                        </apex:outputPanel>
+		                    	
+		                    </th>
+		                    <th scope="row" class=" deemphasize">
+		                    	
+		                    	<apex:outputPanel id="sortWrapper3">
+		                            <apex:outputPanel id="ascArrow3" rendered="{!sortDir == 'ASC'}">
+		                                <apex:commandLink value="Owner" action="{!toggleSort}" status="status2" rerender="soqlDebug,pbtSearch,errors,qtyOP">
+		                                    <apex:param name="sortField" value="Owner.Name" assignTo="{!sortField}"/>
+		                                    <apex:outputPanel rendered="{!sortField == 'Owner.Name'}">
+		                                    	<img src="/img/s.gif" class="sortAsc" />
+		                                    </apex:outputPanel>
+		                                </apex:commandLink>
+		                            </apex:outputPanel> 
+		                            <apex:outputPanel id="descArrow3" rendered="{!sortDir == 'DESC'}">
+		                                <apex:commandLink value="Owner" action="{!toggleSort}" status="status2" rerender="soqlDebug,pbtSearch,errors,qtyOP">
+		                                    <apex:param name="sortField" value="Owner.Name" assignTo="{!sortField}"/>
+		                                    <apex:outputPanel rendered="{!sortField == 'Owner.Name'}">
+		                                    	<img src="/img/s.gif" class="sortDesc" />
+		                                    </apex:outputPanel>
+		                                </apex:commandLink>
+		                            </apex:outputPanel>
+		                        </apex:outputPanel>
+		                    	
+		                    </th>
+		                    <th scope="row" class=" deemphasize">
+		                    	
+		                        <apex:outputLabel value="Subject" />
+		                        
+		                    </th>
+		                    <th scope="row" class=" deemphasize">
+		                    	
+		                        <apex:outputLabel value="Release Notes Details" />
+		                        
+		                    </th>
+		                </tr>
+		            	
+		                <apex:repeat value="{!changeRequests}" var="cr">
+		                <!-- ListRow -->
+		                <tr class="dataRow even first" onblur="if (window.hiOff){hiOff(this);}" onfocus="if (window.hiOn){hiOn(this);}" onmouseout="if (window.hiOff){hiOff(this);}" onmouseover="if (window.hiOn){hiOn(this);}">
+		                    <td class="actionColumn">
+		                    	<!-- 
+		                        <apex:commandLink action="{!loadQuickPricingTable}" reRender="gov,masterOP" status="status" styleClass="actionLink">
+		                            <apex:param name="filteredProductGroupId" value="{!qp.Product_Group__c}" assignTo="{!filteredProductGroupId}" />
+		                            {!qp.Name}
+		                        </apex:commandLink>
+		                         -->
+		                        <apex:commandLink action="{!openModal}" styleClass="actionLink modalButton" rerender="modalOP">
+		                        	<apex:param name="selectedChangeRequestId" value="{!cr.Id}" assignTo="{!selectedChangeRequestId}" />
+		                        	Edit
+		                        </apex:commandLink>
+		                        |
+		                        <apex:commandLink action="{!publishCR}" styleClass="actionLink" status="status2" rerender="soqlDebug,pbtSearch,errors,qtyOP">
+		                        	<apex:param name="publishCRId" value="{!cr.Id}" assignTo="{!publishCRId}" />
+		                        	Un-Publish
+		                        </apex:commandLink>
+		                    </td>
+		                    <td class="datacell" style="white-space: nowrap;">
+		                        <apex:outputLink value="/{!cr.Id}" styleClass="actionLink" style="text-decoration:none;" target="_blank">{!cr.Name}</apex:outputLink>
+		                    </td>
+		                    <td class="datacell" style="white-space: nowrap;">
+		                    	<apex:outputText style="font-weight:bold;" value="{0,date,MM'/'dd'/'yyyy}">
+		                        	<apex:param value="{!cr.Date_Completed__c}" />
+		                        </apex:outputText>
+		                    </td>
+		                    <td class="datacell" style="white-space: nowrap;">
+		                        <apex:outputLabel value="{!cr.Owner.Name}" />
+		                    </td>
+		                    <td class="datacell" style="white-space: nowrap;">
+		                        <apex:outputLabel value="{!cr.Subject__c}" />
+		                    </td>
+		                    <td class="datacell">
+		                        <span style="color:#666;">{!cr.Release_Notes_Details__c}</span>
+		                    </td>
+		                </tr>
+		                </apex:repeat> 
+		                
+		            </tbody>
+		        </table>
+		        <!-- 
+		        </div>
+		         -->
+		        
+		        <script type="text/javascript"> 
+			        jQuery(document).ready(function(jQuery) {
+			             jQuery('.modalButton').click(function(e) { 
+			                e.preventDefault();
+			                jQuery('#locationTypeModal').reveal();
+			                
+			                var closeButton2 = jQuery('.saveModal').bind('click.modalEvent', function () {
+			                    jQuery('#locationTypeModal').trigger('reveal:close');
+			                });
+			             });
+			        }); 
+			    </script> 
+		        
+		        </apex:outputPanel>
+		        
+		        </div>
+		        
+		        <apex:outputPanel id="soqlDebug" rendered="false">
+		        	<br/><br/><br/><br/>
+		        	<apex:outputLabel style="color:#666;" value="{!debugCrSoql}" />
+		        	<br/><br/>
+		        	fromDate: {!fromDatePicker}
+		        	<br/> 
+		        	toDate: {!toDatePicker}
+	        	</apex:outputPanel>
+    		
+    		</apex:pageBlock>
+    		
+    		
+    	
+    	
+    	</c:tabPanelBody>
+    	
+    </c:tabPanel>
+    
+   	<script type="text/javascript"> 
+        jQuery(document).ready(function(jQuery) {
+             jQuery('.previewModalButton').click(function(e) { 
+                e.preventDefault();
+                jQuery('#previewModal').reveal();
+                
+                var closeButton2 = jQuery('.savePreviewModal').bind('click.modalEvent', function () {
+                    jQuery('#previewModal').trigger('reveal:close');
+                });
+             });
+        }); 
+    </script> 
+    
+
+</apex:form>
+</apex:page>

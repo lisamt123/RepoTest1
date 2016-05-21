@@ -1,0 +1,296 @@
+<apex:page standardController="agf__ADM_Work__c" extensions="agf.ADM_WorkControllerExtension" id="pageEdit"  title="{!recordType.Name}">
+    <apex:include pageName="agf__ADM_Overlay_CSS" />
+    <apex:stylesheet value="{!$Resource.agf__ADM_common_css}" />
+    <apex:stylesheet value="{!$Resource.agf__autocompletecss}" />
+    <apex:stylesheet value="{!URLFOR($Resource.agf__jquery_ui_1813_redmond, 'css/redmond/jquery-ui-1.8.13.custom.css')}" />  
+    <apex:stylesheet value="{!$Resource.agf__productTag_css}"/>
+    <script type="text/javascript" src="{!URLFOR($Resource.jquery_1_5_2_min)}"></script>
+	<script type="text/javascript" src="{!URLFOR($Resource.jquery_ui_1813_redmond, 'js/jquery-ui-1.8.13.custom.min.js')}"></script>
+    <script type="text/javascript" src="{!URLFOR($Resource.ADM_common_js)}"></script>
+    <script type="text/javascript" src="{!URLFOR($Resource.ADM_WorkEdit_js)}"></script>
+	<script type="text/javascript" src="{!URLFOR($Resource.productTag_js)}"></script>
+    <script type="text/javascript" src="{!URLFOR($Resource.autocompletejs)}"></script>
+    <script type="text/javascript" src="{!URLFOR($Resource.ADM_autocomplete2js)}"></script>
+    <script type="text/javascript">
+		initAutoCompleteBrowserSettings();
+		
+		//this page loads components that also include a copy of jquery. save
+		//a reference to the page version that includes the ui plugin
+   		var jQueryPage = $j = $;
+    </script>
+
+    <apex:sectionHeader id="sectionHeaderWork"  title="{!recordType.Name}" subtitle="{!work.Name}" />    
+
+    <apex:form id="formEdit">        
+        <apex:inputHidden id="assignmentValue" value="{!details.fieldLabel}"/>
+        <apex:pageBlock id="pageBlockEdit" title="Edit Work">
+            <apex:pageBlockButtons >
+                <apex:commandButton action="{!saveAndView}" value="Save" alt="Save" title="Save" />
+                <apex:commandButton action="{!saveAndNew}" value="Save & New" alt="Save & New" title="Save & New"/>
+                <apex:commandButton action="{!cancel}" value="Cancel" onClick="$(this).addClass('btnDisabled');" />
+            </apex:pageBlockButtons>
+            <apex:pageBlockSection title="Errors" id="pageBlockSectionErrors" columns="1" showHeader="false">
+                <c:ADM_ErrorBlock />
+            </apex:pageBlockSection>
+            
+            <!-- PAGEBLOCKSECTION Subject -->
+            <apex:pageBlockSection id="pbsSubject" title="Subject" columns="1" showHeader="false">
+                <!-- Subject -->                           
+                <apex:pageBlockSectionItem id="pageBlockSectionItemSubject">
+                    <apex:outputLabel value="Subject" />
+                    <apex:outputPanel layout="block" styleClass="{!requiredInputSubject}">
+                        <apex:outputPanel layout="block" styleClass="requiredBlock"/>
+                        <apex:inputField id="workSubject" value="{!work.agf__Subject__c}" styleClass="adm_longInputField" />
+                    </apex:outputPanel>
+                </apex:pageBlockSectionItem>
+            </apex:pageBlockSection>
+            
+            <apex:actionRegion immediate="true" renderRegionOnly="false">            
+                <!-- PAGEBLOCKSECTION Information -->
+                <apex:pageBlockSection title="Information" id="pageBlockSectionInformation" columns="2" showHeader="false">
+                    <!-- Status and Severity Level -->
+                    <apex:pageBlockSectionItem id="pageBlockSectionItemStatus">
+                        <apex:outputLabel value="Status" />
+                        <apex:outputPanel layout="block" styleClass="{!requiredInputStatus}">
+                            <apex:outputPanel layout="block" styleClass="requiredBlock"/>
+                            <apex:selectList value="{!work.agf__Status__c}" styleClass="adm_inputField" size="1">
+                                <apex:selectOptions value="{!statuses}"/>
+                            </apex:selectList>
+                        </apex:outputPanel>
+                    </apex:pageBlockSectionItem>
+                    <apex:pageBlockSectionItem id="pageBlockSectionItemSeverityLevel">
+                        <apex:outputPanel >
+                            <c:helpHover label="Severity Level" id="helpHoverSeverityLevel" body="Severity of the investigation. View examples of severity assignment guidelines." type="help"/>
+                        </apex:outputPanel>
+	                    <apex:outputPanel layout="block" styleClass="requiredInput">
+	                        <apex:outputPanel layout="block" styleClass="requiredBlock"/>
+	                        
+	                            <apex:inputField id="severity" value="{!work.agf__Severity_Level__c}" styleClass="adm_input" />
+	                            
+	                        &nbsp;&nbsp;
+	                        <a href="{!gusUrl}/apex/ADM_InvestigationSeverityExamples" onclick="window.open('{!gusUrl}/apex/ADM_InvestigationSeverityExamples','popup','width=900,height=600,scrollbars=yes,resizable=no,toolbar=no,directories=no,location=no,menubar=no,status=no,left=0,top=0'); return false">View Examples</a>
+	                    </apex:outputPanel>
+	                </apex:pageBlockSectionItem>
+    
+                    <!-- Deal at Risk and Executive Involved -->
+                    <apex:inputField value="{!work.agf__Deal_at_Risk__c}" styleClass="adm_inputField" />
+                    <apex:inputField value="{!work.agf__Executive_Involved__c}" styleClass="adm_inputField" />
+    
+                    <!-- Estimated Financial Impact and Red Account-->
+                    <apex:inputField value="{!work.agf__Estimated_Financial_Impact__c}" styleClass="adm_inputField" />
+                    <apex:inputField value="{!work.agf__Red_Account__c}" styleClass="adm_inputField" />
+                    
+                    <!-- Critical CRM Feature-->
+                    <apex:pageBlockSectionItem ></apex:pageBlockSectionItem>
+                    <apex:inputField value="{!work.agf__Critical_CRM_Feature__c}" styleClass="adm_inputField" />
+                    
+                	<apex:inputHidden value="{!hiddenReps}" id="theHiddenReps" />
+                </apex:pageBlockSection>
+             </apex:actionRegion> 
+        
+            <apex:actionRegion immediate="true" renderRegionOnly="false">
+               	
+                <!-- ASSIGNMENTS PAGE BLOCK SECTION -->
+                <apex:pageBlockSection title="Assignments" id="productTagSection" columns="1" showHeader="true" collapsible="false">
+	                <!-- Product Tag -->
+	                <apex:pageBlockSectionItem >
+	                	<apex:outputLabel value="Product Tag" styleClass="productTagLabel" />
+	                	<apex:outputPanel layout="block" styleClass="{!requiredInputProductTag}">
+                            <apex:outputPanel layout="block" styleClass="requiredBlock"/>
+                            <c:ADM_ProductTagInput work="{!work}" recordType="{!recordType}" missingProductTagInstructions="{!requiredInputProductTagInstructions}" onchange="tagChanged(event);" oninit="adjustProductTagLabelPadding();" />
+	                	</apex:outputPanel>
+	                </apex:pageBlockSectionItem>
+	            </apex:pageBlockSection>
+	            
+                <apex:pageBlockSection title="Assignments" id="assignments" columns="2" showHeader="false">
+                    <!-- Assigned To and Product Owner -->
+                    <apex:pageBlockSectionItem id="pageBlockSectionItemAssignee">
+                        <apex:outputLabel value="Assigned To"/>
+                        <apex:outputPanel layout="block" styleClass="{!requiredInputAssignee}">
+                            <apex:outputPanel layout="block" styleClass="requiredBlock" />
+                            <c:ADM_AutoComplete2 id="aField" ObjectName="User" obj="{!work}" inputFieldName="Assignee__c" inputStyleClass="adm_inputField cField assigneeField" />
+                        </apex:outputPanel>
+                    </apex:pageBlockSectionItem>
+					<apex:pageBlockSectionItem id="pageBlockSectionItemPO">
+						<apex:outputLabel value="Product Owner"/>                     
+						<c:ADM_AutoComplete2 id="poField" ObjectName="User" obj="{!work}" inputFieldName="Product_Owner__c" inputStyleClass="adm_inputField cField productOwnerField" />
+    				</apex:pageBlockSectionItem>
+    
+                    <!-- QA Engineer and Support Contact -->
+                    <apex:pageBlockSectionItem id="pageBlockSectionItemQA">
+						<apex:outputLabel value="QA Engineer"/>                    
+						<c:ADM_AutoComplete2 id="qaField" ObjectName="User" obj="{!work}" inputFieldName="QA_Engineer__c" inputStyleClass="adm_inputField cField qaField" />
+					</apex:pageBlockSectionItem>
+                    <apex:pageBlockSectionItem id="pageBlockSectionItemCsContact">
+                        <apex:outputPanel >
+                            <c:helpHover label="Support Contact" id="helpHoverSeverity" body="This field defaults to the Investigation creator if the creator is in support (otherwise it defaults to blank). It can also be populated/overridden manually." type="help"/>
+                        </apex:outputPanel>
+                        <c:ADM_AutoComplete2 id="csField" ObjectName="User" obj="{!work}" inputFieldName="CS_Contact__c" inputStyleClass="adm_inputField cField" />                        
+                    </apex:pageBlockSectionItem>
+                    
+                    <!-- Senior Management POC and Request Senior Mgr Review -->
+                    <apex:pageBlockSectionItem id="pageBlockSectionItemSeniorManagementPOC">
+	                    <apex:outputPanel >
+	                        <c:helpHover label="Senior Management POC" id="helpHoverSeverity" body="The person who gets engaged when an escalation of the current investigation occurs" type="help"/>
+	                    </apex:outputPanel>
+	                    <apex:outputPanel layout="block">
+		                    <c:ADM_AutoComplete2 id="smField" ObjectName="User" obj="{!work}" inputFieldName="Senior_Management_POC__c" inputStyleClass="adm_inputField cField seniorManagement" />
+	                    </apex:outputPanel>
+	                </apex:pageBlockSectionItem>
+	                
+	                <apex:pageBlockSectionItem ></apex:pageBlockSectionItem>
+                    
+                    <apex:inputField value="{!work.agf__Request_RD_Mgr_Review__c}" onclick="toggleSeniorMgrDisabledFacade();" styleClass="adm_inputField" id="request_mgr_review" />
+                </apex:pageBlockSection>
+            </apex:actionRegion> 
+            
+            <apex:pageBlockSection title="Other Information" columns="2" showHeader="true">
+                <apex:outputField value="{!work.agf__Number_of_Cases__c}" styleClass="adm_inputField"/>
+                  <apex:inputField value="{!work.agf__Root_Cause_Analysis_2__c}" styleClass="adm_inputField"/>
+            </apex:pageBlockSection>
+    
+           	<apex:actionRegion immediate="true"  id="notifyActionRegion">
+				<apex:outputPanel id="theHiddenRepsPanel"> 
+				<!--	<c:ADM_Notifier workObject="{!work}" hiddenInputID="{!$Component.pageBlockSectionInformation.theHiddenReps}" id="workEditNotifier"/> -->
+				</apex:outputPanel>
+			</apex:actionRegion> 
+
+            <!-- PAGEBLOCKSECTION COMMENTS -->
+            <c:ADM_Comments workObject="{!work}" renderCommentsSection="true" isNewWork="{!isNewWork}" recordType="{!recordType.Name}"/>
+            
+            <apex:inputHidden id="detailsValue" value="{!details.fieldLabel}"/>
+            <c:ADM_WorkIconSet recordTypeName="{!recordType.Name}" /> 
+        </apex:pageBlock>
+        <script type="text/javascript">
+            var mgr_review = $('{!$Component.pageEdit.formEdit.pageBlockEdit.assignments.request_mgr_review}');
+            //<!-- [alexis] hard coding this now because we do not have this input rendered on the page any longer -->
+            var senior_mgr = $('pageEdit:formEdit:pageBlockEdit:assignments:pageBlockSectionItemSeniorManagementPOC:smField:autoCompleteComp:autoComp');
+            
+            toggleSeniorMgrDisabled(mgr_review, senior_mgr);
+            
+            function toggleSeniorMgrDisabledFacade() {
+                toggleSeniorMgrDisabled(mgr_review, senior_mgr);
+            }
+            
+            function toggleSeniorMgrDisabled(mgr_review, senior_mgr) {
+                try {
+                    if(mgr_review != null && senior_mgr != null) {
+                        
+                        if(!mgr_review.checked) {
+                            senior_mgrValue = senior_mgr.value;
+                            senior_mgr.value = '';
+                            senior_mgr.disabled = true;
+                            updateStandardRecipients('', senior_mgrValue);
+                        } else {
+                            senior_mgr.disabled = false;
+                                                             
+                            updateAssignments(seniorManagementPOC, new Object(), new Object(), new Object(), new Object(), new Object(), new Object(), new Object(), mgr_review);
+                            updateStandardRecipients(senior_mgr.value, '');                     
+                        }                       
+                    }                           
+                } catch(e) {
+                    console.warn('Error while changing senior manager: ' + e);
+                }
+            }
+        </script>
+        <script type="text/javascript">
+            var form = new WorkEditForm({
+                recordType : {
+                    Id: '{!JSINHTMLENCODE(recordType.Id)}',
+                    Name: '{!JSINHTMLENCODE(recordType.Name)}'
+                }, 
+                getTypeValue : function() {
+                    console.log('overwriting #getTypeValue() because type is not available on an investigation. returning an empty string.');
+                    return '';
+                }, 
+                getSeverityLevel : function() {
+                    console.log('overwriting #getSeverityValue() because is investigation.');
+                    return $byId('{!$Component.pageEdit.formEdit.pageBlockEdit.pageBlockSectionInformation.pageBlockSectionItemSeverityLevel.severity}').val();
+                },
+                suggestedSeniorManagementPoc : {!suggestedSeniorManagementPocAsJson}
+            });
+            
+            /**
+             * Initializes the senior management field so that input value is 
+             * changed when the proper state is met.
+             */
+            function initializeSeniorManagement($) {
+                var $review = $byId('{!$Component.pageEdit.formEdit.pageBlockEdit.assignments.request_mgr_review}');
+                var $field = $('input.seniorManagement');
+                
+                //convenience method to set the value of the senior management
+                //input field.  this method ensures the value is not replaced
+                //when there is a value or when the review checkbox is not
+                //selected.
+                var setSeniorManagementValue = function(value) {
+                    if(!value) {
+                        return;
+                    }
+                
+                    //if the review checkbox is checked and the field value is
+                    //empty, then we need to set the value on the field
+                    if($review.attr('checked') && isEmptyString($field.val())) {
+                        var newValue = value.Name;
+                        $field.val(newValue);
+                        
+                        if('updateStandardRecipients' in window) {
+                            window.updateStandardRecipients(newValue, '');
+                        }
+                    }
+                };
+                
+                //when the assignments are changed, we have special logic for the 
+                //senior management field
+                $(form.assignmentController).bind('change', function(event, assignments){
+                    if(!('Senior_Management_POC' in assignments)) {
+                        return;
+                    }
+                    var newValue = assignments['Senior_Management_POC'];
+                    
+                    //save the value so if the review checkbox is checked, 
+                    //we can put the value in the field
+                    form.suggestedSeniorManagementPoc = newValue;
+                    
+                    setSeniorManagementValue(newValue);
+                });
+                
+                //when the review checkbox is checked, then need to load
+                //the value from the last saved value
+                $review.change(function(event){
+                    if($review.attr('checked') === true) {
+	                    if(form.suggestedSeniorManagementPoc) {
+	                        setSeniorManagementValue(form.suggestedSeniorManagementPoc);
+	                    }
+                    } else {
+                        $field.val('');
+                    }
+                });
+                
+                //when the product tag is removed from the work item, then we need to also remove the suggested 
+                //senior point of contact.
+                if('productTag' in window) {
+                    $(window.productTag).bind('remove', function() {
+                        form.suggestedSeniorManagementPoc = null;
+                    });
+                }
+            }
+            
+            /**
+             * Initializes the severity level field
+             */
+            function initializeSeverityLevel($) {
+                var $field = $byId('{!$Component.pageEdit.formEdit.pageBlockEdit.pageBlockSectionInformation.pageBlockSectionItemSeverityLevel.severity}');
+                $field.change(function() {
+                    form.assignmentController.update();
+                });
+            }
+            
+            (function($){
+                $(document).ready(function(){
+                    initializeSeniorManagement($);
+                    initializeSeverityLevel($);
+                });
+            })($);
+        </script>
+    </apex:form>
+</apex:page>

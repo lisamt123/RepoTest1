@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<EmailTemplate xmlns="http://soap.sforce.com/2006/04/metadata">
+    <available>true</available>
+    <description>Sent to on site trainers to request submission of travel preferences.</description>
+    <encodingKey>ISO-8859-1</encodingKey>
+    <letterhead>Training_Header</letterhead>
+    <name>Object: Request Travel Preferences from Trainer</name>
+    <style>freeForm</style>
+    <subject>{!Training__c.Assigned_Trainer__c} - {!Training__c.Training_Start_Formula__c}-{!Training__c.Training_End_formula__c} - {!Training__c.Account__c} {!Training__c.Account_Number__c}</subject>
+    <textOnly>Dear {!Training__c.Assigned_Trainer__c}, {!Training__c.Trainer_2__c}{!Training__c.Mentee_1__c}
+
+Date Requested: {!Today}
+
+Please submit your travel preferences for the following account.
+
+**Special Notes:
+{!SFDC_520_Quote__c.Training_Notes__c}
+Training Object: {!Training__c.Name}
+
+
+Assigned Trainer: {!Training__c.Assigned_Trainer__c}
+Trainer 2: {!Training__c.Trainer_2__c}
+Mentee 1: {!Training__c.Mentee_1__c}
+Mentee 2: {!Training__c.Mentee_2__c}
+Group Lead (if Group): {!Training__c.Group_Lead_Trainer__c}
+
+{!Training__c.Account__c} {!Training__c.Account_Number__c} ({!Training__c.Training_Type__c})
+Training Dates: {!Training__c.Training_Start_Formula__c} - {!Training__c.Training_End_formula__c}
+{!Account.ShippingAddress}
+{!Training__c.Account_Location__c}
+
+Users:
+{!Training__c.Total_Number_of_Users__c}
+
+
+Vin Team:
+Performance Manager: {!SFDC_520_Quote__c.Account_Manager__c}
+RM: {!SFDC_520_Quote__c.00N70000002pqln}
+IMP: {!SFDC_520_Quote__c.OwnerFullName}
+
+Dealer Contact: {!Training__c.Training_Contact__c}
+Phone #
+Mobile #
+Email
+
+
+Travel Information
+
+Mileage: {!Training__c.Mileage_Information__c}
+If you decide to rent a vehicle, the driver will not get mileage.
+
+Airport: {!Training__c.Nearest_Airport__c}
+
+Vehicle: {!Training__c.Vehicle_Size_Needed__c}
+
+Hotel Suggested by Dealer: {!Training__c.Recommended_Local_Hotel__c}
+Hotel Distance: {!Training__c.Hotel_Distance__c}
+
+
+Products - From Account Level
+
+
+Thank you!
+
+{!User.Name}
+{!User.Title}
+VinSolutions.com
+O: {!User.Phone} x {!User.Extension}
+F: 913-825-6396</textOnly>
+    <type>html</type>
+</EmailTemplate>

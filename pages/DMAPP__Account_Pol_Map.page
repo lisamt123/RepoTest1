@@ -1,0 +1,1327 @@
+<apex:page standardController="DMAPP__Account_Political_Map__c" extensions="DMAPP.AccountPoliticalMapController,DMAPP.StandardControllerPPTExtension,DMAPP.ServerSideDeviceDetection"
+    sidebar="false" 
+    showHeader="{!NOT(fullScreen)}"
+    docType="html-5.0"
+    tabStyle="Account" 
+    action="{!logPoliticalMapUsage}"
+    >
+    
+    <apex:messages />
+
+    <c:jQuery chosen="true"
+        jQueryUI="true"
+        touchPunch="true"
+        tableDnD="true"
+        tooltip="true" 
+        paging="true"
+        underscore="true"/>
+
+    <c:MobileRedirect />
+    <c:PlaceholderOne />
+    
+    <c:CustomLabelJSBridge />
+	
+	
+    <!--[if lte IE 8]>
+    <style>
+        span#sidePanelToggleButton, #contactsSidePanelToggleButton {
+           -ms-filter: "progid:DXImageTransform.Microsoft.Matrix(M11=3.061616997868383e-16, M12=1, M21=-1, M22=3.061616997868383e-16, SizingMethod='auto expand')";
+        }
+        
+        span#contactsSidePanelToggleButton {
+            -ms-filter: "progid:DXImageTransform.Microsoft.Matrix(M11=-1.8369701987210297e-16, M12=-1, M21=1, M22=-1.8369701987210297e-16, SizingMethod='auto expand')";
+        }
+        
+        span#sidePanelToggleButton.sidePanelToggleButtonCollapsed {
+            -ms-filter: "progid:DXImageTransform.Microsoft.Matrix(M11=-1.8369701987210297e-16, M12=-1, M21=1, M22=-1.8369701987210297e-16, SizingMethod='auto expand')";
+        }
+        span#contactsSidePanelToggleButton.sidePanelToggleButtonCollapsed {
+           -ms-filter: "progid:DXImageTransform.Microsoft.Matrix(M11=3.061616997868383e-16, M12=1, M21=-1, M22=3.061616997868383e-16, SizingMethod='auto expand')";
+        }
+        
+        span.accordionHeaderToggleExpanded {
+           -ms-filter: "progid:DXImageTransform.Microsoft.Matrix(M11=-1, M12=1.2246467991473532e-16, M21=-1.2246467991473532e-16, M22=-1, SizingMethod='auto expand')";
+        }
+        span.accordionHeaderToggleCollapsed {
+            -ms-filter: "progid:DXImageTransform.Microsoft.Matrix(M11=-1.8369701987210297e-16, M12=-1, M21=1, M22=-1.8369701987210297e-16, SizingMethod='auto expand')";
+        }
+    </style>
+    <![endif]-->
+
+    <style>
+  
+        @import url("{!URLFOR($Resource.ttgcss,          'ttgcss/layout.css')}");
+        @import url("{!URLFOR($Resource.ttgomjs,         'ttg/graph/css/ttg_orgchart.css')}");
+        @import url("{!URLFOR($Resource.ttgomjs,         'ttg/graph/css/miniclicker.css')}");
+        @import url("{!URLFOR($Resource.ttgomjs,         'ttg/search-widget/searchWidget.css')}");
+        @import url("{!URLFOR($Resource.ttgcss,          'ttgcss/jquery.pulse.css')}");
+        @import url("{!URLFOR($Resource.ttgomjs,         'ttg/graph/css/political_side_panel.css')}"); 
+        @import url("{!URLFOR($Resource.ttgomjs,         'ttg/graph/css/political_map.css')}");
+        @import url("{!URLFOR($Resource.ttgomjs,         'ttg/graph/css/tooltip.css')}");
+        @import url("{!URLFOR($Resource.jQueryUI,        'css/custom-theme/jquery-ui-1.8.21.custom.css')}"); 
+        @import url("{!URLFOR($Resource.ttgomjs,         'ttg/graph/css/glyphs/style.css')}");
+
+        @import url("{!URLFOR($Resource.SmartOM,         'css/summarytab.css')}");
+        @import url("{!URLFOR($Resource.SmartOM,         'css/chatterpost.css')}");
+            
+        /* start of additions for Chatter */
+    
+        @import url("{!URLFOR($Resource.ttgomjs,         'ttg/chatter/css/chatter_side_panel.css')}");
+        @import url("{!URLFOR($Resource.ttgomjs,         'ttg/chatter/css/chatter_post.css')}");
+        @import url("{!URLFOR($Resource.ttgomjs,         'ttg/graph/css/glyphs/style.css')}");
+        @import url("{!URLFOR($Resource.ttgomjs,         'ttg/chatter/css/chatter_summary.css')}");
+        
+        /* end of additions for Chatter */
+                    
+		div.canvasDiv {
+		    background-color: #AEBBC9;
+		}
+                    
+        div#ttg_pol_map_watermark {
+            color: #D7DDE4;
+        }
+                    
+        .fadedDialog {
+            opacity: 0.1;
+            filter: alpha(opacity=10); 
+        }
+        
+        div.draggableOpportunityHelper  {
+            z-index: 5;
+            border : 1px outset black;
+            background: url('{!URLFOR($Resource.TAM, 'images/icon_drag.png')}') 5px center no-repeat;            
+        }
+        
+        .contactname  {
+            padding-left: 25px;
+            background: url('{!URLFOR($Resource.TAM, 'images/icon_drag.png')}') 5px center no-repeat;        
+        }
+        
+        .contacttitle {
+            margin-left: 5px;
+            color: #999;
+        }
+        
+        div#sidePanelDiv {
+            z-index: 10;
+        }
+        
+        div.ttg-oc-dragging-helper {
+            z-index: 9;
+        }
+        
+        div.side_panel_rule_advice {
+            margin-top : 5px;
+            padding-bottom : 5px;
+        }
+
+        body {
+            font-family: Arial,Helvetica,Sans-Serif !important;
+        }
+        
+        div.smartOMOpportunitySummary {
+            float: left;
+        }
+        
+        div.smartOMOpportunitySummary.AM {
+            width: 60%
+        }
+        
+        div.smartOMOpportunitySummary div.smartOMBackLink {
+           margin-top: 0;
+        }
+        
+        .map-account-name, .map-name {
+            padding-left: 50px;
+        }
+        
+        /* Restores AJAX spinner size to normal (AMOF-813) */
+        .spinner {
+            height: auto;
+            width: auto;
+        }
+            #legendDiv { min-width: 715px; }
+        
+                    #legendDiv .ttg_org_chart_legend_box_panel ul {
+                        height: auto; 
+                        min-height: 193px;
+                    } 
+
+        .hideTab {
+            height: 0 !important;
+            padding: 0 !important;
+        }
+        
+        div#buyingroleedit_chosen { width: 150px !important; }
+        
+        div.tasZoomControl { z-index: 8 !important; }
+        
+        /* Reposition legend for iPad (AMOF-1057) */ 
+        
+        @media only screen 
+        and (min-device-width: 768px) 
+        and (max-device-width: 1024px)  {
+        
+            #legendDiv {
+                background-color: rgb(255, 255, 255); 
+                border: 2px solid rgb(156, 156, 156);
+                border-radius: 4px;
+                font-size: 8px;
+                left: 100px; 
+                padding: 3px;  
+                position: absolute;
+                z-index: 25;                    
+            }
+        }       
+                    
+        div.smartOMPanel .myChatterPostPopup .myChatterTextAreaContainer {
+            overflow: visible;
+        }
+        
+        div.smartOMPanel .myChatterPostPopup .myChatterTextAreaContainer {
+            max-height: none;
+        }
+        
+        div.smartOMPanel .feedcontainer {
+            max-height: 300px;
+            overflow: auto;
+        }
+        
+        .map-account-name {
+            background: url('{!URLFOR($Resource.ttgomjs, 'ttg/orgchart/images/icon_pm_folder.png')}') 25px center no-repeat;        
+            display: inline-block;
+            height: 20px;
+        }
+        
+        .map-name {
+            background: url('{!URLFOR($Resource.ttgomjs, 'ttg/orgchart/images/icon_pm_level.png')}') 25px center no-repeat;        
+            display: inline-block;
+            height: 20px;
+        }
+        
+        .map-changer {
+            padding: 0 10px;
+            vertical-align: middle;
+        }
+        
+        .AMCurrentViewMap {
+            padding-top: 10px;
+            padding-left: 44px;
+            font-size: 0.9em;
+            clear: left;
+            float: left;
+        }
+        
+        .currMap {
+		    float: left;
+		    margin-top: 12px;
+		    font-size: 1.2em;
+		}
+        
+        span.backToMap {
+            background-image: url('{!URLFOR($Resource.ttgomjs, 'ttg/graph/feimages/icon_delete.png')}');
+            cursor: pointer;
+            float: right;
+            height: 16px;
+            margin-top: 15px;
+            width: 16px;
+            margin-right: 10px;
+        }
+        
+        .changeMap {
+            background-image: url('{!URLFOR($Resource.TAM, 'images/icon_edit_criteria.png')}');
+            background-repeat: no-repeat;
+            float: right;
+            height: 16px;
+            margin-top: 15px;
+            width: 16px;
+            padding-right: 20px;
+            cursor: pointer;
+        }
+
+        .linkedMapSection {
+            float: right;
+            margin-top: 15px;
+            padding-right: 20px;
+        }
+
+
+		/* DMPS-1497 IE specific media queries*/
+		@media screen and (-ms-high-contrast: active), (-ms-high-contrast: none) and (min-width: 943px) and (orientation:portrait) {	 
+			
+			.salesforce1 div#ttgCanvasDiv {
+				max-width: none;
+				height: 1423px !important; /* required to overwrite inline styles on rotation*/
+				width: 943px !important; /* required to overwrite inline styles on rotation*/
+			}
+			
+			.salesforce1 div.canvas {
+				max-width: none;
+				height: 100%;
+				width: 100%;
+			}
+		}
+
+		@media screen and (-ms-high-contrast: active), (-ms-high-contrast: none) and (min-width: 1423px) and (orientation:landscape) {
+			.salesforce1 div#ttgCanvasDiv {
+				max-width: none;
+				height: 943px !important; /* required to overwrite inline styles on rotation*/
+				width: 1423px !important; /* required to overwrite inline styles on rotation*/
+			}
+			
+			.salesforce1 div.canvas {
+				max-width: none;
+				height: 100%;
+				width: 100%;
+			}
+		}
+
+    </style>
+
+    <script src="/soap/ajax/25.0/connection.js"></script>
+    
+    <apex:includeScript value="{!$Resource.DMAPP__l10njs}" />
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__prefix)}"/>
+    
+    
+     <div class="smartOMPanel">
+         <apex:outputPanel styleClass="smartOMOpportunitySummary" layout="block" rendered="{!opportunityMapId == null}">
+             <apex:outputPanel id="smartOMBackLinkPolMapExpress" layout="block" styleClass="smartOMBackLink">
+                 <apex:outputLink target="_top" value="/{!account.Id}" styleClass="backlink" rendered="{!opportunityMapId == null}">Back to Account</apex:outputLink>
+                 <apex:outputLink target="_top" value="/apex/am_opp_map_app?id={!opportunityMapId}" styleClass="backlink" rendered="{!opportunityMapId != null}">Back to Opportunity Map</apex:outputLink>
+             </apex:outputPanel>
+             <strong>Dealmaker</strong>
+             <apex:outputLink target="_top" value="/{!account.Id}" styleClass="map-account-name"> {!account.Name}</apex:outputLink>
+             <apex:outputText value="{!accountMap.Name}" styleClass="map-name"></apex:outputText>
+             <apex:outputText value=" - Read Only Access" styleClass="readOnlyText" rendered="{!NOT(editable)}"/>
+        </apex:outputPanel>
+        
+         
+             <apex:outputPanel id="smartOMBackLinkPolMapExpress2" layout="block" styleClass="smartOMBackLink" rendered="{!opportunityMapId != null}">
+                 <apex:outputLink target="_top" value="/apex/am_opp_map_app?id={!opportunityMapId}" styleClass="backlink">Back to Opportunity Map</apex:outputLink>
+             </apex:outputPanel>
+             
+             <apex:outputPanel styleClass="currMap" rendered="{!opportunityMapId != null}">{!accountPlan.Name}  /  {!planUnit.Name}</apex:outputPanel>
+
+            <apex:outputPanel styleClass="backToMap" onclick="daGraph.eventManager().fireEvent('not_fullscreen')" rendered="{!opportunityMapId != null}"/>
+            <apex:outputPanel styleClass="changeMap" onclick="daGraph.eventManager().fireEvent('change_plan_unit_map')" rendered="{!opportunityMapId != null && editable}">
+            </apex:outputPanel>
+	        <apex:outputPanel id="linkedMapSection" layout="block" styleClass="linkedMapSection" rendered="{!opportunityMapId != null && planUnit != null && planUnit.DMAPP__Account_Political_Map__c != null}">
+	            Linked Map: {!planUnit.Account_Political_Map__r.Account__r.Name} / {!planUnit.Account_Political_Map__r.Name}
+	        </apex:outputPanel>
+
+             <apex:outputPanel layout="block" styleClass="AMCurrentViewMap" rendered="{!opportunityMapId != null}">
+                 Currently Viewing: 
+                 <apex:outputLink target="_top" value="/{!account.Id}" styleClass="map-account-name AM"> {!account.Name}</apex:outputLink>
+                 <apex:outputText value="{!accountMap.Name}" styleClass="map-name AM"></apex:outputText>
+                 <apex:outputText value=" - Read Only Access" styleClass="readOnlyText" rendered="{!NOT(editable)}"/>
+             </apex:outputPanel>
+
+        
+        
+        <div class="chatterContainer">                   
+             <!-- <apex:include pageName="ChatterPostPolMap"/> -->
+        </div>
+		
+		<div class="helpAndPPTContainer">
+			<div class="smartOMHelpLink">
+				<a id="TASHELPLINK" onclick="javascript: help.showHelp();">Help</a>
+			</div> 
+	            
+	        <div id='smartOMPPTLink' class="smartOMPPTLink"  style='display:none'>
+	            <apex:form >
+	                <a id="PPTEXPORT2" onclick="javascript: handlePPTX();" title="Click the icon to export to Powerpoint"></a>
+	            </apex:form> 
+	        </div>        
+        </div>        
+    </div>
+
+    <div id="TAS">
+        
+        <apex:include pageName="DMAPP__Account_Pol_Map_Print_Fix_IE7" />
+        
+        <div class="all">       
+            <div id="ttgCanvasDiv" class="canvasDiv test" style="overflow:hidden; position:relative;">       
+                <div id="ttgCanvas" class="canvas"></div>
+            </div>                 
+        </div>
+    </div>
+    
+    
+    <!-- some images that the code makes use of -->
+    <div style="display:none">
+  
+        <img id="ttg_oc_img_unknown"                                src="{!URLFOR($Resource.ttgomjs, 'ttg/orgchart/images/icon_unknown.png')}"/>
+        <img id="ttg_oc_img_not_set"                                src="{!URLFOR($Resource.ttgomjs, 'ttg/orgchart/images/not_set.gif')}"/>      
+        <img id="ttg_oc_img_attention"                              src="{!URLFOR($Resource.ttgomjs, 'ttg/graph/feimages/icon_approved.png')}"/>      
+        <img id="ttg_oc_img_grey_x"                                 src="{!URLFOR($Resource.ttgomjs, 'ttg/orgchart/images/grey_x.png')}"/>        
+        <img id="ttg_oc_img_influences"                             src="{!URLFOR($Resource.ttgomjs, 'ttg/orgchart/images/down_alt.png')}"/>      
+        <img id="ttg_oc_img_influencedby"                           src="{!URLFOR($Resource.ttgomjs, 'ttg/orgchart/images/up_alt.png')}"/>      
+        <img id="ttg_oc_img_key_player"                             src="{!URLFOR($Resource.ttgomjs, 'ttg/orgchart/images/icon_key_decision.png')}"/>       
+        <img id="ttg_oc_influence_drag"                             src="{!URLFOR($Resource.ttgomjs, 'ttg/orgchart/images/icon_influence_drag.png')}"/>       
+        <img id="ttg_oc_selected"                                   src="{!URLFOR($Resource.ttgomjs, 'ttg/orgchart/images/icon_selected.png')}"/>       
+    
+        <img id="ttg_graph_img_expand"                              src="{!URLFOR($Resource.ttgomjs, 'ttg/orgchart/images/icon_expand.png')}"/>       
+        <img id="ttg_graph_img_collapse"                            src="{!URLFOR($Resource.ttgomjs, 'ttg/orgchart/images/icon_collapse.png')}"/>       
+        <img id="ttg_graph_img_loading"                             src="{!URLFOR($Resource.ttgomjs, 'ttg/graph/images/loading_icon.gif')}"/>     
+        <img id="ttg_graph_img_open_contact"                        src="{!URLFOR($Resource.ttgomjs, 'ttg/graph/feimages/icon_contact_info.png')}"/>     
+        <img id="ttg_graph_img_linkedin"                            src="{!URLFOR($Resource.Assessment, 'common/images/linkedIn.png')}"/>     
+     
+    </div>
+        
+    <!-- l10n data -->
+    <apex:includeScript value="{!$Resource.DMAPP__l10njs}"/>
+    
+    
+    <!-- these are general purpose js libraries -->
+
+    <script>
+    
+    var $j = jQuery.noConflict();
+        
+    $j.ajaxSetup({
+        jsonp: null,
+        jsonpCallback: null,
+        async: true
+    });
+    
+    </script>
+
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__excanvas)}"/> 
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__ftk, 'forcetk.js')}"/>
+    
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__Raphael, 'raphael-min.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__Raphael, 'rgbcolor.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__Raphael, 'canvg.js')}"/>
+    
+    <!-- these are org chart specific js pages -->
+    
+    
+    <!--[if lt IE 9]>
+    <apex:includeScript value="{!URLFOR($Resource.ttgomjs, 'ttg/lib/ie.js')}"/> 
+    <apex:includeScript value="{!URLFOR($Resource.ttgomjs, 'ttg/lib/json2.js')}"/> 
+    <!--[endif]-->
+
+<!-- 
+    <apex:includeScript value="{!URLFOR($Resource.ttgomjs, 'ttg/lib/modernizr.js')}"/>
+
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__ttgomjs, 'ttg/lib/jquery-ui-touch-patch.js')}"/>
+     
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__ttgomjs, 'ttg/lib/ttgutils.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.ttgomjs, 'ttg/lib/simple_context.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.ttgomjs, 'ttg/lib/entity_editor.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.ttgomjs, 'ttg/lib/simple_printer.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.ttgomjs, 'ttg/lib/ttgservice.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.ttgomjs, 'ttg/graph/js/simple_events.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.ttgomjs, 'ttg/graph/js/graph.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.ttgomjs, 'ttg/graph/js/graph_layout_config.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.ttgomjs, 'ttg/graph/js/graph_layout.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.ttgomjs, 'ttg/graph/js/base_renderer.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.ttgomjs, 'ttg/graph/js/graph_renderer.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.ttgomjs, 'ttg/graph/js/graph_updater.js')}"/>    
+    <apex:includeScript value="{!URLFOR($Resource.ttgomjs, 'ttg/graph/js/graphic_button.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.ttgomjs, 'ttg/graph/js/add_node_button.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.ttgomjs, 'ttg/graph/js/zoom_in_button.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.ttgomjs, 'ttg/graph/js/zoom_out_button.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.ttgomjs, 'ttg/graph/js/zoom_manager.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.ttgomjs, 'ttg/graph/js/pan_manager.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.ttgomjs, 'ttg/graph/js/nav_control.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.ttgomjs, 'ttg/graph/js/contact_menu.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.ttgomjs, 'ttg/graph/js/tappit.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.ttgomjs, 'ttg/graph/js/graph_validator.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.ttgomjs, 'ttg/graph/js/gesture_observer.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.ttgomjs, 'ttg/graph/js/activity_info.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.ttgomjs, 'ttg/graph/js/left_right_button.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.ttgomjs, 'ttg/graph/js/compass_button.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.ttgomjs, 'ttg/graph/js/simple_ui.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.ttgomjs, 'ttg/graph/js/add_menu_button.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.ttgomjs, 'ttg/graph/js/options_menu_button.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.ttgomjs, 'ttg/graph/js/print_button.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.ttgomjs, 'ttg/graph/js/trash_bin.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.ttgomjs, 'ttg/graph/js/simple_title.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.ttgomjs, 'ttg/graph/js/chatter_button.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.ttgomjs, 'ttg/graph/js/empty_message.js')}"/>
+    
+    <apex:includeScript value="{!URLFOR($Resource.ttgomjs, 'ttg/orgchart/js/org_chart_node_renderer.js')}"/>   
+    <apex:includeScript value="{!URLFOR($Resource.ttgomjs, 'ttg/orgchart/js/org_chart_node_updater.js')}"/> 
+    <apex:includeScript value="{!URLFOR($Resource.ttgomjs, 'ttg/orgchart/js/edit_contact.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.ttgomjs, 'ttg/orgchart/js/sub_map_node_renderer.js')}"/>   
+    
+    <apex:includeScript value="{! URLFOR($Resource.ttgomjs, 'ttg/orgchart/js/side_panel_editor.js') }" />
+    
+    <apex:includeScript value="{!URLFOR($Resource.ttgomjs, 'ttg/orgchart/js/org_chart_metadata.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.ttgomjs, 'ttg/orgchart/js/display_graph.js')}"/>  
+    <apex:includeScript value="{!URLFOR($Resource.ttgomjs, 'ttg/orgchart/js/import_button.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.ttgomjs, 'ttg/orgchart/js/import_dialog.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.ttgomjs, 'ttg/orgchart/js/influence_highlighter.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.ttgomjs, 'ttg/orgchart/js/popup_org_chart.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.ttgomjs, 'ttg/orgchart/js/create_contact_button.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.ttgomjs, 'ttg/orgchart/js/influence_line_renderer.js')}"/>       
+    <apex:includeScript value="{!URLFOR($Resource.ttgomjs, 'ttg/orgchart/js/add_contact_menu_button.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.ttgomjs, 'ttg/orgchart/js/show_influences_button.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.ttgomjs, 'ttg/orgchart/js/show_owners_button.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.ttgomjs, 'ttg/orgchart/js/show_legend_button.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.ttgomjs, 'ttg/orgchart/js/legend_box.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.ttgomjs, 'ttg/orgchart/js/synthetic_node_renderer.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.ttgomjs, 'ttg/orgchart/js/create_synthetic_node_button.js')}"/>    
+    <apex:includeScript value="{! URLFOR($Resource.ttgomjs, 'ttg/orgchart/js/contact_subs_side_panel.js') }" />    
+    <apex:includeScript value="{!URLFOR($Resource.ttgomjs, 'ttg/orgchart/js/subs_node_renderer.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.ttgomjs, 'ttg/orgchart/js/subs_bench_manager.js')}"/>
+    
+    <apex:includeScript value="{!URLFOR($Resource.ttgomjs, 'ttg/search-widget/searchWidgetController.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.ttgomjs, 'ttg/search-widget/searchWidgetModel.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.ttgomjs, 'ttg/search-widget/searchWidgetRenderer.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.ttgomjs, 'ttg/search-widget/searchWidgetDataExtractor.js')}"/>
+-->
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__ttgomjs, 'ttg/alljs.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__CoachMe, 'new_coach/parser.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__CoachMe, 'new_coach/engine.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__CoachMe, 'new_coach/coach_manager.js')}"/>
+
+    <apex:include pageName="DMAPP__AMPoliticalMapCoachRules"/>
+        
+    <apex:include pageName="DMAPP__CRUD" />
+    <apex:include pageName="DMAPP__JSRemoting" />
+        
+    <script>
+    
+
+        /* 
+         * Copyright � The TAS Group. All rights reserved.
+         *  
+         */        
+            
+    ttg.context.orgchartbase =  '{!$Resource.DMAPP__ttgomjs}' ;
+    ttg.context.decision_criteria_base =  '{!$Resource.DMAPP__DecisionCriteria}' ;
+    ttg.context.common = '{!$Resource.DMAPP__Common}';
+    ttg.context.orgId = 'RANDOM_ORG_ID';
+    ttg.context.sessionId = '{!$Api.Session_ID}';
+    ttg.context.url = 'RANDOM_URL';
+    
+    
+    ttg.simpleFlatPPTExporter = function(anchorOppId, isLicensedForPP) {
+
+    
+        var api = ttg.apiLayer.sfdcDelegate( { sessionid : '{!JSENCODE($Api.Session_ID)}', accountid : '{!recordId}'} );
+        var dialogOpen = true;
+        var callCount = 0;
+
+        var spinnerImg = 
+            jQuery('<img>')
+                .attr('id', 'tas_ajax_spinner')
+                .addClass('spinner')
+                .attr('src', "{!JSENCODE(URLFOR($Resource.DMAPP__ttgomjs, '/ttg/graph/images/loader.gif'))}")
+            ;
+            
+        
+        function createFutureDownloadAdvice() {
+            if (isLicensedForPP) {
+                return jQuery('<ol/>')
+                        .append(jQuery('<li/>').text('Dealmaker is preparing your powerpoint presentation.'))
+                        .append(jQuery('<li/>').text('Once complete a link will appear below.'))
+            }
+            else {
+                return jQuery('<ol/>')
+                        .append(jQuery('<li/>').text('Dealmaker is preparing your powerpoint presentation.'))
+                        .append(jQuery('<li/>').text('Once complete a link will appear below.'))
+                        .append(jQuery('<li/>').text('Right click this link and save the file with an extention of \'.xml\'.'))
+                        .append(jQuery('<li/>').text('Open this saved file with powerpoint.'))
+                        .append(jQuery('<li/>').text('Close this dialog when then \'save as\' has completed.'))
+            }
+        }
+
+
+        function createFutureLinkDiv() {
+            callCount = 0;
+            return  jQuery('<div/>')
+                .css({ width : '100%', 'text-align' : 'center'})
+                .addClass('ttg_future_ppt_exporter_linkdiv')
+                .append(jQuery('<span/>').text('Preparing'));
+                
+        }
+
+        function deletefuturePPTX(id) {
+            api.deletePPTX(id,
+            
+                function() { createfuturePPTX(id) },                    
+                function() { /* error */ },                 
+                function() { /* complete */ }               
+            )
+            
+        }           
+        
+        function createfuturePPTX(id) {
+            api.postPPTX(id,
+                {param: { id: id } },
+                function() { checkForFuturePPTXUrl(id) },                   
+                function() { /* error */ },                 
+                function() { /* complete */ }               
+            )
+            
+        }           
+
+        function checkForFuturePPTXUrl(id) {
+            api.getPPTX(id,
+            
+                function(responseData) { 
+                    if (responseData != null && responseData.downloadURL != null) {
+
+                        jQuery('.ttg_future_ppt_exporter_linkdiv').html('');
+
+                        if (isLicensedForPP) {
+                            jQuery('.ttg_future_ppt_exporter_linkdiv').append(
+                                jQuery('<div/>')
+                                        .css({width:'100%', 'text-align' : 'center' })
+                                        .append(jQuery('<iframe/>', {src : 'https://' + document.domain.replace('dmapp', 'dmppt') + responseData.downloadURL, height : '40px', width : '100%', frameBorder : 0, seamless : 'seamless' }))
+                            )
+                        }
+                        else {
+                            jQuery('.ttg_future_ppt_exporter_linkdiv').append(
+                                jQuery('<a/>', {href: responseData.downloadURL }).css('cursor', 'pointer').text('Click to save presentation')
+                            )
+                        }
+                    }
+                    else {
+                        if (++callCount > 40) {
+                            jQuery('.ttg_future_ppt_exporter_linkdiv').html('');
+                            jQuery('.ttg_future_ppt_exporter_linkdiv').append(
+                                jQuery('<a/>').text('Taking too long.  Continue waiting?').css('cursor', 'pointer').click(function() { callCount = 0; checkForFuturePPTXUrl(id)} ) 
+                            )
+                        }
+                        else {
+                            jQuery('.ttg_future_ppt_exporter_linkdiv').html('');
+                            jQuery('.ttg_future_ppt_exporter_linkdiv').append(
+                                jQuery('<span/>').css({'display': 'inline-block', width: '100px', 'text-align': 'left'}).text('Waiting' + dots(callCount, 4))
+                            )
+                            if (dialogOpen) {
+                                checkForFuturePPTXUrl(id);
+                            }
+                        }
+                        
+                    } 
+                },
+                function() { /* error */ },                 
+                function() { /* complete */ }               
+            )
+
+        }
+        
+        function dots(num, mnum) {
+        
+            var s = '';
+            while(s.length < (num % mnum)) {
+                s += '.';
+            }
+
+            while(s.length < mnum) {
+                s += ' ';
+            }
+            
+            return s;
+        }
+
+        function futureFailure() {
+        }
+            
+        function closeDialog() {
+            dialogOpen = false;
+            jQuery('#ttg_simple_ppt_exporter_div').remove();
+        }
+        
+        function showDialog() {
+            
+            jQuery('<div/>',{ id : 'ttg_simple_ppt_exporter_div'})
+                .addClass('ttg_simple_ppt_exporter')
+                .append(
+                    createFutureDownloadAdvice() 
+                )
+                .append(
+                    createFutureLinkDiv() 
+                )
+                .dialog({
+                    title       :   'Export Powerpoint'
+                    , width     :   '500px',
+                    close: closeDialog
+                });
+        }
+
+        showDialog();
+        deletefuturePPTX(anchorOppId)
+        
+        return {
+        }
+    };    
+     
+    var daGraph; 
+
+    jQuery(document).ready(function() { 
+
+        if ({!showPPTLink}) {
+            if(navigator.appVersion.indexOf("Win")!=-1 || {!isLicensedForPPT}) {
+                jQuery('#smartOMPPTLink').show();
+            }
+        }     
+    
+        var accountPolMap = (function() {
+            function adaptAddOrgChartContact(data) {
+            
+                var adapted = {
+                    links : {
+                        link : []
+                    }
+                };
+                //TODO
+                jQuery.each(data.contacts, function(idx,c) {
+                    adapted.links.link.push({ id : c.orgchartcontactid});//, accountUnitId: c.accountUnitId });
+                })
+                
+                return adapted;
+            }
+            
+            function adaptSearchOrgCharts(data) {
+            
+                var adapted = {
+                    "org_charts": {
+                        "org_chart": []
+                        }
+                }
+                            
+                jQuery.each(data.records, function(idx,rec) {
+                    adapted.org_charts.org_chart.push({
+                        id      :   rec.Id,
+                        name    :   rec.Name,//rec[ttg.vfp+'Account__r'].Name,
+                        type    :   rec.attributes.type
+                    });
+                });
+                
+                return adapted;
+            }
+            
+                    
+            function adaptSearchOrgChartsJS(data, typevar) {
+            
+                var adapted = {
+                    "org_charts": {
+                        "org_chart": []
+                        }
+                }
+                            
+                jQuery.each(data.records, function(idx,rec) {
+                    adapted.org_charts.org_chart.push({
+                        id      :   rec.Id,
+                        name    :   rec.Name,//rec[ttg.vfp+'Account__r'].Name,
+                        type    :   typevar
+                    });
+                });
+                
+                return adapted;
+            }
+            
+                    
+            function adaptSearchOrgChartsJS(data, typevar) {
+            
+                var adapted = {
+                    "org_charts": {
+                        "org_chart": []
+                        }
+                }
+                            
+                jQuery.each(data.records, function(idx,rec) {
+                    adapted.org_charts.org_chart.push({
+                        id      :   rec.Id,
+                        name    :   rec.Name,//rec[ttg.vfp+'Account__r'].Name,
+                        type    :   typevar
+                    });
+                });
+                
+                return adapted;
+            }
+            
+            //
+            // The Org Chart related calls
+            //
+            function createGraph(graph, success, error, complete) {
+                // in sfdc native we dont have an org chart object
+                // every org chart is assumed to have one and so we 
+                // will always be able to load one and hence never 
+                // have to create one
+            };
+            
+            function addOrgChartContactJS(graphId, orgChartContacts, success, error, complete) {
+                
+                var succ = function(data) { try { success( adaptAddOrgChartContact(data) ); } finally { complete(); } };
+                var err = ttg.ajaxErrorFunction(error,complete);
+                
+                // handle the array ness in the orgChartContact param
+                
+                var req =  { "occs" : { "contacts" : [] } };
+                
+                jQuery.each( jQuery.makeArray(orgChartContacts), function(idx, occ) {
+                        req.occs.contacts.push( { 
+                            mapId               :   graphId,
+                            
+                            political           :   occ.political,
+                            adaptability        :   occ.adaptability,
+                            coverage            :   occ.coverage,
+                            status              :   occ.status,
+                            decisionorientation :   occ.decisionorientation,
+                            
+                            contactid           :   occ.id,
+                            hookstoid           :   occ.hookstoid
+                        }); 
+                });
+                
+                ttgInvoker.invokeVFR(ttg.getController('DMAPP.AccountPoliticalMapController.addOrgChartContact'),
+                    req.occs, 
+                    function(result, event) { 
+                        if (event.type == 'exception') { 
+                            err(result,event);
+                        } else {
+                            succ(result); 
+                        } 
+                    }, {escape: false}
+                )          
+            }
+        
+            
+            function updateContactAttributeJS(contactId, contactAttr, orgChartMetadata, success, error, complete) {
+            
+                var succ = function(data) { try { success(data); } finally { complete(); } };
+                var err = ttg.ajaxErrorFunction(error,complete);
+            
+                function makeContactsList(arr) {
+                    var cl = {
+                        contactid : []
+                    }
+                    
+                    jQuery.each(arr, function(idx, a) { cl.contactid.push(a); });
+                    
+                    return cl;
+                }
+                        
+                adaptedPost = {
+                    occs    :   {
+                        contacts : []
+                    }
+                };
+                
+                
+                jQuery.each(jQuery.makeArray(contactAttr), function(idx, cntct) {
+                    var newCntct = {
+                            mapId               :   '{!JSENCODE(accountMap.DMAPP__Linked_Map__c)}' ? '{!JSENCODE(accountMap.DMAPP__Linked_Map__c)}' : '{!JSENCODE(accountMap.Id)}',
+                            polmapid            :   cntct.polmapid,
+                            contactid           :   cntct.id,
+                            orgchartcontactid   :   cntct.orgchartcontactid, 
+                            ownerid             :   cntct.ownerid,
+                            note                :   cntct.note,
+                            political           :   cntct.political,
+                            adaptability        :   cntct.adaptability,
+                            coverage            :   cntct.coverage,
+                            status              :   cntct.status,
+                            decisionorientation :   cntct.decisionorientation,
+                            //keyplayer           :   cntct.keyplayer,
+                            //approved            :   cntct.approved,
+                            influences          :   makeContactsList(cntct.influences),
+                            influencedby        :   makeContactsList(cntct.influencedBy),
+                            hookstoid           :   cntct.hookstoid,
+                            alwaysonmap         :   cntct.alwaysonmap
+                        };
+            
+                    adaptedPost.occs.contacts.push(newCntct);
+                })
+                
+                
+                var req = JSON.stringify(adaptedPost);
+                
+                ttgInvoker.invokeVFR(ttg.getController('DMAPP.AccountPoliticalMapController.updateContactAttribute'),
+                    adaptedPost.occs, 
+                    function(result, event) { 
+                        if (event.type == 'exception') { 
+                            err(result,event);
+                        } else {
+                            succ(result); 
+                        }
+                    }, {escape: false}
+                )                       
+            }
+            
+            
+    
+            function removeOrgChartContactJS(contactId, success, error, complete) {   
+            
+                var succ = function(data) { try { success(data); } finally { complete(); } };
+                var err = ttg.ajaxErrorFunction(error,complete);
+            
+                ttgInvoker.invokeVFR(ttg.getController('DMAPP.AccountPoliticalMapController.removeOrgChartContact'),
+                    contactId, 
+                    function(result, event) { 
+                        if (event.type == 'exception') { 
+                            err(result,event);
+                        } else {
+                            succ(result); 
+                        }
+                    }, {escape: false}
+                )   
+            }
+    
+            function loadOrgChart(id, success, error, complete) {   
+                    
+                function sfdc_success(data) {
+                    success(adapter.adaptLoadOrgChart(data));
+                }
+                
+                var succ = function(data) { try {sfdc_success(data)} finally { complete(); } };
+                var err = ttg.ajaxErrorFunction(error,complete); 
+                
+                ttgInvoker.invokeVFR(
+                    ttg.getController('DMAPP.AccountPoliticalMapController.loadAccountOrgChart'),
+                    '{!JSENCODE(accountMap.id)}', 
+                    function(result, event) { 
+                        if (event.type == 'exception') { 
+                            err(result,event);
+                        } else {
+                            succ(result); 
+                        }
+                    }, {escape: false}
+                ) 
+            }
+    
+            function addSubMap(submap, success, error, complete) {
+                if(!complete) {
+                    complete = function() {};
+                }
+            
+                var succ = function(data) { try {success(data)} finally { complete(); } };
+                var err = ttg.ajaxErrorFunction(error,complete); 
+                
+                ttgInvoker.invokeVFR(
+                    ttg.getController('DMAPP.AccountPoliticalMapController.addSubMap'),
+                    submap, 
+                    function(result, event) { 
+                        if (event.type == 'exception') { 
+                            err(result,event);
+                        } else {
+                            succ(result); 
+                        }
+                    }, {escape: false}
+                ) 
+            }
+            
+            function addSubMaps(submaps, success, error, complete) {
+                if(!complete) {
+                    complete = function() {};
+                }
+            
+                var succ = function(data) { try {success(data)} finally { complete(); } };
+                var err = ttg.ajaxErrorFunction(error,complete); 
+                
+                ttgInvoker.invokeVFR(
+                    ttg.getController('DMAPP.AccountPoliticalMapController.addSubMaps'),
+                    submaps, 
+                    function(result, event) { 
+                        if (event.type == 'exception') { 
+                            err(result,event);
+                        } else {
+                            succ(result); 
+                        }
+                    }, {escape: false}
+                ) 
+            }
+    
+            function deleteSubMap(nodeid, success, error, complete) {
+                if(!complete) {
+                    complete = function() {};
+                }
+            
+                var succ = function(data) { try {success(data)} finally { complete(); } };
+                var err = ttg.ajaxErrorFunction(error,complete); 
+                
+                ttgInvoker.invokeVFR(
+                    ttg.getController('DMAPP.AccountPoliticalMapController.deleteSubMap'),
+                    nodeid, 
+                    function(result, event) { 
+                        if (event.type == 'exception') { 
+                            err(result,event);
+                        } else {
+                            succ(result); 
+                        }
+                    }, {escape: false}
+                ) 
+            }
+    
+            var that = {};
+            that.deleteSubMap = deleteSubMap;
+            that.addSubMap = addSubMap;
+            that.addSubMaps = addSubMaps;
+            that.loadOrgChart = loadOrgChart;
+            //that.createGraph = createGraph;    // No need to migrate as it is redundant.
+            that.updateContactAttribute = updateContactAttributeJS;   // Migrated to use JS Remoting
+            that.removeOrgChartContact = removeOrgChartContactJS;     // Migrated to use JS remoting
+            that.addOrgChartContact = addOrgChartContactJS;           // Migrated to use JS remoting
+            //that.getOrgChartContact = getOrgChartContact;  // No need to migrate as it is redundant.
+            that.adaptSearchOrgCharts = adaptSearchOrgCharts;
+            that.adaptSearchOrgChartsJS = adaptSearchOrgChartsJS;
+            
+            return that;
+        })();
+    
+        var apilayer = ttg.apiLayer.sfdcDelegate( { sessionid : '{!JSENCODE($Api.Session_ID)}', graphId : '{!JSENCODE(accountMap.id)}' } );
+        jQuery.extend(apilayer, apilayer.am);
+        jQuery.extend(apilayer, accountPolMap);
+
+        apilayer = ttg.apiLayer(apilayer);
+        
+        var fetchapi = ttg.apiLayer.sfdcDelegate( { sessionid : '{!JSENCODE($Api.Session_ID)}', disableCreateContact : {!disableCreationOfContacts} } );
+        ttg.fetch.metadata('Opportunity', fetchapi);
+        ttg.fetch.metadata('Account', fetchapi);
+        ttg.fetch.metadata('Contact', fetchapi);
+        
+        var accounts = [
+            {Id: '{!JSENCODE(accountMap.DMAPP__Account__c)}', Name: '{!JSENCODE(accountMap.Account__r.Name)}'}
+            
+        ];//politicalMapAccounts;
+        
+        var assocAcctIds = [];
+        var assocAcctNames = [];
+        <apex:repeat value="{!accountGroupMembers}" var="grpmember">
+            assocAcctIds.push('{!JSENCODE(grpmember.DMAPP__Account__c)}');
+            assocAcctNames.push('{!JSENCODE(grpmember.Account__r.Name)}');
+        </apex:repeat>
+        
+        /**
+        accounts = _.map(accounts, function(account) {
+            return {Id: account[ttg.vfp + 'Account__r'].Id, Name: account.Name};
+        });
+        **/
+        var loadIt = function() {
+            
+            var graphId = 'Id'
+
+            if('{!JSENCODE(accountMapId)}') {
+                <apex:repeat value="{!accountMap.Linked_Maps__r}" var="linkmap">
+                    assocAcctIds.push('{!JSENCODE(linkmap.DMAPP__Account__c)}');
+                    assocAcctNames.push('{!JSENCODE(linkmap.Account__r.Name)}');
+                </apex:repeat>
+
+                assocAcctIds = _.uniq(assocAcctIds);
+                assocAcctNames = _.uniq(assocAcctNames);
+                
+                spec = {
+                        graphId                         :   '{!JSENCODE(accountMap.Linked_Map__c)}' ? '{!JSENCODE(accountMap.Linked_Map__c)}' : '{!JSENCODE(accountMap.Id)}',
+                        linkeeMapId                     :   '{!JSENCODE(accountMap.Linked_Map__c)}' ? '{!JSENCODE(accountMap.Id)}' : '',
+                        orgId                           :   ttg.context.orgId,
+                        sessionId                       :   ttg.context.sessionId,
+                        sessionid                       :   ttg.context.sessionId,
+                        url                             :   ttg.context.url,
+                        orgChartType                    :   'accountpolmap',
+                        mapaccounts                     :   accounts,
+                        orgChartName                    :   '{!JSENCODE(accountMap.name)}',
+                        readonly                        :   {! editable == false },
+                        printUrl                        :   'Account_Pol_Map_Print?id={!JSENCODE(accountMap.id)}&',
+                        associatedAccountId             :   '{!JSENCODE(accountMap.Account__c)}',
+                        associatedAccountName           :   '{!JSENCODE(accountMap.Account__r.Name)}',
+                        associatedAccountIds            :   assocAcctIds,
+                        associatedAccountNames          :   assocAcctNames,
+                        userName                        :   '{!JSENCODE(currentUserName)}',
+                        userId                          :   '{!JSENCODE(currentUserId)}',
+                        metadataOptions :   {
+                            skipAttributes              :   ['buyingrole','approval']
+                        },
+                        disableCreateContact            :   {!disableCreationOfContacts},
+                        displayTitle                    :   [
+                                                                 '{!JSENCODE(accountMap.Linked_Map__c)}' ?
+                                                                 '{!JSENCODE(accountMap.Linked_Map__r.Name)}'
+                                                                 :
+                                                                 '{!JSENCODE(accountMap.Name)}'
+                                                            ],
+                        apiMetadataTimestamp            :   'apiMetadataTimestamp',    
+                        isStandaloneCRM                 :   false,
+                        ttgApi                          :   apilayer,
+                        add_contact_def_search_field    : 'AccountId',
+                        hasAM                           : {!isLicensedForAccountManager},
+                        hasOM                           : {! OR( isLicensedForOppManager, isLicensedForPoliticalMapExpress ) },
+                        hasPoliticalMapExpress          : {!isLicensedForPoliticalMapExpress} && !{!isLicensedForOppManager},
+                        nodeHeight                      :   150, //70,
+                        nodeWidth                       :   130, //100
+                        dateFormat                      :   '{!jQueryUIDateFormat}',
+                        disableContactCreation          : {!disableCreationOfContacts},
+                        hideActions                     : {!hideActions},
+                        skin                            : '{!JSENCODE(politicalMapSkin)}',
+                        socialSettings                  : '{!JSENCODE(socialMediaSettings)}',
+                        disableCoaching                 : {!disableCoaching},
+                        politicalMapCoachRules          : {
+                            contact_coaching_rules  : ttg.coach_am_political_map_contact_rules,
+                            contact_profile_rules   : ttg.coach_am_political_map_profile_rules,
+                            map_rules               : ttg.coach_am_political_map_rules
+                        },                    
+                        fullscreen                        : {!fullScreen},
+                        showInfluenceLines              : {!showInfluenceLines},
+                        hideCreateMsg                   : true,
+                        calledFromAM                    : true,
+                        //hideImportButton                : true,
+                        accountLevelMap                 : true,
+                        accountGrouping                 : {!accountGroupingEnabled},
+                        isoCode							: '{!currencyISO}',
+                        fullscreenmode                  : {!fullScreen}
+                 };
+                 
+                if('{!JSENCODE(opportunityMapId)}') {
+                   spec.notFullscreenOverride = '/apex/' + ttg.vfp + 'am_opp_map_app?id=' + '{!JSENCODE(opportunityMapId)}';
+                   spec.oppmapid = '{!JSENCODE(opportunityMapId)}';
+                   spec.planunitid = '{!JSENCODE(planUnitId)}';
+                   spec.planunitname = '{!JSENCODE(planUnit.name)}';
+                   spec.associatedmapid = '{!JSENCODE(planUnit.Account_Political_Map__c)}';
+                   spec.associatedmapname = '{!JSENCODE(planUnit.Account_Political_Map__r.Name)}';
+                }
+            } else {
+                assocAcctIds = _.uniq(assocAcctIds);
+                assocAcctNames = _.uniq(assocAcctNames);
+
+                spec = {
+                        graphId                         :   '',
+                        orgId                           :   ttg.context.orgId,
+                        sessionId                       :   ttg.context.sessionId,
+                        sessionid                       :   ttg.context.sessionId,
+                        url                             :   ttg.context.url,
+                        orgChartType                    :   'accountpolmap',
+                        mapaccounts                     :   accounts,
+                        associatedAccountId             :   assocAcctIds && assocAcctIds.length ? assocAcctIds[0] : '{!JSENCODE(account.Id)}',
+                        associatedAccountName           :   assocAcctNames && assocAcctNames.length ? assocAcctNames[0] : '{!JSENCODE(account.Name)}',
+                        associatedAccountIds            :   assocAcctIds,
+                        associatedAccountNames          :   assocAcctNames,
+                        orgChartName                    :   '{!JSENCODE(opportunityMapId)}' ? '{!JSENCODE(planUnit.name)}' : '{!JSENCODE(account.name)}',
+                        readonly                        :   {! editable == false },
+                        userName                        :   '{!JSENCODE(currentUserName)}',
+                        userId                          :   '{!JSENCODE(currentUserId)}',
+                        metadataOptions :   {
+                            skipAttributes              :   ['buyingrole','approval']
+                        },
+                        disableCreateContact            :   {!disableCreationOfContacts},
+                        displayTitle                    :   [
+                                                                 '{!JSENCODE(account.Name)}'
+                                                            ],
+                        apiMetadataTimestamp            :   'apiMetadataTimestamp',    
+                        isStandaloneCRM                 :   false,
+                        ttgApi                          :   apilayer,
+                        add_contact_def_search_field    : 'AccountId',
+                        hasAM                           : {!isLicensedForAccountManager},
+                        hasOM                           : {! OR( isLicensedForOppManager, isLicensedForPoliticalMapExpress ) },
+                        hasPoliticalMapExpress          : {!isLicensedForPoliticalMapExpress} && !{!isLicensedForOppManager},
+                        nodeHeight                      :   150, //70,
+                        nodeWidth                       :   130, //100
+                        dateFormat                      :   '{!jQueryUIDateFormat}',
+                        disableContactCreation          : {!disableCreationOfContacts},
+                        hideActions                     : {!hideActions},
+                        skin                            : '{!JSENCODE(politicalMapSkin)}',
+                        socialSettings                  : '{!JSENCODE(socialMediaSettings)}',
+                        disableCoaching                 : {!disableCoaching},
+                        politicalMapCoachRules          : {
+                            contact_coaching_rules  : ttg.coach_am_political_map_contact_rules,
+                            contact_profile_rules   : ttg.coach_am_political_map_profile_rules,
+                            map_rules               : ttg.coach_am_political_map_rules
+                        },                    
+                        fullscreen                        : {!fullScreen},
+                        showInfluenceLines              : {!showInfluenceLines},
+                        hideCreateMsg                   : true,
+                        calledFromAM                    : true,
+                        hideImportButton                : true,
+                        accountLevelMap                 : true,
+                        isoCode							: '{!currencyISO}',
+                        accountGrouping                 : {!accountGroupingEnabled},
+                        createGraph                     :             function(createSpec, succ) {
+                             if(!succ) {
+                                 succ = function() {}
+                             }
+                             
+                             var mapMetadataControl = null;
+                             var metadataCreate = null;
+                             
+                             var createSpec = ttg.getDefaultCreateMapSpec(spec);
+                             createSpec.autosearch = true;
+                             createSpec.title = 'Political Map';
+                             var oldpresave = createSpec.preSave;
+                             createSpec.preSave = function(that, spec) {
+                                 oldpresave(that, spec);
+                                 var dlg = that.getDialog();
+                                 var fields = spec.fields;
+                                 fields[ttg.vfp + 'Primary_Map__c'] = true;
+                                 
+                             };
+                              createSpec.postSave = function(a, b, c) {
+                                  succ(a, b, c);
+                                  
+                                    if((typeof window.sforce != 'undefined') && (window.sforce != null) && (typeof window.sforce.one != 'undefined') && (window.sforce.one != null)) {
+				                        window.sforce.one.navigateToURL('/apex/' + ttg.vfp + 'Account_Pol_Map?id=' + a.Id);
+				                    } else {
+				                        window.location.href = '/apex/' + ttg.vfp + 'Account_Pol_Map?id=' + a.Id;
+				                    }
+                              };
+                              createSpec.postCreateCancel = function() {
+                                 if((typeof window.sforce != 'undefined') && (window.sforce != null) && (typeof window.sforce.one != 'undefined') && (window.sforce.one != null)) {
+                                        window.sforce.one.navigateToURL('/' + '{!JSENCODE(account.Id)}');
+                                    } else {
+                                        window.location.href = '/' + '{!JSENCODE(account.Id)}';
+                                    }
+                              };
+                
+                              if('{!JSENCODE(opportunityMapId)}') {
+                                  createSpec.postCreateCancel = function() {
+	                                 if((typeof window.sforce != 'undefined') && (window.sforce != null) && (typeof window.sforce.one != 'undefined') && (window.sforce.one != null)) {
+	                                        window.sforce.one.navigateToURL('/apex/' + ttg.vfp + 'am_opp_map_app?id=' + '{!JSENCODE(opportunityMapId)}');
+	                                    } else {
+	                                        window.location.href = '/apex/' + ttg.vfp + 'am_opp_map_app?id=' + '{!JSENCODE(opportunityMapId)}';
+	                                    }
+                                  
+                                  };
+                                  createSpec.unFocusOverride = createSpec.postCreateCancel;
+                                  
+                                  createSpec.postSave = function(a, b, c) {
+                                      var success = function(a2, b2, c2) {
+                                      
+                                     if((typeof window.sforce != 'undefined') && (window.sforce != null) && (typeof window.sforce.one != 'undefined') && (window.sforce.one != null)) {
+                                            window.sforce.one.navigateToURL('/apex/' + ttg.vfp + 'Account_Pol_Map?id=' + a.Id + '&oppmapid=' + '{!JSENCODE(opportunityMapId)}' +  '&planunitid=' + '{!JSENCODE(planUnitId)}' + '&fullscreen=true');
+                                        } else {
+                                            window.location.href = '/apex/' + ttg.vfp + 'Account_Pol_Map?id=' + a.Id + '&oppmapid=' + '{!JSENCODE(opportunityMapId)}' +  '&planunitid=' + '{!JSENCODE(planUnitId)}' + '&fullscreen=true';
+                                        }
+                                      
+                                      };
+                                      var error = function() {};
+                                      var complete = function() {};
+                                      
+                                      var succ = function(data) { try {success(data)} finally { complete(); } };
+                                      var err = ttg.ajaxErrorFunction(error,complete); 
+                                      
+                                      ttgInvoker.invokeVFR(
+                                          ttg.getController('DMAPP.AccountPoliticalMapController.associatePlanUnitAccountOrgChart'),
+                                          '{!JSENCODE(planUnitId)}',
+                                          a.Id, 
+                                          function(result, event) { 
+                                              if (event.type == 'exception') { 
+                                                  err(result,event);
+                                              } else {
+                                                  succ(result); 
+                                              }
+                                          }, {escape: false}
+                                      );
+                                  };
+
+                                  var oldpostdisplay = createSpec.postDisplay;
+                                  createSpec.postDisplay = function(dlg, data) {
+                                      var btns = dlg.dialog( 'option', 'buttons' );
+                                      
+					                if({! editable == false }) {
+					                    jQuery('button[ttgid="Save_button"]').attr('disabled', true).addClass('DISABLED');
+					                }
+                                      
+                                      var currclickfunc = btns['Save'];
+                
+                                      var newsave = function() {
+                                        var isExisting = jQuery('input#existingmap:checked').length > 0;
+                                        if(isExisting) {
+                                              var mapid = dlg.find('#' + ttg.vfp + 'Linked_Map__c INPUT[type=\'hidden\']').val();
+                                              
+                                              if(!mapid) {
+                                                 dlg.find('td#ERROR_' + ttg.vfp + 'Linked_Map__c').removeClass('ERROR');
+                                                 dlg.find('td#ERROR_' + ttg.vfp + 'Linked_Map__c').addClass('ERROR');
+                                                 dlg.find('td#ERROR_' + ttg.vfp + 'Linked_Map__c').text('Please select a Map');
+                                                 return;
+                                              }
+                                              
+                                              var success = function(a, b, c) {
+                                              
+                                     if((typeof window.sforce != 'undefined') && (window.sforce != null) && (typeof window.sforce.one != 'undefined') && (window.sforce.one != null)) {
+                                            window.sforce.one.navigateToURL('/apex/' + ttg.vfp + 'Account_Pol_Map?id=' + mapid + '&oppmapid=' + '{!JSENCODE(opportunityMapId)}' + '&planunitid=' + '{!JSENCODE(planUnitId)}' + '&fullscreen=true');
+                                        } else {
+                                            window.location.href = '/apex/' + ttg.vfp + 'Account_Pol_Map?id=' + mapid + '&oppmapid=' + '{!JSENCODE(opportunityMapId)}' + '&planunitid=' + '{!JSENCODE(planUnitId)}' + '&fullscreen=true';
+                                        }
+
+                                              };
+                                              var error = function() {};
+                                              var complete = function() {};
+                                              
+                                              var succ = function(data) { try {success(data)} finally { complete(); } };
+                                              var err = ttg.ajaxErrorFunction(error,complete); 
+                                              
+                                              ttgInvoker.invokeVFR(
+                                                  ttg.getController('DMAPP.AccountPoliticalMapController.associatePlanUnitAccountOrgChart'),
+                                                  '{!JSENCODE(planUnitId)}',
+                                                  mapid, 
+                                                  function(result, event) { 
+                                                      if (event.type == 'exception') { 
+                                                          err(result,event);
+                                                      } else {
+                                                          succ(result); 
+                                                      }
+                                                  }, {escape: false}
+                                              );
+                                          } else {
+                                              currclickfunc();
+                                          }
+                                      }
+                                      
+                                      jQuery('button[ttgid="Save_button"]').unbind('click').on('click', newsave);
+                
+                                      oldpostdisplay(dlg, data);
+                                  }
+                              }
+                              metadataCreate = ttg.metadata(createSpec);
+                              metadataCreate.create('Account_Political_Map__c');
+                      }
+                 }
+                 
+                 if('{!JSENCODE(opportunityMapId)}') {
+                    spec.notFullscreenOverride = '/apex/' + ttg.vfp + 'am_opp_map_app?id=' + '{!JSENCODE(opportunityMapId)}';
+                   spec.oppmapid = '{!JSENCODE(opportunityMapId)}';
+                   spec.planunitid = '{!JSENCODE(planUnitId)}';
+                   spec.planunitname = '{!JSENCODE(planUnit.name)}';
+                }
+                
+                if({!markprimary}) {
+                    spec.markprimary = true;
+                    if({!oldestMapForDefaultPrimaryMark != null}) {
+                        spec.oldestmapname = '{!JSENCODE(oldestMapForDefaultPrimaryMark.Name)}';
+                        spec.oldestmapid = '{!JSENCODE(oldestMapForDefaultPrimaryMark.Id)}';
+                    }
+                }
+            }
+
+            daGraph = ttg.displayGraph(spec);
+        }
+                 
+        loadIt();
+    });
+
+
+    function openit() {
+        ttg.legendBox(daGraph.getConfig(), daGraph.getOrgChartMetadata());
+    }
+
+    function handlePPTX() {
+        ttg.simpleFlatPPTExporter('{!recordId}', {!isLicensedForPPT});
+    }
+
+
+        var _HELP = function(spec) {
+        
+            var that = { }
+            
+            function showHelp() {
+            
+                var url = '{!helpURLBase}' + '/Default.htm#Smart_AM/';
+            
+				url += 'Account_Political_Maps/Account_Political_Maps.htm';
+                
+                var testwindow = window.open(url, "TAS", "resizable=1,location=1,status=1,scrollbars=1,width=600,height=600");
+
+            }
+	
+            that.showHelp = showHelp;
+            
+            return that;
+        }
+        
+        var help = _HELP({});
+        
+    </script>   
+
+</apex:page>

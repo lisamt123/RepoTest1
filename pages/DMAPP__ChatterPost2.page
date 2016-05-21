@@ -1,0 +1,302 @@
+<apex:page standardController="Opportunity" extensions="DMAPP.ChatterPostController,DMAPP.ChatterPostControllerExtension" sidebar="false">
+
+	<apex:includeScript value="{!URLFOR($Resource.DMAPP__ttgomjs, 'ttg/lib/ttgutils.js')}"/>
+    
+    <apex:form rendered="{!isChatterEnabled}">
+		
+        <apex:outputPanel styleClass="smartOMToolbarPanel" layout="block" rendered="{!isOldChatterDisplayed}">
+    
+            <div id="chatterToggleLink" class="smartOMScoreBox">
+                <apex:image styleClass="smartOMIcon" url="{!URLFOR($Resource.DMAPP__SmartOM, 'icon_chatter.png')}"/>               
+                <!-- <br/>              
+                <apex:outputText value="Share" rendered="true"/>-->
+            </div>
+                
+            <div id="chatterLiteContainerMain" class="chatterPostContainer">             
+                
+                <div id="chatterLiteContainer" class="chatterPostPopup">
+                    <div class="chatterTextAreaContainer">
+                        <apex:inputField id="postBodyField" value="{!post.Body}" styleClass="chatterTextArea chatterTextAreafocus"/>
+                    </div>
+                    <fieldset class="chatterFollowerBox">
+                        <legend>Share with</legend>
+                        <apex:selectRadio value="{!postFollowers}" layout="pageDirection">
+                            <apex:selectOptions value="{!followerOptions}"/>
+                        </apex:selectRadio>
+                    </fieldset>             
+                    <apex:commandButton value="Share" onClick="ttg_chatter.freePostWidget.doPost()" styleClass="btnPrimary publishersharebutton floatRight btn" reRender="chatterLiteContainerMain,MyChatterFeed"/>
+                </div>
+                
+            </div>
+    
+        </apex:outputPanel>
+    
+    
+		<apex:outputPanel styleClass="smartOMToolbarPanel" layout="block" rendered="{!isOldChatterDisplayed}">
+    
+            <div id="chatterRecommendToggleLink" class="smartOMScoreBox">
+                <apex:image styleClass="smartOMIcon" url="{!URLFOR($Resource.DMAPP__SmartOM, 'icon_chatter_like.png')}"/>              
+                <!-- <br/>              
+                <apex:outputText value="Like" rendered="true"/>  -->
+            </div>  
+            
+            <div id="chatterRecommendContainerMain" class="chatterPostContainer">
+                    
+                <div id="chatterRecommendContainer" class="chatterPostPopup">
+                    <div class="chatterTextAreaContainer">
+                        <apex:inputField id="recommendBodyField" value="{!recommendation.Body}" styleClass="chatterTextArea chatterTextAreafocus"/>
+                    </div>
+                    <fieldset class="chatterFollowerBox">
+                        <legend>Recommend to</legend>
+                        <apex:selectRadio value="{!recommendFollowers}" layout="pageDirection">
+                            <apex:selectOptions value="{!followerOptions}"/>
+                        </apex:selectRadio>
+                    </fieldset>
+                    <apex:commandButton action="{!postRecommendation}" value="Like" onComplete="ttg_chatter.recommendPostWidget.clear()" reRender="chatterRecommendContainerMain,MyChatterFeed" styleClass="btnPrimary publishersharebutton floatRight btn"/>
+                </div>
+                
+            </div>
+                
+        </apex:outputPanel>
+        
+        <apex:outputPanel styleClass="smartOMToolbarPanel3" layout="block" rendered="{!isNewChatterDisplayed}">
+        </apex:outputPanel>
+    
+    <apex:actionFunction name="doPostText" action="{!postText}" onComplete="ttg_chatter.freePostWidget.clear()" reRender="chatterLiteContainerMain"/> 
+                
+    </apex:form>
+    
+    <apex:outputText id="myChatterFeedContainerWrapper" value="" rendered="{!isNewChatterDisplayed && (entityId != '')}">
+	    <div id="myChatterFeedContainer" class="myChatterPostPopup">
+			<div class="myChatterTextAreaContainer">
+				<chatter:feed entityId="{!entityId}" id="MyChatterFeed" rendered="{!isNewChatterDisplayed}" showPublisher="true" />
+	    	</div>
+	   </div> 
+   </apex:outputText>
+    
+    <script>
+
+
+		/* 
+		 * Copyright © The TAS Group. All rights reserved.
+		 *  
+		 */    
+
+    
+        /*
+            This page expects the jQuery library to have been already included by parent pages
+        */
+    
+        var ttg = ttg || {};
+        ttg.chatterDetailListener = function() {
+        
+            var availableMessages = ['Strategy changed to Frontal', 
+                                     'Strategy changed to Flanking', 
+                                     'Strategy details text changed to "Something must be done before the end of fiscal year"', 
+                                     'Question "Is there a compelling event?" answered Yes', 
+                                     'Use user defined strategy changed to Yes'];
+
+            function chatterDetail(msg) {
+                availableMessages.push(msg);
+            }
+            
+            function getAvailableMessages() {
+                return availableMessages;
+            }
+        
+            return {
+                chatterDetail           :   chatterDetail,
+                getAvailableMessages    :   getAvailableMessages
+            }
+            
+        }();
+        
+        var ttg_chatter = ttg_chatter || {};
+        ttg_chatter.ChatterWidget = function(chatterContainer, chatterToggleLink, chatterBodyField, displayChatterOptions) {
+        
+            this.chatterContainer = chatterContainer;
+            this.chatterToggleLink = chatterToggleLink;
+            this.chatterBodyField = chatterBodyField;
+            this.displayChatterOptions = displayChatterOptions;
+            
+            this.checkBoxAnswers = [];
+            this.isMouseOverPopup = false;
+            
+            this.init = function() {
+                var that = this;
+                jQuery(function() {
+                    
+                    that.addCloseListeners();
+                
+                    that.chatterToggleLink.on('click', function() {
+                        jQuery('.chatterPostPopup').not(that.chatterContainer).slideUp();
+                        if(that.chatterToggleLink.offset().left < that.chatterContainer.width()) {
+                            //that.chatterContainer.css('left', that.chatterContainer.width() + 'px');
+                            that.chatterContainer.css('left', '20px');
+                        }
+                        that.chatterContainer.slideToggle();
+                        
+                    });
+                    
+                    that.chatterBodyField.on('keypress change paste', function() {
+                        var $this = jQuery(this);
+                        var textAreaFontSize = parseInt($this.css('font-size'),10);
+                        setTimeout(function() {
+                                        var length = $this.val().length;
+                                        var cols = 35;
+                                        var rows = Math.floor(length / cols);   
+                                        $this.height((rows + 1)*(textAreaFontSize + 4));    
+                        }, 50);
+                    });
+                                        
+                    that.renderChatterOptions();
+                
+                });             
+            }
+            
+            
+            this.addCloseListeners = function() {
+                    var that = this;
+                    jQuery().add(this.chatterContainer).add(this.chatterToggleLink).on('mouseenter.closePopup', function() {
+                        that.isMouseOverPopup = true;
+                    }).on('mouseleave.closePopup', function() {
+                        that.isMouseOverPopup = false;
+                    });
+                    
+                    jQuery(document).on('click.closePopup', function() {
+                        if(!that.isMouseOverPopup) {
+                            that.chatterContainer.slideUp();
+                        }
+                    }); 
+            
+            }
+            
+            this.renderChatterOptions = function() {
+                if(this.displayChatterOptions && ttg.chatterDetailListener.getAvailableMessages().length > 0) {
+                    var chatterOptions = jQuery('.chatterOptionsContainer', this.chatterContainer);
+                    if(chatterOptions.length === 0) {
+                        chatterOptions = jQuery('<div class="chatterOptionsContainer"/>');
+                        this.chatterContainer.append(chatterOptions);
+                    }
+                    else {
+                        chatterOptions.empty();
+                    }                   
+                    var that = this;        
+                    jQuery.each(ttg.chatterDetailListener.getAvailableMessages(), function(index, value) {
+                        var optionsDiv = jQuery('<div class="chatterOption"/>'),
+                            checkBox = jQuery('<input type="checkbox"/>').val('chatterOption'+index);
+                    
+                        checkBox.on('click', function() {
+                            that.checkBoxAnswers[index] = that.checkBoxAnswers[index] ? false : true;   
+                        });
+                        if(that.checkBoxAnswers[index]) {
+                            checkBox.attr('checked','checked');
+                        }
+                        optionsDiv.append(checkBox);
+                        optionsDiv.append(jQuery('<div/>').html(value));
+                        chatterOptions.append(optionsDiv);
+                    });     
+                }
+            }
+            
+            this.doPost = function() {
+                this.addChatterOptionsToBody();
+                // Apex actionFunction
+                doPostText();
+            }
+            
+            this.clear = function() {
+                this.checkBoxAnswers = [];
+                this.chatterContainer.slideToggle();
+                this.chatterBodyField.val('').height(16);
+                this.renderChatterOptions();
+            }
+            
+            this.addChatterOptionsToBody = function() {
+                if(this.displayChatterOptions) {
+                    var body = this.chatterBodyField.val(),
+                        messages = ttg.chatterDetailListener.getAvailableMessages(),
+                        availableMessagesLength = messages.length,
+                        index;
+                        
+                    for(index = 0; index < availableMessagesLength; index++) {
+                        if(this.checkBoxAnswers[index]) {
+                            body += '\n\t- ' + messages[index];
+                        }
+                    }   
+                                            
+                    this.chatterBodyField.val(body);
+                    this.chatterBodyField.trigger('change');
+                }
+            }
+       };
+       
+       var panelCollapsed = false;
+       var css = { position : 'absolute', right: 0, top: 0 };
+		
+	   var panelDiv = 
+			jQuery('<div/>',{id : 'chatterSidePanelDiv'})
+			.css( css )
+			.addClass('ttg_side_panel');
+       
+       ttg_chatter.displayPanel = function (collapsed) {
+			panelDiv.width(collapsed ? '70px' : '275px');
+			if(collapsed) {
+				jQuery('#chatterSidePanelDiv').addClass('collapsed');
+			}
+			else {
+				jQuery('#chatterSidePanelDiv').removeClass('collapsed');
+			}
+			//jQuery('#chattersSidePanelTabContainer > div').toggle(!collapsed); // FIXME
+			jQuery('#myChatterFeedContainer').toggle(!collapsed);
+		}
+       
+       ttg_chatter.togglePanel = function () {
+			panelCollapsed = !panelCollapsed;
+			
+            if(panelCollapsed) {
+                jQuery('div#chattersSidePanelTabContainer').removeClass('hideFeedLink')
+                jQuery('div#chattersSidePanelTabContainer span.chatterlinkText').text('Show Feed');
+            } else {
+                jQuery('div#chattersSidePanelTabContainer').addClass('hideFeedLink')
+                jQuery('div#chattersSidePanelTabContainer span.chatterlinkText').text('Hide Feed');
+            }
+            
+            ttg_chatter.displayPanel(panelCollapsed);
+		}
+
+		ttg_chatter.createToggleButton = function() {
+            return jQuery('<img />').attr('src', '{! URLFOR($Resource.SmartOM, '/images/chatterfeed.png') }')
+                .css('cursor', 'pointer')
+                ;
+			};
+       
+		ttg_chatter.createSidePanel = function () {
+    		panelCollapsed = false;
+			var toReturn = jQuery('<div />', { id: 'chattersSidePanelTabContainer' })
+			    .click(function() {
+                    ttg_chatter.togglePanel();
+                })
+			    .append(ttg_chatter.createToggleButton())
+				.append(jQuery('<a><span class="chatterlinkText">Show Feed</span></a>'))
+				.append(jQuery('#myChatterTextAreaContainer'));
+		
+			ttg_chatter.togglePanel();	
+			return toReturn;	
+		};
+        
+        
+        ttg_chatter.freePostWidget = new ttg_chatter.ChatterWidget(jQuery('#chatterLiteContainer'), jQuery('#chatterToggleLink'), jQuery('[id$=postBodyField]'), false);
+        ttg_chatter.freePostWidget.init();
+
+        ttg_chatter.recommendPostWidget = new ttg_chatter.ChatterWidget(jQuery('#chatterRecommendContainer'), jQuery('#chatterRecommendToggleLink'), jQuery('[id$=recommendBodyField]'), false);
+        ttg_chatter.recommendPostWidget.init();
+        
+        ttg.setUpMaxLimitCheck(jQuery('.chatterTextArea'), 800);
+        
+        //jQuery('#chatterRecommendToggleLink').append(panelDiv).append(ttg_chatter.createSidePanel());
+        jQuery('.smartOMToolbarPanel3').append(panelDiv).append(ttg_chatter.createSidePanel());
+    
+    </script>
+     
+</apex:page>

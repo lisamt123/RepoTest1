@@ -1,0 +1,165 @@
+<apex:component controller="FOD_SalesPipelineCtrl">
+  <script type="text/javascript" src="https://www.google.com/jsapi"></script>            
+   <script type="text/javascript">
+          function showProcessingImage(){
+              console.log("showing processing Div");
+                 $(".overlay").show();
+          }
+          function hideProcessingImage(){
+          console.log("Hide processing Div");
+               $(".overlay").hide();
+          }
+                  </script>
+                  
+            <script type="text/javascript">
+        
+              // Load the Visualization API and the piechart package.
+              google.load('visualization', '1.0', {'packages':['corechart']});
+        
+              // Set a callback to run when the Google Visualization API is loaded.
+              google.setOnLoadCallback(onLoadDrawChart);
+        
+              // Callback that creates and populates a data table,
+              // instantiates the pie chart, passes in the data and
+              // draws it.
+              
+              var selectedProj;
+              var displayMonth;
+              
+              function onLoadDrawChart() {
+                  var s = "{!projChartStr}";
+                  s=s.replace(/'/g, '"');
+                  displayMonth = 'Next Month';
+                  //displayMonth = 'This Month';
+                  drawPieChart(s, 'project');
+              }
+              
+              function goBack() {
+                  queryChartData('', 'project', returnMonthVal(displayMonth));
+              }
+              
+              function drawChart() {
+                  var currVal = document.getElementById("month").value; 
+                  
+                  queryChartData('', 'project', displayMonth);
+                  currVal = returnMonthVal(displayMonth);
+                  document.getElementById("month").value = currVal;
+              }    
+              
+              function returnMonthVal(currVal) { 
+                  if(currVal == 'Next Month') {
+                      currVal = 'This Month';
+                      displayMonth = 'This Month';
+                  } else if(currVal == 'This Month') {
+                      currVal = 'Next Month';
+                      displayMonth = 'Next Month';
+                  }
+                  return currVal;
+              }
+              
+              function queryChartData(selVal, cType, currVal) {
+              console.log(currVal);
+                  if(cType == 'acc') {
+                      //document.getElementById("month").value = "Back";
+                  }
+                  
+                  var str;
+                  Visualforce.remoting.Manager.invokeAction(
+                    '{!$RemoteAction.FOD_SalesPipelineCtrl.getChartInput}', 
+                    selVal, cType, currVal,
+                    function(result, event){
+                    hideProcessingImage();
+                   // document.getElementById("month").value = "Back";
+                        console.debug(result);
+                        str = result;
+                        //alert('1'+str);
+                        console.debug(str);
+                        var n = str.indexOf("&quot;");
+                        console.debug("n "+n);
+                        str=str.replace(/&#39;/g, '"');
+                        
+                        drawPieChart(str, cType);
+                        console.debug("final str"+str);
+                    }, 
+                    {escape: true}
+                  );
+                
+              }
+              
+              function drawPieChart(str, cType) {
+              console.log("data "+str);
+                  str="["+str+"]";
+                  var data = new google.visualization.DataTable();
+                  data.addColumn('string', 'Opptys');
+                  data.addColumn('number', 'count');
+                  data.addRows(JSON.parse(str));
+                    
+                  // Set chart options
+                  var options = {'title':'',
+                       'height':315,
+                       'chartArea': {'backgroundColor':{'stroke': '#000819', 'strokeWidth': 2 },'left': 0, 'top': 40,'width': '90%', 'height': '80%'},
+                       'legend': {'position': 'left', 'textStyle': {'color': '#94FFFF', 'fontSize': '13'} },
+                       'tooltip':{'trigger':'none'},
+                       'pieSliceText':'value',
+                       'backgroundColor':'transparent',
+                       'slices': [{'color': '#4784d5'}, {'color': '#94ffff'}, {'color': '#0c4773'}, {'color': '#0a2c3d'}],
+                       'pieSliceTextStyle': {'color':'#000819', 'fontSize': '13'},
+                       'sliceVisibilityThreshold': 0
+                                 
+                                 };
+                  var chart = new google.visualization.PieChart(document.getElementById('chart_div'));
+                  if(data.getNumberOfRows() == 0){
+                      document.getElementById('chart_div').innerHTML = "<p>Apologies, that information isn't available.</p>";
+                   }else{
+                        //var chart = new google.visualization.PieChart(document.getElementById('piechart'));
+                        chart.draw(data, options);        
+                   }
+                  //chart.draw(data, options);
+                  google.visualization.events.addListener(chart, 'select', selectHandler);
+                  
+                  function selectHandler(e) {
+                  showProcessingImage();
+                    //alert('cType=='+ cType);
+                    var selection = chart.getSelection();
+                    var item = selection[0];
+
+                    var selVal = data.getFormattedValue(item.row,0);
+                    
+                    if(cType == 'project') { 
+                        selectedProj = selVal;
+                        queryChartData(selVal, 'acc', returnMonthVal(displayMonth));
+                        document.getElementById("month").value = "Back";
+                    }  
+                    if(cType == 'acc') {  
+                       window.location.href = '/apex/FOD_AccountList?sv='+selVal+'&sp='+selectedProj+'&dt='+displayMonth;
+                    }
+
+                  }
+              }
+          
+              function onClickNextMonth() {
+                  drawchart();
+              }
+            </script>
+            
+<div class="col-lg-6 spHead">
+   <div class="row">
+      <div class="col-lg-2"></div>
+      <div class="col-lg-10">
+         <div id="chart_div"></div>
+         <div class="chartBtn">
+            <input type="button" value="View Next Month" id="month" onclick="drawChart();" ></input>
+         </div>
+      </div>
+   </div>  
+   <!--  
+   <div class="row">
+      <div class="col-lg-2"></div>
+      <div class="col-lg-4">
+         
+      </div>
+      <div class="col-lg-6"></div>
+   </div>  
+   -->
+</div>
+</apex:component>

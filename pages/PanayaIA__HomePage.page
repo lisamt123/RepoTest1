@@ -1,0 +1,118 @@
+<apex:page controller="PanayaIA.HomePage" action="{!init}" sidebar="false" tabStyle="Panaya_Impact_Analysis__tab">
+
+	<script type="text/javascript" >
+    	var UserInfo = {
+    		Id		:	"{!$User.id}",
+    		Name	:	"{!$User.firstName} {!$User.lastName}",
+    		OrgName	:	"{!$Organization.Name}",
+    		OrgId	:	"{!$Organization.Id}"
+    	}
+    	var totangoModule = "Main tab";
+    	   
+    </script>
+    
+	<script type="text/javascript" src="{!URLFOR($Resource.Panaya,'js/jquery.min.js')}"></script>
+    <script type="text/javascript" src="{!URLFOR($Resource.Panaya,'js/jquery-ui.min.js')}"></script>
+     <script> var j$ = jQuery.noConflict();</script>
+    <script type="text/javascript" src="{!URLFOR($Resource.Panaya,'js/totango.js')}"></script>
+<!--     <script type="text/javascript" src="https://dl.dropboxusercontent.com/u/82342093/Panaya/totango.js"></script>  -->
+    
+    <script type="text/javascript">
+    	j$( window ).load(function() {
+    		totangoTrack(totangoModule, 'Main tab');
+    	});
+    </script>
+    <apex:stylesheet value="{!URLFOR($Resource.PanayaIA__Panaya, 'css/jquery-ui.css')}"/>
+<apex:form >
+
+<style>
+	.active{
+		font-weight:bold; color: #0066CC !important;
+	}
+	.inactive{
+		font-weight:bold; color: #A0A0A0 !important;
+	}
+</style>
+
+	<apex:sectionHeader title="Panaya ChangeGuru" subtitle="Panaya"/>
+	<apex:pagemessages id="pagemessages"/>
+<!-- 	<apex:pageblock title="ChangeGuru" id="mainSection"> -->
+<!-- 		<a href="javascript:backToActionSelectionClicked()">Main</a> -->
+<!-- 	</apex:pageblock> -->
+	
+	<apex:pageblock rendered="{! NOT (haveUID)}">
+        <div style="margin-left:auto; margin-right:auto; width:66.67%; background-color: white; min-height: 100%;">
+            <br/><br/>
+            <div style="margin-left:auto; margin-right:auto; width:90%;">
+                <table style="width: 100%; font-family: Calibri;">
+                    <tr>
+                        <td>
+                            <img src="https://c.eu2.content.force.com/servlet/servlet.ImageServer?id=015b00000001EaW&oid=00Db0000000JlHR&lastMod=1366024118000"/>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>&nbsp;</td>
+                    </tr>
+                    <tr>
+                        <td>&nbsp;</td>
+                    </tr>
+                    <tr>
+                        <td style="vertical-align: top;">
+                            <span style="font-size: 250%;">
+								{!msg}
+                            </span>
+                            <br/><br/><br/><br/>
+                        </td>
+                        <td style="float: right;">
+                            <img src="{!URLFOR($Resource.Salesforce_Logo)}"/>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </apex:pageblock>
+    
+	<apex:pageblock rendered="{!haveUID}" title="What Would You Like to Do?">
+		<apex:pageblockSection columns="1">
+			<apex:pageblockSectionItem >
+			    <apex:outputLink value="/apex/ImpactAnalysis?choice=FieldsValues" styleclass="active">Fields &amp; Values Impact Analysis</apex:outputLink>
+			</apex:pageblockSectionItem>
+			<apex:pageblockSectionItem >
+			    <apex:outputLink value="/apex/ImpactAnalysis?choice=ProfilesAndRoles" styleclass="active">Profiles &amp; Roles Impact Analysis</apex:outputLink>
+			</apex:pageblockSectionItem>
+			<apex:pageblockSectionItem >
+			    <apex:outputLink value="/apex/ImpactAnalysis?choice=User" styleclass="active">Users Impact Analysis</apex:outputLink>
+			</apex:pageblockSectionItem>
+<!-- 			<apex:pageblockSectionItem > -->
+<!-- 			    <apex:outputText styleclass="inactive" value="Smart System Search"/> -->
+<!-- 			</apex:pageblockSectionItem> -->
+<!-- 			<apex:pageblockSectionItem > -->
+<!-- 			    <apex:outputLink value="/apex/HealthCheckManagement" styleclass="active">Automatic Notification Management</apex:outputLink> -->
+<!-- 			</apex:pageblockSectionItem> -->
+<!-- 			<apex:pageblockSectionItem > -->
+<!-- 				<apex:outputLink value="/apex/versioning" styleclass="active">Versioning</apex:outputLink> -->
+<!-- 			</apex:pageblockSectionItem> -->
+			<apex:pageblockSectionItem >
+			
+				<apex:commandLink value="Extract Now" action="{!extractAnalysis}" styleclass="active" oncomplete="j$( '#extractMsg' ).dialog('open');" rerender="pagemessages,extractMsgSpan" />
+
+			</apex:pageblockSectionItem>
+		</apex:pageblockSection>
+	</apex:pageblock>
+</apex:form>
+
+
+<div id="extractMsg" title="Exctraction">
+  <apex:outputText value="{!JSENCODE(msg)}" id="extractMsgSpan"/>
+</div>
+<script>
+j$( "#extractMsg" ).dialog({ 
+	buttons: [ { text: "Ok", click: function() { j$( this ).dialog( "close" ); } } ],
+	autoOpen: false ,
+	modal: true
+});
+
+</script>
+
+
+</apex:page>

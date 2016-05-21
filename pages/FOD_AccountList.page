@@ -1,0 +1,111 @@
+<apex:page controller="FOD_AccountListCtrl" sidebar="false" showHeader="false" readOnly="true">
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css"></link>
+<script src="https://use.typekit.net/nsi6vfo.js"></script>
+<script>try{Typekit.load({ async: true });}catch(e){}</script>
+
+<c:FOD_CSS />
+<c:FOD_TableCSS />
+
+      <script>
+          function gotodashboard() {
+              top.location.href="/apex/FODashboard";
+          }   
+      </script>
+
+
+<div class="row title">
+    <div class="col-lg-2"></div>
+    <div class="col-lg-10">
+        <h2 class="detailHeader">{!pageTitle}</h2>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-2">
+        <input type="button" class="detailBackBtn" id="backbtn" onclick="gotodashboard();"></input>
+    </div>
+    <div class="col-lg-10">
+        <div class="tableContainer" id="tableContainer">
+            <apex:form >
+
+            <apex:pageBlock id="theblock">
+                <apex:pageBlockTable value="{!oppList}" var="opp" styleClass="scrollTable" columnsWidth="187px,187px,187px,187px,187px,187px,187px,187px">
+                    
+                    <apex:column >
+                        <apex:facet name="header">
+                            <apex:commandLink value="Account Name" action="{!queryOpp}" reRender="theblock">
+                                <apex:param name="orderby" value="Account.Name"/>
+                            </apex:commandLink>
+                        </apex:facet>
+                        <apex:outputText value="{!opp.Account.Name}"/>
+                    </apex:column>
+                    <apex:column >
+                        <apex:facet name="header">
+                            <apex:commandLink value="Type" action="{!queryOpp}" reRender="theblock">
+                                <apex:param name="orderby" value="Account.Dealer_Type__c"/>
+                            </apex:commandLink>
+                        </apex:facet>
+                        <apex:outputText value="{!opp.Account.Dealer_Type__c}"/>
+                    </apex:column>
+                    <apex:column >
+                        <apex:facet name="header">
+                            <apex:commandLink value="Parent Account" action="{!queryOpp}" reRender="theblock">
+                                <apex:param name="orderby" value="Auto_Group__c"/>
+                            </apex:commandLink>
+                        </apex:facet>
+                        <apex:outputText value="{!opp.Auto_Group__c}"/>
+                    </apex:column>
+                    <apex:column >
+                        <apex:facet name="header">
+                            <apex:commandLink value="Opp Name" action="{!queryOpp}" reRender="theblock">
+                                <apex:param name="orderby" value="Name"/>
+                            </apex:commandLink>
+                        </apex:facet>
+                        <apex:outputText value="{!opp.Name}"/>
+                    </apex:column>
+                    <apex:column >
+                        <apex:facet name="header">
+                            <apex:commandLink value="Opp Owner" action="{!queryOpp}" reRender="theblock">
+                                <apex:param name="orderby" value="Owner.Name"/>
+                            </apex:commandLink>
+                        </apex:facet>
+                        <apex:outputText value="{!opp.Owner.Name}"/>
+                    </apex:column>
+                    <apex:column >
+                        <apex:facet name="header">
+                            <apex:commandLink value="Probability" action="{!queryOpp}" reRender="theblock">
+                                <apex:param name="orderby" value="Probability"/>
+                            </apex:commandLink>
+                        </apex:facet>
+                        <apex:outputText value="{!opp.Probability}"/>
+                    </apex:column>
+                    <apex:column >
+                        <apex:facet name="header">
+                            <apex:commandLink value="Close Date" action="{!queryOpp}" reRender="theblock">
+                                <apex:param name="orderby" value="CloseDate"/>
+                            </apex:commandLink>
+                        </apex:facet>
+                        <apex:outputText value="{0, date, MM'/'dd'/'yyyy}">
+                            <apex:param value="{!opp.CloseDate}" />
+                        </apex:outputText>
+                    </apex:column>
+                    <apex:column >
+                        <apex:facet name="header">
+                            <apex:commandLink value="Dealmaker Close Date" action="{!queryOpp}" reRender="theblock">
+                                <apex:param name="orderby" value="Dealmaker_Close_Date__c"/>
+                            </apex:commandLink>
+                        </apex:facet>
+                        <apex:outputText value="{0, date, MM'/'dd'/'yyyy}">
+                            <apex:param value="{!opp.Dealmaker_Close_Date__c}" />
+                        </apex:outputText>
+                    </apex:column>
+                    
+                </apex:pageBlockTable>
+            </apex:pageBlock>
+            </apex:form>
+        </div>
+    </div>
+</div><!--end row-->
+
+  
+</apex:page>

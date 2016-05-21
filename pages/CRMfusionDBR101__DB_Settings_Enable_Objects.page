@@ -1,0 +1,650 @@
+<apex:page showHeader="true" sidebar="false" controller="CRMfusionDBR101.DB_SettingsController" tabStyle="DupeBlocker_Settings_VF__tab" standardStylesheets="true">
+    <apex:includeScript value="{!URLFOR($Resource.CRMfusionDBR101__DB_Javascript, 'jquery.min.js')}" />
+    <apex:includeScript value="{!URLFOR($Resource.CRMfusionDBR101__DB_Javascript, 'jquery-ui.min.js')}" />
+    <apex:includeScript value="{!URLFOR($Resource.CRMfusionDBR101__DB_Javascript, 'jszip/jszip.js')}" />
+    <apex:includeScript value="{!URLFOR($Resource.CRMfusionDBR101__DB_Javascript, 'jszip/jszip-deflate.js')}" />
+    <apex:stylesheet value="{!URLFOR($Resource.CRMfusionDBR101__DB_Themes, 'jquery-ui-lightness/jquery-ui-lightness.min.css')}" />
+    <c:DB_Settings_Style />
+    <style>
+.ui-progressbar .ui-progressbar-value {
+    background-image: url({!$Resource.CRMfusionDBR101__DB_Icons}/pbar-ani.gif);
+}
+</style>
+<script type="text/javascript">
+
+var REMOTE_CALL_DELAY_IN_MS = 20;
+var LABEL_RETRIEVE_BATCH_SIZE = 90;
+var DEPLOY_CHECK_PAUSE_IN_MS = 1000;
+var selectedObject;
+var selectedObjectLabel;
+var pendingObjectLabelCalls = 0;
+var objectApiNames = new Array();
+var objectLabelMap = new Object();
+var deploymentJobId;
+var enabling = false;
+var disabling = false;
+var triggerName = '';
+var className = ''
+
+// Get our metadata API URL
+var apiURL = '{!SUBSTITUTE( $Api.Partner_Server_URL_290, '/u/', '/m/' )}';
+
+$(document).ready( function() {
+    initObjectList();
+});
+
+// Get the API names of all available objects and retrieve the labels.
+function initObjectList()
+{
+    <apex:repeat value="{!availableObjects}" var="objectName" id="objectListRepeater" >
+    objectApiNames.push( '{!JSENCODE( objectName )}' );
+    </apex:repeat>
+    objectApiNames.sort();
+    
+    // Loop through our api names in batches of LABEL_RETRIEVE_BATCH_SIZE and query the labels for the objects.
+    for ( var x = 0; x < objectApiNames.length; x += LABEL_RETRIEVE_BATCH_SIZE )
+    {
+        var apiNamesBatch = objectApiNames.slice( x, Math.min( x + LABEL_RETRIEVE_BATCH_SIZE, objectApiNames.length ) );
+        var delay = pendingObjectLabelCalls * REMOTE_CALL_DELAY_IN_MS;
+        delayLoadObjectNames( apiNamesBatch, delay ); 
+        pendingObjectLabelCalls++;
+    }  
+}
+
+// Load labels for api names after the specified delay.
+function delayLoadObjectNames( apiNamesBatch, delayInMs )
+{
+    setTimeout( function() {
+            Visualforce.remoting.Manager.invokeAction(
+                '{!$RemoteAction.DB_SettingsController.getObjectLabels}',
+                apiNamesBatch,
+                handleGetObjectLabelsResult, 
+                {escape: true}
+            );
+        }, delayInMs );     
+}
+
+// Process object labels.
+function handleGetObjectLabelsResult( result, event )
+{
+    pendingObjectLabelCalls--;
+    // If the call failed, display an error and exit.
+    if ( !event.status )
+    {
+        displayError( event.message );
+        return;
+    }
+    
+    // Copy the results into our label map.
+    $.extend( objectLabelMap, result );
+    
+    // If this is the last result, update our selectedObject list.
+    if ( pendingObjectLabelCalls == 0 )
+        buildSelectedObject();
+}
+
+// Build the select options for our selectedObject select list.
+function buildSelectedObject()
+{
+    // Add the options to our select list.
+    for ( var x = 0; x < objectApiNames.length; x++ )
+        $('#selectedObject').append('<option value="' + objectApiNames[x] + '">' +
+            objectLabelMap[objectApiNames[x]] + ' [' + objectApiNames[x] + ']</option>');
+    
+    // Sort the select list.
+    var options = $('#selectedObject option');
+    options.sort( function( a, b ) {
+            if ( a.text > b.text )
+                return 1;
+            else if ( a.text < b.text )
+                return -1;
+            else
+                return 0;
+        });
+    
+    // Reset the select list and append the new sorted values.
+    $('#selectedObject').empty().append( options );
+}
+
+// Re-enable objects, reset variables, etc..
+function cleanUp()
+{
+    enabling = false;
+    disabling = false;
+    
+    // Enable the deploy button and select list.
+    $('#enableButton').removeAttr( 'disabled' );
+    $('#selectedObject').removeAttr( 'disabled' );
+    
+    selectedObject = null;
+    deploymentJobId = null;
+}
+
+// Create the trigger and unit test class and deploy the code.
+function enableObject()
+{
+    if ( !$('#selectedObject option:selected').val() )
+    {
+        alert( 'You must select an object from the list.' );
+        return;
+    }
+    
+    // We only process one at a time.
+    if ( enabling || disabling )
+        return;
+    enabling = true;
+    
+    // Disable the deploy button and select list.
+    $('#enableButton').attr( 'disabled', 'disabled' );
+    $('#selectedObject').attr( 'disabled', 'disabled' );
+    
+    selectedObject = $('#selectedObject option:selected').val();
+    selectedObjectLabel = $('#selectedObject option:selected').text();
+    
+    // Generate our deployment package string data, which we'll convert to a zip.
+    Visualforce.remoting.Manager.invokeAction(
+        '{!$RemoteAction.DB_SettingsController.generateDeploymentPackage}',
+        selectedObject,
+        continueEnableObject, 
+        {escape: false}
+    );
+    
+    // Display a message indicating we're processing.
+    displayProgress( 'Enabling DupeBlocker for ' + selectedObjectLabel + '.  This may ' +
+        'take up to a few minutes as all local unit tests must be run.', 'Enabling Object' );
+}
+
+// Remove the trigger and unit test for a deployed object and
+// remove it from the deployed list.
+function disableObject( objectName, objectLabel, inTriggerName, inClassName )
+{
+    // We only process one at a time.
+    if ( enabling || disabling )
+        return;
+    disabling = true;
+    
+    // Disable the deploy button and select list.
+    $('#enableButton').attr( 'disabled', 'disabled' );
+    $('#selectedObject').attr( 'disabled', 'disabled' );
+    
+    selectedObject = objectName;
+    selectedObjectLabel = objectLabel;
+        
+    // Generate our deployment package string data, which we'll convert to a zip.
+    Visualforce.remoting.Manager.invokeAction(
+        '{!$RemoteAction.DB_SettingsController.generateUndeploymentPackage}',
+        inTriggerName,
+        inClassName,
+        continueDisableObject, 
+        {escape: false}
+    );
+
+    // Display a message indicating we're processing.
+    displayProgress( 'Disabling DupeBlocker for ' + selectedObjectLabel + ' [' + selectedObject + '].', 'Disabling Object' );
+}
+
+// Get the result of our generated deployment package and
+// perform the actual deployment.
+function continueEnableObject( result, event )
+{       
+    // If the call failed, display an error and exit.
+    if ( !event.status )
+    {
+        displayError( event.message );
+        return;
+    }
+    
+    // Save the trigger and class name.
+    className = result.unitTestFileName.substring( 0, result.unitTestFileName.length - 4 );
+    triggerName = result.triggerFileName.substring( 0, result.triggerFileName.length - 8 );
+
+    // Zip all the files.
+    var zip = new JSZip();
+    zip.file( result.manifestFileName, result.manifest );
+    var triggerFolder = zip.folder( "triggers" );
+    triggerFolder.file( result.triggerFileName, result.triggerCode );
+    triggerFolder.file( result.triggerMetadataFileName, result.triggerMetadata );
+    var classFolder = zip.folder( "classes" );
+    classFolder.file( result.unitTestFileName, result.unitTestCode );
+    classFolder.file( result.unitTestMetadataFileName, result.unitTestMetadata );
+    var zipFile = zip.generate();
+
+//  location.href="data:application/zip;base64,"+zipFile;
+//  return;
+    
+    deployPackage( zipFile );
+}
+
+// Get the result of our generated deployment package and
+// perform the actual deployment.
+function continueDisableObject( result, event )
+{       
+    // If the call failed, display an error and exit.
+    if ( !event.status )
+    {
+        displayError( event.message );
+        return;
+    }
+
+    // Zip all the files.
+    var zip = new JSZip();
+    zip.file( result.manifestFileName, result.manifest );
+    zip.file( result.destructiveChangesFileName, result.destructiveChanges );
+    var zipFile = zip.generate();
+    
+    deployPackage( zipFile );
+}
+
+//Deploy a package to SFDC.
+function deployPackage( zipFile )
+{
+    // Create our SOAP envelope for the web service call.
+    var envelope = '<?xml version="1.0" encoding="UTF-8"?>' +
+        '<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">' +
+        '<soapenv:Header>' +
+        '<ns1:SessionHeader soapenv:mustUnderstand="0" xmlns:ns1="http://soap.sforce.com/2006/04/metadata">' +
+        '<ns1:sessionId>{!$Api.Session_Id}</ns1:sessionId>' +
+        '</ns1:SessionHeader>' +
+        '</soapenv:Header>' +
+        '<soapenv:Body>' +
+        '<deploy xmlns="http://soap.sforce.com/2006/04/metadata">' +
+        '<zipFile xmlns:ns2="http://soap.sforce.com/2006/04/metadata">' +
+        zipFile +
+        '</zipFile>' +
+        '<deployOptions xsi:type="ns2:DeployOptions" xmlns:ns2="http://soap.sforce.com/2006/04/metadata">' +
+        '<ignoreWarnings xmlns:ns2="http://soap.sforce.com/2006/04/metadata">true</ignoreWarnings>' +
+        '<rollbackOnError xmlns:ns2="http://soap.sforce.com/2006/04/metadata">true</rollbackOnError>' +
+        '<runAllTests xmlns:ns2="http://soap.sforce.com/2006/04/metadata">false</runAllTests>' +
+        '<singlePackage xmlns:ns2="http://soap.sforce.com/2006/04/metadata">true</singlePackage>' +
+        ( disabling ? '<purgeOnDelete xmlns:ns2="http://soap.sforce.com/2006/04/metadata">false</purgeOnDelete>' : '' ) +
+        '</deployOptions>' +
+        '</deploy>' +
+        '</soapenv:Body>' +
+        '</soapenv:Envelope>';
+
+    // Make our Web Service call.
+    $.ajax({
+        url: apiURL, 
+        type: "POST",
+        dataType: "XML", 
+        // 2. But add it as a HTTP Header called 'SOAPAction'
+        headers: { SOAPAction: "deploy" },
+        data: envelope, 
+        processData: false,
+        contentType: "text/xml; charset=\"utf-8\"",
+        success: deploySuccess, 
+        error: deployError
+    });
+}
+
+// Process a successful response from the deployment call.
+function deploySuccess( data, textStatus, jqXHR )
+{
+    var search, done, state;
+    if ( data.xml )
+        search = parseXml( data.xml );
+    else
+        search = parseXml( data );
+
+    done = $( search ).find( 'done' ).text();
+    deploymentJobId = $( search ).find( 'id' ).text();
+    state = $( search ).find( 'state' ).text();
+    
+    if ( done.toLowerCase() == 'true' )
+    {
+        checkDeployOutcome();
+    }
+    else
+    {
+        // Poll for status updates until the job is completed.
+        setTimeout( function() { checkDeploymentStatus(); }, DEPLOY_CHECK_PAUSE_IN_MS );
+    }
+}
+
+// Parse xml with special handling for IE7 & IE8
+function parseXml( xmlString )
+{
+    if ( navigator.appVersion.indexOf("MSIE 7.") >= 0 || navigator.appVersion.indexOf("MSIE 8.") >= 0 )
+    {
+        var xmlDoc = new ActiveXObject("Microsoft.XMLDOM"); 
+        xmlDoc.loadXML( xmlString );
+        return xmlDoc;
+    }
+    else
+        return xmlString;
+}
+
+// Check the status of the deployment job.
+function checkDeploymentStatus()
+{
+    // Create our SOAP envelope for the web service call.
+    var envelope = '<?xml version="1.0" encoding="UTF-8"?>' +
+        '<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">' +
+        '<soapenv:Header>' +
+        '<ns1:SessionHeader soapenv:mustUnderstand="0" xmlns:ns1="http://soap.sforce.com/2006/04/metadata">' +
+        '<ns1:sessionId>{!$Api.Session_Id}</ns1:sessionId>' +
+        '</ns1:SessionHeader>' +
+        '</soapenv:Header>' +
+        '<soapenv:Body>' +
+        '<checkStatus xmlns="http://soap.sforce.com/2006/04/metadata">' +
+        '<ids>' + deploymentJobId + '</ids>' +
+        '</checkStatus>' +
+        '</soapenv:Body>' +
+        '</soapenv:Envelope>';
+    
+    // Make our Web Service call.
+    $.ajax({
+        url: apiURL, 
+        type: "POST",
+        dataType: "XML", 
+        // 2. But add it as a HTTP Header called 'SOAPAction'
+        headers: { SOAPAction: "checkStatus" },
+        data: envelope, 
+        processData: false,
+        contentType: "text/xml; charset=\"utf-8\"",
+        success: checkStatusSuccess, 
+        error: checkStatusError
+    });
+}
+
+function checkStatusSuccess( data, textStatus, jqXHR )
+{
+    var search;
+    if ( data.xml )
+        search = parseXml( data.xml );
+    else
+        search = parseXml( data );
+    var done = $( search ).find( 'done' ).text();
+    var state = $( search ).find( 'state' ).text();
+    
+    if ( done.toLowerCase() == 'true' )
+    {
+        checkDeployOutcome();
+    }
+    else
+    {
+        // The job isn't done yet, continue polling.
+        setTimeout( function() { checkDeploymentStatus(); }, DEPLOY_CHECK_PAUSE_IN_MS );
+    }
+
+    /*
+    serializer = new XMLSerializer();
+    serialized = serializer.serializeToString( data );
+    console.log( 'Checkstatus result: ' + serialized );
+    */
+}
+
+function quit()
+{
+    location.reload();
+}
+
+// Display a progress message.
+function displayProgress( message, title )
+{
+    if ( $( '#dialog-message' ).hasClass( 'ui-dialog-content' ) )
+        $( '#dialog-message' ).dialog( 'close' );
+    
+    if (!title)
+        title = 'Enabling Object';
+    $( '#dialog-progress' ).attr( 'title', title );
+    $( '#dialog-progress' ).html( message );
+    $( '#dialog-progress').dialog({
+        modal: true,
+        minWidth: 500,
+        closeOnEscape: false,
+        open: function(event, ui) {
+            $(".ui-dialog-titlebar-close", $(this).parent()).hide();
+        }
+    });
+}
+
+// Display any messages
+function displayMessage( message, title, execFunc )
+{
+    if ( $( '#dialog-progress' ).hasClass( 'ui-dialog-content' ) )
+        $( '#dialog-progress' ).dialog( 'close' );
+
+    if (!title)
+        title = 'Enable Object';
+    $( '#dialog-message' ).attr( 'title', title );
+    $( '#dialog-message' ).html( message );
+    $( '#dialog-message').dialog({
+        modal: true,
+        minWidth: 500,
+        buttons: {
+            Ok: function() {
+                cleanUp();
+                $( this ).dialog( 'close' );
+                if ( execFunc )
+                    execFunc();
+            }
+        }
+    });
+}
+
+// Display any error messages
+function displayError( message, title, execFunc )
+{
+    if ( $( '#dialog-progress' ).hasClass( 'ui-dialog' ) )
+        $( '#dialog-progress' ).dialog( 'close' );
+    if ( $( '#dialog-message' ).hasClass( 'ui-dialog' ) )
+        $( '#dialog-message' ).dialog( 'close' );
+        
+    if (!title)
+        title = 'Enable Object Error';
+    if (!execFunc)
+        execFunc = quit;
+    $( '#dialog-errorMessage' ).attr( 'title', title );
+    $( '#dialog-errorMessage' ).html( message );
+    $( '#dialog-errorMessage').dialog({
+        modal: true,
+        minWidth: 500,
+        buttons: {
+            Ok: function() {
+                cleanUp();
+                $( this ).dialog( 'close' );
+                if ( execFunc )
+                    execFunc();
+            }
+        }
+    });
+}
+
+// The deployment finished, check the result.
+function checkDeployOutcome()
+{
+    // Now call checkDeployStatus to get the actual result of the deployment.
+    // Create our SOAP envelope for the web service call.
+    var envelope = '<?xml version="1.0" encoding="UTF-8"?>' +
+        '<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">' +
+        '<soapenv:Header>' +
+        '<ns1:SessionHeader soapenv:mustUnderstand="0" xmlns:ns1="http://soap.sforce.com/2006/04/metadata">' +
+        '<ns1:sessionId>{!$Api.Session_Id}</ns1:sessionId>' +
+        '</ns1:SessionHeader>' +
+        '</soapenv:Header>' +
+        '<soapenv:Body>' +
+        '<checkDeployStatus xmlns="http://soap.sforce.com/2006/04/metadata">' +
+        '<id xmlns:ns2="http://soap.sforce.com/2006/04/metadata">' + deploymentJobId + '</id>' +
+        '<includeDetails xmlns:ns2="http://soap.sforce.com/2006/04/metadata">true</includeDetails>' +
+        '</checkDeployStatus>' +
+        '</soapenv:Body>' +
+        '</soapenv:Envelope>';
+    
+    // Make our Web Service call.
+    $.ajax({
+        url: apiURL, 
+        type: "POST",
+        dataType: "XML", 
+        // 2. But add it as a HTTP Header called 'SOAPAction'
+        headers: { SOAPAction: "checkDeployStatus" },
+        data: envelope, 
+        processData: false,
+        contentType: "text/xml; charset=\"utf-8\"",
+        success: checkDeployOutcomeResult, 
+        error: checkStatusError
+    });
+}
+
+// Find out the actual result of our deployment.
+function checkDeployOutcomeResult( data, textStatus, jqXHR )
+{
+    var search;
+    if ( data.xml )
+        search = parseXml( data.xml );
+    else
+        search = parseXml( data );
+    var result = $( search ).find( 'result' );
+    var success = $( result ).children( 'success' ).text(); 
+    
+    if ( success.toLowerCase() == 'true' )
+    {
+        if ( enabling )
+            // We finished creating the trigger, enable the object in DupeBlocker.
+            Visualforce.remoting.Manager.invokeAction(
+                '{!$RemoteAction.DB_SettingsController.enableObject}',
+                selectedObject,
+                triggerName,
+                className,
+                deploymentDone, 
+                {escape: false}
+            );
+        else
+            // We finished creating the trigger, enable the object in DupeBlocker.
+            Visualforce.remoting.Manager.invokeAction(
+                '{!$RemoteAction.DB_SettingsController.disableObject}',
+                selectedObject,
+                deploymentDone, 
+                {escape: false}
+            );
+    }
+    else
+    {
+        var message = $( search ).find( 'errorMessage' ).text();
+        if ( message.length == 0 )
+            message = xmlToString( $( search ).find( 'details' )[0] );
+        var errorText = 'Unexpected error encountered:<BR/><BR/>' + escapeHtml( message );
+        displayError( errorText );
+    }
+}
+
+function xmlToString( xmlData )
+{
+    var result = null;
+    if ( typeof XMLSerializer !== "undefined" )
+        result = (new window.XMLSerializer()).serializeToString( xmlData );
+    else
+        result = xmlData.xml;
+    
+    if ( result == null )
+        result = $( xmlData ).html();
+    
+    return result;
+}
+
+function deploymentDone( result, event )
+{
+    // If the call failed, display an error and exit.
+    if ( !event.status )
+    {
+        displayError( event.message );
+        return;
+    }
+    
+    // Done, let the user know and then redirect back to settings.
+    if ( enabling )
+        displayMessage( selectedObjectLabel + ' is now DupeBlocker enabled.', 'Object Enabled', quit );
+    else
+        displayMessage( selectedObjectLabel + '[' + selectedObject + ']' + ' is now disabled.', 'Object Disabled', quit );
+    enabling = false;
+    disabling = false;
+}
+
+function deployError( jqXHR, textStatus, errorThrown )
+{
+    var faultCode = $(jqXHR.responseXML).find( 'faultcode' ).text();
+    var faultString = $(jqXHR.responseXML).find( 'faultstring' ).text();
+    var errorMessage = 'Error enabling object for DupeBlocker.<BR/><BR/>';
+    
+    if ( ( faultCode != null && faultCode != '' ) || ( faultString != null && faultString != '' ) )
+    {
+        if ( faultCode != null && faultCode != '' )
+            errorMessage += 'Fault Code: ' + faultCode + '<BR/>';
+        if ( faultString != null && faultString != '' )
+            errorMessage += 'Fault String: ' + faultString + '<BR/>';
+    }
+    else
+        errorMessage += 'Error: <BR/>' + jqXHR.responseText;
+
+    displayError( errorMessage );
+}
+
+function checkStatusError( jqXHR, textStatus, errorThrown )
+{
+    displayError( 'CheckStatus call failed for job id: ' + deploymentJobId + '\r\nError: ' + errorThrown );
+}
+
+var entityMap = {
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': '&quot;',
+    "'": '&#39;',
+    "/": '&#x2F;'
+ };
+
+function escapeHtml( input )
+{
+    return String( input ).replace( /[&<>"'\/]/g, function( s ) {
+            return entityMap[s];
+        } );
+}
+
+</script>
+    <table class="pageTable" width="100%" cellspacing="0" cellpadding="0">
+        <tr>
+            <td class="leftCol" width="220px"><c:DB_Settings_Menu page="enableobjects" /></td>
+            <td class="rightCol">
+                <div>
+                    <apex:sectionHeader title="DupeBlocker Settings" subTitle="Enable/Disable DupeBlocker for Selected Objects" />
+                    <apex:actionRegion id="enableOutput">
+                        <apex:pageMessages />
+                        <apex:form id="enableForm">
+                            <apex:pageBlock id="enableBlock" mode="edit">
+                                <apex:pageBlockSection columns="1" collapsible="false" showHeader="false">
+                                    <apex:pageBlockSectionItem >
+                                        <apex:outputLabel value="{!$Label.CRMfusionDBR101__DB_EO_Object_Select_Label}" />
+                                        <apex:outputPanel styleClass="requiredInput" layout="block">
+                                            <apex:outputPanel styleClass="requiredBlock" layout="block" />
+                                            <select id="selectedObject" name="selectedObject" size="10">
+                                            </select>
+                                        </apex:outputPanel>
+                                    </apex:pageBlockSectionItem>
+                                </apex:pageBlockSection>
+                                <div style="text-align: center">
+                                    <input type="submit" id="enableButton" value="Enable" onClick="enableObject(); return false;" />
+                                </div>
+                            </apex:pageBlock>
+                        </apex:form>
+                    </apex:actionRegion>
+                    <apex:form >
+                        <apex:pageBlock mode="maindetail" title="DupeBlocker Enabled Objects">
+                            <apex:pageBlockSection columns="2">
+                                <apex:outputText value="No additional objects currently enabled." rendered="{!NOT( haveEnabledObjects )}" />
+                                <apex:repeat value="{!enabledObjects}" var="enabledObject">
+                                    <apex:pageBlockSectionItem >
+                                        <apex:outputText escape="false" value="{!enabledObject.displayName}" />
+                                        [<a href="#"
+                                            onclick="disableObject( '{!enabledObject.apiName}', '{!enabledObject.label}', '{!enabledObject.triggerName}', '{!enabledObject.className}' ); return false;">disable</a>]
+                                    </apex:pageBlockSectionItem>
+                                </apex:repeat>
+                            </apex:pageBlockSection>
+                        </apex:pageBlock>
+                    </apex:form>
+                </div>
+                <div id="dialog-errorMessage"></div>
+                <div id="dialog-message"></div>
+                <div id="dialog-progress"></div></td>
+        </tr>
+    </table>
+</apex:page>

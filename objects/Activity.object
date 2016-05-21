@@ -1,0 +1,1862 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <actionOverrides>
+        <actionName>CancelEdit</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>ComposeGmail</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>LogCall</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>MailMerge</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>RequestUpdate</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>SaveEdit</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>SendEmail</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>ViewAll</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <enableFeeds>false</enableFeeds>
+    <fields>
+        <fullName>Acitivity_Id__c</fullName>
+        <externalId>false</externalId>
+        <formula>Id</formula>
+        <label>Acitivity Id</label>
+        <required>false</required>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Activity_Age__c</fullName>
+        <externalId>false</externalId>
+        <formula>IF( ISPICKVAL( Status , &quot;Completed&quot;) ,  DATEVALUE( LastModifiedDate )- DATEVALUE(CreatedDate) , NOW()-CreatedDate)</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <inlineHelpText>formula field that calculates the activity age.  if status = completed then calculate age from created date to last modified date.  If not completed, calculate from Now less created date</inlineHelpText>
+        <label>Activity Age</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>0</scale>
+        <type>Number</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Activity_Status__c</fullName>
+        <externalId>false</externalId>
+        <label>Activity Status</label>
+        <picklist>
+            <picklistValues>
+                <fullName>Open</fullName>
+                <color>#FF9900</color>
+                <default>true</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Completed</fullName>
+                <color>#33CC00</color>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Cancelled</fullName>
+                <default>false</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <type>Picklist</type>
+    </fields>
+    <fields>
+        <fullName>Activity_Value__c</fullName>
+        <externalId>false</externalId>
+        <formula>IF(  ISPICKVAL(Status, &quot;Completed&quot;), 0, 1)</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <inlineHelpText>if the activity is completed the value is 0, if the activity is open, the value is 1.  Used to get reporting to show Opportunties w/o open tasks</inlineHelpText>
+        <label>Activity Value</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>0</scale>
+        <type>Number</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Assigned_Department__c</fullName>
+        <externalId>false</externalId>
+        <formula>Owner:User.Department</formula>
+        <inlineHelpText>Formula field that reads the assigned to User&apos;s department from their profile</inlineHelpText>
+        <label>Assigned Department</label>
+        <required>false</required>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Assigned_Role__c</fullName>
+        <externalId>false</externalId>
+        <formula>Owner:User.UserRole.Name</formula>
+        <inlineHelpText>Hidden formula field used for the software migration project</inlineHelpText>
+        <label>Assigned Role</label>
+        <required>false</required>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Assigned_User_Status__c</fullName>
+        <externalId>false</externalId>
+        <formula>Owner:User.IsActive</formula>
+        <inlineHelpText>formula field that reads the status of the user:active versus inactive. to be used for reporting</inlineHelpText>
+        <label>Assigned User Status</label>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>Business_Unit__c</fullName>
+        <externalId>false</externalId>
+        <formula>Owner:User.CompanyName</formula>
+        <inlineHelpText>What Business Unit does this fall under. Based on the Owner&apos;s company field.</inlineHelpText>
+        <label>Business Unit</label>
+        <required>false</required>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>CRM_ILM_Interests__c</fullName>
+        <description>Requested here: https://na5.salesforce.com/a0Z70000000lmEp. Webexers should use to provide information on what the prospect is interested in.</description>
+        <externalId>false</externalId>
+        <label>CRM/ILM Interests</label>
+        <picklist>
+            <picklistValues>
+                <fullName>Customizable Dashboards</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Integration w/ VinLens</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Desking Push</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Equity Indicator</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Customer Value</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Campaigns</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Texting</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Price Change Alerts</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Enterprise Views</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Call Monitoring</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Read Email Notifications</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Inbound/Outbound Phone Tractability</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Template Based Email F/U</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Social Networking- FB, LinkedIn, MySpac</fullName>
+                <default>false</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <type>MultiselectPicklist</type>
+        <visibleLines>8</visibleLines>
+    </fields>
+    <fields>
+        <fullName>CSR_Results__c</fullName>
+        <externalId>false</externalId>
+        <label>Call Results</label>
+        <picklist>
+            <picklistValues>
+                <fullName>Attempted</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Reached</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Received</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>No Contact</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Set Demo</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Contacted</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>TT decision maker</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>LVM</fullName>
+                <default>false</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <type>Picklist</type>
+    </fields>
+    <fields>
+        <fullName>Call_Type__c</fullName>
+        <externalId>false</externalId>
+        <label>Call Type</label>
+        <picklist>
+            <picklistValues>
+                <fullName>Cold Call</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Complete</fullName>
+                <default>true</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Follow Up call</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Incoming Call</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Returning Call</fullName>
+                <default>false</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <type>Picklist</type>
+    </fields>
+    <fields>
+        <fullName>Call_Value_Formula__c</fullName>
+        <externalId>false</externalId>
+        <formula>IF(LOWER(LEFT(Subject, 3))==&apos;o/g&apos;, 1, 0)</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>Call Value Formula</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>0</scale>
+        <type>Number</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Call_Value__c</fullName>
+        <defaultValue>1</defaultValue>
+        <externalId>false</externalId>
+        <label>Call Value</label>
+        <precision>2</precision>
+        <required>false</required>
+        <scale>0</scale>
+        <type>Number</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Called__c</fullName>
+        <description>Used by Avaya</description>
+        <externalId>false</externalId>
+        <label>Called</label>
+        <length>50</length>
+        <required>false</required>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Caller__c</fullName>
+        <description>Used by Avaya</description>
+        <externalId>false</externalId>
+        <label>Caller</label>
+        <length>50</length>
+        <required>false</required>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Category__c</fullName>
+        <externalId>false</externalId>
+        <label>Category</label>
+        <picklist>
+            <picklistValues>
+                <fullName>VinSolutions Time (Meetings / Calls / Emails / Tickets)</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>New Dealer F/U</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>DAB / Special</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Heat</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>New Introductory Call</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Time Off</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Troubled</fullName>
+                <default>false</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <type>Picklist</type>
+    </fields>
+    <fields>
+        <fullName>Conquest_Task_Type_for_Reporting__c</fullName>
+        <description>vAuto - &quot;Do not change this field - it will throw off reporting.  This is filled by a workflow rule.  Thanks&quot;</description>
+        <externalId>false</externalId>
+        <label>Conquest Task Type for Reporting</label>
+        <length>200</length>
+        <required>false</required>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Counter__c</fullName>
+        <description>This field is used in the following workflow: &lt;Task Followup2&gt;</description>
+        <externalId>false</externalId>
+        <label>Counter</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>0</scale>
+        <type>Number</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Created_By_Role__c</fullName>
+        <defaultValue>$UserRole.Name</defaultValue>
+        <externalId>false</externalId>
+        <label>Created By Role</label>
+        <length>50</length>
+        <required>false</required>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Created_Date_Time__c</fullName>
+        <defaultValue>Now()</defaultValue>
+        <externalId>false</externalId>
+        <inlineHelpText>used for support activities</inlineHelpText>
+        <label>Created Date/Time</label>
+        <required>false</required>
+        <type>DateTime</type>
+    </fields>
+    <fields>
+        <fullName>DMAPP__TTG_Prime_Action_Type__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>PRIME Action</label>
+        <picklist>
+            <picklistValues>
+                <fullName>Prove your value</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Retrieve missing information</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Insulate against competition</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Minimize your weaknesses</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Emphasize your strengths</fullName>
+                <default>false</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <type>Picklist</type>
+    </fields>
+    <fields>
+        <fullName>DMAPP__ThirdPartyId__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>ThirdPartyId</label>
+        <length>18</length>
+        <required>false</required>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>DMAPP__ThirdPartyName__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>Account Plan Objective</label>
+        <length>255</length>
+        <required>false</required>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Data_Quality_Description__c</fullName>
+        <externalId>false</externalId>
+        <formula>IF( Data_Quality_Score__c =100, &quot;Key Event/Task Details Captured&quot;,&quot;Missing: &quot;&amp;IF( LEN( Subject ) &lt; 3,&quot;Quality Subject Description, &quot;,&quot;&quot;)&amp;&quot;&quot;&amp;IF(LEN(WhoId)=0,&quot;Contact/Lead Reference, &quot;,&quot;&quot;)&amp;&quot;&quot;&amp;IF(LEN(WhatId)=0,&quot;Account/Opportunity Reference&quot;,&quot;&quot;))</formula>
+        <label>Data Quality Description</label>
+        <required>false</required>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Data_Quality_Score__c</fullName>
+        <externalId>false</externalId>
+        <formula>IF( LEN(  Subject  ) &lt; 3, 0,30) + IF( LEN(  WhoId ) = 0, 0,40) + IF( LEN(  WhatId ) = 0, 0,30)</formula>
+        <label>Data Quality Score</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>0</scale>
+        <type>Number</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Date_Time_Completed__c</fullName>
+        <externalId>false</externalId>
+        <inlineHelpText>this is related to scheduled tasks with a due date, update the actual date/time the task was completed</inlineHelpText>
+        <label>Date/Time Completed (background)</label>
+        <required>false</required>
+        <type>DateTime</type>
+    </fields>
+    <fields>
+        <fullName>Date_Time_Completed_formula__c</fullName>
+        <description>Placed on the page layout instead of the non-formula Date/Time Completed field in order to protect its contents from being changed manually.</description>
+        <externalId>false</externalId>
+        <formula>Date_Time_Completed__c</formula>
+        <label>Date/Time Completed</label>
+        <required>false</required>
+        <type>DateTime</type>
+    </fields>
+    <fields>
+        <fullName>Demo_Completed__c</fullName>
+        <externalId>false</externalId>
+        <formula>IF(
+ ISPICKVAL( Webex_Status__c , &quot;Completed&quot;), True, False)</formula>
+        <inlineHelpText>if the webex status equals completed then update the checkbox to true, used for reporting</inlineHelpText>
+        <label>Demo Completed</label>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>Desking_Interests__c</fullName>
+        <description>Requested here: https://na5.salesforce.com/a0Z70000000lmEp. Webexers should use to provide information on what the prospect is interested in.</description>
+        <externalId>false</externalId>
+        <label>Desking Interests</label>
+        <picklist>
+            <picklistValues>
+                <fullName>700/NCC/OFAC</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Customer Value</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Real Time Updates (Incentives)</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Roll Payment Adjuster</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Save a Deal</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Form Presentation</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Integration-Dealertrack and Route One</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Push to DMS</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Payment Calls</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Duplicate Customer</fullName>
+                <default>false</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <type>MultiselectPicklist</type>
+        <visibleLines>8</visibleLines>
+    </fields>
+    <fields>
+        <fullName>Email_Value_Formula__c</fullName>
+        <externalId>false</externalId>
+        <formula>if(LOWER(LEFT(Subject, 5))==&apos;email&apos;, 1,0)</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>Email Value Formula</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>0</scale>
+        <type>Number</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Email_Value__c</fullName>
+        <externalId>false</externalId>
+        <inlineHelpText>used to calculate how many times an outgoing email was sent to the customer</inlineHelpText>
+        <label>Email Value</label>
+        <precision>2</precision>
+        <required>false</required>
+        <scale>0</scale>
+        <type>Number</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Event_Call_Notes__c</fullName>
+        <externalId>false</externalId>
+        <label>Event Call Notes</label>
+        <required>false</required>
+        <type>TextArea</type>
+    </fields>
+    <fields>
+        <fullName>Event_Status__c</fullName>
+        <externalId>false</externalId>
+        <label>Event Status</label>
+        <picklist>
+            <picklistValues>
+                <fullName>Requested</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Working</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Completed</fullName>
+                <default>false</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <type>Picklist</type>
+    </fields>
+    <fields>
+        <fullName>Exception_Salesperson__c</fullName>
+        <externalId>false</externalId>
+        <inlineHelpText>enter the name of the person who should notated as the demo setter</inlineHelpText>
+        <label>Exception Salesperson</label>
+        <length>50</length>
+        <required>false</required>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Integration_Ticket__c</fullName>
+        <externalId>false</externalId>
+        <inlineHelpText>Update fields with IL, HN, RCI Order number</inlineHelpText>
+        <label>Integration Ticket #</label>
+        <length>100</length>
+        <required>false</required>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Integration_Time__c</fullName>
+        <externalId>false</externalId>
+        <formula>IF( IsClosed ,IF( ISNULL(  Sent_to_Polling_Vendor__c  ) , 0,  DATEVALUE(Date_Time_Completed_formula__c)  - DATEVALUE(Sent_to_Polling_Vendor__c) ),IF( ISNULL( Sent_to_Polling_Vendor__c ) , 0, NOW()- Sent_to_Polling_Vendor__c ))</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <inlineHelpText>used for vAuto reporting</inlineHelpText>
+        <label>Integration Time</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>0</scale>
+        <type>Number</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Intital_WebEx_Completed__c</fullName>
+        <externalId>false</externalId>
+        <inlineHelpText>Date Field autopopulated when Meeting Status is updated to Completed</inlineHelpText>
+        <label>Initial Demo Completed</label>
+        <required>false</required>
+        <type>Date</type>
+    </fields>
+    <fields>
+        <fullName>Inventory_Interests__c</fullName>
+        <description>Requested here: https://na5.salesforce.com/a0Z70000000lmEp. Webexers should use to provide information on what the prospect is interested in.</description>
+        <externalId>false</externalId>
+        <label>Inventory Interests</label>
+        <picklist>
+            <picklistValues>
+                <fullName>12.0 Ricoh Camera Integration w/ DMS</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Real Time Push to Website</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Pricing Rule Changes Real Time</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Dynamic Comment Builder</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Automatic Comment Changes</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Batch Price Editor</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Vin Exploder</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Integration to Website</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Integration to CRM</fullName>
+                <default>false</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <type>MultiselectPicklist</type>
+        <visibleLines>8</visibleLines>
+    </fields>
+    <fields>
+        <fullName>Last_Assigned_By__c</fullName>
+        <externalId>false</externalId>
+        <label>Last Assigned By</label>
+        <length>64</length>
+        <required>false</required>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Legacy_ID__c</fullName>
+        <externalId>false</externalId>
+        <label>Legacy_ID</label>
+        <length>18</length>
+        <required>false</required>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>MPT_Interests__c</fullName>
+        <description>Requested here: https://na5.salesforce.com/a0Z70000000lmEp. Webexers should use to provide information on what the prospect is interested in.</description>
+        <externalId>false</externalId>
+        <label>MPT Interests</label>
+        <picklist>
+            <picklistValues>
+                <fullName>Sales History</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Prospects</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Attach Photos</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Visible RO’s and PO’s</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Pictures of Competition&apos;s Inventory</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Customer Value</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Multiple Books</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Carfax and Autocheck Integration</fullName>
+                <default>false</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <type>MultiselectPicklist</type>
+        <visibleLines>8</visibleLines>
+    </fields>
+    <fields>
+        <fullName>Make__c</fullName>
+        <externalId>false</externalId>
+        <inlineHelpText>updated by code, do not input</inlineHelpText>
+        <label>Make</label>
+        <length>100</length>
+        <required>false</required>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Marketing_Interests__c</fullName>
+        <description>Requested here: https://na5.salesforce.com/a0Z70000000lmEp. Webexers should use to provide information on what the prospect is interested in.</description>
+        <externalId>false</externalId>
+        <label>Marketing Interests</label>
+        <picklist>
+            <picklistValues>
+                <fullName>Campaigns Integration w/ DMS</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Integration w/CRM Customers</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Real ROI Trackability</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Create Your Own Campaigns or Pre-Built</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Equity Mining</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Call Tracking Reports</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Conquest Data</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>DIY Campaigns</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Customizable</fullName>
+                <default>false</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <type>MultiselectPicklist</type>
+        <visibleLines>8</visibleLines>
+    </fields>
+    <fields>
+        <fullName>Preview__c</fullName>
+        <externalId>false</externalId>
+        <label>Preview</label>
+        <length>100</length>
+        <required>false</required>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Previous_Owner__c</fullName>
+        <description>Updated by workflow. Only works as of 11/04/14.</description>
+        <externalId>false</externalId>
+        <label>Previous Owner</label>
+        <length>255</length>
+        <required>false</required>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Priority__c</fullName>
+        <externalId>false</externalId>
+        <label>Priority</label>
+        <picklist>
+            <picklistValues>
+                <fullName>Low</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Med</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>High</fullName>
+                <default>false</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <type>Picklist</type>
+    </fields>
+    <fields>
+        <fullName>Regional_Rating__c</fullName>
+        <externalId>false</externalId>
+        <formula>Case(text(  Regional_Webex_Rating__c  ),
+&quot;1 star&quot;, 1,
+&quot;2 stars&quot;, 2,
+&quot;3 stars&quot;, 3,
+&quot;4 stars&quot;, 4,
+&quot;5 stars&quot;, 5,
+null)</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>Regional Rating</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>0</scale>
+        <type>Number</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Regional_Webex_Rating_Notes__c</fullName>
+        <externalId>false</externalId>
+        <inlineHelpText>What was it about what the customer said about the webex that lead to you giving the rating you gave?</inlineHelpText>
+        <label>Regional Webex Rating Notes</label>
+        <required>false</required>
+        <type>TextArea</type>
+    </fields>
+    <fields>
+        <fullName>Regional_Webex_Rating__c</fullName>
+        <externalId>false</externalId>
+        <label>Regional Webex Rating</label>
+        <picklist>
+            <picklistValues>
+                <fullName>1 star</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>2 stars</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>3 stars</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>4 stars</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>5 stars</fullName>
+                <default>false</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <type>Picklist</type>
+    </fields>
+    <fields>
+        <fullName>Rescheduled_WebEx__c</fullName>
+        <defaultValue>false</defaultValue>
+        <externalId>false</externalId>
+        <inlineHelpText>mark this box if this is a webex that has been rescheduled due to the original webex being cancelled</inlineHelpText>
+        <label>Rescheduled WebEx</label>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>SEND_EMAIL__c</fullName>
+        <defaultValue>false</defaultValue>
+        <externalId>false</externalId>
+        <label>SEND EMAIL?</label>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>Salesperson_Exception__c</fullName>
+        <defaultValue>false</defaultValue>
+        <externalId>false</externalId>
+        <inlineHelpText>check this box if you want to change the salesperson to another person beside the person who created the demo event</inlineHelpText>
+        <label>Salesperson Exception</label>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>Salesperson__c</fullName>
+        <externalId>false</externalId>
+        <formula>IF( Salesperson_Exception__c =TRUE,  Exception_Salesperson__c , CreatedBy.FirstName&amp;&quot; &quot;&amp;CreatedBy.LastName)</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <inlineHelpText>the of the person who created the demo event, can be overriden with the salesperson exception checkbox if someone other than the salesperson has created the demo event</inlineHelpText>
+        <label>Salesperson</label>
+        <required>false</required>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Sent_to_Polling_Vendor__c</fullName>
+        <externalId>false</externalId>
+        <label>Sent to Polling Vendor</label>
+        <required>false</required>
+        <type>DateTime</type>
+    </fields>
+    <fields>
+        <fullName>Solution_Notes__c</fullName>
+        <externalId>false</externalId>
+        <label>Solution Notes</label>
+        <required>false</required>
+        <type>TextArea</type>
+    </fields>
+    <fields>
+        <fullName>Sugar_Source_ID__c</fullName>
+        <externalId>true</externalId>
+        <label>Sugar Source ID</label>
+        <length>64</length>
+        <required>false</required>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Syndication_Status__c</fullName>
+        <externalId>false</externalId>
+        <label>Syndication Status</label>
+        <picklist>
+            <picklistValues>
+                <fullName>Need to contact dealer (&amp; send vendor email)</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Blocker - Need to build site(s)</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Escalated to PM</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Waiting for account info. from vendor</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Setup sites - pending validation</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Completed / Tested</fullName>
+                <default>false</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <type>Picklist</type>
+    </fields>
+    <fields>
+        <fullName>Training_Status__c</fullName>
+        <externalId>false</externalId>
+        <inlineHelpText>updated by the system based on the subject</inlineHelpText>
+        <label>Training Status</label>
+        <picklist>
+            <picklistValues>
+                <fullName>Proposed</fullName>
+                <color>#0B6FCE</color>
+                <default>true</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Confirmed</fullName>
+                <color>#78C953</color>
+                <default>false</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <type>Picklist</type>
+    </fields>
+    <fields>
+        <fullName>UCID__c</fullName>
+        <description>Used by Avaya</description>
+        <externalId>false</externalId>
+        <label>UCID</label>
+        <length>25</length>
+        <required>false</required>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>WEBXMeetingDetails__c</fullName>
+        <externalId>false</externalId>
+        <formula>HYPERLINK(&quot;https://integration.webex.com/SaCSFService/director.do?act=link&amp;eventid=&quot; &amp; Id &amp; &quot;&amp;sid=&quot; &amp; GETSESSIONID() , &quot;WebEx Meeting Details&quot;)</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>WebEx Meeting</label>
+        <required>false</required>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>WebEx_Level__c</fullName>
+        <externalId>false</externalId>
+        <label>Demo #</label>
+        <picklist>
+            <picklistValues>
+                <fullName>Initial</fullName>
+                <default>true</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Initial Upgrade</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Second</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Third</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Fourth</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Fifth</fullName>
+                <default>false</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <type>Picklist</type>
+    </fields>
+    <fields>
+        <fullName>WebEx_Results__c</fullName>
+        <externalId>false</externalId>
+        <label>Demo Results</label>
+        <length>255</length>
+        <required>false</required>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>WebEx_Topic__c</fullName>
+        <externalId>false</externalId>
+        <label>Demo Topic</label>
+        <picklist>
+            <picklistValues>
+                <fullName>CRM</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Desking</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Fulfillment</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>ILM</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Inventory</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Market Pricing Tool</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Website</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Haystak Product(s)</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>SEM</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>SEO</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Kore 350 Website</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Provision</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Conquest</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Auction Genius</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Kore 360 Website</fullName>
+                <default>false</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <type>MultiselectPicklist</type>
+        <visibleLines>10</visibleLines>
+    </fields>
+    <fields>
+        <fullName>WebEx_With__c</fullName>
+        <externalId>false</externalId>
+        <inlineHelpText>who in the Dealership the WebEx is with</inlineHelpText>
+        <label>Demo With</label>
+        <picklist>
+            <picklistValues>
+                <fullName>BDC Mgr.</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Consultant</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>DM</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>DP</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>F&amp;I Manager</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>GM</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>GSM</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>IM</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Internet Director</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>IT</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Marketing Director</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>NCM</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Service Manager</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>SM</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>UCM</fullName>
+                <default>false</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <type>MultiselectPicklist</type>
+        <visibleLines>10</visibleLines>
+    </fields>
+    <fields>
+        <fullName>Webex_ID__c</fullName>
+        <externalId>false</externalId>
+        <label>Webex ID</label>
+        <precision>15</precision>
+        <required>false</required>
+        <scale>0</scale>
+        <type>Number</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Webex_Status__c</fullName>
+        <externalId>false</externalId>
+        <label>Meeting Status</label>
+        <picklist>
+            <picklistValues>
+                <fullName>Mtg Maker Accepted</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Confirmed</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Set</fullName>
+                <default>true</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Going</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Completed</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Reschedule</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Cancelled</fullName>
+                <default>false</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <type>Picklist</type>
+    </fields>
+    <fields>
+        <fullName>Webexer_Rating__c</fullName>
+        <externalId>false</externalId>
+        <formula>Case(text( Webexer_Webex_Rating__c ),
+&quot;1 star&quot;, 1,
+&quot;2 stars&quot;, 2,
+&quot;3 stars&quot;, 3,
+&quot;4 stars&quot;, 4,
+&quot;5 stars&quot;, 5,
+null)</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>Webexer Rating</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>0</scale>
+        <type>Number</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Webexer_Webex_Rating_Notes__c</fullName>
+        <externalId>false</externalId>
+        <inlineHelpText>What was it about the webex that lead to you giving the rating you gave?</inlineHelpText>
+        <label>Webexer Webex Rating Notes</label>
+        <required>false</required>
+        <type>TextArea</type>
+    </fields>
+    <fields>
+        <fullName>Webexer_Webex_Rating__c</fullName>
+        <externalId>false</externalId>
+        <inlineHelpText>1 being &quot;Not very solid&quot; and 5 being &quot;Very Solid&quot;</inlineHelpText>
+        <label>Webexer Webex Rating</label>
+        <picklist>
+            <picklistValues>
+                <fullName>1 star</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>2 stars</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>3 stars</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>4 stars</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>5 stars</fullName>
+                <default>false</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <type>Picklist</type>
+    </fields>
+    <fields>
+        <fullName>Websites_Interests__c</fullName>
+        <description>Requested here: https://na5.salesforce.com/a0Z70000000lmEp. Webexers should use to provide information on what the prospect is interested in.</description>
+        <externalId>false</externalId>
+        <label>Websites Interests</label>
+        <picklist>
+            <picklistValues>
+                <fullName>VinLens</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Referral Report</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>IP Capture</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Live Coupon Push</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Ultra High Resolution Photos</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Updated Real Time Incentives</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Recent Customer Data</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Integrated CRM</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Optional Equipment Separate Listings</fullName>
+                <default>false</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <type>MultiselectPicklist</type>
+        <visibleLines>8</visibleLines>
+    </fields>
+    <fields>
+        <fullName>X30_Days_from_Today__c</fullName>
+        <description>Date 30 days from Today</description>
+        <externalId>false</externalId>
+        <formula>TODAY()+30</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>30 Days from Today</label>
+        <required>false</required>
+        <type>Date</type>
+    </fields>
+    <fields>
+        <fullName>X60_Days_from_Today__c</fullName>
+        <externalId>false</externalId>
+        <formula>TODAY()+60</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>60 Days from Today</label>
+        <required>false</required>
+        <type>Date</type>
+    </fields>
+    <fields>
+        <fullName>bmg__ClickDetails__c</fullName>
+        <deprecated>false</deprecated>
+        <description>Boomerang Integration field - URL will provide click through analysis for this recipient. You can obtain information about which links in the email the recipient was interested in clicking</description>
+        <externalId>false</externalId>
+        <label>Click on URL to view click-thru report</label>
+        <required>false</required>
+        <type>Url</type>
+    </fields>
+    <fields>
+        <fullName>bmg__DateClicked__c</fullName>
+        <deprecated>false</deprecated>
+        <description>Boomerang integration field - Date URL was clicked</description>
+        <externalId>false</externalId>
+        <label>Date URL was clicked</label>
+        <required>false</required>
+        <type>DateTime</type>
+    </fields>
+    <fields>
+        <fullName>bmg__DateOpened__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>Date Email Opened</label>
+        <required>false</required>
+        <type>DateTime</type>
+    </fields>
+    <fields>
+        <fullName>bmg__DateUnsubscribed__c</fullName>
+        <deprecated>false</deprecated>
+        <description>Boomerang Integration Field - Date recipient unsubscribed, using this email to do so</description>
+        <externalId>false</externalId>
+        <label>Date Recipient Opted Out</label>
+        <required>false</required>
+        <type>DateTime</type>
+    </fields>
+    <fields>
+        <fullName>bmg__IsEmailClicked__c</fullName>
+        <defaultValue>false</defaultValue>
+        <deprecated>false</deprecated>
+        <description>Boomerang integration field - indicates if the email is clicked</description>
+        <externalId>false</externalId>
+        <label>Email Clicked</label>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>bmg__IsEmailOpened__c</fullName>
+        <defaultValue>false</defaultValue>
+        <deprecated>false</deprecated>
+        <description>Boomerang integration field - indicates if the email was opened</description>
+        <externalId>false</externalId>
+        <label>Email Opened</label>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>bmg__IsUnsubscribed__c</fullName>
+        <defaultValue>false</defaultValue>
+        <deprecated>false</deprecated>
+        <description>Boomerang Integration field - indicates if the recipient has opted out. This information is also marked in the Email Opt Out field of the lead or contact</description>
+        <externalId>false</externalId>
+        <label>Opted Out</label>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>bmg__MessageURL__c</fullName>
+        <deprecated>false</deprecated>
+        <description>Link to the message</description>
+        <externalId>false</externalId>
+        <label>Click on URL to view Message</label>
+        <required>false</required>
+        <type>Url</type>
+    </fields>
+    <fields>
+        <fullName>bmg__StatusDescription__c</fullName>
+        <deprecated>false</deprecated>
+        <description>Boomerang integration field desc- provides additional information on the delivery status</description>
+        <externalId>false</externalId>
+        <label>Delivery Status Description</label>
+        <length>255</length>
+        <required>false</required>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>bmg__StatusUpdatedDate__c</fullName>
+        <deprecated>false</deprecated>
+        <description>Boomerang Integration field - delivery date and time, indicates the most recent date and time at which the delivery status was updated</description>
+        <externalId>false</externalId>
+        <label>Delivery Date</label>
+        <required>false</required>
+        <type>DateTime</type>
+    </fields>
+    <fields>
+        <fullName>bmg__Type__c</fullName>
+        <deprecated>false</deprecated>
+        <description>BlastWizard Integration field - indicates Type of Communication</description>
+        <externalId>false</externalId>
+        <label>Type</label>
+        <length>255</length>
+        <required>false</required>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>bmg__id__c</fullName>
+        <deprecated>false</deprecated>
+        <description>Boomerang integration field</description>
+        <externalId>true</externalId>
+        <label>Boomerang Id</label>
+        <length>255</length>
+        <required>false</required>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>isProjectPieceTask__c</fullName>
+        <defaultValue>false</defaultValue>
+        <externalId>false</externalId>
+        <label>isProjectPieceTask</label>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>nitro__Nitro_State__c</fullName>
+        <deprecated>false</deprecated>
+        <description>Contains the internal Nitro State. Field should not be shown to users in any layout or edited by hand.</description>
+        <externalId>false</externalId>
+        <inlineHelpText>Contains the internal Nitro State. Field should not be shown to users in any layout or edited by hand.</inlineHelpText>
+        <label>Nitro State</label>
+        <length>64</length>
+        <required>false</required>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <listViews>
+        <fullName>ALL_Demos_Not_completed</fullName>
+        <booleanFilter>1 AND 2 AND 3 AND 4 AND 5 and 6</booleanFilter>
+        <columns>CORE.USERS.FULL_NAME</columns>
+        <columns>TASK.SUBJECT</columns>
+        <columns>TASK.WHAT_NAME</columns>
+        <columns>EVENT.START_DATE_TIME</columns>
+        <columns>Webex_Status__c</columns>
+        <columns>Salesperson__c</columns>
+        <filterScope>Everything</filterScope>
+        <filters>
+            <field>Webex_Status__c</field>
+            <operation>notEqual</operation>
+            <value>Completed,Reschedule,Cancelled</value>
+        </filters>
+        <filters>
+            <field>EVENT.START_DATE_TIME</field>
+            <operation>greaterThan</operation>
+            <value>3/31/2014 12:00 AM</value>
+        </filters>
+        <filters>
+            <field>TASK.SUBJECT</field>
+            <operation>startsWith</operation>
+            <value>haystak demo</value>
+        </filters>
+        <filters>
+            <field>EVENT.START_DATE_TIME</field>
+            <operation>lessThan</operation>
+            <value>TOMORROW</value>
+        </filters>
+        <filters>
+            <field>TASK.STATUS</field>
+            <operation>notEqual</operation>
+            <value>Completed,Cancelled</value>
+        </filters>
+        <filters>
+            <field>ACTIVITY.TASK</field>
+            <operation>equals</operation>
+            <value>0</value>
+        </filters>
+        <label>All Haystak Demos Not completed</label>
+    </listViews>
+    <listViews>
+        <fullName>Haystak_pending_reschedule</fullName>
+        <columns>Salesperson__c</columns>
+        <columns>CORE.USERS.FULL_NAME</columns>
+        <columns>TASK.SUBJECT</columns>
+        <columns>TASK.WHAT_NAME</columns>
+        <columns>EVENT.START_DATE_TIME</columns>
+        <columns>Webex_Status__c</columns>
+        <filterScope>Everything</filterScope>
+        <filters>
+            <field>Webex_Status__c</field>
+            <operation>equals</operation>
+            <value>Reschedule</value>
+        </filters>
+        <filters>
+            <field>EVENT.START_DATE_TIME</field>
+            <operation>greaterThan</operation>
+            <value>3/31/2014 12:00 AM</value>
+        </filters>
+        <filters>
+            <field>TASK.SUBJECT</field>
+            <operation>startsWith</operation>
+            <value>haystak demo,webex</value>
+        </filters>
+        <filters>
+            <field>OWNER_ROLE</field>
+            <operation>startsWith</operation>
+            <value>HY</value>
+        </filters>
+        <label>Haystak Demo&apos;s Pending Reschedule</label>
+    </listViews>
+    <listViews>
+        <fullName>MyActivities</fullName>
+        <columns>TASK.SUBJECT</columns>
+        <columns>TASK.WHAT_NAME</columns>
+        <columns>TASK.WHO_NAME</columns>
+        <columns>TASK.DUE_DATE</columns>
+        <columns>Preview__c</columns>
+        <columns>TASK.STATUS</columns>
+        <filterScope>Mine</filterScope>
+        <filters>
+            <field>TASK.STATUS</field>
+            <operation>notEqual</operation>
+            <value>Completed,Cancelled</value>
+        </filters>
+        <filters>
+            <field>ACTIVITY.TASK</field>
+            <operation>equals</operation>
+            <value>1</value>
+        </filters>
+        <filters>
+            <field>TASK.SUBJECT</field>
+            <operation>contains</operation>
+            <value>Conquest</value>
+        </filters>
+        <label>My Activities</label>
+        <language>en_US</language>
+    </listViews>
+    <listViews>
+        <fullName>MyTeamsActivities</fullName>
+        <columns>CORE.USERS.FIRST_NAME</columns>
+        <columns>TASK.SUBJECT</columns>
+        <columns>TASK.WHO_NAME</columns>
+        <columns>TASK.WHAT_NAME</columns>
+        <columns>TASK.DUE_DATE</columns>
+        <columns>TASK.CREATED_DATE</columns>
+        <columns>Preview__c</columns>
+        <filterScope>Team</filterScope>
+        <filters>
+            <field>TASK.STATUS</field>
+            <operation>notEqual</operation>
+            <value>Completed</value>
+        </filters>
+        <filters>
+            <field>ACTIVITY.TASK</field>
+            <operation>equals</operation>
+            <value>1</value>
+        </filters>
+        <filters>
+            <field>TASK.STATUS</field>
+            <operation>notEqual</operation>
+            <value>Completed</value>
+        </filters>
+        <label>My Team&apos;s Activities</label>
+    </listViews>
+    <listViews>
+        <fullName>My_Activities1</fullName>
+        <columns>TASK.SUBJECT</columns>
+        <columns>TASK.WHAT_NAME</columns>
+        <columns>TASK.WHO_NAME</columns>
+        <columns>TASK.DUE_DATE</columns>
+        <columns>Preview__c</columns>
+        <columns>TASK.STATUS</columns>
+        <filterScope>Mine</filterScope>
+        <filters>
+            <field>TASK.STATUS</field>
+            <operation>notEqual</operation>
+            <value>Completed,Cancelled</value>
+        </filters>
+        <filters>
+            <field>ACTIVITY.TASK</field>
+            <operation>equals</operation>
+            <value>1</value>
+        </filters>
+        <label>My Activities</label>
+    </listViews>
+    <listViews>
+        <fullName>My_Demos_Not_completed</fullName>
+        <columns>CORE.USERS.FULL_NAME</columns>
+        <columns>TASK.SUBJECT</columns>
+        <columns>TASK.WHAT_NAME</columns>
+        <columns>EVENT.START_DATE_TIME</columns>
+        <columns>Webex_Status__c</columns>
+        <columns>Salesperson__c</columns>
+        <filterScope>Mine</filterScope>
+        <filters>
+            <field>Webex_Status__c</field>
+            <operation>notEqual</operation>
+            <value>Completed,Reschedule,Cancelled</value>
+        </filters>
+        <filters>
+            <field>EVENT.START_DATE_TIME</field>
+            <operation>greaterThan</operation>
+            <value>3/31/2014 12:00 AM</value>
+        </filters>
+        <filters>
+            <field>TASK.SUBJECT</field>
+            <operation>startsWith</operation>
+            <value>webex,haystak demo</value>
+        </filters>
+        <filters>
+            <field>EVENT.START_DATE_TIME</field>
+            <operation>lessThan</operation>
+            <value>TOMORROW</value>
+        </filters>
+        <label>My Demos Not completed</label>
+    </listViews>
+    <listViews>
+        <fullName>My_Sent_Emails</fullName>
+        <columns>TASK.SUBJECT</columns>
+        <columns>TASK.WHO_NAME</columns>
+        <columns>TASK.WHAT_NAME</columns>
+        <columns>TASK.DUE_DATE</columns>
+        <columns>TASK.STATUS</columns>
+        <columns>TASK.PRIORITY</columns>
+        <columns>CORE.USERS.ALIAS</columns>
+        <columns>TASK.LAST_UPDATE</columns>
+        <columns>UPDATEDBY_USER.ALIAS</columns>
+        <filterScope>Mine</filterScope>
+        <filters>
+            <field>TASK.SUBJECT</field>
+            <operation>contains</operation>
+            <value>Email:</value>
+        </filters>
+        <label>My Sent Emails</label>
+    </listViews>
+    <listViews>
+        <fullName>Today_Overdue</fullName>
+        <columns>TASK.SUBJECT</columns>
+        <columns>TASK.WHO_NAME</columns>
+        <columns>TASK.WHAT_NAME</columns>
+        <columns>TASK.DUE_DATE</columns>
+        <columns>TASK.STATUS</columns>
+        <columns>TASK.PRIORITY</columns>
+        <columns>CORE.USERS.ALIAS</columns>
+        <columns>TASK.LAST_UPDATE</columns>
+        <columns>UPDATEDBY_USER.ALIAS</columns>
+        <filterScope>Mine</filterScope>
+        <filters>
+            <field>TASK.STATUS</field>
+            <operation>notEqual</operation>
+            <value>Completed,Deferred,Reset</value>
+        </filters>
+        <filters>
+            <field>TASK.DUE_DATE</field>
+            <operation>lessOrEqual</operation>
+            <value>TODAY</value>
+        </filters>
+        <filters>
+            <field>TASK.STATUS</field>
+            <operation>notEqual</operation>
+        </filters>
+        <label>Today + Overdue</label>
+    </listViews>
+    <listViews>
+        <fullName>TodaysTasks</fullName>
+        <filterScope>Mine</filterScope>
+        <filters>
+            <field>TASK.CLOSED</field>
+            <operation>equals</operation>
+            <value>0</value>
+        </filters>
+        <filters>
+            <field>ACTIVITY.TASK</field>
+            <operation>equals</operation>
+            <value>1</value>
+        </filters>
+        <filters>
+            <field>TASK.DUE_DATE</field>
+            <operation>equals</operation>
+            <value>TODAY</value>
+        </filters>
+        <label>Today&apos;s Tasks</label>
+    </listViews>
+    <listViews>
+        <fullName>UpcomingEvents</fullName>
+        <filterScope>Mine</filterScope>
+        <filters>
+            <field>ACTIVITY.TASK</field>
+            <operation>equals</operation>
+            <value>0</value>
+        </filters>
+        <filters>
+            <field>TASK.DUE_DATE</field>
+            <operation>greaterThan</operation>
+            <value>YESTERDAY</value>
+        </filters>
+        <label>Upcoming Events</label>
+    </listViews>
+    <listViews>
+        <fullName>Webex_List</fullName>
+        <columns>Webex_Status__c</columns>
+        <columns>WebEx_With__c</columns>
+        <columns>CORE.USERS.FIRST_NAME</columns>
+        <columns>TASK.SUBJECT</columns>
+        <columns>TASK.WHO_NAME</columns>
+        <columns>TASK.WHAT_NAME</columns>
+        <columns>TASK.DUE_DATE</columns>
+        <columns>CREATEDBY_USER.ALIAS</columns>
+        <filterScope>Everything</filterScope>
+        <filters>
+            <field>TASK.SUBJECT</field>
+            <operation>startsWith</operation>
+            <value>webex</value>
+        </filters>
+        <filters>
+            <field>EVENT.START_DATE_TIME</field>
+            <operation>equals</operation>
+            <value>TODAY</value>
+        </filters>
+        <filters>
+            <field>WebEx_Level__c</field>
+            <operation>equals</operation>
+            <value>Initial,Initial Upgrade</value>
+        </filters>
+        <label>Webex List</label>
+        <sharedTo>
+            <roleAndSubordinates>VPofSales</roleAndSubordinates>
+        </sharedTo>
+    </listViews>
+    <listViews>
+        <fullName>geopointe__Geopointe_Activities_Last_7_Days</fullName>
+        <columns>TASK.SUBJECT</columns>
+        <columns>TASK.DUE_DATE</columns>
+        <columns>TASK.STATUS</columns>
+        <columns>CORE.USERS.FULL_NAME</columns>
+        <columns>TASK.LAST_UPDATE</columns>
+        <columns>UPDATEDBY_USER.ALIAS</columns>
+        <filterScope>Everything</filterScope>
+        <filters>
+            <field>TASK.SUBJECT</field>
+            <operation>startsWith</operation>
+            <value>Geopointe:</value>
+        </filters>
+        <filters>
+            <field>TASK.DUE_DATE</field>
+            <operation>equals</operation>
+            <value>LAST_N_DAYS:7</value>
+        </filters>
+        <label>Geopointe Activities (Last 7 Days)</label>
+    </listViews>
+    <listViews>
+        <fullName>geopointe__Geopointe_Activities_all</fullName>
+        <columns>TASK.SUBJECT</columns>
+        <columns>TASK.DUE_DATE</columns>
+        <columns>TASK.STATUS</columns>
+        <columns>CORE.USERS.FULL_NAME</columns>
+        <columns>TASK.LAST_UPDATE</columns>
+        <columns>UPDATEDBY_USER.ALIAS</columns>
+        <filterScope>Everything</filterScope>
+        <filters>
+            <field>TASK.SUBJECT</field>
+            <operation>startsWith</operation>
+            <value>Geopointe:</value>
+        </filters>
+        <label>Geopointe Activities (all)</label>
+    </listViews>
+    <listViews>
+        <fullName>geopointe__Geopointe_Activities_today</fullName>
+        <columns>TASK.SUBJECT</columns>
+        <columns>TASK.DUE_DATE</columns>
+        <columns>TASK.STATUS</columns>
+        <columns>CORE.USERS.FULL_NAME</columns>
+        <columns>TASK.LAST_UPDATE</columns>
+        <columns>UPDATEDBY_USER.ALIAS</columns>
+        <filterScope>Everything</filterScope>
+        <filters>
+            <field>TASK.SUBJECT</field>
+            <operation>startsWith</operation>
+            <value>Geopointe:</value>
+        </filters>
+        <filters>
+            <field>TASK.DUE_DATE</field>
+            <operation>equals</operation>
+            <value>TODAY</value>
+        </filters>
+        <label>Geopointe Activities (today)</label>
+    </listViews>
+    <searchLayouts>
+        <searchResultsAdditionalFields>TASK.SUBJECT</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields>TASK.WHO_NAME</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields>TASK.WHAT_NAME</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields>TASK.CREATED_DATE</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields>TASK.DUE_DATE</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields>CORE.USERS.ALIAS</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields>EVENT.LOCATION</searchResultsAdditionalFields>
+    </searchLayouts>
+    <sharingModel>ControlledByParent</sharingModel>
+</CustomObject>

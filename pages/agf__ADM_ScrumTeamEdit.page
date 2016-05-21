@@ -1,0 +1,59 @@
+<apex:page standardController="agf__ADM_Scrum_Team__c" tabStyle="MyTeam__tab" extensions="agf.ADM_ScrumTeamWorkExtension,agf.ADM_CommonControllerExtension"  cache="true">
+<apex:styleSheet value="{!$Resource.agf__ADM_common_css}" />
+<apex:stylesheet value="{!URLFOR($Resource.agf__jquery_ui_1_9_2_redmond, 'css/redmond/jquery-ui-1.9.2.custom.css')}" />
+<apex:includeScript value="{!$Resource.agf__jquery_1_8_3_min}" />
+<apex:includeScript value="{!URLFOR($Resource.agf__jquery_ui_1_9_2_redmond, 'js/jquery-ui-1.9.2.custom.min.js')}" />
+<apex:includeScript value="{!$Resource.agf__ADM_common_js}" />
+
+
+<div class="bPageTitle">
+    <div class="ptBody">
+        <div class="content">
+			<img src="{!$Resource.icon_scrum_team}" alt="Team" class="pageTitleIcon" title="Team" />
+            <h1 class="pageType"><a href="{!ListViewLink}">All Teams</a> &gt; <a href="/apex/ADM_ScrumTeamDetail?id={!ADM_Scrum_Team__c.Id}">{!agf__ADM_Scrum_Team__c.Name}</a> &gt; </h1>
+            <h2 class="pageDescription"> {!agf__ADM_Scrum_Team__c.Name}</h2>
+			<div class="blank">&nbsp;</div>
+		</div>
+		<div class="links"><a href="https://help.salesforce.com/htviewhelpdoc?id=co_edit.htm&siteLang=en_US" target="_blank"><span class="helpLink">Help for this Page</span><img src="/s.gif" alt=""  class="helpIcon"/></a></div>
+	</div>
+	<div class="ptBreadcrumb"></div>
+</div>
+
+<apex:form target="_parent">
+<apex:messages globalOnly="true" styleClass="message gusFormMessage"/>
+	<div class="gusFieldset">
+	    <div class="gusLegend">Team Edit</div>
+	    <div class="gusRequiredText"></div>
+
+	    <div class="gusFormToolbar gusFormToolbarTop">
+	        <apex:commandButton action="{!save}" value="Save"/>
+	        <apex:commandButton action="{!doSaveAndNew}" value="Save & New"/>
+	        <input type="button" onClick="checkAndNavigateToURL('/apex/ADM_ScrumTeamDetail?id={!ADM_Scrum_Team__c.Id}');" value="Cancel" />
+	    </div>
+
+	    <div class="gusForm" style="width:100%;">
+	         <div class="gusForm1Column">
+<!--Added the below field with rendering = false to make sure VF engine will default query the field or else in package we get the Field used without querying error -->
+	            <apex:outputText value="{!agf__ADM_Scrum_Team__c.Name}" rendered="false" />
+	         	<c:ADM_FormRow object="{!agf__ADM_Scrum_Team__c}" type="ADM_Scrum_Team__c" required="true"  field="Name" />
+	         	<c:ADM_FormRow object="{!agf__ADM_Scrum_Team__c}" type="ADM_Scrum_Team__c" required="false" field="Story_Point_Scale__c" value="{!agf__ADM_Scrum_Team__c.agf__Story_Point_Scale__c}" />
+	         		<c:ADM_FormRow object="{!agf__ADM_Scrum_Team__c}" type="ADM_Scrum_Team__c" required="false" field="Distribution_Lists__c" value="{!agf__ADM_Scrum_Team__c.agf__Distribution_Lists__c}" />
+	         	<c:ADM_FormRow object="{!agf__ADM_Scrum_Team__c}" type="ADM_Scrum_Team__c" required="true"  field="Cloud__c" value="{!agf__ADM_Scrum_Team__c.agf__Cloud__c}" />
+	         	<c:ADM_FormRow object="{!agf__ADM_Scrum_Team__c}" type="ADM_Scrum_Team__c" required="false" field="Domain__c" value="{!agf__ADM_Scrum_Team__c.agf__Domain__c}" info="Depends on &quot;Department&quot;" />
+	         	<c:ADM_FormRow object="{!agf__ADM_Scrum_Team__c}" type="ADM_Scrum_Team__c" required="false" field="Team_Home_Page__c" value="{!agf__ADM_Scrum_Team__c.agf__Team_Home_Page__c}"/>
+	         
+
+
+	         	
+
+
+	         	
+	         	<c:ADM_FormRow object="{!agf__ADM_Scrum_Team__c}" type="ADM_Scrum_Team__c" required="false" field="Active__c" value="{!agf__ADM_Scrum_Team__c.agf__Active__c}" />
+	         	
+                
+	         </div>
+	    </div>
+	</div>
+</apex:form>
+
+</apex:page>

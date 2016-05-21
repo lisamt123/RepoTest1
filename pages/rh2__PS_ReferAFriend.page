@@ -1,0 +1,33 @@
+<apex:page controller="rh2.PS_ReferAFriend_Controller" tabstyle="PS_Rollup_Helper__tab" >
+    <apex:stylesheet value="{! URLFOR($Resource.PT_Resources_v1, '/css/grid.css') }"/>
+ 	<apex:form >
+	  <apex:outputPanel styleClass="row" layout="block">	
+		<apex:pageBlock title="Invite a friend to try Rollup Helper: ">
+		
+		<apex:pageBlockSection title=" " collapsible="false">
+		  <apex:outputPanel styleClass="col col_16" >
+			<apex:outputText value="Email Address(es): "/> <br/>
+			<apex:inputTextArea value="{!unsplitEmails}" cols="45" rows="3"/>
+		  </apex:outputPanel> <br/>	 
+		  <apex:outputPanel styleClass="col col_16" >
+		    <apex:outputText value="*Accepts up to 10 email addresses, separated by commas."/>
+		    <br/>
+		    <apex:pageMessages />
+		  </apex:outputPanel>   
+		</apex:pageBlockSection>
+		<apex:pageBlockSection title=" " collapsible="false">
+		  <apex:outputPanel styleClass="col col_16">
+			<apex:outputText value="Body:"/>
+			<br/>
+			<apex:inputTextarea value="{!body}" cols="45" rows="15"/>
+			<br/>
+		    <br/>
+		    <apex:outputPanel styleClass="col col_4" style="padding-left:60px;" >
+		        <apex:commandButton styleClass="col col_2" action="{!send}" value="Send Email" />
+		    </apex:outputPanel>
+		  </apex:outputPanel>	
+		</apex:pageBlockSection>
+	   </apex:pageBlock>
+	  </apex:outputPanel>
+	</apex:form>  	
+</apex:page>

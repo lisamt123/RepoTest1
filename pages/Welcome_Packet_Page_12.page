@@ -1,0 +1,135 @@
+<apex:page controller="WelcomePacketWizard" showHeader="false"
+	cache="false">
+	<head>
+<apex:stylesheet value="{!$Resource.styles}"></apex:stylesheet>
+	</head>
+
+	<script>
+function confirmCancel()
+{
+	var isCancel = confirm("Are you sure you wish to quit?");
+	return isCancel;
+}
+
+</script>
+
+	<table border="0" width="100%" height="100%" id="bg">
+		<tr valign="top">
+			<td>
+				<div class="maincontainer">
+					<apex:image id="key1" width="100%"
+						value="/resource/1265230873000/Header" />
+
+					<apex:sectionHeader title="VinSolutions Welcome Packet"
+						subtitle="{!if(welcome.Packet_Includes__c!=null,'Step 12 of 13','')}" />
+
+					<apex:form >
+						<apex:pageBlock title="CUSTOM FORMS">
+
+							<table border="0" width="100%" align="center">
+								<tr align="center">
+									<td align="center"><apex:commandButton action="{!step11}"
+											value="Previous Step" /> <apex:commandButton action="{!step13}" value="Next Step" /> <apex:commandButton action="{!cancel}" value="Save & Quit"
+											onclick="return confirmCancel()" immediate="true" /> <apex:commandButton action="{!confirmCRM}" value="Save - To Confirmation Page"
+											rendered="{!if(welcome.Packet_Includes__c!=null&&welcome.ReachedCRMConfirm__c, true, false)}" />
+									</td>
+								</tr>
+							</table>
+
+
+							<apex:pageBlockSection collapsible="false"
+								title="CUSTOM FORMS SHEET" columns="1">				
+					With your purchase of VinSolutions CRM/ILM system, we include up to 3 custom forms that are
+					included in your purchase price. We are more than happy to customize any form that you
+					submit to us, however there are <u>limitations to what we can
+									populate on a form.</u>
+								<br />
+								<br />
+
+								<table align="center">
+									<tr align="center">
+										<td align="center">Below we have listed the popular
+											customized forms used by our most successful customers.<br />
+											<small><i>(We have attached an order form for
+													your convenience - see below)</i> </small>
+										</td>
+									</tr>
+									<tr>
+										<td align="left">
+											<ul>
+												<li>Personalized Buyers Orders</li>
+												<li>We Owe / You Owe</li>
+												<li>Cover Sheets/Deal Checklists.</li>
+												<li>Trade Evaluation</li>
+												<li>Credit Applications</li>
+												<li>Borrowed Car Agreements</li>
+												<li>Four Square</li>
+												<li>Certified Vehicle Forms.</li>
+											</ul>
+										</td>
+									</tr>
+								</table>
+								<br />
+					
+					Please email original electronic versions of these forms to your Implementation Manager.
+					Please <u>DO NOT</u> fax copies of these forms. Faxed copies of forms will not have the appropriate
+					quality that will accurately represent the integrity of your dealership.<br />
+								<br />
+					
+					As with anything of quality – these forms take a considerable amount of time to install.
+					Furthermore – It is of the utmost importance to a successful installation that these forms be
+					completed prior to the trainers arriving at your store. With this in mind, please insure that all
+					forms are received by VinSolutions no less than 2 weeks prior to trainer installation, otherwise
+					we cannot guarantee they will be available while the trainers are on location.
+												
+				</apex:pageBlockSection>
+						</apex:pageBlock>
+						<apex:pageBlock >
+							<apex:pageBlockSection collapsible="false"
+								title="CUSTOM FORMS ORDER SHEET" columns="1"></apex:pageBlockSection>
+					Please email original electronic versions of these forms to your Implementation Manager.
+					Please <u>DO NOT</u> fax copies of these forms. Faxed copies of forms will not have the appropriate
+					quality that will accurately represent the integrity of your dealership.<br />
+							<br />
+							<apex:pageBlockSection columns="2">
+								<apex:inputField value="{!welcome.Custom_Form_1__c}" />
+								<apex:outputText value="" />
+								<apex:inputField value="{!welcome.Custom_Form_2__c}" />
+								<apex:outputText value="" />
+								<apex:inputField value="{!welcome.Custom_Form_3__c}" />
+								<apex:outputText value="" />
+								<apex:inputField value="{!welcome.Additional_Form_1__c}" />+$200.00
+					<apex:inputField value="{!welcome.Additional_Form_2__c}" />+$200.00
+					<apex:inputField value="{!welcome.Additional_Form_3__c}" />+$200.00
+					<apex:inputField value="{!welcome.Additional_Form_4__c}" />+$200.00
+					<apex:inputField value="{!welcome.Additional_Form_5__c}" />+$200.00
+					<apex:inputField value="{!welcome.Additional_Form_6__c}" />+$200.00					
+					</apex:pageBlockSection>
+							<hr></hr>
+							<table align="center">
+								<tr align="center">
+									<td align="center"><b>Total: $<apex:outputText value="{!Total}" />0</b>
+									</td>
+								</tr>
+							</table>
+
+							<apex:pageBlockSection collapsible="false" title=""></apex:pageBlockSection>
+
+							<table border="0" width="100%" align="center">
+								<tr align="center">
+									<td align="center"><apex:commandButton action="{!step11}"
+											value="Previous Step" /> <apex:commandButton action="{!step13}" value="Next Step" /> <apex:commandButton action="{!cancel}" value="Save & Quit"
+											onclick="return confirmCancel()" immediate="true" /> <apex:commandButton action="{!confirmCRM}" value="Save - To Confirmation Page"
+											rendered="{!if(welcome.Packet_Includes__c!=null&&welcome.ReachedCRMConfirm__c, true, false)}" />
+									</td>
+								</tr>
+							</table>
+
+						</apex:pageBlock>
+
+					</apex:form>
+				</div>
+			</td>
+		</tr>
+	</table>
+</apex:page>

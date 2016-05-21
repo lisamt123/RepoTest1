@@ -1,0 +1,571 @@
+<apex:page standardController="Case" extensions="case_ctrl_listView">
+<apex:form >
+     
+    <apex:stylesheet value="{!URLFOR($Resource.bootstrap, 'bootstrap.css')}" />
+    <apex:stylesheet value="{!URLFOR($Resource.sharedcss, 'sharedcss.css')}" />
+    
+    
+    <style>
+		
+		.hoverLink {  
+
+		    margin:0; 
+		    padding:0; 
+		    display:inline-block; 
+		    cursor:default; 
+		    z-index:9999;
+		}
+		
+		.hoverLink .hoverLinkContent { 
+		
+		    padding:0;  
+		    display: none; 
+		    position: absolute; 
+		    left: 0;
+		    z-index: 5000; 
+		    white-space: nowrap;
+		    margin-top: -2px;
+		}
+		
+		body .pbBody table.list tr.dataRow th.footerColStyle {
+		
+		    border-width: 0;
+		}
+		
+		body .pbBody table.list tr.dataRow th.footerStyle {
+		
+		    border-width: 0;
+		}
+		
+		.totalRow .footerColStyle {
+		
+		    color:#666;
+		    text-align:center;
+		    background-color:#F1F1F1;
+		    padding:5px 2px 5px 5px;
+		}
+		
+		.totalRow .footerStyle {
+		
+		    text-align:right;
+		    background-color:#FFF;
+		    padding:5px 2px 5px 5px;
+		}
+		
+		.headerRow .customHeaderClass th {
+		
+		    border-left-width: 0;
+		    background: #FFF;
+		    border-width: 0 0 1px 1px;
+		    color: black;
+		    font-size: .9em;
+		    font-weight: bold;
+		    padding: 5px 2px 4px 5px;
+		    border: 1px solid #D4DADC;
+		    border-bottom: 2px solid #CCC;
+		    white-space: nowrap;
+		    border-color: #ECECEC;
+		    border-right: 1px solid #D4DADC;
+		    vertical-align: inherit;
+		    border-collapse: separate;
+		    border-spacing: 2px 2px;
+		}
+		
+		th.currencyAlign {
+		
+		    text-align:right;
+		}
+		
+		body .pbBody table.list tr.dataRow th {
+		
+		    border-width: 0 0 1px 1px;
+		}
+		
+		body .pbBody table.list tr.last > th, body .pbBody table.list tr.last > td {
+		
+		    border-bottom-width:1px;
+		}
+	</style>
+    
+    
+    
+    
+    
+    
+    
+    <style>
+        
+        .highlight {
+        	
+        	background-color:#E3F3FF;
+        }
+        
+        
+        .userName {
+            font-weight: bold;
+            color: #015ba7;
+            text-decoration: none;
+        }
+        
+        .feeditemactionlink {
+            color: #015ba7;
+        }
+        
+        .displayDate {
+            line-height: 13px;
+            font-weight: normal;
+            color: #7d7d84;
+            text-decoration: none;
+        }
+        
+        .feeditem {
+            min-height: 47px;
+            white-space: normal;
+            word-wrap: break-word;
+            margin: 0 10px 0px 15px;
+            padding: 8px 4px 8px 0;
+            border-top: 1px solid #fff;
+            border-bottom: 1px solid #e6e6e6;
+            display:block;
+            line-height: 15px;
+        }
+        
+        .feedFilter {
+            min-height: 20px;
+            white-space: normal; 
+            word-wrap: break-word;
+            margin: 0 10px 8px 15px;
+            padding: 8px 4px 8px 0;
+            border-top: 1px solid #e6e6e6;
+            border-bottom: 1px solid #fff;
+            display:block;
+            line-height: 15px;
+        }
+        
+        .feedOverflowWrapper {
+            height: 380px;
+            overflow: auto;
+            display: block;
+        }
+        
+        .feeditemcontent {
+            display: block;
+            margin-left: 0px;
+            border-bottom: none;
+        }
+        
+        .feeditembodyandfooter {
+            position: relative;
+            display: block;
+        }
+        
+        .feeditembody {
+            /*
+            padding-right: 40px;
+            */
+            display: block;
+        }
+        
+        .feeditemfooter {
+            display: block;
+            font-size: .92em;
+            line-height: 13px;
+            margin: 4px 0;
+        }
+        
+        .preamblecontainer {
+            display: inline;
+            padding-bottom: 4px;
+            padding-right: 5px;
+        }
+        
+        .feedWrapper {
+            border: 1px solid #e1e0e0;
+            border-top-color: #d1d1d1;
+            -webkit-border-radius: 5px;
+            border-radius: 5px;
+        }
+        
+        .innerFeedWrapper { 
+            /*
+            width: 546px;
+            */
+            width: 90%; 
+        }
+        
+        .row-fluid .span4 {
+            width: 100% !important;
+        }
+        
+        .sortLink {
+            color: #015ba7;
+            font-size: .9em;
+        }
+        
+        .sortText {
+            font-size: .9em;
+        }
+        
+        .row-fluid .span4 {
+            width: 40%;
+        }
+        
+        body {
+            overflow-y: visible !important;
+            overflow-x: visible !important;
+        }
+        
+        .showMoreSection {
+            float:left;
+            padding: 30px 0 10px 0;
+            margin-left: 15px;
+        }
+        
+        .clearDiv {
+            clear:both;
+        }
+        
+        .emptyListDiv {
+            margin-left: 15px;
+        }
+        
+        .plusIcon {
+            vertical-align: middle;
+            display: inline;
+            width: auto;
+            background-image: url(/img/feeds/follow_sprite.png);
+            background-repeat: no-repeat;
+            background-position: 0 -27px;
+            background-color: #fff;
+            height: 15px;
+            padding-bottom: 3px;
+            border: 0;
+            margin-right: 3px;
+        }
+        
+    </style>
+    
+    
+    
+    
+    
+    <br />
+    
+    <div id="caseListView" style="width:30%; float:left;">
+        <h1 style="font-size:1.3em;">Chronological Ticket View</h1>
+    </div>
+    <div style="float:left;">
+        <c:multiSelectButton uniqueId="uniqueBtnId" buttonText="Case Runners">
+            <apex:commandLink action="{!nullPR}" value="New Case Runner" style="font-weight:bold;" />
+            <apex:outputLink target="_parent" value="/a1A/e?CF00N70000002NOt2={!Case.CaseNumber}&CF00N70000002NOt2_lkid={!Case.Id}&retURL={!Case.Id}&saveURL={!Case.Id}&RecordType=012700000005eL6&ent=01I7000000036kQ&00N70000002NOtM=Escalate&00N70000002sV2G={!Case.Location_of_Error_Issue__c}" style="font-weight:bold;">Escalate</apex:outputLink> 
+            <apex:outputLink target="_parent" value="/a1A/e?saveURL=%2F{!Case.Id}&retURL=%2F{!Case.Id}&CF00N70000002NOt2={!Case.CaseNumber}&CF00N70000002NOt2_lkid={!Case.Id}&RecordType=012700000005eL1&00N70000002NOtM=assigned&CF00N70000002NOth={!$User.FirstName}+{!$User.LastName}" style="font-weight:bold;">Assign</apex:outputLink>
+            <apex:outputLink target="_parent" value="/a1A/e?saveURL=%2F{!Case.Id}&retURL=%2F{!Case.Id}&CF00N70000002NOt2={!Case.CaseNumber}&CF00N70000002NOt2_lkid={!Case.Id}&RecordType=012700000005eL1&00N70000002NOtM=Redirect" style="font-weight:bold;">Redirect</apex:outputLink>
+            <apex:outputLink target="_parent" value="/a1A/e?saveURL=%2F{!Case.Id}&CF00N70000002NOt2={!Case.CaseNumber}&CF00N70000002NOt2_lkid={!Case.Id}&retURL=%2F{!Case.Id}&RecordType=012700000005eLB&00N70000002NOtM=Comment" style="font-weight:bold;">Comment</apex:outputLink>
+            <apex:outputLink target="_parent" value="/a1A/e?saveURL=%2F{!Case.Id}&CF00N70000002NOt2={!Case.CaseNumber}&CF00N70000002NOt2_lkid={!Case.Id}&retURL=%2F{!Case.Id}&RecordType=012700000005eLB&00N70000002NOtM=additional information needed" style="font-weight:bold;">Request More Info</apex:outputLink>
+            <apex:outputLink target="_parent" value="/a1A/e?saveURL=%2F{!Case.Id}&CF00N70000002NOt2={!Case.CaseNumber}&CF00N70000002NOt2_lkid={!Case.Id}&retURL=%2F{!Case.Id}&RecordType=012700000005eLG&CF00N70000002NOth={!Case.Assigned_To__c}&00N70000002NOtM=submitting additional information" style="font-weight:bold;">Submit More Info</apex:outputLink>
+            <apex:outputLink target="_parent" value="/a1A/e?saveURL=%2F{!Case.Id}&CF00N70000002NOt2={!Case.CaseNumber}&CF00N70000002NOt2_lkid={!Case.Id}&RecordType={!if($User.ProfileId=='00e70000000x07m', '01270000000Q6AV','012700000005eL7')}&retURL=%2F{!Case.Id}&00N70000002NOtM=resolved" style="font-weight:bold;">Resolve</apex:outputLink>
+            <apex:outputLink target="_parent" value="/a1A/e?saveURL=%2F{!Case.Id}&CF00N70000002NOt2={!Case.CaseNumber}&CF00N70000002NOt2_lkid={!Case.Id}&RecordType=01270000000Q7Kg&retURL=%2F{!Case.Id}" style="font-weight:bold;">QA &amp; Close</apex:outputLink>
+            <apex:outputLink target="_parent" value="/a1A/e?saveURL=%2F{!Case.Id}&CF00N70000002NOt2={!Case.CaseNumber}&CF00N70000002NOt2_lkid={!Case.Id}&retURL=%2F{!Case.Id}&RecordType=012700000005eLL&CF00N70000002NOth={!Case.Assigned_To__c}&00N70000002NOtM=Unresolved" style="font-weight:bold;">Unresolve</apex:outputLink>
+        </c:multiSelectButton>  
+        <c:multiSelectButton uniqueId="uniqueBtnId2" buttonText="Case Comments">
+            <apex:outputLink target="_parent" value="/00a/e?parent_id={!Case.Id}&retURL=%2F{!Case.Id}" style="font-weight:bold;">New Comment</apex:outputLink>
+        </c:multiSelectButton>  
+        <c:multiSelectButton uniqueId="uniqueBtnId5" buttonText="Case Emails">
+            <apex:outputLink target="_parent" value="/_ui/core/email/author/EmailAuthor?p2_lkid={!Case.ContactId}&rtype=003&p3_lkid={!Case.Id}&retURL=%2F{!Case.Id}" style="font-weight:bold;">Send an Email</apex:outputLink> 
+        </c:multiSelectButton>
+    </div>
+    <div style="clear:both;"></div>
+    
+    <div style="position:relative; overflow:auto;"> 
+        
+        <apex:outputPanel >
+            <apex:actionStatus id="status2">
+                <apex:facet name="start">
+                    <div style="width: 100%; height: 100%; background-color:#fbfbfb; opacity:0.65;" class="waitingSearchDiv" id="el_loading">
+                        <div class="waitingHolder" style="top: 60px; ">
+                            <img src="/img/loading.gif" class="waitingImage" title="Please Wait..." />
+                            <span class="waitingDescription">Loading...</span>
+                        </div>
+                    </div>
+                </apex:facet>
+            </apex:actionStatus>
+        </apex:outputPanel>
+        
+        <apex:outputPanel id="mainOP">
+            
+            <div class="feedWrapper">
+            
+                <div class="navbar">
+                    <div class="navbar-inner-grey">
+                        <div class="container-fluid">
+                            <div class="row-fluid"> 
+                                <div class="span4">
+                                    <ul class="nav" id="action-bar-button-container">
+                                        <li class="action-bar-button pointer {!if(displayCaseRunners, "active", "")}" id="action-bar-button-holding">
+                                            
+                                            <apex:commandLink action="{!toggleFilter}" status="status2" rerender="mainOP" style="text-shadow: none;">
+                                                <apex:param name="selectedFilter" value="displayCaseRunners" assignTo="{!selectedFilter}"/>
+                                                <img src="/s.gif" width="1" height="1" style="background-position:{!caseRunnerIcon};" class="plusIcon"></img>
+                                                Case Runners ({!caseRunnerQTY})
+                                            </apex:commandLink>
+                                        </li>
+                                        <li class="action-bar-button pointer {!if(displayCaseComments, "active", "")}" id="action-bar-button-prioritized">
+                                            <apex:commandLink action="{!toggleFilter}" status="status2" rerender="mainOP" style="text-shadow: none;">
+                                                <apex:param name="selectedFilter" value="displayCaseComments" assignTo="{!selectedFilter}"/>
+                                                <img src="/s.gif" width="1" height="1" style="background-position:{!caseCommentsIcon};" class="plusIcon"></img>
+                                                Case Comments ({!caseCommentQTY})
+                                            </apex:commandLink>
+                                        </li>
+                                        <li class="action-bar-button pointer {!if(displayCaseHistory, "active", "")}" id="action-bar-button-started">
+                                            <apex:commandLink action="{!toggleFilter}" status="status2" rerender="mainOP" style="text-shadow: none;">
+                                                <apex:param name="selectedFilter" value="displayCaseHistory" assignTo="{!selectedFilter}"/>
+                                                <img src="/s.gif" width="1" height="1" style="background-position:{!caseHistoryIcon};" class="plusIcon"></img>
+                                                Case History ({!caseHistoryQTY})
+                                            </apex:commandLink>
+                                        </li>
+                                        <li class="action-bar-button pointer {!if(displayActivityHistory, "active", "")}" id="action-bar-button-finished">
+                                            <apex:commandLink action="{!toggleFilter}" status="status2" rerender="mainOP" style="text-shadow: none;">
+                                                <apex:param name="selectedFilter" value="displayActivityHistory" assignTo="{!selectedFilter}"/>
+                                                <img src="/s.gif" width="1" height="1" style="background-position:{!activityHistoryIcon};" class="plusIcon"></img>
+                                                Activity History ({!activityHistoryQTY})
+                                            </apex:commandLink>
+                                        </li>
+                                        <li class="action-bar-button pointer {!if(displayCaseEmails, "active", "")}" id="action-bar-button-finished">
+                                            <apex:commandLink action="{!toggleFilter}" status="status2" rerender="mainOP" style="text-shadow: none;">
+                                                <apex:param name="selectedFilter" value="displayCaseEmails" assignTo="{!selectedFilter}"/>
+                                                <img src="/s.gif" width="1" height="1" style="background-position:{!caseEmailsIcon};" class="plusIcon"></img>
+                                                Case Emails ({!caseEmailQTY})
+                                            </apex:commandLink>
+                                        </li>
+                                    </ul>
+                                </div>  
+                            </div>
+                        </div>  
+                    </div> 
+                </div>
+                
+                
+                <div class="innerFeedWrapper">
+                    <div class="feedFilter">
+                        <div style="float:right;">
+                            <span class="sortText">Sort:</span>
+                            &nbsp; 
+                            <apex:commandLink styleClass="sortLink" value="{!sortOrder}" action="{!toggleSort}" status="status2" rerender="mainOP" />
+                            &nbsp;&nbsp;
+                            <span class="sortText">Filter:</span>
+                            &nbsp;
+                            <apex:commandLink styleClass="sortLink" value="{!show}" action="{!showAllNone}" status="status2" rerender="mainOP" />
+                        </div>
+                        <div class="clearDiv">
+                        </div>
+                    </div>
+                    <div class="feedOverflowWrapper">
+                    <apex:repeat value="{!relatedObjects}" var="ro"> 
+                     <!-- 
+                    	yes hover/expandable
+                     -->
+                    <apex:outputPanel rendered="{!if(ro.showHover, 'true', 'false')}">
+                   	<div id="0D5S0000005fLWxtest" class="cxfeeditem feeditem" data-feeditem="{&quot;parentid&quot;:&quot;5007000000RScZ9&quot;,&quot;parentname&quot;:&quot;Ticket&quot;}" data-hovdata="dir=chatterHover-above" onmouseover="this.className = 'cxfeeditem feeditem highlight';Sfdc.Dom.addClass (this, 'cxhover');chatter.getFeed().removeZenAssist(this);" onmouseout="this.className = 'cxfeeditem feeditem';chatter.getToolbox().removeClassOnMouseOut(event, this, 'cxhover');chatter.getFeed().addZenAssist(this);" data-uidsfdc="80">
+                        <div class="feeditemcontent cxfeeditemcontent">
+                            <div class="feeditembodyandfooter">
+                                <div class="feeditembody">
+                                	<!-- 
+                                   		// Body .. need to redo this section with one long string generated in teh class
+                                   	 -->
+	                                <div class="preamblecontainer ">
+	                                    <span class="feeditempreamble">
+	                                        <a href="#" class="actorentitylink userName" data-hovid="00570000002FpLr" data-uidsfdc="83" id="hoverItem83">{!ro.userName}</a>
+	                                    </span>                     
+	                                </div>
+	                                <span class="feeditemtext cxfeeditemtext">
+	                                    <apex:outputText value="{!ro.feedOutput2}" style="font-weight:{!if(ro.bold2, "bold", "normal")};" />
+	                                    <apex:outputText value="{!ro.feedOutput3}" style="font-weight:{!if(ro.bold3, "bold", "normal")};" />
+	                                    <apex:outputText value="{!ro.feedOutput4}" style="font-weight:{!if(ro.bold4, "bold", "normal")};" />
+	                                    <apex:outputText value="{!ro.feedOutput5}" style="font-weight:{!if(ro.bold5, "bold", "normal")};" />
+	                                    <apex:outputText value="{!ro.feedOutput6}" style="font-weight:{!if(ro.bold6, "bold", "normal")};" />
+	                                    <apex:outputText value="{!ro.feedOutput7}" style="font-weight:{!if(ro.bold7, "bold", "normal")};" />
+	                                    <apex:outputText value="{!ro.feedOutput8}" style="font-weight:{!if(ro.bold8, "bold", "normal")};" />
+	                                    <apex:outputText value="{!ro.feedOutput9}" style="font-weight:{!if(ro.bold9, "bold", "normal")};" />
+	                                </span> 
+	                                <apex:outputPanel rendered="{!if(ro.showPreview, 'true', 'false')}">
+	                                    <br />
+	                                    <span style="font-style:italic; font-size:.95em;">{!ro.feedActivityHistoryPreview}</span>
+	                                </apex:outputPanel> 
+                                </div>         
+                                <div class="feeditemfooter">    
+                                   	<!-- 
+                                   		// FOOTER
+                                   	 -->
+                                  	<!--  
+                                    	// Footer Link
+                                    -->
+                                    <span class="cxallfeedactions">
+                                    	<!--  
+                                    		// Disabled
+                                    	-->
+                                        <apex:outputPanel rendered="{!if(ro.disableRecordLink, 'true', 'false')}">
+                                            <a href="#" title="Cannot view this this record." class="cxaddcommentaction feeditemactionlink" style="text-decoration:none;">{!ro.recordName}</a> 
+                                            <!--  -->
+                                        </apex:outputPanel>
+                                        <!--  
+                                    		// Enabled
+                                    	-->
+                                        <apex:outputPanel rendered="{!if(!ro.disableRecordLink, 'true', 'false')}">
+                                        	<apex:outputPanel rendered="{!if(ro.showAltURL, 'true', 'false')}">
+                                            	<a href="{!ro.altURL}" target="_blank" title="Click to edit this record" class="feeditemactionlink cxaddcommentaction">{!ro.recordName}</a>
+                                            </apex:outputPanel>
+                                            <apex:outputPanel rendered="{!if(!ro.showAltURL, 'true', 'false')}">
+                                            	<a href="/{!ro.recordId}" target="_blank" title="Click to view this record" class="feeditemactionlink cxaddcommentaction">{!ro.recordName}</a>
+                                            </apex:outputPanel> 
+                                        </apex:outputPanel>
+                                        <span class="cxfeeditemcommentdot feeditemseparatingdot"> · </span>
+                                        <!-- 
+                                        <apex:outputPanel rendered="{!if(ro.showHover, 'true', 'false')}">
+                                           	<c:hoverLink hoverButtonText="{!ro.hoverLinkText}" hoverUniqueId="{!ro.recordId}">
+                                           		 <div style="width:500px; max-height:200px; overflow:auto;">
+                                           		 	<pre>{!ro.hoverFormattedText}</pre>
+                                           		 </div> 
+                                           	</c:hoverLink>
+                                           	<span class="cxfeeditemcommentdot feeditemseparatingdot"> · </span>
+                                        </apex:outputPanel>
+                                         -->
+                                        <a id="action_link_{!ro.recordId}" onclick="javascript: switchActionItemVisibility('{!ro.recordId}');" href="#" class="feeditemactionlink cxaddcommentaction">View</a>
+                                        <span class="cxfeeditemcommentdot feeditemseparatingdot"> · </span>
+                                    </span>
+                                    <!--  
+                                    	// Footer Timestamp
+                                    -->
+                                    <span class="feeditemtimestamp displayDate">{!ro.recordLMDisplay}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="action_options_{!ro.recordId}" style="display:none;">
+                        	<div style="max-height:200px; overflow:auto;">
+                        		<pre>{!ro.hoverFormattedText}</pre>
+                        	</div>
+                        </div>
+                    </div>
+                    </apex:outputPanel>
+                    <!-- width:500px; 
+                    	no hover/expandable
+                     -->
+                    <apex:outputPanel rendered="{!if(!ro.showHover, 'true', 'false')}">
+                    <div id="0D5S0000005fLWxtest" class="cxfeeditem feeditem" data-feeditem="{&quot;parentid&quot;:&quot;5007000000RScZ9&quot;,&quot;parentname&quot;:&quot;Ticket&quot;}" data-hovdata="dir=chatterHover-above" onmouseover="this.className = 'cxfeeditem feeditem highlight';Sfdc.Dom.addClass (this, 'cxhover');chatter.getFeed().removeZenAssist(this);" onmouseout="this.className = 'cxfeeditem feeditem';chatter.getToolbox().removeClassOnMouseOut(event, this, 'cxhover');chatter.getFeed().addZenAssist(this);" data-uidsfdc="80">
+                        <div class="feeditemcontent cxfeeditemcontent">
+                            <div class="feeditembodyandfooter">
+                                <div class="feeditembody">
+                                	<!-- 
+                                   		// Body .. need to redo this section with one long string generated in teh class
+                                   	 -->
+	                                <div class="preamblecontainer ">
+	                                    <span class="feeditempreamble">
+	                                        <a href="#" class="actorentitylink userName" data-hovid="00570000002FpLr" data-uidsfdc="83" id="hoverItem83">{!ro.userName}</a>
+	                                    </span>                     
+	                                </div>
+	                                <span class="feeditemtext cxfeeditemtext">
+	                                    <apex:outputText value="{!ro.feedOutput2}" style="font-weight:{!if(ro.bold2, "bold", "normal")};" />
+	                                    <apex:outputText value="{!ro.feedOutput3}" style="font-weight:{!if(ro.bold3, "bold", "normal")};" />
+	                                    <apex:outputText value="{!ro.feedOutput4}" style="font-weight:{!if(ro.bold4, "bold", "normal")};" />
+	                                    <apex:outputText value="{!ro.feedOutput5}" style="font-weight:{!if(ro.bold5, "bold", "normal")};" />
+	                                    <apex:outputText value="{!ro.feedOutput6}" style="font-weight:{!if(ro.bold6, "bold", "normal")};" />
+	                                    <apex:outputText value="{!ro.feedOutput7}" style="font-weight:{!if(ro.bold7, "bold", "normal")};" />
+	                                    <apex:outputText value="{!ro.feedOutput8}" style="font-weight:{!if(ro.bold8, "bold", "normal")};" />
+	                                    <apex:outputText value="{!ro.feedOutput9}" style="font-weight:{!if(ro.bold9, "bold", "normal")};" />
+	                                </span> 
+	                                <apex:outputPanel rendered="{!if(ro.showPreview, 'true', 'false')}">
+	                                    <br />
+	                                    <span style="font-style:italic; font-size:.95em;">{!ro.feedActivityHistoryPreview}</span>
+	                                </apex:outputPanel> 
+                                </div>         
+                                <div class="feeditemfooter">    
+                                   	<!-- 
+                                   		// FOOTER
+                                   	 -->
+                                  	<!--  
+                                    	// Footer Link
+                                    -->
+                                    <span class="cxallfeedactions">
+                                    	<!--  
+                                    		// Disabled
+                                    	-->
+                                        <apex:outputPanel rendered="{!if(ro.disableRecordLink, 'true', 'false')}">
+                                            <a href="#" title="Cannot view this this record." class="cxaddcommentaction feeditemactionlink" style="text-decoration:none;">{!ro.recordName}</a> 
+                                            <!--  -->
+                                        </apex:outputPanel>
+                                        <!--  
+                                    		// Enabled
+                                    	-->
+                                        <apex:outputPanel rendered="{!if(!ro.disableRecordLink, 'true', 'false')}">
+                                        	<apex:outputPanel rendered="{!if(ro.showAltURL, 'true', 'false')}">
+                                            	<a href="{!ro.altURL}" target="_blank" title="Click to edit this record" class="feeditemactionlink cxaddcommentaction">{!ro.recordName}</a>
+                                            </apex:outputPanel>
+                                            <apex:outputPanel rendered="{!if(!ro.showAltURL, 'true', 'false')}">
+                                            	<a href="/{!ro.recordId}" target="_blank" title="Click to view this record" class="feeditemactionlink cxaddcommentaction">{!ro.recordName}</a>
+                                            </apex:outputPanel> 
+                                        </apex:outputPanel>
+                                        <span class="cxfeeditemcommentdot feeditemseparatingdot"> · </span>
+                                        <!-- 
+                                        <apex:outputPanel rendered="{!if(ro.showHover, 'true', 'false')}">
+                                           	<c:hoverLink hoverButtonText="{!ro.hoverLinkText}" hoverUniqueId="{!ro.recordId}">
+                                           		 <div style="width:500px; max-height:200px; overflow:auto;">
+                                           		 	<pre>{!ro.hoverFormattedText}</pre>
+                                           		 </div> 
+                                           	</c:hoverLink>
+                                           	<span class="cxfeeditemcommentdot feeditemseparatingdot"> · </span>
+                                        </apex:outputPanel>
+                                         -->
+                                    </span>
+                                    <!--  
+                                    	// Footer Timestamp
+                                    -->
+                                    <span class="feeditemtimestamp displayDate">{!ro.recordLMDisplay}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    </apex:outputPanel>
+                    </apex:repeat>
+                    <apex:outputPanel rendered="{!listEmpty}">
+                        <div class="emptyListDiv">
+                            <b>List is empty. Select filters above to populate list.</b>
+                        </div>
+                    </apex:outputPanel>
+                    </div>
+                    <div class="showMoreSection">
+                        
+                        <apex:commandLink styleClass="sortLink" value="{!scrollLinkText}" action="{!showMoreLess}" status="status2" rerender="mainOP" />
+                        
+                        <!-- 
+                        <apex:commandLink styleClass="sortLink" value="{!showMoreLabel} ({!totalRecords})" action="{!showMoreLess}" status="status2" rerender="mainOP" />
+                         -->
+                        
+                        <!--  
+                        <a href="#" title="Cannot view this this record." class="feeditemactionlink cxaddcommentaction">Show More ({!totalRecords})</a>
+                         -->
+                    </div>
+                    <div class="clearDiv">
+                    </div>
+                </div>
+            </div>
+        </apex:outputPanel>
+    </div>
+    
+     
+    <script type="text/javascript">
+        function switchActionItemVisibility(objId) {
+            if(document.getElementById('action_link_' + objId).innerHTML == 'View') {  
+                
+                document.getElementById('action_link_' + objId).innerHTML = 'Hide';   
+                document.getElementById('action_options_' + objId).style.display = '';
+               // document.getElementById('action_block_' + objId).title = 'Collapse'; 
+            } 
+            else {  
+                document.getElementById('action_link_' + objId).innerHTML = 'View';   
+                document.getElementById('action_options_' + objId).style.display = 'none';
+                //document.getElementById('action_block_' + objId).title = 'Expand';   
+            }
+        }
+    </script>
+     
+</apex:form>
+</apex:page>

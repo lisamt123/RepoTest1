@@ -1,0 +1,209 @@
+<apex:page >
+    
+    
+    <!-- test 6! -->
+    
+    <style>
+        .hidden {
+            display: none;
+        }
+        body{ 
+            background-color: #F3F3EC; 
+        }
+       .adm_longOutputFieldWrapper,.adm_outputFieldWrapper{
+            float:left;cursor:pointer;
+        }
+        .adm_inputField,.adm_longInputField,.adm_revertIcon{
+            vertical-align:bottom;
+        }
+        .adm_formItemWrapper{
+            height:18px; 
+            width:300px;
+        }
+        .adm_longFormItemWrapper{ 
+            width:85%;
+        }
+        .adm_outputFieldWrapper{
+            width:200px;
+        }
+        .adm_longOutputFieldWrapper{
+            width:400px; 
+        }
+        .adm_inputField{
+            /*width:200px; */
+            text-alight:left;
+        }
+        .adm_longInputField{
+            width:85%; 
+        }
+        .adm_revertIcon{ }
+        .adm_edit{
+            background: url({!$Resource.agf__IconEdit}) no-repeat top right; padding-right:20px;
+        }
+        .pbBody td{
+            border-style:hidden !important;
+        }
+        .lookupInput a{
+            border: none !important;
+        }
+        .pbBody ul {
+           display:none !important;
+        }
+        .adm_displayBlock ul{
+          display:block !important;
+        }
+        div.errorMsg{
+            display:block !important;
+       }
+        #tag_edit_error {
+            display: none !important;
+        }
+       .thHide{ display:none !important; }       
+        a.noUnderline:link,
+        a.noUnderline:hover,
+        a.noUnderline:visited,
+        a.noUnderline,
+        .noUnderline{
+            text-decoration:none !important;
+        }
+        
+        a.normalLink {
+            font-size:80%;
+        }
+        
+        a.normalLink:link,
+        a.normalLink:hover,
+        a.normalLink:visited {
+            color:blue;
+        }
+        
+        .adm_imgPadding{
+            padding:0px 5px 0px 0px;
+        }  
+        .adm_table .totalRow{
+            text-align:right;
+            vertical-align:middle;
+            padding:5px 0px;
+            text-decoration:none;
+        }
+        .adm_footerSpan{
+            padding:0px 5px;
+        }
+        
+        .adm_info, .adm_success, .adm_warning, .adm_error, .adm_validation {  
+            border: 1px solid;  
+            margin: 10px 0px;  
+            padding:15px 10px 15px 50px;  
+            background-repeat: no-repeat;  
+            background-position: 10px center; 
+            font-size: 14px; 
+        }  
+        
+        .adm_info {  
+            color: #00529B;  
+            background-color: #BDE5F8;  
+            background-image: url({!URLFOR($Resource.agf__silkIcons, 'icons/information.png')}) /*url('information.png');*/  
+        }
+          
+        .adm_success {  
+            color: #4F8A10;  
+            background-color: #DFF2BF;  
+            background-image:url('accept.png');  
+        }  
+ 
+        .adm_warning {  
+            color: #9F6000;  
+            background-color: #FEEFB3;  
+            background-image:url({!URLFOR($Resource.agf__silkIcons, 'icons/error.png')}) /* url('error.png');*/  
+        }  
+        
+        .adm_error {  
+            color: #000000;
+            border-color: #D8000C;  
+            background-color: #FFBABA;  
+            background-image: url({!URLFOR($Resource.agf__silkIcons, 'icons/exclamation.png')}) /*url('exclamation.png');*/  
+        }
+
+		.adm_relatedListInfo {
+            background-repeat: no-repeat;
+            background-position: 10px center;
+    		background-image: url({!URLFOR($Resource.agf__silkIcons, 'icons/information.png')});
+        }
+        
+        .adm_relatedListText {
+            margin-left:40px;
+            color: #00529B;
+        }
+        
+        .adm_padding_small {
+            padding: 5px 0px;
+            margin:0px 0px;
+        }
+        
+		pre {
+		    font-size:100%;
+		    font-family: arial,verdana, helvetica;
+		    white-space: pre-wrap;       /* css-3 */
+		    white-space: -moz-pre-wrap;  /* Mozilla, since 1999 */
+		    white-space: -pre-wrap;      /* Opera 4-6 */
+		    white-space: -o-pre-wrap;    /* Opera 7 */
+		    word-wrap: break-word;       /* Internet Explorer 5.5+ */
+            padding:0px 0px !important;
+            margin:0px 0px !important;
+            line-height:1 !important;
+		}
+        
+        .req {
+            color: #CC0000;
+            font-weight: bolder;
+            font-size: 155%;
+            margin-left:-4px;
+        }
+        
+        .req1 {
+            color: #CC0000;
+            font-weight: bolder;
+            font-size: 280%;
+            margin-left:-4px;
+        }
+        
+        .ptBody {
+          background-color:#00335b;
+        }
+        
+        .pbSubheader {
+          background-color:#00335b;
+        }
+        
+        .actionFooter, .actionFooter_dark {
+            background: #e3e3d7;
+            margin:0;
+            padding:1px;
+        }
+        
+        .actionFooter_dark {
+            background: #E8E8E8;
+        }
+        
+        .opacity_40_percent {
+            opacity:0.4;
+            filter:alpha(opacity=40);
+        }
+        
+        .tooltipbody {
+            background-color:#FEFDB9;
+            border:1px solid orange;
+            color:#000000;
+            font-weight:normal;
+            padding:2px 5px;
+            text-decoration:none;
+            white-space:normal;
+            width:15em;
+            z-index:12;
+        }
+        
+        .center {
+            text-align:center;
+        }
+    </style>
+</apex:page>

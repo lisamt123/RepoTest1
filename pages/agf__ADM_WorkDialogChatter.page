@@ -1,0 +1,32 @@
+<apex:page standardController="agf__ADM_Work__c" showHeader="false" sidebar="false" showChat="false" applyBodyTag="false" docType="html-5.0">
+
+<apex:stylesheet value="{!$Resource.agf__kanban_jqueryui_structure}" />
+<apex:styleSheet value="{!$Resource.agf__ADM_common_css}" />
+<apex:includeScript value="{!$Resource.agf__kanban_jquery}" />
+<apex:includeScript value="{!$Resource.agf__kanban_jqueryui}" />
+<apex:includeScript value="{!$Resource.agf__ADM_common_js}" />
+<apex:includeScript value="{!$Resource.agf__ADM_autocomplete2js}" />
+<apex:outputPanel layout="none" rendered="{!IF($CurrentPage.parameters.isdtp == 'p1','true', 'false')}">
+	<apex:stylesheet value="{!URLFOR($Resource.agf__SLDS042, 'assets/styles/salesforce-lightning-design-system-vf.css')}" />
+	<apex:styleSheet value="{!$Resource.agf__extended}" />
+</apex:outputPanel>
+<apex:outputPanel layout="none" rendered="{!IF($CurrentPage.parameters.isdtp == 'p1','false', 'true')}">
+	<style>
+		.ui-menu-item img{display:inline-block;width:24px;height:24px;border-radius:5px;margin-right:5px;vertical-align:middle;}
+	</style>
+</apex:outputPanel>
+	
+<body class="{!IF($CurrentPage.parameters.isdtp == 'p1','slds', '')}">
+<style>
+	body{background:none !important;}
+	.feedcontainer .feeditem{border-top:0px !important}
+	.feedcontainer .feeditem .preamblecontainer{line-height:16px;}
+</style>
+	
+<div style="display:block;padding:10px;">
+	<div style="display:table-cell;vertical-align:top;padding-right:20px;border-right:1px #ccc solid;width:100%;"><chatter:feed entityId="{!agf__ADM_Work__c.Id}"/></div>
+	<div style="display:table-cell;vertical-align:top;padding-left:20px;"><c:ADM_ChatterFollowers entityId="{!agf__ADM_Work__c.Id}" /></div>
+</div>
+
+</body>
+</apex:page>

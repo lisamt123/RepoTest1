@@ -1,0 +1,1318 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <actionOverrides>
+        <actionName>Accept</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>CancelEdit</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Clone</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Delete</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Edit</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Follow</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>List</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>New</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>SaveEdit</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Tab</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>View</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <allowInChatterGroups>false</allowInChatterGroups>
+    <compactLayoutAssignment>SYSTEM</compactLayoutAssignment>
+    <deploymentStatus>Deployed</deploymentStatus>
+    <deprecated>false</deprecated>
+    <description>NO CONFIGURATION SUPPORT
+
+This object is responsible for storing Dealmaker attributes relating to an Opportunity. There should be exactly one of these for each Opportunity in the system.</description>
+    <enableActivities>false</enableActivities>
+    <enableBulkApi>true</enableBulkApi>
+    <enableEnhancedLookup>false</enableEnhancedLookup>
+    <enableFeeds>false</enableFeeds>
+    <enableHistory>true</enableHistory>
+    <enableReports>false</enableReports>
+    <enableSearch>true</enableSearch>
+    <enableSharing>true</enableSharing>
+    <enableStreamingApi>true</enableStreamingApi>
+    <fields>
+        <fullName>DMAPP__Account_Political_Map__c</fullName>
+        <deleteConstraint>SetNull</deleteConstraint>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>Account Political Map</label>
+        <referenceTo>DMAPP__Account_Political_Map__c</referenceTo>
+        <relationshipLabel>Dealmaker Opportunities</relationshipLabel>
+        <relationshipName>Dealmaker_Opportunities</relationshipName>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Lookup</type>
+    </fields>
+    <fields>
+        <fullName>DMAPP__Amount__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>Amount</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>2</scale>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Currency</type>
+    </fields>
+    <fields>
+        <fullName>DMAPP__Assessment_Completeness__c</fullName>
+        <deprecated>false</deprecated>
+        <description>Assessment Completeness Score</description>
+        <externalId>false</externalId>
+        <label>Assessment Completeness</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>0</scale>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Percent</type>
+    </fields>
+    <fields>
+        <fullName>DMAPP__Assessment_Count__c</fullName>
+        <deprecated>false</deprecated>
+        <description>Count of questions answered for organisation on Assessment for reporting purposes</description>
+        <externalId>false</externalId>
+        <label>Assessment Count</label>
+        <precision>3</precision>
+        <required>false</required>
+        <scale>0</scale>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Number</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>DMAPP__Calculated_Close_Date__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <formula>IF ( 
+	DMAPP__Opportunity__r.IsClosed  || DMAPP__Is_Dealmaker_Opp__c = false , 
+	IF (
+		DMAPP__Opportunity__r.IsWon  || DMAPP__Is_Dealmaker_Opp__c = false, 
+		DMAPP__Opportunity__r.CloseDate, 
+		null
+	),
+	IF (
+			NULLVALUE (DMAPP__Pause_Date__c,  DATEVALUE(NOW())) &gt; DATEVALUE(NOW()), 
+			DMAPP__Pause_Date__c  +  (NULLVALUE(DMAPP__Weeks_To_Close__c, 0) * 7), 
+			DATEVALUE(NOW())  +  (NULLVALUE(DMAPP__Weeks_To_Close__c, 0) * 7)
+	)
+)</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>Qualification Calculated Close Date</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Date</type>
+    </fields>
+    <fields>
+        <fullName>DMAPP__Collaberation_Map_Last_Chatted_By__c</fullName>
+        <deleteConstraint>SetNull</deleteConstraint>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>Collaboration Map Last Chatted By</label>
+        <referenceTo>User</referenceTo>
+        <relationshipName>Collaberation_Map_Last_Chatted_By</relationshipName>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Lookup</type>
+    </fields>
+    <fields>
+        <fullName>DMAPP__Collaberation_Map_Last_Chatted_Time__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>Collaboration Map Last Chatted Time</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>DateTime</type>
+    </fields>
+    <fields>
+        <fullName>DMAPP__Collaboration_Map_Completeness__c</fullName>
+        <deprecated>false</deprecated>
+        <description>Completeness score for Collaboration Map</description>
+        <externalId>false</externalId>
+        <label>Collaboration Map Completeness</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>0</scale>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Percent</type>
+    </fields>
+    <fields>
+        <fullName>DMAPP__Collaboration_Map_Count__c</fullName>
+        <deprecated>false</deprecated>
+        <description>Count of nodes on Collaboration Map for reporting purposes</description>
+        <externalId>false</externalId>
+        <inlineHelpText>Count of nodes on Collaboration Map for reporting purposes</inlineHelpText>
+        <label>Collaboration Map Count</label>
+        <precision>4</precision>
+        <required>false</required>
+        <scale>0</scale>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Number</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>DMAPP__DealmakerID__c</fullName>
+        <caseSensitive>false</caseSensitive>
+        <deprecated>false</deprecated>
+        <description>An external ID used for Dealmaker</description>
+        <externalId>true</externalId>
+        <label>DealmakerID</label>
+        <length>100</length>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>true</unique>
+    </fields>
+    <fields>
+        <fullName>DMAPP__Dealmaker_Completeness__c</fullName>
+        <deprecated>false</deprecated>
+        <description>Simple average of completeness scores.</description>
+        <externalId>false</externalId>
+        <formula>(if(
+  $Setup.DMAPP__Dealmaker_Smart_OM_Settings__c.DMAPP__Show_Assessment__c ||
+  $Setup.DMAPP__Dealmaker_Smart_OM_Settings__c.DMAPP__Show_Collaboration_Map__c ||
+  $Setup.DMAPP__Dealmaker_Smart_OM_Settings__c.DMAPP__Show_Decision_Criteria__c ||
+  $Setup.DMAPP__Dealmaker_Smart_OM_Settings__c.DMAPP__Show_Political_Map__c ||
+  $Setup.DMAPP__Dealmaker_Smart_OM_Settings__c.DMAPP__Show_Prime_Actions__c ||
+  $Setup.DMAPP__Dealmaker_Smart_OM_Settings__c.DMAPP__Show_Competitive_Strategy__c,
+(DMAPP__Assessment_Completeness__c * 0.3) + (DMAPP__Collaboration_Map_Completeness__c * 0.15) + (DMAPP__Decision_Criteria_Completeness__c * 0.15) + (DMAPP__Political_Map_Completeness__c * 0.2) + (DMAPP__PRIME_Completeness__c * 0.05) + (DMAPP__Strategy_Completeness__c * 0.15) /
+(if($Setup.DMAPP__Dealmaker_Smart_OM_Settings__c.DMAPP__Show_Assessment__c,0.3,0) + if($Setup.DMAPP__Dealmaker_Smart_OM_Settings__c.DMAPP__Show_Collaboration_Map__c,0.15,0) + if($Setup.DMAPP__Dealmaker_Smart_OM_Settings__c.DMAPP__Show_Decision_Criteria__c,0.15,0) + if($Setup.DMAPP__Dealmaker_Smart_OM_Settings__c.DMAPP__Show_Political_Map__c,0.2,0) + if($Setup.DMAPP__Dealmaker_Smart_OM_Settings__c.DMAPP__Show_Prime_Actions__c,0.05,0) + if($Setup.DMAPP__Dealmaker_Smart_OM_Settings__c.DMAPP__Show_Competitive_Strategy__c,0.15,0))
+, 0))</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>Dealmaker Completeness</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>2</scale>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Percent</type>
+    </fields>
+    <fields>
+        <fullName>DMAPP__Decision_Criteria_Completeness__c</fullName>
+        <deprecated>false</deprecated>
+        <description>Decision Criteria Completeness Score</description>
+        <externalId>false</externalId>
+        <label>Decision Criteria Completeness</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>0</scale>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Percent</type>
+    </fields>
+    <fields>
+        <fullName>DMAPP__Decision_Criteria_Count__c</fullName>
+        <deprecated>false</deprecated>
+        <description>Count of Decision Criteria for reporting purposes</description>
+        <externalId>false</externalId>
+        <label>Decision Criteria Count</label>
+        <precision>3</precision>
+        <required>false</required>
+        <scale>0</scale>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Number</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>DMAPP__Decision_Criteria_Last_Chatted_By__c</fullName>
+        <deleteConstraint>SetNull</deleteConstraint>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>Decision Criteria Last Chatted By</label>
+        <referenceTo>User</referenceTo>
+        <relationshipName>Decision_Criteria_Last_Chatted_By</relationshipName>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Lookup</type>
+    </fields>
+    <fields>
+        <fullName>DMAPP__Decision_Criteria_Last_Chatted_Time__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>Decision Criteria Last Chatted Time</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>DateTime</type>
+    </fields>
+    <fields>
+        <fullName>DMAPP__Effective_Strategy_Description__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>Effective Strategy Description</label>
+        <length>1024</length>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>LongTextArea</type>
+        <visibleLines>3</visibleLines>
+    </fields>
+    <fields>
+        <fullName>DMAPP__Effective_Strategy_Details_Text__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>Effective Strategy Details Text</label>
+        <length>1024</length>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>LongTextArea</type>
+        <visibleLines>3</visibleLines>
+    </fields>
+    <fields>
+        <fullName>DMAPP__Effective_Strategy__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <formula>IF(DMAPP__Use_Recommended__c, IF(TEXT(DMAPP__Recommended_Strategy__c) != null,
+      TEXT(DMAPP__Recommended_Strategy__c), &apos;Unknown&apos;),
+      IF(TEXT(DMAPP__User_Defined_Strategy__c) != null, TEXT(DMAPP__User_Defined_Strategy__c),
+      &apos;Unknown&apos;))</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>Effective Strategy</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>DMAPP__Forecast_Closed_Projected_Amount__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <formula>IF ( DMAPP__Opportunity__r.IsClosed == false &amp;&amp; DMAPP__Qualification_Projected__c &gt; 0, DMAPP__Opportunity_Amount__c + IF(DMAPP__Opportunity__r.IsWon, DMAPP__Opportunity_Amount__c, 0), 0 + IF(DMAPP__Opportunity__r.IsWon, DMAPP__Opportunity_Amount__c, 0))</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>Forecast Closed Projected Amount</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>2</scale>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Currency</type>
+    </fields>
+    <fields>
+        <fullName>DMAPP__Forecast_Lost_Amount__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <formula>IF(DMAPP__Opportunity__r.IsClosed, IF(DMAPP__Opportunity__r.IsWon, 0, DMAPP__Opportunity_Amount__c), 0)</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>Forecast Lost Amount</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>2</scale>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Currency</type>
+    </fields>
+    <fields>
+        <fullName>DMAPP__Forecast_Open_Amount__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <formula>IF(DMAPP__Opportunity__r.IsClosed, 0, DMAPP__Opportunity_Amount__c)</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>Forecast Open Amount</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>2</scale>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Currency</type>
+    </fields>
+    <fields>
+        <fullName>DMAPP__Forecast_Pebble_Amount__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <formula>IF (DMAPP__Mix__c = 3, DMAPP__Opportunity_Amount__c, 0)</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>Forecast Pebble Amount</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>2</scale>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Currency</type>
+    </fields>
+    <fields>
+        <fullName>DMAPP__Forecast_Projected_Amount__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <formula>IF ( DMAPP__Opportunity__r.IsClosed == false &amp;&amp; DMAPP__Qualification_Projected__c &gt; 0, DMAPP__Opportunity_Amount__c, 0)</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>Forecast Projected Amount</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>2</scale>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Currency</type>
+    </fields>
+    <fields>
+        <fullName>DMAPP__Forecast_Rock_Amount__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <formula>IF (DMAPP__Mix__c = 1, DMAPP__Opportunity_Amount__c, 0)</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>Forecast Rock Amount</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>2</scale>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Currency</type>
+    </fields>
+    <fields>
+        <fullName>DMAPP__Forecast_Stone_Amount__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <formula>IF (DMAPP__Mix__c = 2, DMAPP__Opportunity_Amount__c, 0)</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>Forecast Stone Amount</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>2</scale>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Currency</type>
+    </fields>
+    <fields>
+        <fullName>DMAPP__Forecast_Unprojected_Amount__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <formula>IF ( DMAPP__Qualification_Projected__c &gt; 0, 0, If(DMAPP__Opportunity__r.IsClosed, 0,DMAPP__Opportunity_Amount__c))</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>Forecast Unprojected Amount</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>2</scale>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Currency</type>
+    </fields>
+    <fields>
+        <fullName>DMAPP__Forecast_Won_Amount__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <formula>IF(DMAPP__Opportunity__r.IsWon, DMAPP__Opportunity_Amount__c, 0)</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>Forecast Won Amount</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>2</scale>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Currency</type>
+    </fields>
+    <fields>
+        <fullName>DMAPP__Health__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <formula>IF(DMAPP__Opportunity__r.IsWon,
+	1,
+	IF(DMAPP__Pause_Date__c&gt;=TODAY(),
+		0,
+		IF (DMAPP__Opportunity__r.LastModifiedDate &gt; LastModifiedDate,
+			IF (DMAPP__Opportunity__r.LastModifiedDate &gt; Now() - 30, 
+				1,
+				IF (DMAPP__Opportunity__r.LastModifiedDate &gt; Now() - 60,
+					2,
+					3
+				)
+			),
+			IF (LastModifiedDate &gt; Now() - 30, 
+				1,
+				IF (LastModifiedDate &gt; Now() - 60,
+					2,
+					3
+				)
+			)			
+		)
+	)
+)</formula>
+        <label>Health</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>0</scale>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Number</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>DMAPP__Is_Dealmaker_Opp__c</fullName>
+        <defaultValue>false</defaultValue>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>Is Dealmaker Opp</label>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>DMAPP__Last_Updated__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <formula>IF (DMAPP__Opportunity__r.LastModifiedDate &gt; LastModifiedDate, DMAPP__Opportunity__r.LastModifiedDate, LastModifiedDate)</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>Last Updated</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>DateTime</type>
+    </fields>
+    <fields>
+        <fullName>DMAPP__Milestones_Answer_Count__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>Milestones Answer Count</label>
+        <summaryFilterItems>
+            <field>DMAPP__DM_Milestone_Opportunity_Answer__c.DMAPP__Milestone_Question_Option__c</field>
+            <operation>notEqual</operation>
+            <value></value>
+        </summaryFilterItems>
+        <summaryForeignKey>DMAPP__DM_Milestone_Opportunity_Answer__c.DMAPP__Dealmaker_Opportunity__c</summaryForeignKey>
+        <summaryOperation>count</summaryOperation>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Summary</type>
+    </fields>
+    <fields>
+        <fullName>DMAPP__Milestones_Completeness__c</fullName>
+        <deprecated>false</deprecated>
+        <description>Milestones Completeness Percentage = (Milestones Count / Milestones Total) * 100</description>
+        <externalId>false</externalId>
+        <formula>if ( DMAPP__Milestones_Answer_Count__c == null || DMAPP__Milestones_Answer_Count__c == 0|| DMAPP__Milestones_Total__c == null || DMAPP__Milestones_Total__c == 0, 0,
+(
+ (DMAPP__Milestones_Answer_Count__c / DMAPP__Milestones_Total__c ) * 100
+)
+)</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <inlineHelpText>Milestones Completeness Percentage = (Milestones Count / Milestones Total) * 100</inlineHelpText>
+        <label>DEPRECATED Milestones Completeness</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>2</scale>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Number</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>DMAPP__Milestones_Count__c</fullName>
+        <deprecated>false</deprecated>
+        <description>The number of Milestones questions which have been answered</description>
+        <externalId>false</externalId>
+        <inlineHelpText>The number of Milestones questions which have been answered</inlineHelpText>
+        <label>DEPRECATED Milestones Count</label>
+        <precision>3</precision>
+        <required>false</required>
+        <scale>0</scale>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Number</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>DMAPP__Milestones_Last_Chatted_By__c</fullName>
+        <deleteConstraint>SetNull</deleteConstraint>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>Milestones Last Chatted By</label>
+        <referenceTo>User</referenceTo>
+        <relationshipName>Dealmaker_Opportunities1</relationshipName>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Lookup</type>
+    </fields>
+    <fields>
+        <fullName>DMAPP__Milestones_Last_Chatted_Time__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>Milestones Last Chatted Time</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>DateTime</type>
+    </fields>
+    <fields>
+        <fullName>DMAPP__Milestones_Score__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>Milestones Score</label>
+        <summarizedField>DMAPP__DM_Milestone_Opportunity_Answer__c.DMAPP__Score__c</summarizedField>
+        <summaryForeignKey>DMAPP__DM_Milestone_Opportunity_Answer__c.DMAPP__Dealmaker_Opportunity__c</summaryForeignKey>
+        <summaryOperation>sum</summaryOperation>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Summary</type>
+    </fields>
+    <fields>
+        <fullName>DMAPP__Milestones_Total__c</fullName>
+        <deprecated>false</deprecated>
+        <description>Milestones Total number of questions</description>
+        <externalId>false</externalId>
+        <inlineHelpText>Milestones Total number of questions</inlineHelpText>
+        <label>DEPRECATED Milestones Total</label>
+        <precision>3</precision>
+        <required>false</required>
+        <scale>0</scale>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Number</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>DMAPP__Mix__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <formula>if ( DMAPP__Opportunity_Amount__c == null || DMAPP__Sales_Process__c == null, -1,
+If	(
+	NULLVALUE(DMAPP__Opportunity_Amount__c, 0) &gt;= DMAPP__Sales_Process__r.DMAPP__Rock_Value__c,
+	1,
+	IF	(
+		NULLVALUE(DMAPP__Opportunity_Amount__c, 0) &lt; DMAPP__Sales_Process__r.DMAPP__Pebble_Value__c,
+		3,
+		2
+	)
+)
+)</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>Mix</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>2</scale>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Number</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>DMAPP__Opportunity_Amount__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <formula>IF( ISBLANK($Setup.DMAPP__Dealmaker_Playbook_Settings__c.DMAPP__Opp_Amount_Field__c),  DMAPP__Opportunity__r.Amount ,  DMAPP__Amount__c  )</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>Opportunity Amount</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>2</scale>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Currency</type>
+    </fields>
+    <fields>
+        <fullName>DMAPP__Opportunity__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>Opportunity</label>
+        <referenceTo>Opportunity</referenceTo>
+        <relationshipLabel>Dealmaker Opportunities</relationshipLabel>
+        <relationshipName>DM_Opportunity_Extras</relationshipName>
+        <relationshipOrder>0</relationshipOrder>
+        <reparentableMasterDetail>false</reparentableMasterDetail>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>MasterDetail</type>
+        <writeRequiresMasterRead>false</writeRequiresMasterRead>
+    </fields>
+    <fields>
+        <fullName>DMAPP__PRIME_Completeness__c</fullName>
+        <deprecated>false</deprecated>
+        <description>PRIME Completeness Score</description>
+        <externalId>false</externalId>
+        <label>PRIME Completeness</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>0</scale>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Percent</type>
+    </fields>
+    <fields>
+        <fullName>DMAPP__PRIME_Count__c</fullName>
+        <deprecated>false</deprecated>
+        <description>Count of open PRIME actions for reporting purposes</description>
+        <externalId>false</externalId>
+        <label>PRIME Count</label>
+        <precision>3</precision>
+        <required>false</required>
+        <scale>0</scale>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Number</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>DMAPP__PRIME_Last_Chatted_By__c</fullName>
+        <deleteConstraint>SetNull</deleteConstraint>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>PRIME Last Chatted By</label>
+        <referenceTo>User</referenceTo>
+        <relationshipName>PRIME_Last_Chatted_By</relationshipName>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Lookup</type>
+    </fields>
+    <fields>
+        <fullName>DMAPP__PRIME_Last_Chatted_Time__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>PRIME Last Chatted Time</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>DateTime</type>
+    </fields>
+    <fields>
+        <fullName>DMAPP__Pause_Date__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>Qualification Pause Date</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Date</type>
+    </fields>
+    <fields>
+        <fullName>DMAPP__Political_Map_Completeness__c</fullName>
+        <deprecated>false</deprecated>
+        <description>Political Map Completeness Score</description>
+        <externalId>false</externalId>
+        <label>Political Map Completeness</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>0</scale>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Percent</type>
+    </fields>
+    <fields>
+        <fullName>DMAPP__Political_Map_Count__c</fullName>
+        <deprecated>false</deprecated>
+        <description>Count of nodes on Political Map for reporting purposes</description>
+        <externalId>false</externalId>
+        <label>Political Map Count</label>
+        <precision>3</precision>
+        <required>false</required>
+        <scale>0</scale>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Number</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>DMAPP__Political_Map_Last_Chatted_By__c</fullName>
+        <deleteConstraint>SetNull</deleteConstraint>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>Political Map Last Chatted By</label>
+        <referenceTo>User</referenceTo>
+        <relationshipName>Political_Map_Last_Chatted_By</relationshipName>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Lookup</type>
+    </fields>
+    <fields>
+        <fullName>DMAPP__Political_Map_Last_Chatted_Time__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>Political Map Last Chatted Time</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>DateTime</type>
+    </fields>
+    <fields>
+        <fullName>DMAPP__Probability__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>Qualification  Probability</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>0</scale>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Percent</type>
+    </fields>
+    <fields>
+        <fullName>DMAPP__Qualification_Dirty__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <formula>IF (
+	DMAPP__Qualification_Sales_Process_Type_Stamp__c  &lt;&gt; DMAPP__Sales_Process__c, 
+	1, 
+	IF (
+		DMAPP__Qualification_Sales_Process_Ver_Stamp__c  &lt;&gt; DMAPP__Sales_Process__r.DMAPP__Version__c, 
+		1, 
+		0
+	)
+)</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>Qualification_Dirty</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>0</scale>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Number</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>DMAPP__Qualification_Last_Chatted_By__c</fullName>
+        <deleteConstraint>SetNull</deleteConstraint>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>Qualification Last Chatted By</label>
+        <referenceTo>User</referenceTo>
+        <relationshipName>Dealmaker_Opportunities</relationshipName>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Lookup</type>
+    </fields>
+    <fields>
+        <fullName>DMAPP__Qualification_Last_Chatted_Time__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>Qualification Last Chatted Time</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>DateTime</type>
+    </fields>
+    <fields>
+        <fullName>DMAPP__Qualification_Progress__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>Qualification Progress</label>
+        <length>100</length>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>DMAPP__Qualification_Projected__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <formula>IF(
+	DMAPP__Opportunity__r.IsClosed == true,
+	IF(DMAPP__Opportunity__r.IsWon, 1, 0),
+	IF(DMAPP__Probability__c &gt;=DMAPP__Sales_Process__r.DMAPP__Threshold__c &amp;&amp; DMAPP__Probability__c &gt; 0, 1, 0)
+)</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>Qualification Projected</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>2</scale>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Number</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>DMAPP__Qualification_Sales_Process_Type_Stamp__c</fullName>
+        <deleteConstraint>Restrict</deleteConstraint>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>Qualification Sales Process Type Stamp</label>
+        <referenceTo>DMAPP__DM_Sales_Process__c</referenceTo>
+        <relationshipLabel>Dealmaker Opportunities (Qualification Sales Process Type Stamp)</relationshipLabel>
+        <relationshipName>Dealmaker_Opportunities1</relationshipName>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Lookup</type>
+    </fields>
+    <fields>
+        <fullName>DMAPP__Qualification_Sales_Process_Ver_Stamp__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>Qualification Sales Process Ver Stamp</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>0</scale>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Number</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>DMAPP__Qualification_Stage__c</fullName>
+        <deleteConstraint>Restrict</deleteConstraint>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>Qualification Stage</label>
+        <referenceTo>DMAPP__DM_Stage_Extra__c</referenceTo>
+        <relationshipLabel>Dealmaker Opportunities</relationshipLabel>
+        <relationshipName>Dealmaker_Opportunities</relationshipName>
+        <required>false</required>
+        <trackHistory>true</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Lookup</type>
+    </fields>
+    <fields>
+        <fullName>DMAPP__Recommended_Strategy__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>Recommended Strategy</label>
+        <picklist>
+            <picklistValues>
+                <fullName>Frontal</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Flanking</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Fragment</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Defend</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Develop</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Disengage</fullName>
+                <default>false</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Picklist</type>
+    </fields>
+    <fields>
+        <fullName>DMAPP__Sales_Process_Stage__c</fullName>
+        <deleteConstraint>Restrict</deleteConstraint>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>Qualification Sales Process Stage</label>
+        <referenceTo>DMAPP__DM_Sales_Process_Stage__c</referenceTo>
+        <relationshipLabel>Dealmaker Opportunities</relationshipLabel>
+        <relationshipName>Dealmaker_Opportunities</relationshipName>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Lookup</type>
+    </fields>
+    <fields>
+        <fullName>DMAPP__Sales_Process__c</fullName>
+        <deleteConstraint>Restrict</deleteConstraint>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>Qualification Sales Process</label>
+        <referenceTo>DMAPP__DM_Sales_Process__c</referenceTo>
+        <relationshipLabel>Dealmaker Opportunities</relationshipLabel>
+        <relationshipName>Dealmaker_Opportunities</relationshipName>
+        <required>false</required>
+        <trackHistory>true</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Lookup</type>
+    </fields>
+    <fields>
+        <fullName>DMAPP__Strategy_Completeness__c</fullName>
+        <deprecated>false</deprecated>
+        <description>Strategy Completeness Score</description>
+        <externalId>false</externalId>
+        <label>Strategy Completeness</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>0</scale>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Percent</type>
+    </fields>
+    <fields>
+        <fullName>DMAPP__Strategy_Last_Chatted_By__c</fullName>
+        <deleteConstraint>SetNull</deleteConstraint>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>Strategy Last Chatted By</label>
+        <referenceTo>User</referenceTo>
+        <relationshipName>Strategy_Last_Chatted_By</relationshipName>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Lookup</type>
+    </fields>
+    <fields>
+        <fullName>DMAPP__Strategy_Last_Chatted_Time__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>Strategy Last Chatted Time</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>DateTime</type>
+    </fields>
+    <fields>
+        <fullName>DMAPP__TAS_Last_Chatted_By__c</fullName>
+        <deleteConstraint>SetNull</deleteConstraint>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>TAS Last Chatted By</label>
+        <referenceTo>User</referenceTo>
+        <relationshipName>TAS_Last_Chatted_By</relationshipName>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Lookup</type>
+    </fields>
+    <fields>
+        <fullName>DMAPP__TAS_Last_Chatted_Time__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>TAS Last Chatted Time</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>DateTime</type>
+    </fields>
+    <fields>
+        <fullName>DMAPP__TCS_Q1__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <inlineHelpText>Is there a compelling event or can you create one?</inlineHelpText>
+        <label>TCS_Q1</label>
+        <picklist>
+            <picklistValues>
+                <fullName>Unknown</fullName>
+                <default>true</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Yes</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>No</fullName>
+                <default>false</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Picklist</type>
+    </fields>
+    <fields>
+        <fullName>DMAPP__TCS_Q2__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <inlineHelpText>Can you compete?</inlineHelpText>
+        <label>TCS_Q2</label>
+        <picklist>
+            <picklistValues>
+                <fullName>Unknown</fullName>
+                <default>true</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Yes</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>No</fullName>
+                <default>false</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Picklist</type>
+    </fields>
+    <fields>
+        <fullName>DMAPP__TCS_Q3__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <inlineHelpText>Do you have a 3:1 advantage?</inlineHelpText>
+        <label>TCS_Q3</label>
+        <picklist>
+            <picklistValues>
+                <fullName>Unknown</fullName>
+                <default>true</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Yes</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>No</fullName>
+                <default>false</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Picklist</type>
+    </fields>
+    <fields>
+        <fullName>DMAPP__TCS_Q4__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <inlineHelpText>Can you change or expand the buying criteria?</inlineHelpText>
+        <label>TCS_Q4</label>
+        <picklist>
+            <picklistValues>
+                <fullName>Unknown</fullName>
+                <default>true</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Yes</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>No</fullName>
+                <default>false</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Picklist</type>
+    </fields>
+    <fields>
+        <fullName>DMAPP__TCS_Q5__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <inlineHelpText>Do you have a position in the account that you must protect?</inlineHelpText>
+        <label>TCS_Q5</label>
+        <picklist>
+            <picklistValues>
+                <fullName>Unknown</fullName>
+                <default>true</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Yes</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>No</fullName>
+                <default>false</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Picklist</type>
+    </fields>
+    <fields>
+        <fullName>DMAPP__TCS_Q6__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <inlineHelpText>Is there future revenue or strategic value?</inlineHelpText>
+        <label>TCS_Q6</label>
+        <picklist>
+            <picklistValues>
+                <fullName>Unknown</fullName>
+                <default>true</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Yes</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>No</fullName>
+                <default>false</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Picklist</type>
+    </fields>
+    <fields>
+        <fullName>DMAPP__TCS_Q7__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <inlineHelpText>Can you identify a profitable subset of the opportunity that you can win?</inlineHelpText>
+        <label>TCS_Q7</label>
+        <picklist>
+            <picklistValues>
+                <fullName>Unknown</fullName>
+                <default>true</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Yes</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>No</fullName>
+                <default>false</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Picklist</type>
+    </fields>
+    <fields>
+        <fullName>DMAPP__Use_Recommended__c</fullName>
+        <defaultValue>true</defaultValue>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>Use Recommended</label>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>DMAPP__User_Defined_Strategy__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>User Defined Strategy</label>
+        <picklist>
+            <picklistValues>
+                <fullName>Frontal</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Flanking</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Fragment</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Defend</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Develop</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Disengage</fullName>
+                <default>false</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Picklist</type>
+    </fields>
+    <fields>
+        <fullName>DMAPP__Weeks_To_Close__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>Qualification Weeks To Close</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>2</scale>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Number</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>DMAPP__Worked_in_DM__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <formula>OR (DMAPP__Worked_in_OM__c, DMAPP__Worked_in_Playbook__c)</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>Worked in DM</label>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>DMAPP__Worked_in_OM__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <formula>DMAPP__Dealmaker_Completeness__c &gt; 0</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>Worked in OM</label>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>DMAPP__Worked_in_Playbook__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <formula>DMAPP__Probability__c &gt; 0</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>Worked in Playbook</label>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Checkbox</type>
+    </fields>
+    <label>Dealmaker Opportunity</label>
+    <nameField>
+        <label>Dealmaker Opportunity Name</label>
+        <trackHistory>false</trackHistory>
+        <type>Text</type>
+    </nameField>
+    <pluralLabel>Dealmaker Opportunities</pluralLabel>
+    <searchLayouts>
+        <customTabListAdditionalFields>DMAPP__Opportunity__c</customTabListAdditionalFields>
+        <customTabListAdditionalFields>DMAPP__Assessment_Count__c</customTabListAdditionalFields>
+        <customTabListAdditionalFields>DMAPP__Political_Map_Count__c</customTabListAdditionalFields>
+        <customTabListAdditionalFields>DMAPP__Decision_Criteria_Count__c</customTabListAdditionalFields>
+        <customTabListAdditionalFields>DMAPP__Collaboration_Map_Count__c</customTabListAdditionalFields>
+        <customTabListAdditionalFields>DMAPP__Effective_Strategy__c</customTabListAdditionalFields>
+        <customTabListAdditionalFields>DMAPP__PRIME_Count__c</customTabListAdditionalFields>
+        <excludedStandardButtons>New</excludedStandardButtons>
+        <lookupDialogsAdditionalFields>DMAPP__Opportunity__c</lookupDialogsAdditionalFields>
+        <lookupDialogsAdditionalFields>DMAPP__Assessment_Completeness__c</lookupDialogsAdditionalFields>
+        <lookupDialogsAdditionalFields>DMAPP__Collaboration_Map_Completeness__c</lookupDialogsAdditionalFields>
+        <lookupDialogsAdditionalFields>DMAPP__Decision_Criteria_Completeness__c</lookupDialogsAdditionalFields>
+        <lookupDialogsAdditionalFields>DMAPP__Political_Map_Completeness__c</lookupDialogsAdditionalFields>
+        <lookupDialogsAdditionalFields>DMAPP__PRIME_Completeness__c</lookupDialogsAdditionalFields>
+        <lookupDialogsAdditionalFields>DMAPP__Strategy_Completeness__c</lookupDialogsAdditionalFields>
+        <searchResultsAdditionalFields>DMAPP__Opportunity__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields>DMAPP__Assessment_Count__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields>DMAPP__Collaboration_Map_Count__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields>DMAPP__Decision_Criteria_Count__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields>DMAPP__Effective_Strategy__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields>DMAPP__Political_Map_Count__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields>DMAPP__PRIME_Count__c</searchResultsAdditionalFields>
+    </searchLayouts>
+    <sharingModel>ControlledByParent</sharingModel>
+</CustomObject>

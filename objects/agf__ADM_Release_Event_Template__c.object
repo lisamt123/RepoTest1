@@ -1,0 +1,399 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <actionOverrides>
+        <actionName>Accept</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>CancelEdit</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Clone</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Delete</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Edit</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Follow</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>List</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>New</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>SaveEdit</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Tab</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>View</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <allowInChatterGroups>false</allowInChatterGroups>
+    <compactLayoutAssignment>SYSTEM</compactLayoutAssignment>
+    <deploymentStatus>Deployed</deploymentStatus>
+    <deprecated>false</deprecated>
+    <description>Release Event Templates represent events such as deployments which take place as part of a Release.</description>
+    <enableActivities>false</enableActivities>
+    <enableBulkApi>true</enableBulkApi>
+    <enableFeeds>false</enableFeeds>
+    <enableHistory>false</enableHistory>
+    <enableReports>true</enableReports>
+    <enableSearch>true</enableSearch>
+    <enableSharing>true</enableSharing>
+    <enableStreamingApi>true</enableStreamingApi>
+    <fields>
+        <fullName>agf__Application__c</fullName>
+        <deleteConstraint>SetNull</deleteConstraint>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <inlineHelpText>Enter the Application to which this Release Event Item applies</inlineHelpText>
+        <label>Application</label>
+        <referenceTo>agf__ADM_Application__c</referenceTo>
+        <relationshipLabel>Release Event Templates</relationshipLabel>
+        <relationshipName>Release_Event_Items</relationshipName>
+        <required>false</required>
+        <trackTrending>false</trackTrending>
+        <type>Lookup</type>
+    </fields>
+    <fields>
+        <fullName>agf__Base_Event__c</fullName>
+        <deprecated>false</deprecated>
+        <description>This field indicates whether the Release Event is a &quot;Base&quot; event, that is, the event happens at the time indicated by the Release record&apos;s Scheduled Release Date.</description>
+        <externalId>false</externalId>
+        <formula>IF(agf__Day_Offset__c = 0 &amp;&amp;  agf__Event_Duration__c = 0 &amp;&amp; ISBLANK(agf__Start_Time__c) &amp;&amp; 
+agf__Minute_Offset__c =0 &amp;&amp;  agf__Hour_Offset__c = 0, &quot;BASE EVENT&quot;, &quot;&quot;)</formula>
+        <label>Base Event</label>
+        <required>false</required>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>agf__Day_Offset__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <inlineHelpText>Number of days from the Scheduled Release Date that the Release Event is to occur.</inlineHelpText>
+        <label>Day Offset</label>
+        <precision>2</precision>
+        <required>false</required>
+        <scale>0</scale>
+        <trackTrending>false</trackTrending>
+        <type>Number</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>agf__Day_of_Week__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <inlineHelpText>Enter the day of the week that the Release Event would occur</inlineHelpText>
+        <label>Day of Week</label>
+        <picklist>
+            <picklistValues>
+                <fullName>Sunday</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Monday</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Tuesday</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Wednesday</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Thursday</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Friday</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Saturday</fullName>
+                <default>false</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <trackTrending>false</trackTrending>
+        <type>Picklist</type>
+    </fields>
+    <fields>
+        <fullName>agf__Event_Duration__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <inlineHelpText>Enter the duration in minutes of this Release Event. Setting this value to zero when Day Offset, Hour Offset and Minute Offset are all zero creates Release Events with a Duration equal to the Release&apos;s Planned Duration.</inlineHelpText>
+        <label>Event Duration</label>
+        <precision>4</precision>
+        <required>true</required>
+        <scale>0</scale>
+        <trackTrending>false</trackTrending>
+        <type>Number</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>agf__Event_Template_Name__c</fullName>
+        <deprecated>false</deprecated>
+        <description>Name of the Release Event Template</description>
+        <externalId>false</externalId>
+        <inlineHelpText>Enter a name for the Release Event Template</inlineHelpText>
+        <label>Event Template Name</label>
+        <length>80</length>
+        <required>true</required>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>agf__Hour_Offset__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <inlineHelpText>Number of hours that this event item is offset from the Scheduled Release Date. Note: Either Start Time or Hour and Minute Offset can be used.</inlineHelpText>
+        <label>Hour Offset</label>
+        <precision>4</precision>
+        <required>false</required>
+        <scale>0</scale>
+        <trackTrending>false</trackTrending>
+        <type>Number</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>agf__Instance_Key_Verification__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <inlineHelpText>The result from evaluating the Test Instance List using the Instance Key are displayed in this field when this record is saved.</inlineHelpText>
+        <label>Instance Key Verification</label>
+        <length>32768</length>
+        <trackTrending>false</trackTrending>
+        <type>LongTextArea</type>
+        <visibleLines>3</visibleLines>
+    </fields>
+    <fields>
+        <fullName>agf__Instance_Key__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <inlineHelpText>Instance Key is a Regular Expression (REGEX) that distinguishes which instances participate in this Release Event. See the Custom Link below for details on Regular Expressions.</inlineHelpText>
+        <label>Instance Key</label>
+        <length>120</length>
+        <required>false</required>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>agf__Minute_Offset__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <inlineHelpText>Number of minutes that this event item is offset from the Scheduled Release Date. Note: Either Start Time or Hour and Minute Offset can be used.</inlineHelpText>
+        <label>Minute Offset</label>
+        <precision>5</precision>
+        <required>false</required>
+        <scale>0</scale>
+        <trackTrending>false</trackTrending>
+        <type>Number</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>agf__Notify_Customers__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <inlineHelpText>Release Events that are customer facing may be communicated to customers through the Trust site or other means</inlineHelpText>
+        <label>Customer facing?</label>
+        <picklist>
+            <picklistValues>
+                <fullName>Yes</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>No</fullName>
+                <default>false</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <trackTrending>false</trackTrending>
+        <type>Picklist</type>
+    </fields>
+    <fields>
+        <fullName>agf__Release_Type__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <inlineHelpText>Select the types of Release which employ this Release Event Item</inlineHelpText>
+        <label>Release Type</label>
+        <picklist>
+            <picklistValues>
+                <fullName>eRelease</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Patch</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Major</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Other</fullName>
+                <default>false</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <trackTrending>false</trackTrending>
+        <type>MultiselectPicklist</type>
+        <visibleLines>3</visibleLines>
+    </fields>
+    <fields>
+        <fullName>agf__Start_Time__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <inlineHelpText>Enter the time of day when the Release Event would occur. Format is HH:MM AM/PM (12 hour). Note: Either Start Time or Hour and Minute Offset can be used.</inlineHelpText>
+        <label>Start Time</label>
+        <length>8</length>
+        <required>false</required>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>agf__Test_Instance_List__c</fullName>
+        <defaultValue>&quot;CS3 CS4 CS7 CS9 CS11 CS12 CS13 CS14 CS15 CS17 CS19 CS20 CS21 CS23 CS25 CS26 CS27 CS28 CS30 CS32 CS41 CS42 CS44 CS45 CS51 CS80 CS83 CS87 SR1 SR2 CS5 CS31 NA1 GS0 NA6 NA7 NA8 NA9 NA17 NA18 NA22 NA29 NA31 EU5 EU0 EU1 EU2 EU3 EU4 EU6 CS81 NA0 NA2 NA3 NA4 NA5 NA10 NA11 NA12 NA13 NA14 NA15 NA16 NA19 NA20 NA21 NA23 NA24 NA25 NA26 NA27 NA34 NA41 AP0 AP1 AP2 AP3 CS1 CS2 CS6 CS8 CS10 CS16 CS18 CS22 CS24 CS33 CS40 CS43 CS50 CS52&quot;</defaultValue>
+        <deprecated>false</deprecated>
+        <description>Test string of instance names to be used to validate the Instance Key field</description>
+        <externalId>false</externalId>
+        <inlineHelpText>Test string used for validation of Instance Key field. This field can be changed to test the Instance Key on other instance lists. Instance Key Verification field is set when this record is updated.</inlineHelpText>
+        <label>Test Instance List</label>
+        <length>1000</length>
+        <trackTrending>false</trackTrending>
+        <type>LongTextArea</type>
+        <visibleLines>5</visibleLines>
+    </fields>
+    <label>Release Event Template</label>
+    <listViews>
+        <fullName>agf__All</fullName>
+        <filterScope>Everything</filterScope>
+        <label>All</label>
+    </listViews>
+    <nameField>
+        <displayFormat>RET-{000000}</displayFormat>
+        <label>Release Event Template Name</label>
+        <type>AutoNumber</type>
+    </nameField>
+    <pluralLabel>Release Event Templates</pluralLabel>
+    <searchLayouts/>
+    <sharingModel>ReadWrite</sharingModel>
+    <validationRules>
+        <fullName>agf__Application_required</fullName>
+        <active>true</active>
+        <errorConditionFormula>ISBLANK(agf__Application__c)</errorConditionFormula>
+        <errorDisplayField>agf__Application__c</errorDisplayField>
+        <errorMessage>Application must be specified.</errorMessage>
+    </validationRules>
+    <validationRules>
+        <fullName>agf__Day_Offset_required_with_Start_Time</fullName>
+        <active>true</active>
+        <description>Day Offset must be specified when Start Time is set.</description>
+        <errorConditionFormula>ISBLANK(agf__Day_Offset__c) &amp;&amp; NOT(ISBLANK(agf__Start_Time__c))</errorConditionFormula>
+        <errorDisplayField>agf__Day_Offset__c</errorDisplayField>
+        <errorMessage>Day Offset cannot be blank when Start Time is set. Either set Day Offset to zero (if event is for the same day) or another value.</errorMessage>
+    </validationRules>
+    <validationRules>
+        <fullName>agf__Event_Duration_must_be_nonnegative</fullName>
+        <active>true</active>
+        <errorConditionFormula>agf__Event_Duration__c &lt; 0</errorConditionFormula>
+        <errorDisplayField>agf__Event_Duration__c</errorDisplayField>
+        <errorMessage>Event Duration cannot be less than zero.</errorMessage>
+    </validationRules>
+    <validationRules>
+        <fullName>agf__No_Hour_Offset_when_using_Start_Time</fullName>
+        <active>true</active>
+        <description>When Start Time is being used, Hour Offset cannot be specified.</description>
+        <errorConditionFormula>NOT(ISBLANK(agf__Hour_Offset__c)) &amp;&amp; NOT(ISBLANK(agf__Start_Time__c))</errorConditionFormula>
+        <errorDisplayField>agf__Hour_Offset__c</errorDisplayField>
+        <errorMessage>When Start Time is being used, Hour Offset cannot be specified. Either clear Start Time or set  Hours Offset  to blank.</errorMessage>
+    </validationRules>
+    <validationRules>
+        <fullName>agf__No_Minute_Offset_when_using_Start_Time</fullName>
+        <active>true</active>
+        <description>When Start Time is being used, Minute Offset cannot be specified.</description>
+        <errorConditionFormula>NOT(ISBLANK(agf__Minute_Offset__c)) &amp;&amp; NOT(ISBLANK(agf__Start_Time__c))</errorConditionFormula>
+        <errorDisplayField>agf__Minute_Offset__c</errorDisplayField>
+        <errorMessage>When Start Time is being used, Minute Offset cannot be specified. Either clear Start Time and set Day of Week to blank or set  Minute Offset  to blank.</errorMessage>
+    </validationRules>
+    <validationRules>
+        <fullName>agf__No_Start_Time_when_using_offset</fullName>
+        <active>true</active>
+        <description>When an offset is set for either hours or minutes, Start Time cannot be specified.</description>
+        <errorConditionFormula>NOT(ISBLANK(agf__Start_Time__c)) &amp;&amp;  
+(NOT(ISBLANK(agf__Hour_Offset__c)) ||  NOT(ISBLANK(agf__Minute_Offset__c)))</errorConditionFormula>
+        <errorDisplayField>agf__Start_Time__c</errorDisplayField>
+        <errorMessage>When an offset is set for either hours or minutes, Start Time cannot be specified. Either clear both Hours Offset and Minutes Offset or set Start Time to blank.</errorMessage>
+    </validationRules>
+    <validationRules>
+        <fullName>agf__Offset_must_be_specified</fullName>
+        <active>true</active>
+        <description>Either Hours/Minutes Offset must be specified or Start Time must be specified.</description>
+        <errorConditionFormula>ISBLANK(agf__Hour_Offset__c) &amp;&amp; ISBLANK(agf__Minute_Offset__c) &amp;&amp; ISBLANK(agf__Day_Offset__c)</errorConditionFormula>
+        <errorDisplayField>agf__Day_Offset__c</errorDisplayField>
+        <errorMessage>An Offset must be specified. If the Release Event is to occur at the Release&apos;s Schedule Release Date, set the Day Offset field to 0 (zero).</errorMessage>
+    </validationRules>
+    <validationRules>
+        <fullName>agf__Offset_or_StartTime_must_be_specified</fullName>
+        <active>true</active>
+        <description>Either Hours/Minutes Offset must be specified or Start Time must be specified.</description>
+        <errorConditionFormula>ISBLANK(agf__Hour_Offset__c) &amp;&amp; ISBLANK(agf__Minute_Offset__c) &amp;&amp; ISBLANK(agf__Start_Time__c)</errorConditionFormula>
+        <errorMessage>Either Hours/Minutes Offset must be specified or Start Time must be specified.</errorMessage>
+    </validationRules>
+    <validationRules>
+        <fullName>agf__Start_Time_must_be_in_12h_time_format</fullName>
+        <active>true</active>
+        <errorConditionFormula>NOT(ISBLANK(agf__Start_Time__c)) &amp;&amp; NOT(REGEX(agf__Start_Time__c, &quot;^(([0][0-9]|[1][0-2])|[0-9]):([0-5][0-9])( *)((AM|PM)|(A|P))$&quot;))</errorConditionFormula>
+        <errorDisplayField>agf__Start_Time__c</errorDisplayField>
+        <errorMessage>Time value must be formatted HH:MM AM or HH:MM PM (based on as 12 hour clock).</errorMessage>
+    </validationRules>
+    <validationRules>
+        <fullName>agf__Start_Time_must_be_in_time_format</fullName>
+        <active>false</active>
+        <errorConditionFormula>NOT(OR(REGEX(agf__Start_Time__c,&quot;^([0-9]|0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$&quot;),REGEX(agf__Start_Time__c, &quot;^(([0][0-9]|[1][0-2])|[0-9]):([0-5][0-9])( *)((AM|PM)|(A|P))$&quot;)))</errorConditionFormula>
+        <errorDisplayField>agf__Start_Time__c</errorDisplayField>
+        <errorMessage>Time value must be formatted HH:MM (based on a 24 hour clock), or HH:MM AM or HH:MM PM (based on as 12 hour clock).</errorMessage>
+    </validationRules>
+    <webLinks>
+        <fullName>agf__Regular_Expressions</fullName>
+        <availability>online</availability>
+        <description>Link to information about Regular Expressions</description>
+        <displayType>link</displayType>
+        <encodingKey>UTF-8</encodingKey>
+        <hasMenubar>false</hasMenubar>
+        <hasScrollbars>true</hasScrollbars>
+        <hasToolbar>false</hasToolbar>
+        <height>600</height>
+        <isResizable>true</isResizable>
+        <linkType>url</linkType>
+        <masterLabel>Information on Regular Expressions (Wikipedia)</masterLabel>
+        <openType>newWindow</openType>
+        <position>none</position>
+        <protected>false</protected>
+        <showsLocation>false</showsLocation>
+        <showsStatus>false</showsStatus>
+        <url>http://en.wikipedia.org/wiki/Regular_expression</url>
+    </webLinks>
+</CustomObject>

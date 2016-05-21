@@ -1,0 +1,19 @@
+<!-- Page: listPage -->
+
+<apex:page standardController="Idea" recordSetVar="ideaSetVar"
+	extensions="IdeasExtension">
+	<apex:pageBlock >
+		<ideas:listOutputLink sort="recent" page="Test_Ideas">Recent Ideas</ideas:listOutputLink>
+        | 
+        <ideas:listOutputLink sort="top" page="Test_Ideas">Top Ideas</ideas:listOutputLink>
+        | 
+        <ideas:listOutputLink sort="popular" page="Test_Ideas">Popular Ideas</ideas:listOutputLink>
+        | 
+        <ideas:listOutputLink sort="comments" page="Test_Ideas">Recent Comments</ideas:listOutputLink>
+	</apex:pageBlock>
+	<apex:pageBlock >
+		<apex:dataList value="{!ideaList}" var="ideadata">
+			<apex:outputText value="{!ideadata.title}" />
+		</apex:dataList>
+	</apex:pageBlock>
+</apex:page>

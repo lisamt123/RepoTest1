@@ -1,0 +1,587 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <actionOverrides>
+        <actionName>Accept</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>CancelEdit</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Clone</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Delete</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Edit</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Follow</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>List</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>New</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>SaveEdit</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Tab</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>View</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <allowInChatterGroups>false</allowInChatterGroups>
+    <compactLayoutAssignment>SYSTEM</compactLayoutAssignment>
+    <deploymentStatus>Deployed</deploymentStatus>
+    <deprecated>false</deprecated>
+    <enableActivities>true</enableActivities>
+    <enableBulkApi>true</enableBulkApi>
+    <enableEnhancedLookup>false</enableEnhancedLookup>
+    <enableFeeds>true</enableFeeds>
+    <enableHistory>true</enableHistory>
+    <enableReports>true</enableReports>
+    <enableSearch>true</enableSearch>
+    <enableSharing>true</enableSharing>
+    <enableStreamingApi>true</enableStreamingApi>
+    <fields>
+        <fullName>agf__Actual_Release_Date__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>Actual Release Date</label>
+        <required>false</required>
+        <trackFeedHistory>true</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>DateTime</type>
+    </fields>
+    <fields>
+        <fullName>agf__Application__c</fullName>
+        <deleteConstraint>SetNull</deleteConstraint>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>Application</label>
+        <referenceTo>agf__ADM_Application__c</referenceTo>
+        <relationshipLabel>Releases</relationshipLabel>
+        <relationshipName>Releases</relationshipName>
+        <required>false</required>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Lookup</type>
+    </fields>
+    <fields>
+        <fullName>agf__Created_By_import__c</fullName>
+        <deleteConstraint>SetNull</deleteConstraint>
+        <deprecated>false</deprecated>
+        <description>User imported from bugforce that created the original release.</description>
+        <externalId>false</externalId>
+        <label>Created By (import)</label>
+        <referenceTo>User</referenceTo>
+        <relationshipName>Release</relationshipName>
+        <required>false</required>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Lookup</type>
+    </fields>
+    <fields>
+        <fullName>agf__Created_On_import__c</fullName>
+        <deprecated>false</deprecated>
+        <description>Data/time imported from the original release from bugforce.</description>
+        <externalId>false</externalId>
+        <label>Created On (import)</label>
+        <required>false</required>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>DateTime</type>
+    </fields>
+    <fields>
+        <fullName>agf__Customer_Facing_Release_Name__c</fullName>
+        <deprecated>false</deprecated>
+        <description>The name communicated to customers when referencing this release.</description>
+        <externalId>false</externalId>
+        <inlineHelpText>(Optional) Enter the name communicated to customers for this release. This name may appear in the customer-facing 12-month TRUST calendar.</inlineHelpText>
+        <label>Customer Facing Release Name</label>
+        <length>100</length>
+        <required>false</required>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>agf__Deployment_Delayed_minutes__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <formula>IF(ISNULL(agf__Release_Date__c),( (agf__Actual_Release_Date__c  -  agf__Planned_GUS_Release_Date__c )* 24 * 60), (agf__Actual_Release_Date__c - agf__Release_Date__c) * 24 * 60)</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>Deployment Delayed (minutes)</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>0</scale>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Number</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>agf__Deployment_Instances__c</fullName>
+        <deprecated>false</deprecated>
+        <description>Instances to receive this release.</description>
+        <externalId>false</externalId>
+        <inlineHelpText>Enter the instances to receive this release as a space separated list (1 space between each instance). For example: NA1 NA2 CS2</inlineHelpText>
+        <label>Deployment Instances</label>
+        <length>2000</length>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>LongTextArea</type>
+        <visibleLines>3</visibleLines>
+    </fields>
+    <fields>
+        <fullName>agf__Duplicate_Validator__c</fullName>
+        <caseSensitive>false</caseSensitive>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>Duplicate Validator</label>
+        <length>255</length>
+        <required>false</required>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>true</unique>
+    </fields>
+    <fields>
+        <fullName>agf__External_ID__c</fullName>
+        <caseSensitive>true</caseSensitive>
+        <deprecated>false</deprecated>
+        <externalId>true</externalId>
+        <label>External ID</label>
+        <length>255</length>
+        <required>false</required>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>true</unique>
+    </fields>
+    <fields>
+        <fullName>agf__Note__c</fullName>
+        <deprecated>false</deprecated>
+        <description>This field has been mapped from the BUG.RELEASES.NOTE column which is a CLOB</description>
+        <externalId>false</externalId>
+        <inlineHelpText>Use this field to put in detailed information regarding the release</inlineHelpText>
+        <label>Note</label>
+        <length>32000</length>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>LongTextArea</type>
+        <visibleLines>3</visibleLines>
+    </fields>
+    <fields>
+        <fullName>agf__Number_of_Bugs__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <inlineHelpText># of Work records that were released during the deployment of this release.</inlineHelpText>
+        <label>Number of Work Records</label>
+        <summaryForeignKey>agf__ADM_Released_In__c.agf__Release__c</summaryForeignKey>
+        <summaryOperation>count</summaryOperation>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Summary</type>
+    </fields>
+    <fields>
+        <fullName>agf__Number_of_Stamps__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>Number of Stamps</label>
+        <summaryForeignKey>agf__ADM_Released_In__c.agf__Release__c</summaryForeignKey>
+        <summaryOperation>count</summaryOperation>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Summary</type>
+    </fields>
+    <fields>
+        <fullName>agf__Planned_Duration__c</fullName>
+        <defaultValue>60</defaultValue>
+        <deprecated>false</deprecated>
+        <description>Planned duration of deployment in minutes.</description>
+        <externalId>false</externalId>
+        <inlineHelpText>Planned duration of deployment in minutes. If &quot;Scheduled End Date&quot; is specified, this value will be calculated on Save.</inlineHelpText>
+        <label>Planned Duration</label>
+        <precision>5</precision>
+        <required>false</required>
+        <scale>0</scale>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Number</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>agf__Planned_GS0_Duration__c</fullName>
+        <deprecated>false</deprecated>
+        <description>Planned duration of GS0 deployment in minutes.</description>
+        <externalId>false</externalId>
+        <inlineHelpText>Planned duration of GS0 deployment in minutes. If &quot;Planned GS0 End Date&quot; is specified, this value will be calculated on Save.</inlineHelpText>
+        <label>Planned Release Duration To Pilot Org</label>
+        <precision>5</precision>
+        <required>false</required>
+        <scale>0</scale>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Number</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>agf__Planned_GS0_End_Date__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <inlineHelpText>Enter the date/time for the expected completion of the GS0 deployment. If specified, the &quot;Planned GS0 Duration&quot; field will be calculated on Save.</inlineHelpText>
+        <label>Scheduled Release End Date To Pilot Org</label>
+        <required>false</required>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>DateTime</type>
+    </fields>
+    <fields>
+        <fullName>agf__Planned_GUS_Release_Date__c</fullName>
+        <deprecated>false</deprecated>
+        <description>Date and time that this release is deployed to GS0.</description>
+        <externalId>false</externalId>
+        <inlineHelpText>Please specify if this release is deployed to GS0 separately.</inlineHelpText>
+        <label>Scheduled Release Date To Pilot Org</label>
+        <required>false</required>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>DateTime</type>
+    </fields>
+    <fields>
+        <fullName>agf__Planned_Unplanned__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>Planned / Unplanned</label>
+        <picklist>
+            <controllingField>agf__Release_Type__c</controllingField>
+            <picklistValues>
+                <fullName>Planned</fullName>
+                <controllingFieldValues>e</controllingFieldValues>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Unplanned</fullName>
+                <controllingFieldValues>e</controllingFieldValues>
+                <default>true</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Picklist</type>
+    </fields>
+    <fields>
+        <fullName>agf__Release_Date__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>Scheduled Release Date</label>
+        <required>false</required>
+        <trackFeedHistory>true</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>DateTime</type>
+    </fields>
+    <fields>
+        <fullName>agf__Release_Delay_Category__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <formula>IF(agf__Deployment_Delayed_minutes__c  &lt;= 30, &quot;On-time Release&quot;, 
+IF(agf__Deployment_Delayed_minutes__c  &lt;= 120, &quot;Delay of Less than 2 Hours&quot;, 
+IF(agf__Deployment_Delayed_minutes__c &gt; 120, &quot;Delay of More than 2 Hours&quot;, &quot;&quot;)))</formula>
+        <label>Release Delay Category</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>agf__Release_Manager__c</fullName>
+        <deleteConstraint>SetNull</deleteConstraint>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>Release Manager</label>
+        <referenceTo>User</referenceTo>
+        <relationshipName>Releases</relationshipName>
+        <required>false</required>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Lookup</type>
+    </fields>
+    <fields>
+        <fullName>agf__Release_Type__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>Release Type</label>
+        <picklist>
+            <picklistValues>
+                <fullName>Major</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Patch</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>e</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Other</fullName>
+                <default>false</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Picklist</type>
+    </fields>
+    <fields>
+        <fullName>agf__Scheduled_End_Date__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <inlineHelpText>Enter the date/time for the expected completion of the deployment. If specified, the &quot;Planned Duration&quot; field will be calculated on Save.</inlineHelpText>
+        <label>Scheduled End Date</label>
+        <required>false</required>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>DateTime</type>
+    </fields>
+    <fields>
+        <fullName>agf__Short_Note__c</fullName>
+        <deprecated>false</deprecated>
+        <description>This is a column mapping from BUG.RELEASE table column SHORT_NOTE</description>
+        <externalId>false</externalId>
+        <inlineHelpText>Use this field to provide a short description of the release.</inlineHelpText>
+        <label>Short Note</label>
+        <required>false</required>
+        <trackFeedHistory>true</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>TextArea</type>
+    </fields>
+    <fields>
+        <fullName>agf__Status__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>Status</label>
+        <picklist>
+            <picklistValues>
+                <fullName>Deployed - Other Issues</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Deployed Successfully</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Deployment in Progress</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Deployment Introduced Regression</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>In Development</fullName>
+                <default>true</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Partial Deployment - Halted</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Partial Deployment - Superseded</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Partial Rollback</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Ready for Deployment</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Redeployed After Rollback</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Rollback</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Deployed - Exceeded Release Window</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Deployed - Date Changed</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Canceled or Never Released</fullName>
+                <default>false</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <trackFeedHistory>true</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Picklist</type>
+    </fields>
+    <label>Release</label>
+    <listViews>
+        <fullName>agf__All</fullName>
+        <columns>NAME</columns>
+        <columns>agf__Number_of_Bugs__c</columns>
+        <filterScope>Everything</filterScope>
+        <label>All</label>
+    </listViews>
+    <listViews>
+        <fullName>agf__Today</fullName>
+        <columns>NAME</columns>
+        <columns>agf__Number_of_Bugs__c</columns>
+        <filterScope>Everything</filterScope>
+        <filters>
+            <field>CREATED_DATE</field>
+            <operation>equals</operation>
+            <value>TODAY</value>
+        </filters>
+        <label>Today</label>
+    </listViews>
+    <nameField>
+        <label>Release Name</label>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <type>Text</type>
+    </nameField>
+    <pluralLabel>Releases</pluralLabel>
+    <searchLayouts/>
+    <sharingModel>ReadWrite</sharingModel>
+    <validationRules>
+        <fullName>agf__Actual_Deploy_Date_Required_if_Deployed</fullName>
+        <active>true</active>
+        <errorConditionFormula>AND(ISNULL( agf__Actual_Release_Date__c  ), OR(ISPICKVAL( agf__Status__c, &apos;Deployed - Other Issues&apos;) ,
+ISPICKVAL( agf__Status__c, &apos;Deployed Successfully&apos;) ,
+ISPICKVAL( agf__Status__c, &apos;Deployment Introduced Regression&apos;) ,
+ISPICKVAL( agf__Status__c, &apos;Partial Deployment - Halted&apos;) ,
+ISPICKVAL( agf__Status__c, &apos;Partial Deployment - Superseded&apos;) ,
+ISPICKVAL( agf__Status__c, &apos;Partial Rollback&apos;) ,
+ISPICKVAL( agf__Status__c, &apos;Redeployed After Rollback&apos;) ,
+ISPICKVAL( agf__Status__c, &apos;Rollback&apos;) ,
+ISPICKVAL( agf__Status__c, &apos;Deployed - Exceeded Release Window&apos;) ,
+ISPICKVAL( agf__Status__c, &apos;Deployed - Date Changed&apos;) ))</errorConditionFormula>
+        <errorDisplayField>agf__Actual_Release_Date__c</errorDisplayField>
+        <errorMessage>Actual Release Date is required if the release has been fully or partially deployed.</errorMessage>
+    </validationRules>
+    <validationRules>
+        <fullName>agf__Application_set_after_In_Development</fullName>
+        <active>true</active>
+        <description>The Application field must be set when the Status is not NULL or &quot;In Development&quot;.</description>
+        <errorConditionFormula>ISBLANK( agf__Application__c ) &amp;&amp; NOT(ISPICKVAL(agf__Status__c, &quot;&quot;)) &amp;&amp; NOT(ISPICKVAL(agf__Status__c, &quot;In Development&quot;))</errorConditionFormula>
+        <errorDisplayField>agf__Status__c</errorDisplayField>
+        <errorMessage>The Application must be set when the Release Status is not In Development</errorMessage>
+    </validationRules>
+    <validationRules>
+        <fullName>agf__Comma_Separated_Instances</fullName>
+        <active>false</active>
+        <description>Format is: blank, NA1 (one or two digits)  NA1,NA2 or NA1,NA2,...,NA99</description>
+        <errorConditionFormula>NOT(REGEX( agf__Deployment_Instances__c , &quot;|^(?:NA|CS|AP|EU|GS|SR)[0-9][0-9]?$|^(?:NA|CS|AP|EU|GS|SR)[0-9][0-9]?((?:,(?:NA|CS|AP|EU|GS|SR)[0-9][0-9]?)+)*,(?:NA|CS|AP|EU|GS|SR)[0-9][0-9]?&quot;))</errorConditionFormula>
+        <errorDisplayField>agf__Deployment_Instances__c</errorDisplayField>
+        <errorMessage>Instance list must be of the form: NA1,NA2,CS2,...
+Use capital letters and no whitespace.
+Allowed prefixes are NA, CS, EU, AP, GS or SR only.</errorMessage>
+    </validationRules>
+    <validationRules>
+        <fullName>agf__End_needed_when_Sched_date_specified</fullName>
+        <active>false</active>
+        <errorConditionFormula>NOT( ISNULL( agf__Release_Date__c))</errorConditionFormula>
+        <errorDisplayField>agf__Scheduled_End_Date__c</errorDisplayField>
+        <errorMessage>Scheduled End Date must be set when Scheduled Date is specified.</errorMessage>
+    </validationRules>
+    <validationRules>
+        <fullName>agf__GS0_Duration_Must_be_14_days_or_less</fullName>
+        <active>true</active>
+        <errorConditionFormula>IF( ISNULL( agf__Planned_GS0_End_Date__c ), false, (DATEVALUE(agf__Planned_GS0_End_Date__c) - DATEVALUE( agf__Planned_GUS_Release_Date__c )) &gt; 14)</errorConditionFormula>
+        <errorDisplayField>agf__Planned_GS0_End_Date__c</errorDisplayField>
+        <errorMessage>GS0 End date cannot be more than 14 days later than GS0 Release Date.</errorMessage>
+    </validationRules>
+    <validationRules>
+        <fullName>agf__Release_Duration_Must_be_14_days_or_less</fullName>
+        <active>true</active>
+        <errorConditionFormula>IF( ISNULL(agf__Scheduled_End_Date__c), false, (DATEVALUE(agf__Scheduled_End_Date__c)   -  DATEVALUE(agf__Release_Date__c)) &gt; 14)</errorConditionFormula>
+        <errorDisplayField>agf__Scheduled_End_Date__c</errorDisplayField>
+        <errorMessage>End date cannot be more than 14 days later than Release Date.</errorMessage>
+    </validationRules>
+    <validationRules>
+        <fullName>agf__Release_Manager_required_if_deployed</fullName>
+        <active>true</active>
+        <errorConditionFormula>AND(ISBLANK( agf__Release_Manager__c ), OR(ISPICKVAL( agf__Status__c, &apos;Deployed - Other Issues&apos;) ,
+ISPICKVAL( agf__Status__c, &apos;Deployed Successfully&apos;) ,
+ISPICKVAL( agf__Status__c, &apos;Deployment Introduced Regression&apos;) ,
+ISPICKVAL( agf__Status__c, &apos;Partial Deployment - Halted&apos;) ,
+ISPICKVAL( agf__Status__c, &apos;Partial Deployment - Superseded&apos;) ,
+ISPICKVAL( agf__Status__c, &apos;Partial Rollback&apos;) ,
+ISPICKVAL( agf__Status__c, &apos;Redeployed After Rollback&apos;) ,
+ISPICKVAL( agf__Status__c, &apos;Rollback&apos;) ,
+ISPICKVAL( agf__Status__c, &apos;Deployed - Exceeded Release Window&apos;) ,
+ISPICKVAL( agf__Status__c, &apos;Deployed - Date Changed&apos;) ))</errorConditionFormula>
+        <errorDisplayField>agf__Release_Manager__c</errorDisplayField>
+        <errorMessage>Release Manager must be specified if the release has been fully or partially deployed.</errorMessage>
+    </validationRules>
+    <validationRules>
+        <fullName>agf__Scheduled_Date_Required_if_no_GS0_Date</fullName>
+        <active>true</active>
+        <description>Scheduled date is a required field unless a GS0 date has been specified.</description>
+        <errorConditionFormula>CONTAINS($Profile.Name,&quot;GUS Release&quot;) &amp;&amp; 
+ISNULL( agf__Release_Date__c) &amp;&amp; 
+ISNULL( agf__Planned_GUS_Release_Date__c ) &amp;&amp;   
+NOT( ISCHANGED( agf__Number_of_Stamps__c ))</errorConditionFormula>
+        <errorDisplayField>agf__Release_Date__c</errorDisplayField>
+        <errorMessage>Scheduled Release Date must be specified.</errorMessage>
+    </validationRules>
+    <validationRules>
+        <fullName>agf__Space_Separated_Instances</fullName>
+        <active>true</active>
+        <description>Format is: blank, NA1 (one or two digits)  NA1 NA2 or NA1 NA2 ... NA99</description>
+        <errorConditionFormula>NOT(REGEX( agf__Deployment_Instances__c , &quot;|^(?:NA|CS|AP|EU|GS|SR)[0-9][0-9]?$|^(?:NA|CS|AP|EU|GS|SR)[0-9][0-9]?((?: (?:NA|CS|AP|EU|GS|SR)[0-9][0-9]?)+)* (?:NA|CS|AP|EU|GS|SR)[0-9][0-9]?&quot;))</errorConditionFormula>
+        <errorDisplayField>agf__Deployment_Instances__c</errorDisplayField>
+        <errorMessage>Instance list must be of the form: NA1 NA2 CS2 ...
+Use capital letters and only a space between instances.
+Allowed prefixes are NA, CS, EU, AP, GS or SR only.</errorMessage>
+    </validationRules>
+</CustomObject>

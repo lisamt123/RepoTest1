@@ -1,0 +1,239 @@
+<apex:component controller="FOD_ConquestCtrl">
+
+<div class="col-lg-6 conqHead" id="provQuadConq">
+    <div class="row">
+        <div class="col-lg-6">
+            <div class="col-lg-12">
+                <h2>Integration</h2>
+            </div>
+            <div class="moduleBorder">
+                <apex:form >
+                    <div class="active col-lg-3"> 
+                        <apex:outputLink value="/apex/FOD_ProjectList?pname=Conquest&stage=Integration&onholdtype=Active" styleClass="provDBanchor">{!activeIntConQCnt}</apex:outputLink>
+                    </div>
+                    <div class="backtosales col-lg-3"> 
+                        <apex:outputLink value="/apex/FOD_ProjectList?pname=Conquest&stage=Integration&onholdtype=Back To Sales" styleClass="provDBanchor">{!intDelConQCnt}</apex:outputLink>
+                    </div>
+                    <div class="deferred col-lg-3">
+                        <apex:outputLink value="/apex/FOD_ProjectList?pname=Conquest&stage=Integration&onholdtype=Deferred" styleClass="provDBanchor">{!intDefConQCnt}</apex:outputLink>
+                    </div>
+                    <div class="escalated col-lg-3"> 
+                        <apex:outputLink value="/apex/FOD_ProjectList?pname=Conquest&stage=Integration&onholdtype=Escalated To PM" styleClass="provDBanchor">{!intEscConQCnt}</apex:outputLink>
+                    </div>
+                </apex:form>  
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="col-lg-12">
+                <h2>Setup</h2>
+            </div>
+            <div class="moduleBorder">
+                <apex:form >
+                    <div class="active col-lg-3"> 
+                        <apex:outputLink value="/apex/FOD_ProjectList?pname=Conquest&stage=Setup Pricing&onholdtype=Active" styleClass="provDBanchor">{!activeSetConQCnt}</apex:outputLink>
+                    </div>
+                    <div class="backtosales col-lg-3"> 
+                        <apex:outputLink value="/apex/FOD_ProjectList?pname=Conquest&stage=Setup Pricing&onholdtype=Back To Sales" styleClass="provDBanchor">{!setDelConQCnt}</apex:outputLink>
+                    </div>
+                    <div class="deferred col-lg-3">
+                        <apex:outputLink value="/apex/FOD_ProjectList?pname=Conquest&stage=Setup Pricing&onholdtype=Deferred" styleClass="provDBanchor">{!setDefConQCnt}</apex:outputLink>
+                    </div>
+                    <div class="escalated col-lg-3"> 
+                        <apex:outputLink value="/apex/FOD_ProjectList?pname=Conquest&stage=Setup Pricing&onholdtype=Escalated To PM" styleClass="provDBanchor">{!setEscConQCnt}</apex:outputLink>
+                    </div>
+                </apex:form>
+            </div>
+        </div>
+    </div><!-- end row -->
+    <div class="row">
+        <div class="col-lg-6">
+            <div class="col-lg-12">
+                 <h2>Training1</h2>
+            </div>
+            <div class="moduleBorder">
+                <apex:form >
+                    <div class="active col-lg-3"> 
+                        <apex:outputLink value="/apex/FOD_ProjectList?pname=Conquest&stage=Training 1&onholdtype=Active" styleClass="provDBanchor">{!activeTrnConQCnt}</apex:outputLink>
+                    </div>
+                    <div class="backtosales col-lg-3"> 
+                        <apex:outputLink value="/apex/FOD_ProjectList?pname=Conquest&stage=Training 1&onholdtype=Back To Sales" styleClass="provDBanchor">{!trnDelConQCnt}</apex:outputLink>
+                    </div>
+                    <div class="deferred col-lg-3">
+                        <apex:outputLink value="/apex/FOD_ProjectList?pname=Conquest&stage=Training 1&onholdtype=Deferred" styleClass="provDBanchor">{!trnDefConQCnt}</apex:outputLink>
+                    </div>
+                    <div class="escalated col-lg-3"> 
+                        <apex:outputLink value="/apex/FOD_ProjectList?pname=Conquest&stage=Training 1&onholdtype=Escalated To PM" styleClass="provDBanchor">{!trnEscConQCnt}</apex:outputLink>
+                    </div>
+                    
+                </apex:form>
+            </div>
+        </div>
+        <div class="col-lg-6 metrics">
+            <div class="compMo col-lg-3"> 
+                <!--
+                <apex:outputLink value="/apex/FOD_ProjectList?pname=Conquest&completedtype=month" onclick="loadGoogleAPI('month')" styleClass="provDBanchor">{!completedByMonthConQCnt}</apex:outputLink>
+                -->
+                <apex:outputLink value="#" onclick="loadGoogleAPIConq('month')" styleClass="provDBanchor">{!completedByMonthConQCnt}</apex:outputLink>
+            </div>
+            <div class="compQTD col-lg-3"> 
+                <!--
+                <apex:outputLink value="/apex/FOD_ProjectList?pname=Conquest&completedtype=year" onclick="loadGoogleAPI('year')" styleClass="provDBanchor">{!completedByYearConQCnt}</apex:outputLink>
+                -->
+                <apex:outputLink value="#" onclick="loadGoogleAPIConq('year')" styleClass="provDBanchor">{!completedByYearConQCnt}</apex:outputLink>
+            </div>  
+            <div class="budgetMTD col-lg-3"> 
+                {!budgetMTD}
+            </div> 
+            <div class="budgetQTD col-lg-3"> 
+                {!budgetQTD}
+            </div> 
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript" src="https://www.google.com/jsapi"></script>            
+   <script type="text/javascript">
+   $( document ).ready(function() {
+    $("#chrtQuadConq").hide();
+});
+   
+       function showProcessingImage(){
+          //console.log("showing processing Div");
+             $(".overlay").show();
+       }
+       function hideProcessingImage(){
+           //console.log("Hide processing Div");
+           $(".overlay").hide();
+       }
+   </script>
+   <script type="text/javascript">
+   var gSelDurationConq;
+   var gSelMttrConq;
+   var gSelChartConq;
+   
+   function loadGoogleAPIConq(selDuration){ 
+       showProcessingImage();
+       gSelDurationConq = selDuration;
+       console.log("loading google API..");
+       // Load the Visualization API and the piechart package.
+       google.load('visualization', '1.0', {'packages':['corechart']});
+
+       // Set a callback to run when the Google Visualization API is loaded.
+       google.setOnLoadCallback(onLoadDrawChartConq);
+       //$("#provQuadConq").hide();
+       onLoadDrawChartConq(selDuration);
+      
+       
+      }
+       function onLoadDrawChartConq(selDuration) {
+          console.log("onLoadDrawChartConq");
+          queryChartDataConq('', 'mttr', selDuration);
+          
+      }
+      function drawPieChartConq(str, cType) {
+          console.log("data "+str);
+          str="["+str+"]";
+          var data = new google.visualization.DataTable();
+          data.addColumn('string', 'Opptys');
+          data.addColumn('number', 'count');
+          data.addRows(JSON.parse(str));
+          
+          var chslice1 = '#7ac943'; 
+          var chslice2 = '#E2C033'; 
+          var chslice3 = '#961A1A'; 
+          if(cType == 'acc') {
+              chslice1 = '#4784d5'; 
+              chslice2 = '#94ffff'; 
+              chslice3 = '#0c4773'; 
+          }
+           
+          // Set chart options
+          var options = {'title':'',
+               'height':315,
+               'chartArea': {'backgroundColor':{'stroke': '#000819', 'strokeWidth': 2 },'left': 0, 'top': 40,'width': '90%', 'height': '80%'},
+               'legend': {'position': 'left', 'textStyle': {'color': '#94FFFF', 'fontSize': '13'} },
+               'tooltip':{'trigger':'none'},
+               'pieSliceText':'value-and-percentage',
+               'backgroundColor':'transparent',
+               //'slices': [{'color': '#4784d5'}, {'color': '#94ffff'}, {'color': '#0c4773'}, {'color': '#0a2c3d'}],
+               'slices': [{'color': chslice1}, {'color': chslice2}, {'color': chslice3}],
+               'pieSliceTextStyle': {'color':'#000819', 'fontSize': '13'}
+                       
+                         };
+          var chart = new google.visualization.PieChart(document.getElementById('chart_div_conq'));
+         $("#provQuadConq").hide();
+          $("#chrtQuadConq").show(); 
+          if(data.getNumberOfRows() == 0){
+              document.getElementById('chart_div_conq').innerHTML = "<p>Apologies, that information isn't available.</p>";
+           } else{
+                chart.draw(data, options);       
+           }
+          
+          google.visualization.events.addListener(chart, 'select', selectHandler2);
+          
+          function selectHandler2(e) {
+          showProcessingImage();
+            var selection = chart.getSelection();
+            var item = selection[0];
+
+            var selVal = data.getFormattedValue(item.row,0);
+            
+            if(cType == 'mttr') {
+                queryChartDataConq(selVal, 'acc', gSelDurationConq);
+                gSelMttrConq = selVal;
+            } else if(cType == 'acc') {
+                window.location.href = '/apex/FOD_CompletedProjects?sv='+selVal+'&sd='+gSelDurationConq+'&pname=Conquest'+'&sm='+ gSelMttrConq;
+            }
+          }
+       }
+       
+       function queryChartDataConq(selVal, cType,selDuration) {
+                  gSelChartConq = cType;
+                  var str;
+                  Visualforce.remoting.Manager.invokeAction(
+                    '{!$RemoteAction.FOD_ConquestCtrl.getChartData}', 
+                    selVal, cType, selDuration,
+                    function(result, event){
+                        hideProcessingImage();
+                   
+                        console.debug(result);
+                        str = result;                        
+                        console.debug(str);
+                        var n = str.indexOf("&quot;");
+                        console.debug("n "+n);
+                        str=str.replace(/&#39;/g, '"');                        
+                        drawPieChartConq(str, cType);
+                        console.debug("final str"+str);
+                    }, 
+                    {escape: true}
+                  );
+                
+              }
+              function goToListConq() {
+                  window.location.href = '/apex/FOD_ProjectList?pname=Conquest&completedtype='+gSelDurationConq;
+              }
+              function goToPervChartConq() {
+                  if(gSelChartConq == 'acc') {
+                      queryChartDataConq('', 'mttr', gSelDurationConq);
+                  } else if(gSelChartConq == 'mttr') {
+                      $("#provQuadConq").show();
+                      $("#chrtQuadConq").hide();
+                  }
+              }
+   </script>
+
+<div class="col-lg-6 conqHead" id="chrtQuadConq">
+   <div class="row">
+      <div class="col-lg-2"></div>
+      <div class="col-lg-10">
+          
+         <div id="chart_div_conq"></div>
+         <div class="chartBtn provision">
+            <input type="button" value="View All" id="month" onclick="goToListConq();" ></input>
+            <input type="button" value="Back" id="" onclick="goToPervChartConq();" ></input>
+         </div>
+      </div>
+   </div>
+</div>
+
+</apex:component>

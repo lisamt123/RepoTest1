@@ -1,0 +1,92 @@
+<apex:page controller="WelcomePacketWizard" showHeader="false"
+	cache="false">
+	<head>
+<apex:stylesheet value="{!$Resource.styles}"></apex:stylesheet>
+	</head>
+
+	<script>
+function confirmCancel()
+{
+	var isCancel = confirm("Are you sure you wish to quit?");
+	return isCancel;
+}
+</script>
+
+	<table border="0" width="100%" height="100%" id="bg">
+		<tr valign="top">
+			<td>
+				<div class="maincontainer">
+					<apex:image id="key1" width="100%"
+						value="/resource/1265230873000/Header" />
+
+					<apex:sectionHeader title="VinSolutions Welcome Packet"
+						subtitle="{!if(
+																				!CONTAINS(welcome.Packet_Includes__c, 'CRM')
+																				&&!CONTAINS(welcome.Packet_Includes__c, 'ILM')
+																				&&CONTAINS(welcome.Packet_Includes__c, 'DIY'),'Step 5 of 7', 
+																				
+																			if(
+																				!CONTAINS(welcome.Packet_Includes__c, 'CRM')
+																				&&CONTAINS(welcome.Packet_Includes__c, 'ILM')
+																				,'Step 5 of 9', 
+																				
+																			if(
+																				CONTAINS(welcome.Packet_Includes__c, 'CRM')																				
+																				,'Step 5 of 13', 
+																				
+																				'')))}" />
+
+					<apex:form >
+						<apex:pageBlock title="PREDEFINED EXPORTS">
+
+							<table border="0" width="100%" align="center">
+								<tr align="center">
+									<td align="center"><apex:commandButton action="{!step4}"
+											value="Previous Step" /> <apex:commandButton action="{!skipSteps}" value="Next Step" /> <apex:commandButton action="{!cancel}" value="Save & Quit"
+											onclick="return confirmCancel()" immediate="true" /> <apex:commandButton action="{!confirmCRM}" value="Save - To Confirmation Page"
+											rendered="{!if(welcome.Packet_Includes__c!=null&&welcome.ReachedCRMConfirm__c, true, false)}" />
+									</td>
+								</tr>
+							</table>
+
+
+							<apex:pageBlockSection collapsible="false"
+								title="Available Predefined Exports" columns="1"></apex:pageBlockSection>
+					Listed below are the available data exports that have already been configured to meet your third party vendor needs. We have
+					available the ability to send out generic inventory feeds to any source in a .csv or .tab format. Please select feeds to the
+					vendors that you would like your inventory sent to. You, the Dealer, must currently have active accounts set up with these
+					third party vendors in order for them to accept any feeds that we may send.<br />
+							<br />
+
+							<table align="center">
+								<tr>
+									<td><apex:inputField value="{!welcome.Predefined_Exports__c}" /></td>
+								</tr>
+							</table>
+							<br />
+							<br />
+						
+					Fill in any additional needed inventory feeds here:<br />
+							<apex:inputTextArea cols="180" rows="4"
+								value="{!welcome.Additional_Inventory_Feeds__c}" />
+
+							<apex:pageBlockSection collapsible="false" title=""></apex:pageBlockSection>
+
+							<table border="0" width="100%" align="center">
+								<tr align="center">
+									<td align="center"><apex:commandButton action="{!step4}"
+											value="Previous Step" /> <apex:commandButton action="{!skipSteps}" value="Next Step" /> <apex:commandButton action="{!cancel}" value="Save & Quit"
+											onclick="return confirmCancel()" immediate="true" /> <apex:commandButton action="{!confirmCRM}" value="Save - To Confirmation Page"
+											rendered="{!if(welcome.Packet_Includes__c!=null&&welcome.ReachedCRMConfirm__c, true, false)}" />
+									</td>
+								</tr>
+							</table>
+
+						</apex:pageBlock>
+
+					</apex:form>
+				</div>
+			</td>
+		</tr>
+	</table>
+</apex:page>

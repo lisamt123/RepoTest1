@@ -1,0 +1,19 @@
+<apex:page standardController="case" tabStyle="case" id="CaseCallNotes"
+	name="CaseCallNotes" showHeader="false">
+	<body onload="foo();">
+	</body>
+	<script type="text/javascript">
+function foo(){
+if (/MSIE (\d+\.\d+);/.test(navigator.userAgent)){ //test for MSIE x.x;
+
+   window.document.write("{!case.contact.Phone}");
+}
+else{
+ var ifrm = document.createElement("IFRAME"); 
+ ifrm.setAttribute("src", "http://192.168.2.134:8080/test/Test.html?pn={!case.contact.Phone}&ext={!$User.Extension}&sid={!$Api.Session_ID}&WhoId={!Case.Contact.id}&whatId={!Case.id}"); 
+ ifrm.setAttribute("frameBorder","0");
+ window.document.body.appendChild(ifrm); 
+}
+}
+</script>
+</apex:page>

@@ -1,0 +1,737 @@
+<apex:page Standardcontroller="Welcome_Packet__c" showHeader="false"
+	renderAs="PDF" cache="false">
+
+	<head>
+<apex:stylesheet value="{!$Resource.PDFstyles}"></apex:stylesheet>
+<apex:includeScript value="{!$Resource.jQuery}"></apex:includeScript>
+	</head>
+
+	<table border="0" width="100%" height="100%" id="bg">
+		<tr valign="top">
+			<td>
+				<div class="maincontainer">
+					<apex:image id="key1" width="100%"
+						value="/resource/1265230873000/Header" />
+					<apex:form >
+
+						<!-------------------------------------------------------------------------------------------------->
+						<!-------------------------------- CRM PAGE 1==============================-->
+
+						<apex:pageBlock title="ACCOUNT SET UP FORM"
+							rendered="{!
+                if(Welcome_Packet__c.Packet_Includes__c!=null||
+                CONTAINS(Welcome_Packet__c.Pick_Your_Packet__c, '(Page 1)'), 
+                true, false)}">
+
+							<apex:pageBlockSection collapsible="false"
+								title="Dealership Information" columns="2">
+								<apex:outputField value="{!Welcome_Packet__c.Account__r.Name}" />
+								<apex:outputField value="{!Welcome_Packet__c.Account__r.Phone}" />
+								<apex:outputField value="{!Welcome_Packet__c.Account__r.BillingStreet}" />
+								<apex:outputField value="{!Welcome_Packet__c.Account__r.Fax}" />
+								<apex:outputField value="{!Welcome_Packet__c.Account__r.Website}" />
+								<apex:outputField value="{!Welcome_Packet__c.Dealer_Manufacturer_Code_BAC__c}" />
+							</apex:pageBlockSection>
+
+
+							<apex:pageBlockSection collapsible="false" title="Contacts"
+								columns="2">
+
+								<apex:outputField styleClass="col1" id="tab1"
+									value="{!Welcome_Packet__c.Primary_Contact__c}" />
+								<apex:outputField styleClass="col2" id="tab5"
+									value="{!Welcome_Packet__c.Secondary_Contact__c}" />
+								<apex:outputField styleClass="col1" id="tab2"
+									value="{!Welcome_Packet__c.Primary_Contact_Phone__c}" />
+								<apex:outputField styleClass="col2" id="tab6"
+									value="{!Welcome_Packet__c.Secondary_Contact_Phone__c}" />
+								<apex:outputField styleClass="col1" id="tab3"
+									value="{!Welcome_Packet__c.Primary_Contact_Email__c}" />
+								<apex:outputField styleClass="col2" id="tab7"
+									value="{!Welcome_Packet__c.Secondary_Contact_Email__c}" />
+								<apex:outputField styleClass="col1" id="tab4"
+									value="{!Welcome_Packet__c.Primary_Contact_Access__c}" />
+								<apex:outputField styleClass="col2" id="tab8"
+									value="{!Welcome_Packet__c.Secondary_Contact_Access__c}" />
+
+							</apex:pageBlockSection>
+
+
+							<apex:pageBlockSection collapsible="false"
+								title="Technical Contact Info" columns="1">
+								<apex:outputField value="{!Welcome_Packet__c.Technical_Contact_Name__c}" />
+								<apex:outputField value="{!Welcome_Packet__c.Technical_Contact_Phone_Number__c}" />
+								<apex:outputField value="{!Welcome_Packet__c.Is_this_person_a_dealership_employee__c}" />
+								<apex:outputField value="{!Welcome_Packet__c.If_not_who_do_they_work_for__c}" />
+							</apex:pageBlockSection>
+
+							<apex:pageBlockSection collapsible="false"
+								title="Equipment Shipping Info" columns="1">
+								<apex:outputField value="{!Welcome_Packet__c.Shipping_Address__c}" />
+								<apex:outputField value="{!Welcome_Packet__c.Shipping_City__c}" />
+								<apex:outputField value="{!Welcome_Packet__c.Shipping_State__c}" />
+								<apex:outputField value="{!Welcome_Packet__c.Shipping_Zip_Code__c}" />
+								<apex:outputField value="{!Welcome_Packet__c.Shipping_Contact_Name__c}" />
+							</apex:pageBlockSection>
+
+							<apex:pageBlockSection collapsible="false" title=""></apex:pageBlockSection>
+
+						</apex:pageBlock>
+
+						<!-------------------------------- CRM PAGE 2==============================-->
+
+						<apex:pageBlock title="ACCOUNT SET UP FORM (continued)"
+							rendered="{!
+                if(Welcome_Packet__c.Packet_Includes__c!=null||
+                CONTAINS(Welcome_Packet__c.Pick_Your_Packet__c, '(Page 2)'), 
+                true, false)}">
+
+
+							<apex:pageBlockSection collapsible="false" title="Site Survey"
+								columns="1">
+								<apex:outputField value="{!Welcome_Packet__c.Number_of_Buildings__c}" />
+								<apex:outputField value="{!Welcome_Packet__c.Are_all_the_Buildings_in_the_same_lot__c}" />
+								<apex:outputField value="{!Welcome_Packet__c.Type_of_network_Connection_building_2__c}" />
+								<apex:outputField value="{!Welcome_Packet__c.Type_of_network_Connection_building_3__c}" />
+								<apex:outputField value="{!Welcome_Packet__c.Type_of_network_Connection_building_4__c}" />
+								<apex:outputField value="{!Welcome_Packet__c.Type_of_network_Connection_building_5__c}" />
+							</apex:pageBlockSection>
+
+							<apex:pageBlockSection collapsible="false"
+								title="Building (Rooftop) Survey" columns="1">
+								<apex:outputField value="{!Welcome_Packet__c.Building_Number_1_2_3_etc__c}" />
+								<apex:outputField value="{!Welcome_Packet__c.Building_Description_Main_Used_Etc__c}" />
+								<apex:outputField value="{!Welcome_Packet__c.Building_Location_Address__c}" />
+								<apex:outputField value="{!Welcome_Packet__c.Number_of_Salespersons_using_MotoSnap__c}" />
+								<apex:outputField value="{!Welcome_Packet__c.Number_of_Managers_using_MotoSnap__c}" />
+								<apex:outputField value="{!Welcome_Packet__c.Number_of_F_I_persons_using_MotoSnap__c}" />
+								<apex:outputField value="{!Welcome_Packet__c.Number_of_existing_PC_s_for_MotoSnap__c}" />
+								<apex:outputField value="{!Welcome_Packet__c.Number_of_new_PC_s_to_be_added__c}" />
+								<apex:outputField value="{!Welcome_Packet__c.Number_of_existing_Network_Printers__c}" />
+								<apex:outputField value="{!Welcome_Packet__c.Number_of_Network_Printers_to_be_added__c}" />
+							</apex:pageBlockSection>
+
+							<apex:pageBlockSection collapsible="false" title="Showroom Hours"
+								columns="2">
+								<apex:outputField value="{!Welcome_Packet__c.Time_Zone__c}" />
+								<apex:outputtext value="" />
+								<apex:outputField value="{!Welcome_Packet__c.Monday_Open__c}" />
+								<apex:outputField value="{!Welcome_Packet__c.Monday_Close__c}" />
+								<apex:outputField value="{!Welcome_Packet__c.Tuesday_Open__c}" />
+								<apex:outputField value="{!Welcome_Packet__c.Tuesday_Close__c}" />
+								<apex:outputField value="{!Welcome_Packet__c.Wednesday_Open__c}" />
+								<apex:outputField value="{!Welcome_Packet__c.Wednesday_Close__c}" />
+								<apex:outputField value="{!Welcome_Packet__c.Thursday_Open__c}" />
+								<apex:outputField value="{!Welcome_Packet__c.Thursday_Close__c}" />
+								<apex:outputField value="{!Welcome_Packet__c.Friday_Open__c}" />
+								<apex:outputField value="{!Welcome_Packet__c.Friday_Close__c}" />
+								<apex:outputField value="{!Welcome_Packet__c.Saturday_Open__c}" />
+								<apex:outputField value="{!Welcome_Packet__c.Saturday_Close__c}" />
+								<apex:outputField value="{!Welcome_Packet__c.Sunday_Open__c}" />
+								<apex:outputField value="{!Welcome_Packet__c.Sunday_Close__c}" />
+							</apex:pageBlockSection>
+
+							<apex:pageBlockSection collapsible="false" title=""></apex:pageBlockSection>
+
+
+						</apex:pageBlock>
+
+						<!-------------------------------- CRM PAGE 3==============================-->
+						<a name="Step 3" />
+						<apex:pageBlock title="INVENTORY"
+							rendered="{!
+                if(Welcome_Packet__c.Packet_Includes__c!=null||
+                CONTAINS(Welcome_Packet__c.Pick_Your_Packet__c, 'INVENTORY'), 
+                true, false)}">
+
+
+
+							<apex:pageBlockSection collapsible="false"
+								title="If VinSolutions is NOT pulling inventory from your DMS, please skip to the 'How will we get...?' section below."
+								columns="1">
+                Coordinating the mapping of your inventory data to the correct fields in MotoSnap 
+                will require us to identify the exact fields in your DMS that have the values we’re 
+                looking for. Some Fields are consistent, and easy to find. But we need the following 
+                fields to be identified by root field name, which will take someone from your store 
+                that has a very good understanding of your DMS. Please provide root field names for 
+                the following inventory fields:
+                    <apex:outputField value="{!Welcome_Packet__c.Selling_Price__c}" />
+								<apex:outputField value="{!Welcome_Packet__c.Internet_Price__c}" />
+								<apex:outputField value="{!Welcome_Packet__c.Cost_for_commissionable_gross__c}" />
+								<apex:outputField value="{!Welcome_Packet__c.Model_Number__c}" />
+								<apex:outputField value="{!Welcome_Packet__c.Trim_Level__c}" />
+								<apex:outputField value="{!Welcome_Packet__c.Interior_Color_Code__c}" />
+								<apex:outputField value="{!Welcome_Packet__c.Exterior_Color_Code__c}" />
+								<apex:outputField value="{!Welcome_Packet__c.Certification_Flag__c}" />
+								<apex:outputField value="{!Welcome_Packet__c.Certification__c}" />
+
+							</apex:pageBlockSection>
+
+							<apex:pageBlockSection collapsible="false"
+								title="How will we get...?" columns="2">
+								<apex:outputField value="{!Welcome_Packet__c.Inventory_Data_for_Initial_Setup__c}" />
+								<apex:outputField value="{!Welcome_Packet__c.Inventory_Data_on_Daily_recurring_basis__c}" />
+								<apex:outputField value="{!Welcome_Packet__c.Photo_s_for_Initial_Setup__c}" />
+								<apex:outputField value="{!Welcome_Packet__c.Photo_s_on_a_daily_recurring_basis__c}" />
+							</apex:pageBlockSection>
+
+							<apex:pageBlockSection collapsible="false"
+								title="Including/Excluding certain vehicles" columns="1">
+                    Sometimes there are vehicles in your DMS Inventory that you do not wish to have in the CRM. 
+                    Examples might be cars you intend to wholesale, Lake House truck, boat, etc. 
+                    Please use this area to identify the criteria that will allow us to exclude them from or include 
+                    them in your CRM Inventory. Like include all status code “1” and “2”, or exclude inventory type “W”, etc.<br />
+								<apex:outputText value="{!Welcome_Packet__c.Including_Excluding_certain_vehicles__c}" />
+							</apex:pageBlockSection>
+						</apex:pageBlock>
+
+						<apex:pageBlock >
+
+							<apex:pageBlockSection collapsible="false"
+								title="Including/Excluding certain vehicles" columns="1">
+                    Please list 3 new and 3 used stock # examples and the corresponding Selling price, Internet price, 
+                    and cost you would like to have imported to MotoSnap Inventory Module.</apex:pageBlockSection>
+
+
+							<table width="100%" align="center">
+								<tr align="center">
+									<td align="left"><b>New Stock #</b></td>
+									<td align="left"><b>Selling Price</b></td>
+									<td align="left"><b>Internet Price</b></td>
+									<td align="left"><b>Cost</b></td>
+								</tr>
+								<tr align="center">
+									<td align="left">1)<apex:outputField value="{!Welcome_Packet__c.X1_New_Stock__c}" /></td>
+									<td align="left"><apex:outputField value="{!Welcome_Packet__c.X1_New_Selling_Price__c}" /></td>
+									<td align="left"><apex:outputField value="{!Welcome_Packet__c.X1_NEw_Internet_Price__c}" /></td>
+									<td align="left"><apex:outputField value="{!Welcome_Packet__c.X1_New_Cost__c}" /></td>
+								</tr>
+								<tr align="center">
+									<td align="left">2)<apex:outputField value="{!Welcome_Packet__c.X2_New_Stock__c}" /></td>
+									<td align="left"><apex:outputField value="{!Welcome_Packet__c.X2_New_Selling_Price__c}" /></td>
+									<td align="left"><apex:outputField value="{!Welcome_Packet__c.X2_New_Internet_Price__c}" /></td>
+									<td align="left"><apex:outputField value="{!Welcome_Packet__c.X2_New_Cost__c}" /></td>
+								</tr>
+								<tr align="center">
+									<td align="left">3)<apex:outputField value="{!Welcome_Packet__c.X3_New_Stock__c}" /></td>
+									<td align="left"><apex:outputField value="{!Welcome_Packet__c.X3_New_Selling_Price__c}" /></td>
+									<td align="left"><apex:outputField value="{!Welcome_Packet__c.X3_New_Internet_Price__c}" /></td>
+									<td align="left"><apex:outputField value="{!Welcome_Packet__c.X3_New_Cost__c}" /></td>
+								</tr>
+							</table>
+
+
+							<apex:pageBlockSection collapsible="false" title=""></apex:pageBlockSection>
+
+							<table width="100%" align="center">
+								<tr align="center">
+									<td align="left"><b>Used Stock #</b></td>
+									<td align="left"><b>Selling Price</b></td>
+									<td align="left"><b>Internet Price</b></td>
+									<td align="left"><b>Cost</b></td>
+								</tr>
+								<tr align="center">
+									<td align="left">1)<apex:outputField value="{!Welcome_Packet__c.X1_Used_Stock__c}" /></td>
+									<td align="left"><apex:outputField value="{!Welcome_Packet__c.X1_Used_Selling_Price__c}" /></td>
+									<td align="left"><apex:outputField value="{!Welcome_Packet__c.X1_Used_Internet_Price__c}" /></td>
+									<td align="left"><apex:outputField value="{!Welcome_Packet__c.X1_Used_Cost__c}" /></td>
+								</tr>
+								<tr align="center">
+									<td align="left">2)<apex:outputField value="{!Welcome_Packet__c.X2_Used_Stock__c}" /></td>
+									<td align="left"><apex:outputField value="{!Welcome_Packet__c.X2_Used_Selling_Price__c}" /></td>
+									<td align="left"><apex:outputField value="{!Welcome_Packet__c.X2_Used_Internet_Price__c}" /></td>
+									<td align="left"><apex:outputField value="{!Welcome_Packet__c.X2_Used_Cost__c}" /></td>
+								</tr>
+								<tr align="center">
+									<td align="left">3)<apex:outputField value="{!Welcome_Packet__c.X3_Used_Stock__c}" /></td>
+									<td align="left"><apex:outputField value="{!Welcome_Packet__c.X3_Used_Selling_Price__c}" /></td>
+									<td align="left"><apex:outputField value="{!Welcome_Packet__c.X3_Used_Internet_Price__c}" /></td>
+									<td align="left"><apex:outputField value="{!Welcome_Packet__c.X3_Used_Cost__c}" /></td>
+								</tr>
+							</table>
+
+							<apex:pageBlockSection collapsible="false" title="Photo's"
+								columns="1">
+								<b>New inventory:</b> New inventory can be populated with color matched stock photos if you so choose. 
+                In order to match color for stock photos, VinSolutions needs to know which field the Manufacturer’s 
+                color code is located in within the DMS, as well as the inventory file that is sent to VinSolutions. 
+                <U>Without this color code or field, your new
+									inventory will have stock photos but they <b>will not</b> be
+									color matched.</U>
+								<br />
+								<br />
+								<b>Used Inventory:</b> To get you started, VinSolutions can often receive a one time inventory feed from a source that 
+                contains your most current inventory/photos. This is wholly up to the source, whether they are willing to send us 
+                this information. <b>In addition, VinSolutions can
+									do a Photo Scrape from Dealer Specialties or Auto Trader, which
+									doesn’t require any effort on their part. If you have any
+									questions, please call your IM.</b>
+							</apex:pageBlockSection>
+							<apex:pageBlockSection >
+								<apex:pageBlockSection collapsible="false" columns="1"
+									title="New Inventory"></apex:pageBlockSection>
+								<apex:pageBlockSection collapsible="false" columns="1"
+									title="Used Inventory"></apex:pageBlockSection>
+							</apex:pageBlockSection>
+							<apex:pageBlockSection >
+								<apex:outputField value="{!Welcome_Packet__c.Enable_stock_photos__c}" />
+								<apex:outputField value="{!Welcome_Packet__c.Current_Dealer_Specialties_Client__c}" />
+								<apex:outputField value="{!Welcome_Packet__c.Enable_color_matched_stock_photos__c}" />
+								<apex:outputField value="{!Welcome_Packet__c.Auto_Trader_Username__c}" />
+								<apex:outputText value="" />
+								<apex:outputField value="{!Welcome_Packet__c.Auto_Trader_Password__c}" />
+							</apex:pageBlockSection>
+
+							<apex:pageBlockSection collapsible="false" title=""></apex:pageBlockSection>
+
+
+						</apex:pageBlock>
+
+
+						<!-------------------------------- CRM PAGE 4==============================-->
+						<a name="Step 4" />
+						<apex:pageBlock title="THIRD PARTY EXPORTS"
+							rendered="{!
+                if(Welcome_Packet__c.Packet_Includes__c!=null||
+                CONTAINS(Welcome_Packet__c.Pick_Your_Packet__c, 'THIRD PARTY EXPORTS'), 
+                true, false)}">
+
+
+
+							<apex:pageBlockSection collapsible="false" title="Exports"
+								columns="1"></apex:pageBlockSection>
+                    Most third parties require the dealer to notify them that VinSolutions
+                    will be exporting data to them. Each third party provider has different
+                    criteria that must be met before the export can become enabled.
+                    VinSolutions will enable exports promptly when third party providers
+                    notify us of their requirements and standards.<br />
+							<br />
+
+							<b>**<u>In the event that a third party provider is
+									delayed in notifying us, or giving us needed information, some
+									delays in the set up of your data exports may be experienced.</u>**</b>
+							<br />
+							<br />
+                    
+                    If you do not wish to have VinSolutions export your inventory to your lead 
+                    providers at this time please check here: 
+                    <apex:outputField value="{!Welcome_Packet__c.DO_NOT_EXPORT_INVENTORY_TO_LEAD_PROVIDER__c}" />
+
+							<apex:pageBlockSection collapsible="false" title=""></apex:pageBlockSection>
+
+
+						</apex:pageBlock>
+
+
+						<!-------------------------------- CRM PAGE 5==============================-->
+						<a name="Step 5" />
+						<apex:pageBlock title="PREDEFINED EXPORTS"
+							rendered="{!
+                if(Welcome_Packet__c.Packet_Includes__c!=null||
+                CONTAINS(Welcome_Packet__c.Pick_Your_Packet__c, 'PREDEFINED EXPORTS'), 
+                true, false)}">
+
+
+
+							<apex:pageBlockSection collapsible="false"
+								title="Available Predefined Exports" columns="1">
+                    Listed below are the available data exports that have already been configured to meet your third party vendor needs. We have
+                    available the ability to send out generic inventory feeds to any source in a .csv or .tab format. Please select feeds to the
+                    vendors that you would like your inventory sent to. You, the Dealer, must currently have active accounts set up with these
+                    third party vendors in order for them to accept any feeds that we may send.</apex:pageBlockSection>
+							<br />
+
+							<apex:pageBlockSection columns="1">
+								<apex:outputField value="{!Welcome_Packet__c.Predefined_Exports__c}" />
+								<apex:outputField value="{!Welcome_Packet__c.Additional_Inventory_Feeds__c}" />
+							</apex:pageBlockSection>
+
+							<apex:pageBlockSection collapsible="false" title=""></apex:pageBlockSection>
+
+
+						</apex:pageBlock>
+
+
+						<!-------------------------------- CRM PAGE 7==============================-->
+						<a name="Step 7" />
+						<apex:pageBlock title="ROUTE ONE / DEALERTRACK"
+							rendered="{!
+            if(CONTAINS(Welcome_Packet__c.Packet_Includes__c,'CRM')
+            ||CONTAINS(Welcome_Packet__c.Pick_Your_Packet__c, 'ROUTE ONE'),
+            TRUE, FALSE)}">
+
+
+
+							<apex:pageBlockSection collapsible="false"
+								title="Route One and DealerTrack" columns="1"></apex:pageBlockSection>
+                    
+                    With certain VinSolutions CRM packages you are able to push deals desked within VinSolutions to DealerTrack 
+                    and/or Route One providing your dealership is setup with them and you choose to do so.<br />
+							<br /> 
+                    
+                    In order for VinSolutions to be able to push to DealerTrack and/or Route One, additional information will be required.<br />
+							<br />
+							<table>
+								<tr>
+									<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+									<td>
+										<li><b><u>DealerTrack:</u> </b>&nbsp;&nbsp;You will need
+											to have a login to Dealer Track. Deals pushed into
+											DealerTrack will show up under the leads tab within Dealer
+											Track.</li>
+										<li><b><u>Route One:</u> </b>&nbsp;&nbsp; You will need
+											to provide VinSolutions with the Route One dealer ID. (This
+											ID is a 5 digit alphanumeric code and many dealers have more
+											than Route One ID. If your Dealer has more than one Route One
+											ID, then all ID’s will need to be provided to VinSolutions.)</li>
+										<br /></td>
+								</tr>
+							</table>
+
+							<apex:pageblockSection columns="1">
+								<apex:outputField value="{!Welcome_Packet__c.Is_your_Dealership_setup_w_DealerTrack__c}" />
+								<apex:outputField value="{!Welcome_Packet__c.Is_your_Dealership_setup_with_Route_One__c}" />
+							</apex:pageblockSection>
+							<br />
+                    All Route One Dealer ID&#10;s&#59;
+                <br />
+							<apex:outputText value="{!Welcome_Packet__c.All_Route_One_Dealer_ID_s__c}" />
+
+
+							<apex:pageBlockSection collapsible="false" title=""></apex:pageBlockSection>
+
+
+						</apex:pageBlock>
+
+
+						<!-------------------------------- CRM PAGE 8==============================-->
+						<a name="Step 8" />
+						<apex:pageBlock title="MINIMUM SYSTEM REQUIRMENTS"
+							rendered="{!
+                if(Welcome_Packet__c.Packet_Includes__c!=null||
+                CONTAINS(Welcome_Packet__c.Pick_Your_Packet__c, 'MINIMUM SYSTEM REQUIREMENTS'), 
+                true, false)}">
+
+
+
+							<apex:pageBlockSection collapsible="false" title="Requirements"
+								columns="1"></apex:pageBlockSection>
+
+							<table>
+								<tr>
+									<td>VinSolutions™ offers state of the art technology in a
+										web based software. In order to take full advantage of our
+										software there are minimum system requirements.<br /> They
+										are as follows:<br />
+										<table>
+											<tr>
+												<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+												<td>
+													<li>.Net Framework 2.0</li>
+													<li>Microsoft XP or Vista</li>
+													<li>Internet Explorer 7</li>
+													<li>Adobe Acrobat Reader</li>
+													<li>Microsoft Silverlight</li> <br /> <br />
+												</td>
+											</tr>
+										</table> Clients using our VinCamera software will additionally
+										require:<br />
+										<table>
+											<tr>
+												<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+												<td><li>.Net Framework 3.5</li> <br /></td>
+											</tr>
+										</table> Clients using our scanner software will need to ensure their
+										operating system is 32-bit, not 64-bit on the machine that the
+										scanner will be installed on.<br /> <br /> If you chose to
+										operate our software without meeting the minimum system
+										requirements you may not be able to take full advantage of the
+										functions and benefits of our system.<br /> <br />
+									</td>
+								</tr>
+							</table>
+							<apex:pageblockSection columns="1">
+
+								<apex:outputField value="{!Welcome_Packet__c.Current_Operating_System__c}" />
+								<apex:outputField value="{!Welcome_Packet__c.Current_Web_Browser__c}" />
+
+							</apex:pageblockSection>
+
+
+							<apex:pageBlockSection collapsible="false" title=""></apex:pageBlockSection>
+
+
+						</apex:pageBlock>
+
+
+						<!-------------------------------- CRM PAGE 9==============================-->
+						<a name="Step 9" />
+						<apex:pageBlock title="SOLD DATA"
+							rendered="{!
+            if(CONTAINS(Welcome_Packet__c.Packet_Includes__c,'CRM')||
+           CONTAINS(Welcome_Packet__c.Packet_Includes__c, 'ILM')||
+           CONTAINS(Welcome_Packet__c.Pick_Your_Packet__c, 'SOLD DATA'),
+           TRUE, FALSE)}">
+
+							<apex:pageBlockSection collapsible="false"
+								title="*****PLEASE READ THOUROUGHLY – EXTREMELY IMPORTANT*****"
+								columns="1">             
+                    Your sales data (Historic and current deals housed in your DMS or previous CRM tool) is the most important information 
+                    you will be sending us. Due to this fact, we are unable to continue with the implementation process until all sold data 
+                    is imported successfully.
+                </apex:pageBlockSection>
+
+
+							<apex:pageBlockSection collapsible="false"
+								title="How will VinSolutions get my Sold Data?" columns="1">
+                    Per the discussion you had with your New Accounts Coordinator prior to receiving this paperwork, 
+                    enter here how sold data will be acquired:
+                    <apex:outputText value="{!Welcome_Packet__c.how_sold_data_will_be_acquired__c}" />
+                    (Examples: DMS Connector (Reynolds/ADP only); Automated FTP Feed from DMS company (Arkona, AutoSoft); 
+                    manual daily feed from you, the dealer, to our FTP server; one time email)
+                </apex:pageBlockSection>
+							<br />
+
+							<BIG>Most DMS sold data includes transactions that you may
+								not wish to send to MotoSnap. Examples of this include dealer
+								trades, wholesale, or house deals. We need to identify them by
+								some common criteria so they can be excluded. Please identify
+								any deal types or salesperson #’s that need to be <b><u><i>excluded</i>
+								</u> </b> from the sold data import.</BIG>
+							<br />
+							<br />
+
+							<apex:pageBlockSection columns="4">
+								<apex:outputField value="{!Welcome_Packet__c.House_Deals__c}" />
+								<apex:outputField value="{!Welcome_Packet__c.Dealer_Trades__c}" />
+								<apex:outputField value="{!Welcome_Packet__c.Wholesale__c}" />
+								<apex:outputField value="{!Welcome_Packet__c.Other__c}" />
+								<apex:outputField value="{!Welcome_Packet__c.DMS_to_exclude1__c}" />
+								<apex:outputField value="{!Welcome_Packet__c.DMS_to_exclude2__c}" />
+								<apex:outputField value="{!Welcome_Packet__c.DMS_to_exclude3__c}" />
+								<apex:outputField value="{!Welcome_Packet__c.DMS_to_exclude4__c}" />
+							</apex:pageBlockSection>
+
+
+							<apex:pageBlockSection collapsible="false" title=""></apex:pageBlockSection>
+
+
+						</apex:pageBlock>
+
+
+						<!-------------------------------- CRM PAGE 10==============================-->
+
+						<apex:pageBlock title="UNSOLD (CRM) PROSPECT DATA"
+							rendered="{!
+            if(CONTAINS(Welcome_Packet__c.Packet_Includes__c,'CRM')||
+            CONTAINS(Welcome_Packet__c.Packet_Includes__c, 'ILM')||
+            CONTAINS(Welcome_Packet__c.Pick_Your_Packet__c, 'UNSOLD (CRM) PROSPECT DATA'),
+            TRUE, FALSE)}">
+
+
+							<apex:pageBlockSection collapsible="false" title="" columns="1">                
+                    Prospect data is any data that has been accumulated by a previous ILM/CRM system that is 
+                    intended to be uploaded into the VinSolutions™ software. This data needs to be provided 
+                    to your VinSolutions Implementation Manager prior to scheduling training. Any delays in 
+                    submitting this information to VinSolutions will delay the Implementation as well as the 
+                    Training of this system in your dealership.<br />
+								<br />
+
+								<table align="center">
+									<tr>
+										<td>All data files must be in either .csv or Microsoft
+											Excel™ format containing the following fields:<br /> <br />
+
+											<table border="0" align="center">
+												<tr align="center">
+													<td align="center" width="212" colspan="2" border="0"><b>Customer
+															Information</b></td>
+													<td align="center" width="212" colspan="2" border="0"><b>Vehicle
+															Information</b></td>
+													<td align="center" width="212" colspan="2" border="0"><b>Lead
+															Status</b></td>
+													<td align="center" width="212" colspan="2" border="0"><b>Salesperson</b>
+													</td>
+												</tr>
+
+												<tr>
+													<td align="center" width="79"></td>
+													<td align="center" width="162" colspan="2"><b>Customer
+															Email Address</b></td>
+													<td align="center" width="156" colspan="2" valign="top"><b>Lead
+															Source</b></td>
+													<td align="center" width="79" colspan="2"><b>Lead
+															Creation Date</b></td>
+												</tr>
+
+											</table>
+										</td>
+									</tr>
+								</table>
+							</apex:pageBlockSection>
+
+							<apex:pageBlockSection columns="1">
+                    Fields containing customer names must be listed in separate fields to allow for a quicker 
+                    and easier integration of data. If the file is not in either .csv or Microsoft Excel™ format 
+                    containing the previously mentioned fields, data may be either incompatible with or incomplete 
+                    in the VinSolutions™ software.<br />
+								<br />
+
+								<b>Orphaned Prospects</b>
+								<br />
+                    If any prospects are assigned to a salesperson who is not on the user list, they will need to be 
+                    assigned to one. We can assign these prospects to users that you designate. Please list below who 
+                    you would choose to assign these orphaned prospects to. <br />
+								<apex:outputText value="{!Welcome_Packet__c.Orphaned_Prospects__c}" />
+							</apex:pageBlockSection>
+
+							<apex:pageBlockSection collapsible="false" title=""></apex:pageBlockSection>
+
+
+						</apex:pageBlock>
+
+
+						<!-------------------------------- CRM PAGE 4   11==============================-->
+						<a name="Step 11" />
+						<apex:pageBlock title="STANDARD FORMS REQUEST SHEET"
+							rendered="{!
+            if(CONTAINS(Welcome_Packet__c.Packet_Includes__c,'CRM')||
+            CONTAINS(Welcome_Packet__c.Pick_Your_Packet__c, 'STANDARD FORMS REQUEST SHEET'),
+            TRUE, FALSE)}">
+
+
+
+							<apex:pageBlockSection collapsible="false" title="" columns="1">                
+                    Included with your purchase of VinSolutions CRM/ILM system, you have complete access to all
+                    forms available in our forms library. Below we have listed all forms available. Please check the
+                    forms that you would like to use.<small><i>(If
+										you would prefer to view these forms prior to selecting them,
+										please contact your Implementation Manager for access to forms
+										section of our website.)</i> </small>
+								<br />
+								<br />
+
+								<table align="center" width="850">
+									<tr align="center">
+										<td align="center"><b><u>Please check all forms
+													you would like available</u>:</b><br /> <br />
+										</td>
+									</tr>
+								</table>
+
+								<table align="center">
+									<tr>
+										<td><apex:outputField value="{!Welcome_Packet__c.Standard_Forms__c}" /></td>
+									</tr>
+								</table>                                    
+                
+                    These forms may be added or deleted from your list at any time by notifying our Support Department.<br />
+								<br />
+                    
+                    Furthermore – You will be made aware of any additional forms that come available.<br />
+								<br />
+                    
+                    I certify that I am an authorized representative of the dealership and understand that in order
+                    to have these forms available to me during my installation; I need to have this list submitted to
+                    my Implementation Manager no less than two weeks prior to my scheduled installation.                
+                </apex:pageBlockSection>
+
+							<apex:pageBlockSection collapsible="false" title=""></apex:pageBlockSection>
+
+
+						</apex:pageBlock>
+
+
+						<!-------------------------------- CRM PAGE 12==============================-->
+						<a name="Step 12" />
+						<apex:pageBlock title="CUSTOM FORMS"
+							rendered="{!
+            if(CONTAINS(Welcome_Packet__c.Packet_Includes__c,'CRM')||
+            CONTAINS(Welcome_Packet__c.Pick_Your_Packet__c, 'CUSTOM FORMS'),
+            TRUE, FALSE)}">
+
+
+
+							<apex:pageBlockSection collapsible="false"
+								title="CUSTOM FORMS SHEET" columns="1">              
+                    With your purchase of VinSolutions CRM/ILM system, we include up to 3 custom forms that are
+                    included in your purchase price. We are more than happy to customize any form that you
+                    submit to us, however there are <u>limitations
+									to what we can populate on a form.</u>
+								<br />
+								<br />
+
+								<table align="center">
+									<tr align="center">
+										<td align="center">Below we have listed the popular
+											customized forms used by our most successful customers.<br />
+											<small><i>(We have attached an order form for
+													your convenience - see below)</i> </small>
+										</td>
+									</tr>
+									<tr>
+										<td align="left">
+											<ul>
+												<li>Personalized Buyers Orders</li>
+												<li>We Owe / You Owe</li>
+												<li>Cover Sheets/Deal Checklists.</li>
+												<li>Trade Evaluation</li>
+												<li>Credit Applications</li>
+												<li>Borrowed Car Agreements</li>
+												<li>Four Square</li>
+												<li>Certified Vehicle Forms.</li>
+											</ul>
+										</td>
+									</tr>
+								</table>
+								<br />
+                    
+                    Please email original electronic versions of these forms to your Implementation Manager.
+                    Please <u>DO NOT</u> fax copies of these forms. Faxed copies of forms will not have the appropriate
+                    quality that will accurately represent the integrity of your dealership.<br />
+								<br />
+                    
+                    As with anything of quality – these forms take a considerable amount of time to install.
+                    Furthermore – It is of the utmost importance to a successful installation that these forms be
+                    completed prior to the trainers arriving at your store. With this in mind, please insure that all
+                    forms are received by VinSolutions no less than 2 weeks prior to trainer installation, otherwise
+                    we cannot guarantee they will be available while the trainers are on location.
+                                                
+                </apex:pageBlockSection>
+						</apex:pageBlock>
+						<apex:pageBlock rendered="{!if(!CONTAINS(Welcome_Packet__c.Packet_Includes__c,'CRM'),FALSE, TRUE)}">
+							<apex:pageBlockSection collapsible="false"
+								title="CUSTOM FORMS ORDER SHEET" columns="1"></apex:pageBlockSection>
+                    Please email original electronic versions of these forms to your Implementation Manager.
+                    Please <u>DO NOT</u> fax copies of these forms. Faxed copies of forms will not have the appropriate
+                    quality that will accurately represent the integrity of your dealership.<br />
+							<br />
+							<apex:pageBlockSection columns="2">
+								<apex:outputField value="{!Welcome_Packet__c.Custom_Form_1__c}" />
+								<apex:outputText value="" />
+								<apex:outputField value="{!Welcome_Packet__c.Custom_Form_2__c}" />
+								<apex:outputText value="" />
+								<apex:outputField value="{!Welcome_Packet__c.Custom_Form_3__c}" />
+								<apex:outputText value="" />
+								<apex:outputField value="{!Welcome_Packet__c.Additional_Form_1__c}" />+$200.00
+                    <apex:outputField value="{!Welcome_Packet__c.Additional_Form_2__c}" />+$200.00
+                    <apex:outputField value="{!Welcome_Packet__c.Additional_Form_3__c}" />+$200.00
+                    <apex:outputField value="{!Welcome_Packet__c.Additional_Form_4__c}" />+$200.00
+                    <apex:outputField value="{!Welcome_Packet__c.Additional_Form_5__c}" />+$200.00
+                    <apex:outputField value="{!Welcome_Packet__c.Additional_Form_6__c}" />+$200.00
+                    
+                    </apex:pageBlockSection>
+
+							<hr></hr>
+
+							<apex:pageBlockSection collapsible="false" title=""></apex:pageBlockSection>
+
+
+						</apex:pageBlock>
+						<!-------------------------------------------------------------------------------------------------->
+					</apex:form>
+				</div>
+			</td>
+		</tr>
+	</table>
+</apex:page>

@@ -1,0 +1,545 @@
+<apex:page controller="DMAPP.ValueMapController" showHeader="true" sidebar="false" action="{! logSegmentationMapUsage }" docType="html-5.0" tabStyle="Account_Plans__tab">
+
+	<c:jQuery jQueryUI="true"
+		cookies="true"
+		underscore="true"
+		tooltip="true"
+		tools="true"
+		validate="true"
+		paging="true"
+		jqGrid="true"
+		textareaMaxlength="true"
+		chosen="true"
+		dropdown="true"/>
+
+    <c:MobileRedirect TAM="true" />
+	
+	<style>	
+	
+		@import url("{! URLFOR($Resource.ttgomjs,	'ttg/graph/css/political_map.css') }");
+		@import url("{!URLFOR($Resource.ttgomjs,     'ttg/chatter/css/chatter_side_panel.css')}");
+		@import url("{!URLFOR($Resource.ttgomjs,     'ttg/chatter/css/chatter_post.css')}");
+		@import url("{!URLFOR($Resource.ttgomjs,    'ttg/graph/css/glyphs/style.css')}");
+		@import url("{!URLFOR($Resource.ttgomjs,    'ttg/chatter/css/chatter_summary.css')}");
+		@import url("{! URLFOR($Resource.TAM,		'css/common.css') }");
+		@import url("{! URLFOR($Resource.TAM,       'css/solutionTooltip.css') }");
+
+ 		
+		div#TAS { width: 950px; }
+	
+		DIV#TAS DIV#ValueMapContainer {
+		    background-color: #CBD5E2;
+		    border: 1px solid #A0B5CA;
+		    border-radius: 7px 7px 7px 7px;
+		    box-shadow: 0 1px 0 rgba(255, 255, 255, 0.7) inset;
+		    position: relative;
+		    height: 540px;
+		}	
+		
+		DIV#TAS  DIV#ValueMapContainer DIV#Map {
+			background-color: #FFF;	
+			border: 1px solid #A0B5CA;
+		    border-radius: 7px;
+		    display: inline-block;
+		    float: left;
+		    height: 498px;
+		    margin: 4px;
+		    vertical-align: top;
+			width: 575px;		    		
+		}
+		
+		DIV#TAS  DIV#ValueMapContainer DIV#Data {
+			background-color: white;
+			border: 1px solid #A0B5CA;
+		    border-radius: 7px;
+			display: inline-block;
+			float: right;
+			height: 498px;			
+			margin: 4px;			
+			overflow-y: auto;
+			position: absolute;
+			z-index: 10;			
+		}
+		
+		DIV#TAS DIV.UNIT { padding-top: 4px; }
+	
+		DIV#TAS DIV.UNIT SPAN.spanToggle {
+		    display: inline-block;
+    		float: none;
+    		vertical-align: middle;
+    		margin: 0px;
+    		position: relative;
+    		padding: 0px;
+    		top:  -16px;
+			position: relative;
+			top: -16px;
+			vertical-align: middle;
+    	}
+
+		DIV#TAS SPAN.spanToggle {								
+		    background-image: url('{! URLFOR($Resource.Assessment, 'drawer_expand.png') }');
+		    background-repeat: no-repeat;
+		    clear: left;
+		    float: left;
+		    height: 12px;
+		    margin: 6px 6px 6px 14px;
+		    width: 12px;
+		}
+    	
+    	DIV#TAS .HIDDEN { display: none; }
+    	
+    	DIV#TAS .HIDDEN { display: none; }
+    	
+		DIV#TAS DIV.UNIT SPAN {
+			display: inline-block;
+			padding: 4px;
+		}
+				
+		DIV#TAS DIV.UNIT SPAN.UNITNAME {			
+			background-color: transparent;
+			font-weight: bold;
+			overflow: hidden;
+			text-overflow: ellipsis;
+			white-space: nowrap;		
+		}
+		
+		SPAN.UNITNAMEHEADER {			
+			overflow: hidden;
+			text-align: center;
+			width: 275px;
+		}
+		
+		DIV#TAS DIV.UNIT SPAN.VALUETOUS {			
+			overflow: hidden;
+			text-align: right;
+  			text-overflow: ellipsis;
+    		white-space: nowrap;
+    		width: 100px;
+		}
+
+		DIV#TAS DIV.UNIT SPAN.VALUETOTHEM {			
+			overflow: hidden;
+			text-align: right;
+  			text-overflow: ellipsis;
+    		white-space: nowrap;
+    		width: 115px;    		
+		}
+		
+		DIV#TAS DIV.UNIT SPAN.ACCOUNTTYPE {			
+			overflow: hidden;
+			text-align: center;
+			/*width: 32px;*/
+		}
+		
+		DIV#TAS DIV.UNIT SPAN.LINE SPAN.UNITNAME,
+		DIV#TAS DIV.UNIT SPAN.LINE SPAN.VALUETOUS,
+		DIV#TAS DIV.UNIT SPAN.LINE SPAN.VALUETOTHEM,
+		DIV#TAS DIV.UNIT SPAN.LINE SPAN.ACCOUNTTYPE { float: left; }	
+		
+		DIV#TAS DIV#TOGGLEMAP {
+		    background-color: #506E94;
+		    border: 1px solid #506E94;
+		    border-radius: 7px 0 0 7px;
+		    color: #FFF;
+		    cursor: pointer;
+		    font-size: 14px;
+		    height: 30px;
+		    line-height: 30px;
+		    margin-left: -2px;
+		    position: absolute;
+		    text-align: center;
+		    top: 40px;
+		    vertical-align: bottom;
+		    width: 20px;
+		    z-index: 20;
+		}
+
+    	DIV#TAS DIV.TOGGLEMAP_RIGHT { left: 560px; }
+    	
+    	DIV#TAS DIV.TOGGLEMAP_LEFT { left: 327px; }
+		
+		DIV#TAS  DIV#ValueMapContainer .COMPRESSED {
+			left: 575px;
+			width: 363px;		    
+		}
+		
+		DIV#TAS DIV#ValueMapContainer .EXPANDED {
+		    box-shadow: 0 0 3px rgba(0, 0, 0, 0.4);
+		    left: 343px;
+		    width: 595px;
+		}
+		
+		SPAN.HEADER {
+            background: #405773 url('{! URLFOR($Resource.SmartOM, 'tabs/bg_nav_off.jpg') }') left top repeat-x;
+   			color: #FFF;
+   			font-weight: bold;   			
+			margin-bottom: 4px;
+			text-align: left;
+		}
+		
+		DIV#LEGEND {
+			height: 0;
+		    left: 9px;
+		    position: relative;
+		    top: -34px;		    
+		}
+		
+		DIV.LEGEND_POPUP {
+			border: 2px solid #9C9C9C;
+			background-color: #FFF;
+		    border-radius: 7px;
+		    display: none;			
+			left: 30px;
+			position: absolute;
+			padding: 5px 2px 5px 5px;
+		    top: -195px;
+		    width: 330px;
+		    z-index: 20;			
+		}
+		
+		div.LEGEND_POPUP .ttg_org_chart_legend_box_panel div { padding-left: 10px; }        	
+        
+	        div#LEGEND div#legendDiv {
+	        	cursor: default;
+	            height: auto;
+	            min-width: 373px;
+	            width: auto;
+	        }
+	        
+	    #legendDiv .ttg_org_chart_legend_box_panel { width: 183px; }
+	    
+	    	#legendDiv img#LEGENDCLOSER {
+	    		right: 10px;
+	    		top: 10px;
+	    	}
+        
+	        #legendDiv .ttg_org_chart_legend_box_panel .ttg_org_chart_legend_box_panel_title { height: 28px; }
+	        
+	        #legendDiv .ttg_org_chart_legend_box_panel ul {
+	        	list-style: disc; 
+	        	min-height: 178px;
+	        }
+	        
+	        	#legendDiv .ttg_org_chart_legend_box_panel ul li {
+	        		display: list-item;
+	        		margin-left: 33px; 
+	        		padding: 0 5px 0 0;
+	        	}		
+			
+		SPAN.TOOLTIPQUESTION { font-weight: bolder; }
+		
+		SPAN.TOOLTIPANSWERS { font-weight: bolder; }
+		
+		TABLE.TOOLTIPWRAPPERTABLE TH {		
+			color: maroon;
+			padding: 5px;
+		}
+		
+		TABLE.TOOLTIPWRAPPERTABLE TD { vertical-align: top; }
+		
+		TABLE#QUESTIONS TD {
+			padding-right: 20px;
+		}
+		
+        DIV.DLGTARGET {
+            display: inline-block;
+            float: right;
+            text-align: right;
+            width: 100%;
+            padding: 10px 0;
+        }
+		
+        /* Was clashing with / breaking solutions in plan settings dialogs */
+        #ValueMapContainer IMG.TARGET, #ValueMapContainer SPAN.TARGET {
+            width: 16px;
+            height: 16px;
+            float: left;
+            margin: 5px 0;
+        }
+        
+        IMG.TARGETED, SPAN.TARGETED {
+            background-image: url('{!URLFOR($Resource.ValueMap, 'icon_targeted.png')}')
+        }
+
+        IMG.UNTARGETED, SPAN.UNTARGETED {
+            background-image: url('{!URLFOR($Resource.ValueMap, 'icon_untargeted.png')}')
+        }
+		
+		DIV.NOTEINFOICON {
+			background-image: url('{!URLFOR($Resource.ttgomjs, 'ttg/graph/feimages/icon_info.png')}');
+			width: 12px;
+			height: 12px;
+			margin: 2px;
+		}
+		
+		DIV.HOVERHELP {
+			width:340px;
+		}
+		
+		.dmsegtooltip {
+			position: absolute;
+		}
+		
+        DIV.DLGLASTMODIFIED {
+            display: inline-block;
+            float: right;
+            text-align: right;
+            width: 100%;
+            padding: 5px 0;
+        }
+        
+        .spinner {
+        	height: auto;
+        	width: auto;
+        }
+        
+		/* Settings dropdown fix jQueryMigration  */
+		.TAMAdminLink{
+			position: relative;
+		}
+
+		.dropdown .dropdown-menu, .dropdown .dropdown-panel {
+			min-width: 80px;
+		}
+		
+		.dropdown {
+			left: -39px !important;
+		}
+		
+		#tooltip {
+		    z-index: 1000003 !important;
+        }
+        
+        /* iPAD PORTRAIT STYLES */
+		@media only screen 
+			and (min-device-width : 768px) 
+			and (max-device-width : 1024px) 
+			and (orientation : portrait) {
+				.salesforce1 #TAS{
+					max-width: 1024px;
+				}
+				
+				.salesforce1 DIV#TAS DIV#ValueMapContainer .COMPRESSED {
+					width: 180px;
+				}
+				
+				.salesforce1 SPAN.HEADER {
+					margin-left: -11px;
+				}
+				
+				.salesforce1 .COMPRESSED SPAN.ACCOUNTTYPE.HEADER {
+					margin-left: -7px;
+					width: 64px;
+				}
+				
+				.salesforce1 DIV#TAS DIV.UNIT SPAN.LINE SPAN.UNITNAME {
+					width: 90px !important;
+					margin-left: 6px;
+				}
+
+				.salesforce1 .UNITNAMEHEADER{
+				    width: 100px !important;
+				}
+							
+				.salesforce1 DIV#TAS DIV.UNIT SPAN.VALUETOUS.HEADER{
+					width: 70px !important;
+				}
+				
+				.salesforce1 DIV#TAS DIV.UNIT SPAN.VALUETOTHEM.HEADER, DIV#TAS DIV.UNIT SPAN.VALUETOTHEM{
+					width: 70px !important;
+				}
+				
+				.salesforce1 DIV#TAS DIV#ValueMapContainer .EXPANDED {
+					width: 410px;
+				}
+				
+				.salesforce1 .EXPANDED SPAN.ACCOUNTTYPE.HEADER {
+					margin-left: 1px;
+					width: 70px;
+				}
+				
+				.salesforce1 .EXPANDED SPAN.VALUETOUS.HEADER{
+					margin-left: 5px;
+					width: 70px !important;
+				}
+				
+				.salesforce1 .EXPANDED SPAN.VALUETOTHEM.HEADER{
+					margin-left: 5px;
+					width: 70px !important;
+				}
+				
+				.salesforce1 .segmentationDialogContainer{
+					width: 95% !important;
+				}	
+		}
+
+		
+		/* iPAD LANDSCAPE STYLES */		
+		@media only screen 
+			and (min-device-width : 768px) 
+			and (max-device-width : 1024px) 
+			and (orientation : landscape){
+	
+				.salesforce1 DIV#TAS DIV#ValueMapContainer .COMPRESSED{
+					width: 419px;
+				}
+		
+				.salesforce1 DIV#TAS DIV#ValueMapContainer .EXPANDED{
+					width: 650px;
+				}
+				
+				.salesforce1 #ValueMapContainer{
+					width: 98%;
+					position: relative;
+					margin: 0 auto;
+				}
+				
+				.salesforce1 DIV#LEGEND {
+					height: 0;
+					left: 15px;
+					position: relative;
+					top: -34px;
+				}
+				
+				.salesforce1 #QUESTIONAIRE{
+					margin-bottom: 1% !important;
+				}
+				
+				.salesforce1 .segmentationDialogContainer{
+					margin-bottom: 5% !important;
+				}	 					
+		}	
+		
+	</style>
+    
+		
+    <apex:includeScript value="{! URLFOR($Resource.prefix) }"/>
+	<script type="text/javascript" src="{! $Resource.l10njs }"></script>
+	<apex:include pageName="DMAPP__tmpCommoncss" />
+	<script type="text/javascript" src="{! URLFOR($Resource.ttgomjs, 'ttg/lib/highcharts.js') }"></script>	
+	<c:SegmentationJS />
+	<apex:include pageName="DMAPP__CRUD" />
+	<script type="text/javascript" src="{! URLFOR($Resource.ttgomjs, 'ttg/lib/ttgservice.js') }"></script>
+	<script type="text/javascript" src="{! URLFOR($Resource.OpportunityMapConfiguration) }"></script>
+	<script type="text/javascript" src="{! URLFOR($Resource.ttgomjs, 'ttg/lib/jquery-ui-touch-patch.js') }"></script>
+
+
+	<apex:include pageName="DMAPP__Debug" />
+	<script type="text/javascript" src="{! URLFOR($Resource.ftk, 'forcetk.js') }"></script>
+	
+	<script>
+		
+		var ttg = ttg || {};		
+		ttg.pre_fetch = ttg.pre_fetch || {};		
+		ttg.pre_fetch['DMAPP.ValueMapController.getSegmentation'] = '{!JSENCODE(preFetchSegmentation)}';
+				
+	</script>
+	
+	<apex:include pageName="DMAPP__JSRemoting" />
+	<apex:include pageName="DMAPP__TAMSummaryTab" />
+	
+	<div id="TAS">
+		<div id="SPINNER"></div>
+		<div id="ValueMapContainer">
+			<div id="Map"></div>
+			<div id="TOGGLEMAP" class="TOGGLEMAP_RIGHT">&lt;</div>
+			<div id="Data" class="COMPRESSED"></div>
+		</div>
+		<div id='LEGEND'>
+			<img src="{! URLFOR($Resource.ttgomjs, '/ttg/graph/feimages/icon_legend.png') }" />
+		</div>
+	</div>	
+	<script>
+
+		/* 
+		 * Copyright © The TAS Group. All rights reserved.
+		 *  
+		 */    
+
+		jQuery = jQuery || $j;
+		
+			
+		var spec = {
+		
+			ttgApi: ttg.apiLayer.sfdcDelegate( { sessionid : '{!JSENCODE($Api.Session_ID)}' } ),
+			planId: '{!JSENCODE(valueMapId)}',
+            dateformat: '{!JSENCODE(dateFormat)}',
+			readonly: {!false == editable}
+					   
+		};
+
+
+		var ttg_valuemap = ttg.am.segmentation(spec);
+	
+
+		jQuery(
+		
+			function () {
+
+				ttg_valuemap.setup( ttg_valuemap.render );
+	
+			}
+
+		);
+
+	    jQuery(document).ready(function() {
+				    
+	    		var spec = {
+	    			sessionid : '{!JSENCODE($Api.Session_ID)}',
+	    			userId: '{!$User.id}',
+					ttgApi: ttg.apiLayer.sfdcDelegate( { sessionid : '{!JSENCODE($Api.Session_ID)}' } ),
+	                planId: '{!JSENCODE(valueMapId)}',
+	                planname: '{!JSENCODE(valueMapName)}',
+	                spinnerURL: '{!JSENCODE(URLFOR($Resource.ttgomjs, '/ttg/graph/images/loader.gif'))}',
+	                calendarURL: "{!URLFOR($Resource.Common, 'images/icon_calendar.png')}",
+					title: 'Plan Settings',
+	                readonly: {!PlanRecordEditable == false},
+	                candelete: {!Candelete},
+	                inactive: {!inactive},
+			        hideScorecard: {!NOT(showScorecard)},
+	                useAccountGrouping: {!accountGroupingEnabled},
+	                fiscalYearStartMonth: {!fiscalYearStartMonth},
+	                usesStartDateAsFiscalYearName: {!usesStartDateAsFiscalYearName},
+					isoCode: '{!JSENCODE(CurrencyISO)}',
+					showAutoPostOption: {!showAutoPostOption}            
+	    		};
+	
+	    		var amConfiguration = ttg.am.configuration(spec);
+
+				var hasCreateAccess = {!planObjectCreateable};
+	
+	            var specClone = spec;
+	            specClone['clone'] = true;
+	            var amConfigurationClone = ttg.am.configuration(specClone);
+	
+	            var ctrl = jQuery('#TAMADMINLINK').parent();
+	            jQuery('#TAMADMINLINK').remove();
+	            
+				var a = jQuery('<a href="#" data-dropdown="#dropdown-{!JSENCODE(valueMapId)}"/>').append(
+									jQuery('<img src="{!URLFOR($Resource.Common, 'images/icon_cog.png')}" alt="Options" title="Options" ttgid="AccountPlanOPTIONSLIST"/>')
+								);
+	            
+	            var div = jQuery('<div id="dropdown-{!JSENCODE(valueMapId)}" class="dropdown dropdown-relative"/>').append(
+	            					jQuery('<ul class="dropdown-menu"/>').append(
+	            						jQuery('<li/>').append(
+	            							jQuery('<a href="#"/>').click(amConfiguration.configure).text('Settings')
+	            							    .attr('ttgid', "AccountPlanOPTIONSSETTINGS")
+	            						)
+	            					).append(hasCreateAccess ?
+		            						jQuery('<li/>').append(
+		            							jQuery('<a href="#"/>').click(amConfigurationClone.configure).text('Clone')
+		            							    .attr('ttgid', "AccountPlanOPTIONSCLONE")
+		            						)
+		            						:
+		            						null
+	            					)
+	            				);
+	
+	            ctrl.append(a);
+	            ctrl.append(div);
+	    	}
+	    ) 
+	
+	</script>	
+	<apex:include pageName="DMAPP__OpportunityMapConfiguration" />
+</apex:page>

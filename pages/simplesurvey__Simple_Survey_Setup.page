@@ -1,0 +1,591 @@
+<!--
+    12/23/14  BS  Expand / Collapse sections based on population of Default Site URL [Change 109410] (2.12)
+    01/07/15  BS  Section headers are clickable to expand / collapse [Change 108452] (2.12)
+    02/19/15  BS  Logo drop-down and fix logo preview alignment on small screens (111552)
+    02/26/15  BS  Configuration for radio and check box alignment (112248)
+-->
+
+<apex:page title="Simple Survey Setup" id="pg" controller="simplesurvey.SimpleSurveySetupController" action="{!createCustomSettings}" tabStyle="Simple_Survey_Setup__tab">
+    <style>
+        fieldset {border:0;display:inline;vertical-align:top;}
+        dl dd {margin-left:0;}
+        
+        .pbSubheader {
+            user-select: none;
+            -ms-user-select: none;
+            -moz-user-select: none;
+            -webkit-user-select: none;
+            cursor: pointer;
+        }
+        
+        .pbSubheader img {
+            outline: none !important;
+        }
+    </style>
+    <style>
+        .pbSubheader {
+        background: #e96e25 !important; /* Fallback to solid color for older browsers */
+        background-image: linear-gradient(to top, #b95e15, #f97e35) !important;
+        border-radius: 4px;
+        text-shadow: -1px 0 #b95e15, 0 1px #b95e15,1px 0 #b95e15, 0 -1px #b95e15;
+        }
+        #std-sec, #e-sec, #pg\:frm\:pbInitialSetup\:Setup\:stdUiPermsImg, #pg\:frm\:pbInitialSetup\:Setup\:enUiPermsImg {
+            display: none;
+        }
+        #sel-sec {
+            margin-left: 0px;
+            list style-type: none;
+            display: table;
+        }
+        #sel-sec li {
+            display: table-cell;
+            cursor: pointer;
+            border-radius: 4px;
+            width: 316px;
+            margin-right: 4px;
+        }
+        #sel-sec li:hover {
+            background-color: #f97e35;
+        }
+        #sel-sec li input[type=radio] {
+            cursor: pointer;
+        }
+        #sel-sec li img {
+            max-width: 300px;
+            margin: 8px;
+            box-shadow: 4px 4px 4px #999;
+        }
+        #web-address-saved {
+            display: inline-block;
+            color: #f97e35;
+            opacity: 1;
+            padding-left: 8px;
+            animation: fadeout 4s;
+            animation-fill-mode: forwards;
+            -webkit-animation: fadeout 4s;
+            -webkit-animation-fill-mode: forwards;
+        }
+        
+        @keyframes fadeout {
+            from {
+                opacity: 1;
+            }
+            
+            to {
+                opacity: 0;
+            }
+        }
+        
+        @-webkit-keyframes fadeout {
+            from {
+                opacity: 1;
+            }
+            
+            to {
+                opacity: 0;
+            }
+        }
+        
+        .refresh-button {
+            float: left;
+            margin-top: 0px !important;
+            margin-right: 2px !important;
+            padding: 2px !important;
+            width: 13px;
+            height: 13px;
+        }
+        
+        .fs-preview {
+            width:40%;
+            text-align:center;
+        }
+        
+        @media (max-width: 1500px) {
+            .fs-preview {
+                width: calc(100% - 720px);
+            }
+        }
+    </style>
+    <apex:sectionHeader title="Simple Survey" subtitle="Setup" help="http://kb.internetcreations.com/pkb_Home?l=en_US&c=Products%3ASimple_Survey"/>
+    <apex:form id="frm" style="min-width: 980px;">
+        <!-- INTRODUCTION -->
+        <apex:pageBlock >
+            <apex:pageBlockSection collapsible="true" columns="1" title="Introduction">
+                <apex:outputPanel >
+                    <fieldset>
+                        Simple Survey is a 100% native Salesforce survey app typically used to measure customer satisfaction (CSat) related to Cases, Accounts, and Contacts. Simple Survey is quick to deploy and turnkey, yet customizable. Force.com Sites is required and therefore only Enterprise and Unlimited Edition organizations can use Simple Survey.
+                        <br/><br/>
+                        Features<br/>
+                        <ul>
+                            <li>Brandable email and landing page with your logo</li>
+                            <li>Only 1 click is required to take a survey to encourage high response rates</li>
+                            <li>Allow recipients to rate the service they received on either a 1-5 star rating or a 0-10 Net Promoter System℠ rating</li>
+                            <li>All necessary components are included, like email templates, workflow rules (via an extension package), branded landing page for optional comments, and reports</li>
+                            <li>100% native Salesforce app that is fully extensible with workflow, reporting, and Apex</li>
+                        </ul>
+                    </fieldset>
+                    <fieldset style="text-align:center;">
+                        <apex:outputPanel layout="inline">
+                            <apex:panelGrid columns="2">
+                                <apex:outputText style="font-weight:bold" value="1-5 star rating" />
+                                <apex:outputText style="font-weight:bold" value="0-10 Net Promoter System℠" />
+                                <apex:image url="{!$Resource.simplesurvey__Simple_Survey_Intro}" height="450" style="margin-right:40px"/>
+                                <apex:image url="{!$Resource.simplesurvey__Simple_Survey_10pt_Intro}" height="450"/>
+                            </apex:panelGrid>
+                        </apex:outputPanel>
+                    </fieldset>
+                </apex:outputPanel>
+            </apex:pageBlockSection>
+        </apex:pageBlock>
+        <!-- INITIAL SETUP -->
+        <apex:pageBlock id="pbInitialSetup">
+            <apex:pageBlockSection collapsible="true" columns="1" title="Initial Setup" id="Setup">
+                <script>
+                if({!setting.simplesurvey__Survey_Site_URL__c != NULL})
+                    twistSection(document.getElementById("{!$Component.Setup}").childNodes[0].childNodes[0]); 
+                </script>
+                <apex:outputPanel >
+                    <a id="SetupAnchor"/>
+                    <fieldset style="width:50%;">
+                        <dl>
+                            <!-- <dt>Step 1: Supply a publicly accessible URL for your organization's logo (PNG, GIF or JPG; maximum size of 200x100).</dt>
+                            <span style="display:{!IF(DefaultLogoId == '', 'none', 'block')}"><dd><br/><i>Tip: You can simply replace the supplied Default Logo with your own by clicking 
+                            <a href="/{!DefaultLogoId}" TARGET="_blank"> here</a> and then clicking
+                            <apex:commandLink style="" action="{!refresh}"  value="here"/> 
+                            to change your logo.
+                            </i><br/><br/></dd></span>
+
+                            <span style="display:{!IF(DefaultLogoId == '', 'block', 'none')}"><dd><br/><i>Upload a logo in the <a href="/{!simpleSurveyFolderID}">Simple Survey folder</a> in the Documents tab.
+                            Be sure to make the image externally available. 
+                            </i><br/><br/></dd></span> -->
+
+                            <dt>Step 1: Select a Document or supply a publicly accessible URL for your organization's logo (PNG, GIF or JPG; maximum size of 200x100).</dt>
+
+                            <dd><br/>
+                                <i>You can add a logo by uploading it to the <a href="/{!simpleSurveyFolderID}" target="_blank">Simple Survey folder</a>. Be sure to make the image externally available.</i><br/><br/>
+                            </dd>
+
+                            <apex:actionFunction name="" reRender="logoSelectList,logoURLWrapper"/>
+
+                            <div style="color: #333; font-weight:bold; margin-right: 8px; float: left;">Logo:</div>
+
+                            <apex:commandButton image="{!$Resource.simplesurvey__Refresh}" styleClass="refresh-button" reRender="logoSelectList,logoURLWrapper,logoPreview" action="{!refreshExternalImages}" title="Refresh List"/>
+
+                            <apex:selectList id="logoSelectList" style="float: left; margin-right: 8px;" size="1" value="{!selectedLogo}">
+                                <apex:selectOptions value="{!externalImages}"/>
+                                <apex:actionSupport event="onchange" reRender="logoURLWrapper,logoPreview"/>
+                            </apex:selectList>
+
+                            <apex:outputPanel layout="block" id="logoURLWrapper">
+                                <apex:inputText rendered="{!selectedLogo = null}" style="width:400px; padding-bottom: 0px; width: calc(100% - 200px);" value="{!setting.simplesurvey__Survey_Site_Logo__c}">
+                                    <apex:actionSupport event="onblur" reRender="logoPreview"/>
+                                </apex:inputText>
+                            </apex:outputPanel><div style="clear: both;"></div><br/>
+
+                            <dt><apex:commandButton style="width:50px;" action="{!save}" value="Save" rerender="logoPreview" oncomplete="window.location.hash='SetupAnchor';"/>
+                                </dt><br/>
+                            <dt>Step 2: Setup Force.com Site</dt>
+                            <dd>Simple Survey requires a Force.com Site. Before you can create a Force.com Site, you must register a Force.com Domain. If your organization already uses Force.com Sites, your Domain is already established and you can skip to 2B below.</dd>
+                            <dl>
+                                <dt>A. Click <a href="/0DM/o" target="_blank">here</a> or navigate to <i>Setup</i> | <i>Develop</i> | <i>Sites</i> to verify that you have an existing Force.com Domain or register one:</dt>
+                                <ul>
+                                    <dd><li>If you already have a Force.com Domain registered, proceed to step B.</li></dd>
+                                    <dd><li>Enter a unique name for your Force.com domain. The name is case-sensitive. Only alphanumeric characters are allowed. Salesforce.com recommends using your company's name or a variation, such as "mycompany".</li></dd>
+                                    <dd><li>Caution: You cannot modify your Force.com domain name after you have registered it.</li></dd>
+                                    <dd><li>Follow the prompts to check availability, agree to terms, and complete your registration.</li></dd>
+                                </ul>
+                                <br/>
+                                <dt>B. Click <a href="/0DM/e" target="_blank">here</a> or navigate to <i>Setup</i> | <i>Develop</i> | <i>Sites</i> and click Edit next to your simple survey site to setup your Simple Survey Force.com Site and complete the Site Edit page with the following values (see example on the right):</dt>
+                                <ul>
+                                    <dd><li>Site Label: Simple Survey</li></dd>
+                                    <dd><li>Site Name: Simple_Survey</li></dd>
+                                    <dd><li>Default Web Address: survey</li></dd>
+                                    <dd><li><b>Check the Active checkbox</b></li></dd>
+                                    <dd><li>Active Site Home Page: Simple Survey</li></dd>
+                                    <dd><li>Click Save</li></dd>
+                                </ul>
+                                <br/>
+                            </dl>
+                            <apex:commandButton action="{!Step3Button}" value="Proceed to Step 3" rendered="{!NOT(RenderStep3)}"/>
+                            <apex:outputText value=" (Please be sure you have completed the above steps before proceeding.)" rendered="{!NOT(RenderStep3)}"/>
+                            <apex:outputPanel rendered="{!RenderStep3}">
+                                <dt>Step 3: Configure Force.com Site</dt>
+                                <dl>
+                                    <span id="sel-sec">
+                                        <dt>Click <a href="/{!LEFT(sysAdminProfId,15)}" target="_blank">here</a> or go to Administrator <i>Setup</i> | <i>Manage Users</i> | <i>Profiles</i> | <i>System Administrator</i>, then select which User Interface that matches what you see in your org.</dt>
+                                        
+                                        <ul>
+                                            <li id="std-sec-li" onclick="selectStandardUI();">
+                                                <input id="std-sec-radio" type="radio" name="profileUI"/> <span>Standard Profile User Interface</span>
+                                                <img id="std-sec-image" src="{!$Resource.Standard_Profile_User_Interface}"></img>
+                                            </li>
+                                            <li id="e-sec-li" onclick="selectEnhancedUI();">
+                                                <input id="e-sec-radio" type="radio" name="profileUI"/> <span>Enhanced Profile User Interface</span>
+                                                <img id="e-sec-image" src="{!$Resource.Enhanced_Profile_User_Interface}"></img>
+                                            </li>
+                                        </ul>
+                                    </span>
+                                    <span id="std-sec">
+                                    <dt>A. Setting Object and Field Level Security with the Standard Profile User Interface.</dt>
+                                    <ul>
+                                        <dd><li>Click <a href="{!PublicAccessId}" target="_blank">here</a> or navigate to the Simple Survey Profile by going to <i>Setup</i> | <i>Develop</i> | <i>Sites</i>, click on the Site Label for the Simple Survey Site Detail page, then click on the Public Access Settings button.</li></dd>
+                                        <dd><li>Click the Edit button beside View Users. Scroll down to the Custom Object Permissions section, check the Read, Create and Edit checkboxes of the Survey custom object. Click Save.</li></dd>
+                                        <dd><li>Locate the Field-Level Security section and click View next to Survey or click <a href="{!flsURL}" target="_blank">here</a>.</li></dd>
+                                        <dd><li>Click the Edit button.</li></dd>
+                                        <dd><li>Check the Visible option for the Survey Comments field. Leave the Read-Only unchecked.</li></dd>
+                                        <dd><li>Click Save.</li></dd>
+                                    </ul>
+                                    </span>
+                                    <span id="e-sec">
+                                    <dt>A. Setting Object and Field Level Security with the Enhanced Profile User Interface.</dt>
+                                    <ul>
+                                        <dd><li>Click <a href="{!flsURL}" target="_blank">here</a> or navigate manually: From the Simple Survey Site Detail page, click on the Public Access Settings button. Type "Surveys" in the Find Settings box and select it under Object Settings.</li></dd>
+                                        <dd><li>Click the Edit button and check the Read, Create and Edit checkboxes. In the Field Permissions section, check the boxes for Survey Comments and Survey Score in the Edit column.</li></dd>
+                                        <dd><li>Click Save.</li></dd>
+                                    </ul>
+                                    </span>
+                                    <br/>
+                                    <dt>B. The Guest User for the Simple Survey Force.com site will need a license for Simple Survey.  Without a license, survey respondents will receive an error saying "Authorization Required".</dt>
+                                    <ul>
+                                        <dd><li>Click <a href="{!PublicAccessId}" target="_blank">here</a> or navigate to the Simple Survey Profile by going to <i>Setup</i> | <i>Develop</i> | <i>Sites</i>, click on the Site Label for the Simple Survey Site Detail page, then click on the Public Access Settings button.</li></dd>
+                                        <dd><li>Click the <span id="std-buttonName">View Users</span><span id="e-buttonName" style="display:none">Assigned Users</span> button at the top of the page.</li></dd>
+                                        <dd><li>Click on Site Guest User, Simple Survey under the Full Name heading.</li></dd>
+                                        <dd><li>Under Permission Set Assignments, click Edit Assignments.</li></dd>
+                                        <dd><li>Add Simple Survey Manager (CRED) to Enabled Permission Sets.</li></dd>
+                                        <dd><li>Click Save.</li></dd>
+                                        <dd><li>While still in Simple Survey Site Guest User, scroll down to the Managed Packages related list and click Assign Licenses.</li></dd>
+                                        <dd><li>Check Action box next to Simple Survey.</li></dd>
+                                        <dd><li>Click Add.</li></dd>
+                                    </ul>
+                                    <br/>
+                                    <a id="SetupAnchor2"/>
+                                    <dt>C. Set the Default Web Address:</dt>
+                                    <ul>
+                                        <dd><li>Click <a href="/0DM/o" target="_blank">here</a> or navigate manually to the Force.com Site edit page (<i>Setup</i> | <i>Develop</i> | <i>Sites</i>), right click the "Site URL", located next to the "Site Label", then click "Copy Link Location" or "Copy Link Address", and paste it below and click Save.</li></dd>
+                                    </ul>
+                                    <dl>    
+                                        <dt>Default Web Address: &nbsp;<apex:inputText id="surveySiteUrl" style="width:400px;" value="{!setting.simplesurvey__Survey_Site_URL__c}"/></dt>
+                                        <dt>
+                                            <apex:commandButton style="width:50px;display:inline-block;" action="{!save}" rerender="addressSaved" oncomplete="defaultWebAddressChanged();" value="Save"/>
+                                            <apex:outputPanel id="addressSaved">
+                                                <apex:outputPanel rendered="{!saveClicked}" layout="none"><span id="web-address-saved">Saved</span></apex:outputPanel>
+                                            </apex:outputPanel>
+                                        </dt>
+                                    </dl>
+                                    <br/>
+                                    <!-- <span style="font-style:italic">*Please note there is an unused case field labeled "Survey Sent" included with our package which is utilized by our extension package when installed. For more information about this field please refer to our knowledge base article <a href="http://kb.internetcreations.com/?kb=000002112">here</a>.</span> -->
+                                </dl>
+                            </apex:outputPanel>
+                        </dl>
+                    </fieldset>
+                    <fieldset class="fs-preview">
+                        <apex:image id="logoPreview" style="max-width: 200px;" url="{!IF(selectedLogo != null, selectedLogo, setting.simplesurvey__Survey_Site_Logo__c)}"/>
+                        <br/><br/><br/>
+                        <apex:image style="width:75%;" url="{!$Resource.simplesurvey__Simple_Survey_Site_Config}"/>
+                        <br/><br/><br/>
+                        <apex:image id="stdUiPermsImg" style="width:75%;" url="{!$Resource.simplesurvey__Simple_Survey_Object_Perms}"/>
+                        <br/><br/><br/>
+                        <apex:image id="enUiPermsImg" style="width:75%;" url="{!$Resource.simplesurvey__Simple_Survey_Enhanced_Profile_UI}"/>
+                    </fieldset>
+                </apex:outputPanel>
+            </apex:pageBlockSection>
+        </apex:pageBlock>
+        <!-- Selecting a Rating Scale and Emailing the Survey -->
+        <apex:pageBlock id="pbEmailSurveys">
+            <apex:pageBlockSection collapsible="true" columns="1" title="Selecting a Rating Scale and Emailing the Survey" id="EmailSurveys">
+                <script>
+                if({!setting.simplesurvey__Survey_Site_URL__c == NULL})
+                    twistSection(document.getElementById("{!$Component.EmailSurveys}").childNodes[0].childNodes[0]); 
+                </script>
+                <apex:outputPanel >
+                    <fieldset style="width:50%;">
+                        <dl style="margin-top:0px; margin-bottom:0px;">
+                            <dt>Selecting a Survey Scale</dt>
+                            <dd>
+                                <ul style="padding-left:10px">
+                                    <li>1-5 Stars / CSat Customer Satisfaction Score</li>
+                                    <li>0-10 Scale / Net Promoter System℠</li>
+                                </ul>
+                            </dd>
+                            <dd>When sending a survey, be sure to select the email template that corresponds with the rating scale of your choice.</dd>
+                            <br/>
+                            <dt>Emailing the Survey</dt>
+                            <dd>
+                                <ul style="padding-left:10px">
+                                    <li>Manually (for testing)</li>
+                                    <li>Workflow / Email Alerts</li>
+                                    <li>Case Closed Template</li>
+                                </ul>
+                                <font>For more detail on rating scales and survey delivery, refer to the </font><a href="http://ic.force.com/ssdocs" target="_blank">Simple Survey documentation</a>
+                            </dd>
+
+                            <br/>
+                            <dt>Creating Surveys <span class="newFlag" style="margin-left: 0px;">Pilot</span></dt>
+                            <dd>
+                                <font>It is easier than ever to create surveys with our new <a href="{!$Page.SurveyBuilder}" target="_blank">Survey Builder</a> experience</font>
+                            </dd>
+
+                            <br/>
+                            <dt>Creating Email Templates</dt>
+                            <dd>
+                                <!-- <font>To easily create email templates and survey links, go to the </font><a href="/apex/TemplateGenerator" target="_blank">Simple Survey Template Builder</a> -->
+                                <font>If you prefer a classic experience to create email templates and links, go to the </font><a href="/apex/TemplateGenerator" target="_blank">Simple Survey Template Builder</a>
+                            </dd>
+                        </dl>
+                    </fieldset>
+                </apex:outputPanel>
+            </apex:pageBlockSection>
+        </apex:pageBlock>
+        <!-- Viewing Surveys -->
+        <apex:pageBlock id="pbViewingSurveys">
+            <apex:pageBlockSection collapsible="true" columns="1" title="Viewing Surveys" id="ViewingSurveys">
+                <script>
+                if({!setting.simplesurvey__Survey_Site_URL__c == NULL})
+                    twistSection(document.getElementById("{!$Component.ViewingSurveys}").childNodes[0].childNodes[0]);
+                </script>
+                <apex:outputPanel >
+                    <fieldset style="width:50%;">
+                        <font>View completed surveys via the following:</font>
+                        <ul style="padding-left:10px">
+                            <li>Surveys Related List</li>
+                            <li>Reports</li>
+                            <li>Surveys Tab</li>
+                        </ul>
+                        <font>For more detail on viewing surveys, refer to the </font><a href="http://ic.force.com/ssdocs" target="_blank">Simple Survey documentation</a>
+                    </fieldset>
+                </apex:outputPanel>
+            </apex:pageBlockSection>
+        </apex:pageBlock>
+        <!-- Tips (REMOVED ON 3/27/14)-->
+        <!--<apex:pageBlock >
+            <apex:pageBlockSection collapsible="true" columns="1" title="Tips" id="Tips">
+                <script>
+                twistSection(document.getElementById("{!$Component.Tips}").childNodes[0].childNodes[0]); 
+                </script>
+                <apex:outputPanel >
+                    <fieldset style="width:50%;">
+                        <ul>
+                            <li>Survey records are only created when the recipient responds. If a survey email is sent and the recipient doesn't respond, no Survey record will be created.</li>
+                            <br/><li>You can also send surveys on Account Owners by using the “Simple Survey: Account and Contact” template. This template is designed to be sent from a Contact and will relate to the Contact’s Account and that Account’s Owner.</li>
+                            <br/><li>You can customize the email templates with branding and style, but we recommend cloning the samples we provide rather than editing them directly.</li>
+                            <br/><li>For a fully branded end user experience, use the Custom Domain feature of Force.com Sites. For example, if you setup a custom domain of survey.yourdomain.com, enter http://survey.yourdomain.com instead. Internet Creations can not provide support for Custom Domains.</li>
+                            <br/><li>For organizations that would like a concierge-style implementation, Internet Creations offers a quick start implementation package. For information on our implementation package, including options available, contact your account executive today or email info@internetcreations.com.</li>
+                        </ul>
+                    </fieldset>
+                </apex:outputPanel>
+            </apex:pageBlockSection>
+        </apex:pageBlock>-->
+        <!-- OPTIONAL SETUP -->
+        <apex:pageBlock id="pbOptional">
+            <apex:pageBlockSection collapsible="true" columns="1" title="Optional Setup" id="OptionalSetup">
+                <script>
+                if({!setting.simplesurvey__Survey_Site_URL__c == NULL})
+                    twistSection(document.getElementById("{!$Component.OptionalSetup}").childNodes[0].childNodes[0]);
+                </script>
+                <apex:outputPanel >
+                    <fieldset>
+                        <dl>
+                            <dt>Custom Objects</dt>
+                            <dd>You may also set up Simple Survey in your Custom Object(s) to gather CSat analytics.  Refer to the <a href="http://ic.force.com/ssdocs" target="_blank">Simple Survey documentation</a> for additional assistance.
+                            For further assistance, please contact your Salesforce administrator, Salesforce implementation partner, or your Internet Creations account 
+                            executive to inquire about professional services.</dd>
+                            <br/>
+                            
+                            <dt>Custom Survey Questions</dt>
+                            <dd>
+                                Out of the box, Simple Survey includes just two questions: the rating and an optional comment. 
+                                Additional questions can be created and added to the landing page of your survey. Refer to the <a href="http://ic.force.com/ssdocs" target="_blank">Simple Survey documentation</a> for additional assistance.
+                            </dd>
+                            <br/>
+                            
+                            <dt>Display Picklist Options as Radio Buttons</dt>
+                            <dd>
+                                Select this option if you would like to display picklist options as radio buttons instead of standard drop downs. Additionally, select the layout of the options. Vertical will display the items from top to bottom on separate lines and is recommended for most uses. Horizontal will display the items on a single line from left to right and is recommended for short values, such as single numbers. <span style="font-style:italic;">This option is not compatible with field dependencies. If enabled, all values will be available on dependent picklists, irrespective of their controlling fields.</span>  
+                            </dd>
+                            <dl>
+                                <dt>
+                                    <apex:inputField id="radios" value="{!setting.simplesurvey__Radio_Picklist_Options__c}" onchange="updateDisableOrientation();"/> Display Picklist Options as Radio Buttons
+                                    
+                                    <apex:selectList id="radioAlignment" value="{!radioAlignment}" style="margin-left: 8px;" size="1">
+                                        <apex:selectOption itemValue="vertical" itemLabel="Vertical"/>
+                                        <apex:selectOption itemValue="horizontal" itemLabel="Horizontal"/>
+                                    </apex:selectList>
+                                </dt>
+                            </dl>
+                            <br/>
+                            
+                            <dt>Display Multi-select Picklist Options as Check Boxes</dt>
+                            <dd>
+                                Select this option if you would like to display multi-select picklist options as check boxes instead of standard multi-select editors. Additionally, select the layout of the options. Vertical will display the items from top to bottom on separate lines and is recommended for most uses. Horizontal will display the items on a single line from left to right and is recommended for short values, such as single numbers. <span style="font-style:italic;">This option is not compatible with field dependencies. If enabled, all values will be available on dependent picklists, irrespective of their controlling fields.</span> 
+                            </dd>
+                            <dl>
+                                <dt>
+                                    <apex:inputField id="checkboxes" value="{!setting.simplesurvey__Checkbox_Picklist_Options__c}" onchange="updateDisableOrientation();"/> Display Multi-select Picklist Options as Check Boxes
+                                    
+                                    <apex:selectList id="checkboxAlignment" value="{!checkboxAlignment}" style="margin-left: 8px;" size="1">
+                                        <apex:selectOption itemValue="vertical" itemLabel="Vertical"/>
+                                        <apex:selectOption itemValue="horizontal" itemLabel="Horizontal"/>
+                                    </apex:selectList>
+                                </dt>
+                            </dl>
+                            <br/>
+                            
+                            <dt>Bypass Sharing and Security for Simple Survey</dt>
+                            <dd>If you have a private sharing model for any object(s) related to surveys, this will give Simple Survey visibility to your data.</dd>
+                            <dl>
+                                <dt><apex:inputField value="{!setting.simplesurvey__Bypass_Security__c}"/> Bypass Sharing and Security</dt>
+                            </dl>
+                            <br/>
+                            
+                            <dt>Prevent Duplicates</dt>
+                            <dd>Avoid duplicate survey records from double clicks and user error. You can set the time (in minutes) in which identical (ex: same Contact and Case or User and Custom Object, etc.) survey records should be treated as duplicate. Specify 1440 for 1 day, 0 for eternity, and clear the setting to always accept duplicates. For testing, we recommend clearing the setting and always accepting duplicates.</dd>
+                            <dl>
+                                <dt><apex:inputField id="cbDupChk" value="{!setting.simplesurvey__Duplicate_Check__c}" html-maxlength="8" html-placeholder="Minutes"/></dt>
+                            </dl>
+                            <br/>
+                            
+                            <dt>Avoid Survey Fatigue</dt>
+                            <dd>Over-surveying a single person can introduce survey fatigue, which can lower response rates. Simple Survey can track when you last sent a survey to a Case Contact so you can consider it in your Workflow criteria. The sample Workflow rule provided has a default of 7 days which can be changed within the rule criteria.  Refer to the <a href="http://ic.force.com/ssdocs" target="_blank">Simple Survey documentation</a> to learn how to do this for surveys related to objects other than Case.</dd>
+                            <dl>
+                                <dt><apex:inputField value="{!setting.simplesurvey__Contact_Survey_Tracking__c}"/> Enable for Case Contacts</dt>
+                            </dl>
+                            <br/>
+                            
+                            <dt>Customize the Rating Graphics</dt>
+                            <dd>Simple Survey is pre-configured with Salesforce sample "star" images. If you prefer to supply your own images, specify publicly accessible URLs to each graphic. (This is only available for the 1-5 star rating at this time).</dd>
+                            <dl>
+                                <dt>5/5 URL: &nbsp;<apex:inputField style="width:400px;" value="{!setting.simplesurvey__Survey_Rate_5_IMG__c}"/> &nbsp;<apex:image value="{!setting.simplesurvey__Survey_Rate_5_IMG__c}" rendered="{!setting.simplesurvey__Survey_Rate_5_IMG__c<>NULL}"/></dt>
+                                <dt>4/5 URL: &nbsp;<apex:inputField style="width:400px;" value="{!setting.simplesurvey__Survey_Rate_4_IMG__c}"/> &nbsp;<apex:image value="{!setting.simplesurvey__Survey_Rate_4_IMG__c}" rendered="{!setting.simplesurvey__Survey_Rate_4_IMG__c<>NULL}"/></dt>
+                                <dt>3/5 URL: &nbsp;<apex:inputField style="width:400px;" value="{!setting.simplesurvey__Survey_Rate_3_IMG__c}"/> &nbsp;<apex:image value="{!setting.simplesurvey__Survey_Rate_3_IMG__c}" rendered="{!setting.simplesurvey__Survey_Rate_3_IMG__c<>NULL}"/></dt>
+                                <dt>2/5 URL: &nbsp;<apex:inputField style="width:400px;" value="{!setting.simplesurvey__Survey_Rate_2_IMG__c}"/> &nbsp;<apex:image value="{!setting.simplesurvey__Survey_Rate_2_IMG__c}" rendered="{!setting.simplesurvey__Survey_Rate_2_IMG__c<>NULL}"/></dt>
+                                <dt>1/5 URL: &nbsp;<apex:inputField style="width:400px;" value="{!setting.simplesurvey__Survey_Rate_1_IMG__c}"/> &nbsp;<apex:image value="{!setting.simplesurvey__Survey_Rate_1_IMG__c}" rendered="{!setting.simplesurvey__Survey_Rate_1_IMG__c<>NULL}"/></dt>
+                            </dl>
+                            <dt><apex:commandButton style="width:50px;" action="{!save}" value="Save"/></dt>
+                        </dl>
+                    </fieldset>
+                </apex:outputPanel>
+            </apex:pageBlockSection>
+        </apex:pageBlock>
+    </apex:form>
+    
+    <script>
+        //overwrite help
+        var hlinks = getElementsByClassName('links')[0];
+        hlinks.innerHTML = '<a href="http://ic.force.com/ssdocs" target="_blank">Documentation</a> | <a href="http://kb.internetcreations.com/pkb_Home?l=en_US&c=Products%3ASimple_Survey" target="_blank">Knowledge Base</a> | <a href="mailto:simplesurvey@internetcreations.com">simplesurvey@internetcreations.com</a> <img src="/s.gif" alt="Help" class="helpIcon" title="Help">';
+        //hlinks.innerHTML += '<br/><div style="font-size:smaller">Free implementation assistance is available.</div>';    
+        hlinks.style.fontSize = 'larger';
+        hlinks.style.position = 'absolute';
+        hlinks.style.float  = 'right';
+        hlinks.style.right = '0%';
+        hlinks.style.width = '100%';
+        
+        function updateDisableOrientation() {
+            var useRadios = document.getElementById('pg:frm:pbOptional:OptionalSetup:radios').checked;
+            var useCheckboxes = document.getElementById('pg:frm:pbOptional:OptionalSetup:checkboxes').checked;
+
+            document.getElementById('pg:frm:pbOptional:OptionalSetup:radioAlignment').disabled = !useRadios;
+            document.getElementById('pg:frm:pbOptional:OptionalSetup:checkboxAlignment').disabled = !useCheckboxes;
+        }
+        updateDisableOrientation();
+
+        function defaultWebAddressChanged() {
+            var dwaVal = document.getElementById('pg:frm:pbInitialSetup:Setup:surveySiteUrl').value.trim();
+            if(dwaVal.length > 0) {
+                //if(document.getElementById("pg:frm:pbInitialSetup:Setup").childNodes[0].childNodes[0].className.indexOf('hide') != -1)
+                    //twistSection(document.getElementById("pg:frm:pbInitialSetup:Setup").childNodes[0].childNodes[0]);
+                if(document.getElementById("pg:frm:pbEmailSurveys:EmailSurveys").childNodes[0].childNodes[0].className.indexOf('hide') == -1)
+                    twistSection(document.getElementById("pg:frm:pbEmailSurveys:EmailSurveys").childNodes[0].childNodes[0]);
+                if(document.getElementById("pg:frm:pbViewingSurveys:ViewingSurveys").childNodes[0].childNodes[0].className.indexOf('hide') == -1)
+                    twistSection(document.getElementById("pg:frm:pbViewingSurveys:ViewingSurveys").childNodes[0].childNodes[0]);
+                if(document.getElementById("pg:frm:pbOptional:OptionalSetup").childNodes[0].childNodes[0].className.indexOf('hide') == -1)
+                    twistSection(document.getElementById("pg:frm:pbOptional:OptionalSetup").childNodes[0].childNodes[0]);
+            }
+            else {
+                //if(document.getElementById("pg:frm:pbInitialSetup:Setup").childNodes[0].childNodes[0].className.indexOf('hide') == -1)
+                    //twistSection(document.getElementById("pg:frm:pbInitialSetup:Setup").childNodes[0].childNodes[0]);
+                if(document.getElementById("pg:frm:pbEmailSurveys:EmailSurveys").childNodes[0].childNodes[0].className.indexOf('hide') != -1)
+                    twistSection(document.getElementById("pg:frm:pbEmailSurveys:EmailSurveys").childNodes[0].childNodes[0]);
+                if(document.getElementById("pg:frm:pbViewingSurveys:ViewingSurveys").childNodes[0].childNodes[0].className.indexOf('hide') != -1)
+                    twistSection(document.getElementById("pg:frm:pbViewingSurveys:ViewingSurveys").childNodes[0].childNodes[0]);
+                if(document.getElementById("pg:frm:pbOptional:OptionalSetup").childNodes[0].childNodes[0].className.indexOf('hide') != -1)
+                    twistSection(document.getElementById("pg:frm:pbOptional:OptionalSetup").childNodes[0].childNodes[0]);
+            }
+            
+            window.location.hash='SetupAnchor2';
+        }
+        
+        //elements by CSS style
+        function getElementsByClassName(className) {
+            var hasClassName = new RegExp("(?:^|\\s)" + className + "(?:$|\\s)");
+            var allElements = document.getElementsByTagName("*");
+            var results = [];
+            
+            var element;
+            for (var i = 0; (element = allElements[i]) != null; i++) {
+                var elementClass = element.className;
+                if (elementClass && elementClass.indexOf(className) != -1 && hasClassName.test(elementClass))
+                    results.push(element);
+            }
+            return results;
+        }
+        
+        function resetScroll() {
+            scrollTo(0,0);
+        }
+        if(typeof(window.addEventListener) != "undefined")
+            window.addEventListener("load", resetScroll);
+        else if(typeof(window.attachEvent) != "undefined")
+            window.attachEvent("onload", resetScroll);
+            
+        function selectStandardUI() {
+            document.getElementById('std-sec-image').style.display='none';
+            document.getElementById('e-sec-image').style.display='none';
+            document.getElementById('std-sec').style.display='inline';
+            document.getElementById('e-sec').style.display='none';
+            document.getElementById('std-buttonName').style.display='inline';
+            document.getElementById('e-buttonName').style.display='none';
+            document.getElementById('std-sec-li').style.backgroundColor="#f97e35";
+            document.getElementById('e-sec-li').style.backgroundColor="";
+            document.getElementById('std-sec-radio').checked=true;
+            document.getElementById('pg:frm:pbInitialSetup:Setup:stdUiPermsImg').style.display="inline";
+            document.getElementById('pg:frm:pbInitialSetup:Setup:enUiPermsImg').style.display="none";
+        }
+        function selectEnhancedUI() {
+            document.getElementById('std-sec-image').style.display='none';
+            document.getElementById('e-sec-image').style.display='none';
+            document.getElementById('std-sec').style.display='none';
+            document.getElementById('e-sec').style.display='inline';
+            document.getElementById('std-buttonName').style.display='none';
+            document.getElementById('e-buttonName').style.display='inline';
+            document.getElementById('std-sec-li').style.backgroundColor="";
+            document.getElementById('e-sec-li').style.backgroundColor="#f97e35";
+            document.getElementById('e-sec-radio').checked=true;
+            document.getElementById('pg:frm:pbInitialSetup:Setup:stdUiPermsImg').style.display="none";
+            document.getElementById('pg:frm:pbInitialSetup:Setup:enUiPermsImg').style.display="inline";
+        }
+        
+        //Only allow numbers to be entered for the Prevent Duplicates field
+        document.getElementById('pg:frm:pbOptional:OptionalSetup:cbDupChk').onkeydown = function(evt) {
+            var e = typeof(evt) != 'undefined' ? evt : event;
+            
+            //Only allow positive integers to be entered whilst not blocking Ctrl+A, Backspace, Delete, and Left / Right arrows, or the numpad which uses different character codes
+            if((e.keyCode != 8 && e.keyCode != 37 && e.keyCode != 39 && e.keyCode != 46 && !(e.keyCode == 65 && e.ctrlKey) && !(e.keyCode >= 96 && e.keyCode <= 105)) && (/[^\d]/.test(String.fromCharCode(e.keyCode)) || e.shiftKey))
+                return false;
+        }
+        
+        try {
+            var headers = document.querySelectorAll('.pbSubheader');
+            for(var i = 0; i < headers.length; ++i)
+                 headers[i].addEventListener('click', function(evt) { 
+                     var header = evt.target;
+                     if(header.nodeName == 'IMG')
+                         return;
+                     else if(header.nodeName == 'H3')
+                         header = header.parentNode;
+                         
+                     header.querySelector('img').click();
+                 });
+        }
+        catch(e) {} //IE < 9
+    </script>
+</apex:page>

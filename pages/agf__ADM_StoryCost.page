@@ -1,0 +1,219 @@
+<apex:page standardController="agf__ADM_Work__c" extensions="agf.ADM_StoryCostExtension" showHeader="true" sideBar="true" tabStyle="agf__ADM_Work__c" recordSetVar="works">
+    <apex:include pageName="agf__ADM_Overlay_CSS"/>
+    
+    <apex:stylesheet value="{!$Resource.agf__autocompletecss}"/>
+    
+ 	<script type="text/javascript" src="{!URLFOR($Resource.ADM_common_js)}" />
+    <script type="text/javascript" src="{!URLFOR($Resource.autocompletejs)}" />
+    
+    <script type="text/javascript">
+        initAutoCompleteBrowserSettings()
+    </script> 
+    
+    <apex:include pageName="agf__ADM_StoryCost_CSS"/>
+    
+    <apex:stylesheet value="{!$Resource.agf__CommonStyles}"/>
+    <script type="text/javascript" src="{!URLFOR($Resource.DojoJS, 'dojo/dojo.js')}" djConfig="parseOnLoad:true, isDebug:false"></script>
+    <script type="text/javascript">
+        dojo.require("dojo.dnd.Source");
+        dojo.require("dojo.dnd.Selector");
+        dojo.require("dojo._base.query");
+        dojo.require("dojo.string");
+        dojo.require("dojo.dnd.Moveable");
+        dojo.require("dojo.parser");
+                
+		var IS_LIST = true;
+		var IS_VIS = false;
+		var popupFadeOut;
+		var popupFadeIn;
+		
+		function initVisDND() {
+		    var bucketHolder = dojo.byId('bucketHolder');
+		    var bucketList = bucketHolder.getElementsByTagName('td');
+		    for (var i=0; i< bucketList.length; i++) {
+		        var s = new dojo.dnd.Source(bucketList[i]);
+		    }
+		    var s = new dojo.dnd.Source('storiesToCost');
+		    new dojo.dnd.Moveable('popup');
+		    popupFadeOut = dojo.fadeOut({node: 'popup',duration: 1000});
+		    popupFadeIn = dojo.fadeIn({node: 'popup',duration:1000});
+		    var quickFadeOut = dojo.fadeOut({node:'popup', duration:100});
+		    quickFadeOut.play();    
+		}
+
+		function createChangeList(id) {
+		    var output = dojo.byId(id);
+		    var valueShouldBe = "";
+		
+		    var container = dojo.byId('bucketHolder');
+		    var buckets = container.getElementsByTagName('td');
+		    for (var i=0; i< buckets.length; i++) {
+		        var noteCards = buckets[i].getElementsByTagName('div');
+		        var point = getPointFor(buckets[i].id);
+		        for (var j=0; j < noteCards.length; j++) {
+		            valueShouldBe += getIdFor(noteCards[j].id)+':'+point+' ';
+		        }
+		    }   
+		    output.value = valueShouldBe;
+		}	
+
+		function getPointFor(s) {
+		    return s.substr(10); // since they all start with bucketFor_<point>
+		}
+		
+		function getIdFor(s) {
+		    return s.substr(3); // since both start with xx_<id>
+		}
+		
+		function openPopup(storyId) {
+		    var body = dojo.byId('popupBody');
+		    var detailInfo = dojo.byId('detail_'+storyId);
+		    body.innerHTML = detailInfo.innerHTML;
+		    popupFadeIn.play();
+		}
+		
+		function closePopup() {
+		    popupFadeOut.play();
+		}
+		
+		//OVERLAY
+		var originalY = -1;
+		
+		
+		function myOpenOverlay(button) {
+		    var grayScreen = dojo.byId('grayScreen');
+		    if (!grayScreen) {
+		        grayScreen =document.createElement("div");
+		        grayScreen.id = "grayScreen";
+		        document.body.appendChild(grayScreen);
+		    }
+		    grayScreen.style.display = 'block';
+		    grayScreen.style.width = document.width+'px';
+		    grayScreen.style.height = document.height+'px';
+		    
+		    var element= dojo.byId('overlay');
+		    
+		    if (originalY < 0) {
+		        var stepper = element;
+		        while (stepper) {
+		            originalY += stepper.offsetTop;
+		            stepper = stepper.offsetParent;
+		        }
+		    }   
+		    var offsetTop = 0;
+		    while (button) {
+		       offsetTop += button.offsetTop;
+		       button = button.offsetParent;
+		    }
+		    element.style.top = (offsetTop-80)+'px';
+		    element.style.display = 'block';
+		    window.onresize = resizeOverlay;
+		}
+		
+		function myCloseOverlay() {
+		    var element= dojo.byId('overlay');
+		    //element.style.top = (originalY +500)+'px';
+		    element.style.display = 'none';
+		    //popupFadeOut.play();
+		    var grayScreen = dojo.byId('grayScreen');
+		    if (grayScreen != null) {
+		        grayScreen.style.display = 'none';
+		    }
+		    window.onresize = "";
+		    
+		}
+		
+		function resizeOverlay() {
+		    var grayScreen = dojo.byId('grayScreen');
+		    grayScreen.style.width = document.width+'px';
+		    grayScreen.style.height = document.height+'px';
+		}
+		
+		function checkIntegerOrNull(input) {
+		    if (input.value == null) return;
+		    if (input.value.length == 0) return;
+		    if (isNaN(input.value)) {
+		        input.focus();
+		    }
+		}	        
+    </script>
+    <apex:sectionHeader title="Work" subtitle="Story Point" id="sectionHeader"/>
+    <apex:pageMessages ></apex:pageMessages>
+    <apex:form >
+	    <apex:pageBlock id="block" rendered="{!AND(storiesToCost.size > 0,NOT(ISNULL(storiesToCost)))}">
+	        <apex:pageBlockButtons >
+	            <apex:commandButton action="{!save}" value="Save" onClick="createChangeList('{!$Component.listToSubmit}');"  rendered="{! storiesToCost.size > 0 }" />
+	            <apex:commandButton action="{!quickSave}" value="Quick Save" onClick="createChangeList('{!$Component.listToSubmit}');"  rendered="{! storiesToCost.size > 0 }" rerender="visualStoriesToCost"  />
+	            <apex:commandButton action="{!cancel}" value="Cancel" />
+<!--                <input type="button" class="btn" value="Quick Story Create" onclick="myOpenOverlay(this)" />
+ -->
+ 	        </apex:pageBlockButtons>
+	        <apex:inputHidden value="{!ChangeList}" id="listToSubmit" />
+	        <div id="popup" class="popup">
+	            <div class="secondaryButtonBar">
+	                <apex:image styleClass="imageIcon" url="{!URLFOR($Resource.agf__scrumforceicons,'IconDecline.gif')}" onclick="javascript:closePopup();" />
+	                &nbsp;
+	            </div>
+	            <div id="popupBody" style="padding:3px"></div>
+	        </div>
+	        <apex:outputPanel id="visualStoriesToCost" rendered="{!storiesToCost.size > 0}">
+	            <h3>Stories:</h3>
+	            <table width="100%" cellspacing="0" cellpadding="0" class="icon" style="border:1px solid #000000;height:100px" >
+	                <tr><td id="storiesToCost" style="padding:5px">
+	                        <apex:repeat value="{!StoriesToCost}" var="sw">
+	                            <apex:outputText rendered="{!OR( NOT(sw.StayInBucket), ISNULL(sw.work.agf__Story_Points__c) )}">
+	                                <div id="vi_{!sw.work.Id}" class="dojoDndItem noteCard showMoveable">
+	                                    <apex:image styleClass="imageIcon" url="{!URLFOR($Resource.agf__silkIcons, 'icons/information.png')}" 
+	                                        onclick="javascript:openPopup('{!sw.work.Id}');" />
+	                                    {!ROUND(sw.work.Priority_Rank__c,0)} : {!sw.work.Name} : {!ROUND(sw.work.Story_Points__c,0)}
+	                                    <br />
+	                                    {!sw.work.RecordType.Name}
+	                                    <br/>
+	                                    {!LEFT(sw.work.Subject__c,40)}<apex:outputPanel rendered="{!LEN(sw.work.Subject__c) >=40}">...</apex:outputPanel>
+	                                </div>
+	                            </apex:outputText>
+	                        </apex:repeat>
+	                </td></tr>
+	            </table>
+	            <p />
+	            <h3>Story Point Buckets:</h3><br />
+	            <table  cellspacing="0" cellpadding="0" id="bucketHolder">
+	                <th width="1"></th> 
+	                <apex:repeat value="{!StoryPointList}" var="point">
+	                    <th style="text-align:center; border-bottom:1px solid black" width="120">{!point}</th>
+	                </apex:repeat>
+	                <tr>
+	                <td style="border-right:1px solid black"></td>
+	                <apex:repeat value="{!StoryPointList}" var="point">
+	                    <td style="border-right:1px solid black;border-bottom:1px solid black;" width="120" id="bucketFor_{!point}">
+	                        <br /><br />
+	                        <apex:repeat value="{!StoriesToCost}" var="sw">
+	                              <apex:outputText rendered="{!AND(sw.StayInBucket, sw.work.agf__Story_Points__c=point )}"><!--  -->
+	                                <div id="vi_{!sw.work.Id}" class="dojoDndItem noteCard showMoveable">
+	                                    <apex:image styleClass="imageIcon" url="{!URLFOR($Resource.agf__silkIcons, 'icons/information.png')}" 
+	                                        onclick="javascript:openPopup('{!sw.work.Id}');" />
+                                        {!ROUND(sw.work.Priority_Rank__c,0)} : {!sw.work.Name} : {!ROUND(sw.work.Story_Points__c,0)}
+                                        <br />
+                                        {!sw.work.RecordType.Name}
+                                        <br/>
+                                        {!LEFT(sw.work.Subject__c,40)}<apex:outputPanel rendered="{!LEN(sw.work.Subject__c) >=40}">...</apex:outputPanel>                                    
+	                                </div>
+	                            </apex:outputText>
+	                        </apex:repeat>
+	                    </td>
+	                </apex:repeat>
+	                </tr>
+	            </table>
+	            <apex:repeat value="{!StoriesToCost}" var="sw">
+	                <div class="hidden" id="detail_{!sw.work.Id}">
+	                    <b>Description:</b> {!sw.storyLine}
+	                </div>
+	            </apex:repeat>
+	            <br clear="all" />
+	            <script>
+	                initVisDND();
+	            </script>
+	        </apex:outputPanel>     
+	    </apex:pageBlock>
+    </apex:form>
+</apex:page>

@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <actionOverrides>
+        <actionName>Accept</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>CancelEdit</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Clone</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Delete</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Edit</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Follow</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>List</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>New</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>SaveEdit</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Tab</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>View</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <allowInChatterGroups>false</allowInChatterGroups>
+    <compactLayoutAssignment>SYSTEM</compactLayoutAssignment>
+    <deploymentStatus>Deployed</deploymentStatus>
+    <deprecated>false</deprecated>
+    <description>ADMIN ONLY DATA CONFIG
+
+This object is responsible for the maintenance of the Qualifiers used by Playbook. They can be maintained from the Playbook Admin App.</description>
+    <enableActivities>false</enableActivities>
+    <enableBulkApi>true</enableBulkApi>
+    <enableEnhancedLookup>false</enableEnhancedLookup>
+    <enableFeeds>false</enableFeeds>
+    <enableHistory>false</enableHistory>
+    <enableReports>false</enableReports>
+    <enableSearch>true</enableSearch>
+    <enableSharing>true</enableSharing>
+    <enableStreamingApi>true</enableStreamingApi>
+    <fields>
+        <fullName>DMAPP__DealmakerID__c</fullName>
+        <caseSensitive>false</caseSensitive>
+        <deprecated>false</deprecated>
+        <description>An external ID used for Dealmaker</description>
+        <externalId>true</externalId>
+        <label>DealmakerID</label>
+        <length>100</length>
+        <required>false</required>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>true</unique>
+    </fields>
+    <fields>
+        <fullName>DMAPP__Question__c</fullName>
+        <deprecated>false</deprecated>
+        <description>The qualifier text displayed to the user when working an opportunity through the sales process</description>
+        <externalId>false</externalId>
+        <inlineHelpText>The text for the qualifier / verifiable outcome, displayed to the user on the &quot;Sales Process&quot; tab in Dealmaker.
+
+To progress an opportunity through the pipeline, the user sets the status on the qualifiers associated with each stage in the sales process.</inlineHelpText>
+        <label>Qualifier Longname</label>
+        <length>1024</length>
+        <trackTrending>false</trackTrending>
+        <type>LongTextArea</type>
+        <visibleLines>3</visibleLines>
+    </fields>
+    <fields>
+        <fullName>DMAPP__Tip__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <inlineHelpText>The help text associated with the qualifier / verifiable outcome. 
+
+Use this section to provide instructions to the user on what the question is asking them to focus on, what steps they should take and/or what details they should provide in the comments</inlineHelpText>
+        <label>Tip</label>
+        <length>32768</length>
+        <trackTrending>false</trackTrending>
+        <type>LongTextArea</type>
+        <visibleLines>10</visibleLines>
+    </fields>
+    <fields>
+        <fullName>DMAPP__UI_Readonly__c</fullName>
+        <defaultValue>false</defaultValue>
+        <deprecated>false</deprecated>
+        <description>A Smart Qualifier cannot be set by a user on the playbook UI screen. 
+It is anticipated that these qualifiers will be set by other means (triggers etc)</description>
+        <externalId>false</externalId>
+        <inlineHelpText>A Smart Qualifier cannot be set by a user on the playbook UI screen. 
+It is anticipated that these qualifiers will be set by other means (triggers etc)</inlineHelpText>
+        <label>Smart Qualifier</label>
+        <trackTrending>false</trackTrending>
+        <type>Checkbox</type>
+    </fields>
+    <label>Playbook Qualifier</label>
+    <listViews>
+        <fullName>DMAPP__All</fullName>
+        <columns>NAME</columns>
+        <columns>DMAPP__Question__c</columns>
+        <columns>DMAPP__Tip__c</columns>
+        <filterScope>Everything</filterScope>
+        <label>All</label>
+    </listViews>
+    <nameField>
+        <label>Qualifier Shortname</label>
+        <type>Text</type>
+    </nameField>
+    <pluralLabel>Playbook Qualifiers</pluralLabel>
+    <searchLayouts>
+        <customTabListAdditionalFields>DMAPP__Question__c</customTabListAdditionalFields>
+        <customTabListAdditionalFields>DMAPP__Tip__c</customTabListAdditionalFields>
+        <listViewButtons>DMAPP__Import_DM_Qualifiers</listViewButtons>
+        <listViewButtons>DMAPP__Export_DM_Qualifiers</listViewButtons>
+        <lookupDialogsAdditionalFields>DMAPP__Question__c</lookupDialogsAdditionalFields>
+        <searchResultsAdditionalFields>DMAPP__Question__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields>DMAPP__Tip__c</searchResultsAdditionalFields>
+    </searchLayouts>
+    <sharingModel>Read</sharingModel>
+    <webLinks>
+        <fullName>DMAPP__Export_DM_Qualifiers</fullName>
+        <availability>online</availability>
+        <displayType>massActionButton</displayType>
+        <linkType>javascript</linkType>
+        <masterLabel>Export DM Qualifiers</masterLabel>
+        <openType>onClickJavaScript</openType>
+        <protected>false</protected>
+        <requireRowSelection>true</requireRowSelection>
+        <url>handleExport();</url>
+    </webLinks>
+    <webLinks>
+        <fullName>DMAPP__Import_DM_Qualifiers</fullName>
+        <availability>online</availability>
+        <displayType>massActionButton</displayType>
+        <linkType>javascript</linkType>
+        <masterLabel>Import DM Qualifiers</masterLabel>
+        <openType>onClickJavaScript</openType>
+        <protected>false</protected>
+        <requireRowSelection>true</requireRowSelection>
+        <url>handleImport();</url>
+    </webLinks>
+</CustomObject>

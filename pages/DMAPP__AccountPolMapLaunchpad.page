@@ -1,0 +1,269 @@
+<apex:page standardController="Account" extensions="DMAPP.BrandOverrideController,DMAPP.AccountPolMapLaunchpadController,DMAPP.ServerSideDeviceDetection" 
+    showHeader="false" 
+    cache="false" 
+    name="Account Political Map Launchpad" 
+    label="Account Political Map Launchpad"
+    action="{!logPoliticalMapLaunchpadUsage}">
+    
+    <!--  start: needed for PoliticalMapMobile -->
+    
+    <apex:outputText rendered="{!(isMobile == true)}">
+        <apex:include pageName="DMAPP__APIDelegate" />
+        
+        <apex:include pageName="DMAPP__AMPoliticalMapCoachRules"/>
+    </apex:outputText>
+    <!--  end: needed for PoliticalMapMobile -->
+    
+    <c:jQuery />
+    
+    <apex:stylesheet value="{!URLFOR($Resource.DMAPP__Common, 'css/political_map_launchpad.css')}"/>
+    
+    <apex:outputText rendered="{!(isMobile == false)}">
+        <br/>
+    </apex:outputText>  
+
+        
+    <apex:outputText >
+        <div id="smartOM">
+            <div id="PoliticalMapIconWithNumberOfContacts">        
+            <apex:outputPanel layout="block" styleClass="smartOMToolbarItem" rendered="{!isPoliticalMapExpressEnabled && (isMobile == false)}">
+                <div class="smartOMToolbarSummary">{!orgChartContactCount} {!IF((orgChartContactCount == 1), 'Contact', 'Contacts')}</div>       
+                
+                <apex:outputLink rendered="{!isPoliticalMapExpressEnabled  && (isMobile == false) && NOT(ISNULL(mapId) || mapId == '')}" value="/apex/Account_Pol_Map?id={!mapId}" target="_parent">
+                    <div class="smartOMToolbarImage" style="background-position: -75px center;"/>
+                </apex:outputLink>
+                
+                <apex:outputLink rendered="{!isPoliticalMapExpressEnabled  && (isMobile == false) && (ISNULL(mapId) || mapId == '') && NOT(mapsExistButNoPrimary)}" value="/apex/Account_Pol_Map?account={!account.id}" target="_parent">
+                    <div class="smartOMToolbarImage" style="background-position: -75px center;"/>
+                </apex:outputLink>
+                
+                <apex:outputLink rendered="{!isPoliticalMapExpressEnabled  && (isMobile == false) && (ISNULL(mapId) || mapId == '') && mapsExistButNoPrimary}" value="/apex/Account_Pol_Map?account={!account.id}&markprimary=true" target="_parent">
+                    <div class="smartOMToolbarImage" style="background-position: -75px center;"/>
+                </apex:outputLink>
+                
+            </apex:outputPanel>
+            </div>
+            
+            <c:PoliticalMapLaunchpadMobile rendered="{!(isPoliticalMapExpressEnabled || hasNoLicensesForPoliticalMapExpress) && (isMobile == true)}" 
+            	brandOverrideLogo="{!brandOverrideLogo}" 
+				hasBrandOverrideLogo="{!hasBrandOverrideLogo}" 
+				orgChartContactCount="{!orgChartContactCount}" 
+				countSupporters="{!countSupporters}" 
+				countNonSupporters="{!countNonSupporters}" 
+				countNeutral="{!countNeutral}" 
+				countUnknown="{!countUnknown}" 
+            />
+            
+            <div id="politicalMapContactsSummaryList" style="display: none;">
+                
+                <apex:outputText rendered="{!isPoliticalMapExpressEnabled && (isMobile == true) /*&& (hasNoShadowOpp == false)*/ }">
+            		<c:AccountNavTabMobile accountId="{!account.id}" accountmapid="{!mapId}" rendered="{! NOT(ISNULL(mapId)) }" />     
+                    <c:am_political_app id="PoliticalMapMobile"  
+						accountId="{!account.id}" rendered="{! NOT(ISNULL(mapId)) }"
+					/>
+                    
+                </apex:outputText>
+            </div>
+            
+            <div id="politicalMapContactsDetailList" style="display: none;">
+            <apex:outputText rendered="{!isPoliticalMapExpressEnabled && (isMobile == false)}">
+                <div class="contactsTableOutline">
+                
+                    <!-- TODO -->
+                    
+                    <!-- FIXME: opportunityId and hasShadowOpp ??? -->
+                    
+                    <c:PoliticalMapLaunchpadContact id="PoliticalMapLaunchpadContact" 
+                        accountpoliticalmapid="{!mapId}" 
+                        accountid="{!account.id}" 
+                        isOM="false"
+                        isMobile="{!isMobile}" 
+                        opportunityId="{!account.id}"
+                        hasShadowOpp="false"
+                        myNumberOfContactsDisplayed="5"
+                        myRowNumbers="{!rownumbers}" myContactIds="{!contactids}" myIds="{!ids}" myLastNames="{!lastnames}" myNames="{!names}" myTitles="{!titles}" myImportances="{!importances}" 
+                        myBuyerRolesList="{!buyerroleslist}" mySquaresList="{!squareslist}" myStatuses="{!statuses}" 
+						mapsExistButNoPrimary2="{!mapsExistButNoPrimary}" 
+                    />
+                    
+                </div>
+            </apex:outputText>
+            </div>
+            
+            <apex:outputText rendered="{!hasNoLicensesForPoliticalMapExpress}"> 
+            	<apex:outputText rendered="{!(isMobile == false)}">         
+                    <p class="noLicenseText">Current user has no licenses for Political Map</p>
+				</apex:outputText>
+				<apex:outputText rendered="{!(isMobile == true)}">         
+	                <div id="TRANSPARENCY">
+	            		<apex:outputText styleClass="NOTAVAILABLE" value="Current user has no licenses for Political Map" />
+					</div>    
+				</apex:outputText>
+            </apex:outputText>
+            
+            <apex:outputText rendered="{!(isMobile == true) && (hasNoLicensesForPoliticalMapExpress == false) && (mapsExistButNoPrimary || noMapsExist)}">
+				<div id="TRANSPARENCY">
+	            	<apex:outputText rendered="{!(mapsExistButNoPrimary == true)}" styleClass="NOTAVAILABLE" value="No primary political map has been set. Go to the account political maps related list to set a map as primary" />
+					<apex:outputText rendered="{!(noMapsExist == true)}" styleClass="NOTAVAILABLE" value="No political map exists. Go to the account political maps related list to create your map before viewing and modifying it" />
+				</div>    
+            </apex:outputText>
+    
+            <apex:outputText rendered="{!(isMobile == false)}">
+                <div id="smartOMBranding">
+                    <div id="smartOMBrandingLeft">
+                        <apex:image url="{!URLFOR($Resource.DMAPP__Common, 'panel/images/SmartOM50.png')}" />               
+                    </div>
+                    <div id="smartOMBrandingRight">
+                        <apex:image url="{!URLFOR($Resource.DMAPP__Qualification, 'TASLogo50.png')}" alt="TAS Group Logo" rendered="{!NOT(hasBrandOverrideLogo)}"/>
+                        <apex:image url="{!brandOverrideLogo}" rendered="{!hasBrandOverrideLogo}"/>
+                    </div>              
+                </div>
+            </apex:outputText>
+    
+            <apex:form rendered="{!/*hasNoShadowOpp*/ false && hasNoLicensesForPoliticalMapExpress == false}">
+                <div id="TRANSPARENCY">         
+                    <apex:outputText styleClass="NOTAVAILABLE" value="Political Map is not Available for this Opportunity" rendered="{!editable == false}"/>
+        
+                    <apex:outputText styleClass="noShadowText" rendered="{!editable}">
+                        <a href="#" id="enableDealmakerLink">Click to Start Using Political Map</a>
+                    </apex:outputText>
+                </div>
+                <apex:actionFunction name="enableDealmakerOpportunity" action="{!loadPoliticalMap}" rerender="redirectPanel"/>
+                <apex:actionFunction name="enableDealmakerOpportunityMobile" action="{!loadPoliticalMapMobile}" rerender="redirectPanel"/>
+            </apex:form>
+    
+            <apex:outputPanel id="redirectPanel" >
+                <apex:outputText rendered="{!shouldRedirect}">
+                    <script type="text/javascript">
+
+                        if(ttg.isMobilePhone()) {
+                            sforce.one.navigateToURL('{!redirectUrl}');
+                        } else { 
+                            window.top.location.href = '{!redirectUrl}';
+                        }
+
+                    </script>
+                </apex:outputText>
+            </apex:outputPanel>
+            
+        </div>
+    </apex:outputText>
+
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__ttgomjs, 'ttg/lib/modernizr.js')}"/>  
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__ttgomjs, 'ttg/lib/ttgutils.js')}"/>   
+    
+    <script>
+
+        /* 
+         * Copyright © The TAS Group. All rights reserved.
+         *  
+         */    
+        
+        jQuery(function() {
+                   
+            var isOnlyOneIconDisabled = '{!IsOnlyOneIconDisabled}';
+        
+            //jQuery('#politicalMapContactsSummaryList').show(); // FIXME - remove after testing !!!!
+        
+            if(ttg.isMobilePhone()) {
+                
+                //jQuery('div#smartOM').css( { 'width':'97%', 'padding' : '40px 7px 9px' } );
+                jQuery('div#smartOM').css( { 'width':'97%', height: '90%', 'padding' : '0', 'border' : '0px' } );
+                //jQuery('div#smartOMBranding').css( { 'width':'97%' } );
+                //jQuery('div.contactsTableOutline').css( { 'width':'97%' } );
+                
+                 var onFullPage = (jQuery(window).height() > 300);
+                 
+                 var myHasNoShadowOpp = false; //hasNoShadowOpp // FIXME
+                 //var myEditable = {!editable};
+                 var myHasNoLicensesForPoliticalMapExpress = {!hasNoLicensesForPoliticalMapExpress};
+                 
+                 var mapIdIsNotNull = {! NOT(ISNULL(mapId)) };
+                 
+                 if(onFullPage && (!(myHasNoShadowOpp) && !(myHasNoLicensesForPoliticalMapExpress)) && mapIdIsNotNull) {
+                    jQuery('div#smartOM').css( { 'width':'100%', height: '100%' } );
+                    jQuery('#smartOM').css({'background-color' : 'transparent', 'border' : 'none', 'margin' : '0'});
+                    jQuery('#tas_app_container').hide();
+                    jQuery('#politicalMapContactsSummaryList').show();  
+                    
+                 } else {
+                    jQuery('#tas_app_container').show();
+                 }
+                
+                if(!onFullPage) {
+                    jQuery('div#smartOM').parents('body').css({'background': 'transparent'});
+                }
+            
+            } else if(ttg.isTouchScreen()) {
+            
+                if(ttg.isSalesforce1()) {
+                    jQuery('html').addClass('salesforce1');
+                }
+                
+                jQuery('#politicalMapContactsDetailList').show();
+                
+                //jQuery('div.smartOMToolbarTitle').css('font-size', '80%');
+                jQuery('div.smartOMToolbarTitle').css('line-height', '1em');
+                jQuery('.smartOMToolbarTitleNoWrap').removeClass('smartOMToolbarTitleNoWrap');
+                jQuery('div.smartOMToolbarSummary').css('font-size', '75%');
+                
+                jQuery('#smartOM').css('padding', '49px 4px 4px');
+                
+                jQuery('.smartOMToolbarItem').css('width', '80px');
+                jQuery('div.smartOMToolbarSummary').addClass('smartOMToolbarSummarySmall');
+                jQuery('div.smartOMToolbarItem a').addClass('smallItem');
+                
+                
+                jQuery('div.smartOMToolbarItem').css('margin-right', '5px');  
+                jQuery('div.smartOMToolbarItemLast').css('margin-right', '0px');
+                
+                jQuery('div#smartOM').css('width', '673px');
+            
+            } else {
+            
+                jQuery('#politicalMapContactsDetailList').show();
+            
+                if(isOnlyOneIconDisabled == 'true') {
+                    // resize the launchpad to keep the full-size width, and pad the remaining icons to be (nearly) evenly spaced
+                    jQuery('#smartOM').css('min-width', '880px');
+                    jQuery('.smartOMToolbarItem').css('margin-right', '30px');
+                }
+            }
+            
+            var height = jQuery('#smartOM').height();
+            
+            var enableDealmakerLinkClicked = false; 
+                       
+            jQuery('#TRANSPARENCY').height(             
+            
+                (jQuery('#tas_app_container').length > 0) ? jQuery('#tas_app_container').height() : '100%'
+            );
+        
+            jQuery('#enableDealmakerLink').click(function() {
+                if(!enableDealmakerLinkClicked) {
+                    enableDealmakerLinkClicked = true;
+                    
+                    if(ttg.isMobilePhone()) {
+                        enableDealmakerOpportunityMobile();
+                    } else {
+                        enableDealmakerOpportunity();
+                    }   
+                }
+            }).dblclick(function(e) {
+                e.preventDefault();
+                return false;
+            });
+             
+             if (ttg.isSalesforce1()) {
+             
+                jQuery('td.PoliticalAnalysisPageLinkNoContacts a, smartOMToolbarItem a').click(function() {
+                
+                    jQuery('.overlay').toggle();
+                });              
+             }
+        }); 
+        
+    </script>
+    
+    
+</apex:page>

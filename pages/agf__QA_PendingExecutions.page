@@ -1,0 +1,302 @@
+<apex:page controller="agf.QA_PendingExecutionsController" title="Your Pending Test Executions" sidebar="false">
+	<style type="text/css">
+		.editButton {
+			background-image: url({!$Resource.agf__IconEdit});
+			background-position: center right;
+			background-repeat: no-repeat;
+		}
+	</style>
+
+    <apex:form id="apexFunctions" >
+        <apex:actionFunction action="{!sortByCol}" name="sortByCol" rerender="execDisplay">
+            <apex:param name="sortColParam" assignTo="{!sortCol}" value="" />
+        </apex:actionFunction>
+    </apex:form>
+
+    <apex:sectionHeader title="Your Pending Test Executions">
+    </apex:sectionHeader>
+
+    <apex:pageBlock id="theBlock" rendered="true">
+        <apex:form id="theForm">
+            <apex:outputPanel id="messages" style="color:red">
+                <apex:messages />
+            </apex:outputPanel>
+            <apex:outputPanel id="topToolbar">
+                    <table width="960px" style="font-size: 11px">
+                        <tr>
+                            <td width="120px">
+                                <apex:outputText value="Sort By" style="font-weight: bold"/>
+                            </td>
+                            <td width="170px">
+                                <apex:outputText value="Filter By" style="font-weight: bold"/>
+                            </td>
+                            <td width="20px">
+                            </td>
+                            <td width="140px">
+                                <apex:outputText value="Mark Selected As" style="font-weight: bold"/>
+                            </td>
+                            <td width="250px">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td width="120px">
+                                <apex:outputPanel id="sortPanel">
+                                    <apex:selectList value="{!sortCol}" multiselect="false" size="1" style="font-size: 11px" disabled="{!isUpdating}">
+                                        <apex:selectOptions value="{!sortOptions}"/>
+                                        <apex:actionSupport action="{!sortByCol}" event="onchange" rerender="execDisplay,messages"/>
+                                    </apex:selectList>
+                                </apex:outputPanel>
+                                <!--<apex:commandButton action="{!filter}" value="Sort" id="sortButton" disabled="{!isUpdating}" rerender="execDisplay"/>-->
+                            </td>
+                            <td width="170px">
+                                <apex:selectList value="{!filterBy}" multiselect="false" size="1" style="font-size: 11px" disabled="{!isUpdating}">
+                                    <apex:selectOptions value="{!filterOptions}"/>
+                                    <apex:actionSupport action="{!filter}" event="onchange" rerender="execDisplay,messages"/>
+                                </apex:selectList>
+                                <!--<apex:commandButton action="{!filter}" value="Filter" rerender="execDisplay"/>-->
+                            </td>
+                            <td width="20px">
+                            </td>
+                            <td width="140px">
+                                <apex:selectList value="{!destState}" multiselect="false" size="1" style="font-size: 11px" disabled="{!isUpdating}">
+                                    <apex:selectOptions value="{!markOptions}"/>
+                                </apex:selectList>
+                                <apex:commandButton action="{!changeStatus}" value="Mark" id="markItButton" disabled="{!isUpdating}" rerender="execDisplay,messages"/>
+                            </td>
+                            <td width="270px">
+                                <apex:inputText value="{!bugList}" id="bugList" disabled="{!isUpdating}"/>
+                                <apex:commandButton action="{!addBugs}" value="Mass Add Bugs" id="addBugs" disabled="{!isUpdating}" rerender="execDisplay, bugList, messages"/>
+                            </td>
+                            <td width="200px">
+                                <apex:outputPanel id="saveCancelBlock" style="font-size: 10pt">
+                                    <apex:commandButton action="{!saveAllUpdatedTEs}" value="Save Row" rendered="{!isUpdating}" rerender="execDisplay,saveCancelBlock,messages,topToolbar" />
+                                    <apex:commandButton action="{!cancelAllUpdatedTEs}" value="Cancel" rendered="{!isUpdating}" rerender="execDisplay,saveCancelBlock,messages,topToolbar" />
+                                </apex:outputPanel>
+                            </td>
+                        </tr>
+                </table>
+                </apex:outputPanel>
+            <!-- DISPLAY -->
+
+            <apex:pageBlockTable value="{!testExecs}" id="execDisplay" var="exec" style="font-size: 8pt" >
+                <apex:column id="checkboxes" >
+                    <apex:inputCheckBox id="dupCheckbox" value="{!exec.cbox}" disabled="{!isUpdating}"/>
+                    <apex:facet name="header">
+                        <apex:outputPanel >
+                            <apex:outputText rendered="{! NOT(isUpdating)}" style="font-size: 10px; font-weight:normal;" value="("/><apex:commandLink rendered="{! NOT(isUpdating)}" id="selectAll" style="font-size: 10px; font-weight:normal;" action="{!selectAll}" reRender="execDisplay" >All</apex:commandLink>
+                            <apex:outputText rendered="{! NOT(isUpdating)}" style="font-size: 10px; font-weight:normal;" value=" | "/><br />
+                            <apex:commandLink rendered="{! NOT(isUpdating)}" style="font-size: 10px; font-weight:normal;" id="selectNone" action="{!selectNone}" reRender="execDisplay">None</apex:commandLink>
+                            <apex:outputText rendered="{! NOT(isUpdating)}" style="font-size: 10px; font-weight:normal;" value=")"/>
+                            <apex:outputText rendered="{!isUpdating}" style="font-size: 10px; font-weight:normal; color: grey" value="("/>
+                            <apex:outputText rendered="{!isUpdating}" style="font-size: 10px; font-weight:normal; text-decoration: underline; color:grey" value="All"/>
+                            <apex:outputText rendered="{!isUpdating}" style="font-size: 10px; font-weight:normal; color: grey" value=" | "/><br />
+                            <apex:outputText rendered="{!isUpdating}" style="font-size: 10px; font-weight:normal; text-decoration: underline; color:grey" value="None"/>
+                            <apex:outputText rendered="{!isUpdating}" style="font-size: 10px; font-weight:normal; color: grey" value=")"/>
+                        </apex:outputPanel>
+                    </apex:facet>
+                </apex:column>
+                <!-- <apex:column headerValue="TE Number"> -->
+
+               <apex:column id="teNumber" >
+                        <apex:facet name="header">
+                            <!-- <apex:commandLink value="TE Number" id="Name" onclick="sortByCol('TE Number')" > -->
+                            <a href="#" onclick="sortByCol('TE Number')" >TE Number</a>
+                            <!-- <apex:actionSupport action="{!filter}" event="onclick"/> -->
+                            <!-- </apex:commandLink> -->
+                        </apex:facet>
+                    <a href="/{!exec.TE.Id}">{!exec.TE.name}</a> <!--{!exec.index}-->
+                </apex:column>
+
+                <apex:column id="tcNumber">
+                    <apex:facet name="header">
+                        <!-- <apex:commandLink value="Test Case Number" onclick="sortByCol('TC Number')">
+                        </apex:commandLink> -->
+                        <a href="#" onclick="sortByCol('Test Case')">TC Number</a>
+                    </apex:facet>
+                    <a href="/{!exec.TC.Id}">{!exec.TC.name}</a>
+                </apex:column>
+
+                <!--  <apex:column headerValue="Brief Description"> -->
+                <apex:column id="briefDesc">
+                <apex:facet name="header">
+                <!-- <apex:commandLink value="Brief Description" onclick="sortByCol('Brief Description')">
+                </apex:commandLink> -->
+                <a href="#" onclick="sortByCol('Brief Description')">Brief Description</a>
+                </apex:facet>
+                    <apex:outputPanel layout="block" id="briefDescWrap">
+                        <apex:outputPanel layout="block" onMouseOver="document.getElementById('{!$Component.briefDescWrap}').className='editButton'" onMouseOut="document.getElementById('{!$Component.briefDescWrap}').className=''"
+                            rendered="{!NOT(exec.ShouldEditBriefDesc)}">
+                                {!exec.BriefDesc}&nbsp;&nbsp;
+                            <apex:actionSupport event="ondblclick" focus="inputBriefDesc"  action="{!lockOthers}" rerender="briefDescWrap,topToolbar,execDisplay">
+                                <apex:param assignTo="{!exec.ShouldEditBriefDesc}" value="true" name="markBriefDesc" />
+                            </apex:actionSupport>
+                        </apex:outputPanel>
+                        <apex:inputText value="{!exec.TC.agf__Brief_Description__c}" size="25" maxlength="255" rendered="{!exec.ShouldEditBriefDesc}"/>
+                        <apex:image style="padding-left:3px;vertical-align: bottom;" url="{!$Resource.agf__IconUndo}" rendered="{!exec.ShouldEditBriefDesc}">
+                            <apex:actionSupport event="onclick" action="{!unlockAll}" rerender="briefDescWrap,topToolbar,execDisplay">
+                                <apex:param assignTo="{!exec.revertBriefDesc}" name="revertBriefDesc" value="Brief Description" />
+                            </apex:actionSupport>
+                        </apex:image>
+                    </apex:outputPanel>
+                </apex:column>
+
+
+                <apex:column id="dirCol" headerValue="{!sortDir} - {!sortBy}">
+                <apex:facet name="header">Long Description</apex:facet>
+                    <apex:outputPanel layout="block" id="LongDescWrap">
+                        <apex:outputPanel layout="block" onMouseOver="document.getElementById('{!$Component.longDescWrap}').className='editButton'" onMouseOut="document.getElementById('{!$Component.longDescWrap}').className=''"
+                            rendered="{!NOT(exec.ShouldEditLongDesc)}">
+                                {!exec.StepsReproduce}&nbsp;&nbsp;
+                            <apex:actionSupport event="ondblclick" action="{!lockOthers}" focus="inputLongDesc" rerender="topToolbar,execDisplay">
+                                <apex:param assignTo="{!exec.ShouldEditLongDesc}" value="Long Description" name="markLongDesc" />
+                            </apex:actionSupport>
+                        </apex:outputPanel>
+                        <apex:inputTextarea value="{!exec.TC.agf__Steps_to_Reproduce__c}" rendered="{!exec.ShouldEditLongDesc}" cols="75" rows="10" />
+                        <apex:image style="padding-left:3px;vertical-align: bottom;" url="{!$Resource.agf__IconUndo}" rendered="{!exec.ShouldEditLongDesc}">
+                            <apex:actionSupport event="onclick" action="{!unlockAll}" rerender="LongDescWrap,topToolbar,execDisplay" >
+                                <apex:param assignTo="{!exec.revertLongDesc}" name="revertLongDesc" value="Long Description" />
+                            </apex:actionSupport>
+                        </apex:image>
+                    </apex:outputPanel>
+                </apex:column>
+
+
+                <apex:column headerValue="Status">
+                <apex:facet name="header">
+                <a href="#" onclick="sortByCol('Status')">Status</a>
+                </apex:facet>
+                    <apex:outputPanel layout="block" id="statusWrap">
+                        <apex:outputPanel layout="block" onMouseOver="document.getElementById('{!$Component.statusWrap}').className='editButton'" onMouseOut="document.getElementById('{!$Component.statusWrap}').className=''"
+                            rendered="{!NOT(exec.ShouldEditStatus)}">
+                                {!exec.TE.agf__Status__c}&nbsp;&nbsp;
+                            <apex:actionSupport event="ondblclick" action="{!lockOthers}" rerender="statusWrap, topToolbar,execDisplay">
+                                <!--<apex:param assignTo="{!exec.isUpdating}" name="dynamicupdate" value="true"/>-->
+                                <apex:param assignTo="{!exec.ShouldEditStatus}" value="Status" name="markStatus" />
+                            </apex:actionSupport>
+                        </apex:outputPanel>
+                        <apex:inputField value="{!exec.TE.agf__Status__c}" rendered="{!exec.ShouldEditStatus}" />
+                        <apex:image style="padding-left:3px;vertical-align: bottom;" url="{!$Resource.agf__IconUndo}" rendered="{!exec.ShouldEditStatus}">
+                            <apex:actionSupport event="onclick" action="{!unlockAll}" rerender="statusWrap, topToolbar,execDisplay" >
+                                <apex:param assignTo="{!exec.revertStatus}" name="revertStatus" value="Status" />
+                            </apex:actionSupport>
+                        </apex:image>
+                    </apex:outputPanel>
+                </apex:column>
+
+
+                <apex:column headerValue="User Story">
+                <apex:facet name="header">
+                <a href="#" onclick="sortByCol('User Story')">User Story</a>
+                </apex:facet>
+                    <a href="/{!exec.TE.User_Story__r.Id}">{!exec.UserStory}</a>
+                </apex:column>
+
+                <apex:column headerValue="Expected Results">
+                    <apex:outputPanel layout="block" id="EResultsWrap">
+                        <apex:outputPanel layout="block" onMouseOver="document.getElementById('{!$Component.EResultsWrap}').className='editButton'" onMouseOut="document.getElementById('{!$Component.EResultsWrap}').className=''"
+                            rendered="{!NOT(exec.ShouldEditEResults)}">
+                                {!exec.EResults}&nbsp;&nbsp;
+                            <apex:actionSupport event="ondblclick" action="{!lockOthers}" rerender="EResultsWrap, topToolbar,execDisplay">
+                                <!--<apex:param assignTo="{!exec.isUpdating}" name="dynamicupdate" value="true"/>-->
+                                <apex:param assignTo="{!exec.ShouldEditEResults}" value="Expected Results" name="markEResults" />
+                            </apex:actionSupport>
+                        </apex:outputPanel>
+                        <apex:inputTextarea value="{!exec.TC.agf__Expected_Results__c}" rendered="{!exec.ShouldEditEResults}" cols="75" rows="10">
+                            <apex:actionSupport event="onblur" rerender="EResultsWrap, topToolbar,execDisplay">
+                                <!--<apex:param assignTo="{!exec.isUpdating}" name="dynamicupdate2" value="false"/>-->
+                                <apex:param assignTo="{!exec.revertEResults}" name="revertEResults" value="Expected Results" />
+                            </apex:actionSupport>
+                        </apex:inputTextarea>
+                        <apex:image style="padding-left:3px;vertical-align: bottom;" url="{!$Resource.agf__IconUndo}" rendered="{!exec.ShouldEditEResults}">
+                            <apex:actionSupport event="onclick" action="{!unlockAll}" rerender="EResultsWrap, topToolbar,execDisplay" >
+                                <apex:param assignTo="{!exec.revertEResults}" name="revertEResults" value="Expected Results" />
+                            </apex:actionSupport>
+                        </apex:image>
+                    </apex:outputPanel>
+                </apex:column>
+
+                <apex:column headerValue="Sprint">
+	                <apex:facet name="header">
+	                    <a href="#" onclick="sortByCol('Sprint')">Sprint</a>
+	                </apex:facet>
+	                <!-- <script>alert('{!exec.TESprint}');</script> -->
+	                <a href="/{!exec.TE.User_Story__r.Sprint__r.Id}">{!exec.TESprint}</a>
+                </apex:column>
+
+                <apex:column headerValue="Hierarchy">
+                <apex:facet name="header">
+                <a href="#" onclick="sortByCol('Hierarchy')">Hierarchy</a>
+                </apex:facet>
+                    <apex:outputPanel layout="block" id="HierarchyWrap">
+                        <apex:outputPanel layout="block" onMouseOver="document.getElementById('{!$Component.HierarchyWrap}').className='editButton'" onMouseOut="document.getElementById('{!$Component.HierarchyWrap}').className=''"
+                            rendered="{!NOT(exec.ShouldEditHier)}">
+                                {!exec.Hier}&nbsp;&nbsp;
+                            <apex:actionSupport event="ondblclick" action="{!lockOthers}" rerender="HierarchyWrap, topToolbar,execDisplay">
+                                <!--<apex:param assignTo="{!exec.isUpdating}" name="dynamicupdate" value="true"/>-->
+                                <apex:param assignTo="{!exec.ShouldEditHier}" value="Hierarchy" name="markHier" />
+                            </apex:actionSupport>
+                        </apex:outputPanel>
+                        <apex:inputText value="{!exec.TC.agf__Hierarchy__c}" size="25" maxlength="255" rendered="{!exec.ShouldEditHier}"/>
+                        <apex:image style="padding-left:3px;vertical-align: bottom;" url="{!$Resource.agf__IconUndo}" rendered="{!exec.ShouldEditHier}">
+                            <apex:actionSupport event="onclick" action="{!unlockAll}" rerender="HierarchyWrap, topToolbar,execDisplay" >
+                                <apex:param assignTo="{!exec.revertHier}" name="revertHier" value="Hierarchy" />
+                            </apex:actionSupport>
+                        </apex:image>
+                    </apex:outputPanel>
+                </apex:column>
+
+                <apex:column headerValue="Type">
+                    <apex:outputPanel layout="block" id="typeWrap">
+                        <apex:outputPanel layout="block" onMouseOver="document.getElementById('{!$Component.typeWrap}').className='editButton'" onMouseOut="document.getElementById('{!$Component.typeWrap}').className=''"
+                            rendered="{!NOT(exec.ShouldEditType)}">
+                                {!exec.TE.agf__Type__c}&nbsp;&nbsp;
+                            <apex:actionSupport event="ondblclick" action="{!lockOthers}" rerender="typeWrap, topToolbar,execDisplay">
+                                <!--<apex:param assignTo="{!exec.isUpdating}" name="dynamicupdate" value="true"/>-->
+                                <apex:param assignTo="{!exec.ShouldEditType}" value="Status" name="markType" />
+                            </apex:actionSupport>
+                        </apex:outputPanel>
+                        <apex:inputField value="{!exec.TE.agf__Type__c}" rendered="{!exec.ShouldEditType}" />
+                        <apex:image style="padding-left:3px;vertical-align: bottom;" url="{!$Resource.agf__IconUndo}" rendered="{!exec.ShouldEditType}">
+                            <apex:actionSupport event="onclick" action="{!unlockAll}" rerender="typeWrap, topToolbar,execDisplay" >
+                                <apex:param assignTo="{!exec.revertType}" name="revertType" value="Type" />
+                            </apex:actionSupport>
+                        </apex:image>
+                    </apex:outputPanel>
+                </apex:column>
+
+
+                <apex:column headerValue="Scrum Team">
+                <apex:facet name="header">
+                <a href="#" onclick="sortByCol('Scrum')">Scrum</a>
+                </apex:facet>
+                {!exec.TEScrum}
+                </apex:column>
+
+                <apex:column headerValue="Bugs">
+                <apex:facet name="header">
+                <a href="#" onclick="sortByCol('Bugs')">Bugs</a>
+                </apex:facet>
+                    <apex:outputPanel layout="block" id="BugsWrap">
+                        <apex:outputPanel layout="block" onMouseOver="document.getElementById('{!$Component.BugsWrap}').className='editButton'" onMouseOut="document.getElementById('{!$Component.BugsWrap}').className=''"
+                            rendered="{!NOT(exec.ShouldEditBugs)}">
+                                {!exec.TE.agf__Bugs__c}&nbsp;&nbsp;
+                            <apex:actionSupport event="ondblclick" action="{!lockOthers}" rerender="BugsWrap, topToolbar,execDisplay">
+                                <!--<apex:param assignTo="{!exec.isUpdating}" name="dynamicupdate" value="true"/>-->
+                                <apex:param assignTo="{!exec.ShouldEditBugs}" value="Bugs" name="markBugs" />
+                            </apex:actionSupport>
+                        </apex:outputPanel>
+                        <apex:inputText value="{!exec.TE.agf__Bugs__c}" size="25" maxlength="255" rendered="{!exec.ShouldEditBugs}" />
+                        <apex:image style="padding-left:3px;vertical-align: bottom;" url="{!$Resource.agf__IconUndo}" rendered="{!exec.ShouldEditBugs}">
+                            <apex:actionSupport event="onclick" action="{!unlockAll}" rerender="BugsWrap, topToolbar,execDisplay" >
+                                <apex:param assignTo="{!exec.revertBugs}" name="revertBugs" value="Bugs" />
+                            </apex:actionSupport>
+                        </apex:image>
+                    </apex:outputPanel>
+                </apex:column>
+
+            </apex:pageBlockTable>
+            <!-- END DISPLAY -->
+        </apex:form>
+    </apex:pageBlock>
+    <apex:outputText style="font-style:bold font-size:10pt color:red" value="This page will only show your first 50 Pending Test Executions for any sort method." rendered="{!TESizeOverFifty}"/>
+</apex:page>

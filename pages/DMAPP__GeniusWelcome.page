@@ -1,0 +1,65 @@
+<apex:page controller="DMAPP.GeniusNewProcessController" extensions="DMAPP.BrandOverrideController"
+		   docType="html-5.0"     
+		   showHeader="true" 
+		   tabStyle="Playbook_Admin__tab"
+		   sidebar="false">
+
+	<style>
+		@import url("{!URLFOR($Resource.Genius, 	'genius_builder.css')}");
+
+		body .bEditBlock .pbHeader, body .bLayoutBlock .pbHeader, body .apexp .bPageBlock.apexDefaultPageBlock .pbHeader {
+		    border-bottom: 1px solid #DBDBDB;
+		    padding: 0;
+		}
+	</style>
+
+    <apex:form rendered="true"> 
+        <apex:pageBlock > 
+        	<apex:facet name="header">
+				<apex:outputPanel layout="block">
+					<table cellspacing="0" cellpadding="0" border="0">
+						<tbody>
+							<tr>
+								<td class="pbTitle">
+									<!--<h2 class="mainTitle">Dealmaker Genius</h2>-->
+									<apex:image url="{!URLFOR($Resource.DMAPP__Common, 'panel/images/SmartOM50.png')}"/>
+								</td>
+								<td class="geniusLogoCell">
+			                    	<apex:image url="{!URLFOR($Resource.DMAPP__Qualification, 'TASLogo50.png')}" alt="TAS Group Logo" rendered="{!NOT(hasBrandOverrideLogo)}"/>
+			                        <apex:image url="{!brandOverrideLogo}" rendered="{!hasBrandOverrideLogo}"/>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				</apex:outputPanel> 
+			</apex:facet>
+
+            <apex:pageBlockSection columns="1">
+				<ul class="steps">
+					<li class="active"><span>Playbook Genius</span></li>
+					<li style="display: {!IF(isGeniusFirstRun,'inherit','none')};"><span>Company Details</span></li>
+				    <li><span>Playbook Settings</span></li>
+				    <li><span>Sales Stage Mapping</span></li>
+				</ul>
+            </apex:pageBlockSection>	
+
+			<div class="genius_panel">
+				<p class="genius_title"><img src="{!URLFOR($Resource.Genius,'images/img_genius_title.png')}"/></p>
+			    <p class="genius_intro">Genius for Playbook helps you create a high quality sales process based on the best practices of high performing sales professionals. You can improve your sales performance with a Playbook customized to your company, products and services, and aligned with how your customers buy. Apply your Playbook as you work your sales opportunities to increase the win rate and velocity of your deals and improve the accuracy of your sales forecast. It takes about 15 minutes.</p>
+			    <input type="button" id="startButton" class="btn_blue" value="Start" onclick="doStartProcess();"/>
+			    <input type="button" id="cancelButton" class="btn_cancel" value="Cancel" onclick="doCancel();"/>
+			    <br class="clear"/>
+			</div>	
+
+            <apex:pageBlockButtons location="bottom">
+            </apex:pageBlockButtons>
+
+ 			<apex:actionFunction name="doStartProcess" action="{!navigateToProcessDetails}"/>
+ 			<apex:actionFunction name="doCancel" action="{!cancel}" immediate="true"/>
+
+        </apex:pageBlock>
+                       
+        
+    </apex:form>
+
+</apex:page>

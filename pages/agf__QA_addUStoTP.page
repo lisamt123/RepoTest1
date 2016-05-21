@@ -1,0 +1,87 @@
+<apex:page standardController="agf__QA_Test_Plan__c" extensions="agf.QA_addUStoTPExtension" id="page">
+    <apex:include pageName="agf__ADM_Overlay_CSS"/>
+    <apex:include pageName="agf__ADM_common_css"/>
+    <apex:stylesheet value="{!$Resource.agf__CommonStyles}"/>
+
+    <apex:pageMessages id="pageMessages"></apex:pageMessages>
+
+    <!--Start div overlay container, this box specifies the width of the overlay-->
+    <apex:outputPanel layout="block" styleClass="overlay" id="loadingMessage">
+        <apex:outputPanel id="overlaycontainer" layout="block" styleClass="overlaycontainer">
+            <!--TOOL BAR-->
+            <apex:outputPanel layout="block" styleClass="overlaylefttopcrn">
+                <apex:outputPanel layout="block" styleClass="overlaytoolbar">
+                    <apex:outputPanel style="color:#ffffff; font-weight:bold; font-size:1.2em;" layout="block">&nbsp;</apex:outputPanel>
+                </apex:outputPanel>
+            </apex:outputPanel>
+            <!--CONTENT DIV TOOL BAR-->
+            <apex:outputPanel layout="block" styleClass="overlaycontentbox" style="text-align:center;font-size:150%;">
+                <apex:image url="{!$Resource.agf__ajaxloaderlarge}" alt="Loading" style="padding:0 5px;"/> <span id="loadingMessage">Loading...</span>
+            </apex:outputPanel>
+            <!--BOTTOM CORNERS AND BOTTOM BORDER-->
+            <apex:outputPanel layout="block" styleClass="overlayleftbtmcrn">
+                <apex:outputPanel layout="block" styleClass="overlaybtm">
+                </apex:outputPanel>
+            </apex:outputPanel>
+            <!-- overlay container div-->
+        </apex:outputPanel>
+    </apex:outputPanel>
+
+    <apex:sectionHeader title="Test Plan {!testPlanName}" subtitle="Add / Remove User Story"/>
+
+    <apex:outputPanel layout="block" styleClass="ptBreadcrumb" style="padding:2px 0px; font-size:96;%">
+        <apex:outputPanel style="font-size:90%;">&nbsp;«&nbsp;</apex:outputPanel>
+        <apex:outputLink value="{!retUrl}" id="retUrl" style="text-decoration:none !important;">Back to Test Plan: {!testPlanName}</apex:outputLink>
+    </apex:outputPanel>
+
+    <apex:form id="form">
+        <apex:pageBlock title="Remove User Story">
+            <apex:pageBlockTable value="{!membersToDelete}" var="memberToDelete" id="userStroiesToDelete" >
+                <apex:column rendered="true">
+                    <apex:facet name="header">Action</apex:facet>
+                    <apex:commandLink id="deleteLink" action="{!deleteMember}" rerender="form,pageMessages" rendered="{!membersToDelete.size > 0}" onclick="overlay('{!$Component.loadingMessage}');" oncomplete="overlay('{!$Component.loadingMessage}');">
+                        <apex:image url="{!$Resource.agf__IconDelete}" id="deleteAll" alt="Remove User Story" title="Remove User Story" styleClass="adm_imgPadding"/>
+                        <apex:param name="deleteId" value="{!memberToDelete.id}"/>
+                    </apex:commandLink>
+                </apex:column>
+                <apex:column >
+                    <apex:image id="bugicon" value="{!$Resource.agf__bugiconsmall}" rendered="{!memberToDelete.RecordType.Name == 'Bug'}" title="Bug" />
+                    <apex:image id="storyicon" value="{!$Resource.agf__storyiconsmall}" rendered="{!memberToDelete.RecordType.Name == 'User Story'}" title="User Story"  />
+                    <apex:image id="todoicon" value="{!$Resource.agf__todoiconsmall}" rendered="{!memberToDelete.RecordType.Name == 'ToDo'}" title="ToDo"  />
+                </apex:column>
+                <apex:column value="{!memberToDelete.name}">
+                    <apex:facet name="header">User Story</apex:facet>
+                </apex:column>
+                <apex:column value="{!memberToDelete.agf__Status__c}"></apex:column>
+                <apex:column value="{!memberToDelete.agf__Subject__c}"></apex:column>
+                <apex:column value="{!memberToDelete.agf__Scheduled_Build__c}"></apex:column>
+                <apex:column value="{!memberToDelete.agf__Sprint__c}"></apex:column>
+                <apex:column value="{!memberToDelete.agf__Scrum_Team__c}"></apex:column>
+                <apex:column value="{!memberToDelete.agf__Assignee__c}"></apex:column>
+                <apex:column value="{!memberToDelete.agf__QA_Engineer__c}"></apex:column>
+                <apex:column value="{!memberToDelete.agf__Story_Points__c}"></apex:column>
+            </apex:pageBlockTable>
+        </apex:pageBlock>
+        <apex:pageBlock title="Add User Story">
+            <apex:pageBlockTable value="{!members}" var="member" rows="5" id="members">
+                <apex:column rendered="true" >
+                    <apex:inputfield id="curUS" value="{!member.agf__User_Story__c}" />
+                </apex:column>
+            </apex:pageBlockTable>
+        </apex:pageBlock>
+        <apex:commandButton id="setUS" value="Save" action="{!saveUS}" onclick="disableButtons('{!$Component.setUs}','{!$Component.cancel}');" />
+        <apex:commandButton id="cancel" value="Cancel" action="{!cancel}" onclick="disableButtons('{!$Component.setUs}','{!$Component.cancel}');" />
+
+        <script type="text/javascript">
+            function overlay(el) {
+                document.getElementById(el).style.visibility = (document.getElementById(el).style.visibility == "visible") ? "hidden" : "visible";
+            }
+
+            function disableButtons(el1, el2) {
+               document.getElementById(el1).setAttribute("class","btnDisabled");
+               document.getElementById(el2).setAttribute("class","btnDisabled");
+
+            }
+        </script>
+    </apex:form>
+</apex:page>

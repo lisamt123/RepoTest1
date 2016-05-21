@@ -1,0 +1,42 @@
+<apex:page standardController="agf__Retrospective__c" extensions="agf.RetrospectiveControllerExtension" standardStylesheets="true" title="Retrospectives">
+
+  <apex:sectionHeader title="{!$ObjectType.agf__Retrospective__c.label}" subtitle="{!agf__Retrospective__c.name}"/>
+  <apex:form >
+    <apex:pageBlock title="Create new Retrospective" mode="edit">  
+      <apex:pageBlockButtons >
+        <apex:commandButton value="Save" action="{!save}"/>
+        <apex:commandButton value="Cancel" action="{!cancel}" />
+      </apex:pageBlockButtons>
+        <apex:pageMessage detail="{!customErrorMessage}" severity="error" strength="3" rendered="{!hasCustomError}"/>
+      <apex:pageBlockSection title="Information" columns="2">
+        <apex:inputField value="{!agf__Retrospective__c.name}" required="true"/>
+        <apex:inputField value="{!agf__Retrospective__c.agf__Team__c}" required="true"/>
+        <apex:pageBlockSectionItem >
+          <apex:outputLabel value="User"/>
+          <apex:outputText value="{!$User.FirstName} {!$User.LastName}"/>
+        </apex:pageBlockSectionItem>
+        <apex:inputField value="{!agf__Retrospective__c.agf__Manager__c}" required="true"/>
+        <apex:outputField value="{!agf__Retrospective__c.agf__Status__c}"/>
+        <apex:inputField value="{!agf__Retrospective__c.agf__Review_Period__c}" required="true"/>
+      </apex:pageBlockSection>
+      <apex:pageBlockSection title="Employee Comments" columns="1">
+        <apex:pageBlockSectionItem >
+            <apex:outputLabel value="{!whatWentWellLabel}" for="what_went_well_employee"/>
+            <apex:inputTextArea id="what_went_well_employee" value="{!agf__Retrospective__c.agf__What_Went_Well_employee__c}" cols="120" rows="6"/>
+        </apex:pageBlockSectionItem>    
+        <apex:pageBlockSectionItem >
+            <apex:outputLabel value="{!whatDidNotGoWellLabel}" for="what_didnt_go_well_employee"/>
+            <apex:inputTextArea id="what_didnt_go_well_employee" value="{!agf__Retrospective__c.agf__What_Didn_t_Go_Well_employee__c}" cols="120" rows="6"/>
+        </apex:pageBlockSectionItem>    
+        <apex:pageBlockSectionItem >
+            <apex:outputLabel value="{!whatToDoBetterLabel}" for="what_to_do_better_employee"/>
+            <apex:inputTextArea id="what_to_do_better_employee" value="{!agf__Retrospective__c.agf__What_To_Do_Better_Next_Time_employee__c}"  cols="120" rows="6"/>
+        </apex:pageBlockSectionItem>    
+        <apex:pageBlockSectionItem >
+            <apex:outputLabel value="{!overallRatingLabel}" for="overall_rating_employee"/>
+            <apex:inputField id="overall_rating_employee" required="true" value="{!agf__Retrospective__c.agf__Overall_Rating_employee__c}"/>
+        </apex:pageBlockSectionItem>    
+      </apex:pageBlockSection>
+    </apex:pageBlock>
+  </apex:form>
+</apex:page>

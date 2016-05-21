@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <actionCalls>
+        <name>FAULT</name>
+        <label>FAULT</label>
+        <locationX>218</locationX>
+        <locationY>261</locationY>
+        <actionName>emailSimple</actionName>
+        <actionType>emailSimple</actionType>
+        <connector>
+            <targetReference>Show_Error</targetReference>
+        </connector>
+        <inputParameters>
+            <name>EmailAddresses</name>
+            <value>
+                <stringValue>mark.ross@autotradergroup.com</stringValue>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>EmailBody</name>
+            <value>
+                <elementReference>txtErrorBody</elementReference>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>EmailSubject</name>
+            <value>
+                <stringValue>Submit for Closed Won Error</stringValue>
+            </value>
+        </inputParameters>
+    </actionCalls>
+    <actionCalls>
+        <name>Submit_for_Approval</name>
+        <label>Submit for Approval</label>
+        <locationX>12</locationX>
+        <locationY>312</locationY>
+        <actionName>submit</actionName>
+        <actionType>submit</actionType>
+        <faultConnector>
+            <targetReference>FAULT</targetReference>
+        </faultConnector>
+        <inputParameters>
+            <name>objectId</name>
+            <value>
+                <elementReference>varOppID</elementReference>
+            </value>
+        </inputParameters>
+    </actionCalls>
+    <description>Troubleshooting true error parsing</description>
+    <formulas>
+        <name>ParseError</name>
+        <dataType>String</dataType>
+        <expression>SUBSTITUTE(
+   SUBSTITUTE(
+      SUBSTITUTE(
+         SUBSTITUTE(
+            {!$Flow.FaultMessage}, 
+            &quot;UPSERT --- UPSERT FAILED ---  ERRORS :  (FIELD_CUSTOM_VALIDATION_EXCEPTION)&quot;,
+            &quot;&quot;
+         ),
+         &quot; ---  for SFDC record with ID : null&quot;,
+         &quot;&quot;
+      ),
+      &quot;,&quot;,
+      {!carriagereturn}
+   ),
+   &quot;(FIELD_CUSTOM_VALIDATION_EXCEPTION)&quot;,
+   &quot;&quot;
+)</expression>
+    </formulas>
+    <label>Submit for Closed Won</label>
+    <processType>Flow</processType>
+    <recordUpdates>
+        <name>Set_Opp_to_Pending_Won</name>
+        <label>Set Opp to Pending Won</label>
+        <locationX>12</locationX>
+        <locationY>189</locationY>
+        <connector>
+            <targetReference>Submit_for_Approval</targetReference>
+        </connector>
+        <faultConnector>
+            <targetReference>FAULT</targetReference>
+        </faultConnector>
+        <filters>
+            <field>Id</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>varOppID</elementReference>
+            </value>
+        </filters>
+        <inputAssignments>
+            <field>StageName</field>
+            <value>
+                <stringValue>Pending Won</stringValue>
+            </value>
+        </inputAssignments>
+        <object>Opportunity</object>
+    </recordUpdates>
+    <screens>
+        <name>Show_Error</name>
+        <label>Show Error</label>
+        <locationX>402</locationX>
+        <locationY>261</locationY>
+        <allowBack>true</allowBack>
+        <allowFinish>true</allowFinish>
+        <allowPause>true</allowPause>
+        <fields>
+            <name>parsedError</name>
+            <fieldText>Error:
+{!ParseError}</fieldText>
+            <fieldType>DisplayText</fieldType>
+        </fields>
+    </screens>
+    <startElementReference>Set_Opp_to_Pending_Won</startElementReference>
+    <textTemplates>
+        <name>carriagereturn</name>
+        <text>&lt;SPAN ALIGN=&quot;LEFT&quot;&gt;&lt;FONT FACE=&quot;Arial&quot; STYLE=&quot;font-size:12px&quot; COLOR=&quot;#000000&quot; LETTERSPACING=&quot;0&quot; KERNING=&quot;0&quot;&gt;&lt;/FONT&gt;&lt;/SPAN&gt;&lt;DIV ALIGN=&quot;LEFT&quot;&gt;&lt;FONT FACE=&quot;Arial&quot; STYLE=&quot;font-size:12px&quot; COLOR=&quot;#000000&quot; LETTERSPACING=&quot;0&quot; KERNING=&quot;0&quot;&gt;&lt;/FONT&gt;&lt;/DIV&gt;</text>
+    </textTemplates>
+    <textTemplates>
+        <name>txtErrorBody</name>
+        <text>{!$Flow.FaultMessage}</text>
+    </textTemplates>
+    <variables>
+        <name>varErrorText</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+    <variables>
+        <name>varOppID</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>true</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+</Flow>

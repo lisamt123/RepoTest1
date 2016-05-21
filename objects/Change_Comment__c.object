@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <actionOverrides>
+        <actionName>Accept</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>CancelEdit</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Clone</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Delete</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Edit</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Follow</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>List</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>New</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>SaveEdit</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Tab</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>View</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <allowInChatterGroups>false</allowInChatterGroups>
+    <compactLayoutAssignment>SYSTEM</compactLayoutAssignment>
+    <deploymentStatus>Deployed</deploymentStatus>
+    <enableActivities>true</enableActivities>
+    <enableBulkApi>true</enableBulkApi>
+    <enableFeeds>false</enableFeeds>
+    <enableHistory>false</enableHistory>
+    <enableReports>true</enableReports>
+    <enableSearch>true</enableSearch>
+    <enableSharing>true</enableSharing>
+    <enableStreamingApi>true</enableStreamingApi>
+    <fields>
+        <fullName>Change_Control__c</fullName>
+        <externalId>false</externalId>
+        <label>Change Control</label>
+        <referenceTo>SLX__Change_Control__c</referenceTo>
+        <relationshipLabel>Change Comments</relationshipLabel>
+        <relationshipName>Change_Comments</relationshipName>
+        <relationshipOrder>0</relationshipOrder>
+        <reparentableMasterDetail>false</reparentableMasterDetail>
+        <trackTrending>false</trackTrending>
+        <type>MasterDetail</type>
+        <writeRequiresMasterRead>false</writeRequiresMasterRead>
+    </fields>
+    <fields>
+        <fullName>Comment_Type__c</fullName>
+        <externalId>false</externalId>
+        <label>Comment Type</label>
+        <picklist>
+            <picklistValues>
+                <fullName>First Response</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>First Response and Complete</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Follow-up</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Follow-up and Complete</fullName>
+                <default>false</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <trackTrending>false</trackTrending>
+        <type>Picklist</type>
+    </fields>
+    <fields>
+        <fullName>Comment__c</fullName>
+        <externalId>false</externalId>
+        <label>Comment</label>
+        <length>32768</length>
+        <trackTrending>false</trackTrending>
+        <type>LongTextArea</type>
+        <visibleLines>25</visibleLines>
+    </fields>
+    <fields>
+        <fullName>Date_for_Time_Spent__c</fullName>
+        <defaultValue>TODAY()</defaultValue>
+        <externalId>false</externalId>
+        <label>Date for Time Spent</label>
+        <required>false</required>
+        <trackTrending>false</trackTrending>
+        <type>Date</type>
+    </fields>
+    <fields>
+        <fullName>Email_Sent__c</fullName>
+        <externalId>false</externalId>
+        <formula>IF(
+   Sent__c = TRUE, 
+   IMAGE(&quot;/servlet/servlet.FileDownload?file=01570000001UBKG&quot;, &quot;green check&quot;) , 
+   IF(
+      Sent__c = FALSE &amp;&amp; DATEVALUE(CreatedDate) &gt; DATE(2012,7,31), 
+      IMAGE(&quot;/servlet/servlet.FileDownload?file=01570000001UPCS&quot;, &quot;red x&quot;), 
+      &quot;No Data&quot;
+   ) 
+)</formula>
+        <label>Email Sent</label>
+        <required>false</required>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Sent__c</fullName>
+        <defaultValue>false</defaultValue>
+        <externalId>false</externalId>
+        <label>Sent</label>
+        <trackTrending>false</trackTrending>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>Time_Spent__c</fullName>
+        <externalId>false</externalId>
+        <label>Time Spent</label>
+        <precision>5</precision>
+        <required>false</required>
+        <scale>2</scale>
+        <trackTrending>false</trackTrending>
+        <type>Number</type>
+        <unique>false</unique>
+    </fields>
+    <label>Change Comment</label>
+    <nameField>
+        <displayFormat>CC-{00000000}</displayFormat>
+        <label>Change Comment Number</label>
+        <type>AutoNumber</type>
+    </nameField>
+    <pluralLabel>Change Comments</pluralLabel>
+    <searchLayouts/>
+    <sharingModel>ControlledByParent</sharingModel>
+    <webLinks>
+        <fullName>Email_Comment</fullName>
+        <availability>online</availability>
+        <displayType>massActionButton</displayType>
+        <linkType>javascript</linkType>
+        <masterLabel>Email Comment</masterLabel>
+        <openType>onClickJavaScript</openType>
+        <protected>false</protected>
+        <requireRowSelection>true</requireRowSelection>
+        <url>{!REQUIRESCRIPT(&quot;/soap/ajax/19.0/connection.js&quot;)} //adds the proper code for inclusion of AJAX toolkit
+var checked= {!GETRECORDIDS($ObjectType.Change_Comment__c)}; //grabs the records that the user is requesting to update
+var record = (checked.toString()); //converts record variable to text string
+
+window.open(&apos;/email/author/emailauthor.jsp?retURL=/{!SLX__Change_Control__c.Id}&amp;p24={!SLX__Change_Control__c.Requestor_s_Email__c}&amp;p4={!SLX__Change_Control__c.Reports_To_Email__c}&amp;p3_lkid=&apos; + record + &apos;&amp;template_id=00X70000001SBNg&apos;);
+
+var markSent = new sforce.SObject(&quot;Change_Comment__c&quot;);
+markSent.Id = checked;
+markSent.Sent__c = true;
+var result = sforce.connection.update([markSent]);
+window.location.href=window.location.href;</url>
+    </webLinks>
+    <webLinks>
+        <fullName>New_Comment</fullName>
+        <availability>online</availability>
+        <displayType>massActionButton</displayType>
+        <encodingKey>UTF-8</encodingKey>
+        <linkType>url</linkType>
+        <masterLabel>New Comment</masterLabel>
+        <openType>replace</openType>
+        <protected>false</protected>
+        <requireRowSelection>false</requireRowSelection>
+        <url>/a0j/e?retURL=/{!SLX__Change_Control__c.Id}&amp;saveURL=/{!SLX__Change_Control__c.Id}&amp;CF00N70000002sCLJ={!SLX__Change_Control__c.Name}</url>
+    </webLinks>
+</CustomObject>

@@ -1,0 +1,61 @@
+<apex:page standardController="Account" extensions="vAutoTraderCanadaActivityHistory" docType="html-5.0" showChat="false" showHeader="false" sidebar="false">
+	<apex:form >
+		<apex:pageblock id="vAutoActivityHistories" title="" mode="maindetail" >
+			<apex:pageBlockTable id="vAutoActivities" value="{!actHistoriesWrpList}" var="ahwl" > <!--
+				<apex:column HeaderValue="Action" style="width:50px" >
+					<apex:outputLink target="_blank" value="/{!ahwl.ahID}/e" >Edit</apex:outputLink>
+					<span> | </span>
+					<apex:commandLink value=" Del " action="{!doDeleteAction}" rerender="vAutoActivities" >
+                    <apex:param name="firstDelParam" value="{!ahwl.ahID}" assignTo="{!removeItemId}"/>
+                </apex:commandLink>
+	            </apex:column>
+	            <apex:column HeaderValue="Id" >
+	            	<apex:outputLabel value="{!ahwl.ahID}" />
+	            </apex:column>  The below column was used for testing that only vAuto BU appeared in the list
+	            <apex:column HeaderValue="Business Unit" >
+	            	<apex:outputLabel value="{!ahwl.ahBU}" />
+	            </apex:column> -->
+				<apex:column HeaderValue="Subject" >
+					<apex:outputLink target="_blank" value="/{!ahwl.ahID}" >{!ahwl.ahSubject}</apex:outputLink>     
+	            </apex:column> 
+	            <apex:column HeaderValue="Preview" >
+	            	<apex:outputLabel value="{!ahwl.ahPreview}" />
+	            </apex:column>
+	            <apex:column HeaderValue="Name" >
+	            	<apex:outputLink target="_blank" value="/{!ahwl.ahWhoId}" >{!ahwl.ahWhoName}</apex:outputLink> 
+	            </apex:column>
+	            <apex:column HeaderValue="Related To" >
+	            	<apex:outputLink target="_blank" value="/{!ahwl.ahWhatId}" >{!ahwl.ahWhatName}</apex:outputLink>
+	            </apex:column>
+	            <apex:column HeaderValue="Task" >
+	            	<apex:inputCheckbox value="{!ahwl.ahTask}" disabled="true" />
+	            </apex:column>
+	            <apex:column HeaderValue="Due Date" >
+	            	<apex:outputText value="{0, date, MM/d/YYYY}" >
+	            		<apex:param value="{!ahwl.ahDueDate}" />
+            		</apex:outputText>
+	            </apex:column>
+	            <apex:column HeaderValue="Assigned To" >
+	            	<apex:outputLink target="_blank" value="/{!ahwl.ahOwnerId}" >{!ahwl.ahOwnerName}</apex:outputLink>
+	            </apex:column>
+	            <apex:column HeaderValue="Last Modified Date/Time" >
+	            	<apex:outputLabel value="{!ahwl.ahModifiedDate}" />
+	            </apex:column>                             
+	   		</apex:pageBlockTable>
+	   		<apex:outputPanel id="panelShowMore"
+                        layout="block"
+                        styleClass="pShowMore"
+                        rendered="{!AllowShowMore}">
+
+                <apex:commandLink id="linkShowMore"
+                    action="{!showMore}"
+                    rerender="vAutoActivities">Show more »</apex:commandLink>
+
+                <span> | </span>
+
+                <apex:commandLink id="linkGotoList" action="{!gotoList}" target="_blank" value="Go to list »" />
+            </apex:outputPanel>
+	   		<apex:outputLabel value="No records to display" rendered="{!numOfHistoryRows = 0}" />
+	 	</apex:pageblock>
+	</apex:form>
+</apex:page>

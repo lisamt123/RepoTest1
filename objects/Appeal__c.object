@@ -1,0 +1,4152 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <actionOverrides>
+        <actionName>Accept</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>CancelEdit</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Clone</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Delete</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Edit</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Follow</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>List</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>New</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>SaveEdit</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Tab</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>View</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <allowInChatterGroups>false</allowInChatterGroups>
+    <compactLayoutAssignment>SYSTEM</compactLayoutAssignment>
+    <deploymentStatus>Deployed</deploymentStatus>
+    <description>This object is used when a dealership is credited, given free training, or both.</description>
+    <enableActivities>true</enableActivities>
+    <enableBulkApi>true</enableBulkApi>
+    <enableFeeds>true</enableFeeds>
+    <enableHistory>true</enableHistory>
+    <enableReports>true</enableReports>
+    <enableSearch>true</enableSearch>
+    <enableSharing>true</enableSharing>
+    <enableStreamingApi>true</enableStreamingApi>
+    <fields>
+        <fullName>AG__c</fullName>
+        <externalId>false</externalId>
+        <label>AG?</label>
+        <picklist>
+            <picklistValues>
+                <fullName>Yes</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>No</fullName>
+                <default>false</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Picklist</type>
+    </fields>
+    <fields>
+        <fullName>Account_Current__c</fullName>
+        <externalId>false</externalId>
+        <label>Account Current?</label>
+        <picklist>
+            <picklistValues>
+                <fullName>Yes</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>No</fullName>
+                <default>false</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Picklist</type>
+    </fields>
+    <fields>
+        <fullName>Account_Region__c</fullName>
+        <externalId>false</externalId>
+        <formula>Dealership_Name__r.Territory_Name__c</formula>
+        <inlineHelpText>formula field that reads the territory name from the account associated with the appeal</inlineHelpText>
+        <label>Account Region</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Account__c</fullName>
+        <externalId>false</externalId>
+        <formula>IF( RecordType.DeveloperName = &quot;vAuto&quot;,  Dealership_Name__r.vAuto_Account_Number__c ,  Dealership_Name__r.AccountNumber )</formula>
+        <label>Account #</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Activation_Date__c</fullName>
+        <externalId>false</externalId>
+        <label>Activation Date</label>
+        <required>false</required>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Date</type>
+    </fields>
+    <fields>
+        <fullName>Agreement__c</fullName>
+        <externalId>false</externalId>
+        <label>Agreement?</label>
+        <picklist>
+            <picklistValues>
+                <fullName>Yes</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>No</fullName>
+                <default>false</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Picklist</type>
+    </fields>
+    <fields>
+        <fullName>Amount_Approved__c</fullName>
+        <externalId>false</externalId>
+        <label>Amount Approved</label>
+        <required>false</required>
+        <trackFeedHistory>true</trackFeedHistory>
+        <trackHistory>true</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>TextArea</type>
+    </fields>
+    <fields>
+        <fullName>Amount_Requested_Credit__c</fullName>
+        <externalId>false</externalId>
+        <label>Appeal Amount</label>
+        <precision>10</precision>
+        <required>false</required>
+        <scale>2</scale>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Currency</type>
+    </fields>
+    <fields>
+        <fullName>Amount_Requested_Training__c</fullName>
+        <externalId>false</externalId>
+        <label>Amount of Training Requested</label>
+        <required>false</required>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>TextArea</type>
+    </fields>
+    <fields>
+        <fullName>Amount_of_Training_Days_Requested__c</fullName>
+        <externalId>false</externalId>
+        <inlineHelpText>Must be a whole number. Please put other details in the &apos;How was this evaluated?&apos; field.</inlineHelpText>
+        <label>Amount of Training Days Requested</label>
+        <precision>3</precision>
+        <required>false</required>
+        <scale>0</scale>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Number</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Appeal_Age__c</fullName>
+        <externalId>false</externalId>
+        <formula>IF( ISBLANK(Date_Approved__c ), Today()- Date_Submitted_for_Approval__c,  Date_Approved__c -Date_Submitted_for_Approval__c)</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <inlineHelpText>days waiting to be approved after it has been submitted</inlineHelpText>
+        <label>Days Waiting</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>0</scale>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Number</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Appeal_Name__c</fullName>
+        <externalId>false</externalId>
+        <formula>TEXT(Type_of_Credit__c) &amp;&quot;-&quot;&amp;  TEXT(Why_are_we_issuing_credit__c) &amp;&quot;-&quot;&amp;  Dealership_Name__r.Name</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>Appeal Name</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Appeal_Owner_id__c</fullName>
+        <externalId>false</externalId>
+        <formula>OwnerId</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>Appeal Owner id</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Appeal_Status__c</fullName>
+        <externalId>false</externalId>
+        <label>Appeal Status</label>
+        <picklist>
+            <picklistValues>
+                <fullName>New</fullName>
+                <default>true</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Working</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Pending Save Team Response</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Pending Approval</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Pending Completion</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Completed</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Churned</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Cancelled</fullName>
+                <default>false</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Picklist</type>
+    </fields>
+    <fields>
+        <fullName>Approval_Status__c</fullName>
+        <externalId>false</externalId>
+        <label>Approval Status</label>
+        <picklist>
+            <picklistValues>
+                <fullName>Not Submitted</fullName>
+                <default>true</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>In Progress</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Need More Info</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Rejected</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Pending Final Approval</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Approved</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Cancelled</fullName>
+                <default>false</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <trackFeedHistory>true</trackFeedHistory>
+        <trackHistory>true</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Picklist</type>
+    </fields>
+    <fields>
+        <fullName>Approval_Submitter_Email__c</fullName>
+        <externalId>false</externalId>
+        <label>Approval Submitter Email</label>
+        <required>false</required>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Email</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Approver_Notes__c</fullName>
+        <externalId>false</externalId>
+        <label>Approver Notes</label>
+        <length>32768</length>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>true</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>LongTextArea</type>
+        <visibleLines>4</visibleLines>
+    </fields>
+    <fields>
+        <fullName>Business_Unit__c</fullName>
+        <externalId>false</externalId>
+        <label>Business Unit</label>
+        <picklist>
+            <picklistValues>
+                <fullName>Haystak</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>vAuto</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>VinSolutions</fullName>
+                <default>false</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Picklist</type>
+    </fields>
+    <fields>
+        <fullName>Cancellation_Notes__c</fullName>
+        <externalId>false</externalId>
+        <label>Cancellation Notes</label>
+        <required>false</required>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>TextArea</type>
+    </fields>
+    <fields>
+        <fullName>Cancellation_Notification_Date__c</fullName>
+        <externalId>false</externalId>
+        <label>Cancellation Notification Date</label>
+        <required>false</required>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Date</type>
+    </fields>
+    <fields>
+        <fullName>Case_Number__c</fullName>
+        <deleteConstraint>SetNull</deleteConstraint>
+        <externalId>false</externalId>
+        <label>Case Number</label>
+        <referenceTo>Case</referenceTo>
+        <relationshipLabel>Appeals</relationshipLabel>
+        <relationshipName>Appeals</relationshipName>
+        <required>false</required>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Lookup</type>
+    </fields>
+    <fields>
+        <fullName>Churn_Controllable__c</fullName>
+        <externalId>false</externalId>
+        <label>Controllable Churn</label>
+        <precision>12</precision>
+        <required>false</required>
+        <scale>2</scale>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>true</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Currency</type>
+    </fields>
+    <fields>
+        <fullName>Churn_PM_Commission__c</fullName>
+        <externalId>false</externalId>
+        <label>PM Commission Churn</label>
+        <precision>12</precision>
+        <required>false</required>
+        <scale>2</scale>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>true</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Currency</type>
+    </fields>
+    <fields>
+        <fullName>Churn_Uncontrollable__c</fullName>
+        <externalId>false</externalId>
+        <label>Uncontrollable Churn</label>
+        <precision>12</precision>
+        <required>false</required>
+        <scale>2</scale>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>true</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Currency</type>
+    </fields>
+    <fields>
+        <fullName>Contact_Email__c</fullName>
+        <externalId>false</externalId>
+        <formula>Dealer_Contact_Name__r.Email</formula>
+        <inlineHelpText>formual field that reads the Dealership Contact Name&apos;s email address - used for email templates</inlineHelpText>
+        <label>Contact Email</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Contact_Work_Phone__c</fullName>
+        <externalId>false</externalId>
+        <formula>Dealer_Contact_Name__r.Phone</formula>
+        <inlineHelpText>formula field that reads the contact phone # - so it can be used for merge templates</inlineHelpText>
+        <label>Contact Work Phone</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Contract__c</fullName>
+        <externalId>false</externalId>
+        <label>Contract</label>
+        <picklist>
+            <picklistValues>
+                <fullName>No</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>6 Month</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>12 Month</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Month to Month</fullName>
+                <default>false</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Picklist</type>
+    </fields>
+    <fields>
+        <fullName>Credit_Applied__c</fullName>
+        <externalId>false</externalId>
+        <inlineHelpText>yes = a one time credit was applied to the account
+no= applies to a downgrade and did not have to issue credit</inlineHelpText>
+        <label>Credit Applied?</label>
+        <picklist>
+            <picklistValues>
+                <fullName>YES</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>NO</fullName>
+                <default>false</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Picklist</type>
+    </fields>
+    <fields>
+        <fullName>Credit_Note_Number__c</fullName>
+        <externalId>false</externalId>
+        <label>Credit Note Number</label>
+        <length>11</length>
+        <required>false</required>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Credit_Requested__c</fullName>
+        <externalId>false</externalId>
+        <label>Credit Requested?</label>
+        <picklist>
+            <picklistValues>
+                <fullName>YES</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>NO</fullName>
+                <default>false</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Picklist</type>
+    </fields>
+    <fields>
+        <fullName>Current_Account_Balance__c</fullName>
+        <externalId>false</externalId>
+        <label>Current Account Balance</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>2</scale>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Currency</type>
+    </fields>
+    <fields>
+        <fullName>Current_PM__c</fullName>
+        <deleteConstraint>SetNull</deleteConstraint>
+        <externalId>false</externalId>
+        <inlineHelpText>lookup the current PM assigned to this customer</inlineHelpText>
+        <label>vAuto PM</label>
+        <referenceTo>User</referenceTo>
+        <relationshipName>Appeals2</relationshipName>
+        <required>false</required>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Lookup</type>
+    </fields>
+    <fields>
+        <fullName>Date_Approved__c</fullName>
+        <description>Date the Appeal went through Final Approval</description>
+        <externalId>false</externalId>
+        <inlineHelpText>Date the Appeal went through Final Approval</inlineHelpText>
+        <label>Date Approved</label>
+        <required>false</required>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>true</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Date</type>
+    </fields>
+    <fields>
+        <fullName>Date_Credited__c</fullName>
+        <description>Date that credit is effective to monetary purposes.</description>
+        <externalId>false</externalId>
+        <inlineHelpText>Date that credit is effective to monetary purposes.</inlineHelpText>
+        <label>Effective Date</label>
+        <required>false</required>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Date</type>
+    </fields>
+    <fields>
+        <fullName>Date_Proposal_Sent__c</fullName>
+        <externalId>false</externalId>
+        <label>Date Proposal Sent</label>
+        <required>false</required>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Date</type>
+    </fields>
+    <fields>
+        <fullName>Date_Saved__c</fullName>
+        <externalId>false</externalId>
+        <label>Date Saved</label>
+        <required>false</required>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Date</type>
+    </fields>
+    <fields>
+        <fullName>Date_Submitted_for_Approval__c</fullName>
+        <externalId>false</externalId>
+        <inlineHelpText>updated by the approval process</inlineHelpText>
+        <label>Date Submitted for Approval</label>
+        <required>false</required>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Date</type>
+    </fields>
+    <fields>
+        <fullName>Date_of_Data_Extract_Handoff__c</fullName>
+        <externalId>false</externalId>
+        <label>Date of Data Extract Handoff</label>
+        <required>false</required>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Date</type>
+    </fields>
+    <fields>
+        <fullName>Days_on_System__c</fullName>
+        <externalId>false</externalId>
+        <formula>Cancellation_Notification_Date__c - Activation_Date__c</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <inlineHelpText>formula field that calculates the # of days from the cancellation notice date from the activation type</inlineHelpText>
+        <label>Days on System</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>0</scale>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Number</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Dealer_Contact_Name__c</fullName>
+        <deleteConstraint>Restrict</deleteConstraint>
+        <externalId>false</externalId>
+        <label>Dealer Contact Name</label>
+        <referenceTo>Contact</referenceTo>
+        <relationshipLabel>Appeals</relationshipLabel>
+        <relationshipName>Appeals</relationshipName>
+        <required>false</required>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Lookup</type>
+    </fields>
+    <fields>
+        <fullName>Dealership_Name__c</fullName>
+        <deleteConstraint>Restrict</deleteConstraint>
+        <externalId>false</externalId>
+        <label>Dealership Name</label>
+        <referenceTo>Account</referenceTo>
+        <relationshipLabel>Appeals</relationshipLabel>
+        <relationshipName>Appeals</relationshipName>
+        <required>false</required>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Lookup</type>
+    </fields>
+    <fields>
+        <fullName>Deposit_Amount__c</fullName>
+        <externalId>false</externalId>
+        <label>Deposit Amount</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>2</scale>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Currency</type>
+    </fields>
+    <fields>
+        <fullName>Deposit_Paid__c</fullName>
+        <externalId>false</externalId>
+        <label>Deposit Paid</label>
+        <picklist>
+            <picklistValues>
+                <fullName>Yes</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>No</fullName>
+                <default>false</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Picklist</type>
+    </fields>
+    <fields>
+        <fullName>Email_Trail__c</fullName>
+        <externalId>false</externalId>
+        <inlineHelpText>Copy-paste the previous email trail into this field, so it gets attached to the email that goes out.</inlineHelpText>
+        <label>Email Trail</label>
+        <length>131072</length>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Html</type>
+        <visibleLines>25</visibleLines>
+    </fields>
+    <fields>
+        <fullName>Exception__c</fullName>
+        <externalId>false</externalId>
+        <label>Exception</label>
+        <picklist>
+            <picklistValues>
+                <fullName>YES</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>NO</fullName>
+                <default>false</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Picklist</type>
+    </fields>
+    <fields>
+        <fullName>Final_Confirmation_Call_Complete__c</fullName>
+        <externalId>false</externalId>
+        <label>Final Confirmation Call Complete</label>
+        <required>false</required>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Date</type>
+    </fields>
+    <fields>
+        <fullName>Free_Training_Requested__c</fullName>
+        <externalId>false</externalId>
+        <label>Free Training Requested?</label>
+        <picklist>
+            <picklistValues>
+                <fullName>YES</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>NO</fullName>
+                <default>false</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>true</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Picklist</type>
+    </fields>
+    <fields>
+        <fullName>How_was_this_evaluated__c</fullName>
+        <externalId>false</externalId>
+        <label>Appeal Notes</label>
+        <length>32768</length>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>LongTextArea</type>
+        <visibleLines>5</visibleLines>
+    </fields>
+    <fields>
+        <fullName>Last_Solid_Engagement__c</fullName>
+        <externalId>false</externalId>
+        <formula>Related_POA__r.Last_Solid_Engagement__c</formula>
+        <inlineHelpText>formula field that reads the last solid engagement field contents from the related POA</inlineHelpText>
+        <label>Last Solid Engagement</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Date</type>
+    </fields>
+    <fields>
+        <fullName>Launch_Date__c</fullName>
+        <externalId>false</externalId>
+        <formula>Dealership_Name__r.Implementation_Date__c</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>Launch Date</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Date</type>
+    </fields>
+    <fields>
+        <fullName>Link_to_Appeal__c</fullName>
+        <externalId>false</externalId>
+        <formula>HYPERLINK(  Id  , &quot;Link to Appeal&quot;)</formula>
+        <label>Link to Appeal</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>MRR__c</fullName>
+        <externalId>false</externalId>
+        <formula>Dealership_Name__r.VinSolutions_Spend__c</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <inlineHelpText>Formula field that reads the Vin Billed Recurring Revenue field from the related Account</inlineHelpText>
+        <label>Vin MRR</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>2</scale>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Currency</type>
+    </fields>
+    <fields>
+        <fullName>Months_on_System__c</fullName>
+        <externalId>false</externalId>
+        <formula>Days_on_System__c /30</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <inlineHelpText>formula field that divides the days on system by 30</inlineHelpText>
+        <label>Months on System</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>2</scale>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Number</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>New_Provider__c</fullName>
+        <externalId>false</externalId>
+        <inlineHelpText>If this is for a cancellation, what is the new provider they are going to?</inlineHelpText>
+        <label>New Provider</label>
+        <length>128</length>
+        <required>false</required>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>New_Vendor__c</fullName>
+        <externalId>false</externalId>
+        <label>New Vendor</label>
+        <picklist>
+            <controllingField>Primary_Reason_for_Cancellation__c</controllingField>
+            <picklistValues>
+                <fullName>AAX</fullName>
+                <controllingFieldValues>Competive Product</controllingFieldValues>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>eCarlist</fullName>
+                <controllingFieldValues>Competive Product</controllingFieldValues>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Eleads</fullName>
+                <controllingFieldValues>Competive Product</controllingFieldValues>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>DealerTrack</fullName>
+                <controllingFieldValues>Competive Product</controllingFieldValues>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>First Look</fullName>
+                <controllingFieldValues>Competive Product</controllingFieldValues>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Red Bumper</fullName>
+                <controllingFieldValues>Competive Product</controllingFieldValues>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>VinSolutions</fullName>
+                <controllingFieldValues>Competive Product</controllingFieldValues>
+                <default>false</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Picklist</type>
+    </fields>
+    <fields>
+        <fullName>Opportunity__c</fullName>
+        <deleteConstraint>SetNull</deleteConstraint>
+        <externalId>false</externalId>
+        <label>Related Opportunity</label>
+        <referenceTo>Opportunity</referenceTo>
+        <relationshipLabel>Appeals</relationshipLabel>
+        <relationshipName>Appeals</relationshipName>
+        <required>false</required>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Lookup</type>
+    </fields>
+    <fields>
+        <fullName>Originating_Salesperson__c</fullName>
+        <deleteConstraint>SetNull</deleteConstraint>
+        <externalId>false</externalId>
+        <inlineHelpText>lookup the user that was the originating salesperson of the product sold</inlineHelpText>
+        <label>Originating Salesperson</label>
+        <referenceTo>User</referenceTo>
+        <relationshipName>Appeals1</relationshipName>
+        <required>false</required>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Lookup</type>
+    </fields>
+    <fields>
+        <fullName>Owner_Email__c</fullName>
+        <externalId>false</externalId>
+        <formula>Owner:User.Outlook_Email__c</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>Owner Email</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Owner_Manager__c</fullName>
+        <externalId>false</externalId>
+        <formula>Owner:User.Reports_To__c</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>Owner Manager</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Owner_Name__c</fullName>
+        <externalId>false</externalId>
+        <formula>Owner:User.Outlook_Name__c</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>Owner Name</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Owner_Role__c</fullName>
+        <externalId>false</externalId>
+        <formula>Owner:User.UserRole.Name</formula>
+        <label>Owner Role</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>PM__c</fullName>
+        <externalId>false</externalId>
+        <formula>Dealership_Name__r.Account_Manager__c</formula>
+        <inlineHelpText>formula field that looks up the PM from the account</inlineHelpText>
+        <label>PM</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>POA_Type__c</fullName>
+        <externalId>false</externalId>
+        <formula>TEXT(Related_POA__r.POA_Subtype__c)</formula>
+        <label>POA Type</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Parent_Account__c</fullName>
+        <externalId>false</externalId>
+        <formula>Dealership_Name__r.Parent.Name</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>Parent Account</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Pending_Approval_By__c</fullName>
+        <externalId>false</externalId>
+        <inlineHelpText>updated by the approval process to show who the approval process is waiting on</inlineHelpText>
+        <label>Pending Approval By</label>
+        <length>100</length>
+        <required>false</required>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>true</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Pieces_Generated__c</fullName>
+        <defaultValue>false</defaultValue>
+        <description>Hidden field updated by Flow that generates Appeal Pieces. When Flow finishes, this is checked. Used in reporting and workflow.</description>
+        <externalId>false</externalId>
+        <inlineHelpText>Hidden field updated by Flow that generates Appeal Pieces. When Flow finishes, this is checked. Used in reporting and workflow.</inlineHelpText>
+        <label>Pieces Generated</label>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>Primary_Driver__c</fullName>
+        <externalId>false</externalId>
+        <label>Primary Driver</label>
+        <picklist>
+            <picklistValues>
+                <fullName>Not Applicable</fullName>
+                <default>true</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Website</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Desking</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>CRM</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>AIS</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Campaigns</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>MPT/Books</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Call Tracking/PBX</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Service CRM</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Reporting</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Other</fullName>
+                <default>false</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Picklist</type>
+    </fields>
+    <fields>
+        <fullName>Primary_Reason_for_Cancellation__c</fullName>
+        <externalId>false</externalId>
+        <label>Primary Reason for Cancellation</label>
+        <picklist>
+            <picklistValues>
+                <fullName>Brand Compliancy/OEM Issues</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Change in Mgmt./Mgmt. Preference</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Cutting Expenses/Billing Redundancy   </fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Data Import Accuracy</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Data Import Turnaround from 3rd Party</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Data Import Turnaround - Internal</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Dealership Closed/Sold </fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Functionality Sold Did Not Meet Specific Needs</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>General System Issues - Downtime</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Improper Resolution</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Insufficient Features</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Lack of Available Trainers</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Lack of Communication </fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Lack of Knowledgeable Representative</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Lack of New Features</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Lack of Training</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Lack of Utilization</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Modification to Billing </fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>No Contact - Dealer Unresponsive </fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Non-Payment/Forced Cancellation </fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Resolution Timeline</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>System Performance Issues</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Too Expensive/Lower Competitive Rate </fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Buy/Sell</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Competive Product</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Expense Reduction</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Failure to Demo Value</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Service Support</fullName>
+                <default>false</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Picklist</type>
+    </fields>
+    <fields>
+        <fullName>Product_to_be_Cancelled__c</fullName>
+        <externalId>false</externalId>
+        <label>Product to be Cancelled</label>
+        <picklist>
+            <picklistValues>
+                <fullName>Provision</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Conquest</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Auction Genius</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>KBB</fullName>
+                <default>false</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Picklist</type>
+    </fields>
+    <fields>
+        <fullName>Products_Canceled__c</fullName>
+        <externalId>false</externalId>
+        <inlineHelpText>Temporary field used until Product Adjustment is ready.</inlineHelpText>
+        <label>Products Canceled</label>
+        <length>32768</length>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>LongTextArea</type>
+        <visibleLines>3</visibleLines>
+    </fields>
+    <fields>
+        <fullName>Recurring_Lost__c</fullName>
+        <externalId>false</externalId>
+        <label>Recurring Lost</label>
+        <precision>12</precision>
+        <required>false</required>
+        <scale>2</scale>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Currency</type>
+    </fields>
+    <fields>
+        <fullName>Related_Contract__c</fullName>
+        <deleteConstraint>SetNull</deleteConstraint>
+        <externalId>false</externalId>
+        <label>Related Contract</label>
+        <referenceTo>Contract</referenceTo>
+        <relationshipLabel>Appeals</relationshipLabel>
+        <relationshipName>Appeals</relationshipName>
+        <required>false</required>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Lookup</type>
+    </fields>
+    <fields>
+        <fullName>Related_POA__c</fullName>
+        <deleteConstraint>SetNull</deleteConstraint>
+        <externalId>false</externalId>
+        <label>Related POA</label>
+        <referenceTo>POA__c</referenceTo>
+        <relationshipLabel>Appeals</relationshipLabel>
+        <relationshipName>Appeals</relationshipName>
+        <required>false</required>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Lookup</type>
+    </fields>
+    <fields>
+        <fullName>Requested_By__c</fullName>
+        <deleteConstraint>SetNull</deleteConstraint>
+        <externalId>false</externalId>
+        <label>Requested By</label>
+        <referenceTo>User</referenceTo>
+        <relationshipName>Appeals</relationshipName>
+        <required>false</required>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Lookup</type>
+    </fields>
+    <fields>
+        <fullName>Reviewed__c</fullName>
+        <defaultValue>false</defaultValue>
+        <externalId>false</externalId>
+        <inlineHelpText>temp field used to audit appeals by maggie, will delete when completed</inlineHelpText>
+        <label>Reviewed</label>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>Sale_Date__c</fullName>
+        <externalId>false</externalId>
+        <label>Sale Date</label>
+        <required>false</required>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Date</type>
+    </fields>
+    <fields>
+        <fullName>Save_Revenue_Dollars__c</fullName>
+        <externalId>false</externalId>
+        <label>Save Revenue Dollars</label>
+        <precision>12</precision>
+        <required>false</required>
+        <scale>2</scale>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Currency</type>
+    </fields>
+    <fields>
+        <fullName>Secondary_Driver__c</fullName>
+        <externalId>false</externalId>
+        <label>Secondary Driver</label>
+        <picklist>
+            <picklistValues>
+                <fullName>Not Applicable</fullName>
+                <default>true</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Support</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Availability</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Cost</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Feature/Functionality</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>System Stability</fullName>
+                <default>false</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Picklist</type>
+    </fields>
+    <fields>
+        <fullName>Secondary_Reason_for_Cancellation__c</fullName>
+        <externalId>false</externalId>
+        <inlineHelpText>For use when there is more than one reason for cancellation.</inlineHelpText>
+        <label>Secondary Reason for Cancellation</label>
+        <picklist>
+            <picklistValues>
+                <fullName>Brand Compliancy/OEM Issues</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Change in Mgmt./Mgmt. Preference</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Cutting Expenses/Billing Redundancy   </fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Data Import Accuracy</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Data Import Turnaround from 3rd Party</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Data Import Turnaround - Internal</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Dealership Closed/Sold </fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Functionality Sold Did Not Meet Specific Needs</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>General System Issues - Downtime</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Improper Resolution</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Insufficient Features</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Lack of Available Trainers</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Lack of Communication </fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Lack of Knowledgeable Representative</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Lack of New Features</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Lack of Training</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Lack of Utilization</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Modification to Billing </fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>No Contact - Dealer Unresponsive </fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Non-Payment/Forced Cancellation </fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Resolution Timeline</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>System Performance Issues</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Too Expensive/Lower Competitive Rate </fullName>
+                <default>false</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Picklist</type>
+    </fields>
+    <fields>
+        <fullName>Send_Cancellation_Email_wDep__c</fullName>
+        <defaultValue>false</defaultValue>
+        <externalId>false</externalId>
+        <inlineHelpText>check this box to send the cancellation notice with Deposit info to the cancel team</inlineHelpText>
+        <label>Send Cancellation Email (w/Dep)</label>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>Send_Cancellation_Email_w_o_Dep__c</fullName>
+        <defaultValue>false</defaultValue>
+        <externalId>false</externalId>
+        <inlineHelpText>check this box to send the cancellation notice w/o the deposit info (made just for Jill Tyson)</inlineHelpText>
+        <label>Send Cancellation Email (w/o Dep)</label>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>TFS_ID__c</fullName>
+        <externalId>false</externalId>
+        <label>TFS ID</label>
+        <length>100</length>
+        <required>false</required>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Time_on_System__c</fullName>
+        <externalId>false</externalId>
+        <formula>(Date_Credited__c -  Dealership_Name__r.Implementation_Date__c )/30</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <inlineHelpText>formula field that calculates the time the customer was on the system.  CX Effective Date less Inplementation Date (from Account)</inlineHelpText>
+        <label># Months on System</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>0</scale>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Number</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Type_of_Credit__c</fullName>
+        <externalId>false</externalId>
+        <label>Appeal Type</label>
+        <picklist>
+            <picklistValues>
+                <fullName>Lost Business</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Credit</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Canceled Sale (Failure to Launch)</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Saved</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Debit</fullName>
+                <default>false</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>true</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Picklist</type>
+    </fields>
+    <fields>
+        <fullName>ValidationRules__c</fullName>
+        <defaultValue>false</defaultValue>
+        <externalId>false</externalId>
+        <label>ValidationRules</label>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>WAM__c</fullName>
+        <externalId>false</externalId>
+        <formula>Dealership_Name__r.Website_AM__c</formula>
+        <inlineHelpText>formula field that reads the WAM from the Account</inlineHelpText>
+        <label>WAM</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Why_are_we_issuing_credit__c</fullName>
+        <externalId>false</externalId>
+        <inlineHelpText>Cancellation - canceling all products. 
+Downgrade - canceling some products. 
+Contract Adj - monthly bill reduced with no product changes. 
+Product Swaps should use a Downgrade Appeal to remove old product, and an Opportunity to create new product.</inlineHelpText>
+        <label>Appeal Category</label>
+        <picklist>
+            <controllingField>Type_of_Credit__c</controllingField>
+            <picklistValues>
+                <fullName>Applied 30-day Deposit</fullName>
+                <controllingFieldValues>Credit</controllingFieldValues>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Applied Conquest Deposit</fullName>
+                <controllingFieldValues>Credit</controllingFieldValues>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Bad Debt</fullName>
+                <controllingFieldValues>Credit</controllingFieldValues>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Billing Issue</fullName>
+                <controllingFieldValues>Credit</controllingFieldValues>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Cancellation</fullName>
+                <controllingFieldValues>Canceled Sale (Failure to Launch)</controllingFieldValues>
+                <controllingFieldValues>Lost Business</controllingFieldValues>
+                <controllingFieldValues>Saved</controllingFieldValues>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Cancellation Concession</fullName>
+                <controllingFieldValues>Credit</controllingFieldValues>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Cancellation Delay</fullName>
+                <controllingFieldValues>Credit</controllingFieldValues>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Contract Adjustment</fullName>
+                <controllingFieldValues>Lost Business</controllingFieldValues>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Contract Buy-Out</fullName>
+                <controllingFieldValues>Credit</controllingFieldValues>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Contract Entry Error</fullName>
+                <controllingFieldValues>Credit</controllingFieldValues>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Credit/Refund of Deposit</fullName>
+                <controllingFieldValues>Credit</controllingFieldValues>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Data Issues</fullName>
+                <controllingFieldValues>Credit</controllingFieldValues>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Downgrade</fullName>
+                <controllingFieldValues>Canceled Sale (Failure to Launch)</controllingFieldValues>
+                <controllingFieldValues>Lost Business</controllingFieldValues>
+                <controllingFieldValues>Saved</controllingFieldValues>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>False Start</fullName>
+                <controllingFieldValues>Credit</controllingFieldValues>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Goodwill</fullName>
+                <controllingFieldValues>Credit</controllingFieldValues>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Late Downgrade</fullName>
+                <controllingFieldValues>Credit</controllingFieldValues>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Marketing Campaign</fullName>
+                <controllingFieldValues>Credit</controllingFieldValues>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Negotiated discount</fullName>
+                <controllingFieldValues>Credit</controllingFieldValues>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>One-Time Debit</fullName>
+                <controllingFieldValues>Credit</controllingFieldValues>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Performance</fullName>
+                <controllingFieldValues>Credit</controllingFieldValues>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Price Reduction Credit</fullName>
+                <controllingFieldValues>Credit</controllingFieldValues>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Rebilled</fullName>
+                <controllingFieldValues>Credit</controllingFieldValues>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Referral</fullName>
+                <controllingFieldValues>Credit</controllingFieldValues>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Referral Fee Credit</fullName>
+                <controllingFieldValues>Credit</controllingFieldValues>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Refund</fullName>
+                <controllingFieldValues>Credit</controllingFieldValues>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Refund (other)</fullName>
+                <controllingFieldValues>Credit</controllingFieldValues>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Refund of Setup</fullName>
+                <controllingFieldValues>Credit</controllingFieldValues>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Sales</fullName>
+                <controllingFieldValues>Credit</controllingFieldValues>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Sales Tax Credit</fullName>
+                <controllingFieldValues>Credit</controllingFieldValues>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Save/Retention</fullName>
+                <controllingFieldValues>Credit</controllingFieldValues>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Training Error</fullName>
+                <controllingFieldValues>Credit</controllingFieldValues>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>V2V Buy/Sell</fullName>
+                <controllingFieldValues>Lost Business</controllingFieldValues>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Waive Conquest Deposit</fullName>
+                <controllingFieldValues>Credit</controllingFieldValues>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Waive Deposit</fullName>
+                <controllingFieldValues>Credit</controllingFieldValues>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Websites</fullName>
+                <controllingFieldValues>Credit</controllingFieldValues>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Write Off</fullName>
+                <controllingFieldValues>Credit</controllingFieldValues>
+                <default>false</default>
+            </picklistValues>
+            <sorted>true</sorted>
+        </picklist>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>true</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Picklist</type>
+    </fields>
+    <label>Appeal</label>
+    <listViews>
+        <fullName>All_Appeals</fullName>
+        <booleanFilter>1 AND 2 AND 3 AND 4 AND 5 AND 6</booleanFilter>
+        <columns>Parent_Account__c</columns>
+        <columns>Opportunity__c</columns>
+        <columns>Dealership_Name__c</columns>
+        <columns>Amount_Requested_Credit__c</columns>
+        <columns>Account__c</columns>
+        <columns>NAME</columns>
+        <columns>Why_are_we_issuing_credit__c</columns>
+        <columns>Type_of_Credit__c</columns>
+        <columns>Pending_Approval_By__c</columns>
+        <columns>CREATEDBY_USER</columns>
+        <columns>Date_Credited__c</columns>
+        <columns>Primary_Driver__c</columns>
+        <filterScope>Everything</filterScope>
+        <filters>
+            <field>Date_Credited__c</field>
+            <operation>greaterOrEqual</operation>
+            <value>4/1/2016</value>
+        </filters>
+        <filters>
+            <field>Date_Credited__c</field>
+            <operation>lessOrEqual</operation>
+            <value>4/30/2016</value>
+        </filters>
+        <filters>
+            <field>Approval_Status__c</field>
+            <operation>equals</operation>
+            <value>Approved</value>
+        </filters>
+        <filters>
+            <field>RECORDTYPE</field>
+            <operation>notEqual</operation>
+            <value>Appeal__c.vAuto,Appeal__c.vAuto_Adjustment</value>
+        </filters>
+        <filters>
+            <field>Free_Training_Requested__c</field>
+            <operation>notEqual</operation>
+            <value>YES</value>
+        </filters>
+        <filters>
+            <field>Type_of_Credit__c</field>
+            <operation>equals</operation>
+            <value>Canceled Sale (Failure to Launch)</value>
+        </filters>
+        <label>All Appeals</label>
+        <language>en_US</language>
+    </listViews>
+    <listViews>
+        <fullName>Appeals_Beachner</fullName>
+        <columns>OWNER.LAST_NAME</columns>
+        <columns>CREATED_DATE</columns>
+        <columns>NAME</columns>
+        <columns>Parent_Account__c</columns>
+        <columns>Dealership_Name__c</columns>
+        <columns>Why_are_we_issuing_credit__c</columns>
+        <columns>Type_of_Credit__c</columns>
+        <columns>Products_Canceled__c</columns>
+        <columns>Date_Approved__c</columns>
+        <columns>Approval_Status__c</columns>
+        <columns>Amount_Approved__c</columns>
+        <columns>How_was_this_evaluated__c</columns>
+        <filterScope>Everything</filterScope>
+        <filters>
+            <field>OWNER.LAST_NAME</field>
+            <operation>equals</operation>
+            <value>beachner</value>
+        </filters>
+        <label>Appeals - Beachner</label>
+        <sharedTo>
+            <allInternalUsers></allInternalUsers>
+        </sharedTo>
+    </listViews>
+    <listViews>
+        <fullName>Appeals_Briggs</fullName>
+        <columns>OWNER.LAST_NAME</columns>
+        <columns>NAME</columns>
+        <columns>Parent_Account__c</columns>
+        <columns>Why_are_we_issuing_credit__c</columns>
+        <columns>Type_of_Credit__c</columns>
+        <columns>Products_Canceled__c</columns>
+        <columns>Date_Approved__c</columns>
+        <columns>Amount_Approved__c</columns>
+        <columns>Approval_Status__c</columns>
+        <columns>How_was_this_evaluated__c</columns>
+        <filterScope>Everything</filterScope>
+        <filters>
+            <field>OWNER.LAST_NAME</field>
+            <operation>equals</operation>
+            <value>Briggs</value>
+        </filters>
+        <label>Appeals - Briggs</label>
+        <sharedTo>
+            <allInternalUsers></allInternalUsers>
+        </sharedTo>
+    </listViews>
+    <listViews>
+        <fullName>Appeals_Hoppe</fullName>
+        <columns>OWNER.LAST_NAME</columns>
+        <columns>NAME</columns>
+        <columns>Parent_Account__c</columns>
+        <columns>Why_are_we_issuing_credit__c</columns>
+        <columns>Type_of_Credit__c</columns>
+        <columns>Products_Canceled__c</columns>
+        <columns>Date_Approved__c</columns>
+        <columns>Amount_Approved__c</columns>
+        <columns>Approval_Status__c</columns>
+        <columns>How_was_this_evaluated__c</columns>
+        <filterScope>Everything</filterScope>
+        <filters>
+            <field>OWNER.LAST_NAME</field>
+            <operation>equals</operation>
+            <value>hoppe</value>
+        </filters>
+        <label>Appeals - Hoppe</label>
+        <sharedTo>
+            <allInternalUsers></allInternalUsers>
+        </sharedTo>
+    </listViews>
+    <listViews>
+        <fullName>Approved_Applied</fullName>
+        <columns>CREATED_DATE</columns>
+        <columns>NAME</columns>
+        <columns>Account__c</columns>
+        <columns>Dealership_Name__c</columns>
+        <columns>MRR__c</columns>
+        <columns>Dealer_Contact_Name__c</columns>
+        <columns>Approval_Status__c</columns>
+        <columns>Amount_Requested_Credit__c</columns>
+        <columns>Type_of_Credit__c</columns>
+        <columns>Why_are_we_issuing_credit__c</columns>
+        <columns>Date_Credited__c</columns>
+        <columns>Credit_Note_Number__c</columns>
+        <columns>LAST_UPDATE</columns>
+        <columns>UPDATEDBY_USER</columns>
+        <filterScope>Everything</filterScope>
+        <filters>
+            <field>Approval_Status__c</field>
+            <operation>equals</operation>
+            <value>Approved</value>
+        </filters>
+        <filters>
+            <field>Credit_Applied__c</field>
+            <operation>equals</operation>
+            <value>YES</value>
+        </filters>
+        <filters>
+            <field>Credit_Requested__c</field>
+            <operation>equals</operation>
+            <value>YES</value>
+        </filters>
+        <filters>
+            <field>Date_Credited__c</field>
+            <operation>greaterThan</operation>
+            <value>1/1/2014</value>
+        </filters>
+        <filters>
+            <field>Date_Credited__c</field>
+            <operation>lessThan</operation>
+            <value>1/31/2014</value>
+        </filters>
+        <label>Approved - Credit Applied</label>
+    </listViews>
+    <listViews>
+        <fullName>Approved_Not_Applied</fullName>
+        <columns>CREATED_DATE</columns>
+        <columns>NAME</columns>
+        <columns>Account__c</columns>
+        <columns>Dealership_Name__c</columns>
+        <columns>Parent_Account__c</columns>
+        <columns>MRR__c</columns>
+        <columns>Dealer_Contact_Name__c</columns>
+        <columns>Approval_Status__c</columns>
+        <columns>Amount_Requested_Credit__c</columns>
+        <columns>Type_of_Credit__c</columns>
+        <filterScope>Everything</filterScope>
+        <filters>
+            <field>Approval_Status__c</field>
+            <operation>equals</operation>
+            <value>Approved</value>
+        </filters>
+        <filters>
+            <field>Credit_Applied__c</field>
+            <operation>equals</operation>
+            <value>NO</value>
+        </filters>
+        <filters>
+            <field>Credit_Requested__c</field>
+            <operation>equals</operation>
+            <value>YES</value>
+        </filters>
+        <label>Approved - Credit Not Applied</label>
+    </listViews>
+    <listViews>
+        <fullName>Cancellation_Appeals</fullName>
+        <columns>CREATED_DATE</columns>
+        <columns>NAME</columns>
+        <columns>Related_POA__c</columns>
+        <columns>Approval_Status__c</columns>
+        <columns>Type_of_Credit__c</columns>
+        <columns>Why_are_we_issuing_credit__c</columns>
+        <columns>Amount_Requested_Credit__c</columns>
+        <columns>Date_Credited__c</columns>
+        <columns>Primary_Reason_for_Cancellation__c</columns>
+        <columns>Date_Saved__c</columns>
+        <filterScope>Everything</filterScope>
+        <filters>
+            <field>CREATED_DATE</field>
+            <operation>equals</operation>
+            <value>THIS_YEAR</value>
+        </filters>
+        <filters>
+            <field>Why_are_we_issuing_credit__c</field>
+            <operation>equals</operation>
+            <value>Cancellation</value>
+        </filters>
+        <filters>
+            <field>Type_of_Credit__c</field>
+            <operation>equals</operation>
+            <value>Lost Business</value>
+        </filters>
+        <label>Cancellation Appeals</label>
+    </listViews>
+    <listViews>
+        <fullName>Cancellation_Appeals1</fullName>
+        <columns>CREATED_DATE</columns>
+        <columns>NAME</columns>
+        <columns>Account__c</columns>
+        <columns>Dealership_Name__c</columns>
+        <columns>Approval_Status__c</columns>
+        <columns>Credit_Applied__c</columns>
+        <columns>Type_of_Credit__c</columns>
+        <columns>Why_are_we_issuing_credit__c</columns>
+        <columns>Date_Credited__c</columns>
+        <columns>UPDATEDBY_USER</columns>
+        <columns>LAST_UPDATE</columns>
+        <columns>LAST_ACTIVITY</columns>
+        <columns>Amount_Requested_Credit__c</columns>
+        <columns>Date_Approved__c</columns>
+        <filterScope>Everything</filterScope>
+        <filters>
+            <field>Date_Credited__c</field>
+            <operation>greaterOrEqual</operation>
+            <value>1/1/2014</value>
+        </filters>
+        <filters>
+            <field>Date_Credited__c</field>
+            <operation>lessOrEqual</operation>
+            <value>2/28/2014</value>
+        </filters>
+        <filters>
+            <field>Type_of_Credit__c</field>
+            <operation>equals</operation>
+            <value>Lost Business</value>
+        </filters>
+        <label>Cancellation Appeals</label>
+    </listViews>
+    <listViews>
+        <fullName>Cancellation_Appeals2</fullName>
+        <columns>CREATED_DATE</columns>
+        <columns>NAME</columns>
+        <columns>Account__c</columns>
+        <columns>Dealership_Name__c</columns>
+        <columns>Approval_Status__c</columns>
+        <columns>Credit_Applied__c</columns>
+        <columns>Type_of_Credit__c</columns>
+        <columns>Why_are_we_issuing_credit__c</columns>
+        <columns>Date_Credited__c</columns>
+        <columns>UPDATEDBY_USER</columns>
+        <columns>LAST_UPDATE</columns>
+        <columns>LAST_ACTIVITY</columns>
+        <columns>Amount_Requested_Credit__c</columns>
+        <columns>Date_Approved__c</columns>
+        <filterScope>Everything</filterScope>
+        <filters>
+            <field>Date_Credited__c</field>
+            <operation>greaterOrEqual</operation>
+            <value>1/1/2014</value>
+        </filters>
+        <filters>
+            <field>Date_Credited__c</field>
+            <operation>lessOrEqual</operation>
+            <value>2/1/2014</value>
+        </filters>
+        <filters>
+            <field>Type_of_Credit__c</field>
+            <operation>equals</operation>
+            <value>Lost Business</value>
+        </filters>
+        <filters>
+            <field>Approval_Status__c</field>
+            <operation>equals</operation>
+            <value>Not Submitted,In Progress,Approved</value>
+        </filters>
+        <label>Cancellation Appeals</label>
+    </listViews>
+    <listViews>
+        <fullName>FTL_Appeals</fullName>
+        <columns>Type_of_Credit__c</columns>
+        <columns>CREATED_DATE</columns>
+        <columns>NAME</columns>
+        <columns>Account__c</columns>
+        <columns>Dealership_Name__c</columns>
+        <columns>Parent_Account__c</columns>
+        <columns>MRR__c</columns>
+        <columns>Dealer_Contact_Name__c</columns>
+        <columns>Approval_Status__c</columns>
+        <columns>Amount_Requested_Credit__c</columns>
+        <columns>Credit_Applied__c</columns>
+        <columns>Date_Credited__c</columns>
+        <filterScope>Everything</filterScope>
+        <filters>
+            <field>Type_of_Credit__c</field>
+            <operation>equals</operation>
+            <value>FTL Recurring,FTL One-Time</value>
+        </filters>
+        <label>FTL Appeals</label>
+    </listViews>
+    <listViews>
+        <fullName>In_Progress</fullName>
+        <columns>CREATED_DATE</columns>
+        <columns>NAME</columns>
+        <columns>Account__c</columns>
+        <columns>Dealership_Name__c</columns>
+        <columns>Approval_Status__c</columns>
+        <columns>Type_of_Credit__c</columns>
+        <columns>Date_Credited__c</columns>
+        <columns>Credit_Note_Number__c</columns>
+        <columns>UPDATEDBY_USER.ALIAS</columns>
+        <filterScope>Everything</filterScope>
+        <filters>
+            <field>Approval_Status__c</field>
+            <operation>equals</operation>
+            <value>In Progress</value>
+        </filters>
+        <filters>
+            <field>Date_Credited__c</field>
+            <operation>greaterOrEqual</operation>
+            <value>8/25/2013</value>
+        </filters>
+        <label>Submitted - In Progress</label>
+    </listViews>
+    <listViews>
+        <fullName>Mark_test</fullName>
+        <columns>NAME</columns>
+        <columns>Amount_Requested_Training__c</columns>
+        <columns>Amount_of_Training_Days_Requested__c</columns>
+        <columns>How_was_this_evaluated__c</columns>
+        <filterScope>Everything</filterScope>
+        <filters>
+            <field>Amount_Requested_Training__c</field>
+            <operation>notEqual</operation>
+        </filters>
+        <label>Mark test</label>
+    </listViews>
+    <listViews>
+        <fullName>My_Appeals</fullName>
+        <columns>NAME</columns>
+        <columns>Account__c</columns>
+        <columns>Amount_Requested_Credit__c</columns>
+        <columns>Why_are_we_issuing_credit__c</columns>
+        <columns>Type_of_Credit__c</columns>
+        <filterScope>Mine</filterScope>
+        <filters>
+            <field>CREATED_DATE</field>
+            <operation>equals</operation>
+            <value>THIS_YEAR</value>
+        </filters>
+        <label>My Appeals</label>
+    </listViews>
+    <listViews>
+        <fullName>Submitted_Rejected</fullName>
+        <columns>CREATED_DATE</columns>
+        <columns>NAME</columns>
+        <columns>Account__c</columns>
+        <columns>Dealership_Name__c</columns>
+        <columns>Parent_Account__c</columns>
+        <columns>MRR__c</columns>
+        <columns>Dealer_Contact_Name__c</columns>
+        <columns>Approval_Status__c</columns>
+        <columns>Amount_Requested_Credit__c</columns>
+        <columns>Type_of_Credit__c</columns>
+        <columns>Date_Credited__c</columns>
+        <columns>Credit_Note_Number__c</columns>
+        <columns>Requested_By__c</columns>
+        <filterScope>Everything</filterScope>
+        <filters>
+            <field>Approval_Status__c</field>
+            <operation>equals</operation>
+            <value>Rejected</value>
+        </filters>
+        <label>Submitted - Rejected</label>
+    </listViews>
+    <listViews>
+        <fullName>find</fullName>
+        <columns>CREATED_DATE</columns>
+        <columns>CREATEDBY_USER</columns>
+        <columns>NAME</columns>
+        <columns>Requested_By__c</columns>
+        <columns>MRR__c</columns>
+        <columns>Approval_Status__c</columns>
+        <columns>Amount_Requested_Credit__c</columns>
+        <columns>Type_of_Credit__c</columns>
+        <columns>Why_are_we_issuing_credit__c</columns>
+        <columns>Primary_Reason_for_Cancellation__c</columns>
+        <columns>Date_Credited__c</columns>
+        <filterScope>Everything</filterScope>
+        <filters>
+            <field>CREATED_DATE</field>
+            <operation>equals</operation>
+            <value>LAST_N_DAYS:30</value>
+        </filters>
+        <label>find</label>
+    </listViews>
+    <listViews>
+        <fullName>vAuto_Appeals</fullName>
+        <columns>NAME</columns>
+        <columns>Dealership_Name__c</columns>
+        <columns>Cancellation_Notification_Date__c</columns>
+        <columns>Date_Credited__c</columns>
+        <columns>Appeal_Status__c</columns>
+        <columns>Amount_Requested_Credit__c</columns>
+        <columns>Why_are_we_issuing_credit__c</columns>
+        <columns>OWNER.FIRST_NAME</columns>
+        <columns>OWNER.LAST_NAME</columns>
+        <filterScope>Everything</filterScope>
+        <filters>
+            <field>RECORDTYPE</field>
+            <operation>equals</operation>
+            <value>Appeal__c.vAuto</value>
+        </filters>
+        <label>vAuto Appeals</label>
+    </listViews>
+    <nameField>
+        <displayFormat>APP-{000000}</displayFormat>
+        <label>Appeal Number</label>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <type>AutoNumber</type>
+    </nameField>
+    <pluralLabel>Appeals</pluralLabel>
+    <recordTypeTrackFeedHistory>false</recordTypeTrackFeedHistory>
+    <recordTypeTrackHistory>false</recordTypeTrackHistory>
+    <recordTypes>
+        <fullName>Master</fullName>
+        <active>true</active>
+        <label>Master</label>
+        <picklistValues>
+            <picklist>AG__c</picklist>
+            <values>
+                <fullName>No</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Yes</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Account_Current__c</picklist>
+            <values>
+                <fullName>No</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Yes</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Agreement__c</picklist>
+            <values>
+                <fullName>No</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Yes</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Appeal_Status__c</picklist>
+            <values>
+                <fullName>Cancelled</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Churned</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>New</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Pending Approval</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Working</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Approval_Status__c</picklist>
+            <values>
+                <fullName>Approved</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Cancelled</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>In Progress</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Need More Info</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Not Submitted</fullName>
+                <default>true</default>
+            </values>
+            <values>
+                <fullName>Pending Final Approval</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Rejected</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Business_Unit__c</picklist>
+            <values>
+                <fullName>Haystak</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>VinSolutions</fullName>
+                <default>true</default>
+            </values>
+            <values>
+                <fullName>vAuto</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Contract__c</picklist>
+            <values>
+                <fullName>12 Month</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>6 Month</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>No</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Credit_Applied__c</picklist>
+            <values>
+                <fullName>NO</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>YES</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Credit_Requested__c</picklist>
+            <values>
+                <fullName>NO</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>YES</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Deposit_Paid__c</picklist>
+            <values>
+                <fullName>No</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Yes</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Exception__c</picklist>
+            <values>
+                <fullName>NO</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>YES</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Free_Training_Requested__c</picklist>
+            <values>
+                <fullName>NO</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>YES</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>New_Vendor__c</picklist>
+            <values>
+                <fullName>AAX</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>DealerTrack</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Eleads</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>First Look</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Red Bumper</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>VinSolutions</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>eCarlist</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Primary_Driver__c</picklist>
+            <values>
+                <fullName>AIS</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>CRM</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Call Tracking%2FPBX</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Campaigns</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Desking</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>MPT%2FBooks</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Not Applicable</fullName>
+                <default>true</default>
+            </values>
+            <values>
+                <fullName>Other</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Reporting</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Service CRM</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Website</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Primary_Reason_for_Cancellation__c</picklist>
+            <values>
+                <fullName>Brand Compliancy%2FOEM Issues</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Change in Mgmt%2E%2FMgmt%2E Preference</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Cutting Expenses%2FBilling Redundancy %C2%A0%C2%A0</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Data Import Accuracy</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Data Import Turnaround - Internal</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Data Import Turnaround from 3rd Party</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Dealership Closed%2FSold%C2%A0</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Functionality Sold Did Not Meet Specific Needs</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>General System Issues - Downtime</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Improper Resolution</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Insufficient Features</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Lack of Available Trainers</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Lack of Communication%C2%A0</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Lack of Knowledgeable Representative</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Lack of New%C2%A0Features</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Lack of Training</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Lack of Utilization</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Modification to Billing%C2%A0</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>No Contact - Dealer Unresponsive%C2%A0</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Non-Payment%2FForced Cancellation%C2%A0</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Resolution Timeline</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>System Performance Issues</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Too Expensive%2FLower Competitive Rate%C2%A0</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Product_to_be_Cancelled__c</picklist>
+            <values>
+                <fullName>Auction Genius</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Conquest</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>KBB</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Provision</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Secondary_Driver__c</picklist>
+            <values>
+                <fullName>Availability</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Cost</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Feature%2FFunctionality</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Not Applicable</fullName>
+                <default>true</default>
+            </values>
+            <values>
+                <fullName>Support</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>System Stability</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Secondary_Reason_for_Cancellation__c</picklist>
+            <values>
+                <fullName>Brand Compliancy%2FOEM Issues</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Change in Mgmt%2E%2FMgmt%2E Preference</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Cutting Expenses%2FBilling Redundancy %C2%A0%C2%A0</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Data Import Accuracy</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Data Import Turnaround - Internal</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Data Import Turnaround from 3rd Party</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Dealership Closed%2FSold%C2%A0</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Functionality Sold Did Not Meet Specific Needs</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>General System Issues - Downtime</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Improper Resolution</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Insufficient Features</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Lack of Available Trainers</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Lack of Communication%C2%A0</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Lack of Knowledgeable Representative</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Lack of New%C2%A0Features</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Lack of Training</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Lack of Utilization</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Modification to Billing%C2%A0</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>No Contact - Dealer Unresponsive%C2%A0</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Non-Payment%2FForced Cancellation%C2%A0</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Resolution Timeline</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>System Performance Issues</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Too Expensive%2FLower Competitive Rate%C2%A0</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Type_of_Credit__c</picklist>
+            <values>
+                <fullName>Canceled Sale %28Failure to Launch%29</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Credit</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Lost Business</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Saved</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Why_are_we_issuing_credit__c</picklist>
+            <values>
+                <fullName>Billing Issue</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Cancellation</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Contract Adjustment</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Contract Buy-Out</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Downgrade</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>False Start</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Marketing Campaign</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Performance</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Rebilled</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Referral</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Sales</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Save%2FRetention</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>V2V Buy%2FSell</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Websites</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+    </recordTypes>
+    <recordTypes>
+        <fullName>vAuto</fullName>
+        <active>true</active>
+        <label>vAuto</label>
+        <picklistValues>
+            <picklist>AG__c</picklist>
+            <values>
+                <fullName>No</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Yes</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Account_Current__c</picklist>
+            <values>
+                <fullName>No</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Yes</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Agreement__c</picklist>
+            <values>
+                <fullName>No</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Yes</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Appeal_Status__c</picklist>
+            <values>
+                <fullName>Cancelled</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Churned</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>New</fullName>
+                <default>true</default>
+            </values>
+            <values>
+                <fullName>Pending Completion</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Pending Save Team Response</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Working</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Approval_Status__c</picklist>
+            <values>
+                <fullName>Approved</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Cancelled</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>In Progress</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Need More Info</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Not Submitted</fullName>
+                <default>true</default>
+            </values>
+            <values>
+                <fullName>Pending Final Approval</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Rejected</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Business_Unit__c</picklist>
+            <values>
+                <fullName>Haystak</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>VinSolutions</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>vAuto</fullName>
+                <default>true</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Contract__c</picklist>
+            <values>
+                <fullName>12 Month</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>6 Month</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Month to Month</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>No</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Credit_Applied__c</picklist>
+            <values>
+                <fullName>NO</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>YES</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Credit_Requested__c</picklist>
+            <values>
+                <fullName>NO</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>YES</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Deposit_Paid__c</picklist>
+            <values>
+                <fullName>No</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Yes</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Exception__c</picklist>
+            <values>
+                <fullName>NO</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>YES</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Free_Training_Requested__c</picklist>
+            <values>
+                <fullName>NO</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>YES</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>New_Vendor__c</picklist>
+            <values>
+                <fullName>AAX</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>DealerTrack</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Eleads</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>First Look</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Red Bumper</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>VinSolutions</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>eCarlist</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Primary_Driver__c</picklist>
+            <values>
+                <fullName>AIS</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>CRM</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Call Tracking%2FPBX</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Campaigns</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Desking</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>MPT%2FBooks</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Not Applicable</fullName>
+                <default>true</default>
+            </values>
+            <values>
+                <fullName>Other</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Reporting</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Service CRM</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Website</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Primary_Reason_for_Cancellation__c</picklist>
+            <values>
+                <fullName>Brand Compliancy%2FOEM Issues</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Buy%2FSell</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Change in Mgmt%2E%2FMgmt%2E Preference</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Competive Product</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Cutting Expenses%2FBilling Redundancy %C2%A0%C2%A0</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Dealership Closed%2FSold%C2%A0</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Expense Reduction</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Failure to Demo Value</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Functionality Sold Did Not Meet Specific Needs</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>General System Issues - Downtime</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Modification to Billing%C2%A0</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>No Contact - Dealer Unresponsive%C2%A0</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Non-Payment%2FForced Cancellation%C2%A0</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Service Support</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>System Performance Issues</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Too Expensive%2FLower Competitive Rate%C2%A0</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Product_to_be_Cancelled__c</picklist>
+            <values>
+                <fullName>Auction Genius</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Conquest</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>KBB</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Provision</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Secondary_Driver__c</picklist>
+            <values>
+                <fullName>Availability</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Cost</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Feature%2FFunctionality</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Not Applicable</fullName>
+                <default>true</default>
+            </values>
+            <values>
+                <fullName>Support</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>System Stability</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Secondary_Reason_for_Cancellation__c</picklist>
+            <values>
+                <fullName>Brand Compliancy%2FOEM Issues</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Change in Mgmt%2E%2FMgmt%2E Preference</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Cutting Expenses%2FBilling Redundancy %C2%A0%C2%A0</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Data Import Accuracy</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Data Import Turnaround - Internal</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Data Import Turnaround from 3rd Party</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Dealership Closed%2FSold%C2%A0</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Functionality Sold Did Not Meet Specific Needs</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>General System Issues - Downtime</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Improper Resolution</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Insufficient Features</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Lack of Available Trainers</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Lack of Communication%C2%A0</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Lack of Knowledgeable Representative</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Lack of New%C2%A0Features</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Lack of Training</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Lack of Utilization</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Modification to Billing%C2%A0</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>No Contact - Dealer Unresponsive%C2%A0</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Non-Payment%2FForced Cancellation%C2%A0</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Resolution Timeline</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>System Performance Issues</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Too Expensive%2FLower Competitive Rate%C2%A0</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Type_of_Credit__c</picklist>
+            <values>
+                <fullName>Canceled Sale %28Failure to Launch%29</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Credit</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Lost Business</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Why_are_we_issuing_credit__c</picklist>
+            <values>
+                <fullName>Applied 30-day Deposit</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Applied Conquest Deposit</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Bad Debt</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Cancellation Concession</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Cancellation Delay</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Contract Entry Error</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Credit%2FRefund of Deposit</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Data Issues</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Goodwill</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Late Downgrade</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Negotiated discount</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>One-Time Debit</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Price Reduction Credit</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Referral Fee Credit</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Refund</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Refund %28other%29</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Refund of Setup</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Sales Tax Credit</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Training Error</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Waive Conquest Deposit</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Waive Deposit</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Write Off</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+    </recordTypes>
+    <recordTypes>
+        <fullName>vAuto_Adjustment</fullName>
+        <active>true</active>
+        <description>used to process billing adjustment requests</description>
+        <label>vAuto Adjustment</label>
+        <picklistValues>
+            <picklist>AG__c</picklist>
+            <values>
+                <fullName>No</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Yes</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Account_Current__c</picklist>
+            <values>
+                <fullName>No</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Yes</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Agreement__c</picklist>
+            <values>
+                <fullName>No</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Yes</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Appeal_Status__c</picklist>
+            <values>
+                <fullName>Completed</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>New</fullName>
+                <default>true</default>
+            </values>
+            <values>
+                <fullName>Pending Approval</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Pending Completion</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Approval_Status__c</picklist>
+            <values>
+                <fullName>Approved</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Cancelled</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>In Progress</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Need More Info</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Not Submitted</fullName>
+                <default>true</default>
+            </values>
+            <values>
+                <fullName>Pending Final Approval</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Rejected</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Business_Unit__c</picklist>
+            <values>
+                <fullName>Haystak</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>VinSolutions</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>vAuto</fullName>
+                <default>true</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Contract__c</picklist>
+            <values>
+                <fullName>12 Month</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>6 Month</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Month to Month</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>No</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Credit_Applied__c</picklist>
+            <values>
+                <fullName>NO</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>YES</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Credit_Requested__c</picklist>
+            <values>
+                <fullName>NO</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>YES</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Deposit_Paid__c</picklist>
+            <values>
+                <fullName>No</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Yes</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Exception__c</picklist>
+            <values>
+                <fullName>NO</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>YES</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Free_Training_Requested__c</picklist>
+            <values>
+                <fullName>NO</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>YES</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>New_Vendor__c</picklist>
+            <values>
+                <fullName>AAX</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>DealerTrack</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Eleads</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>First Look</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Red Bumper</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>VinSolutions</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>eCarlist</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Primary_Driver__c</picklist>
+            <values>
+                <fullName>AIS</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>CRM</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Call Tracking%2FPBX</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Campaigns</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Desking</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>MPT%2FBooks</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Not Applicable</fullName>
+                <default>true</default>
+            </values>
+            <values>
+                <fullName>Other</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Reporting</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Service CRM</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Website</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Primary_Reason_for_Cancellation__c</picklist>
+            <values>
+                <fullName>Brand Compliancy%2FOEM Issues</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Buy%2FSell</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Change in Mgmt%2E%2FMgmt%2E Preference</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Competive Product</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Cutting Expenses%2FBilling Redundancy %C2%A0%C2%A0</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Dealership Closed%2FSold%C2%A0</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Expense Reduction</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Failure to Demo Value</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Functionality Sold Did Not Meet Specific Needs</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>General System Issues - Downtime</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Modification to Billing%C2%A0</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>No Contact - Dealer Unresponsive%C2%A0</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Non-Payment%2FForced Cancellation%C2%A0</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Service Support</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>System Performance Issues</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Too Expensive%2FLower Competitive Rate%C2%A0</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Product_to_be_Cancelled__c</picklist>
+            <values>
+                <fullName>Auction Genius</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Conquest</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>KBB</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Provision</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Secondary_Driver__c</picklist>
+            <values>
+                <fullName>Availability</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Cost</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Feature%2FFunctionality</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Not Applicable</fullName>
+                <default>true</default>
+            </values>
+            <values>
+                <fullName>Support</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>System Stability</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Secondary_Reason_for_Cancellation__c</picklist>
+            <values>
+                <fullName>Brand Compliancy%2FOEM Issues</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Change in Mgmt%2E%2FMgmt%2E Preference</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Cutting Expenses%2FBilling Redundancy %C2%A0%C2%A0</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Data Import Accuracy</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Data Import Turnaround - Internal</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Data Import Turnaround from 3rd Party</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Dealership Closed%2FSold%C2%A0</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Functionality Sold Did Not Meet Specific Needs</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>General System Issues - Downtime</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Improper Resolution</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Insufficient Features</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Lack of Available Trainers</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Lack of Communication%C2%A0</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Lack of Knowledgeable Representative</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Lack of New%C2%A0Features</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Lack of Training</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Lack of Utilization</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Modification to Billing%C2%A0</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>No Contact - Dealer Unresponsive%C2%A0</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Non-Payment%2FForced Cancellation%C2%A0</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Resolution Timeline</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>System Performance Issues</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Too Expensive%2FLower Competitive Rate%C2%A0</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Type_of_Credit__c</picklist>
+            <values>
+                <fullName>Credit</fullName>
+                <default>true</default>
+            </values>
+            <values>
+                <fullName>Debit</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Why_are_we_issuing_credit__c</picklist>
+            <values>
+                <fullName>Applied 30-day Deposit</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Applied Conquest Deposit</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Bad Debt</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Cancellation Concession</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Cancellation Delay</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Contract Entry Error</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Credit%2FRefund of Deposit</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Data Issues</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Goodwill</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Late Downgrade</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Negotiated discount</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>One-Time Debit</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Price Reduction Credit</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Referral Fee Credit</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Refund</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Refund %28other%29</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Refund of Setup</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Sales Tax Credit</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Training Error</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Waive Conquest Deposit</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Waive Deposit</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Write Off</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+    </recordTypes>
+    <searchLayouts>
+        <customTabListAdditionalFields>Dealership_Name__c</customTabListAdditionalFields>
+        <customTabListAdditionalFields>Approval_Status__c</customTabListAdditionalFields>
+        <customTabListAdditionalFields>Related_POA__c</customTabListAdditionalFields>
+        <customTabListAdditionalFields>Credit_Requested__c</customTabListAdditionalFields>
+        <customTabListAdditionalFields>Free_Training_Requested__c</customTabListAdditionalFields>
+        <customTabListAdditionalFields>Credit_Applied__c</customTabListAdditionalFields>
+        <searchResultsAdditionalFields>Dealership_Name__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields>Approval_Status__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields>Related_POA__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields>Credit_Requested__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields>Free_Training_Requested__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields>Credit_Applied__c</searchResultsAdditionalFields>
+    </searchLayouts>
+    <sharingModel>ReadWrite</sharingModel>
+    <startsWith>Vowel</startsWith>
+    <validationRules>
+        <fullName>Cannot_change_Approval_Status</fullName>
+        <active>true</active>
+        <description>Approval status can not be changed to Approved</description>
+        <errorConditionFormula>OR(
+   (
+      ISNEW() &amp;&amp;
+      !ISPICKVAL(Approval_Status__c, &quot;Not Submitted&quot;)
+   ),
+   (
+      PRIORVALUE (Approval_Status__c) = &quot;Not Submitted&quot; &amp;&amp;
+      ISPICKVAL(Approval_Status__c, &quot;Approved&quot;)
+   )
+)
+&amp;&amp;
+   NOT( 
+      OR(
+         $User.UserRoleId = &quot;00E70000001GBsB&quot;, /*Senior Business Analyst*/
+         $User.UserRoleId = &quot;00E70000001GJu5&quot;, /*CRM Systems Administrator*/
+         $User.UserRoleId = &quot;00E70000001GE8B&quot; /*Salesforce Developer*/
+      )
+   )</errorConditionFormula>
+        <errorDisplayField>Approval_Status__c</errorDisplayField>
+        <errorMessage>You cannot set the status to &quot;Approved&quot; before going through the Approval process.</errorMessage>
+    </validationRules>
+    <validationRules>
+        <fullName>Credit_Requested_Check</fullName>
+        <active>true</active>
+        <description>If credit is requested, there must be an amount added.</description>
+        <errorConditionFormula>ISPICKVAL(Credit_Requested__c, &quot;YES&quot;) &amp;&amp; ISBLANK(Amount_Requested_Credit__c)</errorConditionFormula>
+        <errorDisplayField>Amount_Requested_Credit__c</errorDisplayField>
+        <errorMessage>If credit is requested, then you must enter an amount.</errorMessage>
+    </validationRules>
+    <validationRules>
+        <fullName>Require_Effective_Date</fullName>
+        <active>true</active>
+        <errorConditionFormula>ISBLANK( Date_Credited__c ) &amp;&amp;
+NOT ( OR(
+   $User.UserRoleId = &quot;00E70000001GBsB&quot;, /*Senior Business Analyst*/
+   $User.UserRoleId = &quot;00E70000001GJu5&quot;, /*CRM Systems Administrator*/
+   $User.UserRoleId = &quot;00E70000001GFEU&quot;, /*Customer Service Representative*/
+   $User.UserRoleId = &quot;00E70000001GE8B&quot; /*Salesforce Developer*/
+))</errorConditionFormula>
+        <errorDisplayField>Date_Credited__c</errorDisplayField>
+        <errorMessage>You must enter a value.</errorMessage>
+    </validationRules>
+    <validationRules>
+        <fullName>Require_New_Provider_for_Cancel_Downgrad</fullName>
+        <active>true</active>
+        <description>Cancellations and Downgrades require that you specify the name of the company we are losing their business to.</description>
+        <errorConditionFormula>OR(
+   ISPICKVAL(Why_are_we_issuing_credit__c, &quot;Cancellation&quot;),
+   ISPICKVAL(Why_are_we_issuing_credit__c, &quot;Downgrade&quot;)
+) &amp;&amp;
+ISBLANK(New_Provider__c)</errorConditionFormula>
+        <errorDisplayField>New_Provider__c</errorDisplayField>
+        <errorMessage>Cancellations and Downgrades require that you specify the name of the company we are losing their business to.</errorMessage>
+    </validationRules>
+    <validationRules>
+        <fullName>Require_Reasons_for_Cancel_Downgrade</fullName>
+        <active>true</active>
+        <description>Please enter the reason the client is cancelling or downgrading.</description>
+        <errorConditionFormula>OR(
+   ISPICKVAL(Why_are_we_issuing_credit__c, &quot;Cancellation&quot;),
+   ISPICKVAL(Why_are_we_issuing_credit__c, &quot;Downgrade&quot;)
+) &amp;&amp;
+ISBLANK(TEXT(Primary_Reason_for_Cancellation__c))</errorConditionFormula>
+        <errorDisplayField>Primary_Reason_for_Cancellation__c</errorDisplayField>
+        <errorMessage>Please enter the reason the client is cancelling or downgrading.</errorMessage>
+    </validationRules>
+    <validationRules>
+        <fullName>Restrict_Amount_Approved</fullName>
+        <active>true</active>
+        <description>Restricts changing the amount approved to certain users.</description>
+        <errorConditionFormula>AND(  
+      ISCHANGED( Amount_Approved__c ), 
+      NOT ( OR( 
+            $User.ProfileId = &quot;00e70000001FiMt&quot;, /*VinSet Paid Button Hitter*/
+            $User.ProfileId = &quot;00e70000000wzUb&quot;, /*VinExecutive user*/
+            $User.ProfileId = &quot;00e70000000wzXQ&quot;, /*VinSystem Admin*/
+            $User.ProfileId = &quot;00e70000001FaWM&quot;, /*VinSystem Dev Admin*/
+            $User.ProfileId = &quot;00e70000001FiDh&quot; /*VinSystem Jr Admin*/
+      ) ) 
+   )</errorConditionFormula>
+        <errorDisplayField>Amount_Approved__c</errorDisplayField>
+        <errorMessage>You do not have permission to change this field.</errorMessage>
+    </validationRules>
+    <validationRules>
+        <fullName>Restrict_Approval_Status_Change</fullName>
+        <active>true</active>
+        <description>Restricts changing the approval status dropdown to certain users.</description>
+        <errorConditionFormula>AND(  
+      ISCHANGED( Approval_Status__c ), 
+      NOT ( OR( 
+            $User.ProfileId = &quot;00e70000001FiMt&quot;, /*VinSet Paid Button Hitter*/
+            $User.ProfileId = &quot;00e70000000wzUb&quot;, /*VinExecutive user*/
+            $User.ProfileId = &quot;00e70000000wzXQ&quot;, /*VinSystem Admin*/
+            $User.ProfileId = &quot;00e70000001FaWM&quot;, /*VinSystem Dev Admin*/
+            $User.ProfileId = &quot;00e70000001FiDh&quot; /*VinSystem Jr Admin*/
+      ) ) 
+   )</errorConditionFormula>
+        <errorDisplayField>Approval_Status__c</errorDisplayField>
+        <errorMessage>You do not have permission to change this field.</errorMessage>
+    </validationRules>
+    <validationRules>
+        <fullName>Training_Requested_Check</fullName>
+        <active>true</active>
+        <description>If free training is requested, an amount must be entered.</description>
+        <errorConditionFormula>ISPICKVAL(Free_Training_Requested__c, &quot;YES&quot;) &amp;&amp; ISBLANK( Amount_of_Training_Days_Requested__c )</errorConditionFormula>
+        <errorDisplayField>Amount_of_Training_Days_Requested__c</errorDisplayField>
+        <errorMessage>If free training is requested, you must enter an amount.</errorMessage>
+    </validationRules>
+    <webLinks>
+        <fullName>Add_Billed_Assets_to_Appeal</fullName>
+        <availability>online</availability>
+        <displayType>link</displayType>
+        <encodingKey>UTF-8</encodingKey>
+        <hasMenubar>false</hasMenubar>
+        <hasScrollbars>true</hasScrollbars>
+        <hasToolbar>false</hasToolbar>
+        <height>600</height>
+        <isResizable>true</isResizable>
+        <linkType>url</linkType>
+        <masterLabel>Add Billed Assets to Appeal</masterLabel>
+        <openType>newWindow</openType>
+        <position>none</position>
+        <protected>false</protected>
+        <showsLocation>false</showsLocation>
+        <showsStatus>false</showsStatus>
+        <url>/a1T?fcf=00BQ0000001Dqr5</url>
+    </webLinks>
+    <webLinks>
+        <fullName>Approved_to_Stop_Billing</fullName>
+        <availability>online</availability>
+        <displayType>link</displayType>
+        <encodingKey>UTF-8</encodingKey>
+        <hasMenubar>false</hasMenubar>
+        <hasScrollbars>true</hasScrollbars>
+        <hasToolbar>false</hasToolbar>
+        <height>600</height>
+        <isResizable>true</isResizable>
+        <linkType>url</linkType>
+        <masterLabel>Approved to Stop Billing</masterLabel>
+        <openType>newWindow</openType>
+        <position>none</position>
+        <protected>false</protected>
+        <showsLocation>false</showsLocation>
+        <showsStatus>false</showsStatus>
+        <url>/a1T?fcf=00BQ0000001DqrP&amp;rolodexIndex=-1&amp;page=1</url>
+    </webLinks>
+    <webLinks>
+        <fullName>Create_Cancellation_Pieces</fullName>
+        <availability>online</availability>
+        <displayType>button</displayType>
+        <encodingKey>UTF-8</encodingKey>
+        <linkType>url</linkType>
+        <masterLabel>Create Cancellation Pieces</masterLabel>
+        <openType>replace</openType>
+        <protected>false</protected>
+        <url>/flow/Create_Cancellation_Pieces?varAppealID={!Appeal__c.Id}&amp;varDealerName={!Appeal__c.Dealership_Name__c}&amp;retURL=/{!Appeal__c.Id}</url>
+    </webLinks>
+    <webLinks>
+        <fullName>New_Appeal</fullName>
+        <availability>online</availability>
+        <description>Creates a new Appeal with populated values.</description>
+        <displayType>massActionButton</displayType>
+        <encodingKey>UTF-8</encodingKey>
+        <linkType>url</linkType>
+        <masterLabel>New Appeal</masterLabel>
+        <openType>replace</openType>
+        <protected>false</protected>
+        <requireRowSelection>false</requireRowSelection>
+        <url>/a1I/e?CF00N70000002sZcc={!$User.User_Full_Name__c}&amp;CF00N70000002sZbj={!POA__c.Name}&amp;CF00N70000002sZbZ={!POA__c.Dealer__c}</url>
+    </webLinks>
+    <webLinks>
+        <fullName>Send_Cancellation_Notice</fullName>
+        <availability>online</availability>
+        <displayType>button</displayType>
+        <encodingKey>UTF-8</encodingKey>
+        <linkType>url</linkType>
+        <masterLabel>Send Cancellation Notice</masterLabel>
+        <openType>replace</openType>
+        <protected>false</protected>
+        <url>/_ui/core/email/author/EmailAuthor?p3_lkid={!Appeal__c.Id}
+&amp;template_id=00X70000001Shj3&amp;new_template=1
+&amp;p24=vinleadershipteam@vinsolutions.com;stephen.keen@vinsolutions.com;
+&amp;p4={!Appeal__c.OwnerEmail};karen.kuzanek@vinsolutions.com;jeremy.cowgill@vinsolutions.com&amp;retURL={!Appeal__c.Id}</url>
+    </webLinks>
+</CustomObject>

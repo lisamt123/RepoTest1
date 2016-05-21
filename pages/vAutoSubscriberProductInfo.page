@@ -1,0 +1,26 @@
+<apex:page standardController="Account" extensions="vAutoSubscriberProductInfo" showHeader="false" sidebar="false">
+	
+	<style type="text/css">
+	    .pbTitle {
+	        white-space: nowrap
+	    }
+	</style>
+
+	<apex:form >
+		<apex:pageblock id="SubscriberProducts" title="vAuto Products" mode="maindetail" >
+			<apex:pageBlockTable id="relatedBA" value="{!SAWrapList}" var="ba" >
+	            <apex:column HeaderValue="Product Name" >
+	            	<apex:outputLabel value="{!ba.ProductName}" />
+	            </apex:column>
+	            <apex:column HeaderValue="Product Status" >
+	            	<apex:outputLabel value="{!ba.ProductStatus}" />
+	            </apex:column>
+	            <apex:column HeaderValue="Activation Date" >
+	            	<apex:outputLabel value="{!ba.ActivationDate}" />
+	            </apex:column>                           
+	   		</apex:pageBlockTable>
+	   		<apex:outputLabel value="No records to display" rendered="{!numOfRows = 0}" />
+	 	</apex:pageblock>
+	</apex:form>
+
+</apex:page>

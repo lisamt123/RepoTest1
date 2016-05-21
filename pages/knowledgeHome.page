@@ -1,0 +1,85 @@
+<apex:page controller="KnowledgeController" showHeader="false"
+	title="Public Knowledge Base" cache="{!cachePage}"
+	expires="{!cacheMaxAge}" language="{!currentLanguage}"
+	standardStylesheets="false">
+	<apex:composition template="knowledgeLayout">
+		<apex:define name="content">
+			<apex:variable var="cpt" value="{!0}" />
+			<apex:outputPanel styleClass="pkbLeft" layout="block">
+				<apex:outputPanel styleClass="pkbGrayBox" layout="block">
+					<apex:outputPanel styleClass="pkbGrayBoxTitle" layout="block">
+						<h2>{!$Label.PKB_MostPopular}</h2>
+					</apex:outputPanel>
+					<apex:outputPanel styleClass="pkbGrayBoxInner" layout="block">
+						<ul>
+							<knowledge:articleList articleVar="article"
+								categories="{!categoryGroupName}:{!rootCategoryName}"
+								sortBy="mostViewed" pageSize="10" language="{!currentLanguage}">
+								<li><a
+									href="{!URLFOR($Action.KnowledgeArticle.View, article.id) + '&' + languageParameterName + '=' +currentLanguage}">{!article.title}</a>
+								</li>
+							</knowledge:articleList>
+						</ul>
+					</apex:outputPanel>
+				</apex:outputPanel>
+			</apex:outputPanel>
+			<apex:outputPanel styleClass="pkbMain" layout="block">
+				<div class="pkbImagine">
+					<div class="pkbImagineTitle">
+						<br /> <br />{!homeAdTitle}
+					</div>
+					<div class="pkbImagineText">{!homeAdText}</div>
+				</div>
+				<apex:outputPanel layout="none" rendered="{!rootCategoryName!=''}">
+					<apex:form id="selectCategory">
+						<table>
+							<tr>
+								<knowledge:categoryList categoryGroup="{!categoryGroupName}"
+									rootCategory="{!rootCategoryName}" categoryVar="category">
+									<td width="33"><apex:outputPanel styleClass="pkbColumnPanel" layout="block">
+											<apex:outputPanel styleClass="pkbColumnTop" layout="block">
+												<apex:outputLink value="{!productUrl}">
+                                    {!category.label}
+                                    <apex:param name="{!categoryParameterName}" value="{!category.name}" />
+													<apex:param name="{!languageParameterName}"
+														value="{!currentLanguage}" />
+												</apex:outputLink>
+											</apex:outputPanel>
+											<apex:outputPanel styleClass="pkbColumnInner" layout="block">
+												<apex:variable var="innerCpt" value="{!0}" />
+												<apex:repeat var="description"
+													value="{!categoryDescriptions}">
+													<apex:outputPanel rendered="{!innerCpt = cpt}">
+                                        {!description}
+                                     </apex:outputPanel>
+													<apex:variable var="innerCpt" value="{!innerCpt+1}" />
+												</apex:repeat>
+												<apex:variable var="cpt" value="{!cpt+1}" />
+												<ul>
+													<knowledge:categoryList categoryGroup="{!categoryGroupName}"
+														rootCategory="{!category.name}" categoryVar="subCategory">
+														<li><apex:outputLink value="{!productUrl}">
+                                                - {!subCategory.label}
+                                                <apex:param name="{!categoryParameterName}"
+																	value="{!subCategory.name}" />
+																<apex:param name="{!languageParameterName}"
+																	value="{!currentLanguage}" />
+															</apex:outputLink>
+														</li>
+													</knowledge:categoryList>
+												</ul>
+											</apex:outputPanel>
+										</apex:outputPanel>
+									</td>
+									<apex:outputPanel layout="none" rendered="{!OR(cpt=3, cpt=6)}">
+										<apex:outputText value="</tr><tr>" escape="false" />
+									</apex:outputPanel>
+								</knowledge:categoryList>
+							</tr>
+						</table>
+					</apex:form>
+				</apex:outputPanel>
+			</apex:outputPanel>
+		</apex:define>
+	</apex:composition>
+</apex:page>

@@ -1,0 +1,248 @@
+<apex:page controller="FOD_ProjectListCtrl" showHeader="false" sidebar="false" readOnly="true">
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css"></link>
+<script src="https://use.typekit.net/nsi6vfo.js"></script>
+<script>try{Typekit.load({ async: true });}catch(e){}</script>
+
+<c:FOD_CSS />
+<c:FOD_TableCSS />
+
+<script>
+      function gotodashboard() {
+          top.location.href="/apex/FODashboard";
+      }   
+</script>
+    
+
+<div class="row title">
+    <div class="col-lg-2"></div>
+    <div class="col-lg-10">
+        <h2 class="detailHeader">{!pageTitle}</h2>
+    </div>
+</div>
+
+<div class="row">
+  <div class="col-lg-2">
+    <input type="button" id="backbtn" class="detailBackBtn" onclick="gotodashboard();"></input>
+    <!--LEGEND BEGIN -->
+    <apex:pageBlock rendered="{!NOT (showSetup)}">
+    <div class="detailLegend">
+        <div class="row mttr">
+            <h4>MTTR</h4>
+            <div class="col-lg-4">
+              <div class="circle green"></div>
+              0-14
+            </div>
+            <div class="col-lg-4">
+              <div class="circle yellow"></div>
+              15-20
+            </div>
+            <div class="col-lg-4">
+              <div class="circle red"></div>
+              21+
+            </div>
+        </div>
+        <div class="row integration">
+            <h4>Integration</h4>
+            <div class="col-lg-4">
+              <div class="circle green"></div>
+              0-7
+            </div>
+            <div class="col-lg-4">
+              <div class="circle yellow"></div>
+              8-10
+            </div>
+            <div class="col-lg-4">
+              <div class="circle red"></div>
+              11+
+            </div>
+        </div>
+        <div class="row training">
+            <h4>Training</h4>
+            <div class="col-lg-4">
+              <div class="circle green"></div>
+              0-7
+            </div>
+            <div class="col-lg-4">
+              <div class="circle yellow"></div>
+              8-10
+            </div>
+            <div class="col-lg-4">
+              <div class="circle red"></div>
+              11+
+            </div>
+        </div>
+    </div>
+    </apex:pageBlock>
+    <!-- LEGEND END -->
+    <!--LEGEND BEGIN -->
+    <apex:pageBlock rendered="{!showSetup}">
+    <div class="detailLegend">
+        <div class="row mttr">
+            <h4>MTTR</h4>
+            <div class="col-lg-4">
+              <div class="circle green"></div>
+              0-21
+            </div>
+            <div class="col-lg-4">
+              <div class="circle yellow"></div>
+              21-35
+            </div>
+            <div class="col-lg-4">
+              <div class="circle red"></div>
+              35+
+            </div>
+        </div>
+        <div class="row integration">
+            <h4>Integration</h4>
+            <div class="col-lg-4">
+              <div class="circle green"></div>
+              0-3
+            </div>
+            <div class="col-lg-4">
+              <div class="circle yellow"></div>
+              4-10
+            </div>
+            <div class="col-lg-4">
+              <div class="circle red"></div>
+              10+
+            </div>
+        </div>
+        <div class="row setup">
+            <h4>Setup Age</h4>
+            <div class="col-lg-4">
+              <div class="circle green"></div>
+              0-11
+            </div>
+            <div class="col-lg-4">
+              <div class="circle yellow"></div>
+              12-15
+            </div>
+            <div class="col-lg-4">
+              <div class="circle red"></div>
+              16+
+            </div>
+        </div>
+        <div class="row training">
+            <h4>Training</h4>
+            <div class="col-lg-4">
+              <div class="circle green"></div>
+              0-7
+            </div>
+            <div class="col-lg-4">
+              <div class="circle yellow"></div>
+              8-10
+            </div>
+            <div class="col-lg-4">
+              <div class="circle red"></div>
+              11+
+            </div>
+        </div>
+    </div>
+    </apex:pageBlock>
+    <!-- LEGEND END -->
+  </div>
+
+    <!-- TABLE BEGIN -->
+    <div class="col-lg-10">
+        <div class="tableContainer" id="tableContainer">
+              <apex:form >
+              <apex:pageBlock id="theblock">
+                  <apex:pageBlockTable value="{!projWrapList}" var="proj" headerClass="" styleClass="scrollTableProject" columnsWidth="132px,132px,132px,132px,132px,132px,132px,132px,132px,132px,132px,132px,132px,132px">
+                      <apex:column styleClass="{!proj.mttrColor}">
+                          <apex:facet name="header">
+                              <apex:commandLink value="MTTR Status" action="{!sortByMttrSt}" reRender="theblock"/>
+                          </apex:facet>
+                          <apex:outputText value="{!proj.mttrStatus}"/>
+                      </apex:column>
+                      <apex:column >
+                          <apex:facet name="header">
+                              <apex:commandLink value="Account Name" action="{!sortByAccountName}" reRender="theblock"/>
+                          </apex:facet>
+                          <apex:outputLink value="/{!proj.projId}"> {!proj.accName} </apex:outputLink>
+                      </apex:column>
+                      <apex:column >
+                          <apex:facet name="header">
+                              <apex:commandLink value="Stage" action="{!sortByProjStg}" reRender="theblock"/>
+                          </apex:facet>
+                          <apex:outputText value="{!proj.projStage}"/>
+                      </apex:column>
+                      <apex:column >
+                          <apex:facet name="header">
+                              <apex:commandLink value="Start Date" action="{!sortByStartDate}" reRender="theblock"/>
+                          </apex:facet>
+                          <apex:outputText value="{0, date, MM'/'dd'/'yyyy}">
+                              <apex:param value="{!proj.stDate}" />
+                          </apex:outputText>
+                      </apex:column>
+                      <apex:column rendered="{!showIntegration}">
+                          <apex:facet name="header">
+                              <apex:commandLink value="Integration Task Status" action="{!sortByIntStatus}" reRender="theblock"/>
+                          </apex:facet>
+                          <apex:outputLink value="/{!proj.intTskId}"> {!proj.intTskStatus} </apex:outputLink>
+                      </apex:column>
+                      <apex:column rendered="{!showIntegration}" styleClass="{!proj.intAgeColor}">
+                          <apex:facet name="header">
+                              <apex:commandLink value="Integration Task Age" action="{!sortByIntAge}" reRender="theblock"/>
+                          </apex:facet>
+                          <apex:outputLink value="/{!proj.intTskId}"> {!proj.intTskAge} </apex:outputLink>
+                      </apex:column>
+                      <apex:column rendered="{!showIntegration}">
+                          <apex:facet name="header">
+                              <apex:commandLink value="Integration Completion Date" action="{!sortByIntCompletionDate}" reRender="theblock"/>
+                          </apex:facet>
+                          <apex:outputText value="{0, date, MM'/'dd'/'yyyy}">
+                              <apex:param value="{!proj.intCmplDate}" />
+                          </apex:outputText>
+                      </apex:column>
+                      <apex:column rendered="{!showSetup}">
+                          <apex:facet name="header">
+                              <apex:commandLink value="Setup Task Status" action="{!sortBySetStatus}" reRender="theblock"/>
+                          </apex:facet>
+                          <apex:outputLink value="/{!proj.setTskId}"> {!proj.setTskStatus} </apex:outputLink>
+                      </apex:column>
+                      <apex:column rendered="{!showSetup}" styleClass="{!proj.setAgeColor}">
+                          <apex:facet name="header">
+                              <apex:commandLink value="Setup Task Age" action="{!sortBySetAge}" reRender="theblock"/>
+                          </apex:facet>
+                          <apex:outputLink value="/{!proj.setTskId}"> {!proj.setTskAge} </apex:outputLink>
+                      </apex:column>
+                      <apex:column rendered="{!showSetup}">
+                          <apex:facet name="header">
+                              <apex:commandLink value="Setup Completion Date" action="{!sortBySetCompletionDate}" reRender="theblock"/>
+                          </apex:facet>
+                          <apex:outputText value="{0, date, MM'/'dd'/'yyyy}">
+                              <apex:param value="{!proj.setCmplDate}" />
+                          </apex:outputText>
+                      </apex:column>
+                      <apex:column rendered="{!showTraining}">
+                          <apex:facet name="header">
+                              <apex:commandLink value="Training Task Status" action="{!sortByTrnStatus}" reRender="theblock"/>
+                          </apex:facet>
+                          <apex:outputLink value="/{!proj.trnTskId}"> {!proj.trnTskStatus} </apex:outputLink>
+                      </apex:column>
+                      <apex:column rendered="{!showTraining}" styleClass="{!proj.trnAgeColor}">
+                          <apex:facet name="header">
+                              <apex:commandLink value="Training Task Age" action="{!sortByTrnAge}" reRender="theblock"/>
+                          </apex:facet>
+                          <apex:outputLink value="/{!proj.trnTskId}"> {!proj.trnTskAge} </apex:outputLink>
+                      </apex:column>
+                      <apex:column rendered="{!showTraining}">
+                          <apex:facet name="header">
+                              <apex:commandLink value="Training Completion Date" action="{!sortByCompletionDate}" reRender="theblock"/>
+                          </apex:facet>
+                          <apex:outputText value="{0, date, MM'/'dd'/'yyyy}">
+                              <apex:param value="{!proj.cmplDate}" />
+                          </apex:outputText>
+                      </apex:column>
+                  </apex:pageBlockTable>
+              </apex:pageBlock>
+            </apex:form>
+      </div><!-- end tablecontainer -->
+    </div>
+    <!-- TABLE END -->
+</div>
+
+
+
+</apex:page>

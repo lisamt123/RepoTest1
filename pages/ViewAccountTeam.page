@@ -1,0 +1,43 @@
+<apex:page standardController="Account" extensions="ViewAccountTeamController" action="{!init}" docType="html-5.0" showHeader="false" sidebar="false">
+	<script>
+		function confirmDelete() {
+		    if(confirm('Are you sure?')) {
+		        callDelete();
+		    }
+		}	
+	</script>
+	<apex:pageMessages />
+
+	<apex:form rendered="{!NOT(hasErrors)}">
+		<apex:actionFunction name="callDelete" action="{!deleteMember}" onComplete="window.top.location='/{!Account.Id}'" />
+		<div style="display: none;"><apex:commandLink action="{!cancel}" /></div>
+		<apex:pageBlock mode="maindetail">
+			<apex:pageBlockTable value="{!tmHelperMap}" var="tm">
+				<apex:column >
+					<apex:facet name="header">
+						<apex:outputPanel ><apex:outputText value="Action" /><apex:outputLink value="/apex/AddTeamMember?id={!Account.Id}" target="_parent" rendered="{!renderAdd}">&nbsp;<apex:image value="{!URLFOR($Resource.AddTeamMemberResources, 'AddTeamMemberResources/plus.png')}" height="12" width="12" /></apex:outputLink></apex:outputPanel>
+					</apex:facet>
+					<apex:outputPanel rendered="{!tmHelperMap[tm].source = 'Manual'}">
+						<apex:outputPanel rendered="{!renderEdit}"><apex:outputLink value="/apex/EditTeamMember?id={!Account.Id}&UserId={!tmHelperMap[tm].userId}" target="_parent">Edit</apex:outputLink></apex:outputPanel>
+						<apex:outputPanel rendered="{!AND(renderEdit, renderDel)}">&nbsp;|&nbsp;</apex:outputPanel>
+						<apex:outputPanel rendered="{!renderDel}">
+							<apex:commandLink value="Del" rendered="{!renderDel}" onComplete="confirmDelete()">
+								<apex:param name="memberId" value="{!tmHelperMap[tm].tm.UserId}" assignTo="{!memberId}"/>
+							</apex:commandLink>
+						</apex:outputPanel>
+					</apex:outputPanel>
+					<apex:commandLink value="View (D)" onClick="window.top.location='/{!distUserMap[tm]}'" rendered="{!OR(tmHelperMap[tm].source = 'District', tmHelperMap[tm].source = 'Region/District')}"/>
+					<apex:outputPanel rendered="{!tmHelperMap[tm].source = 'Region/District'}">&nbsp;|&nbsp;</apex:outputPanel>
+					<apex:commandLink value="View (R)" onClick="window.top.location='/{!regUserMap[tm]}'" rendered="{!OR(tmHelperMap[tm].source = 'Region', tmHelperMap[tm].source = 'Region/District')}"/>
+				</apex:column>
+				<apex:column headerValue="Team Member">
+					<apex:outputLink value="/{!tmHelperMap[tm].userId}" target="_blank"><apex:outputText value="{!tmHelperMap[tm].tm.User.Name}" /></apex:outputLink>&nbsp;
+					<apex:image title="Inactive User" value="{!URLFOR($Resource.AddTeamMemberResources, 'AddTeamMemberResources/exclamation.png')}" rendered="{!NOT(tmHelperMap[tm].tm.User.IsActive)}" height="12" width="12" />
+				</apex:column>
+				<apex:column value="{!tmHelperMap[tm].tm.TeamMemberRole}" headerValue="Team Role" />
+				<apex:column headerValue="Source" value="{!tmHelperMap[tm].source}"/>
+			</apex:pageBlockTable>
+		</apex:pageBlock>
+	<apex:pageMessage severity="INFO" strength="2" summary="This Account does not have any Team Members assigned." rendered="{!NOT(renderTable)}" />
+	</apex:form>
+</apex:page>

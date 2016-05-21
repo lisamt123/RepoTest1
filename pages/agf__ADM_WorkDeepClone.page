@@ -1,0 +1,142 @@
+<apex:page standardController="agf__ADM_Work__c" extensions="agf.ADM_WorkDeepCloneController" sidebar="false" title="Deep Clone: {!original.Name}"> 
+<apex:form >
+<style>
+
+       .bucket {
+        border:1px solid #C0C0C0;
+        -moz-border-radius:5px;
+        -webkit-border-radius:5px;
+        padding:10px;
+        margin:5px 0px 10px 0px;
+    }
+    
+      
+    .bucketTitle {
+        background-color:#1797C0;
+        color:#FFFFFF;
+        padding:0;
+        margin-right:2px;
+        margin:-10px -10px 10px;
+        -moz-border-radius:5px 5px 0 0;
+        -webkit-border-radius:5px 5px 0 0;
+    }
+    
+    .bucketTitle h2 {
+        display:block;
+        padding:5px 9px;
+    }
+    
+    .column-1 {
+        float: left;
+        width:30%;
+        padding-right:20px;
+        padding-top:5px;
+    }
+    .column-2 {
+        float: left;
+        width:65%;
+        padding-top:5px;
+    }
+
+
+</style> 
+<apex:pageMessages id="pm"/>
+<div class="column-1">
+    <div class="bucket">
+        <div class="bucketTitle"><h2>Deep Clone</h2></div>
+        <apex:pageBlock >
+            <apex:pageBlockButtons >
+                <apex:commandButton action="{!cloneWork}" value="Next" />
+            </apex:pageBlockButtons>
+            <apex:pageBlockSection title="Options" showHeader="false" columns="1">
+                <apex:pageBlockSectionItem >
+                    <p>Please select what you'd like to clone from the options below.</p>
+                </apex:pageBlockSectionItem>
+                <apex:pageBlockSectionItem >
+                    <apex:inputCheckbox value="{!cloneThemeAssignments}" /> Would you like to clone Theme Assignments? 
+                </apex:pageBlockSectionItem>
+                <apex:pageBlockSectionItem >
+                    <apex:inputCheckbox value="{!cloneAcceptanceCriteria}" /> Would you like to clone Acceptance Criteria? 
+                </apex:pageBlockSectionItem>
+                <apex:pageBlockSectionItem >
+                    <apex:inputCheckbox value="{!cloneTasks}" /> Would you like to clone Tasks? 
+                </apex:pageBlockSectionItem>
+
+                <apex:pageBlockSectionItem >
+                  <apex:inputCheckbox value="{!checkboxForParentPicklist}" /> 
+                  <apex:outputPanel >                   
+                    Would you like to clone Parent &nbsp;
+                    <apex:selectList value="{!parentValue}" multiselect="false" size="1">
+                    <apex:selectOption itemValue="Records and Relationships" itemLabel="Records and Relationships"/>
+                    <apex:selectOption itemValue="Relationships" itemLabel="Relationships"/>
+                    </apex:selectList>
+                  </apex:outputPanel>
+                </apex:pageBlockSectionItem>
+
+                <apex:pageBlockSectionItem >
+                 <apex:inputCheckbox value="{!checkboxForChildPicklist}" />
+                 <apex:outputPanel > 
+                    Would you like to clone Child &nbsp;             
+                    <apex:selectList value="{!childValue}" multiselect="false" size="1">
+                    <apex:selectOption itemValue="Records and Relationships" itemLabel="Records and Relationships"/>
+                    <apex:selectOption itemValue="Relationships" itemLabel="Relationships"/>
+                    </apex:selectList>
+                  </apex:outputPanel>
+                </apex:pageBlockSectionItem>
+            </apex:pageBlockSection> 
+        </apex:pageBlock>
+        
+    </div>
+</div>
+<div class="column-2">
+    <div class="bucket">
+        <div class="bucketTitle"><h2>What you're cloning</h2> </div>
+                  <apex:pageBlock >
+                      <apex:pageBlockSection title="Summary" columns="1" showHeader="true">
+                               
+                                <apex:pageBlockSectionItem >
+                            <apex:outputLabel value="Work ID" />
+                            <apex:outputPanel layout="block">
+                                 <a href="/{!original.id}">{!agf__ADM_Work__c.Name}</a>
+                            </apex:outputPanel>
+                        </apex:pageBlockSectionItem>
+                                
+                                
+                                <apex:outputField value="{!agf__ADM_Work__c.agf__Subject__c}" />
+                                <apex:outputField value="{!agf__ADM_Work__c.agf__Status__c}" />            
+                                <apex:outputField value="{!agf__ADM_Work__c.agf__Scrum_Team__c}" />
+                      </apex:pageBlockSection>
+                      
+                      
+                       <apex:pageBlockSection title="Theme Assignments" columns="1" showHeader="true">
+                          <apex:pageBlockTable value="{!agf__ADM_Work__c.Theme_Assignments__r}" var="themeAssignment" id="themeTable" rowClasses="odd,even" styleClass="tableClass">
+                                <apex:column value="{!themeAssignment.agf__Theme__c}"/>
+                          </apex:pageBlockTable>
+                      </apex:pageBlockSection>
+                      
+                       <apex:pageBlockSection title="Acceptance Criteria" columns="1" showHeader="true">
+                          <apex:pageBlockTable value="{!agf__ADM_Work__c.Acceptance_Criteria__r}" var="ac" id="theACTable" rowClasses="odd,even" styleClass="tableClass">
+                                <apex:column value="{!ac.Name}"/>
+                                <apex:column value="{!ac.agf__Description__c}"/>  
+                          </apex:pageBlockTable>
+                      </apex:pageBlockSection>
+                      
+                      <apex:pageBlockSection title="Tasks" columns="1" showHeader="true">
+                          <apex:pageBlockTable value="{!agf__ADM_Work__c.Tasks__r}" var="task" id="theTable" rowClasses="odd,even" styleClass="tableClass">
+                                <apex:column value="{!task.agf__Subject__c}"/>
+                                <apex:column value="{!task.agf__Hours_Remaining__c}"/>  
+                          </apex:pageBlockTable>
+                      </apex:pageBlockSection>    
+
+                      <apex:pageBlockSection title="Parent Work Relationships" columns="1" showHeader="true">
+                          <c:ADM_ParentsLight aworkID="{!original.id}" /> 
+                      </apex:pageBlockSection>   
+
+                      <apex:pageBlockSection title="Child Work Relationships" columns="1" showHeader="true">
+                          <c:ADM_WorkTreeLight aworkID="{!original.id}" /> 
+                      </apex:pageBlockSection>   
+                  </apex:pageBlock>
+    </div>
+</div>
+</apex:form>
+</apex:page>

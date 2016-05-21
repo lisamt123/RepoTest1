@@ -1,0 +1,141 @@
+<messaging:emailTemplate subject="Your requested quote :{!relatedTo.Name}" 
+recipientType="Contact" relatedToType="SFDC_520_Quote__c">
+
+    <messaging:plainTextEmailBody >
+        Dear {!recipient.name},
+        
+        Thank you for your continued interest in our offering. Please see the attached quote per your request.
+        
+        Feel free to contact me if you have any questions.
+        
+        Regards,
+        {!$User.FirstName} {!$User.LastName}
+    </messaging:plainTextEmailBody>
+    <messaging:attachment renderAs="pdf" filename="{!relatedTo.name}">
+        <apex:stylesheet value="{!URLFOR($Resource.pdfresource, 'styles.css')}"/>
+        <style>
+            .companyName {    
+                font-weight:bold;
+                font-size:16px;
+            }
+            
+            .customerName {
+                text-transform:uppercase;
+                font-size:14px;            
+            }
+    
+            .contactName {            
+                font-weight:bold;
+                font-size:14px;
+            }
+            
+            .line {
+                background-image: url({!URLFOR($Resource.pdfresource, 's.gif')});
+                background-color:black;
+                height:4px;
+                margin:10px 3px;
+            }
+            
+            .lineSmall {
+                background-image: url({!URLFOR($Resource.pdfresource, 's.gif')});
+                background-color:black;
+                height:2px;
+                margin:10px 3px;
+            }
+            
+            body {
+                padding:5px;
+            }
+            
+            .companyTable {
+                padding-top:15px;
+            }
+            
+            .left {
+                text-align:left;
+                vertical-align:top;
+            }
+            
+            .right {
+                text-align:right;
+                vertical-align:top;
+            }
+            
+            .total {
+                width:20%;
+                font-weight:bold;
+                font-size:12px;
+            }
+            
+            .totalLabel {
+                width:80%;
+                font-weight:bold;
+                font-size:12px;
+            }
+            
+            .productName {
+                font-weight:bold;
+                font-size:14px;
+            }
+            
+            .productDetail {
+                margin-left:10px;
+            }
+        </style>
+        <apex:image value="{!$Resource.templates_logo}"/>
+        <apex:panelGrid columns="1" styleClass="companyTable" width="100%">
+            <apex:outputText value="{!$Organization.Name}" styleClass="companyName"/>
+            <apex:outputText value="{!$Organization.Street}"/>
+            <apex:outputText value="{!$Organization.City}, {!$Organization.State} {!$Organization.PostalCode}"/>
+            <apex:outputText value="{!$Organization.Phone}"/>
+        </apex:panelGrid>
+        <apex:outputPanel layout="block" styleClass="line"/>
+        <apex:panelGrid columns="1" styleClass="centered" width="100%">
+            <apex:panelGrid columns="2" width="100%" cellpadding="0" cellspacing="0" columnClasses="left,right">
+                <apex:outputText value="Quote# {!relatedTo.name}"  styleClass="customerName"/>
+                <apex:outputField value="{!relatedTo.lastmodifieddate}" style="text-align:right"/>
+            </apex:panelGrid>
+            <apex:outputText value="{!relatedTo.opportunity__r.account.name}" styleClass="customerName"/>
+            <apex:outputText value="{!recipient.name}" styleClass="contactName"/>
+        </apex:panelGrid>
+        <apex:panelGrid columns="1">
+            <apex:outputText value="{!relatedTo.opportunity__r.account.name}"/>
+            <apex:outputText value="{!recipient.mailingStreet}"/>
+            <apex:panelGroup >
+                <apex:outputText value="{!recipient.mailingCity}"/>
+                <apex:outputText value=", {!recipient.mailingState}"/>
+                <apex:outputText value=" {!recipient.mailingPostalCode}"/>
+            </apex:panelGroup>
+            <apex:outputText value="Phone: {!recipient.phone}"/>
+        </apex:panelGrid>
+        <apex:outputPanel layout="block" styleClass="lineSmall"/>
+        <apex:repeat value="{!relatedTo.quote_Lines__r}" var="line">
+            <apex:panelGrid columns="2" columnClasses="left,right" width="100%">
+                <apex:panelGroup >
+                    <apex:outputText value="{!line.name}" styleClass="productName"/>
+                    <apex:outputPanel layout="block" styleClass="productDetail">
+                        <apex:panelGrid columns="2" columnClasses="left,none">
+                            <apex:outputText value="Units:" style="font-weight:bold"/>
+                            <apex:outputField value="{!line.Qty_Ordered__c}"/>
+                            <apex:outputText value="Unit Price:" style="font-weight:bold"/>
+                            <apex:outputField value="{!line.Unit_Net_Price__c}"/>
+                            <apex:outputText value="Product Code:" style="font-weight:bold"/>
+                            <apex:outputField value="{!line.product2__r.productCode}"/>
+                            <apex:outputText value="Description:" style="font-weight:bold"/>
+                            <apex:outputField value="{!line.product2__r.description}"/>
+                        </apex:panelGrid>
+                    </apex:outputPanel>
+                </apex:panelGroup>
+                <apex:outputField value="{!line.Ext_Net_Price__c}" styleClass="productName"/>
+            </apex:panelGrid>
+        </apex:repeat>
+        <apex:outputPanel layout="block" styleClass="lineSmall"/>
+        <apex:panelGrid columns="2" columnClasses="right" width="100%">
+            <apex:panelGrid columns="2" cellpadding="10" columnClasses="right totalLabel,right total" width="100%">
+                <apex:outputText value="Total"/>
+                <apex:outputField value="{!relatedTo.Quote_Amount_rollup__c}"/>
+            </apex:panelGrid>
+        </apex:panelGrid>
+        <apex:outputPanel layout="block" styleClass="line"/>
+    </messaging:attachment>
+</messaging:emailTemplate>

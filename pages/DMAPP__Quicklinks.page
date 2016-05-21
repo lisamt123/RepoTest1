@@ -1,0 +1,500 @@
+<apex:page >
+
+	
+	<!-- should give us a consistent skin for the video player but is misbehaving in full screen mode on IE and Chrome
+	<apex:includeScript value="{!URLFOR($Resource.Common, 	'js/video.js')}"/>
+    <link type="text/css" href="{!URLFOR($Resource.Common,  'css/video-js.css')}" rel="stylesheet" />               
+	-->
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__ttgomjs, 'ttg/lib/modernizr.js')}"/>	
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__ttgomjs, 'ttg/lib/ttgutils.js')}"/>	
+
+    <style>
+        DIV.dvlsDlg
+        {
+            font-family: Arial,Helvetica,sans-serif;
+            font-size:12px;
+        }
+        
+        DIV.dvlsDlg DIV.TITLE
+        {
+		    color: #2C3B51;
+		    font-weight: bold;
+        }        
+
+        DIV.dvlsDlg DIV.NOTES
+        {
+            color:#555555;
+            /*font-style: italic;*/
+		    padding-left: 50px;
+        }
+
+        DIV.dvlsDlg A {
+            text-decoration: none;
+            font-weight: bold;
+		    padding-left: 50px;
+        }
+
+		DIV.dvlsDlg IMG {
+		    padding-left: 10px;
+		    padding-right: 10px;
+		    position: absolute;
+		}
+
+        DIV.dvlsDlg DIV#flashplayer {
+            float: left;
+            padding-right:10px;
+        }
+
+        A.MULTIVIDEO {
+        	cursor: pointer;
+        }
+        
+        div#dvlsPlayer div.dvlsContentLeft {
+        	float:	left;
+        }
+        
+        div#dvlsPlayer div.dvlsContentRight {
+        	float:	left;
+        	padding-left:	5px;
+        	text-align:	left;
+        }
+        
+        div#dvlsPlayer div.dvlsContentRight div.dvlsContentItemDesc {
+
+		}
+        
+    </style>
+    
+    <div id="quickLinksSummary" class="dvlsDlg quicklinks"  style="display: none;">
+    </div>
+    
+    <!-- 'dialog' header for DVLS  -->
+    
+    <div id="dvlsPlayerHeader" class="dvlsDlg quicklinks" style="display: none;">
+        <div id="dvlsPlayer">
+            
+            <div class="dvlsContentLeft">
+                <div class="video-js-box">
+                    <div id="flashplayer">&nbsp;
+                    </div>
+                    <div id="fp_flash_fallback" style="width:626px;height:480px;display:none;"></div>
+                </div>
+            </div>
+            
+            <div id="dvlsContentRight">
+                <div id="dvlsContentItemDesc">
+                </div>      
+            </div>
+        </div>
+    </div>
+    
+    <script>
+
+		/* 
+		 * Copyright © The TAS Group. All rights reserved.
+		 *  
+		 */    
+    
+        var QUICKLINKS = QUICKLINKS || function(spec)
+        {
+            var _data = [];
+            var that = {};
+            
+            var progressUpdateCallback = null;
+            var quicklinkHitCallback = null;
+            
+            var isTablet = navigator.userAgent.match(/iPad/i) != null || navigator.userAgent.match(/Android/i) != null;
+            
+            
+            function setDM_Quicklinks(quicklinks)
+            {
+                _data = quicklinks;
+            }
+            
+            function getDM_Quicklinks()
+            {
+                return _data;
+            }
+
+            function quicklinkDlg(index, title) {
+                var quicklinks = _data[index];
+                
+                if (navigator.appVersion.indexOf('MSIE 7.') != -1) { // Replaces deprecated jQuery.browser after jQuery 1.9 upgrade                
+                    if (length(quicklinks) > 1) {
+                    
+                        displayDM_QuicklinkOptions(index, title);
+                        
+                    } else if (length(quicklinks) == 1) {
+                    
+                        displayDM_Quicklink(quicklinks[0], title, index);                        
+                    }
+                } 
+                else {
+                    if (quicklinks.length > 1) {
+                    
+                    	displayDM_QuicklinkOptions(index, title);                        
+                    } else if (quicklinks.length == 1) {
+                    
+                        displayDM_Quicklink(quicklinks[0], title, index);                        
+                    }
+                }
+                jQuery('.MULTIVIDEO').each(function(index, element) { 
+
+                	jQuery(this).click(function() { 
+                		optionToVideo(jQuery(this).attr('index'), jQuery(this).attr('i'), title);
+                	});
+                });                
+            }
+
+            function displayDM_QuicklinkOptions(index, title) {
+                var quicklinks = _data[index] 
+                
+                var all = jQuery('<span>')
+                // var title = '';
+                
+                jQuery.each(quicklinks,
+
+                	function (i, quicklink) {
+                        // title = quicklink.name;
+                        jQuery(all).append(jQuery(getLinkDisplayOption(quicklink, true, index, i)));
+                	}
+                	
+                );
+                             
+
+				jQuery('#quickLinksSummary').empty().append(all);
+                jQuery("#quickLinksSummary").dialog('option', 'title', title );          
+                jQuery('#quickLinksSummary').dialog('open');
+                // jQuery(".ui-widget-overlay").click(function(){ jQuery(".ui-dialog-titlebar-close").trigger('click');});
+            }
+
+            function getLinkDisplayOption(quicklink, showTile, index, i) {
+                var content = jQuery('<div>').css({'padding': '5px'});
+
+				var tile = null;
+                var ahref = jQuery('<a>').text(quicklink.name)
+
+                if (i == undefined) ahref = jQuery('<div>').text(quicklink.name).addClass('TITLE');
+
+                if (quicklink.type.toLowerCase() == 'link') {
+
+                    ahref = jQuery(ahref).attr('target', '_blank')
+                    ahref = jQuery(ahref).attr('href', quicklink.link)
+                    jQuery(ahref).append(jQuery('<img>').attr('src', '{!URLFOR($Resource.Assessment, 'common/images/externalLink.jpg')}'));
+                    
+                    ahref.on('click', function(event) {
+                    	if(progressUpdateCallback) {
+                    		progressUpdateCallback({id: quicklink.id, complete: true});
+                    	}
+	                    if(quicklinkHitCallback != null) {
+	                        quicklinkHitCallback(spec, quicklink);
+	                    }
+                    });
+                    
+                }
+/*                else if (quicklink.type.toLowerCase() == 'video') {
+
+                    if (index != undefined && i != undefined) {
+                        ahref.addClass('MULTIVIDEO').attr('index', index).attr('i', i)
+                        
+                        jQuery(ahref).append(jQuery('<img>').attr('src', '{!URLFOR($Resource.Assessment, 'common/images/play.gif')}'));
+                    }
+                }*/
+                else {
+
+                    if (quicklink.type.toLowerCase() == 'video' && index != undefined && i != undefined) {
+                        ahref.addClass('MULTIVIDEO').attr('index', index).attr('i', i)
+                    } else {
+	                    ahref = jQuery(ahref).attr('target', '_blank')
+	                    ahref = jQuery(ahref).attr('href', quicklink.link)
+	                }
+
+                    ahref.on('click', function(event) {
+                    	if(progressUpdateCallback) {
+	                    	progressUpdateCallback({id: quicklink.id, complete: true});
+	                    }		
+	                    if(quicklinkHitCallback != null) {
+	                        quicklinkHitCallback(spec, quicklink);
+	                    }
+                    });
+
+					if ( showTile ) {
+	                    jQuery(ahref).append(jQuery('<img>').attr('src', '{!URLFOR($Resource.Assessment, 'common/images/externalLink.jpg')}'));
+	                    if ( quicklink.icon ) {
+	                    	tile = jQuery('<img>').attr({'src': quicklink.icon, 'height': '30px', 'width': '30px'});
+	                    } else {
+	                    	tile = jQuery('<img>').attr({'src': getQuicklinkTile(quicklink.type), 'height': '30px', 'width': '30px'});
+	                    }
+					}
+                }
+                
+                var imgDiv = jQuery('<span/>');
+				if ( tile ) {
+	                imgDiv.append(jQuery(tile));
+				}
+                
+                var aDiv = jQuery('<span/>').css({'display': 'inline-table', 'margin': '5px 0'}).append(jQuery(ahref));
+//                aDiv.append(jQuery('<br>'));
+                aDiv.append(jQuery('<div>').addClass('NOTES').text(quicklink.description || ' '));
+//                aDiv.append(jQuery('<p>'));
+
+                content.append(imgDiv);
+                content.append(aDiv);
+                
+                return content;
+            }
+            
+            function getQuicklinkTile(type) {
+            	
+            	if ( type == 'Word' ) {
+            		return '{!URLFOR($Resource.Common, 'images/filetypes/doctype_word.png')}';
+            	}
+            	if ( type == 'Excel' ) {
+            		return '{!URLFOR($Resource.Common, 'images/filetypes/doctype_excel.png')}';
+            	}
+            	if ( type == 'PPT' || type == 'Powerpoint' ) {
+            		return '{!URLFOR($Resource.Common, 'images/filetypes/doctype_ppt.png')}';
+            	}
+            	if ( type == 'PDF' ) {
+            		return '{!URLFOR($Resource.Common, 'images/filetypes/doctype_pdf.png')}';
+            	}
+            	if ( type == 'Image' ) {
+            		return '{!URLFOR($Resource.Common, 'images/filetypes/doctype_image.png')}';
+            	}
+            	if ( type == 'Video' ) {
+            		return '{!URLFOR($Resource.Common, 'images/filetypes/doctype_video.png')}';
+            	}
+            	if ( type == 'ZIP' ) {
+            		return '{!URLFOR($Resource.Common, 'images/filetypes/doctype_zip.png')}';
+            	}
+            	if ( type == 'Web' ) {
+            		return '{!URLFOR($Resource.Common, 'images/filetypes/doctype_web.png')}';
+            	}
+            	if ( type == 'Link' ) {
+            		return '{!URLFOR($Resource.Common, 'images/filetypes/doctype_web.png')}';
+            	}
+            	if ( type == 'Download' ) {
+            		return '{!URLFOR($Resource.Common, 'images/filetypes/doctype_other.png')}';
+            	}
+
+           		return '{!URLFOR($Resource.Common, 'images/filetypes/doctype_other.png')}';
+            }
+
+            function length(array) {
+                var count = 0;
+    
+                jQuery.each(array,
+
+                	function (i, item) {
+	                    count++;
+                	}
+                );
+                
+                return count;
+            } 
+
+
+            function optionToVideo(index, i, title) {
+                var quicklinks = _data[index];
+                 
+                jQuery('#quickLinksSummary').dialog('close');
+                playVideo(quicklinks[i], title);
+            }
+                
+
+
+            function displayDM_Quicklink(quicklink, title, index) {
+                if (quicklink.type.toLowerCase() == 'video') {
+                    playVideo(quicklink, title)
+                }
+                else {
+					displayDM_QuicklinkOptions(index ? index : 0, title);
+                }
+            }
+
+            function playVideo(quicklink, title)
+            {
+                jQuery('#dvlsContentItemDesc').html(jQuery(getLinkDisplayOption(quicklink)));
+
+				var vHeight = isTablet ? '240' : '480';
+				var vWidth = isTablet ? '313' : '626';
+		
+
+                var flashConfig = 'config={"playlist":[{"url": "'+quicklink.link + '.mp4'+'","autoPlay":true, "scaling": "orig"}]}';
+                var videojs_player_html = 
+                      '<div class="video-js-box" style="text-align:center;">\n' +
+                        '<video id="dvls_video" class="video-js vjs-default-skin" width="' + vWidth + '" height="' + vHeight +'" controls="controls" preload="none" poster="{!URLFOR($Resource.Assessment, 'common/images/transparent_dot.gif')}" autoplay="autoplay">\n' +
+                            '<source id="webm_src" src="' +quicklink.link + '.webm' +'" type=\'video/webm; codecs="vp8, vorbis"\' />\n' +
+                            '<source id="mp4_src" src="' + quicklink.link + '.mp4' +'" type=\'video/mp4; codecs="avc1.42E01E, mp4a.40.2"\' />\n' +
+                            '<object id="flash_fallback" class="vjs-flash-fallback" width="' + vWidth + '" height="' + vHeight + '" type="application/x-shockwave-flash" data="https://www.dealmakerplatform.com/Dealmaker8/flowplayer-3.2.12.swf">\n' +
+                                '<param name="movie" value="https://www.dealmakerplatform.com/Dealmaker8/flowplayer-3.2.12.swf" />\n' +
+                                '<param name="allowfullscreen" value="true" />\n' +
+                                '<param name="flashvars" value=\'' +flashConfig +'\' />\n' +
+                            '</object>\n' +
+                        '</video>\n' +
+                      '</div>\n';
+
+            
+                jQuery('#flashplayer').html(videojs_player_html);
+            
+                //console.dir(quicklink);
+                
+                if(quicklinkHitCallback != null) {
+					quicklinkHitCallback(spec, quicklink);
+				}
+            
+            	// bind to events
+				if(progressUpdateCallback) {
+	                var reachedEightyPercent = false;
+	                jQuery('video#dvls_video').bind("play", function() {
+	                    reachedEightyPercent = false;
+	                    progressUpdateCallback({id: quicklink.id, complete: false});
+	                });
+	
+	                jQuery('video#dvls_video').bind("ended", function() {
+                        progressUpdateCallback({id: quicklink.id, complete: true});
+	                });
+	
+	                jQuery('video#dvls_video').bind("timeupdate", function() {
+	                    if (getPercentageProgress() >= 80 && !reachedEightyPercent) {
+	                        reachedEightyPercent = true;
+                            progressUpdateCallback({id: quicklink.id, complete: true});
+	                    }
+	                });
+				}
+
+                jQuery('#dvlsPlayerHeader').dialog('open');
+                jQuery("#dvlsPlayerHeader" ).dialog( "option", "title", title ? title : quicklink.name );               
+                //jQuery(".ui-widget-overlay").click(function(){ jQuery(".ui-dialog-titlebar-close").trigger('click');});
+                jQuery("#dvlsPlayerHeader" ).bind('dialogclose', function(event) { 
+                																	jQuery('#flashplayer').html('');
+                																	
+                																	if(!browserSupportsVideo()) {
+                																		var fallbackPlayerInstance = $f('fp_flash_fallback');
+                																		if(!(typeof fallbackPlayerInstance === 'undefined') &&
+                																			(fallbackPlayerInstance != '') &&
+                																			(fallbackPlayerInstance != null)) {
+                																			fallbackPlayerInstance.stop();
+                																			//console.log('!!!!!! fallback player has stopped');	
+                																		} 	
+                																	} 
+                																});
+                
+                if(!browserSupportsVideo()) {
+                	
+                	jQuery("object[id='flash_fallback']").remove();
+                	
+                	jQuery("div[id='fp_flash_fallback']").show();
+                	
+                	var mp4url = quicklink.link + '.mp4'; 
+					
+					var reachedEightyPercent = false;
+
+                	$f('fp_flash_fallback', 'https://www.dealmakerplatform.com/Dealmaker8/flowplayer-3.2.12.swf', {
+
+						clip: {
+							
+							// when clip starts, this function is called
+							
+							onStart: function(clip) {
+								if (clip.completeUrl === mp4url) { // only handle events for the video clip
+
+									//console.log('!!!!!! fallback player has started');
+									//qlHelper.logPlayerEvent("logVideoState", contentItemId, vidObj.videocontentitemid, "PLAYING");
+									if(progressUpdateCallback) {
+										//console.log('!!!!!! fallback player has started => progressUpdateCallback, quicklink id:' + quicklink.id);
+										reachedEightyPercent = false;
+										progressUpdateCallback({id: quicklink.id, complete: false});
+									}
+									var eightyPercent = parseInt((clip.duration * 80) / 100);
+									var cuePoints = [];
+									cuePoints.push(eightyPercent * 1000);
+
+									clip.onCuepoint(cuePoints, function(clip, seconds){
+
+										//console.log('!!!!!! fallback player hit 80% cuepoint ');       
+										//qlHelper.logPlayerEvent("logVideoComplete", contentItemId, vidObj.videocontentitemid);
+										if(progressUpdateCallback && !reachedEightyPercent) {
+											//console.log('!!!!!! fallback player hit 80% cuepoint => progressUpdateCallback, quicklink id:' + quicklink.id);       
+											reachedEightyPercent = true;
+                            				progressUpdateCallback({id: quicklink.id, complete: true});
+                            			}
+									});
+								}	
+							},
+					
+							onFinish: function(clip) {
+								
+								if (clip.completeUrl === mp4url) { // only handle events for the video clip
+	
+									//console.log('!!!!!! fallback player has completed');               
+	
+									//qlHelper.logPlayerEvent("logVideoState", contentItemId, vidObj.videocontentitemid, "COMPLETE");
+									if(progressUpdateCallback) {
+										//console.log('!!!!!! fallback player has completed => progressUpdateCallback, quicklink id:' + quicklink.id);               
+										progressUpdateCallback({id: quicklink.id, complete: true});
+									}	
+								}
+							}
+                 		},
+					
+                 		playlist: [
+							//{
+							//	url: 'imageUrl',
+							//	scaling: 'orig'
+							//},
+							{
+								url : mp4url,
+								scaling: 'orig',
+								autoPlay: false
+							}
+                 		]
+                 	/**/	
+ 					});
+ 					//console.log('done adding flowplayer stuff via JS');
+                }
+            }
+            
+            function browserSupportsVideo() {
+            	if (typeof doesBrowserSupportVideo != 'undefined') {
+            		return doesBrowserSupportVideo;
+            	}
+            	doesBrowserSupportVideo = !!document.createElement('video').canPlayType;
+            	return doesBrowserSupportVideo;
+            }
+
+			function getPercentageProgress() {
+				var vid = jQuery('video#dvls_video')[0];
+				var soFar = parseInt(((vid.currentTime / vid.duration) * 100));
+				return soFar;
+			}
+
+            function init()
+            {
+            	var dWidth = isTablet ? '640px' : '650px'
+                jQuery('#dvlsPlayerHeader').dialog({ modal: true, width: dWidth, resizable: false, autoOpen: false, open : function() {  /* VideoJS.setup( "dvls_video" ); */ }, beforeClose: function(event, ui) { jQuery('#flashplayer').html('') }, buttons: {'Close': function() { jQuery(this).dialog("close"); } } });
+                jQuery('#quickLinksSummary').dialog({ modal: true, width: dWidth, resizable: false, autoOpen: false, buttons: {'Close': function() { jQuery(this).dialog("close"); } } });
+            }
+
+            function setProgressUpdateCallback(cb) {
+                progressUpdateCallback = cb;
+            }
+            
+			function setQuicklinkHitCallback(cb) {
+                quicklinkHitCallback = cb;
+            }
+
+            init();
+
+            that.setDM_Quicklinks = setDM_Quicklinks;
+            that.getDM_Quicklinks = getDM_Quicklinks;
+            that.quicklinkDlg = quicklinkDlg;
+            that.optionToVideo = optionToVideo; 
+            that.setProgressUpdateCallback = setProgressUpdateCallback;
+			that.setQuicklinkHitCallback = setQuicklinkHitCallback;
+
+            return that;            
+        }
+    </script>
+            
+</apex:page>

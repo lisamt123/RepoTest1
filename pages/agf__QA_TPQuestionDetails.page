@@ -1,0 +1,293 @@
+<apex:page standardController="agf__QA_Test_Plan__c" extensions="agf.QA_TPQuestionDetails" showHeader="false" sidebar="false">
+    <script language="javascript" type="text/javascript">
+        var previousOnload = window.onload;
+
+        //The toggle state of all arrow images
+        var toggleState = new Array();
+
+        window.onload = function() {
+            if (previousOnload) {
+                previousOnload();
+            }
+            setImageDisplay('', 'none');
+        }
+
+        //Toggle an individual category, eId, to be expanded
+        //or collapsed on the page
+        function toggleDisplay(eId) {
+            var elem = document.getElementById(eId);
+            if(elem.style.display == 'none') {
+                elem.style.display = '';
+                toggleState[eId] = '';
+            }
+            else {
+                elem.style.display = 'none';
+                toggleState[eId] = 'none';
+            }
+        }
+
+        //Expand all categories specified in delimitedCategories.
+        function setExpandAll() {
+            setAll('');
+            setImageDisplay('none', '');
+        }
+
+        //Collapse all categories specified in delimitedCategories
+        function setCollapseAll() {
+            setAll('none');
+            setImageDisplay('', 'none');
+        }
+
+        //Sets the display style of all arrow image tags
+        function setImageDisplay(rightArrow, downArrow) {
+            var inputs = document.getElementsByTagName("img");
+            var id;
+
+            for (var i = 0; i < inputs.length; i++) {
+              id = inputs[i].id;
+              if(id.indexOf("rightArrow") != -1) {
+                inputs[i].style.display = rightArrow;
+                toggleState[id] = rightArrow;
+              }
+              if(id.indexOf("downArrow") != -1) {
+                inputs[i].style.display = downArrow;
+                toggleState[id] = downArrow;
+              }
+            }
+        }
+
+        //Sets the display style of all category headers.
+        function setAll(displayStyle) {
+            //delimitedCategories returnes a semicolin delimited string
+            //of categories with '.section' apended to it
+            var categoriesString = '{!JSENCODE(delimitedCategories)}';
+            var categoriesArray = categoriesString.split(';');
+
+            //toggle the category sections either collapsed or expanded
+            //based on the displayStyle
+            for(i=0; i< categoriesArray.length; i++) {
+                elem = document.getElementById(categoriesArray[i]);
+                elem.style.display = displayStyle;
+            }
+        }
+    </script>
+    
+    <style type="text/css">
+        .popupHeader { 
+            background-color: #EDF0F1;
+            border-style:none none solid none;
+            border-width:2px;
+            border-color:white;
+            font-size:16px;
+            width:100%;
+            padding:6px;
+        }
+        
+        .errorPopup {
+            background-color:#F7F7F7;
+            left:50%;
+            position:fixed;
+            z-index:9999;
+            width:310px;
+            margin-left:-155px;
+            top:40%;
+        }
+        
+        .popupBackground {
+            background-color:black;
+            opacity:0.60;
+            filter:progid:DXImageTransform.Microsoft.Alpha(Opacity=60);
+            -ms-filter:"progid:DXImageTransform.Microsoft.Alpha(Opacity=60)";
+            position:absolute;
+            width:100%;
+            height:100%;
+            top:0px;
+            left:0px;
+            z-index:9998;
+        }
+        
+        .centered {
+            margin:auto;
+            display:block;
+        }
+    </style>
+
+<apex:form >
+    <!-- Popup error that displays when conditions for adding default test cases for a question are not meant -->
+    <apex:outputPanel id="popup">
+        <apex:outputPanel styleClass="errorPopup" layout="block" rendered="{!displayPopup}">
+            <table>
+                <tr><td class="popupHeader"><strong>Error</strong></td></tr>
+                <tr><td style="padding:6px">{!popupMessage}</td></tr>
+                <tr><td align="center" style="padding-bottom:6px;"><apex:commandButton value="OK" action="{!closePopup}" rerender="popup" style="width:50px"/></td></tr>
+            </table>
+        </apex:outputPanel>
+        <apex:outputPanel styleClass="popupBackground" layout="block" rendered="{!displayPopup}"/>
+    </apex:outputPanel>
+    
+    <apex:pageBlock title="Test Plan Completeness">
+        <apex:pageBlockButtons location="top">
+            <apex:outputPanel id="commandButtons">
+                <apex:commandButton value="Expand All" onmousedown="setExpandAll();" rerender="overallCompleteness"/>
+                <apex:commandButton value="Collapse All" onmousedown="setCollapseAll()" rerender="overallCompleteness"/>
+                <apex:commandButton action="{!saveRows}" rendered="{!isEditable}" value="Save All Rows" rerender="displayNumberOfComments,upperCommentText,commentAddLink,commentText,comments,answerStatus,commandButtons,images,overallCompleteness,questionErrorSection"/>
+                <apex:commandButton action="{!revertRows}" rendered="{!isEditable}" value="Cancel" rerender="upperCommentText,commentAddLink,commentText,answerStatus,commandButtons,images,overallCompleteness,secHeader,answerStatus,commandButtons,images,overallCompleteness,questionErrorSection"/>
+                <apex:commandButton action="{!EditAll}" rendered="{!NOT(isEditable)}" value="Edit All Rows" rerender="upperCommentText,commentAddLink,commentText,answerStatus,commandButtons,images,overallCompleteness"/>
+            </apex:outputPanel>
+        </apex:pageBlockButtons>
+        <apex:outputPanel id="questionErrorSection"><apex:outputText rendered="{!isError}" value="{!error}" style="color:red;"/></apex:outputPanel>
+        <apex:outputPanel rendered="{!hasQuestions}">
+        <table width="100%">
+            <tr><td width="42%">
+                <apex:outputPanel id="overallCompleteness">
+                    <apex:outputPanel rendered="{!categoryCompleteness>=0}">
+                        <b>Overall Completeness: {!categoryCompleteness}%</b>
+                    </apex:outputPanel>
+                    <apex:outputPanel rendered="{!categoryCompleteness==-1}">
+                        <b>Overall Completeness: N/A</b>
+                    </apex:outputPanel>&nbsp;
+                </apex:outputPanel>
+            </td>
+            <apex:repeat value="{!statusLabels}" var="label" id="theRepeat">
+                <td width="10%" align="center"><b><apex:outputText value="{!label}" id="theValue"/>&nbsp;</b></td>
+            </apex:repeat>
+            <td width="18%"></td>
+            </tr>
+        </table>
+        </apex:outputPanel>
+        <apex:outputPanel rendered="{!!hasQuestions}">There are no questions to be answered</apex:outputPanel>
+
+        <!-- Iterate through the category sections and display the answers -->
+        <apex:dataTable value="{!answerLists}" var="answerList"  id="answerTable" width="100%">
+            <apex:column >
+
+                <!-- Display the category section header -->
+                <apex:outputPanel id="secHeader">
+                    <apex:outputPanel layout="block" styleClass="pbSubheader first tertiaryPalette" style="height:16px;{!answerList.color}" onmousedown="toggleDisplay('{!$Component.rightArrow}');toggleDisplay('{!$Component.downArrow}');toggleDisplay('{!answerList.category}.section');" >
+                        <table width="100%" cellpadding="0" cellspacing="0"><tr valign="top"><td width="3" height="20px">
+
+                            <apex:image id="rightArrow" url="{!$Resource.agf__QA_secHeadArrRight}" onclick="toggleDisplay('{!$Component.rightArrow}');toggleDisplay('{!$Component.downArrow}');toggleDisplay('{!JSENCODE(answerList.category)}.section');"></apex:image>
+                            <apex:image id="downArrow" url="{!$Resource.agf__QA_secHeadArrDown}" onClick="toggleDisplay('{!$Component.rightArrow}');toggleDisplay('{!$Component.downArrow}');toggleDisplay('{!JSENCODE(answerList.category)}.section');"></apex:image>
+
+                            <!-- Set the arrow image style when the secHeader is rerendered -->
+                            <script>
+                                document.getElementById('{!$Component.rightArrow}').style.display = toggleState['{!$Component.rightArrow}'];
+                                document.getElementById('{!$Component.downArrow}').style.display = toggleState['{!$Component.downArrow}'];
+                            </script>
+
+                        </td><td width="50%">
+                            <apex:outputPanel rendered="{!answerList.percentComplete>=0}">
+                                {!answerList.category}  ( {!answerList.percentComplete}% )
+                            </apex:outputPanel>
+                            <apex:outputPanel rendered="{!answerList.percentComplete==-1}">
+                                {!answerList.category}  ( N/A )
+                            </apex:outputPanel>
+                        </td><td width="50%" align="right">
+                            <apex:outputPanel id="smallimages">
+                                <apex:image url="{!$Resource.agf__QA_questionMark}" height="15px" rendered="{!answerList.percentComplete==100.0}"/>
+                                <apex:image url="{!$Resource.agf__QA_questionMarkNA}" height="15px" rendered="{!answerList.percentComplete==-1}"/>
+                                <apex:image url="{!$Resource.agf__QA_dash}" height="15px" rendered="{!answerList.inProgress}"/>
+                                <apex:image url="{!$Resource.agf__QA_placeHolder}" height="15px" rendered="{!answerList.percentComplete==0.0}"/>
+                            </apex:outputPanel>
+                        </td></tr></table>
+                    </apex:outputPanel>
+                </apex:outputPanel>
+
+                <!-- Iterate through and display the answers -->
+                <span id="{!answerList.category}.section" style="display:none;">
+                    <apex:pageBlockTable value="{!answerList.answers}" var="answerContainer" width="100%">
+                        <apex:column width="4%">
+                            <apex:outputPanel id="images">
+                                <apex:image url="{!$Resource.agf__QA_questionMark}" rendered="{!answerContainer.answer.agf__Status__c==completedLabel}"/>
+                                <apex:image url="{!$Resource.agf__QA_questionMarkNA}" rendered="{!answerContainer.answer.agf__Status__c==NALabel}"/>
+                                <apex:image url="{!$Resource.agf__QA_dash}" rendered="{!answerContainer.answer.agf__Status__c==InProgressLabel}"/>
+                                <apex:image url="{!$Resource.agf__QA_placeHolder}" rendered="{!answerContainer.answer.agf__Status__c==NotStartedLabel}"/>
+                            </apex:outputPanel>
+                        </apex:column>
+                        <apex:column width="36%">
+                            {!answerContainer.answer.Question__r.Question_Text__c}<br /><br />
+                            <u>
+                            <a href="#1" id="{!answerContainer.answer.Id}.showMore" onClick="toggleDisplay('{!answerContainer.answer.Id}');toggleDisplay('{!answerContainer.answer.Id}.showMore');toggleDisplay('{!answerContainer.answer.Id}.hideMore');">Show <apex:outputLabel rendered="{!NOT(ISNULL(answerContainer.answer.Question__r.agf__More_Info__c))}">More Info and </apex:outputLabel>Comments</a>
+                            <a href="#1" id="{!answerContainer.answer.Id}.hideMore" onClick="toggleDisplay('{!answerContainer.answer.Id}');toggleDisplay('{!answerContainer.answer.Id}.showMore');toggleDisplay('{!answerContainer.answer.Id}.hideMore');" style="display:none;">Hide <apex:outputLabel rendered="{!NOT(ISNULL(answerContainer.answer.Question__r.agf__More_Info__c))}">More Info and </apex:outputLabel>Comments</a>
+                            <apex:outputPanel id="displayNumberOfComments">({!answerContainer.numberOfComments})</apex:outputPanel>
+                            </u>
+                            &nbsp;<apex:outputLink target="_blank" value="{!answerContainer.answer.Question__r.agf__URL__c}" rendered="{!NOT(ISNULL(answerContainer.answer.Question__r.agf__URL__c))}">More Resources</apex:outputLink>
+
+                            <!-- Used to add comments when the row is editable
+                                Need it outside the comment block so a user can add a comment when
+                                editing a row, even if they arn't viewing the comments -->
+                            <apex:outputPanel layout="block" id="upperCommentText">
+                                <br /><apex:inputTextarea rendered="{!answerContainer.editable}" cols="60" rows="6" value="{!answerContainer.newComment}"/>
+                            </apex:outputPanel>
+
+                            <!-- Block for more info and comments -->
+                            <span id="{!answerContainer.answer.Id}" style="display:none;"><hr/>
+                                <a href="" id="#1"></a><apex:outputLabel rendered="{!NOT(ISNULL(answerContainer.answer.Question__r.agf__More_Info__c))}"><br /> {!answerContainer.answer.Question__r.More_Info__c}<br /><br /></apex:outputLabel>
+
+                                <span id="{!answerContainer.answer.Id}.commentAdd">
+                                <apex:outputPanel layout="block" id="commentAddLink">
+                                <apex:commandButton id="commentAdd" action="{!doNothing}" rendered="{!NOT(answerContainer.editable)}" rerender="comments" onClick="toggleDisplay('{!answerContainer.answer.Id}.comment');toggleDisplay('{!answerContainer.answer.Id}.commentAdd');" value="Add Comment"></apex:commandButton>
+                                </apex:outputPanel>
+                                </span>
+
+                                <!-- Comment block -->
+                                <span id="{!answerContainer.answer.Id}.comment" style="display:none;">
+
+                                <!-- Used to add a comment if the row is not editable -->
+                                <apex:outputPanel layout="block" id="commentText">
+                                <br /><apex:inputTextarea rendered="{!NOT(answerContainer.editable)}" cols="60" rows="6" value="{!answerContainer.newComment}"/><br />
+                                <apex:commandButton action="{!answerContainer.saveComment}" rendered="{!NOT(answerContainer.editable)}" rerender="displayNumberOfComments,comments,commentText" onClick="toggleDisplay('{!answerContainer.answer.Id}.comment');toggleDisplay('{!answerContainer.answer.Id}.commentAdd');" value="Save Comment"></apex:commandButton>
+                                &nbsp;&nbsp;
+                                <apex:commandButton action="{!answerContainer.cancelComment}" rendered="{!NOT(answerContainer.editable)}" rerender="comments,commentText" onClick="toggleDisplay('{!answerContainer.answer.Id}.comment');toggleDisplay('{!answerContainer.answer.Id}.commentAdd');" value="Cancel Comment"></apex:commandButton>
+                                </apex:outputPanel>
+                                </span>
+
+                                <!-- Display the comments -->
+                                <apex:outputPanel layout="block" style="padding-left:20px;" id="comments">
+                                    <table style="font-size: 12px;">
+                                        <apex:repeat value="{!answerContainer.commentsInDesc}" var="comment">
+                                            <tr> <td style="border-bottom:1px solid black;"><i>{!comment.Owner.Name}, {!comment.CreatedDate}</i></td></tr>
+                                            <tr><td style="padding-left:20px; border: none;"><apex:outputText escape="true" value="{!comment.agf__Comment_Text__c}"/></td></tr>
+                                        </apex:repeat>
+                                    </table>
+                                </apex:outputPanel>
+                            </span>
+                        </apex:column>
+
+                        <apex:column width="60%">
+                            <apex:outputPanel layout="block" id="answerStatus" onMouseOver="if({!NOT(answerContainer.editable)}) document.getElementById('{!$Component.editIcon}').className='';" onMouseOut="if({!NOT(answerContainer.editable)}) document.getElementById('{!$Component.editIcon}').className='hidden';">
+                                <table width="100%" style="table-layout:fixed;"><tr class="last"><td width="70%">
+                                    <apex:selectRadio style="width:100%; text-align:center;" disabled="{!NOT(answerContainer.editable)}" value="{!answerContainer.answer.agf__Status__c}" >
+                                        <apex:selectOption itemValue="{!NALabel}"/>
+                                        <apex:selectOption itemValue="{!NotStartedLabel}"/>
+                                        <apex:selectOption itemValue="{!InProgressLabel}"/>
+                                        <apex:selectOption itemValue="{!CompletedLabel}" itemDisabled="{!answerContainer.hasDefaultTestCases}"/>
+                                        <apex:actionSupport event="onclick" rerender="secHeader,images,overallCompleteness"/>
+                                    </apex:selectRadio>
+                                </td>
+                                <td width="25%">
+                                    <apex:commandButton value="Add Default Test Cases" action="{!addDefaultTestCases}" rerender="popup" rendered="{!answerContainer.hasDefaultTestCases}">
+                                        <apex:param name="answerid" value="{!answerContainer.answer.id}"/>
+                                    </apex:commandButton>
+                                </td>
+                                <td width="5%" style="border:0px;">
+
+                                <apex:image id="editIcon" url="{!$Resource.agf__IconEdit}" styleClass="hidden" rendered="{!NOT(answerContainer.editable)}">
+                                    <apex:actionSupport event="ondblclick"  action="{!answerContainer.setEditable}" rerender="commentAddLink,commentText,upperCommentText,answerStatus,commandButtons,images,testSection"/>
+                                </apex:image>
+                                <apex:image url="{!$Resource.agf__IconUndo}" rendered="{!answerContainer.editable}">
+                                    <apex:actionSupport event="onclick" action="{!answerContainer.revertStatus}" rerender="commentAddLink,commentText,upperCommentText,answerStatus,commandButtons,images,testSection"/>
+                                </apex:image>
+                                </td></tr></table>
+                                <apex:actionSupport rendered="{!NOT(answerContainer.editable)}" event="ondblclick" action="{!answerContainer.setEditable}" rerender="commentAddLink,commentText,upperCommentText,answerStatus,commandButtons,images,testSection"/>
+                            </apex:outputPanel>
+                            <apex:actionSupport rendered="{!NOT(answerContainer.editable)}" event="ondblclick" action="{!answerContainer.setEditable}" rerender="commentAddLink,commentText,upperCommentText,answerStatus,commandButtons,images,testSection"/>
+                        </apex:column>
+                    </apex:pageBlockTable>
+                </span>
+            </apex:column>
+        </apex:dataTable>
+    </apex:pageBlock>
+    </apex:form>
+
+</apex:page>

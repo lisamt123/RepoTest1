@@ -1,0 +1,363 @@
+<apex:page standardController="SFDC_Paid_Time_Off__c" extensions="PTO_PageOneEmpDays">
+    <apex:sectionHeader title="Edit Time Off Request" subtitle="{!balName}" />
+    <apex:form >
+        <apex:actionRegion >
+        <apex:pageBlock title="Request Time Off" id="thePageBlock" mode="edit">
+            <apex:pageMessages />
+            <apex:pageBlockButtons location="bottom">
+                <apex:commandButton id="saveButton" value="Save" action="{!updatePTO}" disabled="{!sameWeekError == true || overEightHours == true || day1NegTime == true || day1OverEight == true || 
+                                                                                                  negativeTime == true || day2NegTime == true || day2OverEight == true || day3NegTime == true || day3OverEight == true || 
+                                                                                                  day4NegTime == true || day4OverEight == true || day5NegTime == true || day5OverEight == true || multi1TimeError == true || 
+                                                                                                  multi2TimeError == true || multi3TimeError == true || multi4TimeError == true || multi5TimeError == true || 
+                                                                                                  endBeforeStart == true || holidayDate == true || lunchNeg == true}" />
+                <apex:commandButton value="Cancel" action="{!cancelUpdate}" />
+            </apex:pageBlockButtons>
+                <!--  Main block, all user information for PTO, by selecting the type of PTO it reRenders the sections below -->
+                <apex:pageBlockSection id="info" title="Information" columns="1">
+                    <apex:pageBlockSectionItem >
+                        <apex:outputText value="Employee's Name" />
+                        <apex:outputText value="{!userNameEdit}" />
+                    </apex:pageBlockSectionItem>
+                    <!-- <apex:pageBlockSectionItem >
+                        <apex:outputText value="Time Off Balance Name" />
+                        <apex:outputText value="{!balNameEdit}" />                      
+                    </apex:pageBlockSectionItem>
+                    <apex:pageBlockSectionItem >
+                        <apex:outputText value="PTO Available" />
+                        <apex:outputText value="{!availEdit}" />
+                    </apex:pageBlockSectionItem> -->
+                    <apex:pageBlockSectionItem >
+                        <apex:outputText value="Total Approved This Year" />
+                        <apex:outputText value="{!totalApproved}" />
+                    </apex:pageBlockSectionItem>
+                    <apex:selectList label="Type of PTO" value="{!days}" size="1" >
+                        <apex:selectOptions value="{!items}" />
+                        <apex:actionSupport event="onchange" action="{!typeChange}" reRender="thePageBlock, pd1Info, day1Hours, pd2Info, day2Hours, pd3Info, day3Hours, pd4Info, day4Hours, pd5Info, day5Hours, multiDaySection, saveButton"/>
+                    </apex:selectList>
+                    <apex:inputField value="{!SFDC_Paid_Time_Off__c.Request_Type__c}" />                                    
+                    <apex:inputfield value="{!SFDC_Paid_Time_Off__c.Type__c}"/>                                 
+                    <apex:inputField value="{!SFDC_Paid_Time_Off__c.Approval_Status__c}" />
+                    <apex:inputTextArea cols="75" rows="10"  value="{!SFDC_Paid_Time_Off__c.Notes__c}" />
+                    <apex:pageBlockSectionItem >
+                        <apex:inputfield style="display:none;" value="{!SFDC_Paid_Time_Off__c.Dummy__c}" />
+                    </apex:pageBlockSectionItem>
+                </apex:pageBlockSection>
+                <!--  This section is for a Full Day.  One date - 8 hours of PTO to be deducted -->
+                <apex:pageBlockSection title="Full Day" columns="1" rendered="{!days == 'Full Day'}">
+                    <apex:inputField value="{!SFDC_Paid_Time_Off__c.Full_Day_Date__c}" >
+                        <apex:actionSupport event="onchange" action="{!fullDay}" reRender="dateError1, saveButton" />
+                    </apex:inputField>
+                    <apex:pageBlockSectionItem >
+                    <apex:outputText style="color:red;" value="PLEASE NOTE" />
+                    <apex:outputText style="color:red;" value="By selecting Full Day, 8 hours of PTO will be deducted from your Time Off Balance." />
+                    </apex:pageBlockSectionItem>
+                </apex:pageBlockSection>
+                <apex:outputPanel id="dateError1">
+                <apex:pageBlockSection >
+                    <apex:pageMessage summary="Full Day Date cannot be blank." severity="error" strength="3" rendered="{!nullDate == true}"/>
+                    <apex:pageMessage summary="Date CANNOT be a paid company holiday.  Please choose a different date." severity="error" strength="4" rendered="{!holidayDate == true}"/>
+                    <apex:pageMessage summary="You do not have enough hours for this request." severity="error" strength="4" rendered="{!negHours == true}"/>
+                </apex:pageBlockSection>
+                </apex:outputPanel>
+                <!--  This section is for partial day off.  Pick the day then the times needed off, will auto calculate hours and deduct them. -->
+                <apex:pageBlockSection title="Partial Day" columns="1" rendered="{!days == 'Partial Day'}">
+                    <apex:inputField value="{!SFDC_Paid_Time_Off__c.Partial_Day_Date__c}" >
+                        <apex:actionSupport event="onchange" action="{!partialDateNull}" reRender="dateError2, saveButton"/>
+                    </apex:inputField>
+                    <apex:selectList id="partialTimeStart" label="Start Time" value="{!partialTimeStart}" size="1">
+                        <apex:selectOptions value="{!partialTimes}" />
+                    </apex:selectList>
+                    <apex:outputLabel value=""/>
+                    <apex:selectList id="partialTimeEnd" label="End Time" value="{!partialTimeEnd}" size="1" >
+                        <apex:selectOptions value="{!partialTimes}" />
+                        <apex:actionSupport event="onchange" action="{!partialDays}" reRender="partialDayError, partialTimeError, partialDayHours, dateError2, saveButton" /> 
+                    </apex:selectList>
+                    <apex:selectList id="lunchHourSelect" label="Use Lunch Hour?" value="{!lunches}" size="1">
+                        <apex:selectOptions value="{!lunch}" />
+                        <apex:actionSupport event="onchange" action="{!partialDays}" reRender="partialDayHours, saveButton, dateError2" />
+                    </apex:selectList>
+                </apex:pageBlockSection>
+                <apex:outputPanel id="partialDayHours">
+                    <apex:pageBlockSection rendered="{!days == 'Partial Day'}">
+                        <apex:pageBlockSectionItem >
+                            <apex:outputText value="Hours to be Used" />
+                            <apex:outputText value="{!partialDayHours}" />
+                        </apex:pageBlockSectionItem>
+                    </apex:pageBlockSection>
+                </apex:outputPanel>
+                <apex:pageBlockSection rendered="{!days == 'Partial Day'}">
+                    <apex:pageBlockSectionItem >
+                        <apex:outputText style="color:red;" value="PLEASE NOTE" />
+                        <apex:outputText style="color:red;" value="Once you select your times the appropriate hours will be deducted from your PTO Balance." />
+                    </apex:pageBlockSectionItem>
+                </apex:pageBlockSection>
+                <apex:outputPanel id="dateError2">
+                <apex:pageBlockSection >
+                    <apex:pageMessage summary="Partial Day Date cannot be blank." severity="error" strength="4" rendered="{!nullDatePartial == true}"/>
+                    <apex:pageMessage summary="Date CANNOT be a paid company holiday.  Please choose a different date." severity="error" strength="4" rendered="{!holidayDate == true}"/>
+                    <apex:pageMessage summary="You do not have enough hours for this request." severity="error" strength="4" rendered="{!negHours == true}"/>
+                    <apex:pageMessage summary="Negative hours CANNOT be submitted." severity="error" strength="4" rendered="{!lunchNeg == true}"/>
+                </apex:pageBlockSection>
+                </apex:outputPanel>
+                <apex:outputPanel id="partialTimeError">
+                <apex:pageBlockSection >
+                    <apex:pageMessage summary="You must select times." severity="error" strength="4" rendered="{!partialTimeError == true}"/>
+                </apex:pageBlockSection>
+                </apex:outputPanel>
+                <apex:pageBlockSection id="partialDayError" title="" columns="1" rendered="{!days == 'Partial Day'}">
+                    <apex:pageMessage summary="You have chosen times that exceed 8 hours.  Please adjust your times to be less than 8 hours!" severity="error" strength="4" rendered="{!overEightHours == true && days != 'Multiple Days' && days != 'Full Day'}"/>
+                    <apex:pageMessage summary="Your End Time MUST be after your start time." severity="error" strength="4" rendered="{!negativeTime == true && days != 'Multiple Days' && days != 'Full Day'}" />
+                </apex:pageBlockSection>
+                <!--  This section is for multiple days off.  Can be any combination of full or partial days. -->
+                <!--  Days 1 and 2 -->
+                <apex:pageBlockSection id="multiDaySection" title="Multiple Day PTO" columns="1" rendered="{!days == 'Multiple Days'}" >
+                    <apex:inputField id="startDate" value="{!SFDC_Paid_Time_Off__c.Multi_Day_From__c}" >
+                        <apex:actionSupport event="onchange" action="{!multiDays}" reRender="day1, day2, day3, day4, day5, multiErrors, day1Hours, day2Hours, day3Hours, day4Hours, day5Hours, totalHoursTaken, saveButton"/>       
+                    </apex:inputField>
+                    <apex:inputField id="endDate" value="{!SFDC_Paid_Time_Off__c.Multi_Day_To__c}" >
+                        <apex:actionSupport event="onchange" action="{!multiDays}" reRender="day1, day2, day3, day4, day5, multiErrors, day1Hours, day2Hours, day3Hours, day4Hours, day5Hours, totalHoursTaken, saveButton"/>
+                    </apex:inputField>
+                    <apex:pageBlockSectionItem >
+                        <apex:outputText style="color:green;" value="PLEASE NOTE" />
+                        <apex:outputText style="color:green;" value="You may choose up to 5 days." />
+                    </apex:pageBlockSectionItem>
+                    <apex:pageBlockSectionItem >
+                        <apex:outputText style="color:red;" value="PLEASE NOTE" />
+                        <apex:outputText style="color:red;" value="Only consecutive days per PTO request.  Only one calendar week per PTO Request" />
+                    </apex:pageBlockSectionItem>                    
+                </apex:pageBlockSection>
+                <apex:pageBlockSection title="Multiple Day Information" rendered="{!days == 'Multiple Days'}" >
+                </apex:pageBlockSection>
+                <apex:outputPanel id="multiErrors">
+                <apex:pageBlockSection title="" rendered="{!days == 'Multiple Days'}">
+                    <apex:pageMessage summary="Days off must fall within one calendar week.  If the days off span in to two seperate weeks please create a seperate PTO Request for the 2nd week." severity="error" strength="3" rendered="{!sameWeekError == true}"/>
+                    <apex:pageMessage summary="Multiple Day Dates cannot be blank." severity="error" strength="4" rendered="{!nullDateMulti == true}"/>
+                    <apex:pageMessage summary="End date CANNOT be before Start date." severity="error" strength="4" rendered="{!endBeforeStart == true}"/>
+                    <apex:pageMessage summary="Date CANNOT be a company holiday.  If the holiday falls in the middle of dates to be taken you must complete a seperate request for each." severity="error" strength="4" rendered="{!holidayDate == true}"/>
+                    <apex:pageMessage summary="You do not have enough hours for this request." severity="error" strength="4" rendered="{!negHours == true}"/>
+                </apex:pageBlockSection>
+                </apex:outputPanel>
+                <apex:outputPanel id="day1">
+                <apex:pageBlockSection columns="1" rendered="{!days == 'Multiple Days' && daysBetween > 1}">
+                    <apex:pageBlockSectionItem >                
+                        <apex:outputText value="Day 1" />
+                        <apex:outputText id="day1" value="{0, date, full}" > 
+                            <apex:param value="{!day1Date}" />
+                        </apex:outputText>
+                    </apex:pageBlockSectionItem>
+                    <apex:inputfield label="Partial Day?" value="{!SFDC_Paid_Time_Off__c.Partial_Day_1__c}" >
+                        <apex:actionSupport event="onchange"  action="{!multiPartialDays}" reRender="pd1Info, day1Hours, multiErrors, pam, totalHoursTaken, saveButton" status="status" />
+                    </apex:inputfield>
+                </apex:pageBlockSection>
+                </apex:outputPanel>
+                <apex:outputPanel id="pd1Info">
+                <apex:pageBlockSection columns="1" rendered="{!days == 'Multiple Days' && SFDC_Paid_Time_Off__c.Partial_Day_1__c == true || pd1Count == true}">
+                    <apex:selectList Label="Start Time" value="{!multiDayPartialDay1StartTime}" size="1" rendered="{!SFDC_Paid_Time_Off__c.Partial_Day_1__c == true || pd1Count == true}">
+                        <apex:selectOptions value="{!multiDayTimes}" />
+                    </apex:selectList>
+                    <apex:selectList Label="End Time" value="{!multiDayPartialDay1EndTime}" size="1" rendered="{!SFDC_Paid_Time_Off__c.Partial_Day_1__c == true || pd1Count == true}">
+                        <apex:selectOptions value="{!multiDayTimes}" />
+                        <apex:actionSupport event="onchange" action="{!multiPartialDayHours}"  reRender="day1Hours, day1, multiErrors, totalHoursTaken, saveButton" />
+                    </apex:selectList>
+                    <apex:selectList label="Use Lunch Hour?" value="{!lunch1}" size="1" rendered="{!SFDC_Paid_Time_Off__c.Partial_Day_1__c == true || pd1Count == true}">
+                        <apex:selectOptions value="{!lunch}" />
+                        <apex:actionSupport event="onchange" action="{!multiPartialDayHours}" reRender="day1Hours, multiErrors, totalHoursTaken, saveButton"/> 
+                    </apex:selectList>
+                    <apex:pageBlockSectionItem >
+                        <apex:outputText style="color:red;" value="PLEASE NOTE" />
+                        <apex:outputText style="color:red;" value="You must select times in order to save." />
+                    </apex:pageBlockSectionItem> 
+                </apex:pageBlockSection>
+                </apex:outputPanel>
+                <apex:outputPanel id="day1Hours">
+                <apex:pageBlockSection columns="1" rendered="{!days == 'Multiple Days'  && daysBetween > 1}">
+                <apex:pageMessage summary="You have chosen times that exceed 8 hours.  Please adjust your times to be less than 8 hours!" severity="error" strength="3" rendered="{!day1OverEight == true && days != 'Partial Day' && days != 'Full Day'}"/>
+                <apex:pageMessage summary="Your End Time MUST be after your start time." severity="error" strength="3" rendered="{!day1NegTime == true && days != 'Partial Day' && days != 'Full Day'}" />
+                <apex:pageMessage summary="Negative hours CANNOT be submitted." severity="error" strength="4" rendered="{!lunchNeg == true}"/>
+                <!-- <apex:pageMessage summary="You must select times for Partial Day." severity="error" strength="3" rendered="{!multi1TimeError == true}" /> -->
+                    <apex:pageBlockSectionItem >
+                        <apex:outputText value="Hours to be Used" />
+                        <apex:outputText value="{!day1HoursDisplay}" />
+                    </apex:pageBlockSectionItem>
+                </apex:pageBlockSection>
+                </apex:outputPanel>
+                <apex:outputPanel id="day2">
+                <apex:pageBlockSection title="" columns="1" rendered="{!days == 'Multiple Days' && daysBetween > 1}">
+                <apex:pageMessage summary="Days off must fall within one calendar week.  If the days off span in to two seperate weeks please create a seperate PTO Request for the 2nd week." severity="error" strength="4" rendered="{!sameWeekError == true}"/>
+                    <apex:pageBlockSectionItem >                
+                        <apex:outputText value="Day 2" />
+                        <apex:outputText id="day2" value="{0, date, full}" > 
+                            <apex:param value="{!day2Date}" />
+                        </apex:outputText>
+                    </apex:pageBlockSectionItem>
+                    <apex:inputfield label="Partial Day?" value="{!SFDC_Paid_Time_Off__c.Partial_Day_2__c}" >
+                        <apex:actionSupport event="onchange" action="{!multiPartialDays}" reRender="pd2Info, multiErrors, totalHoursTaken, day2Hours, saveButton" status="status" />
+                    </apex:inputfield>
+                </apex:pageBlockSection>
+                </apex:outputPanel>
+                <apex:outputPanel id="pd2Info">
+                <apex:pageBlockSection columns="1" rendered="{!SFDC_Paid_Time_Off__c.Partial_Day_2__c == true && days == 'Multiple Days' || pd2Count == true}">
+                    <apex:selectList Label="Start Time" value="{!multiDayPartialDay2StartTime}" size="1" rendered="{!SFDC_Paid_Time_Off__c.Partial_Day_2__c == true || pd2Count == true}">
+                        <apex:selectOptions value="{!multiDayTimes}" />
+                    </apex:selectList>
+                    <apex:selectList Label="End Time" value="{!multiDayPartialDay2EndTime}" size="1" rendered="{!SFDC_Paid_Time_Off__c.Partial_Day_2__c == true || pd2Count == true}">
+                        <apex:selectOptions value="{!multiDayTimes}" />
+                        <apex:actionSupport event="onchange" action="{!multiPartialDayHours}" reRender="day2Hours, multiErrors, day1, totalHoursTaken, saveButton" />
+                    </apex:selectList>
+                    <apex:selectList label="Use Lunch Hour?" value="{!lunch2}" size="1" rendered="{!SFDC_Paid_Time_Off__c.Partial_Day_2__c == true || pd2Count == true}">
+                        <apex:selectOptions value="{!lunch}" />
+                        <apex:actionSupport event="onchange" action="{!multiPartialDayHours}" reRender="day2Hours, multiErrors, totalHoursTaken, saveButton"/> 
+                    </apex:selectList>
+                    <apex:pageBlockSectionItem >
+                        <apex:outputText style="color:red;" value="PLEASE NOTE" />
+                        <apex:outputText style="color:red;" value="You must select times in order to save." />
+                    </apex:pageBlockSectionItem>    
+                </apex:pageBlockSection>
+                </apex:outputPanel>
+                <apex:outputPanel id="day2Hours">
+                <apex:pageBlockSection columns="1" rendered="{!days == 'Multiple Days' && daysBetween > 1}">
+                <apex:pageMessage summary="You have chosen times that exceed 8 hours.  Please adjust your times to be less than 8 hours!" severity="error" strength="3" rendered="{!day2OverEight == true && days != 'Partial Day' && days != 'Full Day'}"/>
+                <apex:pageMessage summary="Your End Time MUST be after your start time." severity="error" strength="3" rendered="{!day2NegTime == true && days != 'Partial Day' && days != 'Full Day'}" />
+                <apex:pageMessage summary="Negative hours CANNOT be submitted." severity="error" strength="4" rendered="{!lunchNeg == true}"/>
+                    <apex:pageBlockSectionItem >
+                        <apex:outputText value="Hours to be Used" />
+                        <apex:outputText value="{!day2HoursDisplay}" />
+                    </apex:pageBlockSectionItem>
+                </apex:pageBlockSection>
+                </apex:outputPanel>
+                <apex:outputPanel id="day3">
+                <apex:pageBlockSection title="" columns="1" rendered="{!days == 'Multiple Days' && daysBetween > 2}">
+                <apex:pageMessage summary="Days off must fall within one calendar week.  If the days off span in to two seperate weeks please create a seperate PTO Request for the 2nd week." severity="error" strength="4" rendered="{!sameWeekError == true}"/>
+                    <apex:pageBlockSectionItem >                
+                        <apex:outputText value="Day 3" />
+                        <apex:outputText id="day3" value="{0, date, full}" > 
+                            <apex:param value="{!day3Date}" />
+                        </apex:outputText>
+                    </apex:pageBlockSectionItem>
+                    <apex:inputfield label="Partial Day?" value="{!SFDC_Paid_Time_Off__c.Partial_Day_3__c}" >
+                        <apex:actionSupport event="onchange" action="{!multiPartialDays}" reRender="pd3Info, multiErrors, totalHoursTaken, day3Hours, saveButton" status="status" />
+                    </apex:inputfield>
+                </apex:pageBlockSection>
+                </apex:outputPanel>
+                <apex:outputPanel id="pd3Info">
+                <apex:pageBlockSection columns="1" rendered="{!SFDC_Paid_Time_Off__c.Partial_Day_3__c == true && days == 'Multiple Days' || pd3Count == true}">
+                    <apex:selectList Label="Start Time" value="{!multiDayPartialDay3StartTime}" size="1" rendered="{!SFDC_Paid_Time_Off__c.Partial_Day_3__c == true || pd3Count == true}">
+                        <apex:selectOptions value="{!multiDayTimes}" />
+                    </apex:selectList>
+                    <apex:selectList Label="End Time" value="{!multiDayPartialDay3EndTime}" size="1" rendered="{!SFDC_Paid_Time_Off__c.Partial_Day_3__c == true || pd3Count == true}">
+                        <apex:selectOptions value="{!multiDayTimes}" />
+                        <apex:actionSupport event="onchange" action="{!multiPartialDayHours}" reRender="day3Hours, multiErrors, day1, totalHoursTaken, saveButton" />
+                    </apex:selectList>
+                    <apex:selectList label="Use Lunch Hour?" value="{!lunch3}" size="1" rendered="{!SFDC_Paid_Time_Off__c.Partial_Day_3__c == true || pd3Count == true}">
+                        <apex:selectOptions value="{!lunch}" />
+                        <apex:actionSupport event="onchange" action="{!multiPartialDayHours}" reRender="day3Hours, multiErrors, totalHoursTaken, saveButton"/> 
+                    </apex:selectList>
+                    <apex:pageBlockSectionItem >
+                        <apex:outputText style="color:red;" value="PLEASE NOTE" />
+                        <apex:outputText style="color:red;" value="You must select times in order to save." />
+                    </apex:pageBlockSectionItem>    
+                </apex:pageBlockSection>
+                </apex:outputPanel>
+                <apex:outputPanel id="day3Hours">
+                <apex:pageBlockSection columns="1" rendered="{!daysBetween > 2 && days == 'Multiple Days'}">
+                <apex:pageMessage summary="You have chosen times that exceed 8 hours.  Please adjust your times to be less than 8 hours!" severity="error" strength="3" rendered="{!day3OverEight == true && days != 'Partial Day' && days != 'Full Day'}"/>
+                <apex:pageMessage summary="Your End Time MUST be after your start time." severity="error" strength="3" rendered="{!day3NegTime == true && days != 'Partial Day' && days != 'Full Day'}" />
+                <apex:pageMessage summary="Negative hours CANNOT be submitted." severity="error" strength="4" rendered="{!lunchNeg == true}"/>
+                    <apex:pageBlockSectionItem >
+                        <apex:outputText value="Hours to be Used" />
+                        <apex:outputText value="{!day3HoursDisplay}" />
+                    </apex:pageBlockSectionItem>
+                </apex:pageBlockSection>
+                </apex:outputPanel>
+                <apex:outputPanel id="day4">
+                <apex:pageBlockSection title="" columns="1" rendered="{!days == 'Multiple Days' && daysBetween > 3}">
+                <apex:pageMessage summary="Days off must fall within one calendar week.  If the days off span in to two seperate weeks please create a seperate PTO Request for the 2nd week." severity="error" strength="4" rendered="{!sameWeekError == true}"/>
+                    <apex:pageBlockSectionItem >                
+                        <apex:outputText value="Day 4" />
+                        <apex:outputText id="day4" value="{0, date, full}" > 
+                            <apex:param value="{!day4Date}" />
+                        </apex:outputText>
+                    </apex:pageBlockSectionItem>
+                    <apex:inputfield label="Partial Day?" value="{!SFDC_Paid_Time_Off__c.Partial_Day_4__c}" >
+                        <apex:actionSupport event="onchange" action="{!multiPartialDays}" reRender="pd4Info, multiErrors, day4Hours, totalHoursTaken, saveButton" status="status" />
+                    </apex:inputfield>
+                </apex:pageBlockSection>
+                </apex:outputPanel>
+                <apex:outputPanel id="pd4Info">
+                <apex:pageBlockSection columns="1" rendered="{!SFDC_Paid_Time_Off__c.Partial_Day_4__c == true && days == 'Multiple Days' || pd4Count == true}">
+                    <apex:selectList Label="Start Time" value="{!multiDayPartialDay4StartTime}" size="1" rendered="{!SFDC_Paid_Time_Off__c.Partial_Day_4__c == true || pd4Count == true}">
+                        <apex:selectOptions value="{!multiDayTimes}" />
+                    </apex:selectList>
+                    <apex:selectList Label="End Time" value="{!multiDayPartialDay4EndTime}" size="1" rendered="{!SFDC_Paid_Time_Off__c.Partial_Day_4__c == true || pd4Count == true}">
+                        <apex:selectOptions value="{!multiDayTimes}" />
+                        <apex:actionSupport event="onchange" action="{!multiPartialDayHours}" reRender="day4Hours, multiErrors, day1, totalHoursTaken, saveButton" />
+                    </apex:selectList>
+                    <apex:selectList label="Use Lunch Hour?" value="{!lunch4}" size="1" rendered="{!SFDC_Paid_Time_Off__c.Partial_Day_4__c == true || pd4Count == true}">
+                        <apex:selectOptions value="{!lunch}" />
+                        <apex:actionSupport event="onchange" action="{!multiPartialDayHours}" reRender="day4Hours, multiErrors, totalHoursTaken, saveButton"/> 
+                    </apex:selectList>  
+                    <apex:pageBlockSectionItem >
+                        <apex:outputText style="color:red;" value="PLEASE NOTE" />
+                        <apex:outputText style="color:red;" value="You must select times in order to save." />
+                    </apex:pageBlockSectionItem>
+                </apex:pageBlockSection>
+                </apex:outputPanel>
+                <apex:outputPanel id="day4Hours">
+                <apex:pageBlockSection columns="1" rendered="{!daysBetween > 3 && days == 'Multiple Days'}">
+                <apex:pageMessage summary="You have chosen times that exceed 8 hours.  Please adjust your times to be less than 8 hours!" severity="error" strength="4" rendered="{!day4OverEight == true && days != 'Partial Day' && days != 'Full Day'}"/>
+                <apex:pageMessage summary="Your End Time MUST be after your start time." severity="error" strength="4" rendered="{!day4NegTime == true && days != 'Partial Day' && days != 'Full Day'}" />
+                <apex:pageMessage summary="Negative hours CANNOT be submitted." severity="error" strength="4" rendered="{!lunchNeg == true}"/>
+                    <apex:pageBlockSectionItem >
+                        <apex:outputText value="Hours to be Used" />
+                        <apex:outputText value="{!day4HoursDisplay}" />
+                    </apex:pageBlockSectionItem>
+                </apex:pageBlockSection>
+                </apex:outputPanel>
+                <apex:outputPanel id="day5">
+                <apex:pageBlockSection title="" columns="1" rendered="{!days == 'Multiple Days' && daysBetween > 4}">
+                <apex:pageMessage summary="Days off must fall within one calendar week.  If the days off span in to two seperate weeks please create a seperate PTO Request for the 2nd week." severity="error" strength="5" rendered="{!sameWeekError == true}"/>
+                    <apex:pageBlockSectionItem >                
+                        <apex:outputText value="Day 5" />
+                        <apex:outputText id="day5" value="{0, date, full}" > 
+                            <apex:param value="{!day5Date}" />
+                        </apex:outputText>
+                    </apex:pageBlockSectionItem>
+                    <apex:inputfield label="Partial Day?" value="{!SFDC_Paid_Time_Off__c.Partial_Day_5__c}" >
+                        <apex:actionSupport event="onchange" action="{!multiPartialDays}" reRender="pd5Info, multiErrors, day5Hours, totalHoursTaken, saveButton" status="status" />
+                    </apex:inputfield>
+                </apex:pageBlockSection>
+                </apex:outputPanel>
+                <apex:outputPanel id="pd5Info">
+                <apex:pageBlockSection columns="1" rendered="{!SFDC_Paid_Time_Off__c.Partial_Day_5__c == true && days == 'Multiple Days' || pd5Count == true}">
+                    <apex:selectList Label="Start Time" value="{!multiDayPartialDay5StartTime}" size="1" rendered="{!SFDC_Paid_Time_Off__c.Partial_Day_5__c == true || pd5Count == true}">
+                        <apex:selectOptions value="{!multiDayTimes}" />
+                    </apex:selectList>
+                    <apex:selectList Label="End Time" value="{!multiDayPartialDay5EndTime}" size="1" rendered="{!SFDC_Paid_Time_Off__c.Partial_Day_5__c == true || pd5Count == true}">
+                        <apex:selectOptions value="{!multiDayTimes}" />
+                        <apex:actionSupport event="onchange" action="{!multiPartialDayHours}" reRender="day5Hours, multiErrors, day1, totalHoursTaken, saveButton" />
+                    </apex:selectList>
+                    <apex:selectList label="Use Lunch Hour?" value="{!lunch5}" size="1" rendered="{!SFDC_Paid_Time_Off__c.Partial_Day_5__c == true || pd5Count == true}">
+                        <apex:selectOptions value="{!lunch}" />
+                        <apex:actionSupport event="onchange" action="{!multiPartialDayHours}" reRender="day5Hours, multiErrors, totalHoursTaken, saveButon"/> 
+                    </apex:selectList>
+                    <apex:pageBlockSectionItem >
+                        <apex:outputText style="color:red;" value="PLEASE NOTE" />
+                        <apex:outputText style="color:red;" value="You must select times in order to save." />
+                    </apex:pageBlockSectionItem>    
+                </apex:pageBlockSection>
+                </apex:outputPanel>
+                <apex:outputPanel id="day5Hours">
+                <apex:pageBlockSection columns="1" rendered="{!daysBetween > 4 && days == 'Multiple Days'}">
+                <apex:pageMessage summary="You have chosen times that exceed 8 hours.  Please adjust your times to be less than 8 hours!" severity="error" strength="5" rendered="{!day5OverEight == true && days != 'Partial Day' && days != 'Full Day'}"/>
+                <apex:pageMessage summary="Your End Time MUST be after your start time." severity="error" strength="5" rendered="{!day5NegTime == true && days != 'Partial Day' && days != 'Full Day'}" />
+                <apex:pageMessage summary="Negative hours CANNOT be submitted." severity="error" strength="4" rendered="{!lunchNeg == true}"/> 
+                    <apex:pageBlockSectionItem >
+                        <apex:outputText value="Hours to be Used" />
+                        <apex:outputText value="{!day5HoursDisplay}" />
+                    </apex:pageBlockSectionItem>
+                </apex:pageBlockSection>
+                </apex:outputPanel>
+        </apex:pageBlock>
+        </apex:actionRegion>        
+    </apex:form>
+</apex:page>

@@ -1,0 +1,56 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<script type="text/javascript" src="/js/functions.js"></script>
+<script src="/soap/ajax/12.0/connection.js"></script>
+<script language="javascript">
+
+function invoices()
+{
+
+var Street='{!Lead.Street}';
+var City="{!Lead.City}";
+var State="{!Lead.State}";
+var Zip="{!Lead.PostalCode}";
+
+var check="0";
+
+if(Street=="")
+{
+check=1;	
+}
+if(City=="")
+{
+check=1;	
+}
+if(State=="")
+{
+check=1;
+}
+if(State=="")
+{
+check=1;	
+}
+if(Zip=="")
+{
+check=1;	
+}
+
+if(check==0)
+{
+	parent.window.location.href="/lead/leadconvert.jsp?retURL=%2F{!Lead.Id}&id={!Lead.Id}";
+}
+else
+{
+	alert("Complete Address must be provided to convert a lead");
+	parent.window.location.href="/{!Lead.Id}";
+}
+
+
+
+}//=======================================main close
+</script>
+</head>
+<body onload="invoices();">
+</body>
+</html>

@@ -1,0 +1,606 @@
+<apex:page standardController="DMAPP__Insight_Smart_Node__c" extensions="DMAPP.InsightExpressAdminController"
+           docType="html-5.0"     
+           showHeader="false" 
+           sidebar="false">
+           
+           
+           <c:jQuery jQueryUI="true" underscore="true" />
+    
+           <apex:include pageName="DMAPP__APIDelegate"/>
+            
+            
+            <style>
+            
+                #mainContainer{
+                    padding: 10px;
+                }
+                
+                #mainContainer .noInfo{
+                    font-style: italic;
+                    margin-left: 30px;
+                }
+
+                #mainContainer .allPersonas{
+                    font-style: italic;
+                }
+                
+                h1, h2, h3, h4, h5, h6 {
+                    display: block;
+                }
+                
+                h1 {
+                    font-size: 24px;
+                }
+                
+                .sub_header {
+                    margin-left: 15px;
+                    font-size: 1.5em;
+                    margin: 10px;
+                    border-radius: 8px;
+                    line-height: 30px;
+                    padding: 5px;
+                    width: 600px;
+                    font-weight: 200;
+                    color: #FFF;
+                }
+
+                .sub_sub_header {
+                    font-size: 14px;
+                    margin: 14px;
+					text-overflow: ellipsis;
+					width: 585px;
+					white-space: nowrap;
+					overflow: hidden;
+                }                   
+
+                #main_header{
+                    padding: 15px;
+                    border-radius: 8px;
+                    margin: 10px;
+                    width:575px;
+                    font-size: 2em;
+                    font-weight: 200;
+					text-overflow: ellipsis;
+					white-space: nowrap;
+					overflow: hidden;  
+                }
+
+	                .goal_header{
+	                    background-color: #5F7836;
+	                    color: white;
+	                }
+	                	.goal_sub{
+	                		background-color: rgb(168, 192, 129);
+	                	}
+	                	.goal_bul{
+	                		color: #5F7836;
+	                	}	                	
+	                
+	                .pressure_header{
+	                    background-color: #C71F1F;
+	                    color: white;
+	                }
+	                 	.pressure_sub{
+	                		background-color: rgb(254, 116, 116);
+	                	}                                                 
+	                 	.pressure_bul{
+	                		color: #C71F1F;
+	                	} 	    
+	                .initiative_header{
+	                    background-color: #445972;
+	                    color: white;
+	                }  
+	                 	.initiative_sub{
+	                		background-color: rgb(136, 149, 165);
+	                	} 
+	                 	.initiative_bul{
+	                		color: #445972;
+	                	} 	                
+	                .obstacle_header{
+	                    background-color: #6E2F50;
+	                    color: white;
+	                }
+	                 	.obstacle_sub{
+	                		background-color: rgb(173, 114, 145);
+	                	} 
+	                 	.obstacle_bul{
+	                		color: #6E2F50;
+	                	} 	                
+	                .solution_header{
+	                    background-color: #35B4E9;
+	                    color: white;
+	                }
+	                 	.solution_sub{
+	                		background-color: rgb(138, 212, 244);
+	                	}
+	                 	.solution_bul{
+	                		color: #35B4E9;
+	                	} 
+        					                
+				div.insightExpressTableContainer {
+				    border-radius:0.6em;
+				    border:1px solid black;
+				    display:inline-block;
+				    overflow:hidden;
+				    margin: 10px;
+				    margin-left: 15px;
+				}
+
+				table.insightExpressTable {    
+				    border-collapse:collapse;     
+				    margin:-1px;
+                   	width: 600px;
+                   	max-width: 600px;
+				}
+				
+				.tblContainer {
+        			page-break-inside: avoid;
+    			}
+
+	                /* tis important that these lads stay at 100px to protect the layout */
+	                table.insightExpressTable .shortColumn {
+	                    width: 100px !important;
+	                    max-width: 100px !important;	                    
+						overflow: hidden;
+	                } 
+	
+					table.insightExpressTable td {
+						border: 1px solid #000;
+						padding: 0.8em 1em;
+						line-height: 20px;
+						max-width: 500px;
+					}
+						
+						table.insightExpressTable td a {
+							max-width: 450px;
+							overflow: hidden;
+							text-overflow: ellipsis;
+							white-space: nowrap;
+							display: block;
+						}
+					
+	                .insightExpressTable ul {
+	                    margin-left: -24px;
+	                }
+	
+		                .insightExpressTable ul li {
+		                    margin-left: 0;
+		                }
+	                
+						.insightExpressTable ul li div{
+	    					color:black;
+						}
+						
+						.insightExpressTable .bullet_points{
+							/* TO DO */
+						}
+
+           </style>
+                          
+           <div id="mainContainer"></div>
+           
+           <script>
+           
+                var no_info = 'no information present';
+                var all_personas = 'all personas apply';
+                var no_competitors = 'no competitors defined';
+                
+                function getSmartNode(callback) {
+                
+                    Visualforce.remoting.Manager.invokeAction(
+                        '{!$RemoteAction.InsightExpressAdminController.getInsightSmartNode}',
+                        '{!JSENCODE(nodeId)}',
+                        function(result, event) {
+                            if(callback) {
+                                callback(result, event);
+                            }
+                        }, 
+                        {escape: false}
+                    );                
+                }      
+           
+                jQuery(function() {
+                
+                    getSmartNode(function(node) {
+                    
+                        var mainContainer = jQuery('#mainContainer');
+                        
+                        mainContainer.append(
+                            jQuery('<h1/>')
+                                .attr('id','main_header')
+                                .text(node.nodeType + ' - ' + node.name)
+                            );
+                        mainContainer.append(jQuery('<p/>').html('&nbsp;'));
+                                
+                        mainContainer.append(jQuery('<div/>').addClass('sub_header').text('Overview'));
+                        var overviewTable = jQuery('<table/>').addClass('insightExpressTable');
+                        var overviewTableContainer = jQuery('<div/>').addClass('insightExpressTableContainer');
+                        overviewTable.append(jQuery('<tr/>').append(jQuery('<td/>').addClass('shortColumn').text('Description')).append(jQuery('<td/>').text(node.description)));
+                        overviewTable.append(jQuery('<tr/>').append(jQuery('<td/>').addClass('shortColumn').text('Tags')).append(jQuery('<td/>').text(node.tags)));
+
+                        if (node.contactname && !node.contact) overviewTable.append(jQuery('<tr/>').append(jQuery('<td/>').addClass('shortColumn').text('Contact')).append(jQuery('<td/>').text(node.contactname)));
+                        if (node.email) overviewTable.append(jQuery('<tr/>').append(jQuery('<td/>').addClass('shortColumn').text('eMail')).append(jQuery('<td/>').text(node.email)));
+                        if (node.phone) overviewTable.append(jQuery('<tr/>').append(jQuery('<td/>').addClass('shortColumn').text('Telephone')).append(jQuery('<td/>').text(node.phone)));
+                        if (node.contact) overviewTable.append(jQuery('<tr/>').append(jQuery('<td/>').addClass('shortColumn').text('Chatter')).append(jQuery('<td/>').text(node.contact.name)));
+                        if (node.segmentation) overviewTable.append(jQuery('<tr/>').append(jQuery('<td/>').addClass('shortColumn').text('Solution Type')).append(jQuery('<td/>').text(node.segmentation)));
+						overviewTable.append(getCategoriezationInformation(node));
+
+                        overviewTableContainer.append(overviewTable);
+                        mainContainer.append(overviewTableContainer);
+                        mainContainer.append(jQuery('<p/>').html('&nbsp;'));
+                        
+                        if (node.nodeType != 'Goal' && node.nodeType != 'Pressure')
+
+                        {                        
+	                        mainContainer.append(jQuery('<div/>').addClass('sub_header').text('Key Messages'));
+	                        if(!node.keyMessages || !node.keyMessages.length){mainContainer.append(jQuery('<p/>').addClass('noInfo').text(no_info));} //if no data
+	                        jQuery.each(node.keyMessages.sort(function(a,b) {return a.message > b.message;}), function(idx, message) {
+	                        	var tblContainer = jQuery('<div/>').addClass('tblContainer');
+	                            tblContainer.append(jQuery('<h3/>').addClass('sub_sub_header').text(message.name));
+	                            var messageTable = jQuery('<table/>').addClass('insightExpressTable');
+	                            var messageTableContainer = jQuery('<div/>').addClass('insightExpressTableContainer');
+	                            messageTable.append(jQuery('<tr/>').append(jQuery('<td/>').addClass('shortColumn').text('Description')).append(jQuery('<td/>').text(message.message)));                            
+	                            var emptyPersonas = jQuery('</div>');
+	                            if(!message.personas || !message.personas.length){
+	                                emptyPersonas.append(
+	                                    jQuery('<p/>')
+	                                        .addClass('allPersonas')
+	                                        .text(all_personas)
+	                                );
+	                                messageTable.append(jQuery('<tr/>').append(jQuery('<td/>').addClass('shortColumn').text('Personas')).append(jQuery('<td/>').addClass('noInfo').append(all_personas)));
+	                            }else{
+	                                var personasList = jQuery('<ul/>');
+	                                jQuery.each(message.personas, function(idx, persona) {
+	                                    personasList.append(jQuery('<li/>').addClass('bullet_points').append(jQuery('<div/>').text(persona.name)));
+	                                });
+	                                messageTable.append(jQuery('<tr/>').append(jQuery('<td/>').addClass('shortColumn').text('Personas')).append(jQuery('<td/>').append(personasList)));
+	                            }
+	                            var benefitsList = jQuery('<ul/>');
+	                            jQuery.each(message.benefits, function(idx, benefit) {
+	                                benefitsList.append(jQuery('<li/>').addClass('bullet_points').append(jQuery('<div/>').text(benefit.description)));
+	                            });
+	                            messageTable.append(jQuery('<tr/>').append(jQuery('<td/>').addClass('shortColumn').text('Benefits')).append(jQuery('<td/>').append(benefitsList)));                         
+	                            messageTable.append(jQuery('<tr/>').append(jQuery('<td/>').addClass('shortColumn').text('Confidential')).append(jQuery('<td/>').text(message.confidential ? 'Yes' : 'No')));                            
+	                            messageTableContainer.append(messageTable);
+	                            tblContainer.append(messageTableContainer);
+	                            mainContainer.append(tblContainer);
+	                        });
+	                        mainContainer.append(jQuery('<p/>').html('&nbsp;'));
+	
+	                        mainContainer.append(jQuery('<div/>').addClass('sub_header').text('Insight'));
+	                        if(!node.insights || !node.insights.length){mainContainer.append(jQuery('<p/>').addClass('noInfo').text(no_info));} //if no data                        
+	                        jQuery.each(node.insights.sort(function(a,b) {return a.name > b.name;}), function(idx, insight) {
+	                            var tblContainer = jQuery('<div/>').addClass('tblContainer');
+	                            tblContainer.append(jQuery('<h3/>').addClass('sub_sub_header').text(insight.name));
+	                            var insightTable = jQuery('<table/>').addClass('insightExpressTable');
+	                            var insightTableContainer = jQuery('<div/>').addClass('insightExpressTableContainer');
+	                            insightTable.append(jQuery('<tr/>').append(jQuery('<td/>').addClass('shortColumn').text('Description')).append(jQuery('<td/>').text(insight.description)));
+	                            var emptyPersonas = jQuery('</div>');
+	                            if(!insight.personas || !insight.personas.length){
+	                                emptyPersonas.append(
+	                                    jQuery('<p/>')
+	                                        .addClass('allPersonas')
+	                                        .text(all_personas)
+	                                );
+	                                insightTable.append(jQuery('<tr/>').append(jQuery('<td/>').addClass('shortColumn').text('Personas')).append(jQuery('<td/>').addClass('noInfo').append(all_personas)));
+	                            }else{
+	                                var personasList = jQuery('<ul/>');
+	                                jQuery.each(insight.personas, function(idx, persona) {
+	                                    personasList.append(jQuery('<li/>').addClass('bullet_points').append(jQuery('<div/>').text(persona.name)));
+	                                });
+	                                insightTable.append(jQuery('<tr/>').append(jQuery('<td/>').addClass('shortColumn').text('Personas')).append(jQuery('<td/>').append(personasList)));
+	                            }
+	
+	                            if ((insight.website || '').length > 0) {
+	                                var assetsList = jQuery('<a/>').attr({'href': insight.website, target: '_blank'}).text(insight.website);
+	                                insightTable.append(jQuery('<tr/>').append(jQuery('<td/>').addClass('shortColumn').text('Website')).append(jQuery('<td/>').append(assetsList)));                         
+	                            }
+	                            insightTable.append(jQuery('<tr/>').append(jQuery('<td/>').addClass('shortColumn').text('Confidential')).append(jQuery('<td/>').text(insight.confidential ? 'Yes' : 'No')));                            
+	                            insightTableContainer.append(insightTable);
+	                            tblContainer.append(insightTableContainer);
+	                            mainContainer.append(tblContainer);
+	                        });
+	                        mainContainer.append(jQuery('<p/>').html('&nbsp;'));
+	
+	
+	                        mainContainer.append(jQuery('<div/>').addClass('sub_header').text('Sales Tools'));
+	                        if(!node.salesTools || !node.salesTools.length){mainContainer.append(jQuery('<p/>').addClass('noInfo').text(no_info));}
+	                        jQuery.each(node.salesTools.sort(function(a,b) {return a.name > b.name;}), function(idx, salesTool) {
+	                            var tblContainer = jQuery('<div/>').addClass('tblContainer');
+	                            tblContainer.append(jQuery('<h3/>').addClass('sub_sub_header').text(salesTool.name));
+	                            var salesToolTable = jQuery('<table/>').addClass('insightExpressTable');
+	                            var salesToolTableContainer = jQuery('<div/>').addClass('insightExpressTableContainer');
+	                            var link = salesTool.website && salesTool.website.indexOf('http://') === -1 ? ('http://' + salesTool.website) : salesTool.website; 
+	                            salesToolTable.append(jQuery('<tr/>').append(jQuery('<td/>').text('Website')).append(jQuery('<td/>').addClass('toolLink').append(jQuery('<a/>', {href: link}).text(salesTool.website))));
+	
+	                            var emptyPersonas = jQuery('</div>');
+	                            if(!salesTool.personas || !salesTool.personas.length){
+	                                emptyPersonas.append(
+	                                    jQuery('<p/>')
+	                                        .addClass('allPersonas')
+	                                        .text(all_personas)
+	                                );
+	                                salesToolTable.append(jQuery('<tr/>').append(jQuery('<td/>').addClass('shortColumn').text('Personas')).append(jQuery('<td/>').addClass('noInfo').append(all_personas)));
+	                            }else{
+	                                var personasList = jQuery('<ul/>');
+	                                jQuery.each(salesTool.personas, function(idx, persona) {
+	                                    personasList.append(jQuery('<li/>').addClass('bullet_points').append(jQuery('<div/>').text(persona.name)));
+	                                });
+	                                salesToolTable.append(jQuery('<tr/>').append(jQuery('<td/>').addClass('shortColumn').text('Personas')).append(jQuery('<td/>').append(personasList)));
+	                            }
+	                            salesToolTable.append(jQuery('<tr/>').append(jQuery('<td/>').addClass('shortColumn').text('Confidential')).append(jQuery('<td/>').text(salesTool.confidential ? 'Yes' : 'No')));                            
+								salesToolTableContainer.append(salesToolTable);
+								tblContainer.append(salesToolTableContainer);
+	                            mainContainer.append(tblContainer);                    
+	                        }); 
+	                        mainContainer.append(jQuery('<p/>').html('&nbsp;'));
+	                                                                  
+	                        mainContainer.append(jQuery('<div/>').addClass('sub_header').text('High Yield Questions'));                        
+	                        if(!node.highYieldQuestions || !node.highYieldQuestions.length){mainContainer.append(jQuery('<p/>').addClass('noInfo').text(no_info));} //if no data
+	                        jQuery.each(node.highYieldQuestions.sort(function(a,b) {return a.name > b.name;}), function(idx, question) {
+	                            var tblContainer = jQuery('<div/>').addClass('tblContainer');
+	                            tblContainer.append(jQuery('<h3/>').addClass('sub_sub_header').text(question.name));
+	                            var questionTable = jQuery('<table/>').addClass('insightExpressTable');
+	                            var questionTableContainer = jQuery('<div/>').addClass('insightExpressTableContainer');
+	                            questionTable.append(jQuery('<tr/>').append(jQuery('<td/>').addClass('shortColumn').text('Question')).append(jQuery('<td/>').text(question.question)));
+	                            questionTable.append(jQuery('<tr/>').append(jQuery('<td/>').addClass('shortColumn').text('Purpose')).append(jQuery('<td/>').text(question.purpose)));
+	                            questionTable.append(jQuery('<tr/>').append(jQuery('<td/>').addClass('shortColumn').text('What to listen for')).append(jQuery('<td/>').text(question.whatToListenFor)));
+	                            var emptyPersonas = jQuery('</div>');
+	                            if(!question.personas || !question.personas.length){
+	                                emptyPersonas.append(
+	                                    jQuery('<p/>')
+	                                        .addClass('allPersonas')
+	                                        .text(all_personas)
+	                                );
+	                                questionTable.append(jQuery('<tr/>').append(jQuery('<td/>').addClass('shortColumn').text('Personas')).append(jQuery('<td/>').addClass('noInfo').append(all_personas)));
+	                            }else{
+	                                var personasList = jQuery('<ul/>');
+	                                jQuery.each(question.personas, function(idx, persona) {
+	                                    personasList.append(jQuery('<li/>').addClass('bullet_points').append(jQuery('<div/>').text(persona.name)));
+	                                });
+	                                questionTable.append(jQuery('<tr/>').append(jQuery('<td/>').addClass('shortColumn').text('Personas')).append(jQuery('<td/>').append(personasList)));
+	                            }                          
+	                            questionTableContainer.append(questionTable);
+	                            tblContainer.append(questionTableContainer);
+	                            mainContainer.append(tblContainer);
+	                        }); 
+	                        mainContainer.append(jQuery('<p/>').html('&nbsp;'));
+                      
+                        }   // end if on everything but goals and pressures                 
+
+                       if (node.nodeType === 'Initiative')
+                       {
+
+	                        mainContainer.append(jQuery('<div/>').addClass('sub_header').text('Obstacles'));                        
+	                        if(!node.obstacles || !node.obstacles.length){mainContainer.append(jQuery('<p/>').addClass('noInfo').text(no_info));} //if no data
+	                        jQuery.each(node.obstacles.sort(function(a,b) {return a.name > b.name;}), function(idx, obstacle) {
+	                            var tblContainer = jQuery('<div/>').addClass('tblContainer');
+	                            tblContainer.append(jQuery('<h3/>').addClass('sub_sub_header').text(obstacle.name));
+	                            var obstaclesTable = jQuery('<table/>').addClass('insightExpressTable');
+	                            var obstaclesTableContainer = jQuery('<div/>').addClass('insightExpressTableContainer');
+	                            obstaclesTable.append(jQuery('<tr/>').append(jQuery('<td/>').addClass('shortColumn').text('Description')).append(jQuery('<td/>').text(obstacle.description)));
+	                            obstaclesTable.append(jQuery('<tr/>').append(jQuery('<td/>').addClass('shortColumn').text('Tags')).append(jQuery('<td/>').text(node.tags)));                      
+	                            obstaclesTableContainer.append(obstaclesTable);
+	                            tblContainer.append(obstaclesTableContainer);
+	                            mainContainer.append(tblContainer);
+	                            mainContainer.append(jQuery('<div/>').html('&nbsp;'));
+	                        }); 
+	                        //mainContainer.append(jQuery('<p/>').html('&nbsp;'));
+	
+							mainContainer.append(jQuery('<div/>').html('&nbsp;'));
+	                        mainContainer.append(jQuery('<div/>').addClass('sub_header').text('Solutions'));                        
+	                        if(!node.solutions || !node.solutions.length){mainContainer.append(jQuery('<p/>').addClass('noInfo').text(no_info));} //if no data
+	                        jQuery.each(node.solutions.sort(function(a,b) {return a.name > b.name;}), function(idx, solution) {
+	                            var tblContainer = jQuery('<div/>').addClass('tblContainer');
+	                            tblContainer.append(jQuery('<h3/>').addClass('sub_sub_header').text(solution.name));
+	                            var solutionsTable = jQuery('<table/>').addClass('insightExpressTable');
+	                            var solutionsTableContainer = jQuery('<div/>').addClass('insightExpressTableContainer');
+	                            solutionsTable.append(jQuery('<tr/>').append(jQuery('<td/>').addClass('shortColumn').text('Description')).append(jQuery('<td/>').text(solution.description)));   
+	                            solutionsTable.append(jQuery('<tr/>').append(jQuery('<td/>').addClass('shortColumn').text('Tags')).append(jQuery('<td/>').text(node.tags)));                       
+	                            solutionsTableContainer.append(solutionsTable);
+	                            tblContainer.append(solutionsTableContainer);
+	                            mainContainer.append(tblContainer);
+	                            mainContainer.append(jQuery('<div/>').html('&nbsp;'));
+	                        });
+	                        //mainContainer.append(jQuery('<p/>').html('&nbsp;')); 
+	                        
+	                    } // end if on Initiatives only                        
+                        
+                        if (node.nodeType === 'Solution')
+                        {
+
+	                        mainContainer.append(jQuery('<div/>').addClass('sub_header').text('Positioning'));
+	                        jQuery.each(node.competitiveDifferentiators.sort(function(a,b) {return a.differentiator > b.differentiator;}), function(idx, differentiator) {
+	                            var tblContainer = jQuery('<div/>').addClass('tblContainer');
+	                            tblContainer.append(jQuery('<h3/>').addClass('sub_sub_header').text(differentiator.name));
+	                            var differentiatorTable = jQuery('<table/>').addClass('insightExpressTable');
+	                            var differentiatorTableContainer = jQuery('<div/>').addClass('insightExpressTableContainer');
+	                            differentiatorTable.append(jQuery('<tr/>').append(jQuery('<td/>').addClass('shortColumn').text('Differentiator')).append(jQuery('<td/>').text(differentiator.differentiator)));
+	                            var emptyCompetitors = jQuery('</div>');
+	                            var emptyStatments = jQuery('</div>');
+	                            if(!differentiator.competitors || !differentiator.competitors.length){
+	                                emptyCompetitors.append(
+	                                    jQuery('<p/>')
+	                                        .addClass('allPersonas')
+	                                        .text(all_personas)
+	                                );
+	                                differentiatorTable.append(jQuery('<tr/>').append(jQuery('<td/>').addClass('shortColumn').text('Competitors')).append(jQuery('<td/>').addClass('noInfo').append(no_competitors)));
+	                            }else{
+	                                var competitorsList = jQuery('<ul/>');
+	                                jQuery.each(differentiator.competitors, function(idx, competitor) {
+	                                    competitorsList.append(jQuery('<li/>').addClass('bullet_points').append(jQuery('<div/>').text(competitor.name)));
+	                                });
+	                                differentiatorTable.append(jQuery('<tr/>').append(jQuery('<td/>').addClass('shortColumn').text('Competitors')).append(jQuery('<td/>').append(competitorsList)));
+	                            }
+	                            
+	                            if(!differentiator.positioningStatements || !differentiator.positioningStatements.length){
+	                                emptyStatments.append(
+	                                    jQuery('<p/>')
+	                                        .addClass('allPersonas')
+	                                        .text(no_info)
+	                                );
+	                                differentiatorTable.append(jQuery('<tr/>').append(jQuery('<td/>').addClass('shortColumn').text('Positioning Statements')).append(jQuery('<td/>').addClass('noInfo').append(no_info)));
+	                            }else{
+	                                var statementsList = jQuery('<ul/>');
+	                                jQuery.each(differentiator.positioningStatements, function(idx, statement) {
+	                                    var personasList = '';
+	                                    if(statement.personas && statement.personas.length > 0) {
+	                                        personasList = '(' + _.pluck(statement.personas, 'name').join() + ')';
+	                                    }
+	                                    statementsList.append(jQuery('<li/>').addClass('bullet_points').append(jQuery('<div/>').text(statement.statement + ' ' + personasList)));
+	                                });
+	                                differentiatorTable.append(jQuery('<tr/>').append(jQuery('<td/>').addClass('shortColumn').text('Positioning Statements')).append(jQuery('<td/>').append(statementsList)));
+	                            }
+	                            differentiatorTableContainer.append(differentiatorTable);
+	                            tblContainer.append(differentiatorTableContainer); 
+	                            mainContainer.append(tblContainer);  
+	                        });
+	                        mainContainer.append(jQuery('<p/>').html('&nbsp;'));                        
+	                                               
+	                        mainContainer.append(jQuery('<div/>').addClass('sub_header').text('Objections'));
+	                        if(!node.objections || !node.objections.length){mainContainer.append(jQuery('<p/>').addClass('noInfo').text(no_info));} //if no data 
+	                        jQuery.each(node.objections.sort(function(a,b) {return a.description > b.description;}), function(idx, objection) {
+	                            var tblContainer = jQuery('<div/>').addClass('tblContainer');
+	                            tblContainer.append(jQuery('<h3/>').addClass('sub_sub_header').text(objection.name));
+	                            var objectionTable = jQuery('<table/>').addClass('insightExpressTable');
+	                            var objectionTableContainer = jQuery('<div/>').addClass('insightExpressTableContainer');                            objectionTable.append(jQuery('<tr/>').append(jQuery('<td/>').addClass('shortColumn objectionLabel').text('Description')).append(jQuery('<td/>').addClass('objectionResponse').text(objection.description)));
+	                            objectionTable.append(jQuery('<tr/>').append(jQuery('<td/>').addClass('shortColumn objectionLabel').text('Response')).append(jQuery('<td/>').addClass('objectionResponse').text(objection.response)));
+	                            objectionTableContainer.append(objectionTable);
+	                            tblContainer.append(objectionTableContainer);
+	                            mainContainer.append(tblContainer);
+	                        }); 
+	                        mainContainer.append(jQuery('<p/>').html('&nbsp;'));  
+	                                      
+	                        mainContainer.append(jQuery('<div/>').addClass('sub_header').text('Competitors'));
+	                        jQuery.each(node.competitors.sort(function(a,b) {return a.name > b.name;}) , function(idx, competitor) {
+	                            var tblContainer = jQuery('<div/>').addClass('tblContainer');
+	                            tblContainer.append(jQuery('<h3/>').addClass('sub_sub_header').text(competitor.name));
+	                            var competitorTable = jQuery('<table/>').addClass('insightExpressTable');
+	                            var competitorTableContainer = jQuery('<div/>').addClass('insightExpressTableContainer');
+	                            competitorTable.append(jQuery('<tr/>').append(jQuery('<td/>').addClass('shortColumn').text('Description')).append(jQuery('<td/>').text(competitor.description)));
+	                            competitorTable.append(jQuery('<tr/>').append(jQuery('<td/>').addClass('shortColumn').text('Strengths')).append(jQuery('<td/>').text(competitor.strengths)));
+	                            competitorTable.append(jQuery('<tr/>').append(jQuery('<td/>').addClass('shortColumn').text('Weaknesses')).append(jQuery('<td/>').text(competitor.weaknesses)));
+	                            competitorTable.append(jQuery('<tr/>').append(jQuery('<td/>').addClass('shortColumn').text('Opportunitieis')).append(jQuery('<td/>').text(competitor.opportunities)));
+	                            competitorTable.append(jQuery('<tr/>').append(jQuery('<td/>').addClass('shortColumn').text('Threats')).append(jQuery('<td/>').text(competitor.threats)));
+	                            var link = competitor.website && competitor.website.indexOf('http://') === -1 ? ('http://' + competitor.website) : competitor.website; 
+	                            competitorTable.append(jQuery('<tr/>').append(jQuery('<td/>').addClass('shortColumn').text('Website')).append(jQuery('<td/>').append(jQuery('<a/>', {href: link}).text(competitor.website))));
+	                            competitorTableContainer.append(competitorTable);
+	                            tblContainer.append(competitorTableContainer);
+	                            mainContainer.append(tblContainer);
+	                        });
+	                        mainContainer.append(jQuery('<p/>').html('&nbsp;'));
+	
+	                        mainContainer.append(jQuery('<div/>').addClass('sub_header').text('Personas'));
+	                        jQuery.each(node.personas.sort(function(a,b) {return a.name > b.name;}) , function(idx, persona) {
+	                            var tblContainer = jQuery('<div/>').addClass('tblContainer');
+	                            tblContainer.append(jQuery('<h3/>').addClass('sub_sub_header').text(persona.name));
+	                            var personaTable = jQuery('<table/>').addClass('insightExpressTable');
+	                            var personaTableContainer = jQuery('<div/>').addClass('insightExpressTableContainer');
+	                            personaTable.append(jQuery('<tr/>').append(jQuery('<td/>').addClass('shortColumn').text('Title')).append(jQuery('<td/>').text(persona.title)));
+	                            personaTable.append(jQuery('<tr/>').append(jQuery('<td/>').addClass('shortColumn').text('Description')).append(jQuery('<td/>').text(persona.description)));
+	                            personaTable.append(jQuery('<tr/>').append(jQuery('<td/>').addClass('shortColumn').text('Cares About')).append(jQuery('<td/>').text(persona.caresabout)));
+	                            personaTable.append(jQuery('<tr/>').append(jQuery('<td/>').addClass('shortColumn').text('Personal Info')).append(jQuery('<td/>').text(persona.personalinfo)));
+	                            personaTable.append(jQuery('<tr/>').append(jQuery('<td/>').addClass('shortColumn').text('Success Measures')).append(jQuery('<td/>').text(persona.successmeasures)));
+	                            personaTableContainer.append(personaTable);	
+	                            tblContainer.append(personaTableContainer);
+	                            mainContainer.append(tblContainer);
+	                        });
+
+                        }   // end if on Solutions only              
+
+                        //changes colour scheme depending node type
+                        if(node.nodeType === 'Goal'){
+                            jQuery('#main_header')
+                                .addClass('goal_header');
+                            jQuery('.sub_header')
+                                .addClass('goal_sub');
+                            jQuery('.bullet_points')
+                            	.addClass('goal_bul');
+                            jQuery('.footer')
+                            	.addClass('goal_header');
+                        }else if(node.nodeType === 'Pressure'){
+                            jQuery('#main_header')
+                                .addClass('pressure_header');
+                            jQuery('.sub_header')
+                                .addClass('pressure_sub');
+                            jQuery('.bullet_points')
+                            	.addClass('pressure_bul');
+                        }else if(node.nodeType === 'Solution'){
+                            jQuery('#main_header')
+                                .addClass('solution_header');
+                            jQuery('.sub_header')
+                                .addClass('solution_sub');
+                            jQuery('.bullet_points')
+                            	.addClass('solution_bul');
+                        }else if(node.nodeType === 'Obstacle'){
+                            jQuery('#main_header')
+                                .addClass('obstacle_header');
+                            jQuery('.sub_header')
+                                .addClass('obstacle_sub');
+                            jQuery('.bullet_points')
+                            	.addClass('obstacle_bul');
+                        }else if(node.nodeType === 'Initiative'){
+                            jQuery('#main_header')
+                                .addClass('initiative_header');
+                            jQuery('.sub_header')
+                                .addClass('initiative_sub');
+                            jQuery('.bullet_points')
+                            	.addClass('initiative_bul');
+                        }
+  
+                    });
+
+					function getCategoriezationInformation(node) {
+						var ret = $('<table>');
+						var lookup = [];
+
+						// Create a lookup table of ids to name
+						_.each(node.availablecategories, function(category) {
+							_.each(category.categories, function(cat) {
+								lookup[cat.id] = {primary: true, name: cat.name};
+								_.each(cat.subcategories, function(sub) {
+									lookup[sub.id] = {primary: false, name: sub.name};
+								})
+							})
+						})
+
+						// Loop through all the available categories
+						_.each(node.availablecategories, function(category) {
+							var matches = [];
+
+							// Only include non-Browser type categories
+							if (category.name != 'Browser') {
+
+
+								_.each(node.categorySelection, function(cat) {
+									// If we find an overlap ...
+									if (cat.type == category.name) {
+										matches.push(cat);
+									}
+
+								}) 
+							}
+
+							if (matches.length > 0) {
+								var tr = $('<tr>').append($('<td>').text(matches[0].type));
+								var td = $('<td>');
+								_.each(matches, function(m, idx) {
+									var lu = lookup[ m.subcategoryId || m.categoryId ];
+									if (undefined != lu) {
+										td.append($('<span>').addClass(lu.primary ? 'primary' : 'secondary').text((idx != 0 ? ', ' : '') + lu.name));
+									}
+								})
+
+								tr.append(td)
+								ret.append(tr);
+							}
+
+						})
+
+						return ret.html();
+					}                    
+                });
+           
+           </script>
+                    
+</apex:page>

@@ -1,0 +1,310 @@
+<apex:page controller="PanayaIA.Versioning" action="{!init}" title="Panaya Versioning" sidebar="false" tabStyle="Panaya_Impact_Analysis__tab">
+<!--     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.1/jquery.min.js"></script> --> 
+<!--     <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.23/jquery-ui.min.js"></script> -->
+
+	<script type="text/javascript" src="{!URLFOR($Resource.Panaya,'js/jquery.min.js')}"></script>
+    <script type="text/javascript" src="{!URLFOR($Resource.Panaya,'js/jquery-ui.min.js')}"></script>
+    
+    <script type="text/javascript">
+        var j$=jQuery.noConflict();
+        function objectSelected(str){
+            objSelected(str);
+        }
+        function extractionSelected(str){
+            extSelected(str);
+        }
+        function compTypeSelected(str){
+            componentTypeSelected(str);
+        }
+        function compSelected(str){
+            componentSelected(str);
+        }
+        function backToObjectSelectionClicked(){
+            backToObjectSelection();
+        }
+        function backToExtractionSelectionClicked(){
+            backToExtractionSelection();
+        }
+        function backToComponentTypeSelectionClicked(){
+            backToComponentTypeSelection();
+        }
+    </script>
+    <STYLE type="text/css">
+        ul.ui-autocomplete.ui-menu{
+            width:500px;
+            list-style-type: none;
+            margin:0; padding: 0;
+            text-align:left;
+            margin-left:0px;
+            background-color: white;
+        }:
+        .ui-autocomplete {
+            cursor: pointer;
+        }
+        a.ui-corner-all{
+            cursor: pointer;
+        }
+    </STYLE>
+<!--     <apex:stylesheet value="https://ajax.googleapis.com/ajax/libs/jqueryui/1.10.0/themes/cupertino/jquery-ui.css"/> -->
+    <apex:stylesheet value="{!URLFOR($Resource.PanayaIA__Panaya, 'css/jquery-ui.css')}"/>
+    
+    <apex:form id="theForm">
+        <script type="text/javascript">
+            function colorSelectedComponent(){
+                j$(".compNameClass").find(".compNameLink").each(
+                    function(){
+                        if (j$(this).html()=="{!selectedComponentLabel}"){
+                            j$(this).parent().css("background-color","#D9FBE5");
+                        }
+                        else{
+                            j$(this).parent().css("background-color","white");
+                        }
+                    });
+                
+                j$(".extractionListClass").find(".extractionListLink").each(
+                    function(){
+                        if (j$(this).html()=="{!selectedExtraction.ExtractionDateTime}"){
+                            j$(this).parent().css("background-color","#D9FBE5");
+                        }
+                        else{
+                            j$(this).parent().css("background-color","white");
+                        }
+                    });
+            }
+        </script>
+        <apex:messages />
+        <apex:actionFunction name="objSelected" action="{!objSelected}" reRender="theForm" status="WaitingStatus">
+            <apex:param name="selectedObject" value=""/>
+        </apex:actionFunction>
+        <apex:actionFunction name="extSelected" action="{!extractionSelected}" reRender="theForm" status="WaitingStatus" oncomplete="colorSelectedComponent()">
+            <apex:param name="selectedExtractionId" value=""/>
+        </apex:actionFunction>
+        <apex:actionFunction name="componentTypeSelected" action="{!componentTypeSelected}" reRender="theForm" status="WaitingStatus">
+            <apex:param name="selectedComponentType" value=""/>
+        </apex:actionFunction>
+        <apex:actionFunction name="componentSelected" action="{!componentSelected}" reRender="theForm" status="WaitingStatus" oncomplete="colorSelectedComponent()">
+            <apex:param name="selectedComponentName" value=""/>
+        </apex:actionFunction>
+        <apex:actionFunction name="backToObjectSelection" action="{!backToObjectSelection}" reRender="theForm" status="WaitingStatus"/>
+        <apex:actionFunction name="backToExtractionSelection" action="{!backToExtractionSelection}" reRender="theForm" status="WaitingStatus"/>
+        <apex:actionFunction name="backToComponentTypeSelection" action="{!backToComponentTypeSelection}" reRender="theForm" status="WaitingStatus"/>
+        <apex:actionStatus id="WaitingStatus">
+            <apex:facet name="start">
+                <center>
+                    <div style="position: fixed; top: 35%; left: 33%; height: 100%; width: 423px; z-index: 3000">
+                        <img src="{!URLFOR($Resource.PanayaWaiting3DBlueRing)}" width="60px" height="60px"
+                             style="margin-left: 35%; margin-top: 20%; z-index: 3020" />
+                    </div>
+                </center>
+            </apex:facet>
+        </apex:actionStatus>
+        <apex:pageblock title="Panaya Versioning" id="mainSection">
+            <a href="/apex/ImpactAnalysis">Main</a>
+            >&nbsp;<a href="javascript:backToExtractionSelectionClicked()">Extraction Selection</a>
+            <apex:outputText rendered="{!if(len(selectedExtraction.ExtractionId)>0,true,false)}">
+                >&nbsp;<a href="javascript:backToObjectSelectionClicked()">{!JSINHTMLENCODE(selectedExtraction.ExtractionDateTime)}</a>
+            </apex:outputText>
+            <apex:outputText rendered="{!if(len(selectedObj)>0,true,false)}">
+                >&nbsp;<a href="javascript:backToComponentTypeSelectionClicked()">{!JSINHTMLENCODE(selectedObjLabel)}</a>
+            </apex:outputText>
+            <apex:outputText rendered="{!if(len(selectedComponentType)>0,true,false)}">
+                >&nbsp;<a href="javascript:backToComponentTypeSelectionClicked()">{!JSINHTMLENCODE(selectedComponentType)}</a>
+            </apex:outputText>
+        </apex:pageblock>
+        <apex:pageblock rendered="{!if(len(selectedExtraction.ExtractionId)=0,'true','false')}" id="extractionSelection">
+            <apex:pageBlockSection title="Select the extraction you wish to draw the version from" columns="1" collapsible="false">
+                <apex:pageBlockTable value="{!extractions}" var="ext">
+                    <apex:column headerValue="Extraction Date">
+                        <a href="javascript:extractionSelected('{!JSENCODE(ext.ExtractionId)}')">{!JSINHTMLENCODE(ext.ExtractionDateTime)}</a>
+                    </apex:column>
+                </apex:pageBlockTable>
+            </apex:pageBlockSection>
+        </apex:pageblock>
+        <apex:pageblock rendered="{!if(and(len(selectedObj)=0,len(selectedExtraction.ExtractionId)>0),'true','false')}" id="objSelection">
+            <apex:inputhidden id="objectsJsonInput" value="{!objectsJson}"/>
+            <apex:pageBlockSection title="Select the object the versioned component is related to" columns="1" collapsible="false">
+                <apex:inputtext styleClass="objectText" size="80"/>
+                <apex:pageBlockTable value="{!objectsWrappers}" var="obj">
+                    <apex:column headerValue="Object Name">
+                        <a href="javascript:objectSelected('{!obj.objectLabel}~{!obj.objectName}')">{!obj.objectLabel}</a>
+                    </apex:column>
+                    <apex:column headerValue="API Name" value="{!obj.objectName}"/>
+                </apex:pageBlockTable>
+            </apex:pageBlockSection>
+            <script type="text/javascript">
+                j$(document).ready(function(){
+                    var hiddenInputId="{!$Component.theForm.objSelection.objectsJsonInput}";
+                    var hiddenInput=document.getElementById(hiddenInputId).value;
+                    var objsJson=eval('('+hiddenInput+')');
+                    j$(".objectText").autocomplete({
+                        source: objsJson,
+                        select: function(event, ui){
+                                    var str=ui.item.value;
+                                    for (i=str.length;str.charAt(i)!='(';i--);
+                                    str=str.substring(0,i-1)+'~'+str.substring(i+1,str.length-1);
+                                    objectSelected(str);
+                                }
+                    });
+                    j$(".objectText").val('');
+                    var textBoxHeight=j$(".objectText").height();
+                    j$(".objectText").after('<img src="{!$Resource.PanayaIA__LookupIcon}" style="vertical-align: text-bottom;" height='+textBoxHeight+'/>');
+                });
+            </script>
+        </apex:pageblock>
+        <apex:pageblock rendered="{!if(and(len(selectedObj)>0,len(selectedComponentType)=0),'true','false')}" id="componentTypeSelection">
+            <apex:pageBlockSection title="Select the component type you wish to see a version of" columns="1" collapsible="false">
+                <apex:pageBlockTable value="{!componentTypes}" var="compType">
+                    <apex:column headerValue="Component Type">
+                        <a href="javascript:compTypeSelected('{!compType}')">{!compType}</a>
+                    </apex:column>
+                </apex:pageBlockTable>
+            </apex:pageBlockSection>
+        </apex:pageblock>
+        <table style="width: 100%;">
+            <tr>
+                <td style="vertical-align: top;">
+                    <apex:pageblock rendered="{!if(len(selectedComponentType)>0,'true','false')}" id="componentSelection">
+                        <apex:pageBlockSection title="Select the component you wish to see a version of" columns="1" collapsible="false">
+                            <apex:pageBlockTable value="{!componentsList}" var="comp">
+                                <apex:column headerValue="Component Name" styleClass="compNameClass">
+                                    <a href="javascript:compSelected('{!comp.componentName}~{!comp.componentLabel}')" class="compNameLink">{!JSINHTMLENCODE(comp.componentLabel)}</a>
+                                </apex:column>
+                            </apex:pageBlockTable>
+                        </apex:pageBlockSection>
+                    </apex:pageblock>
+                </td>
+                <td style="vertical-align: top;">
+                    <apex:pageblock rendered="{!if(len(selectedComponentName)>0,'true','false')}" id="componentDetail">
+                        <apex:pageBlockSection title="Validation Rule Details" columns="1" collapsible="false" rendered="{!if(selectedComponentType='Validation Rule',true,false)}">
+                            <apex:pageblockSectionItem >
+                                <apex:outputLabel for="validationRuleName" value="Rule Name"/>
+                                <apex:outputtext value="{!selectedComponentLabel}" id="validationRuleName"/>
+                            </apex:pageblockSectionItem>
+                            <apex:pageblockSectionItem >
+                                <apex:outputLabel for="validationRuleFormula" value="Rule Formula"/>
+                                <apex:outputtext value="{!validationRule.errorConditionFormula}" id="validationRuleFormula"/>
+                            </apex:pageblockSectionItem>
+                            <apex:pageblockSectionItem >
+                                <apex:outputLabel for="validationRuleErrorMessage" value="Error Message"/>
+                                <apex:outputtext value="{!validationRule.errorMessage}" id="validationRuleErrorMessage"/>
+                            </apex:pageblockSectionItem>
+                            <apex:pageblockSectionItem >
+                                <apex:outputLabel for="validationRuleDescription" value="Rule Description"/>
+                                <apex:outputtext value="{!validationRule.description}" id="validationRuleDescription"/>
+                            </apex:pageblockSectionItem>
+                        </apex:pageBlockSection>
+                        <apex:pageBlockSection title="Workflow Rule Details" columns="1" collapsible="false" rendered="{!if(selectedComponentType='Workflow Rule',true,false)}">
+                            <apex:pageblockSectionItem >
+                                <apex:outputLabel for="workflowRuleName" value="Rule Name"/>
+                                <apex:outputtext value="{!selectedComponentLabel}" id="workflowRuleName"/>
+                            </apex:pageblockSectionItem>
+                            <apex:pageblockSectionItem >
+                                <apex:outputLabel for="workflowCriteriaFormula" value="Rule Criteria Formula"/>
+                                <apex:outputtext value="{!workflowRule.formula}" id="workflowCriteriaFormula"/>
+                            </apex:pageblockSectionItem>
+                            <apex:repeat value="{!workflowRule.criteriaItems}" var="cItem">
+                                <apex:pageblockSectionItem >
+                                    <apex:outputLabel for="criteriaItem" value="Criteria Item #{!cItem.num}"/>
+                                    <apex:outputtext value="{!cItem.field} <b>{!cItem.operation}</b> {!cItem.value}" id="criteriaItem" escape="false"/>
+                                </apex:pageblockSectionItem>
+                            </apex:repeat>
+                            <apex:pageblockSectionItem >
+                                <apex:outputLabel for="workflowRuleDescription" value="Rule Description"/>
+                                <apex:outputtext value="{!workflowRule.description}" id="workflowRuleDescription"/>
+                            </apex:pageblockSectionItem>
+                        </apex:pageBlockSection>
+                        <apex:pageBlockSection title="Workflow Actions - Immediate" columns="2" collapsible="false" rendered="{!if(selectedComponentType='Workflow Rule',true,false)}">
+                            <apex:repeat value="{!workflowRule.actions}" var="action">
+                                <apex:pageblockSectionItem >
+                                    <apex:outputLabel for="workflowAction" value="{!action.type}"/>
+                                    <apex:outputtext value="{!action.name}" id="workflowAction"/>
+                                </apex:pageblockSectionItem>
+                            </apex:repeat>
+                        </apex:pageBlockSection>
+                        <apex:outputPanel rendered="{!if(selectedComponentType='Workflow Rule',true,false)}">
+                            <apex:repeat value="{!workflowRule.workflowTimeTriggers}" var="timeTrig">
+                                <apex:pageBlockSection title="Workflow Actions - {!timeTrig.timeLength} {!timeTrig.workflowTimeTriggerUnit} from {!timeTrig.offsetFromField}" columns="2" collapsible="false" rendered="{!if(selectedComponentType='Workflow Rule',true,false)}">
+                                    <apex:repeat value="{!timeTrig.actions}" var="action">
+                                        <apex:pageblockSectionItem >
+                                            <apex:outputLabel for="workflowAction" value="{!action.type}"/>
+                                            <apex:outputtext value="{!action.name}" id="workflowAction"/>
+                                        </apex:pageblockSectionItem>
+                                    </apex:repeat>
+                                </apex:pageBlockSection>
+                            </apex:repeat>
+                        </apex:outputPanel>
+                        <apex:pageBlockSection title="Workflow Field Update Details" columns="1" collapsible="false" rendered="{!if(selectedComponentType='Workflow Field Update',true,false)}">
+                            <apex:pageblockSectionItem >
+                                <apex:outputLabel for="fieldUpdateName" value="Field Update Name"/>
+                                <apex:outputtext value="{!selectedComponentLabel}" id="fieldUpdateName"/>
+                            </apex:pageblockSectionItem>
+                            <apex:pageblockSectionItem >
+                                <apex:outputLabel for="fieldUpdateFieldToUpdate" value="Field to Update"/>
+                                <apex:outputtext value="{!fieldUpdate.field}" id="fieldUpdateFieldToUpdate"/>
+                            </apex:pageblockSectionItem>
+                            <apex:pageblockSectionItem >
+                                <apex:outputLabel for="fieldUpdateFormula" value="Update Formula"/>
+                                <apex:outputtext value="{!fieldUpdate.formula}" id="fieldUpdateFormula"/>
+                            </apex:pageblockSectionItem>
+                            <apex:pageblockSectionItem >
+                                <apex:outputLabel for="fieldUpdateAction" value="Update Value"/>
+                                <apex:outputtext value="{!if(len(fieldUpdate.literalValue)>0,fieldUpdate.literalValue,fieldUpdate.lookupValue)}" id="fieldUpdateAction"/>
+                            </apex:pageblockSectionItem>
+                        </apex:pageBlockSection>
+                        <apex:pageBlockSection title="Formula Field Details" columns="1" collapsible="false" rendered="{!if(selectedComponentType='Formula Field',true,false)}">
+                            <apex:pageblockSectionItem >
+                                <apex:outputLabel for="formulaName" value="Fomula Field Name"/>
+                                <apex:outputtext value="{!selectedComponentLabel}" id="formulaName"/>
+                            </apex:pageblockSectionItem>
+                            <apex:pageblockSectionItem >
+                                <apex:outputLabel for="formulaFieldFormula" value="Formula"/>
+                                <apex:outputtext value="{!formulaField.formula}" id="formulaFieldFormula"/>
+                            </apex:pageblockSectionItem>
+                            <apex:pageblockSectionItem >
+                                <apex:outputLabel for="formulaFieldTreatBlanks" value="Treat Blanks"/>
+                                <apex:outputtext value="{!formulaField.formulaTreatBlanksAs}" id="formulaFieldTreatBlanks"/>
+                            </apex:pageblockSectionItem>
+                        </apex:pageBlockSection>
+                        <apex:pageBlockSection title="Criteria Based Sharing Rule Details" columns="1" collapsible="false" rendered="{!if(selectedComponentType='Sharing Rule',true,false)}">
+                            <apex:pageblockSectionItem >
+                                <apex:outputLabel for="criteriaSharingRuleName" value="Sharing Rule Name"/>
+                                <apex:outputtext value="{!selectedComponentLabel}" id="criteriaSharingRuleName"/>
+                            </apex:pageblockSectionItem>
+                             <apex:repeat value="{!criteriaSharingRule.criteriaItems}" var="cItem">
+                                <apex:pageblockSectionItem >
+                                    <apex:outputLabel for="criteriaItem" value="Criteria Item #{!cItem.num}"/>
+                                    <apex:outputtext value="{!cItem.field} <b>{!cItem.operation}</b> {!cItem.value}" id="criteriaItem" escape="false"/>
+                                </apex:pageblockSectionItem>
+                            </apex:repeat>
+                            <apex:repeat value="{!criteriaSharingRule.sharedToDetailed}" var="shareToKey">
+                                <apex:repeat value="{!criteriaSharingRule.sharedToDetailed[shareToKey]}" var="shareTo">
+                                    <apex:pageblockSectionItem >
+                                        <apex:outputLabel for="sharedItem" value="Shared to {!shareToKey}"/>
+                                        <apex:outputtext value="<b>{!shareTo}</b>" id="sharedItem" escape="false"/>
+                                    </apex:pageblockSectionItem>
+                                </apex:repeat>
+                            </apex:repeat>
+                        </apex:pageBlockSection>
+                    </apex:pageblock>
+                </td>
+                <td style="vertical-align: top; width: 200px;">
+                    <apex:pageblock rendered="{!if(len(selectedComponentName)>0,'true','false')}">
+                        <apex:pageBlockSection title="Select the extraction date" columns="1" collapsible="false">
+                            <apex:outputpanel style="overflow-y: scroll; overflow-x: hidden; height:400px;" layout="block">
+                                <apex:pageBlockTable value="{!extractions}" var="ext">
+                                    <apex:column headerValue="Extraction Date" styleClass="extractionListClass">
+                                       <a href="javascript:extractionSelected('{!ext.ExtractionId}')" class="extractionListLink">{!JSINHTMLENCODE(ext.ExtractionDateTime)}</a>
+                                    </apex:column>
+                                </apex:pageBlockTable>
+                            </apex:outputpanel>
+                        </apex:pageBlockSection>
+                    </apex:pageblock>
+                </td>
+                
+            </tr>
+        </table>
+        <apex:pageblock title="Debug" rendered="{!if(len(debug)>2,true,false)}">
+            {!debug}
+        </apex:pageblock>
+    </apex:form>
+</apex:page>

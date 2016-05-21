@@ -1,0 +1,1402 @@
+<apex:page >
+
+<apex:includeScript value="{!URLFOR($Resource.DMAPP__Underscore, 'underscore-min.js')}"/>
+
+<script>
+
+var ttg = ttg || {}
+
+ttg.objectivesDateUtil = function(spec) {
+	
+	var fiscalYearStartMonth = spec.fiscalYearStartMonth || 0;
+	var DAYMS = 1000 * 60 * 60 * 24;
+		
+	// http://stackoverflow.com/questions/948532/how-do-you-convert-a-javascript-date-to-utc
+	/* FIXME - is this needed ?
+	function convertLocalDateToUTC(Date date) {
+	
+		return new Date(Date.UTC(
+    							date.getFullYear(),
+							    date.getMonth(),
+							    date.getDate(),
+							    date.getHours(),
+							    date.getMinutes()
+						));
+	
+	}
+	*/
+	
+	function filterWeek(today, from, to, dfw, dtw) {
+
+		today.setTime(today.getTime() - today.getDay() * DAYMS); // start of week
+
+		from.setTime(today.getTime() + (7 * DAYMS * dfw));                
+		to.setTime(today.getTime() + (7 * DAYMS * dtw));              
+		to.setTime(to.getTime() - DAYMS);
+	}
+	
+	function getDateRangeThisWeek(today) {
+		var from = new Date();
+		var to = new Date();
+		
+		filterWeek(today, from, to, 0, 1);
+		
+		var daterange = {
+			name	:	'thisweek',
+			from	:	from,
+			to		:	to
+		};
+		
+		return daterange;
+	}
+	
+	function filterMonth(today, from, to, dfm, dtm) {
+
+		var tm = today.getMonth();
+		from.setDate(1);
+		from.setMonth(tm + dfm);
+		to.setDate(1);
+		to.setMonth(tm + dtm);
+		to.setTime(to.getTime() - DAYMS);
+	}
+	
+	function getDateRangeThisMonth(today) {
+		var from = new Date();
+		var to = new Date();
+		
+		filterMonth(today, from, to, 0, 1);
+		
+		var daterange = {
+			name	:	'thismonth',
+			from	:	from,
+			to		:	to
+		};
+		
+		return daterange;
+	}
+	
+	function getDateRangeNextMonth(today) {
+		var from = new Date();
+		var to = new Date();
+		
+		filterMonth(today, from, to, 1, 2);
+		
+		var daterange = {
+			name	:	'nextmonth',
+			from	:	from,
+			to		:	to
+		};
+		
+		return daterange;
+	}
+	
+	function callQuarter(from, to, dfq, dtq) {
+
+		filterQuarter(from, to, dfq, dtq, fiscalYearStartMonth);
+
+	}
+
+	function filterQuarter(from, to, dfq, dtq, fys) {
+
+		var cq = Math.floor( (from.getMonth() - (fys % 3)) / 3) * 3 + (fys % 3)
+		from.setDate(1);
+		from.setMonth(cq + (dfq * 3));
+		to.setDate(1);
+		to.setMonth(cq + (dtq * 3));
+		to.setTime(to.getTime() - DAYMS);
+
+	}
+	
+	
+	function _filterYear(from, to, dfy, dty, fys) {
+            
+		var cy = Math.floor( (from.getMonth() - (fys % 12)) / 12) * 12 + (fys % 12)
+		from.setDate(1);
+		from.setMonth(cy);
+		from.setYear(from.getFullYear() + dfy);
+		to.setDate(1);
+		to.setYear(to.getFullYear() + dty);
+		to.setMonth(cy);
+		to.setTime(to.getTime() - DAYMS);
+
+	}
+	
+	function finYear(from, to, dfy, dty) {
+            
+		_filterYear(from, to, dfy, dty, fiscalYearStartMonth);
+
+	}
+	
+	function getDateRangeThisFinancialYear(from, to) {
+		
+		finYear(from, to, 0, 1);
+		
+		var daterange = {
+			from	:	from,
+			to		:	to
+		};
+		
+		return daterange;
+	}
+	
+	function getDateRangeNextQuarter(from, to) {
+		
+		callQuarter(from, to, 1, 2);
+		
+		var daterange = {
+			from	:	from,
+			to		:	to,
+			name	:	'nextquarter'
+		};
+		
+		return daterange;
+		
+	}
+	
+	function getDateRangeAfterNextQuarter(from, to) {
+		
+		callQuarter(from, to, 2, 40);
+		
+		var daterange = {
+			from	:	from,
+			to		:	to,
+			name	:	'afternextquarter'
+		};
+		
+		return daterange;
+		
+	}
+	
+	function getDateRangeLastQuarter(from, to) {
+		
+		var daterange = getDateRangeThisFinancialYear(from, to);
+		
+		var offsetMonths = 9; // if FY starts in Jan(Month 0) => Q4 starts in Oct (9) => offset is + 9 (months)
+		var monthStartOfFourthQuarter = daterange.from.getMonth() + offsetMonths;
+		daterange.from.setMonth(monthStartOfFourthQuarter);
+		
+		daterange.name = 'lastquarter';
+		
+		return daterange;
+	}
+	
+	function getDateRangeNextFinancialYear(from, to) {
+		
+		finYear(from, to, 1, 2);
+		
+		var daterange = {
+			from	:	from,
+			to		:	to
+		};
+		
+		return daterange;
+	}
+	
+	function getDateRangeFirstQuarterOfNextYear(from, to) {
+	
+		var daterange = getDateRangeNextFinancialYear(from, to);
+		
+		var offsetMonths = 2; // if FY starts in Jan(Month 0) => Q2 starts in Apr (4) => offset is + 2 (months)
+		var monthStartOfSecondQuarter = daterange.from.getMonth() + offsetMonths;
+		daterange.to.setMonth(monthStartOfSecondQuarter);
+		//daterange.to.setDate(daterange.to.getDate() - 1); // FIXME
+		
+		daterange.name = 'firstquarternextyear';
+		
+		return daterange;
+	}
+	
+	function compareTo(lhs, rhs) {
+		if(lhs.getFullYear() < rhs.getFullYear()) {
+			return -1;
+		}
+		
+		if(lhs.getFullYear() > rhs.getFullYear()) {
+			return 1;
+		}
+		
+		if(lhs.getMonth() < rhs.getMonth()) {
+			return -1;
+		}
+		
+		if(lhs.getMonth() > rhs.getMonth()) {
+			return 1;
+		}
+		
+		if(lhs.getDate() < rhs.getDate()) {
+			return -1;
+		}
+		
+		if(lhs.getDate() > rhs.getDate()) {
+			return 1;
+		}
+		
+		return 0;
+	}
+	
+	 
+	return {
+		compareTo							:	compareTo,
+		getDateRangeThisWeek				:	getDateRangeThisWeek,
+		getDateRangeThisMonth				:	getDateRangeThisMonth,
+		getDateRangeNextMonth				:	getDateRangeNextMonth,
+		getDateRangeNextQuarter				:	getDateRangeNextQuarter,
+		getDateRangeAfterNextQuarter		:	getDateRangeAfterNextQuarter,
+		getDateRangeLastQuarter				:	getDateRangeLastQuarter,
+		getDateRangeFirstQuarterOfNextYear	:	getDateRangeFirstQuarterOfNextYear
+	}
+}
+
+
+ttg.objectivesModel = function(spec) {
+	
+	var objectives = spec.model || [];
+	
+	
+	function doGetObjectivesByHideCompleted(hideCompleted, myObjectives) {
+	
+		return _.filter(myObjectives, function(objective) { 
+			if(hideCompleted) {
+				return !objective.completed;
+			} else {
+				return true;
+			} 
+		});
+		
+	}
+	
+	function getObjectivesByHideCompleted(hideCompleted) {
+		return doGetObjectivesByHideCompleted(hideCompleted, objectives);
+	}
+	
+	function doGetObjectivesByCompleted(completed, myObjectives) {
+	
+		return _.filter(myObjectives, function(objective) { 
+			if(completed == 'Open') {
+			
+				return !(objective.completed);
+			
+			} else if(completed == 'Closed') {
+			
+				return objective.completed;
+			 
+			} else {
+				return true;
+			} 
+		});
+		
+	}
+	
+	function getObjectivesByCompleted(completed) {
+		return doGetObjectivesByCompleted(completed, objectives);
+	}
+	
+	function isUndefinedOrEmpty(priorities) {
+		return ((priorities === undefined) || (priorities == null) || (priorities.length == 0));
+	}
+	
+	function isUndefinedOrNull(thing) {
+		return ((thing === undefined) || (thing == null) || (thing == ''));
+	}
+	
+	function convertArrayToList(things) {
+		var thingsAsList = '';
+	
+		if(things) {
+			for(var i=0; i < things.length; i++) {
+				thingsAsList = thingsAsList + ',' + things[i]; 
+	        }
+        }
+        
+        return thingsAsList;
+	}
+	
+	function doGetObjectivesByPriorities(priorities, myObjectives) {
+	
+		var prioritiesAsList = convertArrayToList(priorities);
+	
+		return _.filter(myObjectives, function(objective) {
+			return (isUndefinedOrEmpty(priorities) || (prioritiesAsList.indexOf(objective.priority) > -1));
+		});
+		
+	}
+	
+	function getObjectivesByPriorities(priorities) {
+		return doGetObjectivesByPriorities(priorities, objectives);
+	}
+	
+	/*
+	function doGetObjectivesByOwner(owner, myObjectives) {
+	
+		return _.filter(myObjectives, function(objective) {
+			return 	(isUndefinedOrNull(owner) || 
+					 isUndefinedOrNull(owner.id) ||
+					 isUndefinedOrNull(objective.owner) || 
+					 isUndefinedOrNull(objective.owner.id) || 
+					 (objective.owner.id == owner.id));
+		});
+		
+	}
+	
+	function getObjectivesByOwner(owner) {
+		return doGetObjectivesByOwner(owner, objectives);
+	}
+	*/
+	
+	function doGetObjectivesByOwners(owners, myObjectives) {
+	
+		return _.filter(myObjectives, function(objective) {
+		
+			var found = false;
+			
+			if(isUndefinedOrEmpty(owners)) {
+				found = true;
+			}
+			
+			for(var i=0; ((found == false) && (i < owners.length)); i++) {
+				
+				var owner = owners[i];
+		
+				found = (isUndefinedOrNull(owner) || 
+					 	isUndefinedOrNull(owner.id) ||
+					 	isUndefinedOrNull(objective.owner) || 
+					 	isUndefinedOrNull(objective.owner.id) || 
+					 	(objective.owner.id == owner.id));
+				
+			}
+			
+			return found;
+	
+		});
+		
+	}
+	
+	function getObjectivesByOwners(owners) {
+		return doGetObjectivesByOwners(owners, objectives);
+	}
+	
+	function doGetObjectivesByPlanunit(planunitid, myObjectives) {
+	
+		return _.filter(myObjectives, function(objective) {
+		
+			var found = false;
+			
+			if(isUndefinedOrNull(planunitid)) {
+				
+				found = true;
+			
+			} else {
+			
+				if(planunitid == 'NULL') {
+					
+					found = (isUndefinedOrNull(objective.planunit) || 
+				 				isUndefinedOrNull(objective.planunit.id));
+					
+				} else {
+				
+					found = ((objective.planunit) &&
+							 (objective.planunit.id) &&
+							 (objective.planunit.id == planunitid));
+				}	
+			}				
+			
+			return found;
+	
+		});
+		
+	}
+	
+	function getObjectivesByPlanunit(planunitid) {
+		return doGetObjectivesByPlanunit(planunitid, objectives);
+	}
+	
+	
+	function getObjectivesByFilter(filter) {
+		
+		var completed = filter.completed;
+		var priorities = filter.priorities;
+		var owners = filter.owners;
+		var planunitid = filter.planunitid;
+		
+		return doGetObjectivesByCompleted(completed, doGetObjectivesByPriorities(priorities, doGetObjectivesByOwners(owners, doGetObjectivesByPlanunit(planunitid, objectives))));
+	}
+	
+	
+	
+	// Timeline functions
+	
+	function isDateRangeUndefinedOrNull(daterange) {
+		return ((daterange === undefined) ||
+				(daterange == null) ||
+				(daterange.from === undefined) ||
+				(daterange.from == null) ||
+				(daterange.to === undefined) ||
+				(daterange.to == null));
+	}
+	
+	function isTaskOrTaskDateUndefinedOrNull(task) {
+		return ((task === undefined) ||
+				(task == null) ||
+				(task.ActivityDate === undefined) ||
+				(task.ActivityDate == null));
+	}
+	
+	function compareTo(lhs, rhs) {
+		if(lhs.getFullYear() < rhs.getFullYear()) {
+			return -1;
+		}
+		
+		if(lhs.getFullYear() > rhs.getFullYear()) {
+			return 1;
+		}
+		
+		if(lhs.getMonth() < rhs.getMonth()) {
+			return -1;
+		}
+		
+		if(lhs.getMonth() > rhs.getMonth()) {
+			return 1;
+		}
+		
+		if(lhs.getDate() < rhs.getDate()) {
+			return -1;
+		}
+		
+		if(lhs.getDate() > rhs.getDate()) {
+			return 1;
+		}
+		
+		return 0;
+	}
+	
+	function isTaskWithinDateRange(daterange, task) {
+	
+		if(isTaskOrTaskDateUndefinedOrNull(task)) {
+			return true;
+		}
+	
+		var activityDate = new Date(task.ActivityDate);
+		
+		var compareWithFromDate = compareTo(activityDate, daterange.from);
+		var compareWithToDate = compareTo(activityDate, daterange.to);
+		
+		var isInRange = (compareWithFromDate > -1) &&
+						(compareWithToDate < 1);
+		
+		return isInRange;
+	}
+	
+	function doGetTasksForDateRange(daterange, myTasks) {
+	
+		return _.filter(myTasks, function(task) { 
+			
+			if(!(isDateRangeUndefinedOrNull(daterange))) {
+				return isTaskWithinDateRange(daterange, task);
+			} else {
+				return true;
+			} 
+		});
+		
+	}
+	
+	function getTasksForDateRange(daterange) {
+	
+		var tasksForThisDateRange = [];
+		var myTasks = [];
+		
+		for(var i=0; i < objectives.length; i++) {
+		
+			var objective = objectives[i];
+			myTasks = doGetTasksForDateRange(daterange, objective.tasks);
+			
+			for(var j=0; j < myTasks.length; j++) {
+			
+				var myTask = myTasks[j];
+				myTask.objectiveSubject = objective.subject;
+				
+				tasksForThisDateRange.push(myTask);
+			}
+		}
+		
+		return tasksForThisDateRange;
+		
+	}
+	
+	 
+	return {
+		getObjectivesByHideCompleted	:	getObjectivesByHideCompleted,
+		getObjectivesByPriorities		:	getObjectivesByPriorities,
+		//getObjectivesByOwner			:	getObjectivesByOwner,
+		getObjectivesByOwners			:	getObjectivesByOwners,
+		getObjectivesByPlanunit			:	getObjectivesByPlanunit,
+		getObjectivesByFilter			:	getObjectivesByFilter,
+		doGetTasksForDateRange			:	doGetTasksForDateRange,    // FIXME remove from here after testing
+		getTasksForDateRange			:	getTasksForDateRange
+	}
+}
+
+
+ttg.tasksModel = function(spec) {
+	
+	var objectives = spec.model || [];
+	var tasks = [];
+	
+	for(var i=0; i < objectives.length; i++) {
+		
+		var objective = objectives[i];
+		var myTasks = objective.tasks || [];
+		
+		for(var j=0; j < myTasks.length; j++) {
+		
+			var myTask = myTasks[j];
+			myTask.objectiveSubject = objective.subject;
+			myTask.objectiveType = objective.type;
+			myTask.planunitid = (objective.planunit ? objective.planunit.id : null);
+			
+			tasks.push(myTask);
+		}
+	}
+	
+	
+	function doGetTasksByHideCompleted(hideCompleted, myTasks) {
+	
+		return _.filter(myTasks, function(task) { 
+			if(hideCompleted) {
+				return !isTaskCompleted(task);
+			} else {
+				return true;
+			} 
+		});
+		
+	}
+	
+	function getTasksByCompleted(completed, myTasks) {
+	
+		return _.filter(myTasks, function(task) { 
+			
+			if(completed) {
+				return isTaskCompleted(task);
+			} else {
+				return !isTaskCompleted(task);
+			}
+
+		});
+		
+	}
+	
+	function getTasksByCompletedString(completed, myTasks) {
+	
+		return _.filter(myTasks, function(task) { 
+			
+			if(completed == 'Open') {
+			
+				return !isTaskCompleted(task);
+			
+			} else if(completed == 'Closed') {
+			
+				return isTaskCompleted(task);
+			
+			} else {
+				return true;	
+			}
+
+		});
+		
+	}
+	
+	function isTaskCompleted(task) {
+		return ((task) && (task.IsClosed == true)) ? true : false;
+	}
+	
+	function getTasksByHideCompleted(hideCompleted) {
+		return doGetTasksByHideCompleted(hideCompleted, tasks);
+	}
+	
+	function isUndefinedOrEmpty(priorities) {
+		return ((priorities === undefined) || (priorities == null) || (priorities.length == 0));
+	}
+	
+	function isUndefinedOrNull(thing) {
+		return ((thing === undefined) || (thing == null) || (thing == ''));
+	}
+	
+	function isNotUndefinedOrNull(thing) {
+		return !isUndefinedOrNull(thing);
+	}
+	
+	function convertArrayToList(things) {
+		var thingsAsList = '';
+	
+		if(things) {
+			for(var i=0; i < things.length; i++) {
+				thingsAsList = thingsAsList + ',' + things[i]; 
+	        }
+        }
+        
+        return thingsAsList;
+	}
+	
+	function doGetTasksByPriorities(priorities, myTasks) {
+	
+		var prioritiesAsList = convertArrayToList(priorities);
+	
+		return _.filter(myTasks, function(task) {
+			return (isUndefinedOrEmpty(priorities) || (prioritiesAsList.indexOf(task.Priority) > -1));
+		});
+		
+	}
+	
+	function getTasksByPriorities(priorities) {
+		return doGetTasksByPriorities(priorities, tasks);
+	}
+	
+	function doGetTasksByStatus(status, myTasks) {
+	
+		return _.filter(myTasks, function(task) {
+			var taskStatus = task.Status;
+			return (isUndefinedOrNull(taskStatus) || (status == taskStatus));
+		});
+		
+	}
+	
+	function getTasksByStatus(status) {
+		return doGetTasksByStatus(status, tasks);
+	}
+	
+	
+	function doGetTasksByOwner(owner, myTasks) {
+	
+		return _.filter(myTasks, function(task) {
+			return 	(isUndefinedOrNull(owner) || 
+					 isUndefinedOrNull(owner.id) || 
+					 isUndefinedOrNull(task.OwnerId) || 
+					 (task.OwnerId == owner.id));
+		});
+		
+	}
+	
+	function getTasksByOwner(owner) {
+		return doGetTasksByOwner(owner, tasks);
+	}
+	
+	
+	function doGetTasksByOwners(owners, myTasks) {
+	
+	
+		return _.filter(myTasks, function(task) {
+			
+			var found = false;
+			
+			if(isUndefinedOrEmpty(owners)) {
+				found = true;
+			}
+			
+			for(var i=0; ((found == false) && (i < owners.length)); i++) {
+				
+				var owner = owners[i];
+		
+				found = (isUndefinedOrNull(owner) || 
+					 	isUndefinedOrNull(owner.id) ||
+					 	isUndefinedOrNull(task.OwnerId) || 
+					 	(task.OwnerId == owner.id));
+				
+			}
+			
+			return found;
+		});
+		
+	}
+	
+	function getTasksByOwners(owners) {
+		return doGetTasksByOwners(owners, tasks);
+	}
+	
+	function doGetTasksByPlanunit(planunitid, myTasks) {
+	
+	
+		return _.filter(myTasks, function(task) {
+			
+			var found = false;
+			
+			if(isUndefinedOrNull(planunitid)) {
+				
+				found = true;
+			
+			} else {
+			
+				if(planunitid == 'NULL') {
+					
+					found = (isUndefinedOrNull(task.planunitid));
+					
+				} else {
+				
+					found = ((task.planunitid) &&
+							 (task.planunitid == planunitid));
+				}	
+			}		
+		
+			return found;
+		});
+		
+	}
+	
+	function getTasksByPlanunit(planunitid) {
+		return doGetTasksByPlanunit(planunitid, tasks);
+	}
+	
+	
+	
+	function doGetTasksByContact(contact, myTasks) {
+	
+		return _.filter(myTasks, function(task) {
+			return 	(isUndefinedOrNull(contact) || 
+					 isUndefinedOrNull(contact.id) || 
+					 (isNotUndefinedOrNull(task.Who) &&
+					  isNotUndefinedOrNull(task.Who.Id) &&  
+					  (task.Who.Id == contact.id)));
+		});
+		
+	}
+	
+	function getTasksByContact(contact) {
+		return doGetTasksByContact(contact, tasks);
+	}
+	
+	function isContactInContacts(contacts, contactid) {
+		var result = false;
+		
+		for(var i=0; i < contacts.length; i++) {
+		
+			var contact = contacts[i];
+			
+			if(contact && (contact.id == contactid)) {
+				result = true;
+			}
+		}
+						
+		return result;
+	}
+	
+	function doGetTaskContacts(mytasks) {
+		var contacts = [];
+		
+		for(var i=0; i < mytasks.length; i++) {
+		
+			var task = mytasks[i];
+		
+			var who = task.Who;
+			var contactid = (who ? who.Id : null);
+			var contactname = (who ? who.Name : null);
+           
+			if(!(isContactInContacts(contacts, contactid))) {
+				contacts.push({
+					id: 	contactid,
+					name: 	contactname
+				});
+			} 
+		}
+		
+		return contacts;
+	}
+	
+	function getTaskContacts() {
+		return doGetTaskContacts(tasks);
+	}
+	
+	function isObjectiveSubjectInObjectiveSubjects(objectivesubjects, objectivesubject) {
+		var result = false;
+		
+		for(var i=0; i < objectivesubjects.length; i++) {
+		
+			var subject = objectivesubjects[i];
+			
+			if(subject == objectivesubject) {
+				result = true;
+			}
+		}
+						
+		return result;
+	}
+	
+	function doGetTaskObjectiveSubjects(mytasks) {
+		var objectivesubjects = [];
+		
+		for(var i=0; i < objectives.length; i++) {
+		
+			var objective = objectives[i];
+			var objectivesubject = objective.subject;
+		
+			if(!(isObjectiveSubjectInObjectiveSubjects(objectivesubjects, objectivesubject))) {
+				objectivesubjects.push(objectivesubject);
+			} 
+		}
+		
+		return objectivesubjects;
+	}
+	
+	function getTaskObjectiveSubjects() {
+		return doGetTaskObjectiveSubjects(tasks);
+	}
+	
+	function doGetTasksByObjectiveType(objectiveType, myTasks) {
+	
+		return _.filter(myTasks, function(task) {
+			var taskObjectiveType = task.objectiveType;
+			return (isUndefinedOrNull(taskObjectiveType) || (objectiveType == taskObjectiveType));
+		});
+		
+	}
+	
+	function getTasksByObjectiveType(objectiveType) {
+		return doGetTasksByObjectiveType(objectiveType, tasks);
+	}
+	
+	function doGetTasksByObjectiveSubject(objectiveSubject, myTasks) {
+	
+		return _.filter(myTasks, function(task) {
+			return 	(isUndefinedOrNull(objectiveSubject) || 
+					 (isNotUndefinedOrNull(task.objectiveSubject) &&
+					  (task.objectiveSubject == objectiveSubject)));
+		});
+		
+	}
+	
+	
+	function getTasksByObjectiveSubject(objectiveSubject) {
+		return doGetTasksByObjectiveSubject(objectiveSubject, tasks);
+	}
+	
+	
+	function getTasksByFilter(filter) {
+		
+		var completed = filter.completed;
+		var priorities = filter.priorities;
+		var owners = filter.owners;
+		var planunitid = filter.planunitid;
+		
+		//return getTasksByCompletedString(completed, doGetTasksByPriorities(priorities, doGetTasksByOwners(owners, doGetTasksByPlanunit(planunitid, tasks))));
+		return getTasksByCompletedString(completed, doGetTasksByPriorities(priorities, doGetTasksByOwners(owners, tasks)));
+	}
+	
+	
+	
+	// Tasks functions
+	
+	function isDateRangeUndefinedOrNull(daterange) {
+		return ((daterange === undefined) ||
+				(daterange == null) ||
+				(daterange.from === undefined) ||
+				(daterange.from == null) ||
+				(daterange.to === undefined) ||
+				(daterange.to == null));
+	}
+	
+	function isTaskOrTaskDateUndefinedOrNull(task) {
+		return ((task === undefined) ||
+				(task == null) ||
+				(task.ActivityDate === undefined) ||
+				(task.ActivityDate == null));
+	}
+	
+	function compareTo(lhs, rhs) {
+		if(lhs.getFullYear() < rhs.getFullYear()) {
+			return -1;
+		}
+		
+		if(lhs.getFullYear() > rhs.getFullYear()) {
+			return 1;
+		}
+		
+		if(lhs.getMonth() < rhs.getMonth()) {
+			return -1;
+		}
+		
+		if(lhs.getMonth() > rhs.getMonth()) {
+			return 1;
+		}
+		
+		if(lhs.getDate() < rhs.getDate()) {
+			return -1;
+		}
+		
+		if(lhs.getDate() > rhs.getDate()) {
+			return 1;
+		}
+		
+		return 0;
+	}
+	
+	function isTaskWithinDateRange(daterange, task) {
+	
+		if(isTaskOrTaskDateUndefinedOrNull(task)) {
+			return true;
+		}
+	
+		var activityDate = new Date(task.ActivityDate);
+		
+		var compareWithFromDate = compareTo(activityDate, daterange.from);
+		var compareWithToDate = compareTo(activityDate, daterange.to);
+		
+		var isInRange = (compareWithFromDate > -1) &&
+						(compareWithToDate < 1);
+		
+		return isInRange;
+	}
+	
+	function getTasksForDateRange(daterange, myTasks) {
+	
+		return _.filter(myTasks, function(task) { 
+			
+			if(!(isDateRangeUndefinedOrNull(daterange))) {
+				return isTaskWithinDateRange(daterange, task);
+			} else {
+				return true;
+			} 
+		});
+		
+	}
+	
+	function isTaskOverdue(today, task) {
+	
+		var isOverdue = false;
+	
+		if(isTaskOrTaskDateUndefinedOrNull(task)) {
+			return isOverdue;
+		}
+		
+		if(false == isTaskCompleted(task)) {
+	
+			var activityDate = new Date(task.ActivityDate);
+			
+			var compareWithToDate = compareTo(activityDate, today);
+			
+			isOverdue = compareWithToDate <= 0;
+		}
+		
+		return isOverdue;
+	}
+	
+	function getTasksByOverdue(today, myTasks) {
+	
+		return _.filter(myTasks, function(task) { 
+			
+			return isTaskOverdue(today, task);
+			 
+		});
+		
+	}
+	
+	function updateTasksOverdueStatus(today) {
+	
+		for(var i=0; i < tasks.length; i++) {
+			var task = tasks[i];
+			task.overdue = isTaskOverdue(today, task); 
+		}
+	}
+	
+	function isTaskInTasks(myTask, myTasks) {
+		var found = false;
+		
+		for(var i=0; ((found == false) && (i < myTasks.length)); i++) {
+			var currentTask = myTasks[i];
+			if(myTask.Id == currentTask.Id) {
+				found = true;
+			}
+		}
+		
+		return found;
+	}
+	
+	// return a list of tasks, such that each task is in 'myTasks' and is not in 'otherTasks'
+	function getUniqueTasks(myTasks, otherTasks) {
+		
+		return _.filter(myTasks, function(task) { 
+			
+			return !isTaskInTasks(task, otherTasks);
+			 
+		});
+	}
+	
+	// get union of all owners (from Plan Team), plus anyone who owns an Action
+	function getTaskOwners(owners) {
+	
+		var taskOwners = [];
+		
+		// first, add all the Plan Team owners
+		for(var i=0; i < owners.length; i++) {
+			var owner = owners[i];
+			taskOwners.push(owner);
+		}
+		
+		// next, for each Task, add the owner if not already in taskOwners
+		for(var j=0; j < tasks.length; j++) {
+			var task = tasks[j];
+			var owner = task.Owner;
+			var ownerid = (task.Owner && task.Owner.Id) ? task.Owner.Id : null;
+			var ownername = (task.Owner && task.Owner.Name) ? task.Owner.Name : null;
+			
+			if(ownerid && ownername) {
+				if(false == isOwnerInOwners(ownerid, taskOwners)) {
+					var owner = {
+                        id: 	ownerid,
+                        name: 	ownername
+                    };
+                    taskOwners.push(owner);
+				}
+			}
+		}
+		
+		return taskOwners;
+	
+	}
+	
+	function isOwnerInOwners(ownerid, taskOwners) {
+	
+		var found = false;
+		
+		for(var i=0; ((found == false) && (i < taskOwners.length)); i++) {
+			var taskOwner = taskOwners[i];
+			var taskOwnerId = taskOwner.id;
+			if(ownerid == taskOwnerId) {
+				found = true;
+			} 
+		}
+		
+		return found;
+	}
+	
+	 
+	return {
+		getTasksByHideCompleted			:	getTasksByHideCompleted,
+		getTasksByCompleted				:	getTasksByCompleted,
+		doGetTasksByPriorities			:	doGetTasksByPriorities,
+		getTasksByPriorities			:	getTasksByPriorities,
+		doGetTasksByStatus				:	doGetTasksByStatus,
+		getTasksByStatus				:	getTasksByStatus,
+		doGetTasksByOwner				:	doGetTasksByOwner,
+		getTasksByOwner					:	getTasksByOwner,
+		doGetTasksByOwners				:	doGetTasksByOwners,
+		getTasksByOwners				:	getTasksByOwners,
+		doGetTasksByContact				:	doGetTasksByContact,
+		getTasksByContact				:	getTasksByContact,
+		doGetTaskContacts				:	doGetTaskContacts,
+		getTaskContacts					:	getTaskContacts,
+		doGetTaskObjectiveSubjects		:	doGetTaskObjectiveSubjects,
+		getTaskObjectiveSubjects		:	getTaskObjectiveSubjects,
+		doGetTasksByObjectiveType		:	doGetTasksByObjectiveType,
+		getTasksByObjectiveType			:	getTasksByObjectiveType,
+		doGetTasksByObjectiveSubject	:	doGetTasksByObjectiveSubject,
+		getTasksByObjectiveSubject		:	getTasksByObjectiveSubject,
+		getTasksByFilter				:	getTasksByFilter,
+		getTasksForDateRange			:	getTasksForDateRange,
+		getTasksByOverdue				:	getTasksByOverdue,
+		getUniqueTasks					:	getUniqueTasks,
+		updateTasksOverdueStatus		:	updateTasksOverdueStatus,
+		getTaskOwners					:	getTaskOwners,
+		getTasksByPlanunit				:	getTasksByPlanunit,
+		getTasksByCompletedString		:	getTasksByCompletedString,
+		isTaskOverdue					:	isTaskOverdue	
+	}
+}
+
+
+ttg.objectivesSortUtil = function(spec) {
+
+	var fieldname = spec.fieldname;
+	var ascending = spec.ascending;
+	var statuses = spec.statuses || [];
+	var objectivepriorities = spec.objectivepriorities || [];
+	
+	// http://stackoverflow.com/questions/8703914/using-javascript-with-underscore-js-to-sort-the-other-way
+	function reverseStringField(field) {
+		return String.fromCharCode.apply(String, _.map(field.split(''), function (c) {
+    					return 0xffff - c.charCodeAt(0); 
+  					}));
+	}
+	
+	/*
+	function getStatus(label) {
+	
+		var status = null;
+		
+		for(var i=0; ((status == null) && (i < statuses.length)); i++) {
+			var temp = statuses[i];
+			if(temp.MasterLabel == label) {
+				status = temp;
+			}
+		}
+		
+		return status;
+	}
+	*/
+	
+	function getField(objective) {
+	
+		var field = null;
+		
+		if(fieldname == 'duedate') {
+		
+			if(objective && objective.duedate) {
+				field = objective.duedate;
+				
+				if(ascending == false) {
+					field *= -1;
+				}
+			}
+		} else if(fieldname == 'owner') {
+		
+			if(objective && objective.owner && objective.owner.name) {
+				field = objective.owner.name.toLowerCase();
+				
+				if(ascending == false) {
+					field = reverseStringField(field);
+  				}
+			}
+		} else if(fieldname == 'subject') {
+		
+			if(objective && objective.subject) {
+				field = objective.subject;
+				
+				if(ascending == false) {
+					field = reverseStringField(field);
+  				}
+			}
+		} else if(fieldname == 'priority') {
+		
+			if(objective && objective.priority) {
+				field = objective.priority;
+				
+				var found = false;
+				
+				for(var i = 0; ((found == false) && (i < objectivepriorities.length)); i++) {
+					var priority = objectivepriorities[i].value;
+					
+					if(field == priority) {
+						found = true;
+						field = (ascending == false) ? i : (objectivepriorities.length - 1 - i);
+					}
+				}
+				
+				/*
+				if(field == 'Low') {
+					field = (ascending ? 0 : 2);
+  				} else if(field == 'Medium') {
+					field = 1;
+  				} else if(field == 'High') {
+					field = (ascending ? 2 : 0);
+  				}
+  				*/
+			}
+		} else if(fieldname == 'status') {
+		
+			if(objective && objective.status) {
+				field = objective.status;
+				
+				/*
+				var status = getStatus(field);
+				//var where = _.findWhere(statuses, {MasterLabel: field});
+				
+				//console.log('>>> field: ' + field + ', status.MasterLabel: ' + status.MasterLabel + ', status.SortOrder: ' + status.SortOrder);
+				//console.log('>>> field: ' + field + ', where.MasterLabel: ' + where.MasterLabel + ', where.SortOrder: ' + where.SortOrder);
+				
+				if(status) {
+					var temp = (ascending ? status.SortOrder : (status.SortOrder * -1));
+					//console.log('>>> field: ' + field + ', temp: ' + temp);
+					field = temp;
+				}
+				*/
+				
+				
+				if(field == 'Completed') {
+					field = (ascending ? 0 : 4);
+  				} else if(field == 'Cancelled') {
+					field = (ascending ? 1 : 3);
+  				} else if(field == 'Deferred') {
+					field = 2;
+  				} else if(field == 'In Progress') {
+					field = (ascending ? 3 : 1);
+				} else if(field == 'Not Started') {
+					field = (ascending ? 4 : 0);
+				}
+					
+			}
+		
+		} else if(fieldname == 'type') {
+		
+			if(objective && objective.type) {
+				field = objective.type;
+				
+				if(ascending == false) {
+					field = reverseStringField(field);
+  				}
+			}
+		
+		} else if(fieldname == 'planunit') {
+		
+			if(objective && objective.planunit && objective.planunit.name) {
+				field = objective.planunit.name;
+				
+				if(ascending == false) {
+					field = reverseStringField(field);
+  				}
+			}
+		}
+				
+		return field;
+	}
+	
+	function sort(objectives) {
+		return _.sortBy(objectives, getField );
+	}
+	
+	return {
+		sort	:	sort
+	}
+}	
+
+ttg.tasksSortUtil = function(spec) {
+
+	var fieldname = spec.fieldname;
+	var ascending = spec.ascending;
+	var taskpriorities = spec.taskpriorities || [];
+	
+	// http://stackoverflow.com/questions/8703914/using-javascript-with-underscore-js-to-sort-the-other-way
+	function reverseStringField(field) {
+		return String.fromCharCode.apply(String, _.map(field.split(''), function (c) {
+    					return 0xffff - c.charCodeAt(0); 
+  					}));
+	}
+	
+	function getField(task) {
+	
+		var field = null;
+		
+		if(fieldname == 'activitydate') {
+		
+			if(task && task.ActivityDate) {
+				field = task.ActivityDate;
+				
+				if(ascending == false) {
+					field *= -1;
+				}
+			}
+		} else if(fieldname == 'owner') {
+		
+			if(task && task.Owner && task.Owner.Name) {
+				field = task.Owner.Name.toLowerCase();
+				
+				if(ascending == false) {
+					field = reverseStringField(field);
+  				}
+			}
+		} else if(fieldname == 'subject') {
+		
+			if(task && task.Subject) {
+				field = task.Subject;
+				
+				if(ascending == false) {
+					field = reverseStringField(field);
+  				}
+			}
+		} else if(fieldname == 'priority') {
+		
+			if(task && task.Priority) {
+				field = task.Priority;
+				
+				var found = false;
+				
+				for(var i = 0; ((found == false) && (i < taskpriorities.length)); i++) {
+					var priority = taskpriorities[i].value;
+					
+					if(field == priority) {
+						found = true;
+						field = (ascending == false) ? i : (taskpriorities.length - 1 - i);
+					}
+				}
+					 
+				/*
+				if(field == 'Low') {
+					field = (ascending ? 0 : 2);
+  				} else if(field == 'Medium') {
+					field = 1;
+  				} else if(field == 'High') {
+					field = (ascending ? 2 : 0);
+  				}
+  				*/
+			}
+		} else if(fieldname == 'objectivesubject') {
+		
+			if(task && task.objectiveSubject) {
+				field = task.objectiveSubject;
+				
+				if(ascending == false) {
+					field = reverseStringField(field);
+  				}
+			}
+		} else if(fieldname == 'objectivetype') {
+		
+			if(task && task.objectiveType) {
+				field = task.objectiveType;
+				
+				if(ascending == false) {
+					field = reverseStringField(field);
+  				}
+			}
+		}	
+				
+		return field;
+	}
+	
+	function sort(tasks) {
+		return _.sortBy(tasks, getField );
+	}
+	
+	return {
+		sort	:	sort
+	}
+}
+
+
+ttg.ownersSortUtil = function(spec) {
+
+	var fieldname = spec.fieldname;
+	var ascending = spec.ascending;
+	
+	// http://stackoverflow.com/questions/8703914/using-javascript-with-underscore-js-to-sort-the-other-way
+	function reverseStringField(field) {
+		return String.fromCharCode.apply(String, _.map(field.split(''), function (c) {
+    					return 0xffff - c.charCodeAt(0); 
+  					}));
+	}
+	
+	function getField(owner) {
+	
+		var field = null;
+		
+		if(fieldname == 'name') {
+		
+			if(owner && owner.name) {
+				field = owner.name.toLowerCase();
+				
+				if(ascending == false) {
+					field = reverseStringField(field);
+  				}
+			}
+		}
+				
+		return field;
+	}
+	
+	function sort(owners) {
+		return _.sortBy(owners, getField );
+	}
+	
+	return {
+		sort	:	sort
+	}
+}
+	
+
+</script>
+
+</apex:page>

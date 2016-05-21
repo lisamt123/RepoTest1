@@ -1,0 +1,19 @@
+<!--
+Survey Builder
+
+02/27/15 BS Created 00112209
+-->
+
+<apex:page id="pg" contentType="{!IF($CurrentPage.parameters.step == null, 'text/html', 'text/plain')}" showHeader="false" standardStylesheets="false" sidebar="false" applyHtmlTag="false" applyBodyTag="false" docType="{!IF($CurrentPage.parameters.step == null, 'html-5.0', '')}">
+	<!-- Setting the title does not work from within the SurveyBuilder component (necessary since applyHtmlTag = false) -->
+	<apex:outputPanel layout="none" rendered="{!$CurrentPage.parameters.step == null}"><title>Survey Builder</title></apex:outputPanel>
+
+    <!-- Common includes, header, and SurveyBuilder application wrapper -->
+    <c:SurveyBuilder rendered="{!$CurrentPage.parameters.step == null}"/>
+
+    <!-- Current step in SurveyBuilder application wrapper -->
+    <c:SurveyBuilderChooseSurvey rendered="{!$CurrentPage.parameters.step == 'choose_survey'}"/>
+    <c:SurveyBuilderSurveyObject rendered="{!$CurrentPage.parameters.step == 'configure_survey_object'}"/>
+    <c:SurveyBuilderAddQuestions rendered="{!$CurrentPage.parameters.step == 'add_questions'}"/>
+    <c:SurveyBuilderEmailTemplate rendered="{!$CurrentPage.parameters.step == 'create_email_template'}"/>
+</apex:page>

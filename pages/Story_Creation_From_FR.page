@@ -1,0 +1,136 @@
+<apex:page standardController="Change_Request__c" extensions="Story_Creation_From_FR" Id="theFRPage" >
+
+	<apex:includeScript value="{!URLFOR($Resource.jQueryUi_1_11_1, 'jQueryUi_1.11.1/jquery/external/jquery/jquery.js')}" />
+    <apex:includeScript value="{!URLFOR($Resource.jQueryUi_1_11_1, 'jQueryUi_1.11.1/jquery/jquery-ui.min.js')}" />
+    <apex:stylesheet value="{!URLFOR($Resource.jQueryUi_1_11_1, 'jQueryUi_1.11.1/ui/themes/smoothness/jquery-ui.css')}"/>
+
+    <style type="text/css">
+		.RowStyle tr:nth-child(even){
+        	background-color: #F2F3F3;
+        }
+    </style>
+
+    <apex:sectionHeader title="Story Creation for" subtitle="{!CRObj.Name}" />
+	<apex:form id="FRPage">
+
+		<apex:pageMessages id="errors" />
+		<apex:pageBlock >
+
+			<apex:pageBlockButtons >
+				<!-- Display different components based on if the Change Request has been approved or not -->
+				<apex:commandbutton value="Save" action="{!Save}" rendered="{!approved}" />
+				<apex:commandbutton value="Save & New" action="{!SaveNew}" rendered="{!approved}" />
+				<apex:commandButton value="{!IF(approved == false, 'Return', 'Cancel')}" action="{!Cancel}" />
+			</apex:pageBlockButtons>
+
+			<apex:pageBlockSection columns="1" rendered="{!approved}">
+				<apex:pageBlockSectionItem helpText="Enter the a description of who will benefit from this functional requirement. e.g. User, Sales Manager, Vin Employee, etc.">
+					<apex:outputLabel value="{!$ObjectType.agf__ADM_Work__c.fields.As_a__c.label}" />
+                    <apex:outputPanel styleClass="requiredInput" layout="block">
+                        <apex:outputPanel styleClass="requiredBlock" layout="block" />
+						<apex:inputField value="{!WorkObj.As_a__c}" />
+						<apex:outputPanel layout="inline" rendered="{!nrv.asARequired}" >
+	                        <br></br>
+	                        <apex:outputText style="font-style:itali; color:red;" value="The As a Field is required."/>
+	                    </apex:outputPanel>                                        
+	                </apex:outputPanel>
+				</apex:pageBlockSectionItem>
+				<apex:pageBlockSectionItem helpText="Enter what is needed from this functional requirement. e.g. I need access to Cases.">
+					<apex:outputLabel value="{!$ObjectType.agf__ADM_Work__c.fields.I_need_a__c.label}" />
+                    <apex:outputPanel styleClass="requiredInput" layout="block">
+                    	<apex:outputPanel styleClass="requiredBlock" layout="block" />
+						<apex:inputField value="{!WorkObj.I_need_a__c}" style="width: 80%;" />
+						<apex:outputPanel layout="inline" rendered="{!nrv.iNeedaRequired}" >
+	                        <br></br>
+	                        <apex:outputText style="font-style:itali; color:red;" value="The I need a Field is required."/>
+                    	</apex:outputPanel>                                        
+	                </apex:outputPanel>
+				</apex:pageBlockSectionItem>
+				<apex:pageBlockSectionItem helpText="Enter the benefit that this functional requirement will give the beneficiary when completed. e.g. So that I can enter Cases.">
+					<apex:outputLabel value="{!$ObjectType.agf__ADM_Work__c.fields.so_that_I_can__c.label}" />
+                    <apex:outputPanel styleClass="requiredInput" layout="block">
+                        <apex:outputPanel styleClass="requiredBlock" layout="block" />
+						<apex:inputField value="{!WorkObj.so_that_I_can__c}" style="width: 80%;" />
+						<apex:outputPanel layout="inline" rendered="{!nrv.soThatICanRequired}" >
+	                        <br></br>
+	                        <apex:outputText style="font-style:itali; color:red;" value="The so that I can Field is required."/>
+                    	</apex:outputPanel>                                        
+	                </apex:outputPanel>
+				</apex:pageBlockSectionItem>
+			</apex:pageBlockSection>
+
+			<apex:pageBlockSection columns="1" rendered="{!IF(approved == false, true, false)}">
+				<apex:pageBlockSectionItem helpText="Enter the a description of who will benefit from this functional requirement. e.g. User, Sales Manager, Vin Employee, etc.">
+					<apex:outputLabel value="{!$ObjectType.agf__ADM_Work__c.fields.As_a__c.label}" />
+					<apex:outputText value="{!WorkObj.As_a__c}" />
+				</apex:pageBlockSectionItem>
+				<apex:pageBlockSectionItem helpText="Enter what is needed from this functional requirement. e.g. I need access to Cases.">
+					<apex:outputLabel value="{!$ObjectType.agf__ADM_Work__c.fields.I_need_a__c.label}" />
+					<apex:outputText value="{!WorkObj.I_need_a__c}" style="width: 80%;" />
+				</apex:pageBlockSectionItem>
+				<apex:pageBlockSectionItem helpText="Enter the benefit that this functional requirement will give the beneficiary when completed. e.g. So that I can enter Cases.">
+					<apex:outputLabel value="{!$ObjectType.agf__ADM_Work__c.fields.so_that_I_can__c.label}" />
+					<apex:outputText value="{!WorkObj.so_that_I_can__c}" style="width: 80%;" />
+				</apex:pageBlockSectionItem>
+			</apex:pageBlockSection>
+
+			<apex:pageBlockSection columns="1" >
+				<apex:outputText value="Available Functional Requirements" style="font-weight: bold; font-size: 1.1em"
+/>				<apex:outputPanel layout="inline" rendered="{!nrv.noFRAttachedToStory}" style="text-align: center;" >
+                    <br></br>
+                    <apex:outputText style="font-style:itali; color:red;" value="You cannot create a story without a Functional Requirement."/>
+            	</apex:outputPanel>
+				<apex:pageBlockTable value="{!frWrpList}" var="fr" id="frTable" styleClass="RowStyle" >
+					<apex:column headerValue="Select" style="text-align: center;" rendered="{!approved}" >
+						<apex:inputCheckbox value="{!fr.selected}" disabled="{!fr.approved}" />
+					</apex:column>
+					<apex:column headerValue="Select" style="text-align: center;" rendered="{!IF(approved == false, true, false)}" >
+						<apex:inputCheckbox value="{!fr.selected}" disabled="{!fr.approved}" />
+					</apex:column>
+					<apex:column headerValue="Name">
+						<apex:commandLink value="{!fr.frName}" action="{!recordView}" target="_blank" > 
+		                    <apex:param name="viewParam" value="{!fr.frIdVal}" />
+		                </apex:commandLink>
+	                </apex:column>
+					<apex:column headerValue="Functional Requirement" >
+						<apex:outputText value="{!fr.functionalRequirement}" />
+					</apex:column>
+					<apex:column headerValue="Technical Requirement" >
+						<apex:outputText value="{!fr.technicalRequirement}" />
+					</apex:column>
+				</apex:pageBlockTable>
+			</apex:pageBlockSection>
+
+		</apex:pageBlock>
+		<apex:pageBlock id="storyList" title="Created Stories">
+
+			<apex:pageBlockSection columns="1">
+				<apex:pageBlockTable value="{!storyWrpList}" var="st" id="stTable" styleClass="RowStyle" >
+					<apex:column HeaderValue="Action" id="actionHeader" >
+		                <apex:commandLink value=" View " action="{!recordView}" id="viewStory" target="_blank" style="color: #7593D7;" > 
+		                    <apex:param name="viewParam" value="{!st.stIdVal}" />
+		                </apex:commandLink>
+		                &nbsp;|&nbsp; 
+		                <apex:commandLink value=" Del " action="{!StoryDelete}" style="color: #7593D7;" immediate="true" >
+		                    <apex:param name="firstDelParam" value="{!st.stIdVal}" assignTo="{!removeStoryID}"/>
+		                </apex:commandLink>
+		            </apex:column>
+					<apex:column headerValue="Name" >
+						<apex:outputText value="{!st.stName}" style="font-weight: bold;" />
+					</apex:column>
+					<apex:column headerValue="Story Subject" >
+						<apex:outputText value="{!st.stSubject}" />
+					</apex:column>
+					<apex:column >
+						
+					</apex:column>
+					<apex:column HeaderValue="Functional Requirements" >
+						<apex:outputText value="{!st.stFRs}" style="font-weight: bold;" />
+					</apex:column>
+				</apex:pageBlockTable>
+			</apex:pageBlockSection>
+        		<apex:outputLabel id="stLabel" value="No records to display"  rendered="{!IF(numOfexistingStories == 0, true, false)}" />
+		</apex:pageBlock>
+	</apex:form>
+	
+</apex:page>

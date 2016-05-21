@@ -1,0 +1,91 @@
+<apex:page Controller="PhoneScreenPopController" showheader="False"
+	sidebar="False">
+	<apex:includeScript value="{!$Resource.jQuery}"></apex:includeScript>
+
+	<script type="text/javascript">
+		var j$ = jQuery.noConflict();    
+		j$(document).ready(function() {
+            j$("a").each(function() {
+                j$(this).attr("target", "_blank");
+            });
+        });	
+	</script>
+
+	<apex:pageblock title="Accounts" tabstyle="Account" id="AccountPanel"
+		rendered="{!relatedAccounts.size > 0}">
+		<apex:pageBlockTable id="AccountsTable" value="{!relatedAccounts}"
+			var="entry">
+			<apex:column headerValue="Name">
+				<apex:outputLink value="{!$Site.Prefix}/{!entry.id}" target="_blank"
+					id="theLink">{!entry.Name}</apex:outputLink>
+			</apex:column>
+			<apex:column value="{!entry.AccountNumber}" />
+			<apex:column value="{!entry.Phone}" />
+			<apex:column value="{!entry.BillingCity}" />
+			<apex:column value="{!entry.BillingState}" />
+			<apex:column headerValue="">
+				<a href="{!$Site.Prefix}/500/e?cas4={!entry.Name}"><button
+						type="button">New Case</button> </a>
+			</apex:column>
+		</apex:pageBlockTable>
+	</apex:pageblock>
+	<apex:pageblock title="Contacts" tabstyle="Contact" id="ContactPanel"
+		rendered="{!relatedContacts.size > 0}">
+		<apex:pageBlockTable id="ContactsTable" value="{!relatedContacts}"
+			var="entry">
+			<apex:column headerValue="Name">
+				<apex:outputLink value="{!$Site.Prefix}/{!entry.id}" target="_blank"
+					id="theLink">{!entry.Name}</apex:outputLink>
+			</apex:column>
+			<apex:column value="{!entry.accountId}" />
+			<apex:column value="{!entry.Phone}" />
+			<apex:column value="{!entry.MobilePhone}" />
+			<apex:column headerValue="">
+				<a
+					href="{!$Site.Prefix}/500/e?cas3={!entry.Name}&cas4={!entry.account_name__c}"><button
+						type="button">New Case</button> </a>
+			</apex:column>
+		</apex:pageBlockTable>
+	</apex:pageblock>
+	<apex:pageblock title="Cases" tabstyle="Case" id="CasePanel"
+		rendered="{!relatedCases.size > 0}">
+		<apex:pageBlockTable id="CasesTable" value="{!relatedCases}"
+			var="entry">
+			<apex:column headerValue="Case Number">
+				<apex:outputLink value="{!$Site.Prefix}/{!entry.id}" target="_blank"
+					id="theLink">{!entry.CaseNumber}</apex:outputLink>
+			</apex:column>
+			<apex:column value="{!entry.accountId}" />
+			<apex:column value="{!entry.Subject}" />
+		</apex:pageBlockTable>
+	</apex:pageblock>
+	<apex:pageblock title="Opportunities" tabstyle="Opportunity"
+		id="OpportunityPanel" rendered="{!relatedOpportunities.size > 0}">
+		<apex:pageBlockTable id="OpportunityTable"
+			value="{!relatedOpportunities}" var="entry">
+			<apex:column >
+				<apex:outputLink value="{!$Site.Prefix}/{!entry.id}" target="_blank"
+					id="theLink">{!entry.Id}</apex:outputLink>
+			</apex:column>
+			<apex:column value="{!entry.accountId}" />
+			<apex:column value="{!entry.CreatedDate}" />
+		</apex:pageBlockTable>
+	</apex:pageblock>
+	<apex:pageblock title="Projects" tabstyle="SFDC_520_Quote__c"
+		id="ProjectPanel" rendered="{!relatedProjects.size > 0}">
+		<apex:pageBlockTable id="OpportunityTable" value="{!relatedProjects}"
+			var="entry">
+			<apex:column headerValue="Project Name">
+				<apex:outputLink value="{!$Site.Prefix}/{!entry.id}" target="_blank"
+					id="theLink">{!entry.Project_Name__c}</apex:outputLink>
+			</apex:column>
+			<apex:column value="{!entry.Contact__c}" />
+			<apex:column value="{!entry.Account__c}" />
+			<apex:column value="{!entry.CreatedDate}" />
+		</apex:pageBlockTable>
+	</apex:pageblock>
+	<apex:pageblock id="noResultsPanel"
+		rendered="{!(relatedProjects.size == 0 && relatedOpportunities.size == 0 && relatedContacts.size == 0 && relatedAccounts.size == 0)}">
+    			No results
+    </apex:pageblock>
+</apex:page>

@@ -1,0 +1,3582 @@
+<apex:page controller="WelcomePacketWizard" showHeader="false"
+	cache="false">
+	<head>
+<apex:stylesheet value="{!$Resource.styles}"></apex:stylesheet>
+	</head>
+
+	<script>
+function confirmCancel()
+{
+	var isCancel = confirm("Are you sure you wish to quit?");
+	return isCancel;
+}
+
+</script>
+
+	<table border="0" width="100%" height="100%" id="bg">
+		<tr valign="top">
+			<td>
+				<div class="maincontainer">
+					<apex:image id="key1" width="100%"
+						value="/resource/1265230873000/Header" />
+
+					<apex:sectionHeader title="VinSolutions Welcome Packet"
+						subtitle="{!if(
+																				!CONTAINS(welcome.Packet_Includes__c, 'CRM')
+																				&&!CONTAINS(welcome.Packet_Includes__c, 'ILM')
+																				&&CONTAINS(welcome.Packet_Includes__c, 'DIY'),'Step 7 of 7', 
+																				
+																			if(
+																				!CONTAINS(welcome.Packet_Includes__c, 'CRM')
+																				&&CONTAINS(welcome.Packet_Includes__c, 'ILM')
+																				,'Step 9 of 9', 
+																				
+																			if(
+																				CONTAINS(welcome.Packet_Includes__c, 'CRM')																				
+																				,'Step 13 of 13', 
+																				
+																				'')))}" />
+
+					<apex:form >
+						<apex:pageBlock title="ILM CRM INVENTORY USER ACCESS">
+
+							<table border="0" width="100%" align="center">
+								<tr align="center">
+									<td align="center"><apex:commandButton action="{!skipBackSteps}" value="Previous Step" /> <apex:commandButton action="{!confirmCRM}" value="Next Step" /> <apex:commandButton action="{!cancel}" value="Save & Quit"
+											onclick="return confirmCancel()" immediate="true" /> <apex:commandButton action="{!confirmCRM}" value="Save - To Confirmation Page"
+											rendered="{!if(welcome.Packet_Includes__c!=null&&welcome.ReachedCRMConfirm__c, true, false)}" />
+									</td>
+								</tr>
+							</table>
+
+							<apex:pageBlockSection collapsible="false" title="ACCESS SHEET"
+								columns="1">
+								<!-- ================================================================================================= -->
+								<table align="center">
+									<tr align="center">
+										<td align="center">
+
+											<html>
+
+<head>
+<meta http-equiv=Content-Type content="text/html; charset=windows-1252">
+<meta name=Generator content="Microsoft Word 12 (filtered)">
+<style>
+<!-- /* Font Definitions */
+@font-face {
+	font-family: "Cambria Math";
+	panose-1: 2 4 5 3 5 4 6 3 2 4;
+}
+
+@font-face {
+	font-family: Calibri;
+	panose-1: 2 15 5 2 2 2 4 3 2 4;
+}
+/* Style Definitions */
+p.MsoNormal,li.MsoNormal,div.MsoNormal {
+	margin-top: 0in;
+	margin-right: 0in;
+	margin-bottom: 10.0pt;
+	margin-left: 0in;
+	line-height: 115%;
+	font-size: 11.0pt;
+	font-family: "Calibri", "sans-serif";
+}
+
+.MsoPapDefault {
+	margin-bottom: 10.0pt;
+	line-height: 115%;
+}
+
+@page Section1 {
+	size: 8.5in 11.0in;
+	margin: 1.0in 1.0in 1.0in 1.0in;
+}
+
+div.Section1 {
+	page: Section1;
+}
+-->
+</style>
+
+</head>
+
+<body lang=EN-US>
+
+	<div class=Section1>
+
+		<table class=MsoNormalTable border=0 cellspacing=0 cellpadding=0
+			width=626
+			style='width: 469.6pt; margin-left: 4.6pt; border-collapse: collapse'>
+			<tr style='height: 38.25pt'>
+				<td width=225 nowrap valign=bottom
+					style='width: 168.65pt; border: solid windowtext 1.0pt; padding: 0in 5.4pt 0in 5.4pt; height: 38.25pt'>
+					<p class=MsoNormal align=center
+						style='margin-bottom: 0in; margin-bottom: .0001pt; text-align: center; line-height: normal'>
+						<b><span style='font-size: 16.0pt; color: black'>CRM/ILM
+								ACCESS</span> </b>
+					</p>
+				</td>
+				<td width=228 nowrap valign=bottom
+					style='width: 170.9pt; border: solid windowtext 1.0pt; border-left: none; padding: 0in 5.4pt 0in 5.4pt; height: 38.25pt'>
+					<p class=MsoNormal align=center
+						style='margin-bottom: 0in; margin-bottom: .0001pt; text-align: center; line-height: normal'>
+						<b><span style='font-size: 16.0pt; color: black'>SALES</span>
+						</b>
+					</p>
+				</td>
+				<td width=96 nowrap valign=bottom
+					style='width: 71.65pt; border: solid windowtext 1.0pt; border-left: none; padding: 0in 5.4pt 0in 5.4pt; height: 38.25pt'>
+					<p class=MsoNormal align=center
+						style='margin-bottom: 0in; margin-bottom: .0001pt; text-align: center; line-height: normal'>
+						<b><span style='font-size: 16.0pt; color: black'>MANAGER</span>
+						</b>
+					</p>
+				</td>
+				<td width=78 nowrap valign=bottom
+					style='width: 58.4pt; border: solid windowtext 1.0pt; border-left: none; padding: 0in 5.4pt 0in 5.4pt; height: 38.25pt'>
+					<p class=MsoNormal align=center
+						style='margin-bottom: 0in; margin-bottom: .0001pt; text-align: center; line-height: normal'>
+						<b><span style='font-size: 16.0pt; color: black'>ADMIN</span>
+						</b>
+					</p>
+				</td>
+			</tr>
+			<tr style='height: 15.0pt'>
+				<td width=225 nowrap valign=bottom
+					style='width: 168.65pt; border: solid windowtext 1.0pt; border-top: none; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=228 nowrap valign=bottom
+					style='width: 170.9pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=96 nowrap valign=bottom
+					style='width: 71.65pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=78 nowrap valign=bottom
+					style='width: 58.4pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+			</tr>
+			<tr style='height: 42.0pt'>
+				<td width=225 nowrap valign=bottom
+					style='width: 168.65pt; border: solid windowtext 1.0pt; border-top: none; padding: 0in 5.4pt 0in 5.4pt; height: 42.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='font-size: 12.0pt; color: black'>1.</span><span
+							style='font-size: 9.0pt; font-family: "Arial", "sans-serif"; color: black'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+						</span><b><span style='font-size: 12.0pt; color: black'>CRM
+								TAB:</span> </b>
+					</p>
+				</td>
+				<td width=228 nowrap valign=bottom
+					style='width: 170.9pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: #0070C0; padding: 0in 5.4pt 0in 5.4pt; height: 42.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=96 nowrap valign=bottom
+					style='width: 71.65pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: red; padding: 0in 5.4pt 0in 5.4pt; height: 42.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=78 nowrap valign=bottom
+					style='width: 58.4pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: yellow; padding: 0in 5.4pt 0in 5.4pt; height: 42.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+			</tr>
+			<tr style='height: 42.0pt'>
+				<td width=225 nowrap valign=bottom
+					style='width: 168.65pt; border: solid windowtext 1.0pt; border-top: none; padding: 0in 5.4pt 0in 5.4pt; height: 42.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<i><span style='font-size: 12.0pt; color: black'> A.</span> </i><i><span
+							style='font-size: 9.0pt; font-family: "Arial", "sans-serif"; color: black'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+						</span> </i><i><span style='font-size: 12.0pt; color: black'>DASHBOARD</span>
+						</i>
+					</p>
+				</td>
+				<td width=228 nowrap valign=bottom
+					style='width: 170.9pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; padding: 0in 5.4pt 0in 5.4pt; height: 42.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=96 nowrap valign=bottom
+					style='width: 71.65pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: red; padding: 0in 5.4pt 0in 5.4pt; height: 42.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=78 nowrap valign=bottom
+					style='width: 58.4pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: yellow; padding: 0in 5.4pt 0in 5.4pt; height: 42.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+			</tr>
+			<tr style='height: 15.0pt'>
+				<td width=225 nowrap valign=bottom
+					style='width: 168.65pt; border: solid windowtext 1.0pt; border-top: none; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'> 1. SHOWROOM ACTIVITY</span>
+					</p>
+				</td>
+				<td width=228 nowrap valign=bottom
+					style='width: 170.9pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=96 nowrap valign=bottom
+					style='width: 71.65pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: red; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=78 nowrap valign=bottom
+					style='width: 58.4pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: yellow; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+			</tr>
+			<tr style='height: 15.0pt'>
+				<td width=225 nowrap valign=bottom
+					style='width: 168.65pt; border: solid windowtext 1.0pt; border-top: none; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'> 2. DESK LOG</span>
+					</p>
+				</td>
+				<td width=228 nowrap valign=bottom
+					style='width: 170.9pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=96 nowrap valign=bottom
+					style='width: 71.65pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: red; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=78 nowrap valign=bottom
+					style='width: 58.4pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: yellow; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+			</tr>
+			<tr style='height: 45.75pt'>
+				<td width=225 valign=bottom
+					style='width: 168.65pt; border: solid windowtext 1.0pt; border-top: none; padding: 0in 5.4pt 0in 5.4pt; height: 45.75pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'> 3. SOLD LOG</span>
+					</p>
+				</td>
+				<td width=228 valign=bottom
+					style='width: 170.9pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: #D8D8D8; padding: 0in 5.4pt 0in 5.4pt; height: 45.75pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='font-size: 8.0pt; color: black'>*Only if
+							checked in user profile to mark customers sold.</span>
+					</p>
+				</td>
+				<td width=96 valign=bottom
+					style='width: 71.65pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: red; padding: 0in 5.4pt 0in 5.4pt; height: 45.75pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=78 valign=bottom
+					style='width: 58.4pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: yellow; padding: 0in 5.4pt 0in 5.4pt; height: 45.75pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+			</tr>
+			<tr style='height: 15.0pt'>
+				<td width=225 nowrap valign=bottom
+					style='width: 168.65pt; border: solid windowtext 1.0pt; border-top: none; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'> 4. MESSAGE LOG</span>
+					</p>
+				</td>
+				<td width=228 nowrap valign=bottom
+					style='width: 170.9pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=96 nowrap valign=bottom
+					style='width: 71.65pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: red; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=78 nowrap valign=bottom
+					style='width: 58.4pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: yellow; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+			</tr>
+			<tr style='height: 15.0pt'>
+				<td width=225 nowrap valign=bottom
+					style='width: 168.65pt; border: solid windowtext 1.0pt; border-top: none; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'> 5. TRADE LOG</span>
+					</p>
+				</td>
+				<td width=228 nowrap valign=bottom
+					style='width: 170.9pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=96 nowrap valign=bottom
+					style='width: 71.65pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: red; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=78 nowrap valign=bottom
+					style='width: 58.4pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: yellow; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+			</tr>
+			<tr style='height: 15.0pt'>
+				<td width=225 nowrap valign=bottom
+					style='width: 168.65pt; border: solid windowtext 1.0pt; border-top: none; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'> 6. LAUNCH KIOSK</span>
+					</p>
+				</td>
+				<td width=228 nowrap valign=bottom
+					style='width: 170.9pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=96 nowrap valign=bottom
+					style='width: 71.65pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: red; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=78 nowrap valign=bottom
+					style='width: 58.4pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: yellow; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+			</tr>
+			<tr style='height: 15.0pt'>
+				<td width=225 nowrap valign=bottom
+					style='width: 168.65pt; border: solid windowtext 1.0pt; border-top: none; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'> 7. MY MOTOFACTORY</span>
+					</p>
+				</td>
+				<td width=228 nowrap valign=bottom
+					style='width: 170.9pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=96 nowrap valign=bottom
+					style='width: 71.65pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: red; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=78 nowrap valign=bottom
+					style='width: 58.4pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: yellow; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+			</tr>
+			<tr style='height: 34.5pt'>
+				<td width=225 valign=bottom
+					style='width: 168.65pt; border: solid windowtext 1.0pt; border-top: none; padding: 0in 5.4pt 0in 5.4pt; height: 34.5pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'> 8. ADVANCED DESKING</span>
+					</p>
+				</td>
+				<td width=228 valign=bottom
+					style='width: 170.9pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: #D8D8D8; padding: 0in 5.4pt 0in 5.4pt; height: 34.5pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='font-size: 8.0pt; color: black'>*Only if
+							checked in user profile to desk deals.</span>
+					</p>
+				</td>
+				<td width=96 valign=bottom
+					style='width: 71.65pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: red; padding: 0in 5.4pt 0in 5.4pt; height: 34.5pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=78 valign=bottom
+					style='width: 58.4pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: yellow; padding: 0in 5.4pt 0in 5.4pt; height: 34.5pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+			</tr>
+			<tr style='height: 15.0pt'>
+				<td width=225 nowrap valign=bottom
+					style='width: 168.65pt; border: solid windowtext 1.0pt; border-top: none; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'> 9. LAUNCH CREDIT APP KIOSK</span>
+					</p>
+				</td>
+				<td width=228 nowrap valign=bottom
+					style='width: 170.9pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=96 nowrap valign=bottom
+					style='width: 71.65pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: red; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=78 nowrap valign=bottom
+					style='width: 58.4pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: yellow; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+			</tr>
+			<tr style='height: 15.0pt'>
+				<td width=225 nowrap valign=bottom
+					style='width: 168.65pt; border: solid windowtext 1.0pt; border-top: none; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<i><span style='color: black'> B. RECENT</span> </i>
+					</p>
+				</td>
+				<td width=228 nowrap valign=bottom
+					style='width: 170.9pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: #0070C0; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=96 nowrap valign=bottom
+					style='width: 71.65pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: red; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=78 nowrap valign=bottom
+					style='width: 58.4pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: yellow; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+			</tr>
+			<tr style='height: 15.0pt'>
+				<td width=225 nowrap valign=bottom
+					style='width: 168.65pt; border: solid windowtext 1.0pt; border-top: none; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'> 1. VIEWED CUSTOMERS</span>
+					</p>
+				</td>
+				<td width=228 nowrap valign=bottom
+					style='width: 170.9pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: #0070C0; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=96 nowrap valign=bottom
+					style='width: 71.65pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: red; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=78 nowrap valign=bottom
+					style='width: 58.4pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: yellow; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+			</tr>
+			<tr style='height: 15.0pt'>
+				<td width=225 nowrap valign=bottom
+					style='width: 168.65pt; border: solid windowtext 1.0pt; border-top: none; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'> 2. VIEWED DEALS</span>
+					</p>
+				</td>
+				<td width=228 nowrap valign=bottom
+					style='width: 170.9pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: #0070C0; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=96 nowrap valign=bottom
+					style='width: 71.65pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: red; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=78 nowrap valign=bottom
+					style='width: 58.4pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: yellow; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+			</tr>
+			<tr style='height: 15.0pt'>
+				<td width=225 nowrap valign=bottom
+					style='width: 168.65pt; border: solid windowtext 1.0pt; border-top: none; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'> 3. ROUTE ONE </span>
+					</p>
+				</td>
+				<td width=228 nowrap valign=bottom
+					style='width: 170.9pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=96 nowrap valign=bottom
+					style='width: 71.65pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: red; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=78 nowrap valign=bottom
+					style='width: 58.4pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: yellow; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+			</tr>
+			<tr style='height: 15.0pt'>
+				<td width=225 nowrap valign=bottom
+					style='width: 168.65pt; border: solid windowtext 1.0pt; border-top: none; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'> 4. DEALER TRACK</span>
+					</p>
+				</td>
+				<td width=228 nowrap valign=bottom
+					style='width: 170.9pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=96 nowrap valign=bottom
+					style='width: 71.65pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: red; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=78 nowrap valign=bottom
+					style='width: 58.4pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: yellow; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+			</tr>
+			<tr style='height: 15.0pt'>
+				<td width=225 nowrap valign=bottom
+					style='width: 168.65pt; border: solid windowtext 1.0pt; border-top: none; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'> 5. DMS PUSH</span>
+					</p>
+				</td>
+				<td width=228 nowrap valign=bottom
+					style='width: 170.9pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=96 nowrap valign=bottom
+					style='width: 71.65pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: red; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=78 nowrap valign=bottom
+					style='width: 58.4pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: yellow; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+			</tr>
+			<tr style='height: 15.0pt'>
+				<td width=225 nowrap valign=bottom
+					style='width: 168.65pt; border: solid windowtext 1.0pt; border-top: none; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<i><span style='color: black'> C. TASK</span> </i>
+					</p>
+				</td>
+				<td width=228 nowrap valign=bottom
+					style='width: 170.9pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: #0070C0; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=96 nowrap valign=bottom
+					style='width: 71.65pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: red; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=78 nowrap valign=bottom
+					style='width: 58.4pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: yellow; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+			</tr>
+			<tr style='height: 15.0pt'>
+				<td width=225 nowrap valign=bottom
+					style='width: 168.65pt; border: solid windowtext 1.0pt; border-top: none; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<i><span style='color: black'> D. CALENDAR</span> </i>
+					</p>
+				</td>
+				<td width=228 nowrap valign=bottom
+					style='width: 170.9pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=96 nowrap valign=bottom
+					style='width: 71.65pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: red; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=78 nowrap valign=bottom
+					style='width: 58.4pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: yellow; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+			</tr>
+			<tr style='height: 15.0pt'>
+				<td width=225 nowrap valign=bottom
+					style='width: 168.65pt; border: solid windowtext 1.0pt; border-top: none; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<i><span style='color: black'> E. EMAIL</span> </i>
+					</p>
+				</td>
+				<td width=228 nowrap valign=bottom
+					style='width: 170.9pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: #0070C0; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=96 nowrap valign=bottom
+					style='width: 71.65pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: red; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=78 nowrap valign=bottom
+					style='width: 58.4pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: yellow; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+			</tr>
+			<tr style='height: 18.75pt'>
+				<td width=225 nowrap valign=bottom
+					style='width: 168.65pt; border: solid windowtext 1.0pt; border-top: none; padding: 0in 5.4pt 0in 5.4pt; height: 18.75pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<i><span style='color: black'> F. LEADS *</span> </i>
+					</p>
+				</td>
+				<td width=228 nowrap valign=bottom
+					style='width: 170.9pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: #0070C0; padding: 0in 5.4pt 0in 5.4pt; height: 18.75pt'>
+					<p class=MsoNormal align=center
+						style='margin-bottom: 0in; margin-bottom: .0001pt; text-align: center; line-height: normal'>
+						<span style='font-size: 14.0pt; color: black'>*</span>
+					</p>
+				</td>
+				<td width=96 nowrap valign=bottom
+					style='width: 71.65pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: red; padding: 0in 5.4pt 0in 5.4pt; height: 18.75pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=78 nowrap valign=bottom
+					style='width: 58.4pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: yellow; padding: 0in 5.4pt 0in 5.4pt; height: 18.75pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+			</tr>
+			<tr style='height: 29.25pt'>
+				<td width=225 valign=bottom
+					style='width: 168.65pt; border: solid windowtext 1.0pt; border-top: none; padding: 0in 5.4pt 0in 5.4pt; height: 29.25pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<i><span style='color: black'> 1. SERVICE LEADS </span> </i><i><span
+							style='font-size: 10.0pt; color: black'>(IF CHECKED FOR
+								SERVICE DEPT IN USER ID)</span> </i>
+					</p>
+				</td>
+				<td width=228 nowrap valign=bottom
+					style='width: 170.9pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: #0070C0; padding: 0in 5.4pt 0in 5.4pt; height: 29.25pt'>
+					<p class=MsoNormal align=center
+						style='margin-bottom: 0in; margin-bottom: .0001pt; text-align: center; line-height: normal'>
+						<span style='font-size: 14.0pt; color: black'>*</span>
+					</p>
+				</td>
+				<td width=96 nowrap valign=bottom
+					style='width: 71.65pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: red; padding: 0in 5.4pt 0in 5.4pt; height: 29.25pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=78 nowrap valign=bottom
+					style='width: 58.4pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: yellow; padding: 0in 5.4pt 0in 5.4pt; height: 29.25pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+			</tr>
+			<tr style='height: 28.5pt'>
+				<td width=225 valign=bottom
+					style='width: 168.65pt; border: solid windowtext 1.0pt; border-top: none; padding: 0in 5.4pt 0in 5.4pt; height: 28.5pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<i><span style='color: black'> 2. PARTS ORDER LEADS </span> </i><i><span
+							style='font-size: 9.0pt; color: black'> (IF CHECKED PARTS
+								DEPT UNDER THE USER ID)</span> </i>
+					</p>
+				</td>
+				<td width=228 valign=bottom
+					style='width: 170.9pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: #0070C0; padding: 0in 5.4pt 0in 5.4pt; height: 28.5pt'>
+					<p class=MsoNormal align=center
+						style='margin-bottom: 0in; margin-bottom: .0001pt; text-align: center; line-height: normal'>
+						<span style='font-size: 14.0pt; color: black'>*</span>
+					</p>
+				</td>
+				<td width=96 valign=bottom
+					style='width: 71.65pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: red; padding: 0in 5.4pt 0in 5.4pt; height: 28.5pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=78 valign=bottom
+					style='width: 58.4pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: yellow; padding: 0in 5.4pt 0in 5.4pt; height: 28.5pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+			</tr>
+			<tr style='height: 29.25pt'>
+				<td width=225 valign=bottom
+					style='width: 168.65pt; border: solid windowtext 1.0pt; border-top: none; padding: 0in 5.4pt 0in 5.4pt; height: 29.25pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='font-size: 12.0pt; color: black'> 3.</span><span
+							style='font-size: 9.0pt; font-family: "Arial", "sans-serif"; color: black'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+						</span><span style='font-size: 12.0pt; color: black'>LEAD BUCKET </span><i><span
+							style='font-size: 9.0pt; color: black'>(IF DEALER
+								USES&nbsp; A LEAD BUCKET)</span> </i>
+					</p>
+				</td>
+				<td width=228 valign=bottom
+					style='width: 170.9pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: #0070C0; padding: 0in 5.4pt 0in 5.4pt; height: 29.25pt'>
+					<p class=MsoNormal align=center
+						style='margin-bottom: 0in; margin-bottom: .0001pt; text-align: center; line-height: normal'>
+						<span style='font-size: 14.0pt; color: black'>*</span>
+					</p>
+				</td>
+				<td width=96 valign=bottom
+					style='width: 71.65pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: red; padding: 0in 5.4pt 0in 5.4pt; height: 29.25pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=78 valign=bottom
+					style='width: 58.4pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: yellow; padding: 0in 5.4pt 0in 5.4pt; height: 29.25pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+			</tr>
+			<tr style='height: 15.0pt'>
+				<td width=225 nowrap valign=bottom
+					style='width: 168.65pt; border: solid windowtext 1.0pt; border-top: none; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<i><span style='color: black'> G. ADD CUSTOMER</span> </i>
+					</p>
+				</td>
+				<td width=228 nowrap valign=bottom
+					style='width: 170.9pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: #0070C0; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=96 nowrap valign=bottom
+					style='width: 71.65pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: red; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=78 nowrap valign=bottom
+					style='width: 58.4pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: yellow; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+			</tr>
+			<tr style='height: 15.0pt'>
+				<td width=225 nowrap valign=bottom
+					style='width: 168.65pt; border: solid windowtext 1.0pt; border-top: none; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<i><span style='color: black'> H. CUSTOMERS</span> </i>
+					</p>
+				</td>
+				<td width=228 nowrap valign=bottom
+					style='width: 170.9pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: #0070C0; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=96 nowrap valign=bottom
+					style='width: 71.65pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: red; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=78 nowrap valign=bottom
+					style='width: 58.4pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: yellow; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+			</tr>
+			<tr style='height: 15.0pt'>
+				<td width=225 nowrap valign=bottom
+					style='width: 168.65pt; border: solid windowtext 1.0pt; border-top: none; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'> 1. SEARCH</span>
+					</p>
+				</td>
+				<td width=228 nowrap valign=bottom
+					style='width: 170.9pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: #0070C0; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=96 nowrap valign=bottom
+					style='width: 71.65pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: red; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=78 nowrap valign=bottom
+					style='width: 58.4pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: yellow; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+			</tr>
+			<tr style='height: 15.0pt'>
+				<td width=225 nowrap valign=bottom
+					style='width: 168.65pt; border: solid windowtext 1.0pt; border-top: none; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'> 2. SOLD CUSTOMERS</span>
+					</p>
+				</td>
+				<td width=228 nowrap valign=bottom
+					style='width: 170.9pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: #0070C0; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=96 nowrap valign=bottom
+					style='width: 71.65pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: red; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=78 nowrap valign=bottom
+					style='width: 58.4pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: yellow; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+			</tr>
+			<tr style='height: 15.0pt'>
+				<td width=225 nowrap valign=bottom
+					style='width: 168.65pt; border: solid windowtext 1.0pt; border-top: none; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'> 3. RECENT OPPORTUNITIES</span>
+					</p>
+				</td>
+				<td width=228 nowrap valign=bottom
+					style='width: 170.9pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: #0070C0; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=96 nowrap valign=bottom
+					style='width: 71.65pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: red; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=78 nowrap valign=bottom
+					style='width: 58.4pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: yellow; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+			</tr>
+			<tr style='height: 15.0pt'>
+				<td width=225 nowrap valign=bottom
+					style='width: 168.65pt; border: solid windowtext 1.0pt; border-top: none; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'> 4. RECENTLY CONTACTED </span>
+					</p>
+				</td>
+				<td width=228 nowrap valign=bottom
+					style='width: 170.9pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: #0070C0; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=96 nowrap valign=bottom
+					style='width: 71.65pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: red; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=78 nowrap valign=bottom
+					style='width: 58.4pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: yellow; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+			</tr>
+			<tr style='height: 15.0pt'>
+				<td width=225 nowrap valign=bottom
+					style='width: 168.65pt; border: solid windowtext 1.0pt; border-top: none; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'> 5. NOT RECENTLY CONTACTED</span>
+					</p>
+				</td>
+				<td width=228 nowrap valign=bottom
+					style='width: 170.9pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: #0070C0; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=96 nowrap valign=bottom
+					style='width: 71.65pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: red; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=78 nowrap valign=bottom
+					style='width: 58.4pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: yellow; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+			</tr>
+			<tr style='height: 15.0pt'>
+				<td width=225 nowrap valign=bottom
+					style='width: 168.65pt; border: solid windowtext 1.0pt; border-top: none; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<i><span style='color: black'> I. DISTRIBUTION</span> </i>
+					</p>
+				</td>
+				<td width=228 nowrap valign=bottom
+					style='width: 170.9pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: #0070C0; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=96 nowrap valign=bottom
+					style='width: 71.65pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: red; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=78 nowrap valign=bottom
+					style='width: 58.4pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: yellow; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+			</tr>
+			<tr style='height: 15.0pt'>
+				<td width=225 nowrap valign=bottom
+					style='width: 168.65pt; border: solid windowtext 1.0pt; border-top: none; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<i><span style='color: black'> J. MORE</span> </i>
+					</p>
+				</td>
+				<td width=228 nowrap valign=bottom
+					style='width: 170.9pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=96 nowrap valign=bottom
+					style='width: 71.65pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: red; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=78 nowrap valign=bottom
+					style='width: 58.4pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: yellow; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+			</tr>
+			<tr style='height: 15.0pt'>
+				<td width=225 nowrap valign=bottom
+					style='width: 168.65pt; border: solid windowtext 1.0pt; border-top: none; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'> 1. WEBSITE FINANCE APPS</span>
+					</p>
+				</td>
+				<td width=228 nowrap valign=bottom
+					style='width: 170.9pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=96 nowrap valign=bottom
+					style='width: 71.65pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: red; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=78 nowrap valign=bottom
+					style='width: 58.4pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: yellow; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+			</tr>
+			<tr style='height: 15.0pt'>
+				<td width=225 nowrap valign=bottom
+					style='width: 168.65pt; border: solid windowtext 1.0pt; border-top: none; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'> 2. LETTERS</span>
+					</p>
+				</td>
+				<td width=228 nowrap valign=bottom
+					style='width: 170.9pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=96 nowrap valign=bottom
+					style='width: 71.65pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: red; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=78 nowrap valign=bottom
+					style='width: 58.4pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: yellow; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+			</tr>
+			<tr style='height: 15.75pt'>
+				<td width=225 nowrap valign=bottom
+					style='width: 168.65pt; border: solid windowtext 1.0pt; border-top: none; padding: 0in 5.4pt 0in 5.4pt; height: 15.75pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<i><span style='font-size: 12.0pt; color: black'> K.
+								LINKS </span> </i>
+					</p>
+				</td>
+				<td width=228 nowrap valign=bottom
+					style='width: 170.9pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: #0070C0; padding: 0in 5.4pt 0in 5.4pt; height: 15.75pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=96 nowrap valign=bottom
+					style='width: 71.65pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: red; padding: 0in 5.4pt 0in 5.4pt; height: 15.75pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=78 nowrap valign=bottom
+					style='width: 58.4pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: yellow; padding: 0in 5.4pt 0in 5.4pt; height: 15.75pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+			</tr>
+			<tr style='height: 39.75pt'>
+				<td width=225 valign=bottom
+					style='width: 168.65pt; border: solid windowtext 1.0pt; border-top: none; padding: 0in 5.4pt 0in 5.4pt; height: 39.75pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<b><span style='color: black'> 2. INVENTORY TAB </span> </b><span
+							style='color: black'>�</span><span
+							style='font-size: 9.0pt; color: black'> ACCESS OPTIONS ARE
+							DIFFERENT SETTING IN ADVANCED USER SETTINGS.</span>
+					</p>
+				</td>
+				<td width=228 nowrap valign=bottom
+					style='width: 170.9pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: #D8D8D8; padding: 0in 5.4pt 0in 5.4pt; height: 39.75pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='font-size: 9.0pt; color: black'>*Only if
+							access other than salesperson for inventory.</span>
+					</p>
+				</td>
+				<td width=96 valign=bottom
+					style='width: 71.65pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: #D8D8D8; padding: 0in 5.4pt 0in 5.4pt; height: 39.75pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=78 valign=bottom
+					style='width: 58.4pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: #D8D8D8; padding: 0in 5.4pt 0in 5.4pt; height: 39.75pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+			</tr>
+			<tr style='height: 57.0pt'>
+				<td width=225 valign=bottom
+					style='width: 168.65pt; border: solid windowtext 1.0pt; border-top: none; padding: 0in 5.4pt 0in 5.4pt; height: 57.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='font-size: 12.0pt; color: black'>3.&nbsp; <b>REPORTS
+								� </b> </span><i><span style='font-size: 7.5pt; color: black'>ACCESS
+								TO ALL REPORTS IN THE SYSTEM</span> </i>
+					</p>
+				</td>
+				<td width=228 valign=bottom
+					style='width: 170.9pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: #D8D8D8; padding: 0in 5.4pt 0in 5.4pt; height: 57.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='font-size: 8.0pt; color: black'>*Only if
+							access to inventory higher than salesperson and only for
+							Inventory Reports.</span>
+					</p>
+				</td>
+				<td width=96 valign=bottom
+					style='width: 71.65pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: red; padding: 0in 5.4pt 0in 5.4pt; height: 57.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=78 valign=bottom
+					style='width: 58.4pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: yellow; padding: 0in 5.4pt 0in 5.4pt; height: 57.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+			</tr>
+			<tr style='height: 15.75pt'>
+				<td width=225 nowrap valign=bottom
+					style='width: 168.65pt; border: solid windowtext 1.0pt; border-top: none; padding: 0in 5.4pt 0in 5.4pt; height: 15.75pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='font-size: 12.0pt; color: black'>4. <b>SETTINGS</b>
+						</span>
+					</p>
+				</td>
+				<td width=228 nowrap valign=bottom
+					style='width: 170.9pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: white; padding: 0in 5.4pt 0in 5.4pt; height: 15.75pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=96 nowrap valign=bottom
+					style='width: 71.65pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: red; padding: 0in 5.4pt 0in 5.4pt; height: 15.75pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=78 nowrap valign=bottom
+					style='width: 58.4pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: yellow; padding: 0in 5.4pt 0in 5.4pt; height: 15.75pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+			</tr>
+			<tr style='height: 15.0pt'>
+				<td width=225 nowrap valign=bottom
+					style='width: 168.65pt; border: solid windowtext 1.0pt; border-top: none; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<i><span style='color: black'> A. MY SETTINGS</span> </i>
+					</p>
+				</td>
+				<td width=228 nowrap valign=bottom
+					style='width: 170.9pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: #0070C0; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=96 nowrap valign=bottom
+					style='width: 71.65pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: red; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=78 nowrap valign=bottom
+					style='width: 58.4pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: yellow; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+			</tr>
+			<tr style='height: 15.75pt'>
+				<td width=225 nowrap valign=bottom
+					style='width: 168.65pt; border: solid windowtext 1.0pt; border-top: none; padding: 0in 5.4pt 0in 5.4pt; height: 15.75pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<i><span style='font-size: 12.0pt; color: black'> B.
+								&nbsp;&nbsp;USERS</span> </i>
+					</p>
+				</td>
+				<td width=228 nowrap valign=bottom
+					style='width: 170.9pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.75pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=96 nowrap valign=bottom
+					style='width: 71.65pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: red; padding: 0in 5.4pt 0in 5.4pt; height: 15.75pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=78 nowrap valign=bottom
+					style='width: 58.4pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: yellow; padding: 0in 5.4pt 0in 5.4pt; height: 15.75pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+			</tr>
+			<tr style='height: 15.0pt'>
+				<td width=225 nowrap valign=bottom
+					style='width: 168.65pt; border: solid windowtext 1.0pt; border-top: none; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'> 1. USER LIST</span>
+					</p>
+				</td>
+				<td width=228 nowrap valign=bottom
+					style='width: 170.9pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=96 nowrap valign=bottom
+					style='width: 71.65pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: red; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=78 nowrap valign=bottom
+					style='width: 58.4pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: yellow; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+			</tr>
+			<tr style='height: 15.0pt'>
+				<td width=225 nowrap valign=bottom
+					style='width: 168.65pt; border: solid windowtext 1.0pt; border-top: none; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'> 2. RECENT LOGINS</span>
+					</p>
+				</td>
+				<td width=228 nowrap valign=bottom
+					style='width: 170.9pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=96 nowrap valign=bottom
+					style='width: 71.65pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: red; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=78 nowrap valign=bottom
+					style='width: 58.4pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: yellow; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+			</tr>
+			<tr style='height: 15.0pt'>
+				<td width=225 nowrap valign=bottom
+					style='width: 168.65pt; border: solid windowtext 1.0pt; border-top: none; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'> 3. TIME CLOCK MANAGEMENT</span>
+					</p>
+				</td>
+				<td width=228 nowrap valign=bottom
+					style='width: 170.9pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=96 nowrap valign=bottom
+					style='width: 71.65pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: red; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=78 nowrap valign=bottom
+					style='width: 58.4pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: yellow; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+			</tr>
+			<tr style='height: 15.0pt'>
+				<td width=225 nowrap valign=bottom
+					style='width: 168.65pt; border: solid windowtext 1.0pt; border-top: none; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'> 4. MANAGE USER GROUPS</span>
+					</p>
+				</td>
+				<td width=228 nowrap valign=bottom
+					style='width: 170.9pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=96 nowrap valign=bottom
+					style='width: 71.65pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: red; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=78 nowrap valign=bottom
+					style='width: 58.4pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: yellow; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+			</tr>
+			<tr style='height: 15.0pt'>
+				<td width=225 nowrap valign=bottom
+					style='width: 168.65pt; border: solid windowtext 1.0pt; border-top: none; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<i><span style='color: black'> C. WEBSITES</span> </i>
+					</p>
+				</td>
+				<td width=228 nowrap valign=bottom
+					style='width: 170.9pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=96 nowrap valign=bottom
+					style='width: 71.65pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: red; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=78 nowrap valign=bottom
+					style='width: 58.4pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: yellow; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+			</tr>
+			<tr style='height: 27.75pt'>
+				<td width=225 valign=bottom
+					style='width: 168.65pt; border: solid windowtext 1.0pt; border-top: none; padding: 0in 5.4pt 0in 5.4pt; height: 27.75pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'> 1. MANAGE WEBSITES � </span><span
+							style='font-size: 9.0pt; color: black'>ACCESS HAS TO BE
+							SET IN WEBSITES</span>
+					</p>
+				</td>
+				<td width=228 valign=bottom
+					style='width: 170.9pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; padding: 0in 5.4pt 0in 5.4pt; height: 27.75pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=96 valign=bottom
+					style='width: 71.65pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: red; padding: 0in 5.4pt 0in 5.4pt; height: 27.75pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=78 valign=bottom
+					style='width: 58.4pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: yellow; padding: 0in 5.4pt 0in 5.4pt; height: 27.75pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+			</tr>
+			<tr style='height: 15.0pt'>
+				<td width=225 nowrap valign=bottom
+					style='width: 168.65pt; border: solid windowtext 1.0pt; border-top: none; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'> 2. FINANCE APPS</span>
+					</p>
+				</td>
+				<td width=228 nowrap valign=bottom
+					style='width: 170.9pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=96 nowrap valign=bottom
+					style='width: 71.65pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: red; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=78 nowrap valign=bottom
+					style='width: 58.4pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: yellow; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+			</tr>
+			<tr style='height: 15.0pt'>
+				<td width=225 nowrap valign=bottom
+					style='width: 168.65pt; border: solid windowtext 1.0pt; border-top: none; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'> 3. DEALER VIDEOS</span>
+					</p>
+				</td>
+				<td width=228 nowrap valign=bottom
+					style='width: 170.9pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=96 nowrap valign=bottom
+					style='width: 71.65pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: red; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=78 nowrap valign=bottom
+					style='width: 58.4pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: yellow; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+			</tr>
+			<tr style='height: 15.0pt'>
+				<td width=225 nowrap valign=bottom
+					style='width: 168.65pt; border: solid windowtext 1.0pt; border-top: none; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<i><span style='color: black'> D. DEALER HOURS</span> </i>
+					</p>
+				</td>
+				<td width=228 nowrap valign=bottom
+					style='width: 170.9pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=96 nowrap valign=bottom
+					style='width: 71.65pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: red; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=78 nowrap valign=bottom
+					style='width: 58.4pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: yellow; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+			</tr>
+			<tr style='height: 15.0pt'>
+				<td width=225 nowrap valign=bottom
+					style='width: 168.65pt; border: solid windowtext 1.0pt; border-top: none; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<i><span style='color: black'> E. &nbsp;ILM/CRM
+								SETTINGS</span> </i>
+					</p>
+				</td>
+				<td width=228 nowrap valign=bottom
+					style='width: 170.9pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=96 nowrap valign=bottom
+					style='width: 71.65pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=78 nowrap valign=bottom
+					style='width: 58.4pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: yellow; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+			</tr>
+			<tr style='height: 15.0pt'>
+				<td width=225 nowrap valign=bottom
+					style='width: 168.65pt; border: solid windowtext 1.0pt; border-top: none; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'> 1. LEAD ASSIGNMENT</span>
+					</p>
+				</td>
+				<td width=228 nowrap valign=bottom
+					style='width: 170.9pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=96 nowrap valign=bottom
+					style='width: 71.65pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=78 nowrap valign=bottom
+					style='width: 58.4pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: yellow; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+			</tr>
+			<tr style='height: 15.0pt'>
+				<td width=225 nowrap valign=bottom
+					style='width: 168.65pt; border: solid windowtext 1.0pt; border-top: none; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'> 2. LEAD SETTINGS</span>
+					</p>
+				</td>
+				<td width=228 nowrap valign=bottom
+					style='width: 170.9pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=96 nowrap valign=bottom
+					style='width: 71.65pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=78 nowrap valign=bottom
+					style='width: 58.4pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: yellow; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+			</tr>
+			<tr style='height: 15.0pt'>
+				<td width=225 nowrap valign=bottom
+					style='width: 168.65pt; border: solid windowtext 1.0pt; border-top: none; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'> 3. ADD CUSTOMER SETTINGS</span>
+					</p>
+				</td>
+				<td width=228 nowrap valign=bottom
+					style='width: 170.9pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=96 nowrap valign=bottom
+					style='width: 71.65pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=78 nowrap valign=bottom
+					style='width: 58.4pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: yellow; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+			</tr>
+			<tr style='height: 15.0pt'>
+				<td width=225 nowrap valign=bottom
+					style='width: 168.65pt; border: solid windowtext 1.0pt; border-top: none; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'> 4. CUSTOMER ASSIGNMENTS BY REP</span>
+					</p>
+				</td>
+				<td width=228 nowrap valign=bottom
+					style='width: 170.9pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=96 nowrap valign=bottom
+					style='width: 71.65pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=78 nowrap valign=bottom
+					style='width: 58.4pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: yellow; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+			</tr>
+			<tr style='height: 15.0pt'>
+				<td width=225 nowrap valign=bottom
+					style='width: 168.65pt; border: solid windowtext 1.0pt; border-top: none; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'> 5. LEAD SOURCE LIST</span>
+					</p>
+				</td>
+				<td width=228 nowrap valign=bottom
+					style='width: 170.9pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=96 nowrap valign=bottom
+					style='width: 71.65pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=78 nowrap valign=bottom
+					style='width: 58.4pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: yellow; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+			</tr>
+			<tr style='height: 15.0pt'>
+				<td width=225 nowrap valign=bottom
+					style='width: 168.65pt; border: solid windowtext 1.0pt; border-top: none; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'> 6. TEMPLATES</span>
+					</p>
+				</td>
+				<td width=228 nowrap valign=bottom
+					style='width: 170.9pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=96 nowrap valign=bottom
+					style='width: 71.65pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=78 nowrap valign=bottom
+					style='width: 58.4pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: yellow; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+			</tr>
+			<tr style='height: 15.0pt'>
+				<td width=225 nowrap valign=bottom
+					style='width: 168.65pt; border: solid windowtext 1.0pt; border-top: none; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'> 7. EMAIL STATIONERY</span>
+					</p>
+				</td>
+				<td width=228 nowrap valign=bottom
+					style='width: 170.9pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=96 nowrap valign=bottom
+					style='width: 71.65pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=78 nowrap valign=bottom
+					style='width: 58.4pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: yellow; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+			</tr>
+			<tr style='height: 15.0pt'>
+				<td width=225 nowrap valign=bottom
+					style='width: 168.65pt; border: solid windowtext 1.0pt; border-top: none; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'> 8. LETTER STATIONERY</span>
+					</p>
+				</td>
+				<td width=228 nowrap valign=bottom
+					style='width: 170.9pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=96 nowrap valign=bottom
+					style='width: 71.65pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=78 nowrap valign=bottom
+					style='width: 58.4pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: yellow; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+			</tr>
+			<tr style='height: 15.0pt'>
+				<td width=225 nowrap valign=bottom
+					style='width: 168.65pt; border: solid windowtext 1.0pt; border-top: none; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'> 9. LETTER SETTINGS</span>
+					</p>
+				</td>
+				<td width=228 nowrap valign=bottom
+					style='width: 170.9pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=96 nowrap valign=bottom
+					style='width: 71.65pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=78 nowrap valign=bottom
+					style='width: 58.4pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: yellow; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+			</tr>
+			<tr style='height: 15.0pt'>
+				<td width=225 nowrap valign=bottom
+					style='width: 168.65pt; border: solid windowtext 1.0pt; border-top: none; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'> 10. SALES PROCESSES</span>
+					</p>
+				</td>
+				<td width=228 nowrap valign=bottom
+					style='width: 170.9pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=96 nowrap valign=bottom
+					style='width: 71.65pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=78 nowrap valign=bottom
+					style='width: 58.4pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: yellow; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+			</tr>
+			<tr style='height: 15.0pt'>
+				<td width=225 nowrap valign=bottom
+					style='width: 168.65pt; border: solid windowtext 1.0pt; border-top: none; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'> 11. SALES GOALS</span>
+					</p>
+				</td>
+				<td width=228 nowrap valign=bottom
+					style='width: 170.9pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=96 nowrap valign=bottom
+					style='width: 71.65pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=78 nowrap valign=bottom
+					style='width: 58.4pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: yellow; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+			</tr>
+			<tr style='height: 15.0pt'>
+				<td width=225 nowrap valign=bottom
+					style='width: 168.65pt; border: solid windowtext 1.0pt; border-top: none; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'> 12. DESKING SETTINGS</span>
+					</p>
+				</td>
+				<td width=228 nowrap valign=bottom
+					style='width: 170.9pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=96 nowrap valign=bottom
+					style='width: 71.65pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=78 nowrap valign=bottom
+					style='width: 58.4pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: yellow; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+			</tr>
+			<tr style='height: 15.0pt'>
+				<td width=225 nowrap valign=bottom
+					style='width: 168.65pt; border: solid windowtext 1.0pt; border-top: none; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'> 13. TASK COUNT LIST</span>
+					</p>
+				</td>
+				<td width=228 nowrap valign=bottom
+					style='width: 170.9pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=96 nowrap valign=bottom
+					style='width: 71.65pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=78 nowrap valign=bottom
+					style='width: 58.4pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: yellow; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+			</tr>
+			<tr style='height: 15.0pt'>
+				<td width=225 nowrap valign=bottom
+					style='width: 168.65pt; border: solid windowtext 1.0pt; border-top: none; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'> 14. DEALER VIDEOS</span>
+					</p>
+				</td>
+				<td width=228 nowrap valign=bottom
+					style='width: 170.9pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=96 nowrap valign=bottom
+					style='width: 71.65pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=78 nowrap valign=bottom
+					style='width: 58.4pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: yellow; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+			</tr>
+			<tr style='height: 15.0pt'>
+				<td width=225 nowrap valign=bottom
+					style='width: 168.65pt; border: solid windowtext 1.0pt; border-top: none; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'> 15. MANAGE HYPER LINKS</span>
+					</p>
+				</td>
+				<td width=228 nowrap valign=bottom
+					style='width: 170.9pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=96 nowrap valign=bottom
+					style='width: 71.65pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=78 nowrap valign=bottom
+					style='width: 58.4pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: yellow; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+			</tr>
+			<tr style='height: 15.0pt'>
+				<td width=225 nowrap valign=bottom
+					style='width: 168.65pt; border: solid windowtext 1.0pt; border-top: none; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'> &nbsp;16. RO OPCODES</span>
+					</p>
+				</td>
+				<td width=228 nowrap valign=bottom
+					style='width: 170.9pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=96 nowrap valign=bottom
+					style='width: 71.65pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=78 nowrap valign=bottom
+					style='width: 58.4pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: yellow; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+			</tr>
+			<tr style='height: 15.0pt'>
+				<td width=225 nowrap valign=bottom
+					style='width: 168.65pt; border: solid windowtext 1.0pt; border-top: none; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'> 17. ROAD TO THE SALE</span>
+					</p>
+				</td>
+				<td width=228 nowrap valign=bottom
+					style='width: 170.9pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=96 nowrap valign=bottom
+					style='width: 71.65pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=78 nowrap valign=bottom
+					style='width: 58.4pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: yellow; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+			</tr>
+			<tr style='height: 39.75pt'>
+				<td width=225 valign=bottom
+					style='width: 168.65pt; border: solid windowtext 1.0pt; border-top: none; padding: 0in 5.4pt 0in 5.4pt; height: 39.75pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<i><span style='color: black'> E. SALES GOALS � </span> </i><i><span
+							style='font-size: 9.0pt; color: black'>ONLY IN THE MANAGER
+								ACCESS ADMIN IS UNDER ILM/CRM SETTINGS</span> </i>
+					</p>
+				</td>
+				<td width=228 valign=bottom
+					style='width: 170.9pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; padding: 0in 5.4pt 0in 5.4pt; height: 39.75pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<i><span style='color: black'>&nbsp;</span> </i>
+					</p>
+				</td>
+				<td width=96 valign=bottom
+					style='width: 71.65pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: red; padding: 0in 5.4pt 0in 5.4pt; height: 39.75pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<i><span style='color: black'>&nbsp;</span> </i>
+					</p>
+				</td>
+				<td width=78 valign=bottom
+					style='width: 58.4pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; padding: 0in 5.4pt 0in 5.4pt; height: 39.75pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<i><span style='color: black'>&nbsp;</span> </i>
+					</p>
+				</td>
+			</tr>
+		</table>
+
+		<p class=MsoNormal>&nbsp;</p>
+
+	</div>
+
+</body>
+
+											</html>
+
+
+											<html>
+
+<head>
+<meta http-equiv=Content-Type content="text/html; charset=windows-1252">
+<meta name=Generator content="Microsoft Word 12 (filtered)">
+<style>
+<!-- /* Font Definitions */
+@font-face {
+	font-family: "Cambria Math";
+	panose-1: 2 4 5 3 5 4 6 3 2 4;
+}
+
+@font-face {
+	font-family: Calibri;
+	panose-1: 2 15 5 2 2 2 4 3 2 4;
+}
+/* Style Definitions */
+p.MsoNormal,li.MsoNormal,div.MsoNormal {
+	margin-top: 0in;
+	margin-right: 0in;
+	margin-bottom: 10.0pt;
+	margin-left: 0in;
+	line-height: 115%;
+	font-size: 11.0pt;
+	font-family: "Calibri", "sans-serif";
+}
+
+.MsoPapDefault {
+	margin-bottom: 10.0pt;
+	line-height: 115%;
+}
+
+@page Section1 {
+	size: 8.5in 11.0in;
+	margin: 1.0in 1.0in 1.0in 1.0in;
+}
+
+div.Section1 {
+	page: Section1;
+}
+-->
+</style>
+
+</head>
+
+<body lang=EN-US>
+
+	<div class=Section1>
+
+		<table class=MsoNormalTable border=0 cellspacing=0 cellpadding=0
+			width=581
+			style='width: 436.0pt; margin-left: 4.65pt; border-collapse: collapse'>
+			<tr style='height: 38.25pt'>
+				<td width=195 valign=bottom
+					style='width: 146.15pt; border: solid windowtext 1.0pt; padding: 0in 5.4pt 0in 5.4pt; height: 38.25pt'>
+					<p class=MsoNormal align=center
+						style='margin-bottom: 0in; margin-bottom: .0001pt; text-align: center; line-height: normal'>
+						<b><span style='font-size: 14.0pt; color: black'>INVENTORY
+								ACCESS</span> </b>
+					</p>
+				</td>
+				<td width=144 nowrap valign=bottom
+					style='width: 1.5in; border: solid windowtext 1.0pt; border-left: none; padding: 0in 5.4pt 0in 5.4pt; height: 38.25pt'>
+					<p class=MsoNormal align=center
+						style='margin-bottom: 0in; margin-bottom: .0001pt; text-align: center; line-height: normal'>
+						<b><span style='font-size: 16.0pt; color: black'>SALESPERSON</span>
+						</b>
+					</p>
+				</td>
+				<td width=121 valign=bottom
+					style='width: 90.4pt; border: solid windowtext 1.0pt; border-left: none; padding: 0in 5.4pt 0in 5.4pt; height: 38.25pt'>
+					<p class=MsoNormal align=center
+						style='margin-bottom: 0in; margin-bottom: .0001pt; text-align: center; line-height: normal'>
+						<b><span style='font-size: 14.0pt; color: black'>INVENTORY
+								MANAGER</span> </b>
+					</p>
+				</td>
+				<td width=122 valign=bottom
+					style='width: 91.45pt; border: solid windowtext 1.0pt; border-left: none; padding: 0in 5.4pt 0in 5.4pt; height: 38.25pt'>
+					<p class=MsoNormal align=center
+						style='margin-bottom: 0in; margin-bottom: .0001pt; text-align: center; line-height: normal'>
+						<b><span style='font-size: 14.0pt; color: black'>ACCOUNT
+								MANAGER</span> </b>
+					</p>
+				</td>
+			</tr>
+			<tr style='height: 15.0pt'>
+				<td width=195 nowrap valign=bottom
+					style='width: 146.15pt; border: solid windowtext 1.0pt; border-top: none; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=144 nowrap valign=bottom
+					style='width: 1.5in; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=121 nowrap valign=bottom
+					style='width: 90.4pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=122 nowrap valign=bottom
+					style='width: 91.45pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+			</tr>
+			<tr style='height: 42.0pt'>
+				<td width=195 valign=bottom
+					style='width: 146.15pt; border: solid windowtext 1.0pt; border-top: none; padding: 0in 5.4pt 0in 5.4pt; height: 42.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>SEARCH FROM UPPER RIGHT OF
+							SCREEN </span><span style='font-size: 9.0pt; color: black'> </span><span
+							style='color: black'> </span><span
+							style='font-size: 8.0pt; color: black'> (NO INVENTORY TAB)</span>
+					</p>
+				</td>
+				<td width=144 nowrap valign=bottom
+					style='width: 1.5in; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: #0070C0; padding: 0in 5.4pt 0in 5.4pt; height: 42.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=121 nowrap valign=bottom
+					style='width: 90.4pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: red; padding: 0in 5.4pt 0in 5.4pt; height: 42.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=122 nowrap valign=bottom
+					style='width: 91.45pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: yellow; padding: 0in 5.4pt 0in 5.4pt; height: 42.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+			</tr>
+			<tr style='height: 42.0pt'>
+				<td width=195 valign=bottom
+					style='width: 146.15pt; border: solid windowtext 1.0pt; border-top: none; padding: 0in 5.4pt 0in 5.4pt; height: 42.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>INVENTORY FROM CUSTOMER
+							DASHBOARD </span><span style='font-size: 8.0pt; color: black'>
+							(NO INVENTORY TAB)</span>
+					</p>
+				</td>
+				<td width=144 nowrap valign=bottom
+					style='width: 1.5in; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: #0070C0; padding: 0in 5.4pt 0in 5.4pt; height: 42.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=121 nowrap valign=bottom
+					style='width: 90.4pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: red; padding: 0in 5.4pt 0in 5.4pt; height: 42.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=122 nowrap valign=bottom
+					style='width: 91.45pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: yellow; padding: 0in 5.4pt 0in 5.4pt; height: 42.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+			</tr>
+			<tr style='height: 15.0pt'>
+				<td width=195 nowrap valign=bottom
+					style='width: 146.15pt; border: solid windowtext 1.0pt; border-top: none; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<b><span style='color: black'>INVENTORY TAB:</span> </b>
+					</p>
+				</td>
+				<td width=144 nowrap valign=bottom
+					style='width: 1.5in; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=121 nowrap valign=bottom
+					style='width: 90.4pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: red; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=122 nowrap valign=bottom
+					style='width: 91.45pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: yellow; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+			</tr>
+			<tr style='height: 15.0pt'>
+				<td width=195 nowrap valign=bottom
+					style='width: 146.15pt; border: solid windowtext 1.0pt; border-top: none; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>1. INVENTORY DASHBOARD</span>
+					</p>
+				</td>
+				<td width=144 nowrap valign=bottom
+					style='width: 1.5in; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=121 nowrap valign=bottom
+					style='width: 90.4pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: red; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=122 nowrap valign=bottom
+					style='width: 91.45pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: yellow; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+			</tr>
+			<tr style='height: 45.75pt'>
+				<td width=195 nowrap valign=bottom
+					style='width: 146.15pt; border: solid windowtext 1.0pt; border-top: none; padding: 0in 5.4pt 0in 5.4pt; height: 45.75pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>2. MANAGE INVENTORY</span>
+					</p>
+				</td>
+				<td width=144 valign=bottom
+					style='width: 1.5in; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; padding: 0in 5.4pt 0in 5.4pt; height: 45.75pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=121 valign=bottom
+					style='width: 90.4pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: red; padding: 0in 5.4pt 0in 5.4pt; height: 45.75pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=122 valign=bottom
+					style='width: 91.45pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: yellow; padding: 0in 5.4pt 0in 5.4pt; height: 45.75pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+			</tr>
+			<tr style='height: 15.0pt'>
+				<td width=195 nowrap valign=bottom
+					style='width: 146.15pt; border: solid windowtext 1.0pt; border-top: none; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'> A. INVENTORY VIEWS</span>
+					</p>
+				</td>
+				<td width=144 nowrap valign=bottom
+					style='width: 1.5in; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=121 nowrap valign=bottom
+					style='width: 90.4pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: red; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=122 nowrap valign=bottom
+					style='width: 91.45pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: yellow; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+			</tr>
+			<tr style='height: 15.0pt'>
+				<td width=195 nowrap valign=bottom
+					style='width: 146.15pt; border: solid windowtext 1.0pt; border-top: none; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'> B. BATCH PRICE EDIT</span>
+					</p>
+				</td>
+				<td width=144 nowrap valign=bottom
+					style='width: 1.5in; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=121 nowrap valign=bottom
+					style='width: 90.4pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: red; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=122 nowrap valign=bottom
+					style='width: 91.45pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: yellow; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+			</tr>
+			<tr style='height: 15.0pt'>
+				<td width=195 nowrap valign=bottom
+					style='width: 146.15pt; border: solid windowtext 1.0pt; border-top: none; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'> C. REMOVED INVENTORY</span>
+					</p>
+				</td>
+				<td width=144 nowrap valign=bottom
+					style='width: 1.5in; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=121 nowrap valign=bottom
+					style='width: 90.4pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: red; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=122 nowrap valign=bottom
+					style='width: 91.45pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: yellow; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+			</tr>
+			<tr style='height: 15.0pt'>
+				<td width=195 nowrap valign=bottom
+					style='width: 146.15pt; border: solid windowtext 1.0pt; border-top: none; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'> D. VIEW CARFAX REPORT</span>
+					</p>
+				</td>
+				<td width=144 nowrap valign=bottom
+					style='width: 1.5in; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=121 nowrap valign=bottom
+					style='width: 90.4pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: red; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=122 nowrap valign=bottom
+					style='width: 91.45pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: yellow; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+			</tr>
+			<tr style='height: 34.5pt'>
+				<td width=195 valign=bottom
+					style='width: 146.15pt; border: solid windowtext 1.0pt; border-top: none; padding: 0in 5.4pt 0in 5.4pt; height: 34.5pt'>
+					<p class=MsoNormal align=center
+						style='margin-bottom: 0in; margin-bottom: .0001pt; text-align: center; line-height: normal'>
+						<span style='color: black'> E. RECENT UPLOADED VIDEOS</span>
+					</p>
+				</td>
+				<td width=144 valign=bottom
+					style='width: 1.5in; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; padding: 0in 5.4pt 0in 5.4pt; height: 34.5pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=121 valign=bottom
+					style='width: 90.4pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: red; padding: 0in 5.4pt 0in 5.4pt; height: 34.5pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=122 valign=bottom
+					style='width: 91.45pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: yellow; padding: 0in 5.4pt 0in 5.4pt; height: 34.5pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+			</tr>
+			<tr style='height: 15.0pt'>
+				<td width=195 nowrap valign=bottom
+					style='width: 146.15pt; border: solid windowtext 1.0pt; border-top: none; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>3. TRADE APPRAISAL</span>
+					</p>
+				</td>
+				<td width=144 nowrap valign=bottom
+					style='width: 1.5in; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=121 nowrap valign=bottom
+					style='width: 90.4pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: red; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=122 nowrap valign=bottom
+					style='width: 91.45pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: yellow; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+			</tr>
+			<tr style='height: 15.0pt'>
+				<td width=195 nowrap valign=bottom
+					style='width: 146.15pt; border: solid windowtext 1.0pt; border-top: none; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>4. BUYERS GUIDE BACK</span>
+					</p>
+				</td>
+				<td width=144 nowrap valign=bottom
+					style='width: 1.5in; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=121 nowrap valign=bottom
+					style='width: 90.4pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: red; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=122 nowrap valign=bottom
+					style='width: 91.45pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: yellow; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+			</tr>
+			<tr style='height: 15.0pt'>
+				<td width=195 nowrap valign=bottom
+					style='width: 146.15pt; border: solid windowtext 1.0pt; border-top: none; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>5. EBAY FUNCTIONS</span>
+					</p>
+				</td>
+				<td width=144 nowrap valign=bottom
+					style='width: 1.5in; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=121 nowrap valign=bottom
+					style='width: 90.4pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: red; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=122 nowrap valign=bottom
+					style='width: 91.45pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: yellow; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+			</tr>
+			<tr style='height: 15.0pt'>
+				<td width=195 nowrap valign=bottom
+					style='width: 146.15pt; border: solid windowtext 1.0pt; border-top: none; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'> A. ACTIVE LISTINGS</span>
+					</p>
+				</td>
+				<td width=144 nowrap valign=bottom
+					style='width: 1.5in; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=121 nowrap valign=bottom
+					style='width: 90.4pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: red; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=122 nowrap valign=bottom
+					style='width: 91.45pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: yellow; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+			</tr>
+			<tr style='height: 15.0pt'>
+				<td width=195 nowrap valign=bottom
+					style='width: 146.15pt; border: solid windowtext 1.0pt; border-top: none; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'> B. SOLD LISTINGS</span>
+					</p>
+				</td>
+				<td width=144 nowrap valign=bottom
+					style='width: 1.5in; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=121 nowrap valign=bottom
+					style='width: 90.4pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: red; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=122 nowrap valign=bottom
+					style='width: 91.45pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: yellow; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+			</tr>
+			<tr style='height: 15.0pt'>
+				<td width=195 nowrap valign=bottom
+					style='width: 146.15pt; border: solid windowtext 1.0pt; border-top: none; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'> C. EBAY SETTINGS</span>
+					</p>
+				</td>
+				<td width=144 nowrap valign=bottom
+					style='width: 1.5in; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=121 nowrap valign=bottom
+					style='width: 90.4pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: red; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=122 nowrap valign=bottom
+					style='width: 91.45pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: yellow; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+			</tr>
+			<tr style='height: 15.0pt'>
+				<td width=195 nowrap valign=bottom
+					style='width: 146.15pt; border: solid windowtext 1.0pt; border-top: none; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'> D. SAMPLE LISTINGS</span>
+					</p>
+				</td>
+				<td width=144 nowrap valign=bottom
+					style='width: 1.5in; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=121 nowrap valign=bottom
+					style='width: 90.4pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: red; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=122 nowrap valign=bottom
+					style='width: 91.45pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: yellow; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+			</tr>
+			<tr style='height: 15.0pt'>
+				<td width=195 nowrap valign=bottom
+					style='width: 146.15pt; border: solid windowtext 1.0pt; border-top: none; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<b><span style='color: black'>REPORTS TAB</span> </b>
+					</p>
+				</td>
+				<td width=144 nowrap valign=bottom
+					style='width: 1.5in; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=121 nowrap valign=bottom
+					style='width: 90.4pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: red; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=122 nowrap valign=bottom
+					style='width: 91.45pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: yellow; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+			</tr>
+			<tr style='height: 15.0pt'>
+				<td width=195 nowrap valign=bottom
+					style='width: 146.15pt; border: solid windowtext 1.0pt; border-top: none; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>1. INVENTORY REPORTS ONLY</span>
+					</p>
+				</td>
+				<td width=144 nowrap valign=bottom
+					style='width: 1.5in; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=121 nowrap valign=bottom
+					style='width: 90.4pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: red; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=122 nowrap valign=bottom
+					style='width: 91.45pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: yellow; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+			</tr>
+			<tr style='height: 15.0pt'>
+				<td width=195 nowrap valign=bottom
+					style='width: 146.15pt; border: solid windowtext 1.0pt; border-top: none; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>SETTINGS TAB:</span>
+					</p>
+				</td>
+				<td width=144 nowrap valign=bottom
+					style='width: 1.5in; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=121 nowrap valign=bottom
+					style='width: 90.4pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=122 nowrap valign=bottom
+					style='width: 91.45pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: yellow; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+			</tr>
+			<tr style='height: 18.75pt'>
+				<td width=195 nowrap valign=bottom
+					style='width: 146.15pt; border: solid windowtext 1.0pt; border-top: none; padding: 0in 5.4pt 0in 5.4pt; height: 18.75pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>1. DEALER SETTINGS</span>
+					</p>
+				</td>
+				<td width=144 nowrap valign=bottom
+					style='width: 1.5in; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; padding: 0in 5.4pt 0in 5.4pt; height: 18.75pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=121 nowrap valign=bottom
+					style='width: 90.4pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; padding: 0in 5.4pt 0in 5.4pt; height: 18.75pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=122 nowrap valign=bottom
+					style='width: 91.45pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: yellow; padding: 0in 5.4pt 0in 5.4pt; height: 18.75pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+			</tr>
+			<tr style='height: 29.25pt'>
+				<td width=195 nowrap valign=bottom
+					style='width: 146.15pt; border: solid windowtext 1.0pt; border-top: none; padding: 0in 5.4pt 0in 5.4pt; height: 29.25pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'> A. IP SECURITY</span>
+					</p>
+				</td>
+				<td width=144 nowrap valign=bottom
+					style='width: 1.5in; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; padding: 0in 5.4pt 0in 5.4pt; height: 29.25pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=121 nowrap valign=bottom
+					style='width: 90.4pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; padding: 0in 5.4pt 0in 5.4pt; height: 29.25pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=122 nowrap valign=bottom
+					style='width: 91.45pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: yellow; padding: 0in 5.4pt 0in 5.4pt; height: 29.25pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+			</tr>
+			<tr style='height: 28.5pt'>
+				<td width=195 valign=bottom
+					style='width: 146.15pt; border: solid windowtext 1.0pt; border-top: none; padding: 0in 5.4pt 0in 5.4pt; height: 28.5pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'> B. INVENTORY SETTINGS</span>
+					</p>
+				</td>
+				<td width=144 valign=bottom
+					style='width: 1.5in; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; padding: 0in 5.4pt 0in 5.4pt; height: 28.5pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=121 valign=bottom
+					style='width: 90.4pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; padding: 0in 5.4pt 0in 5.4pt; height: 28.5pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=122 valign=bottom
+					style='width: 91.45pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: yellow; padding: 0in 5.4pt 0in 5.4pt; height: 28.5pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+			</tr>
+			<tr style='height: 29.25pt'>
+				<td width=195 valign=bottom
+					style='width: 146.15pt; border: solid windowtext 1.0pt; border-top: none; padding: 0in 5.4pt 0in 5.4pt; height: 29.25pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>2. MY SETTINGS</span>
+					</p>
+				</td>
+				<td width=144 valign=bottom
+					style='width: 1.5in; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; padding: 0in 5.4pt 0in 5.4pt; height: 29.25pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=121 valign=bottom
+					style='width: 90.4pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; padding: 0in 5.4pt 0in 5.4pt; height: 29.25pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=122 valign=bottom
+					style='width: 91.45pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: yellow; padding: 0in 5.4pt 0in 5.4pt; height: 29.25pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+			</tr>
+			<tr style='height: 15.0pt'>
+				<td width=195 nowrap valign=bottom
+					style='width: 146.15pt; border: solid windowtext 1.0pt; border-top: none; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>3. USERS</span>
+					</p>
+				</td>
+				<td width=144 nowrap valign=bottom
+					style='width: 1.5in; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=121 nowrap valign=bottom
+					style='width: 90.4pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=122 nowrap valign=bottom
+					style='width: 91.45pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: yellow; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+			</tr>
+			<tr style='height: 15.0pt'>
+				<td width=195 nowrap valign=bottom
+					style='width: 146.15pt; border: solid windowtext 1.0pt; border-top: none; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'> A. USER LIST</span>
+					</p>
+				</td>
+				<td width=144 nowrap valign=bottom
+					style='width: 1.5in; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=121 nowrap valign=bottom
+					style='width: 90.4pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=122 nowrap valign=bottom
+					style='width: 91.45pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: yellow; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+			</tr>
+			<tr style='height: 15.0pt'>
+				<td width=195 nowrap valign=bottom
+					style='width: 146.15pt; border: solid windowtext 1.0pt; border-top: none; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'> B. RECENT LOGINS</span>
+					</p>
+				</td>
+				<td width=144 nowrap valign=bottom
+					style='width: 1.5in; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=121 nowrap valign=bottom
+					style='width: 90.4pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=122 nowrap valign=bottom
+					style='width: 91.45pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: yellow; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+			</tr>
+			<tr style='height: 15.0pt'>
+				<td width=195 nowrap valign=bottom
+					style='width: 146.15pt; border: solid windowtext 1.0pt; border-top: none; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'> C. TIME CLOCK MANAGEMENT</span>
+					</p>
+				</td>
+				<td width=144 nowrap valign=bottom
+					style='width: 1.5in; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=121 nowrap valign=bottom
+					style='width: 90.4pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=122 nowrap valign=bottom
+					style='width: 91.45pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: yellow; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+			</tr>
+			<tr style='height: 15.0pt'>
+				<td width=195 nowrap valign=bottom
+					style='width: 146.15pt; border: solid windowtext 1.0pt; border-top: none; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'> D. MANAGE USER GROUPS</span>
+					</p>
+				</td>
+				<td width=144 nowrap valign=bottom
+					style='width: 1.5in; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=121 nowrap valign=bottom
+					style='width: 90.4pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=122 nowrap valign=bottom
+					style='width: 91.45pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: yellow; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+			</tr>
+			<tr style='height: 15.0pt'>
+				<td width=195 nowrap valign=bottom
+					style='width: 146.15pt; border: solid windowtext 1.0pt; border-top: none; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>4. WEBSITES</span>
+					</p>
+				</td>
+				<td width=144 nowrap valign=bottom
+					style='width: 1.5in; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=121 nowrap valign=bottom
+					style='width: 90.4pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=122 nowrap valign=bottom
+					style='width: 91.45pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: yellow; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+			</tr>
+			<tr style='height: 15.0pt'>
+				<td width=195 nowrap valign=bottom
+					style='width: 146.15pt; border: solid windowtext 1.0pt; border-top: none; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'> A. MANAGE WEBSITES</span>
+					</p>
+				</td>
+				<td width=144 nowrap valign=bottom
+					style='width: 1.5in; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=121 nowrap valign=bottom
+					style='width: 90.4pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=122 nowrap valign=bottom
+					style='width: 91.45pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: yellow; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+			</tr>
+			<tr style='height: 15.0pt'>
+				<td width=195 nowrap valign=bottom
+					style='width: 146.15pt; border: solid windowtext 1.0pt; border-top: none; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'> B. FINANCE APPS</span>
+					</p>
+				</td>
+				<td width=144 nowrap valign=bottom
+					style='width: 1.5in; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=121 nowrap valign=bottom
+					style='width: 90.4pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=122 nowrap valign=bottom
+					style='width: 91.45pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: yellow; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+			</tr>
+			<tr style='height: 15.0pt'>
+				<td width=195 nowrap valign=bottom
+					style='width: 146.15pt; border: solid windowtext 1.0pt; border-top: none; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'> C. DEALER VIDEOS</span>
+					</p>
+				</td>
+				<td width=144 nowrap valign=bottom
+					style='width: 1.5in; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=121 nowrap valign=bottom
+					style='width: 90.4pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=122 nowrap valign=bottom
+					style='width: 91.45pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: yellow; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+			</tr>
+			<tr style='height: 15.0pt'>
+				<td width=195 nowrap valign=bottom
+					style='width: 146.15pt; border: solid windowtext 1.0pt; border-top: none; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'> D. TESTIMONIALS</span>
+					</p>
+				</td>
+				<td width=144 nowrap valign=bottom
+					style='width: 1.5in; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=121 nowrap valign=bottom
+					style='width: 90.4pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=122 nowrap valign=bottom
+					style='width: 91.45pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: yellow; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+			</tr>
+			<tr style='height: 15.0pt'>
+				<td width=195 nowrap valign=bottom
+					style='width: 146.15pt; border: solid windowtext 1.0pt; border-top: none; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>5. DEALER HOURS</span>
+					</p>
+				</td>
+				<td width=144 nowrap valign=bottom
+					style='width: 1.5in; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=121 nowrap valign=bottom
+					style='width: 90.4pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=122 nowrap valign=bottom
+					style='width: 91.45pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: yellow; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+			</tr>
+			<tr style='height: 15.75pt'>
+				<td width=195 nowrap valign=bottom
+					style='width: 146.15pt; border: solid windowtext 1.0pt; border-top: none; padding: 0in 5.4pt 0in 5.4pt; height: 15.75pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>6. BILLING</span>
+					</p>
+				</td>
+				<td width=144 nowrap valign=bottom
+					style='width: 1.5in; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.75pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=121 nowrap valign=bottom
+					style='width: 90.4pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.75pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=122 nowrap valign=bottom
+					style='width: 91.45pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: yellow; padding: 0in 5.4pt 0in 5.4pt; height: 15.75pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+			</tr>
+			<tr style='height: 39.75pt'>
+				<td width=195 valign=bottom
+					style='width: 146.15pt; border: solid windowtext 1.0pt; border-top: none; padding: 0in 5.4pt 0in 5.4pt; height: 39.75pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'> A. INVOICES</span>
+					</p>
+				</td>
+				<td width=144 valign=bottom
+					style='width: 1.5in; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; padding: 0in 5.4pt 0in 5.4pt; height: 39.75pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=121 valign=bottom
+					style='width: 90.4pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; padding: 0in 5.4pt 0in 5.4pt; height: 39.75pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=122 valign=bottom
+					style='width: 91.45pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: yellow; padding: 0in 5.4pt 0in 5.4pt; height: 39.75pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+			</tr>
+			<tr style='height: 57.0pt'>
+				<td width=195 valign=bottom
+					style='width: 146.15pt; border: solid windowtext 1.0pt; border-top: none; padding: 0in 5.4pt 0in 5.4pt; height: 57.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'> B. ACCOUNT ACTIVITY</span>
+					</p>
+				</td>
+				<td width=144 valign=bottom
+					style='width: 1.5in; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; padding: 0in 5.4pt 0in 5.4pt; height: 57.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=121 valign=bottom
+					style='width: 90.4pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; padding: 0in 5.4pt 0in 5.4pt; height: 57.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+				<td width=122 valign=bottom
+					style='width: 91.45pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; background: yellow; padding: 0in 5.4pt 0in 5.4pt; height: 57.0pt'>
+					<p class=MsoNormal
+						style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+						<span style='color: black'>&nbsp;</span>
+					</p>
+				</td>
+			</tr>
+		</table>
+
+		<p class=MsoNormal>&nbsp;</p>
+
+	</div>
+
+</body>
+
+											</html>
+										</td>
+									</tr>
+								</table>
+								<!-- ================================================================================================== -->
+							</apex:pageBlockSection>
+
+							<apex:pageBlockSection collapsible="false" title=""></apex:pageBlockSection>
+
+							<table border="0" width="100%" align="center">
+								<tr align="center">
+									<td align="center"><apex:commandButton action="{!skipBackSteps}" value="Previous Step" /> <apex:commandButton action="{!confirmCRM}" value="Next Step" /> <apex:commandButton action="{!cancel}" value="Save & Quit"
+											onclick="return confirmCancel()" immediate="true" /> <apex:commandButton action="{!confirmCRM}" value="Save - To Confirmation Page"
+											rendered="{!if(welcome.Packet_Includes__c!=null&&welcome.ReachedCRMConfirm__c, true, false)}" />
+									</td>
+								</tr>
+							</table>
+
+						</apex:pageBlock>
+
+					</apex:form>
+				</div>
+			</td>
+		</tr>
+	</table>
+</apex:page>

@@ -1,0 +1,248 @@
+<apex:page >
+	<style>
+	DIV#TAS SPAN.spanToggle {
+		background-image: url('{!URLFOR($Resource.DMAPP__Assessment, 'drawer_expand.png')}');
+		background-repeat: no-repeat;
+		float: left;
+		height: 12px;
+		width: 12px;
+		clear: left;
+		margin: 6px;
+	}
+	
+	DIV#TAS SPAN.spanToggleExpanded {
+		-webkit-transform: rotate(90deg);
+		-moz-transform: rotate(90deg);
+		filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=1 );
+	}
+	
+	DIV#TAS #SPINNER {
+		position: absolute;
+		z-index: 666;
+	}
+	
+	DIV#TAS .ERROR {
+		border-color: 1px solid maroon;
+		box-shadow: 0px 0px 4px 4px maroon;
+		background-color: maroon;
+		color: white;
+	}
+	
+	DIV#TAS DIV.divBlock {
+		background-color: rgb(203,213,226);
+		border: 1px solid rgb(160,181,202);
+		border-radius: 7px;
+		-moz-border-radius: 7px;
+		-webkit-border-radius: 7px;
+		box-shadow: 0 1px 0 rgba(255, 255, 255, 0.7) inset;
+		margin: 10px;
+		padding: 10px;
+	}
+
+	DIV#TAS DIV.divBlock DIV.divQuery {
+	    background-color: white;
+	    border: 1px solid #A0B5CA;
+	    border-radius: 4px 4px 4px 4px;
+	    margin: 3px 0;
+	    padding: 5px;
+	}
+
+	DIV#TAS SPAN.QUICKLINK {
+		background-image: url('{!URLFOR($Resource.DMAPP__Assessment, 'icon_movie.png')}');
+		width: 20px;
+		height: 16px;
+		float:right;
+		display: inline-block;
+	}
+
+	DIV#TAS .tasPointer {
+		cursor: pointer;
+	}
+
+	DIV#TAS SPAN.SCOREBLOCK {
+		border: 1px solid #A0A0A0;
+		border-radius: 4px 4px 4px 4px;
+		height: 11px;
+		padding: 4px 7px 7px 14px;
+		border-width: 1px 1px 1px 30px;
+		display: inline-block;
+		background-color: #ffffff;
+	}
+
+	DIV#TAS .SCOREBLOCK_SCORE {
+		border-radius: 4px 4px 4px 4px;
+		height: 16px;
+		margin-left: 2px;
+		text-align: center;
+		width: 16px;
+		position: relative;
+		top: -1px;
+		display: inline-block;
+		vertical-align:text-top;
+	}
+
+	DIV#TAS DIV.SCOREBLOCK_SCORE_FLOAT {
+		float: left;
+	}
+
+	DIV#TAS .ScoreYes {
+	    background: #019040;
+	    border-color: #019040;
+		color: white;
+		border-radius:5px;
+		-moz-border-radius:5px;
+		-webkit-border-radius:5px;
+	}
+
+	DIV#TAS .ScoreNo {
+		background: #CC0000;
+		border-color: #CC0000;
+		color: white;
+		border-radius:5px;
+		-moz-border-radius:5px;
+		-webkit-border-radius:5px;
+	}
+
+	DIV#TAS .ScoreUnscored {
+		background: #ABABAB;
+		border-color: #ABABAB;
+		color: #EFEFEF;
+		border-radius:5px;
+		-moz-border-radius:5px;
+		-webkit-border-radius:5px;
+	}
+
+	DIV#TAS .ScoreUnknown {
+		background: #FFBE00;
+		border-color: #FFBE00;
+    	color: white;
+ 		border-radius:5px;
+ 		-moz-border-radius:5px;
+		-webkit-border-radius:5px;
+	}
+
+	DIV#TAS .STAGE_PERCENTBAR .ScoreYes {
+		background: #019040 url('{!URLFOR($Resource.DMAPP__Qualification, 'img_percent_green.png')}') left top repeat-x;
+	}
+
+	DIV#TAS .STAGE_PERCENTBAR .ScoreNo {
+		background: #CC0000 url('{!URLFOR($Resource.DMAPP__Qualification, 'img_percent_red.png')}') left top repeat-x;
+	}
+
+	DIV#TAS .STAGE_PERCENTBAR .ScoreUnscored {
+		background: #ABABAB url('{!URLFOR($Resource.DMAPP__Qualification, 'img_percent_grey.png')}') left top repeat-x;
+	}
+
+	DIV#TAS .STAGE_PERCENTBAR .ScoreUnknown {
+		background: #FFBE00 url('{!URLFOR($Resource.DMAPP__Qualification, 'img_percent_orange.png')}') left top repeat-x;
+	}
+	
+	
+	DIV#TAS .ScoreYes {
+		border-color: #019040;
+		background-color: #019040;
+		color: white;
+	}
+	
+	DIV#TAS .ScoreNo {
+		border-color: #CC0000;
+		background-color: #CC0000;
+		color: white;
+	}
+	
+	DIV#TAS .ScoreUnscored {
+		border-color: #ABABAB;
+		background-color: #ABABAB;
+		color: #efefef;
+	}
+	
+	DIV#TAS .ScoreUnknown {
+		border-color: #FFBE00;
+		background-color: #FFBE00;
+		color: white;
+	}
+
+	DIV#TAS SPAN.NOTEEDITBUTTON {
+		background-image: url('{!URLFOR($Resource.DMAPP__Assessment, 'icon_edit.png')}');
+		width: 16px;
+		height: 16px;
+		display: inline-block;
+	}
+
+	DIV#TAS DIV#NOTEEDIT {
+		font-family: Arial, Helvetica, sans-serif;
+		font-size: 12px;
+	}
+	
+	TEXTAREA#NOTEEDITOR {
+		float: left;
+		height: 120px;
+		width: 260px;
+	}
+	
+	SPAN#NOTE_SUBTITLE {
+		float: right;
+		font-weight: bolder;
+		width: 340px;
+	}
+	
+	SPAN#NOTE_HELP {
+		color: #555555;
+		float: right;
+		width: 340px;
+		font-size: 12px;
+	}
+	
+	DIV#TAS SPAN.DELETEBUTTON {
+		background-image: url('{!URLFOR($Resource.DMAPP__Qualification, 'pb_icon_remove.png')}');
+		width: 16px;
+		height: 16px;
+		display: inline-block;
+	}
+	
+	
+	DIV#TAS OPTION {
+		background-color: white;
+	}
+	
+	DIV#TAS OPTION.optionYesAnswer {
+		color: #019040;
+	}
+	
+	DIV#TAS OPTION.optionNoAnswer {
+		color: #CC0000;
+	}
+	
+	DIV#TAS OPTION.optionUnknownAnswer {
+		color: #FFBE00;
+	}
+
+
+	DIV#TAS .NOTE {
+		border: 1px solid #d8d8d8;
+		background-color: #f8f8f8;
+		border-radius: 4px 4px 4px 4px;
+		font-weight: normal;
+		margin-left: 4px;
+		padding: 10px;
+		word-wrap: break-word;
+		color: #808080;
+		
+	}
+
+		#tooltip {
+			background-color: #EEE;
+			border: 1px solid #111;
+			border-radius: 4px;
+			opacity: .85;
+			padding: 5px;
+			position: absolute;
+			z-index: 3000;			
+		}
+
+	</style>
+	
+	
+	
+	
+</apex:page>

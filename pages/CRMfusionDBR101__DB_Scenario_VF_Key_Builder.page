@@ -1,0 +1,95 @@
+<apex:page controller="CRMfusionDBR101.DB_KeyBuilderController" sidebar="false" showHeader="true">
+    <script type="text/javascript">
+    var dbDisabled = {!isDupeBlockerDisabled};
+    var DELETE_BATCH_SIZE = {!DELETE_BATCH_SIZE};
+    var __sfdcSessionId = '{!GETSESSIONID()}';
+    var controller = CRMfusionDBR101.DB_KeyBuilderController;
+    var scenarioIds = '{!JSENCODE( scenarioIds )}';
+    var redirUrl = '{!JSENCODE( redirUrl )}';
+    var apexNamespace = '{!nameSpace}';
+    var batchSize = {!keyBuilderBatchSize};
+    var useBatchKeyBuilder = {!useBatchApexKeyBuilder};
+    var batchKeyBuilderDone = {!isBatchRebuildDone};
+    var batchRefreshIntervalInMs = {!batchRefreshIntervalInMs};
+    var isBatchRunning = {!isBatchRebuildStarted};
+    var dbDisabled = {!isDupeBlockerDisabled};
+    Visualforce.remoting.timeout = 120000;
+    </script>
+    <apex:includeScript value="{!URLFOR($Resource.CRMfusionDBR101__DB_Javascript, 'jquery.min.js')}" />
+    <apex:includeScript value="{!URLFOR($Resource.CRMfusionDBR101__DB_Javascript, 'jquery-ui.min.js')}" />
+    <apex:stylesheet value="{!URLFOR($Resource.CRMfusionDBR101__DB_Themes, 'jquery-ui-lightness/jquery-ui-lightness.min.css')}" />
+    <apex:includeScript value="/soap/ajax/31.0/connection.js" />
+    <apex:includeScript value="/soap/ajax/31.0/apex.js" />
+
+    <apex:form id="keyBuilderForm">
+        <apex:actionFunction name="startBatchKeyBuilder" action="{!startBatchKeyBuilder}" />
+        <apex:actionPoller id="batchStatusUpdater" action="{!updateBatchStatus}" reRender="batchBuilderStatus" interval="5"
+            enabled="{!AND( AND( useBatchApexkeyBuilder, isBatchRebuildStarted ), NOT( isBatchRebuildDone ) )}"
+            oncomplete="updateBatchProgressBars();"/>
+        <c:DB_Disabled_Warning additionalText="Please re-enable DupeBlocker before building keys." />
+        <apex:pageBlock rendered="{!AND(NOT(isDupeBlockerDisabled), useOriginalKeyBuilder)}">
+            <apex:outputText style="font-style:bold; color:red; text-align:center; align:center" value="{!$Label.CRMfusionDBR101__DB_KB_Do_Not_Leave_Message}" />
+            <br />
+            <apex:pageMessages />
+            <br />
+            Deleting <span id="deletedCounter">0</span>/<span id="deleteTotal">Unknown</span> old matching keys. - ETA: <span id="deleteEta">Unknown</span>
+            <br />
+            <div id="deleteProgress"></div>
+            <br />
+            Caching <span id="cacheObject">unknown</span>: <span id="cachedCounter">0</span>/<span id="cacheTotal">Unknown</span> - ETA: <span id="cacheEta">Unknown</span>
+            <br />
+            <div id="cacheProgress"></div>
+            <br />
+            Building keys for <span id="buildObject">unknown</span>: <span id="builtCounter">0</span>/<span id="buildTotal">Unknown</span> - ETA: <span
+                id="buildEta">Unknown</span>
+            <br />
+            <div id="buildProgress"></div>
+            <br />
+            <div style="text-align: center;">
+                <input id="cancelButton" type="submit" onclick="return cancelKeyBuilding()" value="Cancel" />
+            </div>
+            <br />
+            Status: <span id="status">Initializing.</span>
+        </apex:pageBlock>
+        <apex:pageBlock title="Batch Key Builder Status" rendered="{!AND(NOT(isDupeBlockerDisabled), useBatchApexKeyBuilder)}">
+            <apex:outputText style="font-style:bold; color:red; text-align:center; align:center"
+                value="Keys are being built in the background.  You will be e-mailed when the key building process is complete.  It's not necessary to keep this page open." />
+            <br />
+            <apex:pageMessages />
+            <br />
+            <apex:outputPanel id="batchBuilderStatus" rendered="{!isBatchRebuildStarted}">
+                <apex:outputPanel layout="block" rendered="{!deletionBatch.isDone}">
+                    <div>Deleted old matching keys.</div>
+                    <br />
+                    <div id="deleteProgress" class="batchProgressBar" data-value="1" data-max="1"></div>
+                </apex:outputPanel>
+                <apex:outputPanel layout="block" rendered="{!NOT( deletionBatch.isDone )}">
+                    <div>Deleting old keys.  Batches done: {!deletionBatch.batchesDone}/{!IF( deletionBatch.totalBatches == 0, 'Unknown', deletionBatch.totalBatches )} - ETA: {!deletionBatch.eta}</div>
+                    <br />
+                    <div id="deleteProgress" class="batchProgressBar" data-value="{!deletionBatch.batchesDone}" data-max="{!IF( deletionBatch.totalBatches == 0, 1, deletionBatch.totalBatches )}"></div>
+                </apex:outputPanel>
+                <br />
+                <apex:repeat value="{!batchStatuses}" var="currStatus">
+                    <apex:outputPanel layout="block" rendered="{!currStatus.isDone}">
+                        <div>Keys built for {!currStatus.objectLabel}.</div>
+                        <br />
+                        <div id="buildProgress{!currStatus.objectLabel}" class="batchProgressBar" data-value="1" data-max="1"></div>
+                    </apex:outputPanel>
+                    <apex:outputPanel layout="block" rendered="{!NOT( currStatus.isDone )}">
+                        <div>Building keys for {!currStatus.objectLabel}.  Batches done: {!currStatus.batchesDone}/{!IF( currStatus.totalBatches == 0, 'Unknown', currStatus.totalBatches )} - ETA: {!currStatus.eta}</div>
+                        <br />
+                        <div id="buildProgress{!currStatus.objectLabel}" class="batchProgressBar" data-value="{!currStatus.batchesDone}" data-max="{!IF( currStatus.totalBatches == 0, 1, currStatus.totalBatches)}"></div>
+                    </apex:outputPanel>
+                    <br />
+                </apex:repeat>
+                <div style="text-align: center;">
+                    <apex:commandButton id="cancelButton" action="{!cancelBatchKeyBuilder}" disabled="{!isBatchRebuildDone}" value=" Cancel " />&nbsp;
+                    <apex:commandButton id="closeButton" action="{!closePage}" value=" Close " />
+                </div>
+            </apex:outputPanel>
+        </apex:pageBlock>
+    </apex:form>
+    <div id="dialog-errorMessage"></div>
+    <div id="dialog-Message"></div>
+    <script type="text/javascript" src="{!URLFOR($Resource.DB_KeyBuilder_JS)}"></script>
+</apex:page>

@@ -1,0 +1,93 @@
+<apex:page id="Time_Off_Calendar"
+	standardController="SFDC_Paid_Time_Off__c">
+
+	<link href="/sCSS/8.0/1169686455000/Theme2/default/elements.css"
+		media="handheld,print,projection,screen,tty,tv" rel="stylesheet"
+		type="text/css" />
+	<link href="/sCSS/8.0/1169686455000/Theme2/default/common.css"
+		media="handheld,print,projection,screen,tty,tv" rel="stylesheet"
+		type="text/css" />
+	<link href="/sCSS/8.0/1169686455000/Theme2/default/homeCalendar.css"
+		media="handheld,print,projection,screen,tty,tv" rel="stylesheet"
+		type="text/css" />
+	<link href="/sCSS/8.0/1169686455000/Theme2/default/dashboard.css"
+		media="handheld,print,projection,screen,tty,tv" rel="stylesheet"
+		type="text/css" />
+	<link href="/sCSS/8.0/1169686455000/Theme2/default/BanElem.css"
+		media="handheld,print,projection,screen,tty,tv" rel="stylesheet"
+		type="text/css" />
+	<link href="/css/assistive.css" media="aural,braille,embossed"
+		rel="stylesheet" type="text/css" />
+	<link
+		href="/sCSS/8.0/1170570660000/Theme2/00D30000000737I/00530000000sYWn/dCustom.css"
+		media="handheld,print,projection,screen,tty,tv" rel="stylesheet"
+		type="text/css" />
+
+
+
+	<script type="text/javascript">
+        var calendar;
+        var employeeNumbers;
+        var entityId;
+        
+        function init(){
+        sforce.connection.sessionId = '{!$Api.Session_ID}';
+        
+            var curdate;
+        	var timeOffRequestID;
+            timeOffRequestID = '{!SFDC_Paid_Time_Off__c.Id}';
+            if (timeOffRequestID != ''){
+                var soql = "Select t.Start_Date__c, t.Employee_Number__c From SFDC_Paid_Time_Off__c t Where t.Id = '"+entityId+"'";
+                var qr = sforce.connection.query(soql);
+                var recs = qr.getArray("records");
+                if (recs && recs.length == 1){
+                    curdate = recs[0].getDate("Start_Date__c");
+                    employeeNumbers = [recs[0].get("Employee_Number__c")];
+                }
+                entityId = timeOffRequestID;
+            }
+        
+            if (!curdate){
+                curdate = new Date();
+            }
+            
+            // default to my direct reports
+            if (!employeeNumbers){
+                var userInfo = sforce.connection.getUserInfo(); 
+                var userId = userInfo.get("userId");
+                
+                employeeNumbers = [];
+                var soql = "Select u.Employee_Number__c From User u Where Id = '"+userId+"' OR Manager_PTO__c = '"+userId+"'";
+                var qr = sforce.connection.query(soql);
+                var recs = qr.getArray("records");
+                for (var i = 0; i < recs.length; i++){
+                        if (recs[i].get("Employee_Number__c") != null) {
+                        employeeNumbers.push(recs[i].get("Employee_Number__c"));
+                        }
+                }
+            }
+        
+            var el = getElementsByClassName("calendarElement")[0];
+            
+            calendar = new Calendar(el, curdate, "main", "month", "daysofweek", "days", 1);
+        
+            calendar.display(curdate, employeeNumbers, entityId);
+        }
+    
+    </script>
+
+	<script type="text/javascript" src="/js/functions.js"></script>
+	<script type="text/javascript" src="/soap/ajax/8.0/connection.js"></script>
+	<script type="text/javascript" src="/soap/ajax/13.0/apex.js"></script>
+	<script type="text/javascript" src="/dJS/en/1170289429000/library.js"></script>
+	<script type="text/javascript" src="/appex/calendar/lib/context.js"></script>
+	<apex:stylesheet value="{!URLFOR($Resource.Time_Off_Calendar, 'inc/css/time_Off_Calendar.css')}" />
+	<apex:includeScript value="{!URLFOR($Resource.Time_Off_Calendar, 'inc/javascript/time_Off_Calendar.js')}" />
+
+	<center>
+		<apex:outputPanel id="calendar" styleclass="calendar calendarElement"
+			layout="block"></apex:outputPanel>
+		<apex:outputPanel id="detailDiv" styleclass="detailDiv" layout="block"></apex:outputPanel>
+		<script> init()</script>
+	</center>
+</apex:page>

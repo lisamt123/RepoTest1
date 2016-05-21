@@ -1,0 +1,340 @@
+<apex:page controller="WebexIntegrationController" sidebar="false" showheader="true" id="mainPage" cache="false">
+    <apex:includeScript value="{!URLFOR($Resource.JQueryUI, 'js/jquery-1.5.1.min.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.JQueryUI, 'js/jquery-ui-1.8.13.custom.min.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.jqModal, 'jqModal.js')}"/>
+
+    <apex:stylesheet value="{!URLFOR($Resource.JQueryUI, 'css/smoothness/jquery-ui-1.8.13.custom.css')}"/>
+    <apex:stylesheet value="{!URLFOR($Resource.jqModal, 'jqModal.css')}"/>
+
+    <style>        
+        
+        #accordion h3
+        {            
+            font-size: 14px;
+            vertical-align: middle;                         
+        }
+        .closeAttendeeList
+        {
+            padding: 5px;
+            float: left;
+            clear: both;
+        }
+        .padded
+        {
+            padding: 5px;
+        }
+        .subscript
+        {
+            font-size: 10px; 
+            padding-left: 5px;           
+        }
+        .statusimage
+        {
+            padding-right: 30px;            
+        }
+        .relativePosition
+        {
+            position: relative;
+        }
+        .error 
+        {
+            color: red;
+            font-weight: bold;
+        }        
+        .tcContainer
+        {   
+            padding: 5px;
+            position: relative;  
+        }
+        
+        .tcContainer h1
+        {
+            font-size: 20px;
+        }
+        
+       .tcHeader
+        {
+            font-size: 18px;
+            padding: 5px;
+            background-color: #BBB;
+            width: 100%;
+            margin-top: 5px;
+            float: left;
+            clear: both;             
+        }        
+        .tcBody
+        {
+            font-size: 14px;
+            background-color: #CCC;
+            padding: 5px;
+            margin-bottom: 8px;
+            float: left;
+            clear: both;
+            width: 100%;            
+        }        
+        
+        .tcContactWindow h1
+        {
+            font-size: 14px;        
+        }
+    
+        .jqmWindow {
+            position: absolute;
+        }
+        .jqmWindowFull {
+            display: none;
+    
+            position: absolute;
+            top: 5%;
+            left: 50%;
+            
+            margin-left: -512px;
+            width: 1024px;
+            
+            background-color: #EEE;
+            color: #333;
+            border: 1px solid black;
+            padding: 12px;
+        }
+        .jqmWindowLogin {
+            display: none;
+    
+            position: absolute;
+            top: 15%;
+            left: 50%;
+            
+            margin-left: -150px;
+            width: 300px;
+            
+            background-color: #EEE;
+            color: #333;
+            border: 1px solid black;
+            padding: 12px;
+            
+            text-align: center;
+        }
+        .jqmWindowLoading {
+            display: none;
+    
+            position: absolute;
+            top: 45%;
+            left: 50%;
+            
+            margin-left: -100px;
+            width: 200px;
+            
+            background-color: #EEE;
+            color: #333;
+            border: 1px solid black;
+            padding: 12px;
+            
+            text-align: center;
+            z-index: 9999;
+        }    
+    </style>
+
+    <script type="text/javascript">
+        var j$ = jQuery.noConflict();
+        
+        
+        function noenter(ev)  {
+            if (window.event && window.event.keyCode == 13 || ev.which == 13) {
+                setLoginIsSuccessJava();
+                return false;
+             } 
+             else {
+                  return true;
+             }
+         }
+
+ 
+        
+        function showWait(){j$("#waiting").jqm({modal: true, toTop: true}).jqmShow();}        
+        function hideWait(){j$("#waiting").jqmHide();}
+        function webexLoginFunction()
+        {         
+            javaSetLoginStatus();            
+             if ("{!loginIsSuccess}" == "true")
+                {           
+                    j$("#loginPopup").jqmHide();
+                    javaCreateClassList();                    
+                }            
+        }
+        function setAccordion()
+        {       
+            j$(function() {
+                j$( "#accordion" ).accordion({
+                    collapsible: true,
+                    active: false
+                });
+            });
+        }
+        function hideAttendeeList()
+        {
+            j$(function()
+            {
+                j$("#attendeeList").jqmHide();
+            });
+        }
+        function updateField()
+        {
+            j$(id).next('#contact_info').change();
+        }
+        
+        function popupTimecardList()
+        {           
+            j$(function()
+            {
+                j$("#attendeeList").jqm
+                ({
+                    modal: true,
+                }).jqmShow();
+            });
+            j$("#*contact_input_field*").change(function() {
+                j$("#contact_info")
+            })
+            .change(); 
+        }
+        j$(document).ready(function()
+        {       
+            if ("{!loginIsSuccess}" == "false")
+            {
+                j$("#loginPopup").jqm
+                    ({
+                        modal: true,
+                    }).jqmShow();                       
+            }             
+            j$("#usernameField:text:visible").focus();            
+            j$(".dateInput").datepicker(); 
+            j$(".closeAttendeeList").click(function()
+            {
+                j$("#attendeeList").jqmHide();
+                setAccordion();
+            });
+            j$( "#accordion" ).accordion({
+                    collapsible: true,
+                    active: false
+                });
+        });
+    </script> 
+
+    <apex:form id="errorForm">
+        <!--  <apex:outputText value="{!exceptionError}" rendered="{!if(exceptionError != '', true, false)}" />-->
+    </apex:form>
+    <apex:form id="mainForm" style="padding: 10px 10px 0 10px;">
+        
+        <table>
+                        
+            <tr>
+                <td>Start</td><td>End</td>
+            </tr>
+            <tr>
+                <td><apex:inputText value="{!startDate}" styleclass="dateInput" /></td><td><apex:inputText value="{!endDate}" styleclass="dateInput" /></td>
+            </tr>
+            <tr>
+                <td><apex:commandButton action="{!createClassList}" rerender="mainOutput" value="Class List" id="createClassListButton" oncomplete="setAccordion();" status="waiting" styleClass="relativePosition"/></td>
+            </tr>
+        </table>        
+    </apex:form>
+    
+    <apex:form id="mainOutput" style="padding: 10px;">         
+         
+        <div id="accordion" >
+            <apex:repeat value="{!onlineClassList}" var="class" id="onlineClassList">                       
+                    <div><h3><a href="#"><apex:image value="{!IF(class.Status_del__c != 'Complete' && class.Status_del__c != 'Schedule', URLFOR($Resource.icons16, 'cancel_16.png'),
+(IF(class.Status_del__c == 'Complete', URLFOR($Resource.icons16, 'complete_16.png'),
+(IF(ISNULL(class.Class__c),URLFOR($Resource.icons16, 'delete_16.png'),
+(IF(ISNULL(class.Id), URLFOR($Resource.icons16, 'add_16.png'), URLFOR($Resource.icons16, 'check_16.png'))))))))}"  styleclass="statusimage"/>{!class.sessionName__c}<span class="relativePosition subscript"><apex:outputField value="{!class.Start_Day_and_Time_del__c}" />&nbsp;&nbsp;<apex:outputField value="{!class.sessionTrainerAlias__c}" /></span></a></h3></div>                                      
+                    <div>                        
+                        <div style="float: left; padding: 5px 10px 0 5px; height: 25px; width: 40px; background-color: #BBB;" id="myself"><apex:commandLink action="{!saveSingleOnlineClass}" value="SAVE"  status="waiting">                           
+                                <apex:param name="classParam" assignTo="{!singleClassSessionKey}" value="{!class.sessionKey__c}" />                                                         
+                        </apex:commandLink></div>
+                        <div style="float: left; padding: 5px 10px 0 10px; height: 25px; width: 40px; background-color: #BBB;"><a href="/{!class.Id}" target="_blank" style="visibility: {!if(class.Id != null, 'visible', 'hidden')};">LINK</a></div>
+                         <div id="timeCardPopupButton" style="vertical-align:middle; float: left; padding: 5px 10px 0 5px; height: 25px; width: 100px; background-color: #BBB;"><apex:commandLink action="{!returnClassTimecards}" value="TIME CARDS" oncomplete="popupTimecardList();" rerender="attendeeListInternal" status="waiting" rendered="{!if(class.Id != null, 'true', 'false')}">
+                            <apex:param name="sessionKeyParam" assignTo="{!publicSessionKey}" value="{!class.sessionKey__c}" />
+                            <apex:param name="sessionNameParam" assignTo="{!publicSessionName}" value="{!class.sessionName__c}" />
+                            <apex:param name="sessionClassParam" assignTo="{!publicSessionClassId}" value="{!class.Class__c}" />
+                            <!--  <apex:param name="sessionClassName" assignTo="{!publicClassName}" value="{!class.Class__r.Name}" />-->
+                        </apex:commandLink></div> 
+                        <div style="float: left; padding: 3px 10px 0 5px; height: 27px; background-color: #CCC;">Class: <apex:inputField value="{!class.Class__c}" /></div>
+                        <div style="float: left; padding: 3px 10px 0 5px; height: 27px; background-color: #CCC;">Trainer: <apex:inputField value="{!class.Trainer_del__c}" /></div>
+                        <div style="float: left; padding: 3px 10px 0 5px; height: 27px; background-color: #CCC;">Status: <apex:inputField value="{!class.Status_del__c}" /></div>                        
+                        
+                                              
+                    </div>
+            </apex:repeat>
+        </div>
+        <div>
+            <apex:commandButton action="{!saveClassList}" value="Save List" id="saveClassListButton" rendered="{!!ISNULL(onlineClassList)}"/>
+        </div>      
+    </apex:form>
+    
+     <div id="attendeeList" class="jqmWindowFull">
+        <apex:form id="attendeeListInternal">            
+            <div id="timecardList" class="tcContainer">
+                <div style="float: left; clear: both;"><h1>{!publicSessionName}</h1><h4 class="subscript">Session Key: {!publicSessionKey}</h4></div><!-- <div style="float: right; clear: right;"><a href="/003/e" target="_blank">New Contact</a></div> -->
+                
+                <apex:repeat value="{!currentTimecardList}" var="timeCard">             
+                        <div class="tcHeader">
+                            <h3>{!timeCard.Attendee_Name__c}</h3><h4 class="subscript">{!timeCard.Attendee_Email_Address__c}</h4>
+                        </div>
+                        <div class="tcBody">                    
+                            <div style="float: left;">Contact:  <apex:inputField value="{!timeCard.Contact__c}" onchange="" id="contact_input_field" /></div>
+                            <div style="float: left;">Status:  <apex:inputField value="{!timeCard.Class_Status__c}" /></div>
+                            <div style="float: left;">Score:  <apex:inputField value="{!timeCard.Test_Score__c}" /></div> 
+                            <div style="float: right; clear: right;"><a href="/{!relatedContactMapId[timeCard.Contact__c].Id}" target="_blank" >Contact Link</a></div>
+                            <!--<div style="float: right; clear: right;"><a href="/{!timeCard.Id}" target="_blank" >Timecard Link</a></div> -->
+                            <div style="float: right; clear:right;"><apex:outputLabel value="Please Save and Close to view Timecard Link" style="visibility: {!if(timeCard.Id == null, 'visible', 'hidden')};"></apex:outputLabel></div> 
+                            <div style="float: right; clear:right;"><a href="/{!timeCard.Id}" target="_blank" style="visibility: {!if(timeCard.Id != null, 'visible', 'hidden')};">Timecard Link</a></div>
+                            <div style="float: left; clear: both; visibility: {!if(timeCard.Contact__c != null, 'visible', 'hidden')};" id="contact_info">                              
+                                <div style="float: left; padding: 5px 5px 0 0; clear: both;">Account Name:&nbsp;&nbsp;  <apex:outputText value="{!relatedContactMapId[timeCard.Contact__c].account_name__c}" /></div> 
+                                <div style="float: left; padding: 5px 5px 0 0; clear: both;">Account Number:&nbsp;&nbsp;  <apex:outputText value="{!relatedContactMapId[timeCard.Contact__c].Account_Number__c}" /></div> 
+                                <div style="float: left; padding: 5px 5px 0 0; clear: both;">MotoSnap Access:&nbsp;&nbsp; <apex:outputText value="{!relatedContactMapId[timeCard.Contact__c].ILM_CRM_Access__c}" /></div>                        
+                            </div>
+                        </div>
+                </apex:repeat>
+                <div class="closeAttendeeList">
+                    <apex:commandButton action="{!clearTimecardsAndContacts}" value="Cancel"  rerender="attendeeList" oncomplete="hideAttendeeList();"/>
+                    <apex:commandButton action="{!saveClassWithTimecards}" value="Save and Close" rerender="errorForm" status="waiting" oncomplete="hideAttendeeList();"/>                  
+                </div>
+            </div>            
+        </apex:form>    
+    </div>
+    
+    <div class="jqmWindowLogin" id="loginPopup">
+        <apex:form id="loginForm">   
+            <table>
+                <tr>
+                    <td>Username:</td><td><apex:inputText value="{!username}" id="usernameField" onkeypress="return noenter(event);"/></td>
+                </tr>
+                <tr>
+                    <td>Password:</td><td><apex:inputSecret value="{!password}" id="passwordField" onkeypress="return noenter(event);"/></td>
+                </tr>
+                <tr>
+                    <td><apex:commandButton action="{!setLoginIsSuccess}" value="Login" rerender="loginError" oncomplete="webexLoginFunction()" status="waiting"/></td><td><apex:inputCheckbox value="{!rememberUsername}" /> Remember Username</td>
+                </tr>
+                
+                <tr>
+                    <td></td><td><apex:outputText value="{!loginError}" id="loginError" styleclass="Error"/></td>
+                </tr>                
+            </table>            
+            <apex:actionFunction name="setLoginIsSuccessJava" action="{!setLoginIsSuccess}" rerender="loginError" oncomplete="webexLoginFunction()" status="waiting" />               
+        </apex:form>
+    </div>
+    
+    <apex:form id="actionInit">
+        <apex:actionFunction name="javaSetLoginStatus" action="{!setLoginIsSuccess}"/>
+        <apex:actionFunction name="callClassAttendees" action="{!returnClassTimecards}" rerender="attendeeList">
+            <apex:param name="sessionKeyParam" assignTo="{!publicSessionKey}" value="" />
+        </apex:actionFunction>        
+        <apex:actionFunction name="javaCreateClassList" action="{!createClassList}" rerender="mainOutput" oncomplete="setAccordion();" status="waiting" />
+        <apex:actionStatus id="waiting" onstart="showWait();" onstop="hideWait();" />
+        
+        
+    </apex:form>
+    
+    <div class="jqmWindowLoading" id="waiting">
+    <img src="/img/loading32.gif" /> LOADING... 
+    </div>
+
+</apex:page>

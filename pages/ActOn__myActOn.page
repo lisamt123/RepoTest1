@@ -1,0 +1,175 @@
+<apex:page controller="ActOn.myActOnController" showHeader="true" sidebar="false">
+
+<apex:stylesheet value="{!URLFOR($Resource.ActOn__actonstatic, 'common.css')}"/>
+<apex:stylesheet value="{!URLFOR($Resource.ActOn__jquery, 'css/start/jquery-ui-1.9.2.custom.css')}"/>
+
+<style type="text/css">
+
+    .menuHeading
+        {
+        background:     url({!$Resource.ActOn__actonstatic}/image/aqua/head-bu.png);
+        padding-left:   10px; 
+        padding-top:    5px; 
+        padding-bottom: 5px;    
+        color:          #333333;        
+        }
+        
+    .menuItem
+        {
+        padding-left:   10px; 
+        padding-top:    7px; 
+        padding-bottom: 8px;    
+        border-bottom:  #FFFFFF solid 1px;
+        cursor:         pointer;
+        }
+        
+    .menuItemSpacing
+        {
+        padding-top:    5px; 
+        padding-bottom: 5px;    
+        }       
+        
+    .silkHome
+        {
+        padding-left:           25px;
+        padding-top:            2px;
+        padding-bottom:         2px;
+        background:             url({!$Resource.ActOn__actonstatic}/image/silk/house.png) center left no-repeat;
+        }
+        
+    .silkWrench
+        {
+        padding-left:           25px;
+        padding-top:            2px;
+        padding-bottom:         2px;
+        background:             url({!$Resource.ActOn__actonstatic}/image/silk/wrench.png) center left no-repeat;
+        }
+        
+    .silkHelp
+        {
+        padding-left:           25px;
+        padding-top:            2px;
+        padding-bottom:         2px;
+        background:             url({!$Resource.ActOn__actonstatic}/image/silk/help.png) center left no-repeat;
+        }               
+
+</style>
+
+<apex:includeScript value="{!URLFOR($Resource.ActOn__actonstatic, 'common.js')}"/>
+<apex:includeScript value="{!URLFOR($Resource.ActOn__jquery, 'js/jquery-1.7.2.min.js')}"/>
+<apex:includeScript value="{!URLFOR($Resource.ActOn__jquery, 'js/jquery-ui-1.9.2.custom.min.js')}"/>
+<apex:includeScript value="/soap/ajax/32.0/connection.js"/>
+<apex:includeScript value="/soap/ajax/32.0/apex.js"/>
+
+<script type="text/javascript">
+
+var j$ = jQuery.noConflict();
+
+sforce.connection.sessionId = "{!$Api.Session_ID}";
+var actonServer = sforce.apex.execute('ActOn/ActonWebService','getServerUrl',{});
+var remoteSiteEror = sforce.apex.execute('ActOn/ActonWebService','getRemoteSiteError',{});
+
+
+j$(document).ready(function(){
+});
+
+j$(window).load(function(){ 
+    getMenuJSON(); 
+}); 
+
+function getMenuJSON() {
+    var apiUrl = "{!$Page.menuActonAjax}";
+    // below jquery setup solution to AO-18997 found here: http://stackoverflow.com/questions/4557532/
+    jQuery.ajaxSetup({
+            xhr: function() {
+                    //return new window.XMLHttpRequest();
+                    try{
+                        if(window.ActiveXObject)
+                            return new window.ActiveXObject("Microsoft.XMLHTTP");
+                    } catch(e) { }
+
+                    return new window.XMLHttpRequest();
+                }
+        });
+    j$.ajax({
+        type: "GET",
+        url: apiUrl,
+        data: "core.apexpages.devmode.url=1&serverUrl={!$Api.Partner_Server_URL_190}",
+        contentType: "application/json",
+        dataType: "json",
+        success: function(response) {
+            if (processMenuJSON(response)) 
+                {
+                showContent('/apex/hotProspects?core.apexpages.devmode.url=1');
+                }
+        },
+        error:function (xhr, ajaxOptions, thrownError){
+            //alert(xhr.statusText);
+            //alert(thrownError);
+           alert(remoteSiteEror);
+        }       
+    });
+}    
+
+function processMenuJSON(response) 
+{
+    if (response.status != null && response.status == 'error') 
+        {
+        //alert(response.message);
+        document.getElementById('menuCol').style.width = 0 + 'px';
+        showContent(actonServer + '/acton/sforce/noUserError.jsp');
+        return false;
+        }
+        
+    var html =  '';
+    var sections = response.menu;
+    for (var i = 0; i < sections.length; i++) 
+    {
+        var section = sections[i];
+        html += '<div class="menuHeading big"><div class="' + section.cssclass + ' big">&nbsp;' + section.sectionName + '</div></div>'; 
+        for (var j = 0; j < section.items.length; j++) {
+            var item = section.items[j];
+            var url = item.url;
+            if (url.indexOf('/acton') == 0)
+                {
+                url = actonServer + url + '&server={!$Api.Partner_Server_URL_190}&session={!SessionId}';
+                }
+            if (item.type == 'iframe')
+                html += '<div class="menuItem" "onmouseover="style.backgroundColor=\'#EEEEEE\'" onmouseout="style.backgroundColor=\'\'"; onclick="showContent(\'' + url + '\')">' + item.name + '</div>';
+            else 
+                html += '<div class="menuItem" onclick="showPopup (\'' + url + '\')">' + item.name + '</div>';
+        } 
+        html += '<div class="menuItemSpacing">&nbsp;</div>';
+    }
+    html += '<div style="text-align:center;padding-top:50px"><img src="{!$Resource.actonstatic}/image/logo-medium.gif" /></div>';
+    
+    document.getElementById('menu').innerHTML = html;
+    return true;
+}
+    
+showContent = function(url)
+    {
+    document.getElementById('content').src = url;
+    }
+                    
+showPopup = function(url)
+    {
+    popupWindow (url, 900, screen.height-200);      
+    }           
+
+</script>
+
+<table width="100%" height="100%" cellspacing="0" cellpadding="0">
+<tr>
+
+<td id="menuCol" width="200" valign="top" style="background-color: #E8E8E8">
+    <div id="menu"></div>
+</td>
+<td width="*"   valign="top">               
+    <iframe id="content" width="100%" height="1000" frameborder="0" src=""></iframe>
+</td>
+
+</tr>
+</table>
+ 
+</apex:page>

@@ -1,0 +1,87 @@
+<apex:page controller="WelcomePacketWizard" showHeader="false"
+	cache="false">
+	<head>
+<apex:stylesheet value="{!$Resource.styles}"></apex:stylesheet>
+	</head>
+
+	<script>
+function confirmCancel()
+{
+    var isCancel = confirm("Are you sure you wish to cancel?");
+    return isCancel;
+}
+</script>
+
+	<table border="0" width="100%" height="100%" id="bg">
+		<tr valign="top">
+			<td>
+				<div class="maincontainer">
+					<apex:image id="key1" width="100%"
+						value="/resource/1265230873000/Header" />
+
+					<apex:sectionHeader title="VinSolutions Secondary Packet"
+						subtitle="MotoBlast" />
+
+					<apex:form >
+						<apex:pageBlock title="">
+
+							<table border="0" width="100%" align="center">
+								<tr align="center">
+									<td align="center"><apex:commandButton action="{!jumpBackfromMotoBlast}" value="Previous Step" /> <apex:commandButton action="{!jumpToInventoryVerification}" value="Next Step" />
+										<apex:commandButton action="{!saveQuitWeb}"
+											value="Save & Quit" onclick="return confirmCancel()"
+											immediate="true" /> <apex:commandButton action="{!confirmWebsite}"
+											value="Save - To Confirmation Page"
+											rendered="{!welcome.ReachedWebConfirm__c}" />
+									</td>
+								</tr>
+							</table>
+
+							<apex:pageBlockSection title="" columns="1" collapsible="false">
+								<b> Listing your vehicles automatically on consumer content
+									websites. </b>
+								<br />
+								<br />
+                    
+                    In order for you to get the most out of your MotoBlast Product, and Craigslist postings you 
+                    <b><u>MUST NOT</u> </b> use alternative methods to post the same vehicle or dealership information to Craigslist.<br />
+								<br />
+                    
+                    If <b><u>ANYONE</u> </b> from your dealership posts vehicles listed from your inventory to Craigslist, this will 
+                    cause that vehicle to become flagged, and therefore removing your listing immediately. Please inform 
+                    your staff to not use a personal Craigslist account to post vehicles as this can, and will often cause 
+                    your postings to be flagged and removed by Craigslist due to overposting.<br />
+								<br />
+                    
+                    If you have, or are currently using additional posting tools or are manually posting vehicles to Craigslist, 
+                    MotoBlast this will cause this important product to not function properly.<br />
+								<br />
+                    
+                    If you have any questions concerning the posting of ads on Craigslist, please contact your Implementation Manager.                  
+                </apex:pageBlockSection>
+
+
+							<apex:pageBlockSection collapsible="false" title=""></apex:pageBlockSection>
+
+							<table border="0" width="100%" align="center">
+								<tr align="center">
+									<td align="center"><apex:commandButton action="{!jumpBackfromMotoBlast}" value="Previous Step" /> <apex:commandButton action="{!jumpToInventoryVerification}" value="Next Step" />
+										<apex:commandButton action="{!saveQuitWeb}"
+											value="Save & Quit" onclick="return confirmCancel()"
+											immediate="true" /> <apex:commandButton action="{!confirmWebsite}"
+											value="Save - To Confirmation Page"
+											rendered="{!welcome.ReachedWebConfirm__c}" />
+									</td>
+								</tr>
+							</table>
+
+
+
+						</apex:pageBlock>
+
+					</apex:form>
+				</div>
+			</td>
+		</tr>
+	</table>
+</apex:page>

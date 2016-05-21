@@ -1,0 +1,164 @@
+<apex:page standardController="agf__ADM_Release_Event_Template__c" cache="true" title="Release Event Template: {!agf__ADM_Release_Event_Template__c.Name}">
+<apex:styleSheet value="{!$Resource.agf__ADM_common_css}" />
+<apex:stylesheet value="{!URLFOR($Resource.agf__jquery_ui_1_9_2_redmond, 'css/redmond/jquery-ui-1.9.2.custom.css')}" />
+<apex:includeScript value="{!$Resource.agf__jquery_1_8_3_min}" />
+<apex:includeScript value="{!URLFOR($Resource.agf__jquery_ui_1_9_2_redmond, 'js/jquery-ui-1.9.2.custom.min.js')}" />
+<apex:includeScript value="{!$Resource.agf__ADM_common_js}" />
+
+<div class="bPageTitle">
+    <div class="ptBody">
+        <div class="content">
+            <img src="{!$Resource.icon_releaseeventtemplate}" alt="Release Event Template" class="pageTitleIcon" title="Release Event Template" />
+            <h1 class="pageType">&nbsp;</h1>                    
+            <h2 class="pageDescription"> {!ADM_Release_Event_Template__c.Name}</h2>
+            <div class="blank">&nbsp;</div>
+        </div>
+    </div>
+    <div class="ptBreadcrumb"></div>
+</div>
+
+
+<apex:form target="_parent">
+    <div class="gusFieldset gusFieldsetExtraPadding">
+        <div class="gusLegend">Release Event Template</div> 
+        <div class="gusFormToolbar gusFormToolbarTop">
+            <apex:commandButton action="{!edit}" value="Edit" />
+            <apex:commandButton action="{!delete}" onclick="return confirm('Are you sure?');" value="Delete" />
+            <input type="button" onClick="location.href='/apex/ADM_ReleaseEventTemplateCreate?id={!ADM_Release_Event_Template__c.Id}&clone=1&retURL=%2Fapex%2FADM_ReleaseEventTemplateDetail%3Fid%3D{!ADM_Release_Event_Template__c.Id}';" value="Clone" />
+        </div>
+    
+        <div class="gusForm">
+            <div class="gusForm3Column gusStackedRows gusAltLabels">
+                <c:ADM_FormRow id="retName" object="{!agf__ADM_Release_Event_Template__c}" type="ADM_Release_Event_Template__c" required="true" readonly="true" 
+                    field="Event_Template_Name__c" value="{!agf__ADM_Release_Event_Template__c.agf__Event_Template_Name__c}" />
+                <c:ADM_FormRow id="retReleaseType" object="{!agf__ADM_Release_Event_Template__c}" type="ADM_Release_Event_Template__c" required="true" readonly="true" 
+                    field="Release_Type__c" value="{!agf__ADM_Release_Event_Template__c.agf__Release_Type__c}" />
+            </div>
+            <div class="gusForm3Column gusStackedRows gusAltLabels">            
+                <c:ADM_FormRow id="retNotify" object="{!agf__ADM_Release_Event_Template__c}" type="ADM_Release_Event_Template__c" required="true" readonly="true" 
+                    field="Notify_Customers__c" value="{!agf__ADM_Release_Event_Template__c.agf__Notify_Customers__c}" />
+                <c:ADM_FormRow id="retDayOffset" object="{!agf__ADM_Release_Event_Template__c}" type="ADM_Release_Event_Template__c" required="true" readonly="true" 
+                    field="Day_Offset__c" value="{!agf__ADM_Release_Event_Template__c.agf__Day_Offset__c}" />
+            </div>
+            <div class="gusForm3Column gusStackedRows gusAltLabels">
+                <c:ADM_FormRow id="retApplication" object="{!agf__ADM_Release_Event_Template__c}" type="ADM_Release_Event_Template__c" readonly="true" 
+                    field="Application__c" value="{!agf__ADM_Release_Event_Template__c.agf__Application__c}" />
+                <c:ADM_FormRow id="retEventDuration" object="{!agf__ADM_Release_Event_Template__c}" type="ADM_Release_Event_Template__c" required="true" readonly="true" 
+                    field="Event_Duration__c" value="{!agf__ADM_Release_Event_Template__c.agf__Event_Duration__c}" />
+            </div>
+            <div class="gusForm3Column gusStackedRows gusAltLabels">            
+            </div>
+        </div>
+        <div class="gusForm">
+            <apex:outputPanel layout="none" rendered="{!NOT(ISBLANK(agf__ADM_Release_Event_Template__c.agf__Base_Event__c))}">
+            <div class="gusForm2Column gusStackedRows">
+                <div class="gusFormRow">
+                    <div class="gusFormField gusFormFieldLeft baseEventLabel"><label>Base Release Event</label></div>
+                    <div class="gusFormField gusFormFieldRight">
+                    This is a Base Release Event Template. Release Events created from it will be scheduled for the Release's 
+                    Base Release Date and Planned Release Duration. Base Release Event Templates have these four fields set
+                    to zero: Day Offset, Event Duration, Hour Offset and Minute Offset.
+                    </div>
+                </div>
+            </div>
+            </apex:outputPanel> 
+        </div>
+
+    </div>
+    <div class="gusFieldset gusFieldsetConnected gusFieldsetExtraPadding">
+        <div class="gusLegend">Release Event Time</div>
+        <div class="gusForm">
+            <div class="gusFormField gusFormFieldLeft" style="text-align: left;">
+                <span style="color:#205883;">Release Event Time can be specified either by providing a Start Time for the event or an 
+                    Hour and Minute Offset from the base Release Event.
+                </span>
+            </div>      
+        </div>
+        <div class="gusForm">        
+            <div class="gusForm2Column gusStackedRows gusAltLabels">
+              <apex:outputPanel layout="none" rendered="{!NOT(ISBLANK(agf__ADM_Release_Event_Template__c.agf__Start_Time__c))}">                  
+                <div class="gusFormRow">
+                    <div class="gusFormField gusFormFieldLeft">
+                            <input type="radio" name="TimeOrOffset" checked="checked" value="StartTime" />
+                        <label>Start Time</label>
+                    </div>
+                </div>
+              </apex:outputPanel>                       
+            </div>
+            <div class="gusForm2Column gusStackedRows gusAltLabels"> 
+              <apex:outputPanel layout="none" rendered="{!ISBLANK(agf__ADM_Release_Event_Template__c.agf__Start_Time__c)}">                   
+                <div class="gusFormRow">
+                    <div class="gusFormField gusFormFieldLeft">
+                            <input type="radio" name="TimeOrOffset" checked="checked" />
+                        <label>Offset</label>
+                    </div>
+                </div>
+              </apex:outputPanel>               
+            </div>
+        </div>
+        <div class="gusForm">
+          <apex:outputPanel layout="none" rendered="{!NOT(ISBLANK(agf__ADM_Release_Event_Template__c.agf__Start_Time__c))}">
+              <div class="gusForm2Column gusStackedRows gusAltLabels">
+                <c:ADM_FormRow id="retStartTimeDisplay" object="{!agf__ADM_Release_Event_Template__c}" type="ADM_Release_Event_Template__c" required="true" readonly="true" 
+                    field="Start_Time__c" value="{!agf__ADM_Release_Event_Template__c.agf__Start_Time__c}" />
+              </div>
+          </apex:outputPanel>                   
+          <apex:outputPanel layout="none" rendered="{!ISBLANK(agf__ADM_Release_Event_Template__c.agf__Start_Time__c)}">
+              <div class="gusForm2Column gusStackedRows gusAltLabels">
+                    <c:ADM_FormRow id="retOffsetHourDisplay" object="{!agf__ADM_Release_Event_Template__c}" type="ADM_Release_Event_Template__c" required="true" 
+                        readonly="true" field="Hour_Offset__c" value="{!agf__ADM_Release_Event_Template__c.agf__Hour_Offset__c}" />
+              </div>
+              <div class="gusForm2Column gusStackedRows gusAltLabels">
+                    <c:ADM_FormRow id="retOffsetMinuteDisplay" object="{!agf__ADM_Release_Event_Template__c}" type="ADM_Release_Event_Template__c" required="true" 
+                        readonly="true" field="Minute_Offset__c" value="{!agf__ADM_Release_Event_Template__c.agf__Minute_Offset__c}" />
+              </div>  
+          </apex:outputPanel>
+        </div>      
+    </div>
+    
+    <div class="gusFieldset gusFieldsetConnected gusFieldsetExtraPadding">
+        <div class="gusLegend">Instance Key</div>
+        <div class="gusForm">
+            <div class="gusFormField gusFormFieldLeft" style="text-align: left;">
+                <span style="color:#205883;">An Instance Key can be used for Applications that deploy to Salesforce instances to 
+                    specify which instances are to be included in the Release Event. Instance Keys are Regular Expressions.
+                    For additional information on Regular Expressions, see:
+                <apex:outputLink target="_blank" id="retWikiRegex" value="http://en.wikipedia.org/wiki/Regular_expression">
+                    Wikipedia article on Regular Expressions
+                </apex:outputLink>
+                </span>
+                <span style="{!IF(ISBLANK(agf__ADM_Release_Event_Template__c.agf__Instance_Key__c), 'display:none;','display:table-row;')}"><br/>
+                    <b>NOTE: The result of evaluating the value entered into the Instance Key field on the text in the 
+                    Test Instance List field is displayed in the Instance Key Verification field.</b>
+                </span>
+            </div>
+        </div>
+        <apex:outputPanel layout="none" rendered="{!NOT(ISBLANK(agf__ADM_Release_Event_Template__c.agf__Instance_Key__c))}">                                  
+            <div class="gusForm">
+                <div class="gusForm2Column gusStackedRows gusAltLabels">
+                  <c:ADM_FormRow id="retInstanceKey" object="{!agf__ADM_Release_Event_Template__c}" type="ADM_Release_Event_Template__c" required="true" 
+                    readonly="true" field="Instance_Key__c" value="{!agf__ADM_Release_Event_Template__c.agf__Instance_Key__c}" />
+                  <c:ADM_FormRow id="retInstanceList" object="{!agf__ADM_Release_Event_Template__c}" type="ADM_Release_Event_Template__c" required="true" 
+                        readonly="true" field="Test_Instance_List__c" value="{!agf__ADM_Release_Event_Template__c.agf__Test_Instance_List__c}" />
+                </div>
+                <div class="gusForm2Column gusStackedRows gusAltLabels">
+                    <c:ADM_FormRow id="retKeyVerification" object="{!agf__ADM_Release_Event_Template__c}" type="ADM_Release_Event_Template__c" required="true" 
+                        readonly="true" field="Instance_Key_Verification__c" value="{!agf__ADM_Release_Event_Template__c.agf__Instance_Key_Verification__c}" />
+                </div>  
+            </div>
+        </apex:outputPanel>
+        <apex:outputPanel layout="none" rendered="{!ISBLANK(agf__ADM_Release_Event_Template__c.agf__Instance_Key__c)}">
+            <div class="gusForm">   
+	            <div class="gusForm2Column gusStackedRows gusAltLabels">
+	                <div class="gusFormRow">
+	                    <div class="gusFormField gusFormFieldLeft"><apex:outputLabel for="InstanceKey" value="Instance Key"/></div>
+	                    <div class="gusFormField gusFormFieldRight">An Instance Key is not specified for this Release Event Template.</div>                                             
+	                </div>
+	            </div>
+            </div>
+        </apex:outputPanel>
+    </div>
+    
+</apex:form>
+    
+</apex:page>

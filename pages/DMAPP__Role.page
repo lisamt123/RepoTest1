@@ -1,0 +1,159 @@
+<apex:page >
+<script>
+
+	/* 
+	 * Copyright © The TAS Group. All rights reserved.
+	 *  
+	 */    
+
+	var ttg_roleCtrl = function(_spec) {
+		var that = { };
+
+		var ttgApi = _spec.ttgApi;
+		var id = _spec.id;		
+		var loaded = _spec.loaded || donothing;
+		var expanded = _spec.expanded || donothing;
+		var clicked = _spec.clicked || donothing;
+		var data;
+		var parentRoleId = _spec.parentRoleId || '';
+		
+		var TYPEALL = 0;
+		var TYPEUSER = 1;
+		var TYPEROLE = 2;
+
+		function create() {
+
+			jQuery('#' + id)
+			.bind("loaded.jstree", _loaded).bind('open_node.jstree', _expanded).bind("select_node.jstree", _clicked).jstree({ });
+
+		}
+
+		function _clicked (event, data) {
+			var id = data.rslt.obj.attr("id");
+			if (id.indexOf('NODE') == 0) {
+				clicked(TYPEROLE, id.substring(4), event, data)
+		}
+			else if (id.indexOf('USER') == 0) {
+				clicked(TYPEUSER, id.substring(4), event, data)
+			}
+			else {
+				clicked(TYPEALL, '', event, data)
+			}
+		}
+	
+		function donothing() { }
+
+		function _loaded() {
+
+			jQuery('#' + id).css('visibility', 'visible');
+			loaded();
+
+			fetchChildren(parentRoleId);
+			
+
+		}
+
+		function _expanded(event, data) {
+
+			var nodeId = jQuery(data.rslt.obj).attr('id');
+			if (nodeId == id && isExpanding(jQuery('#' + nodeId))) {
+
+				fetchChildren(parentRoleId)
+
+		}
+			else {
+
+				var children = data.inst._get_children(data.rslt.obj);
+				if(children.length == 1) {
+					var childNodeId = jQuery(children[0]).attr('id');
+					if (childNodeId == undefined) {
+						
+						fetchChildren(nodeId.substring(4));
+		
+					}
+	  			}
+	  		} 
+		}
+
+		function fetchChildren(roleId) {
+			
+			ttgApi.getRoleInformation(roleId, updateRawData, undefined, completedGet);
+			
+		}
+
+		function updateRawData(d) {
+			data = d;
+		}
+
+		function completedGet() {
+			var ctrl = jQuery('#' + id);
+			var nodeRoot = jQuery('#NODE' + data.role.id);
+		
+			if (nodeRoot.length == 0) {
+
+				jQuery('#' + id).jstree("create_node", jQuery('#ROOTOFALLEVIL'), 'inside', { attr: { id: 'NODE' + data.role.id }, data: { title: data.role.name, icon : '{!URLFOR($Resource.Qualification, 'role.jpg')}' } } );
+				nodeRoot = jQuery('#NODE' + data.role.id);
+				
+			}
+			
+			if (isExpanding(data.role.id)) {
+
+			jQuery.each(data.role.roles, 
+				function(key, value) {
+			
+						jQuery('#' + id).jstree("create_node", nodeRoot, 'inside', { attr: { id: 'NODE' + value.id }, data: { title: value.name, icon : '{!URLFOR($Resource.Qualification, 'role.jpg')}' } } );
+						jQuery('#' + id).jstree("create_node", jQuery('#NODE' + value.id), 'inside', { data: 'Expanding ...' } );
+			
+				}
+			) 
+
+			jQuery.each(data.role.users, 
+				function(key, value) {
+			
+						jQuery('#' + id).jstree("create_node", nodeRoot, 'inside', { attr: { id: 'USER' + value.id }, data: { title: value.name, icon : '{!URLFOR($Resource.Qualification, 'user.jpg')}' } } );
+			
+				}
+			) 
+
+			
+				deleteExpandingMsg(data.role.id)
+			}
+
+		}
+
+		function isExpanding(nodeId) {
+			var tree = jQuery.jstree._reference('#' + id);
+			var nodeRoot = jQuery('#NODE' + nodeId);
+			var children = tree._get_children(nodeRoot);
+			if (children.length > 1) return false;
+			var childNodeId = jQuery(children).attr('id');
+			return (childNodeId == undefined);
+		}
+
+		function deleteExpandingMsg(nodeId) {
+			var tree = jQuery.jstree._reference('#' + id);
+			var nodeRoot = jQuery('#NODE' + nodeId);
+			var children = tree._get_children(nodeRoot);
+
+			jQuery.each(children,
+				function(key, value) {
+						var id = jQuery(value).attr('id');
+
+						if (id == undefined) {
+
+							tree.delete_node(value);
+
+						}
+
+				}
+			)
+		}
+
+		that.create = create;
+		
+		return that;
+	};
+</script>
+
+
+</apex:page>

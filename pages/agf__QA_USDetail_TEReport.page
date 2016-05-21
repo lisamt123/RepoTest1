@@ -1,0 +1,53 @@
+<apex:page standardController="agf__ADM_Work__c" extensions="agf.QA_TEReportExtension">
+    <apex:pageBlock title="Test Executions Report" id="testExecutions" tabStyle="QA_Test_Execution__c">
+        <table class="detailList" cellspacing="0" cellpadding="0" border="0">
+            <tr>
+                <td colspan="2" width="100%">
+                    <div style="float:right; padding-right:20px;">
+                        <c:helpHover id="helpHover" body="The Test Execution Report gives the status of testing for this User Story. The statistics display a number of Test Executions associated with this story, with a breakdown by status of the Test Executions." type="help"/>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td class="labelCol" width="50%">In Progress : %</td>
+                <td class="dataCol col02">{!inProgress}</td>
+            </tr>
+            <tr>
+                <td class="labelCol">Passed : %</td>
+                <td class="dataCol col02">{!passed}</td>
+            </tr>   
+            <tr>
+                <td class="labelCol">Failed : %</td>
+                <td class="dataCol col02">{!failed}</td>
+            </tr>
+            <tr>
+                <td class="labelCol">Blocked : %</td>
+                <td class="dataCol col02">{!blocked}</td>
+            </tr>   
+            <tr>
+                <td class="labelCol">Planned : %</td>
+                <td class="dataCol col02">{!planned}</td>
+            </tr>
+            <tr>
+                <td class="labelCol last">Total</td>
+                <td class="dataCol col02 last">{!total}</td>
+            </tr>
+        </table>
+    </apex:pageBlock>
+
+	<script lang="javascript">
+	    var ie = document.all;
+	    var iframes = parent.document.getElementsByTagName("IFRAME");
+	    var thisiframe;
+	    for(var i=0; i<iframes.length; i++)
+	        if(iframes[i].title=="QA_USDetail_TEReport") thisiframe = iframes[i];
+	
+	    try{
+	        if(ie){
+	            thisiframe.height = thisiframe.Document.body.scrollHeight;
+	        }else{
+	            thisiframe.height = thisiframe.contentWindow.document.documentElement.scrollHeight;
+	        }
+	    }catch(e){}
+	</script>
+</apex:page>

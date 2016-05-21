@@ -1,0 +1,169 @@
+<apex:page controller="echosign_dev1.EchoSignAdminController" 
+	title="{!$Label.echosign_dev1__Admin_Settings_Page_Title}"
+	showHeader="{!IF(NOT ISNULL($CurrentPage.parameters.showheadersidebar),$CurrentPage.parameters.showheadersidebar,'false')}" 
+	sidebar="{!IF(NOT ISNULL($CurrentPage.parameters.showheadersidebar),$CurrentPage.parameters.showheadersidebar,'false')}">
+	
+	<style type="text/css">
+		.iconlist
+		{
+			list-style-type: none;
+			padding: 0;
+			margin: 0;
+		}
+
+		li.main
+		{
+			background-image: url('{!$Resource.AdobeBullet}');
+			background-size: 15x 15px;
+			background-repeat: no-repeat;
+			padding-left: 15px;
+			background-position: 0 .3em;
+		}
+		
+		li.sub
+		{
+			background-image: url('{!$Resource.AdobeSubBullet}');
+			background-repeat: no-repeat;
+			padding-left: 15px;
+			background-position: 0 .3em;
+		}
+		
+		.adobePrimaryText {
+			font-size: 15px;
+            font-family: AdobeCleanRegular;
+            color: #4B4B4B;
+            -moz-opacity: 1.0;
+			-khtml-opacity: 1.0;
+			 opacity: 1.0;
+		}
+		
+		.adobePrimaryBoldText {
+			font-size: 15px;
+            font-family: AdobeCleanBold;
+            color: #4B4B4B;
+            -moz-opacity: 1.0;
+			-khtml-opacity: 1.0;
+			 opacity: 1.0;
+		}
+		
+		.adobeLinkText {
+			font-size: 14px;
+            font-family: AdobeCleanRegular;
+            color: #3278BE;
+            text-decoration: none;
+            -moz-opacity: 1.0;
+			-khtml-opacity: 1.0;
+			 opacity: 1.0;
+		}
+	</style>
+	
+	<script>
+		function getUrlVars() {
+    		var vars = {};
+    		var parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m,key,value) {
+        		vars[key] = value;
+    		});
+    		return vars;
+		}
+		
+		var isIe10 = navigator.userAgent.match(/MSIE 10.0/i) != null;	
+	
+		window.onload = function() {
+			var isRedirect = getUrlVars()['redirectPage'];
+			if( !{!isApiKeyReset} ) {
+				window.location = '/apex/EchoSignSetupWizard';
+			} else if( isIe10 && !isRedirect ) {
+				window.parent.location = '/apex/EchoSignAdminSettings?showheadersidebar=true&redirectPage=false';
+			} else {
+				document.getElementById('{!$Component.adminPanel}').style.display = 'block';
+			}
+		}
+		
+       	function buildSecurityPopup() {
+       		var secbox = new parent.SimpleDialog("EchoSignSecurityPopup", true); 
+            secbox.cancel=function() { secbox.hide(); window.parent.location.reload(); };
+            parent.secbox = secbox;
+            secbox.displayX=false;                   
+            secbox.createDialog();        
+            secbox.setWidth("435px");
+         	
+         	var frameUrl = '{!$Page.ApiKeyInput}?reloadPage=true';
+         	var srcFrame = '<iframe height="480px" width="400px" frameborder="no" id="popup" style="border:0;" src="'+frameUrl+'"></iframe>';
+           	secbox.setContentInnerHTML(srcFrame);
+            secbox.show();
+       }
+       
+	</script>
+	
+	<apex:stylesheet value="/sCSS/21.0/sprites/1297816277000/Theme3/default/gc/versioning.css" />
+	
+	<apex:outputpanel id="adminPanel" style="display: none;">
+	
+	<apex:form id="admin-form">
+		<apex:pagemessages id="theMessages"/>
+
+        <table id="splash" cellspacing="0">
+        	<tr>
+        		<td>
+        			<p>
+        			<apex:image id="theImage" value="{!$Resource.echosign_dev1__EchoSignAdminTabIcon}" />
+        			<apex:outputPanel style="vertical-align: super; margin-left: 10px;"><font size="5">{!$Label.echosign_dev1__Admin_Page_Header}</font></apex:outputPanel>
+        			<br/>
+        			</p>
+        		</td>
+        	</tr>
+        </table>
+        
+        <apex:tabPanel style="height: 20px;" switchType="client" selectedTab="name2" id="theTabPanel" styleClass="adobePrimaryText" contentClass="adobePrimaryText" activeTabClass="adobePrimaryBoldText" inactiveTabClass="adobePrimaryBoldText">
+	
+			<apex:tab label="{!$Label.echosign_dev1__Admin_Advanced_Title}" style="font-weight: bold;" name="featuresTab" id="featuresTab">
+				<apex:outputpanel id="features-settings" style="font-weight: normal;">
+        				<ul class="iconlist">
+          					<li class="main"><span style="vertical-align: middle;"><a style="color: blue;" href="/setup/ui/listCustomSettings.apexp" target="_parent">{!$Label.Admin_Custom_Settings_Prefix}</a>: {!$Label.Admin_Custom_Settings_Postfix}</span></li>
+          					<li class="main"><span style="vertical-align: middle;"><b>{!$Label.Admin_Send_Buttons_One}</b> {!$Label.Admin_Send_Buttons_Two} <b>{!$Label.Admin_Send_Buttons_Three}</b> {!$Label.Admin_Send_Buttons_Four}</span>
+          						<ul class="iconlist">
+          							<li class="sub"><a style="color: blue;" href="/ui/setup/layout/PageLayouts?type=Account&setupid=AccountLayouts" target="_parent">{!$Label.Admin_Add_Account_Label}</a></li>
+          							<li class="sub"><a style="color: blue;" href="/ui/setup/layout/PageLayouts?type=Contact&setupid=ContactLayouts" target="_parent">{!$Label.Admin_Add_Contact_Label}</a></li>
+          							<li class="sub"><a style="color: blue;" href="/ui/setup/layout/PageLayouts?type=Lead&setupid=LeadLayouts" target="_parent">{!$Label.Admin_Add_Lead_Label}</a></li>
+          							<li class="sub"><a style="color: blue;" href="/ui/setup/layout/PageLayouts?type=Opportunity&setupid=OpportunityLayouts" target="_parent">{!$Label.Admin_Add_Opportunity_Label}</a></li>
+          							<li class="sub"><a style="color: blue;" href="/ui/setup/layout/PageLayouts?type=Contract&setupid=ContractLayouts" target="_parent">{!$Label.Admin_Add_Contract_Label}</a></li>
+          						</ul>
+          					</li>
+          					<li class="main"><span style="vertical-align: middle;"><a style="color: blue;" href="{!URLFOR($Action.Agreement_Template__c.New)}}" target="_parent">{!$Label.Admin_Templates_Prefix}</a>: {!$Label.Admin_Templates_Postfix} 
+          					{!$Label.Admin_Templates_Three}</span></li>
+          					<li class="main"><span style="vertical-align: middle;"><a style="color: blue;" href="{!URLFOR($Action.SIGN_Merge_Mapping__c.New)}}" target="_parent">{!$Label.Admin_Merge_Prefix}</a>: {!$Label.Admin_Merge_Postfix}</span></li>
+          					<li class="main"><span style="vertical-align: middle;"><a style="color: blue;" href="{!URLFOR($Action.SIGN_Data_Mapping__c.New)}}" target="_parent">{!$Label.Admin_Data_Prefix}</a>: {!$Label.Admin_Data_Postfix}</span></li>
+          					<li class="main"><span style="vertical-align: middle;"><a style="color: blue;" href="/apex/GroupMapping" target="_parent">{!$Label.Admin_Group_Prefix}</a>: {!$Label.Admin_Group_Postfix}</span></li>
+          				</ul>
+          				<br/>
+          				{!$Label.Admin_Configuration_Guide_Prefix} <a style="color: blue;" href="http://www.adobe.com/go/echosign_salesforce_installguide" target="pdf">{!$Label.Admin_Configuration_Guide_Postfix}</a>
+
+				</apex:outputpanel>
+        	</apex:tab>
+        	<apex:tab label="{!$Label.echosign_dev1__Admin_Setup_Title}" style="font-weight: bold;" name="settingsTab" id="settingsTab">
+				<apex:outputpanel id="account-settings" style="font-weight: normal;">
+        				<p><b><a style="color: blue;" href="/apex/EchoSignSetupWizard" target="_blank">{!$Label.Admin_Launch_Setup_Prefix}</a></b>&nbsp;&nbsp;<img src="{!$Resource.AdobeBlueReverseArrow}" style="vertical-align: middle;"/>&nbsp;<b>{!$Label.Admin_Launch_Setup_Postfix}</b></p>
+						<p><b><apex:commandlink style="color: blue;" value="{!$Label.echosign_dev1__Admin_Update_API_Key_Label}" onclick="buildSecurityPopup();" rerender="apiKeyInputPanel"/></b></p>
+						<p><b><a style="color: blue;" href="/05G/e?IpEndAddress=72.3.215.121&IpStartAddress=72.3.215.114&retURL=/apex/{!namespace}__EchosignAdmin" target="_blank">{!$Label.Admin_Range_1}</a></b></p>
+						<p><b><a style="color: blue;" href="/05G/e?IpEndAddress=166.78.79.127&IpStartAddress=166.78.79.112&retURL=/apex/{!namespace}__EchosignAdmin" target="_blank">{!$Label.Admin_Range_2}</a></b></p>
+						<p><b><a style="color: blue;" href="{!baseServerUrl}/salesforce-web/salesforceCredentials?session={!$Api.Session_ID}&server={!$Api.Partner_Server_URL_70}&namespace={!namespace}&Version={!version}" target="_blank">{!$Label.Admin_Status_Update_Label}</a></b></p>
+						<p><b><a style="color: blue;" href="{!baseServerUrl}/salesforce-web/page/account/profile?session={!$Api.Session_ID}&server={!$Api.Partner_Server_URL_70}" target="_blank">{!$Label.Admin_Management_Console}</a></b></p>
+        				<p><b><a style="color: blue;" href="{!baseServerUrl}/salesforce-web/echosignCredentials?session={!$Api.Session_ID}&server={!$Api.Partner_Server_URL_70}" target="_blank">{!$Label.Admin_Link_Account}</a></b></p>
+				</apex:outputpanel>
+        	</apex:tab>
+        	<apex:tab label="{!$Label.echosign_dev1__Admin_Resources_Title}" style="font-weight: bold;" name="resourcesTab" id="resourcesTab">
+				<apex:outputpanel id="resources-settings" style="font-weight: normal;">
+        				<p><b><a style="color: blue;" href="http://www.adobe.com/go/echosign_salesforce_installguide" target="pdf">{!$Label.Admin_Resource_Guide}</a></b></p>
+        				<p><b><a style="color: blue;" href="http://forums.adobe.com/community/echosign/salesforce_integration?view=ove" target="_blank">{!$Label.Admin_Resource_Forums}</a></b></p>
+						<p><b><a style="color: blue;" href="http://www.adobe.com/go/echosign_createforms_texttags" target="pdf">{!$Label.Admin_Resource_Tags}</a></b></p>
+						<p><b><a style="color: blue;" href="http://www.adobe.com/go/echosign_createforms_acrobat" target="pdf">{!$Label.Admin_Resource_Forms}</a></b></p>
+						<p><b><a style="color: blue;" href="https://www.echosign.adobe.com/en/support.html" target="_blank">{!$Label.Admin_Resource_Portal}</a></b></p>
+						<p><b><a style="color: blue;" href="https://www.echosign.adobe.com/en/webinar-registration.html" target="pdf">{!$Label.Admin_Resource_Webinar}</a></b></p>					
+        		</apex:outputpanel>
+        	</apex:tab>
+        	
+        	</apex:tabPanel>
+	</apex:form>
+
+	</apex:outputpanel>
+</apex:page>

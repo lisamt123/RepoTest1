@@ -1,0 +1,431 @@
+<apex:page standardController="Opportunity"
+    extensions="DMAPP.PrimeActionController" action="{!logPrimeActionUsage}"
+    showHeader="false"
+    sidebar="false"
+    docType="html-5.0">
+ 
+ 	<script type="text/javascript" src="{!URLFOR($Resource.ttgomjs, 'ttg/lib/ttgservice.js')}"></script>
+ 	<apex:includeScript value="{!URLFOR($Resource.DMAPP__ttgomjs, 'ttg/lib/ttgutils.js')}"/>
+ 	<apex:include pageName="DMAPP__NavTabMobile"/>
+ 	<apex:include pageName="DMAPP__APIDelegate" />
+      
+    <c:jQuery cookies="true"
+        jQueryUI="true"
+        touchPunch="true"
+        datepickerValidation="true"
+        tooltip="true"
+        validate="true"
+        /> 
+
+   <apex:stylesheet value="{!URLFOR($Resource.DMAPP__generated_resource, 'styles/om_decision_criteria_app_all.css')}"/>
+    
+   <script>
+
+        var openActions = {
+            <apex:repeat var="action" value="{!openActions}">
+                '{!action.Id}': {
+                                'subject': '{!JSENCODE(action.Subject)}', 
+                                'description': '{!JSENCODE(action.Description)}', 
+                                'primeAction': '{!action.DMAPP__TTG_Prime_Action_Type__c}', 
+                                'contactId': '{!action.Who.Id}', 
+                                'contactName': jQuery.trim('{!JSENCODE(action.Who.FirstName + " " + action.Who.LastName)}'), 
+                                'dueDate': '{!action.ActivityDate}',
+                                'assignedTo': '{!action.OwnerId}', 
+                                'assignedToName': '{!JSENCODE(action.Owner.Name)}', 
+                                'priority': '{!JSENCODE(action.Priority)}', 
+                                'status': '{!JSENCODE(action.Status)}'
+                            },          
+            </apex:repeat>
+                '0': ''
+            };
+            
+        var closedActions = {
+            <apex:repeat var="action" value="{!closedActions}">
+                '{!action.Id}': {
+                                'subject': '{!JSENCODE(action.Subject)}', 
+                                'description': '{!JSENCODE(action.Description)}', 
+                                'primeAction': '{!action.DMAPP__TTG_Prime_Action_Type__c}', 
+                                'contactId': '{!action.Who.Id}', 
+                                'contactName': jQuery.trim('{!JSENCODE(action.Who.FirstName + " " + action.Who.LastName)}'), 
+                                'dueDate': '{!action.ActivityDate}', 
+                                'assignedTo': '{!action.OwnerId}', 
+                                'assignedToName': '{!JSENCODE(action.Owner.Name)}', 
+                                'priority': '{!JSENCODE(action.Priority)}', 
+                                'status': '{!JSENCODE(action.Status)}'
+                            },
+            </apex:repeat>
+                '0': ''
+            };
+		
+		function goToAction(action) { 
+		    sforce.one.navigateToSObject(action);     
+		}
+           
+    </script>
+    <style>
+       
+       #refresh_container{
+       		height: 0px;
+			width: 0px;
+			padding:0px;
+       }
+       
+	       .refresh_btn{
+	       		height: 0px;
+				width: 0px;
+			    float : right;
+	        }
+
+        .back_to_opp_crown{
+        	height: 45px !important;
+        }
+
+		span.img_contain_readonly_lock {
+			padding-left: 10px;
+			padding-top: 3px !important;
+		}
+
+        .no_actions{
+        	width: 90%;
+			margin: 5% auto;
+			background-color: #fff;
+			border: 1px solid #D3D7DC;
+			-webkit-border-radius: 4px;
+			-moz-border-radius: 4px;
+			border-radius: 4px;
+			color: #6B7072;
+			min-height: 35px;
+			background-color: #fff;
+        }
+
+			.no_actions p{
+				text-align: center;
+				color: #B0B0B0;
+			}
+        
+        .action_title{
+			padding: 3px;
+			background-color: #fff;
+			margin-bottom: 10px;
+			border-bottom: 2px solid #7e225e;
+			padding-left: 6px;
+			font-size: 18px;
+			color: #6B7072;
+         }
+
+         	.action_title div{
+         		padding:10px;
+         	}
+            
+        .action_table{
+        	width: 90%;
+			margin: 5% auto;
+			background-color: #fff;
+			border: 1px solid #D3D7DC;
+			-webkit-border-radius: 4px;
+			-moz-border-radius: 4px;
+			border-radius: 4px;
+			color: #6B7072;
+			min-height: 135px;
+			background: transparent url('{!URLFOR($Resource.Mobile, 'images/bg_link_arrow.png')}') right center no-repeat;
+			background-size: 30px 20px;
+			background-color: #fff;
+			background-position: 99% 60%;
+
+        }
+
+        	.action_table table{
+        		width: 100%;
+        	}
+        
+	         .action_table td{
+	            line-height: 15px;
+	         }
+         
+			.top_row{
+				border-bottom: 1px solid #ccc;
+			}
+            
+             tr .subj{
+				font-weight: bold;
+				float: left;
+				overflow: hidden;
+				text-overflow: ellipsis;
+				white-space: nowrap;
+				display: inline-block;
+				padding: 15px 5px 10px 10px;
+				width:195px;
+				font-size: 1.17em;
+				color: #6B7072;
+             }
+
+             .action_table tr .due_date{
+				float: right;
+				padding: 15px 5px 10px 5px;
+             }
+
+             	.action_table .due_date span{
+             		/*width: 50px;*/
+             	}
+
+              .action_table .desc{
+				padding: 8px 0px 8px 8px;
+              }
+              
+              .action_table .detail{
+				padding: 5px;
+				width: 69%;
+				overflow: hidden;
+				text-overflow: ellipsis;
+				white-space: normal;
+				line-height: 17px;
+              }
+                  .action_table .open_details{
+                    width: 240px;
+					padding: 8px 0px 8px 8px;
+                  }
+              
+                    .open_details .details_text{
+                        display: block;
+						float: left;
+						width: 33%;
+						line-height: 20px;                     
+                    }
+
+                    .open_details .details_data{
+                        display: block;
+						float: left;
+						width: 66%;
+						line-height: 20px;                     
+                    }
+
+	                    .open_details span a{
+	                      text-decoration: none;
+	                      pointer-events: none;                      
+	                    }
+
+                  .action_table .closed_details{
+                    width: 240px;
+					padding: 8px 0px 8px 8px;
+                  }
+              
+                    .closed_details .details_text{
+                        display: block;
+						float: left;
+						width: 33%;
+						line-height: 20px;                     
+                    }
+
+                    .closed_details .details_data{
+                        display: block;
+						float: left;
+						width: 66%;
+						line-height: 20px;                     
+                    }
+
+	                    .closed_details span a{
+	                      text-decoration: none;
+	                      pointer-events: none;                      
+	                    }
+                
+             .comments{
+				overflow: hidden;
+				text-overflow: ellipsis;
+				width: 240px;
+				white-space: normal;
+				line-height: 21px;
+				padding: 8px;
+				max-height: 60px;
+             }
+        
+        .closed_act{
+        	margin-top: 5%;
+        }
+
+        .overdue{
+        	display: block;
+        	color : #FF0000;
+        }
+
+                     
+        @media only screen 
+            and (min-device-width : 355px){
+                #TAS, .title_action{
+                     width: 100%;
+                 }
+                 .subj{
+                    width:70%;
+                 }
+                 .comments{
+                    width:auto;
+                 }              
+            }
+                                 
+    </style>
+    <body>
+	    <div id="TAS" class="generated_mobile_app">
+	        <div class="action_title open_act">
+	            <div>   
+	                Open
+	            </div>
+	        </div>
+	           <apex:form id="PRIMEActionsTable" rendered="true" styleClass="PRIMEActionsTable">
+	            <apex:repeat value="{!openActions}" var="a" id="theOpener">
+	                <div class="action_table open_actions" onclick="goToAction('{!a.Id}');">
+	                	<table>
+		                    <tr class="top_row">
+		                        <td colspan="2">
+		                        	<div class="subj">
+		                            	<apex:outputText value="{!a.Subject}" />
+		                            </div>
+			                        <div class="due_date">
+			                        	<span>
+			                            	<apex:outputField value="{!a.ActivityDate}" rendered="{!a.ActivityDate >= TODAY()}"/>
+			                            </span>
+						          	    <span class="overdue">
+			                                <apex:outputField value="{!a.ActivityDate}" rendered="{!a.ActivityDate < TODAY()}"/>
+			                            </span>
+			                        </div>
+		                        </td>
+		                    </tr>
+		                    <tr>
+		                        <td>
+		                        	<div class="open_details">
+		                        		<span class="details_text">
+			                            	Assigned To:
+			                            </span>
+			                            <span class="details_data">
+			                            	<apex:outputField value="{!a.OwnerId}" />
+			                            </span>
+		                            </div>
+		                        </td>
+		                    </tr>
+		                    <tr>
+		                    	<td>
+			                    	<div class="open_details">
+				                        <span class="details_text">
+				                            Type:
+				                        </span>
+				                        <span class="details_data">
+				                            <apex:outputField value="{!a.DMAPP__TTG_Prime_Action_Type__c}" />
+				                        </span>
+				                    </div>
+				                </td>
+		                    </tr>
+		                    <tr>
+		                        <td colspan="2">
+		                            <div class="comments">
+		                                <apex:outputText value="{!IF(LEN(a.Description) > 297, RPAD(LEFT(a.Description,297), 300, '...'), a.Description)}" />
+		                            </div>
+		                        </td>
+		                    </tr> 
+	                    </table>          
+	                </div>
+	            </apex:repeat>	            
+	           <div class="action_title closed_act">
+	            <div>   
+	                Closed
+	            </div>
+	           </div>	                
+	            <apex:repeat value="{!closedActions}" var="a" id="theCloser">
+					<div class="action_table closed_actions" onclick="goToAction('{!a.Id}');">
+						<table>
+		                    <tr class="top_row">
+		                        <td colspan="2">
+		                        	<div class="subj">
+		                            	<apex:outputText value="{!a.Subject}" />
+		                            </div>
+			                        <div class="due_date">
+			                            <apex:outputField value="{!a.ActivityDate}" />
+			                        </div>
+		                        </td>
+		                    </tr>
+		                    <tr>
+		                        <td>
+			                    	<div class="closed_details">
+				                        <span class="details_text">
+		                            		Assigned To:
+		                            	</span>
+		                            	<span class="details_data">
+		                            		<apex:outputField value="{!a.OwnerId}" />
+		                            	</span>
+		                            </div>
+		                        </td>
+		                    </tr>
+		                    <tr>
+		                        <td>
+			                    	<div class="closed_details">
+				                        <span class="details_text">
+		                            		Type:
+		                            	</span>
+		                            	<span class="details_data">
+		                            		<apex:outputField value="{!a.DMAPP__TTG_Prime_Action_Type__c}" />
+		                            	</span>
+		                            </div>
+		                        </td>
+		                    </tr>
+		                    <tr>
+		                        <td colspan="2">
+		                            <div class="comments">
+		                                <apex:outputText value="{!IF(LEN(a.Description) > 297, RPAD(LEFT(a.Description,297), 300, '...'), a.Description)}" />
+		                            </div>
+		                        </td>
+		                    </tr>
+		                </table>           
+	                </div>
+	            </apex:repeat>    
+	           </apex:form>     
+	        </div>
+    </body>
+    <script>
+
+        jQuery( document ).ready(function() {
+        
+			var user_agent = navigator.userAgent.toLowerCase();
+			var is_android = user_agent.indexOf("android") > -1;
+			if(is_android == false) {
+			  jQuery('#refresh_container').css({'padding':'8px',
+			  							  float : 'right',
+			  							  'margin-top' : '5px',
+			  							  'margin-right': '10px',
+			  							  'background-color':'#485C6E',
+			  							  'border-radius': '4px',
+			  							  'height':'15px',
+			  							  'width':'15px' });
+
+			  jQuery('.refresh_btn').css({'display':'block',
+			  							  'height':'15px',
+			  							  'width':'15px'});
+			}
+
+            if(!{!isEditable}) {
+                 jQuery('#opp_readonly_lock').show();
+                 jQuery(".action_table").css("pointer-events", "none");
+            }
+
+           jQuery('.refresh_btn').click(function(){
+            	jQuery('#refresh_container').css('background-color','#ccc');
+			         setTimeout(function (){
+			             jQuery('#refresh_container').css('background-color','#485C6E');
+			             location.reload();
+			         }, 200);
+            })
+
+
+			var open_actions = jQuery('.open_actions');
+			var closed_actions = jQuery('.closed_actions');
+
+			if(!open_actions.length){showOpMsg()};			
+			if(!closed_actions.length){showCloseMsg()};
+
+
+			function showOpMsg(){
+				jQuery('.open_act').after('<div class="no_actions"><p>no actions</p></div>');
+			}
+
+			function showCloseMsg(){
+				jQuery('.closed_act').after('<div class="no_actions"><p>no actions</p></div>');
+			}			
+        });
+    </script>
+</apex:page>

@@ -1,0 +1,261 @@
+<apex:page controller="ConfigRoleMgr.UserRoleController" sidebar="false">
+ <link href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/base/jquery-ui.css" rel="stylesheet" type="text/css"/>
+ <apex:stylesheet value="{!URLFOR($Resource.ConfigRoleMgr__chartCSS)}"/> 
+  <style type="text/css">
+ .chartFrame{
+  background-image: url('{!URLFOR($Resource.ConfigRoleMgr__NewConfigeroLogo)}');
+  background-repeat: no-repeat;
+  background-position: 100% 0;
+ }
+ #pageWrapper1, .bodyDiv { background: url('{!URLFOR($Resource.ConfigRoleMgr__LinedPaperBg)}') repeat !important; }
+ #movebox{
+  float: right;
+  display:block;
+  font-size: 1.2em;
+  padding: 0 5px 0 5px; 
+ }
+
+ </style>
+ <apex:includeScript value="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.8.2.min.js"/>
+ <apex:includeScript value="https://ajax.aspnetcdn.com/ajax/jquery.ui/1.8.23/jquery-ui.min.js"/>
+  <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+ 
+ <script type="text/javascript"> 
+     //load the orgchart google api
+    google.load('visualization', '1', {packages: ['orgchart']});
+        var chart;
+        var data;
+        
+    var j$ = jQuery.noConflict();
+    j$(document).ready(function(){     
+     getUserRoles('ALL');        
+    }); 
+    
+    function getUserRoles(roleId) {
+        // Create and populate the data table.         
+        
+        var roleTypes = new Array();
+        if(j$('#rolefilter').val()=='ALL'){
+         if(j$('#standard-filter').is(':checked')){
+          roleTypes.push('None');
+         }
+         if(j$('#partner-filter').is(':checked')){
+          roleTypes.push('Partner');         
+         }
+         if(j$('#customer-filter').is(':checked')){
+          roleTypes.push('CustomerPortal');         
+         }        
+        }
+        else{
+         roleTypes = ['None','Partner','CustomerPortal'];
+        }
+        
+        ConfigRoleMgr.UserRoleController.getUserRoles(roleId, roleTypes,
+            function(result, event) {
+             drawVisualization(result);
+            },
+            {escape:false}
+        );    
+    }
+
+  function drawVisualization(resultData){
+
+   var JSONObject = jQuery.parseJSON(resultData);
+   
+   data = new google.visualization.DataTable(JSONObject, 0.5);
+
+   // Create and draw the visualization.
+   chart = new google.visualization.OrgChart(document.getElementById('visualization'));
+   google.visualization.events.addListener(chart, 'ready', onChartReadyHandler);
+
+   chart.draw(data, {allowHtml: true, size:'medium', nodeClass:'nodeChartCell', selectedNodeClass:'nodeChartCellSelect', allowCollapse: true});
+  }
+    
+  var onChartReadyHandler = function(e){
+   
+   //link to user page
+   j$('.username').live('click', function(){
+    var userId = j$(this).attr('rel');
+    if(userId != null){
+     window.location('/'+ userId +'?noredirect=1');
+    }
+   });   
+   
+   //link to role
+   j$('.rolename').live('click', function(){
+    var roleId = j$(this).closest('.cellTitle').attr('rel');
+    if(roleId != null){
+     window.location('/'+ roleId +'?noredirect=1');
+    }
+   }); 
+   
+   //remove action for role     
+   j$('.roleDelete').button({
+            icons: {
+                primary: "ui-icon-trash"
+            },
+            text: false
+        }).click(function(){
+                    var r = confirm("Are you sure?");
+                    if (!r){
+                     return false;
+                    }
+                   
+                    var roleId = j$(this).closest('.cellTitle').attr('rel');
+                    if(roleId == null){
+                     roleId='';
+                    }
+                    saveDialog();
+                    ConfigRoleMgr.UserRoleController.deleteRole(roleId, addUserToRoleResponseHandler);
+                    return false;
+   });
+   
+   //add action for role   
+   j$('.addRole').button({
+            icons: {
+                primary: "ui-icon-plusthick"
+            },
+            text: false
+        }).click(function(){
+            parentId = j$(this).prev().find('.cellTitle').attr('rel');
+
+            if(parentId == null){
+              parentId = '';
+            }
+            j$('#newRole input').attr('rel',parentId);
+            j$("#newRole").dialog({
+              title: 'Enter the name for the new role',
+              closeText: 'Cancel', 
+              modal: true, 
+              close: function(event, ui) {
+               getUserRoles(j$('#rolefilter').val());
+               ConfigRoleMgr.UsersWithNoRoleController.searchUsers('', drawUsers);  
+              }
+            });   
+   });
+   
+   //edit action for role
+   j$('.roleedit').button({
+            icons: {
+                primary: "ui-icon-pencil"
+            },
+            text: false
+        }).live('click', function(){
+                         var roleName = j$(this).parent().next().text();
+                         parentId = j$(this).closest('.cellTitle').attr('rel');
+                         if(parentId == null){
+                          parentId = '';
+                         }
+                         j$('#editRole input').attr('rel',parentId);     
+                         j$("#editRole").dialog({
+                          title: 'Edit the role name',
+                          closeText: 'Cancel', 
+                          modal: true, 
+                          width: '400px',
+                          open: function(){
+                           j$('#rolename').val(roleName);
+                          },
+                          close: function(event, ui) {
+                           getUserRoles(j$('#rolefilter').val());
+                           ConfigRoleMgr.UsersWithNoRoleController.searchUsers('', drawUsers);  
+                          }
+                         });   
+   });
+    
+   j$(".roleDrag, .userDrag").draggable({ containment: "#visualization", scroll:true, revert:'invalid', zIndex: 50000, cursor: 'crosshair',helper: 'clone',appendTo: 'body'});
+   
+   j$(".dropcell").droppable({
+    drop: function(event, ui) {
+     saveDialog();
+     parentId=j$(this).prev().prev().attr('rel');
+     if(parentId==null){
+      parentId='';
+     }
+     if(ui.draggable.hasClass('roleDrag')){
+      //it's a role being dragged
+      ConfigRoleMgr.UserRoleController.moveRole(ui.draggable.attr('rel'),parentId, addUserToRoleResponseHandler); 
+     }
+     else{
+      //it's a user
+      ConfigRoleMgr.UserRoleController.addUserToRole(ui.draggable.attr('rel'),parentId, addUserToRoleResponseHandler); 
+     }
+     
+    },
+    activeClass: 'ui-state-highlight',
+    tolerance: 'pointer'
+   }); 
+   
+  }
+  
+  var addUserToRoleResponseHandler = function(response, e){
+   if(response!=null){
+    j$('#rerendering').text('Error: '+response);
+    //alert(response);
+   }
+   else{
+    j$('#rerendering').dialog( "close" );
+   }   
+  }
+  
+  var addRole = function(){
+   saveDialog();
+   var newRoleNameObj = j$('#newrolename');
+   ConfigRoleMgr.UserRoleController.addRole(j$(newRoleNameObj).val(),j$(newRoleNameObj).attr('rel'), addUserToRoleResponseHandler);
+   j$(newRoleNameObj).val('').attr('rel','');
+   j$("#newRole").dialog("close");
+  }
+  
+  var editRole = function(){
+   saveDialog();
+   var newRoleNameObj = j$('#rolename');
+   ConfigRoleMgr.UserRoleController.editRole(j$(newRoleNameObj).attr('rel'), j$(newRoleNameObj).val(), addUserToRoleResponseHandler);
+   j$(newRoleNameObj).val('').attr('rel','');
+   j$("#editRole").dialog("close");
+  }
+  
+  var saveDialog = function(){
+   j$("#rerendering").dialog({
+      closeText: '', 
+      modal: true, 
+      close: function(event, ui) {
+       getUserRoles(j$('#rolefilter').val());
+       ConfigRoleMgr.UsersWithNoRoleController.searchUsers('', drawUsers);
+       j$(this).text('Saving...');
+      }
+     });
+  }
+  
+  j$('#rolefilter').live('change', function(){
+   //alert(j$(this).val());
+   if(j$(this).val()=='ALL'){
+    j$('#portal-filters').show();    
+   }
+   else{
+    j$('#portal-filters').hide();
+   }
+   getUserRoles(j$(this).val());
+  });  
+  
+  j$('#portal-filters input').live('change', function(){
+   getUserRoles('ALL');
+  });  
+  
+</script>
+<apex:pageMessages id="msg" />
+ <c:UsersWithNoRole />
+ <apex:outputLink style="float:right;" value="http://www.configero.com/products/role-manager/help" id="helpLink" target="_blank">
+    <span class="helpLink">Help for this Page</span> <img src="/s.gif" alt="" class="helpIcon" title=""/>
+ </apex:outputLink>
+ <div id="pageWrapper">
+     <div class="chartFrame" id="visualization"></div>
+     <div id="rerendering" class="dialog">Saving...</div>
+     <div id="newRole" class="dialog">
+      <p><input type="text" name="newrolename" id="newrolename" value="" /> <button onclick="addRole();">Add</button></p>
+     </div>
+     <div id="editRole" class="dialog">
+      <p><input type="text" name="rolename" id="rolename" value="" /> <button onclick="editRole();">Save</button></p>
+     </div>
+ </div>
+  
+ <c:Footer />
+</apex:page>

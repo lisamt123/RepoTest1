@@ -1,0 +1,275 @@
+<apex:page standardController="CRMfusionDBR101__Scenario_Target_Filter__c" extensions="CRMfusionDBR101.DB_Scenario_Target_Filter_Controller" showHeader="true" tabStyle="CRMfusionDBR101__Scenario__c"
+    standardStylesheets="true">
+    <apex:includeScript value="{!URLFOR($Resource.CRMfusionDBR101__DB_Javascript, 'jquery.min.js')}" />
+    <apex:includeScript value="{!URLFOR($Resource.CRMfusionDBR101__DB_Javascript, 'jquery-ui.min.js')}" />
+    <apex:stylesheet value="{!URLFOR($Resource.CRMfusionDBR101__DB_Themes, 'jquery-ui-lightness/jquery-ui-lightness.min.css')}" />
+    <style>
+.picklistPopupHidden {
+    display: none;
+}
+</style>
+    <script type="text/javascript">
+        function usePicklistValues() {
+            var curOptions = new Array();
+            var valField = $('textarea[id$="inputValues"]');
+            var curString = valField.val();
+            if (curString != null && curString.trim().length > 0) {
+                curOptions = curString.split(',');
+                for ( var x = 0; x < curOptions.length; x++)
+                    curOptions[x] = curOptions[x].trim();
+            }
+
+            // Loop through the options and remove unselected ones from the
+            // values list and add selected ones.
+            $('table[id$="picklistOptions"] input[type="checkbox"]').each(
+                    function() {
+                        if ($(this).is(':checked')) {
+                            for ( var x = 0; x < curOptions.length; x++) {
+                                if (curOptions[x].toLowerCase() == $(this)
+                                        .val().toLowerCase())
+                                    return;
+                            }
+                            curOptions.push($(this).val());
+                        } else {
+                            for ( var x = curOptions.length - 1; x >= 0; x--) {
+                                if (curOptions[x].toLowerCase() == $(this)
+                                        .val().toLowerCase())
+                                    curOptions.splice(x, 1);
+                            }
+                        }
+                    });
+
+            // Convert our list of options back to a string and update the values field.
+            var outputString = '';
+            for ( var x = 0; x < curOptions.length; x++)
+                outputString += (x == 0 ? '' : ',') + curOptions[x];
+            valField.val(outputString);
+
+            $('div[id$="picklistPopup"]').dialog("destroy");
+            $('table[id$="picklistOptions"] input[type="checkbox"]:checked')
+                    .removeAttr('checked');
+        }
+
+        function showPicklistPopup() {
+
+            var curOptions = new Array();
+            var valField = $('textarea[id$="inputValues"]');
+            var curString = valField.val();
+            if (curString != null && curString.trim().length > 0) {
+                curOptions = curString.split(',');
+                for ( var x = 0; x < curOptions.length; x++)
+                    curOptions[x] = curOptions[x].trim();
+            }
+
+            // Loop through the options and check the ones that need to be checked
+            // and uncheck those that don't.
+            $('table[id$="picklistOptions"] input[type="checkbox"]').each(
+                    function() {
+                        if ($(this).is(':checked')) {
+                            for ( var x = 0; x < curOptions.length; x++) {
+                                if (curOptions[x].toLowerCase() == $(this)
+                                        .val().toLowerCase())
+                                    return;
+                            }
+                            $(this).removeAttr('checked');
+                        } else {
+                            for ( var x = curOptions.length - 1; x >= 0; x--) {
+                                if (curOptions[x].toLowerCase() == $(this)
+                                        .val().toLowerCase()) {
+                                    $(this).attr('checked', 'checked');
+                                    return;
+                                }
+                            }
+                        }
+                    });
+
+            $('div[id$="picklistPopup"]').css('max-height',
+                    ($(window).height() * 0.6) + 'px');
+            $('div[id$="picklistPopup"]').dialog({
+                resizable : false,
+                modal : true,
+                maxHeight : $(window).height() * 0.6,
+                buttons : {
+                    Select : usePicklistValues,
+                    Cancel : hidePicklistPopup
+                }
+            });
+        }
+
+        function hidePicklistPopup() {
+            $('div[id$="picklistPopup"]').dialog("destroy");
+        }
+    </script>
+    <apex:sectionHeader title="{!$Label.CRMfusionDBR101__DB_STF_Edit_Page_Title}" subTitle="{!CRMfusionDBR101__Scenario_Target_Filter__c.Name}" />
+    <apex:outputText value="{!CRMfusionDBR101__Scenario_Target_Filter__c.CRMfusionDBR101__Scenario__c}" rendered="false" />
+    <apex:outputText value="{!CRMfusionDBR101__Scenario_Target_Filter__c.CRMfusionDBR101__Object__c}" rendered="false" />
+    <apex:outputText value="{!CRMfusionDBR101__Scenario_Target_Filter__c.CRMfusionDBR101__Field_Name__c}" rendered="false" />
+    <apex:outputText value="{!CRMfusionDBR101__Scenario_Target_Filter__c.CRMfusionDBR101__Operator__c}" rendered="false" />
+    <apex:outputText value="{!CRMfusionDBR101__Scenario_Target_Filter__c.CRMfusionDBR101__Data_Type__c}" rendered="false" />
+    <apex:form id="mainForm">
+        <apex:outputPanel style="display:none"
+            rendered="{!AND(LOWER(CRMfusionDBR101__Scenario_Target_Filter__c.CRMfusionDBR101__Data_Type__c) != 'date', LOWER(CRMfusionDBR101__Scenario_Target_Filter__c.CRMfusionDBR101__Data_Type__c) != 'datetime')}">
+            <apex:inputField id="inputDate" value="{!CRMfusionDBR101__Scenario_Target_Filter__c.CRMfusionDBR101__Date_Criteria__c}" />
+            <apex:inputField id="inputDatetime" value="{!CRMfusionDBR101__Scenario_Target_Filter__c.CRMfusionDBR101__Datetime_Criteria__c}" />
+        </apex:outputPanel>
+        <apex:actionStatus layout="block" startStyle="font-weight: bold; color: red;" id="mainStatus" stopText="">
+            <apex:facet name="start">
+                {!$Label.DB_Updating_Available_Options}
+                <BR />
+                <BR />
+            </apex:facet>
+        </apex:actionStatus>
+        <apex:pageBlock id="mainBlock" title="{!$Label.CRMfusionDBR101__DB_STF_Edit_Block_Title}" mode="edit" tabStyle="Scenario__c">
+            <apex:pageBlockButtons >
+                <apex:commandButton value="{!$Label.CRMfusionDBR101__DB_Save_Word}" action="{!Save}" />
+                <apex:commandButton value="{!$Label.CRMfusionDBR101__DB_Cancel_Word}" action="{!Cancel}" />
+            </apex:pageBlockButtons>
+            <apex:pageMessages />
+            <apex:pageBlockSection columns="2" collapsible="false" title="{!$Label.CRMfusionDBR101__DB_STF_Information_Section_Title}" showHeader="true">
+                <apex:outputField rendered="{!NOT(hasMultipleObjects)}" value="{!CRMfusionDBR101__Scenario_Target_Filter__c.CRMfusionDBR101__Object__c}" />
+                <apex:pageBlockSectionItem rendered="{!hasMultipleObjects}" helpText="{!$ObjectType.CRMfusionDBR101__Scenario_Target_Filter__c.Fields.CRMfusionDBR101__Object__c.inlineHelpText}">
+                    <apex:outputLabel for="filteredObject" value="{!$ObjectType.CRMfusionDBR101__Scenario_Target_Filter__c.Fields.CRMfusionDBR101__Object__c.label}" />
+                    <apex:outputPanel styleClass="requiredInput" layout="block">
+                        <apex:outputPanel styleClass="requiredBlock" layout="block" />
+                        <apex:selectList id="filteredObject" size="1" required="true" value="{!CRMfusionDBR101__Scenario_Target_Filter__c.CRMfusionDBR101__Object__c}" multiselect="false">
+                            <apex:selectOptions value="{!availableObjects}" />
+                            <apex:actionSupport event="onchange" action="{!processFilteredObjectChange}" rerender="mainForm,searchForm,selectedForm" status="mainStatus" />
+                        </apex:selectList>
+                    </apex:outputPanel>
+                </apex:pageBlockSectionItem>
+                <apex:pageBlockSectionItem helpText="{!$ObjectType.CRMfusionDBR101__Scenario_Target_Filter__c.Fields.CRMfusionDBR101__Operator__c.inlineHelpText}">
+                    <apex:outputLabel for="operator" value="{!$ObjectType.CRMfusionDBR101__Scenario_Target_Filter__c.Fields.CRMfusionDBR101__Operator__c.label}" />
+                    <apex:outputPanel styleClass="requiredInput" layout="block">
+                        <apex:outputPanel styleClass="requiredBlock" layout="block" />
+                        <apex:selectList id="operator" size="1" required="true" value="{!CRMfusionDBR101__Scenario_Target_Filter__c.CRMfusionDBR101__Operator__c}" multiselect="false">
+                            <apex:selectOptions value="{!operators}" />
+                            <apex:actionSupport event="onchange" rerender="mainForm,searchForm,selectedForm" status="mainStatus" />
+                        </apex:selectList>
+                    </apex:outputPanel>
+                </apex:pageBlockSectionItem>
+                <apex:pageBlockSectionItem helpText="{!$ObjectType.CRMfusionDBR101__Scenario_Target_Filter__c.Fields.CRMfusionDBR101__Field_Display_Value__c.inlineHelpText}">
+                    <apex:outputLabel for="filteredField" value="{!$ObjectType.CRMfusionDBR101__Scenario_Target_Filter__c.Fields.CRMfusionDBR101__Field_Display_Value__c.label}" />
+                    <apex:outputPanel styleClass="requiredInput" layout="block">
+                        <apex:outputPanel styleClass="requiredBlock" layout="block" />
+                        <apex:selectList id="filteredField" size="1" required="true" value="{!CRMfusionDBR101__Scenario_Target_Filter__c.CRMfusionDBR101__Field_Name__c}" multiselect="false">
+                            <apex:selectOptions value="{!fields}" />
+                            <apex:actionSupport event="onchange" action="{!processFieldChange}" rerender="mainForm,searchForm,selectedForm" status="mainStatus" />
+                        </apex:selectList>
+                    </apex:outputPanel>
+                </apex:pageBlockSectionItem>
+                <apex:inputField id="inputValues" value="{!CRMfusionDBR101__Scenario_Target_Filter__c.CRMfusionDBR101__Values__c}" rendered="{!isTextCriteria && NOT(isPicklistField)}" />
+                <apex:pageBlockSectionItem helpText="{!$ObjectType.CRMfusionDBR101__Scenario_Target_Filter__c.Fields.CRMfusionDBR101__Values__c.inlineHelpText}"
+                    rendered="{!isTextCriteria && isPicklistField}">
+                    <apex:outputLabel for="inputValues" value="{!$ObjectType.CRMfusionDBR101__Scenario_Target_Filter__c.Fields.CRMfusionDBR101__Values__c.Label}" />
+                    <apex:outputPanel layout="block">
+                        <apex:inputTextArea id="inputValues" rows="3" richText="false" value="{!CRMfusionDBR101__Scenario_Target_Filter__c.CRMfusionDBR101__Values__c}" />
+                        <apex:commandButton value="  ..  " onclick="showPicklistPopup(); return false;" styleclass="btn"
+                            title="Select picklist options to use in the target filter." style="color:black;text-decoration:none;vertical-align:top;" />
+                    </apex:outputPanel>
+                </apex:pageBlockSectionItem>
+                <apex:inputField id="inputDate" value="{!CRMfusionDBR101__Scenario_Target_Filter__c.CRMfusionDBR101__Date_Criteria__c}" rendered="{!isDateCriteria}" />
+                <apex:inputField id="inputDatetime" value="{!CRMfusionDBR101__Scenario_Target_Filter__c.CRMfusionDBR101__Datetime_Criteria__c}" rendered="{!isDatetimeCriteria}" />
+                <apex:pageBlockSectionItem helpText="{!$Label.CRMfusionDBR101__DB_STF_Select_Record_Type_Help}" rendered="{!isRecordTypeCriteria}">
+                    <apex:outputLabel for="recordType" value="{!$Label.CRMfusionDBR101__DB_STF_Record_Type_Filter_Label}" />
+                    <apex:outputPanel styleClass="requiredInput" layout="block">
+                        <apex:outputPanel styleClass="requiredBlock" layout="block" />
+                        <apex:selectCheckboxes id="recordType" value="{!selectedRecordTypes}" layout="pageDirection">
+                            <apex:selectOptions value="{!availableRecordTypes}" />
+                        </apex:selectCheckboxes>
+                    </apex:outputPanel>
+                </apex:pageBlockSectionItem>
+                <apex:pageBlockSectionItem helpText="{!$Label.CRMfusionDBR101__DB_STF_Select_Profile_Help}" rendered="{!isProfileCriteria}">
+                    <apex:outputLabel for="userProfile" value="{!$Label.CRMfusionDBR101__DB_STF_Profile_Filter_Label}" />
+                    <apex:outputPanel styleClass="requiredInput" layout="block">
+                        <apex:outputPanel styleClass="requiredBlock" layout="block" />
+                        <apex:selectCheckboxes id="userProfile" value="{!selectedProfiles}" layout="pageDirection">
+                            <apex:selectOptions value="{!availableProfiles}" />
+                        </apex:selectCheckboxes>
+                    </apex:outputPanel>
+                </apex:pageBlockSectionItem>
+                <apex:pageBlockSectionItem helpText="{!$Label.CRMfusionDBR101__DB_STF_Select_Role_Help}" rendered="{!isRoleCriteria}">
+                    <apex:outputLabel for="userRole" value="{!$Label.CRMfusionDBR101__DB_STF_Role_Filter_Label}" />
+                    <apex:outputPanel styleClass="requiredInput" layout="block">
+                        <apex:outputPanel styleClass="requiredBlock" layout="block" />
+                        <apex:selectCheckboxes id="userRole" value="{!selectedRoles}" layout="pageDirection">
+                            <apex:selectOptions value="{!availableRoles}" />
+                        </apex:selectCheckboxes>
+                    </apex:outputPanel>
+                </apex:pageBlockSectionItem>
+            </apex:pageBlockSection>
+            <apex:outputPanel id="picklistPopup" rendered="{!isPicklistField}" styleClass="picklistPopupHidden" layout="block" title="Please Select a Value">
+                <apex:selectCheckboxes id="picklistOptions" value="{!selectedValues}" layout="pageDirection">
+                    <apex:selectOptions value="{!picklistOptions}" />
+                </apex:selectCheckboxes>
+            </apex:outputPanel>
+        </apex:pageBlock>
+    </apex:form>
+    <apex:form id="searchForm">
+        <apex:pageBlock id="searchBlock" title="{!$Label.CRMfusionDBR101__DB_Search_For} {!refObjectLabelPlural}" rendered="{!isRecordIdCriteria}">
+            <apex:outputPanel >
+                <message for="searchButton" />
+                Search: <apex:inputText value="{!searchText}" />
+                <apex:commandButton id="searchButton" action="{!search}" status="searchStatus" value="{!$Label.CRMfusionDBR101__DB_Search_Go}" />
+                <apex:actionStatus layout="block" startStyle="font-weight: bold; color: red;" id="searchStatus" stopText="" startText="{!$Label.CRMfusionDBR101__DB_Searching}" />
+                <apex:actionStatus layout="block" startStyle="font-weight: bold; color: red;" id="addingStatus" stopText=""
+                    startText="{!$Label.CRMfusionDBR101__DB_STF_Adding_Item}" />
+            </apex:outputPanel>
+            <apex:outputPanel id="searchResults" rendered="{!haveFoundObjects}">
+                <table width="100%">
+                    <tr>
+                        <th></th>
+                        <apex:repeat value="{!listHeaders}" var="h">
+                            <th>{!h}</th>
+                        </apex:repeat>
+                    </tr>
+                    <apex:repeat value="{!foundObjects}" var="fo">
+                        <tr style="height: 20px">
+                            <apex:repeat rows="1" value="{!fo}" var="fotd">
+                                <td><apex:commandLink status="addingStatus" action="{!addSelection}" rerender="selectedForm">{!$Label.CRMfusionDBR101__DB_Add_Word}
+                                        <apex:param name="addId" value="{!JSINHTMLENCODE( fotd )}" />
+                                    </apex:commandLink>
+                                </td>
+                            </apex:repeat>
+                            <apex:repeat value="{!fo}" var="fotd">
+                                <td><apex:outputText escape="false" value="{!fotd}" /></td>
+                            </apex:repeat>
+                        </tr>
+                    </apex:repeat>
+                </table>
+            </apex:outputPanel>
+            <apex:outputPanel rendered="{!searchResultsTooLarge}">
+                {!$Label.CRMfusionDBR101__DB_STF_Too_Many_Results}
+            </apex:outputPanel>
+        </apex:pageBlock>
+    </apex:form>
+    <apex:form id="selectedForm">
+        <apex:pageBlock id="selectedBlock" title="{!$Label.CRMfusionDBR101__DB_STF_Selected_Items_Block_Title}" rendered="{!isRecordIdCriteria}">
+            <apex:actionStatus layout="block" startStyle="font-weight: bold; color: red;" id="removingStatus" stopText=""
+                startText="{!$Label.CRMfusionDBR101__DB_STF_Removing_Item_Status}" />
+            <apex:outputText rendered="{!NOT(haveSelectedObjects)}" value="{!$Label.CRMfusionDBR101__DB_STF_No_Records_Selected}" />
+            <apex:outputPanel id="selectedPanel" rendered="{!haveSelectedObjects}">
+                <table width="100%">
+                    <tr>
+                        <th></th>
+                        <apex:repeat value="{!listHeaders}" var="h">
+                            <th>{!h}</th>
+                        </apex:repeat>
+                    </tr>
+                    <apex:repeat value="{!selectedObjects}" var="so">
+                        <tr style="height: 20px">
+                            <apex:repeat rows="1" value="{!so}" var="sotd">
+                                <td><apex:commandLink status="removingStatus" action="{!removeSelection}" rerender="selectedForm">{!$Label.CRMfusionDBR101__DB_Remove_Word}
+                                        <apex:param name="removeId" value="{!JSINHTMLENCODE( sotd )}" />
+                                    </apex:commandLink>
+                                </td>
+                            </apex:repeat>
+                            <apex:repeat value="{!so}" var="sotd">
+                                <td><apex:outputText escape="false" value="{!sotd}" /></td>
+                            </apex:repeat>
+                        </tr>
+                    </apex:repeat>
+                </table>
+            </apex:outputPanel>
+        </apex:pageBlock>
+    </apex:form>
+</apex:page>

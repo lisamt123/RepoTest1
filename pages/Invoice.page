@@ -1,0 +1,182 @@
+<apex:page standardController="Opportunity" showHeader="false"
+	renderas="pdf">
+
+
+	<table border="0" cellspacing="0" cellpadding="0" width="100%"
+		id="table1">
+		<tr>
+			<td><img src='{!URLFOR($Resource.Logo)}' title="logo" />
+			</td>
+			<td align="right"><font face="Arial">
+					{!$Organization.Name}<br /> {!$Organization.Street}<br />
+					{!$Organization.City}, KS {!$Organization.PostalCode}<br />
+					www.vinsolutions.com<br /> Sales and Support: 913-825-6124<br />
+			</font><br /></td>
+
+		</tr>
+	</table>
+	<hr />
+
+	<table border="0" width="100%" id="table2">
+		<tr>
+			<td align="center">DEAL SHEET</td>
+		</tr>
+		<tr>
+			<td align="left">Close Date: &nbsp; <apex:OutputField value="{!Opportunity.CloseDate}" /></td>
+		</tr>
+		<tr>
+			<td align="left">Dealer Name: {!Opportunity.Account.Name}</td>
+			<td align="right">Dealer VS ID#:
+				{!Opportunity.Account.AccountNumber}</td>
+		</tr>
+		<!--
+		<tr>
+			<td align="left">DMS Type {!Opportunity.Account.DMS__c}</td>
+		</tr>
+		-->
+		<tr>
+			<td align="Left">SOLD BY: {!Opportunity.Owner.FirstName}
+				{!Opportunity.Owner.LastName}</td>
+			<td align="Right">Deal
+				Number:{!Opportunity.QuoteNumber__c}{!Opportunity.QuoteVersion__c}</td>
+		</tr>
+	</table>
+
+	<table border="0" width="100%" id="table3">
+		<tr>
+			<td><font face="Arial"><b>Bill To:</b><br />
+
+					{!Opportunity.Account.BillingStreet}<br />
+
+					{!Opportunity.Account.BillingCity}
+					{!Opportunity.Account.BillingPostalCode} </font>
+			</td>
+
+			<td width="50%"></td>
+
+			<td><font face="Arial"><b>Ship To:</b><br />
+
+					{!Opportunity.Account.ShippingStreet}<br />
+
+					{!Opportunity.Account.ShippingCity}
+					{!Opportunity.Account.ShippingPostalCode} </font></td>
+		</tr>
+	</table>
+
+
+	<hr />
+	<p>
+		<b><font color="#000080" face="Arial">Products</font> </b>
+	</p>
+	<table border="0" width="100%" id="table4">
+		<tr>
+			<td height="510" valign="top">
+
+
+				<table border="0" width="100%" id="table4">
+
+					<tr>
+
+						<td bgcolor="#C0C0C0"><font face="Arial">Product</font></td>
+
+						<td bgcolor="#C0C0C0"><font face="Arial">Quantity</font></td>
+
+						<td bgcolor="#C0C0C0"><font face="Arial">List Price</font></td>
+
+						<td bgcolor="#C0C0C0"><font face="Arial">Sale Price</font></td>
+
+						<td bgcolor="#C0C0C0"><font face="Arial">Total Price</font></td>
+
+
+
+					</tr>
+
+					<tr>
+
+						<apex:repeat value="{!Opportunity.OpportunityLineItems}"
+							var="line">
+
+							<tr>
+
+								<td>{!line.PricebookEntry.Name}</td>
+
+								<td>{!line.Quantity}</td>
+
+								<td><apex:OutputField value="{!line.ListPrice}" /></td>
+
+								<td><apex:OutputField value="{!line.UnitPrice}" /></td>
+
+								<td><apex:OutputField value="{!line.TotalPrice}" /></td>
+
+							</tr>
+
+						</apex:repeat>
+
+					</tr>
+
+					<tr>
+
+						<td bgcolor="#C0C0C0" align="right" colspan="6"><font
+							face="Arial"><b>Total:</b>&nbsp;<apex:OutputField value="{!Opportunity.Amount}" /> </font></td>
+
+					</tr>
+
+				</table>
+
+				<table border="0" cellspacing="0" cellpadding="0" width="100%"
+					id="table 10">
+					<tr>
+						<td align="Center" colspan="5"><font face="Arial"><b>One
+									Time Fees:</b>&nbsp;<apex:OutputField value="{!Opportunity.One_Time_Fees__c}" /> </font></td>
+						<td align="center" colspan="5"><font face="Arial"><b>Monthly
+									Reoccuring Fees:</b>&nbsp;<apex:OutputField value="{!Opportunity.Monthly_Recurring_Fees__c}" /> </font></td>
+						<td align="center" colspan="5"><font face="Arial"><b>Setup
+									Fees:</b>&nbsp;<apex:OutputField value="{!Opportunity.Setup_Fees__c}" /> </font></td>
+					</tr>
+				</table>
+
+				<table border="0" cellspacing="0" cellpadding="0" width="100%"
+					id="table 10">
+					<tr>
+						<td align="Center" colspan="5"><font face="Arial"><b>Discount
+									One Time Fees:</b>&nbsp;<apex:OutputField value="{!Opportunity.Discount_One_Time__c}" /> </font></td>
+						<td align="center" colspan="5"><font face="Arial"><b>
+									Reoccuring Fees:</b>&nbsp;<apex:OutputField value="{!Opportunity.Discount_Subscription__c}" /> </font></td>
+						<td align="center" colspan="5"><font face="Arial"><b>Discount
+									Setup Fees:</b>&nbsp;<apex:OutputField value="{!Opportunity.Discount_Setup__c}" /> </font></td>
+					</tr>
+				</table> <br />
+				<hr />
+
+				<table border="0" width="25%" id="table6">
+					<tr>
+						<td bgcolor="#C0C0C0" align="left" colspan="10"><font
+							face="Arial"><big><b>Invoice Total</b> </big> </font></td>
+					</tr>
+					<tr>
+						<td>Retail Value:</td>
+						<td align="right">&nbsp;<apex:OutputField value="{!Opportunity.Total_List_Price_ROLL__c}" /></td>
+					</tr>
+					<tr>
+						<td>Total Discount:</td>
+						<td align="right">&nbsp;<apex:OutputField value="{!Opportunity.Discount_Amount_ROLL__c}" /></td>
+					</tr>
+					<tr>
+						<td>Invoice Total:</td>
+						<td align="right">&nbsp;<apex:OutputField value="{!Opportunity.Amount}" /></td>
+					</tr>
+				</table> <br />
+			</td>
+		</tr>
+		<br />
+	</table>
+
+	<div style="page-break-before: avoid;">
+
+		<p align="center">
+			<font face="Arial"><i>Copyright {!$Organization.Name}.</i> </font>
+		</p>
+
+
+	</div>
+</apex:page>

@@ -1,0 +1,154 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<script type="text/javascript" src="/js/functions.js"></script>
+<script src="/soap/ajax/12.0/connection.js"></script>
+<script language="javascript">
+
+function invoices()
+{
+
+
+//======================================Query data to be populated into New Opportunity=================
+var WebexType = '{!Event.WebEx_Topic__c}';
+var Account = '';
+var AccountName='';
+var Contact='';
+var WebexId='{!Event.Id}';
+var webexer = '{!Event.OwnerId}';
+
+//alert("Webex ID "+WebexId);
+
+var resultA = sforce.connection.query("Select e.Who.Id, e.WhoId, e.Webex_Topic__c, e.Id From Event e where Event.Id='{!Event.Id}'");
+
+var recA = resultA.getArray("records");
+
+for(var i=0; i<resultA.size ; i++)
+{
+Contact = recA[i].WhoId;
+}
+
+//alert("Contact ID "+Contact);
+
+var regional='';
+var salesperson='';
+var salespersonRole='';
+
+var resultA = sforce.connection.query("Select c.Id, c.Account.Name, c.Account.Salesperson__c, c.Account.Regional_Manager__c, c.Account.Id, c.AccountId From Contact c where Id='"+Contact+"'");
+
+var recA = resultA.getArray("records");
+
+for(var i=0; i<resultA.size ; i++)
+{
+Account = recA[i].Account.Id;
+AccountName = recA[i].Account.Name;
+regional= recA[i].Account.Regional_Manager__c;
+salesperson=recA[i].Account.Salesperson__c;
+}
+
+var resultB = sforce.connection.query("Select  u.UserRole.Name, u.UserRoleId From User u where id = '"+salesperson+"'");
+
+var recB = resultB.getArray("records");
+
+for(var i=0; i<resultB.size ; i++)
+{
+salespersonRole = recB[i].UserRole.Name;
+}
+//alert(salespersonRole);
+
+//alert("Account ID "+Account);
+//alert("Account Name "+AccountName);
+
+
+//=======Generate Oppty with specific data in fields=================================================
+
+
+var today='{!TEXT(Today()+30)}';
+//alert("Due Date "+today);
+
+var callarray=[];
+
+
+
+for (i=1; i<=1; i++)
+{
+
+var callobj=new sforce.SObject("Opportunity");
+
+callobj.set("StageName", "Prospect");
+callobj.set("Salesperson__c", salesperson);
+callobj.set("Webexer__c", webexer);
+callobj.set("LeadSource", "WebEx");
+callobj.set("Name", AccountName);
+callobj.set("AccountId", Account);
+callobj.set("Opportunity_Names__c", WebexType);
+callobj.set("WEBEXEVENTID__c", WebexId);
+callobj.set("CloseDate", today);
+callobj.set("Salesperson_Role__c", salespersonRole);
+callobj.set("Opportunity_Webexed__c",'1');
+callarray.push(callobj);
+
+//alert(i);
+}
+
+var callcr = sforce.connection.create(callarray);
+
+for (var i=1; i<callcr.length ;i++ )
+{
+if (callcr[1].getBoolean("success"))
+{
+//alert("Call - Success");
+}
+else
+{
+//alert("Call - Failure");
+}
+
+}
+
+//=============================================
+//alert("Opportunities have been created.");
+
+//===================================UPDATE THE EVENT==========================================
+
+//==========================Query data to FIND THE NEW OPPTY====================================
+var OpptyID= "";
+
+
+var resultA = sforce.connection.query("Select o.Id From Opportunity o where WEBEXEVENTID__c='{!Event.Id}' and CreatedById='{!User.Id}'");
+
+var recA = resultA.getArray("records");
+
+for(var i=0; i<resultA.size ; i++)
+{
+OpptyID = recA[i].Id;
+}
+
+//alert(OpptyID);
+
+parent.window.location.href = 'https://na5.salesforce.com/'+OpptyID+'/a?retURL=%2F'+OpptyID+'&newOwn='+regional+'&save=1';
+
+
+//============================set RelatedTo on the WEBEX EVENT====================================
+var timelog= new sforce.SObject("Event");
+var logId = '{!Event.Id}';
+timelog.Id = logId;
+timelog.WhatId = OpptyID;
+
+saveResult = sforce.connection.update([timelog]);
+if (saveResult[0].getBoolean("success"))
+{
+//alert("success");
+}
+else
+{
+//alert("FAILED");
+}
+
+}
+
+</script>
+</head>
+<body onload="invoices();">
+</body>
+</html>

@@ -1,0 +1,442 @@
+<!--
+  - Page name: Change_Request
+  - Author/Date: Dean Lukowski / September 15, 2014
+  - Purpose: Create a dynamic page for a better user experience and data management.
+  -->
+
+<apex:page standardController="Change_Request__c" extensions="Change_Request_Controller" Id="theCRPage" >
+
+	<apex:includeScript value="{!URLFOR($Resource.jQueryUi_1_11_1, 'jQueryUi_1.11.1/jquery/external/jquery/jquery.js')}" />
+    <apex:includeScript value="{!URLFOR($Resource.jQueryUi_1_11_1, 'jQueryUi_1.11.1/jquery/jquery-ui.min.js')}" />
+    <apex:stylesheet value="{!URLFOR($Resource.jQueryUi_1_11_1, 'jQueryUi_1.11.1/ui/themes/smoothness/jquery-ui.css')}"/>
+	
+	<style type="text/css">
+        .PGStyle1{
+            margin-left:auto;
+            margin-right:auto;
+            width:100%;
+        }
+        .PGStyle1 td:nth-child(odd){
+            width: 40%;
+            text-align: right;
+        }
+        .PGStyle1 td:nth-child(even){
+            width: 50%;
+            text-align: left;
+        }
+        .PGStyle2{
+            margin-left:auto;
+            margin-right:auto;
+            width:100%;
+        }
+        .PGStyle2 td{
+            text-align: left;
+        }
+        .Product{
+            margin-left:auto;
+            margin-right:auto;
+            width:90%;
+        }
+        .HeaderLabel{
+            vertical-align: top;
+            padding-right: 15px;
+            font-weight: bold;
+            font-family: Arial, Helvetica, sans-serif;
+            color: Black !important;
+        }
+        .PGLabel{
+            vertical-align: top;
+            padding-right: 15px;
+            font-size: 91%;
+            font-weight: bold;
+            font-family: Arial, Helvetica, sans-serif;
+            color: #4a4a56 !important;
+        }
+        .PGLabelHT{
+            vertical-align: top;
+            font-size: 91%;
+            font-weight: bold;
+            font-family: Arial, Helvetica, sans-serif;
+            color: #4a4a56 !important;
+        }
+         .custPopup{
+            background-color: white;
+            border-width: 2px;
+            border-style: solid;
+            z-index: 9999;
+            left: 50%;
+            padding:10px;
+            position: absolute;
+            /* These are the 3 css properties you will need to change so the popup 
+            displays in the center of the screen. First set the width. Then set 
+            margin-left to negative half of what the width is. You can add 
+            the height property for a fixed size pop up if you want.*/
+            width: 600px;
+            margin-left: -250px;
+            top:150px;
+        }
+        .popupBackground{
+            background-color:black;
+            opacity: 0.20;
+            filter: alpha(opacity = 20);
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            z-index: 9998;
+        }
+    </style>
+
+    <script type="text/javascript">
+	    var j$ = jQuery.noConflict();
+	    
+	    window.onload = function(){
+	        jQuery('[id$=ct]').focus();
+	    };
+    
+    </script>
+
+	<apex:sectionHeader title="Change Request" subtitle="{!CRObj.Name}" />
+	<apex:form id="CRPage">
+
+		<apex:pageMessages id="errors" />
+		<apex:pageBlock title="Change Request Details">
+
+			<apex:pageBlockButtons >
+				<apex:commandbutton value="{!IF(showAttButton, 'Submit', 'Save')}" action="{!Submit}" />
+				<apex:commandbutton value="{!IF(showAttButton, 'Submit & New', 'Save & New')}" action="{!SubmitNew}" />
+				<apex:commandButton value="Submit & Add Attachments" action="{!AddAtts}" rendered="{!showAttButton}" />
+			<!--	<apex:commandButton value="Escalate" action="{!showPopup}" rerender="tstpopup" rendered="{!isAdminUser}" /> -->
+				<apex:commandButton value="Cancel" action="{!Cancel}" rendered="{!showCancelButton}" />
+			</apex:pageBlockButtons>
+
+			<apex:pageBlockSection columns="1">
+				<apex:panelGrid columns="2" styleClass="PGStyle1">
+					<!-- Left Column -->
+                    <apex:panelGrid columns="2" styleClass="PGStyle1">
+                    	<apex:panelGroup >
+                    		<apex:outputLabel value="{!$ObjectType.Change_Request__c.fields.BU__c.label}" for="bu" styleClass="PGLabel" />
+                		</apex:panelGroup>
+                		<apex:panelGroup >
+                    		<apex:selectList value="{!selectedBU}" id="bu" size="1" style="width:204px;" >
+                        		<apex:selectOptions value="{!availableBU}" />
+                        		<apex:actionSupport event="onchange"  />
+                    		</apex:selectList>
+                    	</apex:panelGroup>
+
+                    	<apex:panelGroup >
+                    		<apex:outputLabel value="{!$ObjectType.Change_Request__c.fields.Department__c.label}" for="dept" styleClass="PGLabel" />
+                		</apex:panelGroup>
+                		<apex:panelGroup >
+							<apex:inputText value="{!department}" id="dept" style="width:200px;" />
+                    	</apex:panelGroup>
+
+                    	<apex:panelGroup >
+                    		<apex:outputLabel value="{!$ObjectType.Change_Request__c.fields.Change_Type__c.label}" for="ct" styleClass="PGLabel" />
+                		</apex:panelGroup>
+                		<apex:panelGroup >
+							<apex:outputPanel styleClass="requiredInput" layout="block" >
+		                    	<apex:outputPanel styleClass="requiredBlock" layout="block" />
+		                    	<apex:selectList value="{!selectedChangeType}" id="ct" size="1" style="width:204px;" >
+		                        	<apex:selectOptions value="{!availableChangeType}" />
+		                        	<apex:actionSupport event="onchange" reRender="details1, details2, userNotes" />
+		                    	</apex:selectList>
+			                    <apex:outputPanel layout="inline" rendered="{!crvw.changeTypeRequired}">
+			                        <br></br>
+			                        <apex:outputText style="font-style:itali; color:red;" value="Error: A Change Type is required." />
+			                    </apex:outputPanel>                                             
+			                </apex:outputPanel>
+                    	</apex:panelGroup>
+
+                    	<apex:panelGroup id="details1">
+                    		<apex:outputLabel value="{!$ObjectType.Change_Request__c.fields.Change_Type_Details__c.label}" for="ctd"
+                    						rendered="{!IF(selectedChangeType == 'Add/New'
+                    									|| selectedChangeType == 'Change'
+                    									|| selectedChangeType == 'Remove', true, false)}" styleClass="PGLabel" />
+                		</apex:panelGroup>
+                		<apex:panelGroup id="details2">
+							<apex:outputPanel styleClass="requiredInput" layout="block"
+                    						rendered="{!IF(selectedChangeType == 'Add/New'
+                    									|| selectedChangeType == 'Change'
+                    									|| selectedChangeType == 'Remove', true, false)}" >
+		                    	<apex:outputPanel styleClass="requiredBlock" layout="block" />
+		                    	<apex:selectList value="{!selectedChangeTypeDetails}" id="ctd" size="1" style="width:204px;" >
+		                        	<apex:selectOptions value="{!availableChangeTypeDetails}" />
+                                    <apex:actionSupport event="onchange" reRender="userNotes" />
+		                    	</apex:selectList>
+			                    <apex:outputPanel layout="inline" rendered="{!crvw.changeTypeDetailsRequired}">
+			                        <br></br>
+			                        <apex:outputText style="font-style:itali; color:red;" value="Error: A Change Type Detail is required." />
+			                    </apex:outputPanel>                                             
+			                </apex:outputPanel>
+                    	</apex:panelGroup>
+
+                    	<apex:panelGroup >
+                    		<apex:outputLabel value="{!$ObjectType.Change_Request__c.fields.Link_to_Record__c.label}" for="link" styleClass="PGLabel" />
+                		</apex:panelGroup>
+                		<apex:panelGroup >
+							<apex:inputField value="{!CRObj.Link_to_Record__c}" id="link" style="width:200px;" />
+                    	</apex:panelGroup>
+
+                    	<apex:panelGroup >
+	                		<apex:outputLabel value="{!$ObjectType.Change_Request__c.fields.Tier_Level__c.label}" for="displayTier" rendered="{!isAdminUser}" styleClass="PGLabel" />
+	            		</apex:panelGroup>
+	            		<apex:panelGroup id="dt">
+		                    <apex:outputText value="{!selectedTier}" id="displayTier" rendered="{!isAdminUser}" />
+	                	</apex:panelGroup>
+
+                    </apex:panelGrid><!-- End left Column -->
+                    <!-- Right Column -->
+                    <apex:panelGrid columns="2" styleClass="PGStyle1" >
+                    	<apex:panelGroup >
+                    		<apex:outputLabel value="Owner" for="owner" styleClass="PGLabel" />
+                		</apex:panelGroup>
+                		<apex:panelGroup >
+							<apex:outputField value="{!CRObj.Owner.Name}" id="owner" />
+							<apex:outputLink value="/{!CRid}/a?retURL=/{!CRid}" rendered="{!IF(showSaveEscalate && isAdminUser, true, false)}" > [Change]</apex:outputLink>
+                    	</apex:panelGroup>
+
+                    	<apex:panelGroup >
+                    		<apex:outputLabel value="{!$ObjectType.Change_Request__c.fields.Priority__c.label}" for="prior" styleClass="PGLabel" />
+                		</apex:panelGroup>
+                		<apex:panelGroup >
+		                    <apex:selectList value="{!selectedPriority}" id="prior" size="1" style="width:158px;" >
+		                        <apex:selectOptions value="{!availablePriority}" />
+		                    </apex:selectList>
+                    	</apex:panelGroup>
+
+                    	<apex:panelGroup >
+                    		<apex:outputLabel value="{!$ObjectType.Change_Request__c.fields.Date_Needed_By__c.label}" for="need" styleClass="PGLabel" />
+                		</apex:panelGroup>
+                		<apex:panelGroup >
+							<apex:inputField value="{!CRObj.Date_Needed_By__c}" id="need" style="width:154px;" />
+                    	</apex:panelGroup>
+
+                        <apex:panelGroup >
+                            <apex:outputLabel value="{!$ObjectType.Change_Request__c.fields.Review_Date__c.label}" for="review" rendered="{!isAdminUser}" styleClass="PGLabel" />
+                        </apex:panelGroup>
+                        <apex:panelGroup >
+                            <apex:inputField value="{!CRObj.Review_Date__c}" id="review" rendered="{!isAdminUser}" style="width:154px;" />
+                        </apex:panelGroup>
+                        <!--
+                    	<apex:panelGroup >
+                    		<apex:outputLabel value="{!$ObjectType.Change_Request__c.fields.Assigned_To__c.label}" for="aTo" rendered="{!isAdminUser}" styleClass="PGLabel" />
+                		</apex:panelGroup>
+                		<apex:panelGroup >
+							<apex:inputField value="{!CRObj.Assigned_To__c}" id="aTo" rendered="{!isAdminUser}" />
+                    	</apex:panelGroup>
+                        
+                    	<apex:panelGroup >
+                    		<apex:outputLabel value="{!$ObjectType.Change_Request__c.fields.Change_Request_Status__c.label}" for="status" rendered="{!isAdminUser}" styleClass="PGLabel" />
+                		</apex:panelGroup>
+                		<apex:panelGroup >
+		                    <apex:inputField value="{!CRObj.Change_Request_Status__c}" id="status" style="width:158px;" rendered="{!isAdminUser}" >
+		                        <!--<apex:selectOptions value="{!availableStatus}" />-->
+                             <!--   <apex:actionSupport event="onchange" reRender="dup1,dup2" />
+		                    </apex:inputField>
+                    	</apex:panelGroup>
+
+                        <apex:panelGroup id="dup1">
+                            <apex:outputLabel value="Duplicate CR" for="dup" rendered="{!IF(CRObj.Change_Request_Status__c == 'Duplicate', true, false)}" styleClass="PGLabel" />
+                        </apex:panelGroup>
+                        <apex:panelGroup id="dup2">
+                            <apex:outputPanel styleClass="requiredInput" layout="block" >
+                                <apex:outputPanel styleClass="requiredBlock" layout="block" />
+                                <apex:inputField value="{!CRObj.Parent_Change__c}" id="dup" rendered="{!IF(CRObj.Change_Request_Status__c == 'Duplicate', true, false)}" style="width:154px;" />
+                                <apex:outputPanel layout="inline" rendered="{!crvw.duplicateCRRequired}">
+                                    <br></br>
+                                    <apex:outputText style="font-style:itali; color:red;" value="Error: A duplicate change request reference is required." />
+                                </apex:outputPanel>
+                            </apex:outputPanel>
+                        </apex:panelGroup>
+
+                    	<apex:panelGroup >
+                    		<apex:outputLabel value="{!$ObjectType.Change_Request__c.fields.Raise_Hand__c.label}" for="hand" rendered="{!isAdminUser}" styleClass="PGLabel" />
+                		</apex:panelGroup>
+                		<apex:panelGroup >
+							<apex:inputCheckbox value="{!CRObj.Raise_Hand__c}" id="hand" rendered="{!isAdminUser}" >
+								<apex:actionSupport event="onchange" reRender="rhn1, rhn2" />
+							</apex:inputCheckbox>
+                    	</apex:panelGroup>
+                        -->
+                    	<apex:panelGroup id="rhn1">
+                    		<apex:outputLabel value="{!$ObjectType.Change_Request__c.fields.Raise_Hand_Notes__c.label}" for="handNotes" rendered="{!CRObj.Raise_Hand__c}" styleClass="PGLabel" />
+                    	</apex:panelGroup>
+                    	<apex:panelGroup id="rhn2">
+                    		<apex:inputTextarea value="{!raiseHandNotes}" id="handNotes" rendered="{!CRObj.Raise_Hand__c}"
+                    										style="width:300px; height:50px;" />
+                    	</apex:panelGroup>
+
+                    </apex:panelGrid><!-- End Right Column -->
+                </apex:panelGrid><!-- End Change Request Details Section -->
+
+			</apex:pageBlockSection> 
+			<apex:pageBlockSection columns="1">
+				<!-- Notes for when a user selects the Change Type -->
+				<apex:pageBlockSectionItem >
+					<apex:outputPanel id="userNotes" >
+                    <!--Change Type Pick List-->
+                        <apex:pageMessage summary="Please Copy and Paste the error message you received and a quick description. I.E. forgot password/username" rendered="{!IF(contains(selectedChangeType, "Log"), true, false)}" severity="info" strength="1" />
+                        <apex:pageMessage summary="Describe why you need this Access/Permission and what level of Access/Permission you are wanting. I.E. Create, Edit, Delete." rendered="{!IF(selectedChangeType == 'Access/Permissions', true, false)}" severity="info" strength="1" />
+                        <apex:pageMessage summary="Copy and Paste any error messages, and describe what you expected to happen that didn't happen." rendered="{!IF(contains(selectedChangeType, "Not"), true, false)}" severity="info" strength="1" />
+						<apex:pageMessage summary="Please Copy and Paste the error message you received and describe what you were doing when you received the error." rendered="{!IF(selectedChangeType == 'Error Received', true, false)}" severity="info" strength="1" />
+                        <apex:pageMessage summary="Please describe in as much detail as possible your request. Add an attachment if it will help let us know what you are needing." rendered="{!IF(selectedChangeType == 'Other', true, false)}" severity="info" strength="1" />
+                    <!--Change Type Details Pick List-->
+                        <apex:pageMessage summary="Please answer the following questions in the Request Details box when requesting to setup a new Product." rendered="{!IF(selectedChangeType == 'Add/New' && selectedChangeTypeDetails == 'Product', true, false)}" severity="info" strength="1" />
+                        <apex:panelGrid rendered="{!IF(selectedChangeType == 'Add/New' && selectedChangeTypeDetails == 'Product', true, false)}" id="product" columns="2" styleClass="PGStyle2" >
+                            <apex:panelGroup >
+                                <apex:outputText style="font-weight:bold;" value="1."/>
+                                <apex:outputText style="margin-left:5px;" value="Has Accounting received the completed PCR?" />
+                            </apex:panelGroup>
+                            <apex:panelGroup >
+                                <apex:outputText style="font-weight:bold;" value="7."/>
+                                <apex:outputText style="margin-left:5px;" value="Is it Monthly or Onetime? If Monthly, is there an associated Onetime fee?" />
+                             </apex:panelGroup>
+                            <apex:panelGroup >
+                                <apex:outputText style="font-weight:bold;" value="2."/>
+                                <apex:outputText style="margin-left:5px;" value="Product Name" />
+                            </apex:panelGroup>
+                            <apex:panelGroup >
+                                <apex:outputText style="font-weight:bold;" value="8."/>
+                                <apex:outputText style="margin-left:5px;" value="Does this product have usage-based billing?" />
+                            </apex:panelGroup>
+                            <apex:panelGroup >
+                                <apex:outputText style="font-weight:bold;" value="3."/>
+                                <apex:outputText style="margin-left:5px;" value="Product Code" />
+                            </apex:panelGroup>
+                            <apex:panelGroup >
+                                <apex:outputText style="font-weight:bold;" value="9."/>
+                                <apex:outputText style="margin-left:5px;" value="Who sells it?" />
+                            </apex:panelGroup>
+                            <apex:panelGroup >
+                                <apex:outputText style="font-weight:bold;" value="4."/>
+                                <apex:outputText style="margin-left:5px;" value="Tax Code - from Cox" />
+                            </apex:panelGroup>
+                            <apex:panelGroup >
+                                <apex:outputText style="font-weight:bold;" value="10."/>
+                                <apex:outputText style="margin-left:5px;" value="Who implements it?" />
+                            </apex:panelGroup>
+                            <apex:panelGroup >
+                                <apex:outputText style="font-weight:bold;" value="5."/>
+                                <apex:outputText style="margin-left:5px;" value="External Product Description" />
+                            </apex:panelGroup>
+                            <apex:panelGroup >
+                                <apex:outputText style="font-weight:bold;" value="11."/>
+                                <apex:outputText style="margin-left:5px;" value="What are the work stream milestones?" />
+                            </apex:panelGroup>
+                            <apex:panelGroup >
+                                <apex:outputText style="font-weight:bold;" value="6."/>
+                                <apex:outputText style="margin-left:5px;" value="Price" />
+                            </apex:panelGroup>
+                        </apex:panelGrid>
+                         
+					</apex:outputPanel>
+				</apex:pageBlockSectionItem>
+
+                <apex:pageBlockSectionItem >
+                    <apex:outputLabel value="{!$ObjectType.Change_Request__c.fields.Subject__c.label}" for="sub" />
+                    <apex:outputPanel styleClass="requiredInput" layout="block" >
+                        <apex:outputPanel styleClass="requiredBlock" layout="block" />
+                        <apex:inputField value="{!CRObj.Subject__c}" id="sub" style="width:500px" />
+                        <apex:outputPanel layout="inline" rendered="{!crvw.subjectRequired}">
+                            <br></br>
+                            <apex:outputText style="font-style:itali; color:red;" value="Error: A Subject is required." />
+                        </apex:outputPanel>                                             
+                    </apex:outputPanel>
+                </apex:pageBlockSectionItem>
+
+				<apex:pageBlockSectionItem >
+					<apex:outputLabel value="{!$ObjectType.Change_Request__c.fields.Request_Details__c.label}" for="rd" />
+					<apex:outputPanel styleClass="requiredInput" layout="block" >
+	                	<apex:outputPanel styleClass="requiredBlock" layout="block" />
+						<apex:inputTextarea value="{!CRObj.Request_Details__c}" richText="true" id="rd" />
+	                    <apex:outputPanel layout="inline" rendered="{!crvw.requestDetailsRequired}">
+	                        <br></br>
+	                        <apex:outputText style="font-style:itali; color:red;" value="Error: Request Details are required." />
+	                    </apex:outputPanel>                                             
+	                </apex:outputPanel>
+                </apex:pageBlockSectionItem>
+			</apex:pageBlockSection>
+            <!--
+			<apex:pageBlockSection title="Internal Notes" columns="1" rendered="{!isAdminUser}" >
+					<apex:outputPanel id="tcran">
+				<apex:pageBlockSectionItem rendered="{!IF(changeTierReason != '', true, false)}" >
+						<apex:outputLabel value="Tier change notes to be added " for="addedNotes" styleClass="labelCol" />
+						<apex:outputText value="{!changeTierReason}" id="addedNotes" styleClass="data2Col" />
+				</apex:pageBlockSectionItem>
+					</apex:outputPanel>
+				<apex:pageBlockSectionItem >
+					<apex:outputLabel value="{!$ObjectType.Change_Request__c.fields.Work_Notes__c.label}" for="wn" />
+					<apex:inputTextarea value="{!CRObj.Work_Notes__c}" richText="true" id="wn" />
+				</apex:pageBlockSectionItem>
+				<apex:pageBlockSectionItem >
+					<apex:outputLabel value="{!$ObjectType.Change_Request__c.fields.Work_Notes_History__c.label}" for="wnh" />
+					<apex:inputTextarea value="{!CRObj.Work_Notes_History__c}" id="wnh" richText="true" disabled="true" style="width:100%;" rows="10" />
+				</apex:pageBlockSectionItem>
+			</apex:pageBlockSection>
+            
+			<apex:pageBlockSection title="Planning" rendered="{!isAdminUser}" >
+				<apex:pageBlockSectionItem >
+					<apex:outputLabel value="{!$ObjectType.Change_Request__c.fields.LOE_Hours__c.label}" for="loe" />
+					<apex:inputField value="{!CRObj.LOE_Hours__c}" id="loe" />
+				</apex:pageBlockSectionItem>
+				<apex:pageBlockSectionItem >
+					<apex:outputLabel value="{!$ObjectType.Change_Request__c.fields.Estimated_Date_of_Completion__c.label}" for="estDate" />
+					<apex:inputField value="{!CRObj.Estimated_Date_of_Completion__c}" id="estDate" />
+				</apex:pageBlockSectionItem>
+				<apex:pageBlockSectionItem >
+                    <apex:outputLabel value="{!$ObjectType.Change_Request__c.fields.Order__c.label}" for="order" />
+                    <apex:inputField value="{!CRObj.Order__c}" id="order" />
+				</apex:pageBlockSectionItem>
+				<apex:pageBlockSectionItem >
+					<apex:outputLabel value="{!$ObjectType.Change_Request__c.fields.Date_Completed__c.label}" for="compDate" />
+					<apex:inputField value="{!CRObj.Date_Completed__c}" id="compDate" />
+				</apex:pageBlockSectionItem>
+				<apex:pageBlockSectionItem >
+					<apex:outputLabel value="{!$ObjectType.Change_Request__c.fields.Release_Notes_Details__c.label}" for="relNotes" />
+					<apex:inputTextarea value="{!CRObj.Release_Notes_Details__c}" id="relNotes" style="width:400px; height:75px" />
+				</apex:pageBlockSectionItem>
+			</apex:pageBlockSection>
+			<!-- Escalate button popup window -->
+		<!--	<apex:outputPanel id="tstpopup">
+	        	<apex:outputPanel styleClass="popupBackground" layout="block" rendered="{!displayPopUp}"/>
+	        	<apex:outputPanel styleClass="custPopup" layout="block" rendered="{!displayPopUp}">
+	        		<apex:panelGrid columns="2" styleClass="PGStyle1"  >
+	        			<apex:panelGroup >
+	                		<apex:outputLabel value="{!$ObjectType.Change_Request__c.fields.Tier_Level__c.label}" for="tier" styleClass="PGLabel" />
+	            		</apex:panelGroup>
+	            		<apex:panelGroup id="st" >
+		                    <apex:selectList value="{!selectedTier}" id="tier" size="1" style="width:125px;" >
+		                        <apex:selectOptions value="{!availableTier}" />
+		                    </apex:selectList>
+		                    <apex:outputPanel layout="inline" rendered="{!crvw.tierLevelRequired}">
+			                        <br></br>
+			                        <apex:outputText style="font-style:itali; color:red;" value="Error: A Tier Level change is Required if you have a Tier Change Reason." />
+			                    </apex:outputPanel>
+	                	</apex:panelGroup>
+
+	                	<apex:panelGroup id="tcr1">
+	                		<apex:outputLabel value="{!$ObjectType.Change_Request__c.fields.Tier_Change_Reason__c.label}" for="tReason" styleClass="PGLabel" />
+	                	</apex:panelGroup>
+	                	<apex:panelGroup id="tcr2">
+							<apex:outputPanel styleClass="requiredInput" layout="block" >
+		                    	<apex:outputPanel styleClass="requiredBlock" layout="block" />
+	            				<apex:inputTextarea value="{!CRObj.Tier_Change_Reason__c}" id="tReason" style="width:300px; height:50px;" />
+			                    <apex:outputPanel layout="inline" rendered="{!crvw.tierChangeReasonRequired}">
+			                        <br></br>
+			                        <apex:outputText style="font-style:itali; color:red;" value="Error: A Tier Change Reason is Required." />
+			                    </apex:outputPanel>                                             
+			                </apex:outputPanel>
+	                	</apex:panelGroup>
+	        		</apex:panelGrid>
+	                
+	                <apex:commandButton value="Back" action="{!closePopup}" rerender="tstpopup,dt,tcran,st,tcr2"/>
+	                <apex:commandButton value="Save Escalation" action="{!saveEscalate}" rendered="{!showSaveEscalate}" style="margin-left:5px;" />
+
+	            </apex:outputPanel>
+        	</apex:outputPanel>-->
+		</apex:pageBlock>
+		
+	</apex:form>
+</apex:page>

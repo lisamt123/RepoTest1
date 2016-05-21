@@ -1,0 +1,18 @@
+<apex:page standardController="contact" tabStyle="contact"
+	id="ContactCallNotes" name="ContactCallNotes" showHeader="false">
+	<body onload="foo();">
+	</body>
+	<script type="text/javascript">
+function foo(){
+if (/MSIE (\d+\.\d+);/.test(navigator.userAgent)){ //test for MSIE x.x;
+    window.document.write("{!contact.Direct_Number__c}");
+}
+else{
+ var ifrm = document.createElement("IFRAME"); 
+ifrm.setAttribute("src", "http://192.168.2.134:8080/test/Test.html?pn={!contact.Direct_Number__c}&ext={!$User.Extension}&sid={!$Api.Session_ID}&WhoId={!Contact.Id}&whatId={!Contact.Account.Id}"); 
+ifrm.setAttribute("frameBorder","0");
+ window.document.body.appendChild(ifrm); 
+}
+}
+</script>
+</apex:page>

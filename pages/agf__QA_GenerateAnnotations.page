@@ -1,0 +1,26 @@
+<apex:page controller="agf.QA_GenerateAnnotationsController">
+	<apex:sectionHeader title="Generate Annotations"></apex:sectionHeader>
+	<apex:form >
+		<apex:pageBlock title="Test Cases">
+			<apex:pageBlocktable value="{!testCaseAnnotations}" var="curAnnotation">
+				<apex:column >
+					<apex:facet name="header">Test Case Name</apex:facet>
+					<apex:outputLink value="/{!curAnnotation.TestCase}">{!curAnnotation.TestCase.agf__Brief_Description__c}</apex:outputLink>
+				</apex:column>
+				<apex:column >
+						<apex:facet name="header">User Story Selection</apex:facet>
+						<apex:actionRegion >
+							<apex:inputField value="{!curAnnotation.TestExecutionProxy.agf__User_Story__c}" required="true" />
+						</apex:actionRegion>
+				</apex:column> 
+				<apex:column id="generatedCodeColumn">
+					<apex:facet name="header">Generated Code</apex:facet>
+					<apex:outputText value="{!curAnnotation.Annotation}" />						
+				</apex:column>
+			</apex:pageBlocktable>
+			<apex:pageBlockButtons >
+				<apex:commandButton action="{!returnNull}" value="Generate Annotations" id="createAnnotationButton" />
+			</apex:pageBlockButtons>
+		</apex:pageBlock>
+		</apex:form>
+</apex:page>

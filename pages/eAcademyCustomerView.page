@@ -1,0 +1,149 @@
+<apex:page standardController="eAcademy__c" extensions="eAcademyCustomerView" showHeader="true" sidebar="true">
+	
+	<apex:includeScript value="{!URLFOR($Resource.jQueryUi_1_11_1, 'jQueryUi_1.11.1/jquery/external/jquery/jquery.js')}" />
+    <apex:includeScript value="{!URLFOR($Resource.jQueryUi_1_11_1, 'jQueryUi_1.11.1/jquery/jquery-ui.min.js')}" />
+    <apex:stylesheet value="{!URLFOR($Resource.jQueryUi_1_11_1, 'jQueryUi_1.11.1/ui/themes/smoothness/jquery-ui.css')}"/>
+	
+	<style type="text/css">
+		.custPopup{
+            background-color: white;
+            border-width: 2px;
+            border-style: solid;
+            z-index: 9999;
+            left: 50%;
+            padding:10px;
+            position: fixed;
+            /* These are the 3 css properties you will need to change so the popup 
+            displays in the center of the screen. First set the width. Then set 
+            margin-left to negative half of what the width is. You can add 
+            the height property for a fixed size pop up if you want.*/
+            width: 70%;
+            margin-left: -600px;
+            top:150px;
+        }
+        .popupBackground{
+            background-color:black;
+            opacity: 0.20;
+            filter: alpha(opacity = 20);
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            z-index: 9998;
+        }
+	</style>
+
+	<script type='text/javascript'> 
+		function runOnEnter(ev) { 
+			if (window.event && window.event.keyCode == 13 || ev.which == 13) { 
+				searchEA(); 
+				return false; 
+			}
+			else { 
+				return true; 
+			} 
+		} 
+	</script>
+
+	<apex:image value="/img/icon/custom51_100/books32.png" styleClass="pageTitleIcon" style="display:block;" />
+	<apex:outputText value="eAcademy" style="font-size: 200%;font-weight: bold;font-family: Arial, Helvetica, sans-serif;" />
+	<apex:form >
+    	<apex:actionFunction name="searchEA" action="{!search}" reRender="table, bottom"/> 
+        <apex:pageBlock id="CustomEAR" title="eAcademy Records" >
+        	<apex:outputText value="Enter the First and/or Last name to help narrow your search." style="margin-left:5px;" />
+        	<apex:inputText value="{!searchInput}" id="si" style="margin-left:5px;" onkeypress="return runOnEnter(event);" />
+        	<apex:commandButton value="Search" action="{!search}" rerender="table, bottom" style="margin-left:5px;" />
+        	<apex:commandButton value="Clear Search" action="{!cancelSearch}" rerender="table, si, bottom" style="margin-left:5px;" />
+        	<br/>
+        	<apex:outputText value="Note: If entering the first and last name of a user, follow the User Name format; Last Name, First Name." style="margin-left:40px;font-size:90%" />
+        	<br/>
+            <apex:pageBlockTable value="{!eAcademyRLWrpList}" var="ea" id="table" style="margin-top:7px;" >
+                <apex:column headerValue="Action" >
+                    <apex:commandLink value="More Info" action="{!showPopup}" reRender="popup" >
+                    	<apex:param name="detailParam" value="{!ea.eAId}" />
+                    </apex:commandLink>
+                </apex:column>
+                <apex:column headerValue="Record Name" >
+                    <apex:outputLabel value="{!ea.eAName}" />
+                </apex:column>
+                <apex:column headerValue="User Name" >
+                    <apex:outputText value="{!ea.eASortViewerInfo}" />
+                </apex:column>
+                <apex:column headerValue="Title" >
+                    <apex:outputText value="{!ea.eASortTitle}" />
+                </apex:column>
+                <apex:column headerValue="Type" >
+                    <apex:outputText value="{!ea.eAViewType}" />
+                </apex:column>
+                <apex:column headerValue="Score" >
+                    <apex:outputText value="{!ea.eAViewTotalScore}" />
+                </apex:column>
+            </apex:pageBlockTable>
+            <apex:outputPanel id="bottom" >
+	            <apex:outputPanel id="panelShowMore" layout="block" styleClass="pShowMore" rendered="{!AllowShowMore}">
+					<apex:commandLink id="linkShowMore" action="{!showMore}" rerender="CustomEAR">Show more »</apex:commandLink>
+	            </apex:outputPanel>
+	            <br/>
+        		<apex:outputText id="rows" value="No records to display." rendered="{!numOfRows = 0}" Style="margin-left:50px;margin-top:10px;color:green;font-size:120%" />
+            </apex:outputPanel>
+
+            <!-- popup window -->
+            <apex:outputPanel id="popup">
+            	<apex:outputPanel styleClass="popupBackground" Layout="block" rendered="{!displayPopUp}"/>
+            	<apex:outputPanel styleClass="custPopup" layout="block" rendered="{!displayPopUp}">
+            		<apex:pageBlockSection >
+            			<apex:pageBlockSectionItem >
+            				<apex:outputLabel value="Record Name" for="name" />
+                    		<apex:outputText value="{!eAInstance.Name}" id="name" />
+            			</apex:pageBlockSectionItem>
+            			<apex:pageBlockSectionItem >
+            			</apex:pageBlockSectionItem>
+            			<apex:pageBlockSectionItem >
+            				<apex:outputLabel value="Account Name" for="Aname" />
+                    		<apex:outputText value="{!eAInstance.Account_Name__r.Name}" id="Aname" />
+            			</apex:pageBlockSectionItem>
+            			<apex:pageBlockSectionItem >
+            				<apex:outputLabel value="Viewing Time" for="vTime" />
+                    		<apex:outputText value="{!eAInstance.Viewing_Time__c}" id="vTime" />
+            			</apex:pageBlockSectionItem>
+            			<apex:pageBlockSectionItem >
+            				<apex:outputLabel value="User Name" for="uName" />
+                    		<apex:outputText value="{!eAInstance.Sort_ViewerInfo__c}" id="uName" />
+            			</apex:pageBlockSectionItem>
+            			<apex:pageBlockSectionItem >
+            				<apex:outputLabel value="Total Pct of Duration" for="vDur" />
+                    		<apex:outputText value="{!eAInstance.View_Total_Pct_of_Duration__c}" id="vDur" />
+            			</apex:pageBlockSectionItem>
+            			<apex:pageBlockSectionItem >
+            				<apex:outputLabel value="Title" for="title" />
+                    		<apex:outputText value="{!eAInstance.Sort_Title__c}" id="title" />
+            			</apex:pageBlockSectionItem>
+            			<apex:pageBlockSectionItem >
+            				<apex:outputLabel value="Total Pct of Slides" for="vSlides" />
+                    		<apex:outputText value="{!eAInstance.View_Total_Pct_of_Slides__c}" id="vSlides" />
+            			</apex:pageBlockSectionItem>
+            			<apex:pageBlockSectionItem >
+            				<apex:outputLabel value="Type" for="vType" />
+                    		<apex:outputText value="{!eAInstance.View_Type__c}" id="vType" />
+            			</apex:pageBlockSectionItem>
+            			<apex:pageBlockSectionItem >
+            				<apex:outputLabel value="Total Slides Viewed" for="vViewed" />
+                    		<apex:outputText value="{!eAInstance.View_Total_Slides_Viewed__c}" id="vViewed" />
+            			</apex:pageBlockSectionItem>
+            			<apex:pageBlockSectionItem >
+            				<apex:outputLabel value="Total Score" for="score" />
+                    		<apex:outputText value="{!eAInstance.View_Total_Score__c}" id="score" />
+            			</apex:pageBlockSectionItem>
+            			<apex:pageBlockSectionItem >
+            				<apex:outputLabel value="Total Points" for="point" />
+                    		<apex:outputText value="{!eAInstance.View_Total_Points__c}" id="point" />
+            			</apex:pageBlockSectionItem>
+            		</apex:pageBlockSection>
+            		<apex:commandButton value="Close" action="{!closePopup}" rerender="popup" style="margin-left:40%;" />
+            	</apex:outputPanel>
+            </apex:outputPanel>
+        </apex:pageBlock>
+        
+    </apex:form>
+</apex:page>

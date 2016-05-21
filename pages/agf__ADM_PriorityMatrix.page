@@ -1,0 +1,49 @@
+<apex:page standardController="agf__ADM_Priority_Mapping__c" extensions="agf.ADM_PriorityMatrixController" standardStylesheets="true" showHeader="false" sidebar="false">
+    <style>
+        table.pMatrix caption { font-size:300%; font-weight:bold; text-align:left; color:#1C1C1C;}
+        table.pMatrix th { border-bottom: 1px solid #EEE; padding:3px; margin:0; text-align:center;}
+        .pMatrix td.header, table.pMatrix th { font-size: 120%; }
+        .pMatrix { width: 100%; }
+        table.pMatrix th.header { font-size:170%; border-bottom:1px solid #CCC; margin:3px;}
+        .pMatrix td.header { width:20%; text-align:right; font-weight:bold;}
+        table.pMatrix td, table.nMatrix td { vertical-align:middle; text-align:center;}
+        table.pMatrix td { padding: 15px; }
+        table.nMatrix td { padding: 0px; font-size:200%; font-weight:bold;}
+        .pMatrixRightBorder { border-right:1px solid #EEE; }
+        .pMatrixBottomBorder { border-bottom:1px solid #EEE; }
+    </style>
+    <table class="pMatrix" cellpadding="0" cellspacing="0">
+        <caption>Priority Matrix Chart</caption>
+        <thead>
+            <tr>
+                <th class="header" style="text-align:right">customer impact</th>
+                <th class="header" colspan="4">frequency</th>
+            </tr>
+            <tr>
+                <th>&nbsp;</th>
+                <apex:repeat value="{!frequencies}" var="frequency">
+                    <th><apex:outputText >{!LOWER(frequency.Name)}</apex:outputText></th>
+                </apex:repeat>
+            </tr>
+        </thead>
+        <tbody>
+            <apex:repeat value="{!priorityWrappers}" var="priorityWrapper">
+                <tr>
+                    <td class="header pMatrixBottomBorder"><apex:outputPanel >{!LOWER(priorityWrapper.impact)}</apex:outputPanel></td>
+                    <td class="pMatrixBottomBorder pMatrixRightBorder">
+                        <c:ADM_PriorityMatrixIndicator priority="{!priorityWrapper.always}"/>
+                    </td>
+                    <td class="pMatrixBottomBorder pMatrixRightBorder">
+                        <c:ADM_PriorityMatrixIndicator priority="{!priorityWrapper.often}"/>
+                    </td>
+                    <td class="pMatrixBottomBorder pMatrixRightBorder">
+                        <c:ADM_PriorityMatrixIndicator priority="{!priorityWrapper.sometimes}"/>
+                    </td>
+                    <td class="pMatrixBottomBorder">
+                        <c:ADM_PriorityMatrixIndicator priority="{!priorityWrapper.rarely}"/>
+                    </td>
+                </tr>
+            </apex:repeat>
+        </tbody>
+    </table>
+</apex:page>

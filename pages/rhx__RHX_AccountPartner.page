@@ -1,0 +1,45 @@
+<apex:page standardController="Account" extensions="rhx.RHX_AccountPartner_Controller" >
+
+<apex:form >
+<apex:pageBlock mode="{!pageMode}" title="{!IF(pageMode=='Edit', 'Partners Edit', 'Partners')}">
+
+<apex:pageBlockButtons >
+    <apex:commandButton value="Save" action="{!savePartner}" rendered="{!pageMode=='Edit'}"/>
+    <apex:commandButton value="New" action="{!setEditMode}" rendered="{!pageMode=='Detail'}"/>
+    <apex:commandButton value="Cancel" action="{!setDetailMode}" rendered="{!pageMode=='Edit'}" />
+</apex:pageBlockButtons>
+
+<apex:pageBlockSection >
+
+<apex:pageBlockTable value="{!accPartner}" var="accP" id="master_block">
+
+<apex:column headerValue="Action" rendered="{!pageMode=='Detail'}">
+    <apex:commandLink value="Del" reRender="master_block, partnerList" action="{! deletePartner }">
+        <apex:param name="partnerId" value="{! accP.Id }"/>
+    </apex:commandLink>
+</apex:column>
+
+<apex:column value="{!accP.AccountToId}" rendered="{!pageMode=='Detail'}"/>
+<apex:column value="{!accP.OpportunityId}" rendered="{!pageMode=='Detail'}"/>
+<apex:column value="{!accP.Role}" rendered="{!pageMode=='Detail'}"/>
+
+<apex:column headerValue="Partner" rendered="{!pageMode=='Edit'}">
+<apex:inputField value="{!accP.AccountToId}" required="false"/>
+</apex:column>
+<apex:column headerValue="Role" rendered="{!pageMode=='Edit'}">
+<apex:inputField value="{!accP.Role}" />
+</apex:column>
+
+</apex:pageBlockTable>
+
+
+<apex:outputPanel rendered="{!pageMode=='Detail'}" id="partnerList">
+    <a href="/001?rlid=RelatedPartnerList&id={!Account.Id}" target="_blank">Go to list(<apex:outputText value="{!partnerCount}" />)&nbsp;»</a>
+</apex:outputPanel>
+
+</apex:pageBlockSection>
+
+</apex:pageBlock>
+</apex:form>
+
+</apex:page>

@@ -1,0 +1,363 @@
+<apex:component Controller="vAutoHierarchyStructure">   
+<apex:includeScript value="{!$Resource.jQuery210}"  />
+
+    <apex:attribute name="currentId" description="This is the Account Id for displaying Acccount Hierarchy" type="String" required="true" assignTo="{!currentId}"/>
+    <apex:attribute name="poaId" description="This is the POA Id for use on the POA page to display the Account Hierarchy" type="String"/>
+
+        <style>
+         tr.dataRow {
+           background-color:white;
+         }
+         tr.dataRow:hover {
+           background-color: #e3f3ff;
+         };
+     </style>
+<apex:pageBlock >
+
+
+    <div class="treeNode"> 
+        
+
+    <!--  <table>
+<tr>
+<td>
+    <apex:outputLabel value="Custom HierarchyType" style="font-weight: bold;" for="ddHierarchyTypeList"></apex:outputLabel> </td>
+    <td><apex:selectList value="{!specifiedhierarchyType}" multiselect="false" size="1" id="ddHierarchyTypeList"  onchange="loadHierarchy(this.options[this.selectedIndex].text);" > 
+        <apex:selectOptions value="{!hierarchyTypeList}"/>
+    </apex:selectList>
+    </td>
+    <td><apex:actionStatus id="loadingHierarchy" startText="Loading hierarchy..." stopText="">
+    <apex:facet name="start">
+                <div class="waitingSearchDiv" id="el_loading" style="background-color: #fbfbfb;
+                       height: 100%;opacity:0.85;width:100%;"> 
+                    <div class="waitingHolder" style="top: 74.2px; width: 91px;">
+                        <img class="waitingImage" src="/img/loading.gif" title="Loading hierarchy......" />
+                        <span class="waitingDescription">Loading hierarchy......</span>
+                    </div>
+                </div>
+            </apex:facet>
+    </apex:actionStatus>
+    </td>
+    </tr>
+</table> --> 
+
+<apex:outputLink id="linkNewWindow" target="_blank" value="{!IF(poaId != '', 
+                                      URLFOR('/apex/' + $CurrentPage.Name, null, ['id'=poaId]),
+                                      URLFOR('/apex/' + $CurrentPage.Name, null, ['id'=currentId]))}">
+   View In a New Window
+</apex:outputLink> 
+<br/>
+<br/> 
+ 
+<apex:outputLabel style="position:absolute; width:100px; float:left; margin:0px 30px 0px 0px;">
+<h1> Account<br/>Name </h1> 
+</apex:outputLabel>
+  <!--  
+  <apex:outputLabel styleClass="HierarchyTableLabel HierarchyTableHeaderLabel"  style="position:absolute; left:330px; width:100px; float:left; margin:0px 30px 0px 0px;">
+<h1>Type</h1>
+</apex:outputLabel>
+ 
+ <apex:outputLabel styleClass="HierarchyTableLabel HierarchyTableHeaderLabel"   style="position:absolute; left:430px; width:100px; float:left; margin:0px 30px 0px 0px;">
+<h1>vAuto<br/>Status</h1>
+</apex:outputLabel>
+  <apex:outputLabel styleClass="HierarchyTableLabel HierarchyTableHeaderLabel"   style="position:absolute; left:530px; width:100px; float:left; margin:0px 30px 0px 0px;">
+<h1>vAuto<br/>Spend</h1>
+</apex:outputLabel>
+  <apex:outputLabel styleClass="HierarchyTableLabel HierarchyTableHeaderLabel"   style="position:absolute; left:630px; width:100px; float:left; margin:0px 30px 0px 0px;">
+<h1>vAuto<br/>Account #</h1>
+</apex:outputLabel>
+  <apex:outputLabel styleClass="HierarchyTableLabel HierarchyTableHeaderLabel"   style="position:absolute; left:730px; width:200px; float:left; margin:0px 30px 0px 0px;">
+<h1>vAuto<br/>Products</h1>
+</apex:outputLabel>
+ -->
+  <apex:outputLabel styleClass="HierarchyTableLabel HierarchyTableHeaderLabel"   style="position:absolute; left:330px; width:60px; float:left; margin:0px 30px 0px 0px;">
+<h1>MP#</h1>
+</apex:outputLabel>
+  <apex:outputLabel styleClass="HierarchyTableLabel HierarchyTableHeaderLabel"   style="position:absolute; left:390px; width:100px; float:left; margin:0px 30px 0px 0px;">
+<h1>Provision Type</h1>
+</apex:outputLabel>
+  <apex:outputLabel styleClass="HierarchyTableLabel HierarchyTableHeaderLabel"   style="position:absolute; left:490px; width:100px; float:left; margin:0px 30px 0px 0px;">
+<h1>Conquest Type</h1>
+</apex:outputLabel>
+  <apex:outputLabel styleClass="HierarchyTableLabel HierarchyTableHeaderLabel"   style="position:absolute; left:590px; width:100px; float:left; margin:0px 30px 0px 0px;">
+<h1>KBB PAR Type</h1>
+</apex:outputLabel>
+  <apex:outputLabel styleClass="HierarchyTableLabel HierarchyTableHeaderLabel"   style="position:absolute; left:690px; width:100px; float:left; margin:0px 30px 0px 0px;">
+<h1>Auction Genius Type</h1>
+</apex:outputLabel>
+  <apex:outputLabel styleClass="HierarchyTableLabel HierarchyTableHeaderLabel"   style="position:absolute; left:790px; width:100px; float:left; margin:0px 30px 0px 0px;">
+<h1>Stockwave Type</h1>
+</apex:outputLabel>
+
+  <apex:outputLabel styleClass="HierarchyTableLabel HierarchyTableHeaderLabel"   style="position:absolute; left:890px; width:100px; float:left; margin:0px 30px 0px 0px;">
+<h1>City</h1>
+</apex:outputLabel>
+  <apex:outputLabel styleClass="HierarchyTableLabel HierarchyTableHeaderLabel"   style="position:absolute; left:990px; width:100px; float:left; margin:0px 30px 0px 0px;">
+<h1>State</h1>
+</apex:outputLabel>
+<apex:outputLabel styleClass="HierarchyTableLabel HierarchyTableHeaderLabel"   style="position:absolute; left:1050px; width:50px; float:left; margin:0px 30px 0px 0px;">
+<h1>SA</h1>
+</apex:outputLabel>
+  <apex:outputLabel styleClass="HierarchyTableLabel HierarchyTableHeaderLabel"   style="position:absolute; left:1100px; width:100px; float:left; margin:0px 30px 0px 0px;">
+<h1>Director</h1>
+</apex:outputLabel>
+<apex:outputLabel styleClass="HierarchyTableLabel HierarchyTableHeaderLabel"   style="position:absolute; left:1200px; width:100px; float:left; margin:0px 30px 0px 0px;">
+<h1>Performance<br/>Manager</h1>
+</apex:outputLabel>
+
+<br/>
+<br/>
+<apex:outputPanel id="hierarchyResultsPanel">
+
+
+ 
+<hr noshade="noshade" class="HierarchyTableHeaderRowSaperator" style="width:100%;" />
+
+            <apex:repeat value="{!Finalasm}" var="pos"  >
+            <apex:repeat value="{!pos.levelFlag}" var="flag" first="0">
+                <apex:image url="/img/tree/empty.gif" height="16" width="20" rendered="{!IF(flag,false,true)}"/>
+                <apex:image url="/s.gif" alt="" width="3" height="16" rendered="{!IF(flag,true,false)}"/>
+                <apex:image url="/img/tree/chain.gif" height="16" width="20" rendered="{!IF(flag,true,false)}"/>
+            </apex:repeat>
+
+            <span height="16" v="top">
+
+            <apex:outputText rendered="{!IF(pos.nodeType=='start',true,false)}">
+                <apex:image id="tree_start" url="/img/tree/minusStart.gif" height="16" width="20" title="Click to expand/collapse nested items." onClick="TreeNodeElement.prototype.toggle(this,'{!pos.nodeId}');changeImage('{!$Component.Tree_start}',1)"/>
+                <apex:image id="Icon_start" url="/img/icon/custom51_100/globe16.png" width="16" height="16" rendered="{!IF(pos.currentNode,false,true)}"/>
+                <apex:image id="Icon_start_current" url="/img/icon/star16.png" width="16" height="16" rendered="{!IF(pos.currentNode,true,false)}"/>
+            </apex:outputText>
+            <apex:outputText rendered="{!IF(OR(pos.nodeType=='parent',pos.nodeType=='parent_end'),true,false)}">
+                <apex:image id="Tree_parent" url="/img/tree/minus.gif" rendered="{!IF(pos.nodeType=='parent',true,false)}" height="16" width="20" title="Click to expand/collapse nested items." onClick="TreeNodeElement.prototype.toggle(this,'{!pos.nodeId}');changeImage('{!$Component.Tree_parent}',2)"/>
+                <apex:image id="Tree_parent_end" url="/img/tree/minusEnd.gif" rendered="{!IF(pos.nodeType=='parent_end',true,false)}" height="16" width="20" title="Click to expand/collapse nested items." onClick="TreeNodeElement.prototype.toggle(this,'{!pos.nodeId}');changeImage('{!$Component.Tree_parent_end}',3)"/>                
+                <apex:image id="Icon_parent" url="/img/icon/factory16.png" width="16" height="16" rendered="{!IF(pos.currentNode,false,true)}"/>
+                <apex:image id="Icon_parent_current" url="/img/icon/star16.png" width="16" height="16" rendered="{!IF(pos.currentNode,true,false)}"/>
+            </apex:outputText>
+            <apex:outputText rendered="{!IF(OR(pos.nodeType=='child',pos.nodeType=='child_end'),true,false)}">
+                <apex:image id="Tree_child" url="/img/tree/node.gif" rendered="{!IF(pos.nodeType=='child',true,false)}" height="16" width="20" title="Click to expand/collapse nested items." onClick="TreeNodeElement.prototype.toggle(this,'{!pos.nodeId}')"/>
+                <apex:image id="Tree_child_current" url="/img/tree/nodeEnd.gif" rendered="{!IF(pos.nodeType=='child_end',true,false)}" height="16" width="20" title="Click to expand/collapse nested items." onClick="TreeNodeElement.prototype.toggle(this,'{!pos.nodeId}')"/>
+                <apex:image id="Icon_child" url="/img/icon/desk16.png" width="16" height="16" rendered="{!IF(pos.currentNode,false,true)}"/>    
+                <apex:image id="Icon_child_current" url="/img/icon/star16.png" width="16" height="16" rendered="{!IF(pos.currentNode,true,false)}"/>
+            </apex:outputText>
+            <apex:outputText rendered="{!IF(pos.nodeType=='end',true,false)}">
+                <apex:image id="Tree_end" url="/img/tree/nodeEnd.gif" height="16" width="20"/> 
+                <apex:image id="Icon_end" url="/img/icon/desk16.png" width="16" height="16" rendered="{!IF(pos.currentNode,false,true)}"/>
+                <apex:image id="Icon_end_current" url="/img/icon/star16.png" width="16" height="16" rendered="{!IF(pos.currentNode,true,false)}"/>
+            </apex:outputText>
+<!-- Change Below -->
+            <apex:outputLink value="/{!pos.account.id}" style="{!IF(pos.currentNode,'font-weight: bold;','')}" styleClass="columnHeadActiveBlack" target="_top">{!pos.account.name}</apex:outputLink>
+ 
+<!-- Include the following if you uses sites with accounts -->
+<!--    
+            <apex:outputLabel styleClass="HierarchyTableLabel" style="position:absolute; left:330px; width:100px; float:left; margin:0px 30px 0px 0px;">
+            <apex:outputText style="{!IF(pos.currentNode,'font-weight: bold;','')}" value="{!pos.account.Type}" />
+            </apex:outputLabel>
+            
+            <apex:outputLabel styleClass="HierarchyTableLabel" style="position:absolute; left:430px; width:100px; float:left; margin:0px 30px 0px 0px;">
+            <apex:outputText style="{!IF(pos.currentNode,'font-weight: bold;','')}" value="{!pos.account.vAutoStatus}" />
+            </apex:outputLabel>
+            
+            <apex:outputLabel styleClass="HierarchyTableLabel" style="position:absolute; left:530px; width:100px; float:left; margin:0px 30px 0px 0px;">
+            <apex:outputText style="{!IF(pos.currentNode,'font-weight: bold;','')}" value="{!pos.account.vAutoSpend}" /> 
+            </apex:outputLabel>
+            
+            <apex:outputLabel styleClass="HierarchyTableLabel" style="position:absolute; left:730px; width:200px; float:left; margin:0px 30px 0px 0px;">
+            <apex:outputText style="{!IF(pos.currentNode,'font-weight: bold;','')}" escape="false"  value="{!pos.account.vAutoProducts}" />
+            </apex:outputLabel>
+ -->         
+            <apex:outputLabel styleClass="HierarchyTableLabel" style="position:absolute; left:320px; width:60px; float:left; margin:0px 30px 0px 0px; word-wrap: break-word;">
+            <apex:outputText style="{!IF(pos.currentNode,'font-weight: bold;','')}" value="{!pos.account.vAutoLogicalId}" />
+            </apex:outputLabel>
+
+ 
+            <apex:outputLabel styleClass="HierarchyTableLabel" style="position:absolute; left:390px; width:100px; float:left; margin:0px 30px 0px 0px;">
+            <apex:outputText style="{!IF(pos.currentNode,'font-weight: bold;','')}" value="{!pos.account.vAutoProvisionType}" />
+            </apex:outputLabel>
+            
+            <apex:outputLabel styleClass="HierarchyTableLabel" style="position:absolute; left:490px; width:100px; float:left; margin:0px 30px 0px 0px;">
+            <apex:outputText style="{!IF(pos.currentNode,'font-weight: bold;','')}" value="{!pos.account.vAutoConquestType}" /> 
+            </apex:outputLabel>
+            
+            <apex:outputLabel styleClass="HierarchyTableLabel" style="position:absolute; left:590px; width:100px; float:left; margin:0px 30px 0px 0px;">
+            <apex:outputText style="{!IF(pos.currentNode,'font-weight: bold;','')}" value="{!pos.account.vAutoKBBPARType}" />
+            </apex:outputLabel>
+            
+            <apex:outputLabel styleClass="HierarchyTableLabel" style="position:absolute; left:690px; width:100px; float:left; margin:0px 30px 0px 0px;">
+            <apex:outputText style="{!IF(pos.currentNode,'font-weight: bold;','')}" escape="false"  value="{!pos.account.vAutoAuctionGeniusType}" />
+            </apex:outputLabel>
+            
+            <apex:outputLabel styleClass="HierarchyTableLabel" style="position:absolute; left:790px; width:100px; float:left; margin:0px 30px 0px 0px;">
+            <apex:outputText style="{!IF(pos.currentNode,'font-weight: bold;','')}" escape="false"  value="{!pos.account.StockwaveType}" />
+            </apex:outputLabel>
+             
+            <apex:outputLabel styleClass="HierarchyTableLabel" style="position:absolute; left:890px; width:100px; float:left; margin:0px 30px 0px 0px;">
+            <apex:outputText style="{!IF(pos.currentNode,'font-weight: bold;','')}" value="{!pos.account.ShippingCity}" />
+            </apex:outputLabel>
+            
+            <apex:outputLabel styleClass="HierarchyTableLabel" style="position:absolute; left:990px; width:100px; float:left; margin:0px 30px 0px 0px;">
+            <apex:outputText style="{!IF(pos.currentNode,'font-weight: bold;','')}" value="{!pos.account.ShippingState}" /> 
+            </apex:outputLabel>
+                        
+                        <!--     <apex:outputLabel styleClass="HierarchyTableLabel" style="position:absolute; left:1030px; width:100px; float:left; margin:0px 30px 0px 0px;">
+           <apex:outputText style="{!IF(pos.currentNode,'font-weight: bold;','')}" value="{!pos.account.Owner}" rendered="{!IF(pos.account.Owner!= '', true, false)}"/> 
+                            </apex:outputLabel>
+                        -->
+           <apex:outputLabel styleClass="HierarchyTableLabel" style="position:absolute; left:1050px; width:50px; float:left; margin:0px 30px 0px 0px; word-wrap: break-word;">
+            <apex:inputCheckbox style="{!IF(pos.currentNode,'font-weight: bold;','')}" value="{!pos.account.strategicAccount}" disabled="true" />
+            </apex:outputLabel>
+           <apex:outputLabel styleClass="HierarchyTableLabel" style="position:absolute; left:1100px; width:100px; float:left; margin:0px 30px 0px 0px;">
+           <apex:outputText style="{!IF(pos.currentNode,'font-weight: bold;','')}" value="{!pos.account.Director}" />
+           </apex:outputLabel>
+           <apex:outputLabel styleClass="HierarchyTableLabel" style="position:absolute; left:1200px; width:100px; float:left; margin:0px 30px 0px 0px;">
+           <apex:outputText style="{!IF(pos.currentNode,'font-weight: bold;','')}" value="{!pos.account.PerformanceManager}" />
+           </apex:outputLabel>
+            <hr class="HierarchyTableRowSaperator"  size="1.5" align="left" width="100%" color="black"></hr>
+<!-- Stop -->
+            </span>
+            <div> </div>
+            <apex:outputText rendered="{!IF(OR(pos.nodeType=='child_end',pos.nodeType=='child'),false,true)}">
+                <div id='{!pos.nodeId}'> </div>
+            </apex:outputText>
+            <apex:outputText rendered="{!IF(OR(pos.nodeType=='child_end',pos.nodeType=='child'),true,false)}">
+                <div id='{!pos.nodeId}'><apex:image url="/s.gif" alt="" width="1" height="1"/></div>
+            </apex:outputText>
+            <apex:repeat value="{!pos.closeFlag}" var="close">
+                <!-- </div> -->
+            </apex:repeat>            
+
+    </apex:repeat>
+    <!-- Update all column position depnding on how many level deep the tree is 
+Otherwise the data is overlapped between the columns as the children indent to right as the tree progress.
+update the position of all the columns based on how deep the tree is; every time the tree is refreshed.
+-->
+
+    <script type="text/javascript">
+//alert('ok');
+ $j = jQuery.noConflict();
+ 
+
+
+ //reset the header columns position on each iteration since it will not be rerenderd when tree is rendered
+ //Once a tree is rerendered we calculate the column positions based on tree depth (hierarchy levels)
+ //without resetting positions it will start from what was previously set instead 
+ //from default values; our logic to set the position based on hiarrchy levels
+ //uses default values to calculate the current position.
+ var varcol = 1;
+ 
+ /*
+ $j('label.HierarchyTableHeaderLabel').each(function() {
+  
+      col = parseInt(varcol);
+        //alert('col: '+col.toString());
+       if (typeof $j(this).css('left') != "undefined") {
+       //var oldValue = parseInt($j(this).css('left'));
+       //var newValue = oldValue + (col*100);
+        var newValue = 230 + (col*100);
+          //alert('newValue: '+newValue.toString());
+         $j(this).css("left", newValue.toString()+'px');
+         col++;
+         varcol = col.toString();
+       }
+ 
+ });*/
+     var totalLevels = parseInt('{!Levels}');
+  
+  
+          $j('label.HierarchyTableLabel').each(function() {
+          
+          if (typeof $j(this).css('left') != "undefined") {
+             var oldValue = parseInt($j(this).css('left'));
+            var newValue = oldValue + (totalLevels*15);
+             $j(this).css("left", newValue.toString()+'px');
+             //$j(this).css('border-right','1px solid black');
+             //$j(this).css('border-left','1px solid black');
+                }
+            });
+      
+                
+            /*reset the row saperator space*/
+           
+           $j('hr.HierarchyTableRowSaperator').each(function() {
+        
+              //console.log('adjusting row saperator space');
+              
+               
+                //find all the spans with in the parent
+                  var parentElement = $j(this).parent();
+                 
+                  var spanLists =  $j(parentElement).find('.HierarchyTableLabel');
+                  var spanListCount  = spanLists.length;
+                  //console.log('Found span#'+spanListCount);
+                  var rowSpace =0;
+                  for( var i = 0; i < spanListCount; i++) {
+                  if((typeof $j(spanLists[i]) != "undefined")){ 
+                  var spanHeight =  $j(spanLists[i]).height();
+                  //console.log('span height:'+ spanHeight);
+                        if(spanHeight!= null){
+                        if(spanHeight > rowSpace){
+                        rowSpace = spanHeight;
+                        //console.log('increased space'+rowSpace);                      
+                        }
+                        }
+                 }
+                 else{
+                 //console.log('undefined; error retrieving span from the list');
+                 }
+                 }
+                 
+                 if(rowSpace > 0){
+                 rowSpace = rowSpace + 5;
+                    //console.log('adding space:'+rowSpace.toString);
+                     $j(this).css('margin',rowSpace.toString()+'px 0px 0px 0px'); 
+                 }          
+                    
+           
+             });  
+                     
+          /* 
+            reset the row saperator width
+           
+           $j('hr.HierarchyTableRowSaperator').each(function() {
+             if (typeof $j(this).css('width') != "undefined") {
+              var oldValue = parseInt($j(this).css('width'));
+            var newValue = oldValue + (totalLevels*20);
+             $j(this).css("width", newValue.toString()+'px');
+             }
+             });
+               */
+            
+    </script>
+    </apex:outputPanel>
+  
+    <br/><br/><br/>
+    
+
+    </div>
+    <apex:pageMessages id="showmsg"></apex:pageMessages>
+   </apex:pageBlock>         
+    <script type="text/javascript">
+    
+
+
+String.prototype.endsWith = function(str){return (this.match(str+"$")==str)}
+function changeImage(s, i) {
+     imageURL = document.getElementById(s).src;
+     if (i == 1) {
+         if (imageURL.endsWith("/img/tree/minusStart.gif")) imageURL = "/img/tree/plusStart.gif";
+         else if (imageURL.endsWith("/img/tree/plusStart.gif")) imageURL = "/img/tree/minusStart.gif";
+     } else if (i == 2) {
+         if (imageURL.endsWith("/img/tree/minus.gif")) imageURL = "/img/tree/plus.gif";
+         else if (imageURL.endsWith("/img/tree/plus.gif")) imageURL = "/img/tree/minus.gif";
+     } else if (i == 3) {
+         if (imageURL.endsWith("/img/tree/minusEnd.gif")) imageURL = "/img/tree/plusEnd.gif";
+         else if (imageURL.endsWith("/img/tree/plusEnd.gif")) imageURL = "/img/tree/minusEnd.gif";
+     } else {
+        return;
+     }
+     document.getElementById(s).src=imageURL;
+} 
+</script>
+ <apex:actionFunction action="{!loadHierarchy}" name="loadHierarchy" reRender="hierarchyResultsPanel"   status="loadingHierarchy"> 
+<apex:param assignTo="{!specifiedhierarchyType}" value="" name="hierarchyType"/>
+</apex:actionFunction>    
+</apex:component>

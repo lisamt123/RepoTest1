@@ -1,0 +1,298 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <actionOverrides>
+        <actionName>Accept</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>CancelEdit</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Clone</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Delete</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Edit</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Follow</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>List</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>New</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>SaveEdit</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Tab</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>View</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <allowInChatterGroups>false</allowInChatterGroups>
+    <compactLayoutAssignment>SYSTEM</compactLayoutAssignment>
+    <deploymentStatus>Deployed</deploymentStatus>
+    <deprecated>false</deprecated>
+    <description>Release Events are generated from Release Event Items of an Application when applied to a specific Release</description>
+    <enableActivities>true</enableActivities>
+    <enableBulkApi>true</enableBulkApi>
+    <enableFeeds>false</enableFeeds>
+    <enableHistory>false</enableHistory>
+    <enableReports>true</enableReports>
+    <enableSearch>true</enableSearch>
+    <enableSharing>true</enableSharing>
+    <enableStreamingApi>true</enableStreamingApi>
+    <fields>
+        <fullName>agf__Application_Name__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <formula>agf__Release__r.agf__Application__r.Name</formula>
+        <label>Application Name</label>
+        <required>false</required>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>agf__Application_Type__c</fullName>
+        <deprecated>false</deprecated>
+        <description>The Application Type of the Application of the Release which this Release Event is associated with.</description>
+        <externalId>false</externalId>
+        <formula>TEXT(agf__Release__r.agf__Application__r.agf__Application_Type__c)</formula>
+        <label>Application Type</label>
+        <required>false</required>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>agf__Customer_Facing_Name__c</fullName>
+        <deprecated>false</deprecated>
+        <description>Customer-facing name for this Release Event. When field is blank, the event is not customer-facing.</description>
+        <externalId>false</externalId>
+        <inlineHelpText>Customer-facing name for this Release Event. When field is blank, the event is not customer-facing.</inlineHelpText>
+        <label>Customer Facing Name</label>
+        <length>100</length>
+        <required>false</required>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>agf__Deployment_Instances__c</fullName>
+        <deprecated>false</deprecated>
+        <description>This is a space-separated list of instances which will participate in this Release Event</description>
+        <externalId>false</externalId>
+        <inlineHelpText>Space-separated list of instances which will participate in this Release Event (eg, &quot;NA1 NA2 CS3&quot;)</inlineHelpText>
+        <label>Deployment Instances</label>
+        <length>2000</length>
+        <trackTrending>false</trackTrending>
+        <type>LongTextArea</type>
+        <visibleLines>2</visibleLines>
+    </fields>
+    <fields>
+        <fullName>agf__Event_Contact__c</fullName>
+        <deleteConstraint>SetNull</deleteConstraint>
+        <deprecated>false</deprecated>
+        <description>Person to contact for issues and questions about this Release Event.</description>
+        <externalId>false</externalId>
+        <inlineHelpText>Person to contact for issues and questions about this Release Event.</inlineHelpText>
+        <label>Event Contact</label>
+        <referenceTo>User</referenceTo>
+        <relationshipName>Release_Events</relationshipName>
+        <required>false</required>
+        <trackTrending>false</trackTrending>
+        <type>Lookup</type>
+    </fields>
+    <fields>
+        <fullName>agf__Event_Status__c</fullName>
+        <deprecated>false</deprecated>
+        <description>Preview: Event record has not yet been created for this Release Event
+Planned: Event record has been created</description>
+        <externalId>false</externalId>
+        <inlineHelpText>&quot;Preview&quot; events are not committed and do not appear in the calendar. &quot;Planned&quot; events appear as scheduled in the calendar.</inlineHelpText>
+        <label>Event Status</label>
+        <picklist>
+            <picklistValues>
+                <fullName>Preview</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Planned</fullName>
+                <default>false</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <trackTrending>false</trackTrending>
+        <type>Picklist</type>
+    </fields>
+    <fields>
+        <fullName>agf__Origination__c</fullName>
+        <deleteConstraint>SetNull</deleteConstraint>
+        <deprecated>false</deprecated>
+        <description>Release Event Template from which this Release Event originated.</description>
+        <externalId>false</externalId>
+        <label>Origination</label>
+        <referenceTo>agf__ADM_Release_Event_Template__c</referenceTo>
+        <relationshipLabel>Release Events</relationshipLabel>
+        <relationshipName>Release_Events</relationshipName>
+        <required>false</required>
+        <trackTrending>false</trackTrending>
+        <type>Lookup</type>
+    </fields>
+    <fields>
+        <fullName>agf__Release_Name__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <formula>agf__Release__r.Name</formula>
+        <label>Release Name</label>
+        <required>false</required>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>agf__Release_Type__c</fullName>
+        <deprecated>false</deprecated>
+        <description>The Release Type of the Release this Release Event is associated with.</description>
+        <externalId>false</externalId>
+        <formula>TEXT(agf__Release__r.agf__Release_Type__c)</formula>
+        <label>Release Type</label>
+        <required>false</required>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>agf__Release__c</fullName>
+        <deprecated>false</deprecated>
+        <description>Release to which this Release Event is associated.</description>
+        <externalId>false</externalId>
+        <inlineHelpText>Release to which this Release Event is associated.</inlineHelpText>
+        <label>Release</label>
+        <referenceTo>agf__ADM_Release__c</referenceTo>
+        <relationshipLabel>Release Events</relationshipLabel>
+        <relationshipName>Release_Events</relationshipName>
+        <relationshipOrder>0</relationshipOrder>
+        <reparentableMasterDetail>false</reparentableMasterDetail>
+        <trackTrending>false</trackTrending>
+        <type>MasterDetail</type>
+        <writeRequiresMasterRead>false</writeRequiresMasterRead>
+    </fields>
+    <fields>
+        <fullName>agf__Scheduled_End__c</fullName>
+        <deprecated>false</deprecated>
+        <description>Scheduled End for the Release Event</description>
+        <externalId>false</externalId>
+        <inlineHelpText>Scheduled end time of the Release Event.</inlineHelpText>
+        <label>Scheduled End</label>
+        <required>false</required>
+        <trackTrending>false</trackTrending>
+        <type>DateTime</type>
+    </fields>
+    <fields>
+        <fullName>agf__Scheduled_Start__c</fullName>
+        <deprecated>false</deprecated>
+        <description>Start time of the Release Event</description>
+        <externalId>false</externalId>
+        <inlineHelpText>Scheduled start time of the Release Event</inlineHelpText>
+        <label>Scheduled Start</label>
+        <required>false</required>
+        <trackTrending>false</trackTrending>
+        <type>DateTime</type>
+    </fields>
+    <label>Release Event</label>
+    <nameField>
+        <label>Release Event Name</label>
+        <type>Text</type>
+    </nameField>
+    <pluralLabel>Release Events</pluralLabel>
+    <searchLayouts>
+        <excludedStandardButtons>Accept</excludedStandardButtons>
+        <excludedStandardButtons>ChangeOwner</excludedStandardButtons>
+        <listViewButtons>agf__Set_Release_Event_To_Planned</listViewButtons>
+    </searchLayouts>
+    <sharingModel>ControlledByParent</sharingModel>
+    <validationRules>
+        <fullName>agf__End_Time_cannot_be_before_Start_Time</fullName>
+        <active>true</active>
+        <errorConditionFormula>agf__Scheduled_Start__c &gt; agf__Scheduled_End__c</errorConditionFormula>
+        <errorDisplayField>agf__Scheduled_End__c</errorDisplayField>
+        <errorMessage>Event End Time cannot be before Start Time.</errorMessage>
+    </validationRules>
+    <validationRules>
+        <fullName>agf__End_Time_must_be_set</fullName>
+        <active>true</active>
+        <errorConditionFormula>ISBLANK(agf__Scheduled_End__c)</errorConditionFormula>
+        <errorDisplayField>agf__Scheduled_End__c</errorDisplayField>
+        <errorMessage>Event End Time must be set.</errorMessage>
+    </validationRules>
+    <validationRules>
+        <fullName>agf__Start_Time_must_be_set</fullName>
+        <active>true</active>
+        <errorConditionFormula>ISBLANK(agf__Scheduled_Start__c)</errorConditionFormula>
+        <errorDisplayField>agf__Scheduled_Start__c</errorDisplayField>
+        <errorMessage>Event Start Time must be set.</errorMessage>
+    </validationRules>
+    <webLinks>
+        <fullName>agf__Delete_Release_Event</fullName>
+        <availability>online</availability>
+        <displayType>massActionButton</displayType>
+        <linkType>javascript</linkType>
+        <masterLabel>Delete Release Event</masterLabel>
+        <openType>onClickJavaScript</openType>
+        <protected>false</protected>
+        <requireRowSelection>true</requireRowSelection>
+        <url>{!REQUIRESCRIPT (&quot;/soap/ajax/13.0/connection.js&quot;)} 
+var records = {!GETRECORDIDS($ObjectType.agf__ADM_Release_Event__c)};
+if (records[0] == null) { 
+	alert(&quot;Please select at least one row.&quot;) 
+} else {
+	if (confirm(&apos;Are you sure?&apos;)) {
+		result = sforce.connection.deleteIds([records]);
+		if (!result[0].getBoolean(&quot;success&quot;)) throw &quot;Delete failed.&quot;;
+		window.location.reload(); 
+	}
+}</url>
+    </webLinks>
+    <webLinks>
+        <fullName>agf__Set_Release_Event_To_Planned</fullName>
+        <availability>online</availability>
+        <displayType>massActionButton</displayType>
+        <linkType>javascript</linkType>
+        <masterLabel>Set Release Event To Planned</masterLabel>
+        <openType>onClickJavaScript</openType>
+        <protected>false</protected>
+        <requireRowSelection>true</requireRowSelection>
+        <url>{!REQUIRESCRIPT (&quot;/soap/ajax/13.0/connection.js&quot;)} 
+var records = {!GETRECORDIDS($ObjectType.agf__ADM_Release_Event__c)};
+var newRecords = []; 
+if (records[0] == null) { 
+	alert(&quot;Please select at least one row.&quot;) 
+} else {
+	for (var n=0; n&lt;records.length; n++) {
+		var c = new sforce.SObject(&quot;ADM_Release_Event__c&quot;); 
+		c.id = records[n]; 
+		c.Event_Status__c = &quot;Planned&quot;;
+		newRecords.push(c); 
+	} 
+	result = sforce.connection.update(newRecords); 
+	window.location.reload(); 
+}</url>
+    </webLinks>
+</CustomObject>

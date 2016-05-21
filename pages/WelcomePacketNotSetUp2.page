@@ -1,0 +1,45 @@
+<apex:page controller="WelcomePacketWizard" showHeader="false">
+	<head>
+<apex:stylesheet value="{!$Resource.styles}"></apex:stylesheet>
+	</head>
+
+	<script>
+function confirmCancel()
+{
+	var isCancel = confirm("Are you sure you wish to cancel?");
+	return isCancel;
+}
+</script>
+
+	<table border="0" width="100%" height="100%" id="bg">
+		<tr valign="top">
+			<td>
+				<div class="maincontainer">
+					<apex:image id="key1" width="100%"
+						value="/resource/1265230873000/Header" />
+
+					<apex:sectionHeader title="VinSolutions Secondary Packet"
+						subtitle="Contact VinSolutions" />
+
+					<apex:form >
+						<apex:pageBlock title="Packet Setup Incomplete">
+							<table border="0" width="100%" align="center">
+								<tr align="center">
+									<td align="center"><apex:commandButton action="{!saveQuitWeb}" value="Exit"
+											onclick="return confirmCancel()" immediate="true" />
+									</td>
+								</tr>
+							</table>
+							<table align="center">
+								<tr align="center">
+									<td align="center"><apex:outputText value="It appears that your Secondary Packet is not completely prepared.  Please contact your VinSolutions Implementation Manager." /><br />
+									</td>
+								</tr>
+							</table>
+						</apex:pageBlock>
+					</apex:form>
+				</div>
+			</td>
+		</tr>
+	</table>
+</apex:page>

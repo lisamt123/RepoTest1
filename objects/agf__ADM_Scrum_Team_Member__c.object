@@ -1,0 +1,849 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <actionOverrides>
+        <actionName>Accept</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>CancelEdit</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Clone</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Delete</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Edit</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Follow</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>List</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>New</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>SaveEdit</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Tab</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>View</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <allowInChatterGroups>false</allowInChatterGroups>
+    <compactLayoutAssignment>SYSTEM</compactLayoutAssignment>
+    <deploymentStatus>Deployed</deploymentStatus>
+    <deprecated>false</deprecated>
+    <enableActivities>false</enableActivities>
+    <enableBulkApi>true</enableBulkApi>
+    <enableEnhancedLookup>false</enableEnhancedLookup>
+    <enableFeeds>false</enableFeeds>
+    <enableHistory>true</enableHistory>
+    <enableReports>true</enableReports>
+    <enableSearch>true</enableSearch>
+    <enableSharing>true</enableSharing>
+    <enableStreamingApi>true</enableStreamingApi>
+    <fields>
+        <fullName>agf__Allocation__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>Allocation (%)</label>
+        <precision>3</precision>
+        <required>false</required>
+        <scale>0</scale>
+        <trackHistory>true</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Percent</type>
+    </fields>
+    <fields>
+        <fullName>agf__Department__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>Department</label>
+        <length>80</length>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>agf__External_Email__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>External Email</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Email</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>agf__External_ID__c</fullName>
+        <caseSensitive>false</caseSensitive>
+        <deprecated>false</deprecated>
+        <externalId>true</externalId>
+        <label>External ID</label>
+        <length>50</length>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>true</unique>
+    </fields>
+    <fields>
+        <fullName>agf__Functional_Area__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>Functional Area</label>
+        <length>80</length>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>agf__Group_ID__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <formula>agf__Scrum_Team__r.agf__Team_Email_Group_ID__c</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>Group ID</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>agf__Internal_Email__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <formula>agf__Member_Name__r.Email</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>Internal Email</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>agf__Member_Name_Formula__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <formula>IF ( OR ( $RecordType.Name = &apos;Internal&apos;, $RecordType.Name = &apos;&apos; ), agf__Member_Name__r.FirstName &amp; &apos; &apos; &amp; agf__Member_Name__r.LastName,
+IF ( $RecordType.Name = &apos;External&apos;, &apos;(External) &apos; , &apos;(Planned)&apos; ) &amp; agf__Member_Name_Text__c )</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>Name</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>agf__Member_Name_Text__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>Member Name</label>
+        <length>80</length>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>agf__Member_Name__c</fullName>
+        <deleteConstraint>SetNull</deleteConstraint>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>Member Name</label>
+        <referenceTo>User</referenceTo>
+        <relationshipName>Scrum_Team_Members</relationshipName>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Lookup</type>
+    </fields>
+    <fields>
+        <fullName>agf__Record_Type_Copy__c</fullName>
+        <defaultValue>$RecordType.Name</defaultValue>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>Record Type Copy</label>
+        <length>20</length>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>agf__Req_Code__c</fullName>
+        <caseSensitive>false</caseSensitive>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>Req. Code</label>
+        <length>16</length>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>true</unique>
+    </fields>
+    <fields>
+        <fullName>agf__Role__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>Role</label>
+        <picklist>
+            <picklistValues>
+                <fullName>Analyst</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Architect</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>BSA</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Business Owner</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Capacity Planner</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Data Center Engineer</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>DBA</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Developer</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Dev Manager</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Doc Editor</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Doc Manager</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Network Engineer</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Other</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Performance Engineer</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Product Owner</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Program Manager</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Provisioning Specialist / Asset Manager</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>QA Engineer</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>QA Manager</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Release Engineer</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Release Manager</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Scrum Master</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Security Engineer</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Site Reliability Engineer</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>SysAdmin</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>SysAdmin Linux</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>SysAdmin Storage</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>SysAdmin Win</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Technical Writer</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>TechOps Manager</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Trust Engineer</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>UE</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>UE Manager</fullName>
+                <default>false</default>
+            </picklistValues>
+            <sorted>true</sorted>
+        </picklist>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Picklist</type>
+    </fields>
+    <fields>
+        <fullName>agf__Scrum_Team_Name__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <formula>agf__Scrum_Team__r.Name</formula>
+        <label>Team Name</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>agf__Scrum_Team__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>Team</label>
+        <referenceTo>agf__ADM_Scrum_Team__c</referenceTo>
+        <relationshipLabel>Team Members</relationshipLabel>
+        <relationshipName>Scrum_Team_Members</relationshipName>
+        <relationshipOrder>0</relationshipOrder>
+        <reparentableMasterDetail>false</reparentableMasterDetail>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>MasterDetail</type>
+        <writeRequiresMasterRead>false</writeRequiresMasterRead>
+    </fields>
+    <fields>
+        <fullName>agf__formula_email__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <formula>IF(  ISNULL(agf__External_Email__c), IF( ISNULL(agf__Internal_Email__c), &apos;&apos;,agf__Internal_Email__c), agf__External_Email__c)</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>Email</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <label>Team Member</label>
+    <listViews>
+        <fullName>agf__All</fullName>
+        <columns>OBJECT_ID</columns>
+        <columns>agf__Member_Name__c</columns>
+        <columns>agf__Scrum_Team__c</columns>
+        <columns>RECORDTYPE</columns>
+        <columns>agf__Record_Type_Copy__c</columns>
+        <filterScope>Everything</filterScope>
+        <label>All</label>
+    </listViews>
+    <nameField>
+        <displayFormat>STM-{00000}</displayFormat>
+        <label>Team Member Number</label>
+        <trackHistory>false</trackHistory>
+        <type>AutoNumber</type>
+    </nameField>
+    <pluralLabel>Team Members</pluralLabel>
+    <recordTypeTrackHistory>false</recordTypeTrackHistory>
+    <recordTypes>
+        <fullName>agf__External</fullName>
+        <active>true</active>
+        <description>Employee from outside SFDC</description>
+        <label>External</label>
+        <picklistValues>
+            <picklist>agf__Role__c</picklist>
+            <values>
+                <fullName>Analyst</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Architect</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>BSA</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Business Owner</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Capacity Planner</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>DBA</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Data Center Engineer</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Dev Manager</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Developer</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Doc Editor</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Doc Manager</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Network Engineer</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Other</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Performance Engineer</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Product Owner</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Program Manager</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Provisioning Specialist %2F Asset Manager</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>QA Engineer</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>QA Manager</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Release Engineer</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Release Manager</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Scrum Master</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Security Engineer</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Site Reliability Engineer</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>SysAdmin</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>TechOps Manager</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Technical Writer</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Trust Engineer</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>UE</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>UE Manager</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+    </recordTypes>
+    <recordTypes>
+        <fullName>agf__Internal</fullName>
+        <active>true</active>
+        <description>SFDC Employee</description>
+        <label>Internal</label>
+        <picklistValues>
+            <picklist>agf__Role__c</picklist>
+            <values>
+                <fullName>Analyst</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Architect</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>BSA</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Business Owner</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Capacity Planner</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>DBA</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Data Center Engineer</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Dev Manager</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Developer</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Doc Editor</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Doc Manager</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Network Engineer</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Other</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Performance Engineer</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Product Owner</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Program Manager</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Provisioning Specialist %2F Asset Manager</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>QA Engineer</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>QA Manager</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Release Engineer</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Release Manager</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Scrum Master</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Security Engineer</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Site Reliability Engineer</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>SysAdmin</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>SysAdmin Linux</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>SysAdmin Storage</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>SysAdmin Win</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>TechOps Manager</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Technical Writer</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Trust Engineer</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>UE</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>UE Manager</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+    </recordTypes>
+    <recordTypes>
+        <fullName>agf__Planned</fullName>
+        <active>true</active>
+        <description>Planned head count</description>
+        <label>Planned</label>
+        <picklistValues>
+            <picklist>agf__Role__c</picklist>
+            <values>
+                <fullName>Analyst</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Architect</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>BSA</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Business Owner</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Capacity Planner</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>DBA</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Data Center Engineer</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Dev Manager</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Developer</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Doc Editor</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Doc Manager</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Network Engineer</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Other</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Performance Engineer</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Product Owner</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Program Manager</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Provisioning Specialist %2F Asset Manager</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>QA Engineer</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>QA Manager</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Release Engineer</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Release Manager</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Scrum Master</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Security Engineer</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Site Reliability Engineer</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>SysAdmin</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>TechOps Manager</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Technical Writer</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Trust Engineer</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>UE</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>UE Manager</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+    </recordTypes>
+    <searchLayouts/>
+    <sharingModel>ControlledByParent</sharingModel>
+    <validationRules>
+        <fullName>agf__Allocate_over_limit</fullName>
+        <active>true</active>
+        <errorConditionFormula>agf__Allocation__c &gt; 1.00</errorConditionFormula>
+        <errorDisplayField>agf__Allocation__c</errorDisplayField>
+        <errorMessage>Allocation percent should not exceed 100%</errorMessage>
+    </validationRules>
+    <validationRules>
+        <fullName>agf__Allocation_above_0</fullName>
+        <active>true</active>
+        <description>Allocation should not be below zero</description>
+        <errorConditionFormula>agf__Allocation__c  &lt; 0</errorConditionFormula>
+        <errorDisplayField>agf__Allocation__c</errorDisplayField>
+        <errorMessage>Allocation should not be a negative number</errorMessage>
+    </validationRules>
+    <validationRules>
+        <fullName>agf__Allocation_cant_exceed_100</fullName>
+        <active>true</active>
+        <description>Allocation should not exceed 100%</description>
+        <errorConditionFormula>agf__Allocation__c  &gt; 100</errorConditionFormula>
+        <errorDisplayField>agf__Allocation__c</errorDisplayField>
+        <errorMessage>Allocation should not exceed 100%</errorMessage>
+    </validationRules>
+    <webLinks>
+        <fullName>agf__View_Members_and_Allocations</fullName>
+        <availability>online</availability>
+        <displayType>massActionButton</displayType>
+        <linkType>javascript</linkType>
+        <masterLabel>View Members and Allocations</masterLabel>
+        <openType>onClickJavaScript</openType>
+        <protected>false</protected>
+        <requireRowSelection>true</requireRowSelection>
+        <url>window.location = &quot;https://gus.soma.salesforce.com/apex/ScrumTeamMemberAllocations?id={!agf__ADM_Scrum_Team_Member__c.agf__Scrum_TeamId__c}&quot;;</url>
+    </webLinks>
+</CustomObject>

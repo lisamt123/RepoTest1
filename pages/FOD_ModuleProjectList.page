@@ -1,0 +1,112 @@
+<apex:page controller="FOD_ProjectListCtrl" showHeader="false" sidebar="false" readOnly="true">
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css"></link>
+<script src="https://use.typekit.net/nsi6vfo.js"></script>
+<script>try{Typekit.load({ async: true });}catch(e){}</script>
+
+<c:FOD_CSS />
+<c:FOD_TableCSS />
+
+<script>
+  function gotodashboard() {
+      top.location.href="/apex/FODashboard";
+  }   
+</script>
+
+<div class="row title">
+    <div class="col-lg-2"></div>
+    <div class="col-lg-10">
+        <h2 class="detailHeader">{!pageTitle}</h2>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-2">
+        <input type="button" class="detailBackBtn" id="backbtn" onclick="gotodashboard();"></input>
+    </div>
+    <div class="col-lg-10">
+        <div class="tableContainer" id="tableContainer">
+    <apex:form >
+        <apex:pageBlock id="theblock">
+            <apex:pageBlockTable value="{!projWrapList}" var="proj" styleClass="scrollTableProject" columnsWidth="252px,252px,252px,252px,252px,252px">
+                <!--<apex:column headerValue="MTTR Status" value="{!proj.mttrStatus}" style="background-color:{!proj.mttrColor};"/>-->
+                <apex:column >
+                    <apex:facet name="header">
+                        <apex:commandLink value="Account Name" action="{!sortByAccountName}" reRender="theblock"/>
+                    </apex:facet>
+                    <apex:outputLink value="/{!proj.projId}"> {!proj.accName} </apex:outputLink>
+                </apex:column>
+                <apex:column >
+                    <apex:facet name="header">
+                        <apex:commandLink value="Stage" action="{!sortByProjStg}" reRender="theblock"/>
+                    </apex:facet>
+                    <apex:outputText value="{!proj.projStage}"/>
+                </apex:column>
+                <apex:column >
+                    <apex:facet name="header">
+                        <apex:commandLink value="Start Date" action="{!sortByStartDate}" reRender="theblock"/>
+                    </apex:facet>
+                    <apex:outputText value="{0, date, MM'/'dd'/'yyyy}">
+                        <apex:param value="{!proj.stDate}" />
+                    </apex:outputText>
+                </apex:column>
+                <apex:column rendered="{!showIntegration}">
+                    <apex:facet name="header">
+                        <apex:commandLink value="Integration Task Status" action="{!sortByIntStatus}" reRender="theblock"/>
+                    </apex:facet>
+                    <apex:outputLink value="/{!proj.intTskId}"> {!proj.intTskStatus} </apex:outputLink>
+                </apex:column>
+                <apex:column rendered="{!showIntegration}">
+                    <apex:facet name="header">
+                        <apex:commandLink value="Assigned" action="{!sortByAssigned}" reRender="theblock"/>
+                    </apex:facet>
+                    <apex:outputLink value="{!proj.assignedTo}"/>
+                </apex:column>
+                <apex:column rendered="{!showIntegration}">
+                    <apex:facet name="header">
+                        <apex:commandLink value="Integration Task Age" action="{!sortByIntAge}" reRender="theblock"/>
+                    </apex:facet>
+                    <apex:outputLink value="/{!proj.intTskId}"> {!proj.intTskAge} </apex:outputLink>
+                </apex:column>
+                <apex:column rendered="{!showIntegration}">
+                    <apex:facet name="header">
+                        <apex:commandLink value="Integration Completion Date" action="{!sortByIntCompletionDate}" reRender="theblock"/>
+                    </apex:facet>
+                    <apex:outputText value="{0, date, MM'/'dd'/'yyyy}">
+                        <apex:param value="{!proj.intCmplDate}" />
+                    </apex:outputText>
+                </apex:column>
+                <apex:column rendered="{!showTraining}">
+                    <apex:facet name="header">
+                        <apex:commandLink value="Training Task Status" action="{!sortByTrnStatus}" reRender="theblock"/>
+                    </apex:facet>
+                    <apex:outputLink value="/{!proj.trnTskId}"> {!proj.trnTskStatus} </apex:outputLink>
+                </apex:column>
+                <apex:column rendered="{!showTraining}">
+                    <apex:facet name="header">
+                        <apex:commandLink value="Assigned" action="{!sortByAssigned}" reRender="theblock"/>
+                    </apex:facet>
+                    <apex:outputLink value="{!proj.assignedTo}"/>
+                </apex:column>
+                <apex:column rendered="{!showTraining}" >
+                    <apex:facet name="header">
+                        <apex:commandLink value="Training Task Age" action="{!sortByTrnAge}" reRender="theblock"/>
+                    </apex:facet>
+                    <apex:outputLink value="/{!proj.trnTskId}"> {!proj.trnTskAge} </apex:outputLink>
+                </apex:column>
+                <apex:column rendered="{!showTraining}">
+                    <apex:facet name="header">
+                        <apex:commandLink value="Training Completion Date" action="{!sortByCompletionDate}" reRender="theblock"/>
+                    </apex:facet>
+                    <apex:outputText value="{0, date, MM'/'dd'/'yyyy}">
+                        <apex:param value="{!proj.cmplDate}" />
+                    </apex:outputText>
+                </apex:column>
+            </apex:pageBlockTable>
+        </apex:pageBlock>
+    </apex:form>
+    </div>
+    </div>
+</div>
+    
+</apex:page>

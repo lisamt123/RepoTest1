@@ -1,0 +1,26 @@
+<apex:page controller="agf.ADM_TeamMemberAllocationController" tabStyle="agf__ADM_Scrum_Team_Member__c">
+<apex:sectionHeader id="sectionHeaderWork"  title="Team Member {!t.Name}" subtitle="Allocation" />    
+<apex:pageMessages ></apex:pageMessages>
+<apex:pageBlock >
+    <apex:pageBlockTable value="{!allocations}" var="allocation">
+        <apex:column >
+            <apex:outputLink value="/{!allocation.Id}" id="editLink">{!allocation.Name}</apex:outputLink>
+            <apex:facet name="header">Team Member Record</apex:facet>
+        </apex:column>
+        <apex:column >
+            <apex:outputField value="{!allocation.agf__Role__c}" id="role"/>
+            <apex:outputText rendered="{!allocation.agf__Role__c == ''}">N/A</apex:outputText>
+            <apex:facet name="header">Role</apex:facet>
+        </apex:column>
+        <apex:column >
+            <apex:outputField value="{!allocation.agf__Scrum_Team__c}" id="scrumteam"/>
+            <apex:facet name="header">Team</apex:facet>
+        </apex:column>
+        <apex:column >
+            <apex:outputField value="{!allocation.agf__Allocation__c}" id="allocation"/>
+            <apex:facet name="header">Allocation</apex:facet>
+        </apex:column>
+    </apex:pageBlockTable>
+    <apex:pageBlockSection rendered="{!message != ''}">{!message}</apex:pageBlockSection>
+</apex:pageBlock>
+</apex:page>

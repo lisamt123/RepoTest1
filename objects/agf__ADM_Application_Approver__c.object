@@ -1,0 +1,270 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <actionOverrides>
+        <actionName>Accept</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>CancelEdit</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Clone</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Delete</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Edit</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Follow</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>List</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>New</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>SaveEdit</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Tab</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>View</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <allowInChatterGroups>false</allowInChatterGroups>
+    <compactLayoutAssignment>SYSTEM</compactLayoutAssignment>
+    <deploymentStatus>Deployed</deploymentStatus>
+    <deprecated>false</deprecated>
+    <description>List of approvers for Releases or eReleases.</description>
+    <enableActivities>false</enableActivities>
+    <enableBulkApi>true</enableBulkApi>
+    <enableFeeds>false</enableFeeds>
+    <enableHistory>true</enableHistory>
+    <enableReports>true</enableReports>
+    <enableSearch>true</enableSearch>
+    <enableSharing>true</enableSharing>
+    <enableStreamingApi>true</enableStreamingApi>
+    <fields>
+        <fullName>agf__Application__c</fullName>
+        <deleteConstraint>SetNull</deleteConstraint>
+        <deprecated>false</deprecated>
+        <description>Application that this Approver supports.</description>
+        <externalId>false</externalId>
+        <label>Application</label>
+        <referenceTo>agf__ADM_Application__c</referenceTo>
+        <relationshipLabel>Application Approvers</relationshipLabel>
+        <relationshipName>Application_Approvers</relationshipName>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Lookup</type>
+    </fields>
+    <fields>
+        <fullName>agf__Approval_Context__c</fullName>
+        <deprecated>false</deprecated>
+        <description>Inform Only -- This Approver will receive notification when an approval request is made.
+May Approve -- This Approver, or any other Approver with the same role, may approve the request.
+Must Approve -- This Approver must approve all requests. If multiple Approvers have Must Approve context for a role, all of them will be required to approve the request.
+Notify When Approved -- The Approver will be notified only when the request has been Approved.</description>
+        <externalId>false</externalId>
+        <inlineHelpText>Inform Only -- will receive all notifications; 
+May Approve -- may approve the request;
+Must Approve -- must approve all requests; 
+Notify When Approved -- will be notified only when the request has been Approved.</inlineHelpText>
+        <label>Approval Context</label>
+        <picklist>
+            <controllingField>agf__Approver_Role__c</controllingField>
+            <picklistValues>
+                <fullName>Inform Only</fullName>
+                <controllingFieldValues>Development Manager</controllingFieldValues>
+                <controllingFieldValues>Distribution List</controllingFieldValues>
+                <controllingFieldValues>QE Manager</controllingFieldValues>
+                <controllingFieldValues>Release Engineer</controllingFieldValues>
+                <controllingFieldValues>Release Manager</controllingFieldValues>
+                <controllingFieldValues>TechOps Manager</controllingFieldValues>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>May Approve</fullName>
+                <controllingFieldValues>Development Manager</controllingFieldValues>
+                <controllingFieldValues>QE Manager</controllingFieldValues>
+                <controllingFieldValues>Release Engineer</controllingFieldValues>
+                <controllingFieldValues>Release Manager</controllingFieldValues>
+                <controllingFieldValues>TechOps Manager</controllingFieldValues>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Must Approve</fullName>
+                <controllingFieldValues>Development Manager</controllingFieldValues>
+                <controllingFieldValues>QE Manager</controllingFieldValues>
+                <controllingFieldValues>Release Engineer</controllingFieldValues>
+                <controllingFieldValues>Release Manager</controllingFieldValues>
+                <controllingFieldValues>TechOps Manager</controllingFieldValues>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Notify When Approved</fullName>
+                <controllingFieldValues>Development Manager</controllingFieldValues>
+                <controllingFieldValues>Distribution List</controllingFieldValues>
+                <controllingFieldValues>QE Manager</controllingFieldValues>
+                <controllingFieldValues>Release Engineer</controllingFieldValues>
+                <controllingFieldValues>Release Manager</controllingFieldValues>
+                <controllingFieldValues>TechOps Manager</controllingFieldValues>
+                <default>false</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Picklist</type>
+    </fields>
+    <fields>
+        <fullName>agf__Approval_Type__c</fullName>
+        <deprecated>false</deprecated>
+        <description>Type of approvals in which this Approver participates.</description>
+        <externalId>false</externalId>
+        <inlineHelpText>Select the type of approvals in which this Approver participates.</inlineHelpText>
+        <label>Approval Type</label>
+        <picklist>
+            <picklistValues>
+                <fullName>Releases</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>eReleases</fullName>
+                <default>false</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>MultiselectPicklist</type>
+        <visibleLines>3</visibleLines>
+    </fields>
+    <fields>
+        <fullName>agf__Approver_Email__c</fullName>
+        <deprecated>false</deprecated>
+        <description>Email of Approver (may be blank if email is same as User email).</description>
+        <externalId>false</externalId>
+        <inlineHelpText>Email of Approver. If Approver is specified, may be blank or must match Approver&apos;s User email. If Approver is not specified, this field may be set to a distribution list.</inlineHelpText>
+        <label>Approver Email</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Email</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>agf__Approver_Role__c</fullName>
+        <deprecated>false</deprecated>
+        <description>The role that this Approver performs.</description>
+        <externalId>false</externalId>
+        <label>Approver Role</label>
+        <picklist>
+            <picklistValues>
+                <fullName>Development Manager</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Distribution List</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>QE Manager</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Release Engineer</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Release Manager</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>TechOps Manager</fullName>
+                <default>false</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Picklist</type>
+    </fields>
+    <fields>
+        <fullName>agf__Approver__c</fullName>
+        <deleteConstraint>SetNull</deleteConstraint>
+        <deprecated>false</deprecated>
+        <description>Users record of the Approver.</description>
+        <externalId>false</externalId>
+        <inlineHelpText>Approver. Must be blank if Approver Email is a distribution list.</inlineHelpText>
+        <label>Approver</label>
+        <referenceTo>User</referenceTo>
+        <relationshipName>Application_Approvers</relationshipName>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Lookup</type>
+    </fields>
+    <label>Application Approver</label>
+    <nameField>
+        <displayFormat>AA-{00000}</displayFormat>
+        <label>Application Approver Name</label>
+        <trackHistory>false</trackHistory>
+        <type>AutoNumber</type>
+    </nameField>
+    <pluralLabel>Application Approvers</pluralLabel>
+    <searchLayouts>
+        <excludedStandardButtons>Accept</excludedStandardButtons>
+    </searchLayouts>
+    <sharingModel>ReadWrite</sharingModel>
+    <validationRules>
+        <fullName>agf__Approval_Conext_Must_Be_Specified</fullName>
+        <active>true</active>
+        <errorConditionFormula>ISPICKVAL( agf__Approval_Context__c, &quot;&quot; )</errorConditionFormula>
+        <errorDisplayField>agf__Approval_Context__c</errorDisplayField>
+        <errorMessage>The Approval Context must be specified.</errorMessage>
+    </validationRules>
+    <validationRules>
+        <fullName>agf__Approver_Email_must_match_users_email</fullName>
+        <active>true</active>
+        <description>When a Approver user is specified, if an Email is also specified it much match the system&apos;s Email for that user.</description>
+        <errorConditionFormula>NOT(ISBLANK(agf__Approver__c)) &amp;&amp; NOT(ISBLANK(agf__Approver_Email__c )) &amp;&amp; agf__Approver_Email__c &lt;&gt; agf__Approver__r.Email</errorConditionFormula>
+        <errorDisplayField>agf__Approver_Email__c</errorDisplayField>
+        <errorMessage>When an Approver is specified, Approver Email must be blank or match the user&apos;s system-defined email.</errorMessage>
+    </validationRules>
+    <validationRules>
+        <fullName>agf__Approver_Role_Must_Be_Specified</fullName>
+        <active>true</active>
+        <errorConditionFormula>ISPICKVAL(agf__Approver_Role__c , &quot;&quot; )</errorConditionFormula>
+        <errorDisplayField>agf__Approver_Role__c</errorDisplayField>
+        <errorMessage>The Approver Role must be specified.</errorMessage>
+    </validationRules>
+    <validationRules>
+        <fullName>agf__Approver_Type_is_Required</fullName>
+        <active>true</active>
+        <errorConditionFormula>ISBLANK( agf__Approval_Type__c )</errorConditionFormula>
+        <errorDisplayField>agf__Approval_Type__c</errorDisplayField>
+        <errorMessage>Approval Type must be specified.</errorMessage>
+    </validationRules>
+    <validationRules>
+        <fullName>agf__Approver_or_Email_must_be_specified</fullName>
+        <active>true</active>
+        <description>Either an Approver or an Email must be specified.</description>
+        <errorConditionFormula>ISBLANK(agf__Approver__c)   &amp;&amp;  ISBLANK(agf__Approver_Email__c )</errorConditionFormula>
+        <errorMessage>You must specify either an Approver or an Email.</errorMessage>
+    </validationRules>
+</CustomObject>

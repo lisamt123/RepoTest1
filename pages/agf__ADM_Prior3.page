@@ -1,0 +1,387 @@
+<apex:page cache="true" id="page" standardController="agf__ADM_Work__c" extensions="agf.ADM_PriorExt" showHeader="true" sideBar="false" tabStyle="agf__ADM_Work__c" title="Prioritizer - {!team.Name}">
+   <apex:includeScript value="{!$Resource.agf__jquery_1_7_2_min}" />
+   <apex:includeScript value="{!$Resource.agf__jquery_ui_1_8_21_min}" />
+   <apex:includeScript value="{!$Resource.agf__underscore_1_4_3_min_js}" />
+   <apex:includeScript value="{!$Resource.agf__ADM_Prioritizer}" />
+   <apex:styleSheet value="{!URLFOR($Resource.agf__jquery_ui_1813_redmond, 'css/redmond/jquery-ui-1.8.13.custom.css')}" />  
+   <apex:styleSheet value="{!$Resource.agf__css_prioritzer}" /> 
+    
+             <apex:sectionHeader title="Prioritizer" subtitle="{!team.Name}" />  
+         
+            <a href="#" style="position:absolute;right:27px;top:20px;" class="gushelpLink" onClick="window.open('/apex/ADM_PHelpTraining', '_blank', 'toolbar=0,location=0,menubar=0,scrollbars=yes,resizable=1');"><span class="helplink">Help for this Page</span> <img src="/s.gif" alt="Help" class="helpIcon" title="Help"  /></a>
+        
+    <script>
+            //Please note: bulk of JavaScript is in ADM_Prioirtizer.js.  Variables and functions which remain here reference a controller variable 
+            
+            var teamId = '{!teamId}';
+            var teamVelocity = {!CalculatedVelocity};
+            var backlogLimit = 200;
+            
+            var iconUrl = {
+                'Bug': '{!$Resource.bugiconsmall}',
+	            'ToDo': '{!$Resource.todoiconsmall}',
+                'User Story': '{!$Resource.storyiconsmall}'
+            };
+            
+            var highlightIds = new Array();
+            var filters = new Array('builds','sprints','themes');
+            
+            var buildNames = vfJsonVar('{!JSINHTMLENCODE(builds)}');
+            var sprintNames = vfJsonVar('{!JSINHTMLENCODE(sprints)}');
+            var themeNames = vfJsonVar('{!JSINHTMLENCODE(themes)}');
+            var ptScale = '{!ptScale}'.split(',');
+            
+            var defaultSprints = {!defaultSprints};
+            var totalSprints = {!totalSprints};
+            var maxSprints = {!maxSprints};  
+            var statusValues = {!statusValuesAsJson};
+    </script>
+    
+    <div id="dialog" title="Saving">
+        <div id="progressbar"></div>
+    </div>
+ 
+
+<div style="border:1px #ccc solid;background:#eee;padding:10px;border-radius:10px;margin:0px 26px 20px 0px;line-height:1.5;">
+	<b>Goodbye Prioritizer. Hello Unified Wall.</b><br/>
+	In a few weeks the Prioritizer will be replaced by the Unified Wall. If has a very similar feature set plus a
+	number of brand new features including multi item drag and drop, customizable columns, a richer work editor as
+	well as full screen support. To view your team's Unified Wall now, <a href="/apex/ADM_Wall?teamid={!team.Id}">click here</a>. To read more about what the
+	Unified Wall has to offer view our documentation here:
+	<a target="_blank" href="https://sites.google.com/a/salesforce.com/gus/gus-tools/unified-wall">https://sites.google.com/a/salesforce.com/gus/gus-tools/unified-wall</a>
+</div>
+
+    <div id="dropContainer">
+        <table style="width:100%; padding-right:20px; margin:0px; vertical-align:middle;">
+            <tbody>
+                <tr>
+                    <td style="width:80%;">
+                        <div id="buttonSetFilters">
+                            <input type="checkbox" id="backlog" /><label for="backlog">Backlog</label>
+                            <input type="checkbox" id="filter" /><label for="filter">Filter</label>
+                            <input type="checkbox" id="backburner" /><label for="backburner">Backburner</label>                            
+                        </div>          
+                    </td>
+                    <td style="width:20%; text-align:right;">
+                        <div id="buttonSetVelocityControl">     
+                            <button id="vcButton">Velocity <span id="teamVelocity">{!CalculatedVelocity}</span></button>
+                        </div>
+                    </td>
+                </tr>
+                
+            </tbody>
+        </table>  
+        <div class="assignmentTableWrapper">
+            <table class="assignmentTable" cellpadding="0" cellspacing="0" >
+                <tbody>
+                    <tr>
+                        <td> For selected work assign:&nbsp;</td>
+                        <td>
+                            <span class="assignVal pointer underLine" title="Open scheduled build look up">Build</span>
+                        </td>
+                        <td class="assignValTd Build">
+                            <div>
+                                <input class="ui-corner-top ui-corner-bottom" id="at_builds" />
+                            </div>
+                        </td>
+                        <td>
+                            <span class="assignVal pointer underLine" title="Open sprint look up">Sprint</span>
+                        </td>
+                        <td class="assignValTd Sprint">
+                            <div>
+                                <input class="ui-corner-top ui-corner-bottom" id="at_sprints" />
+                            </div>
+                        </td>
+                        <td>
+                            <span class="assignVal pointer underLine" title="Open theme look up">Theme</span>
+                        </td>
+                        <td class="assignValTd Theme">
+                            <div>
+                                <input class="ui-corner-top ui-corner-bottom" id="at_themes" />
+                            </div>                          
+                        </td>
+                        <td class="assignValTd assignValButtons" style="width: 175px;">
+                            &nbsp;<button class="assignValButton" id="assignSaveButton">Save</button>
+                            &nbsp;<button class="assignValButton" id="cancelButton">Cancel</button>
+                        </td>
+                        
+                    </tr>
+                    
+                </tbody>
+            </table>    
+        </div>      
+        <ul id="sortable1" class="sortable droptrue ui-corner-top" >
+            <li>
+                <div class="ui-state-default ui-corner-top columnHeader">Backlog</div>
+            </li>
+            <apex:repeat value="{!backlogRecs}" id="backlogRepeat" var="rec">
+                <li class="sortableLi" id="{!rec.Id}" data-work-id="{!rec.Id}" data-work-story-points="{!rec.Story_Points__c}">
+                    
+                    <c:ADM_PriorCols rec="{!rec}" statusValsBug="{!statusValsBug}" statusValsUs="{!statusValsUs}" statusValsTodo="{!statusValsTodo}" statusValsInv="{!statusValsInv}" /> 
+                </li>
+            </apex:repeat>
+        </ul>
+        <ul id="sortable3" class="sortable droptrue ui-corner-top filterTile">
+            <li id="list_filter">
+                <div class="ui-state-default ui-corner-top columnHeader">
+                    <span class="tileTitle">Filter</span>
+                    <span class="expand ui-icon-wrench ui-icon" id="openFormFilter" />                  
+                </div>
+            </li>
+        </ul>
+        <ul id="sortable2" class="sortable droptrue ui-corner-top">
+            <li>
+                <div class="ui-state-default ui-corner-top columnHeader">Backburner</div>
+            </li>
+            <apex:repeat value="{!backburnerRecs}" var="rec">
+                <li class="sortableLi" id="{!rec.Id}" data-work-id="{!rec.Id}" data-work-story-points="{!rec.Story_Points__c}">
+                    <c:ADM_PriorCols rec="{!rec}" statusValsBug="{!statusValsBug}" statusValsUs="{!statusValsUs}" statusValsTodo="{!statusValsTodo}" statusValsInv="{!statusValsInv}" /> 
+                </li>
+            </apex:repeat>
+        </ul>
+    </div>
+    
+    <div style="width: 150px; margin: auto; padding-top: 10px;">
+        <button id="showMore">Show More</button>
+    </div>
+    
+    <div id="dialog-form-filter" title="Filter Records">
+        <select id="select_filter">
+            <option value="--None--">--None--</option>
+            <option value="builds" title="Build">Build</option>
+            <option value="sprints" title="Sprint">Sprint</option>
+            <option value="themes" title="Theme">Theme</option>
+        </select>
+        <input class="ui-corner-top ui-corner-bottom filterValue" id="builds" />
+        <input class="ui-corner-top ui-corner-bottom filterValue" id="sprints" />
+        <input class="ui-corner-top ui-corner-bottom filterValue" id="themes" />
+    </div>
+    
+    <script>
+        /*
+         * Creates a handler for JS Remoting functions that routes the outcome to the success callback or the fail
+         * callback based on the occurred event. The finally callback is invoked regardless of outcome.
+         * @param {Function} [options.success] Invoked when the JS Remoting call was successful
+         * @param {Function} [options.fail] Invoked when the JS Remoting call was unsuccessful. If not specified, the message is
+         *                       is written to the console.
+         * @param {Function} [options.finally] Invoked after all other callbacks regardless of outcome.
+         */
+
+         var qualifiedName='{!$ObjectType.ADM_Work__c.Name}';
+         var nameSpace = qualifiedName.substring(0,qualifiedName.indexOf('ADM_Work__c'));
+		function handle(options) {
+            if(typeof options === 'undefined') {
+                options = {};
+            }
+            
+		    return function(result, event) {
+		        if(event.type == 'exception') {
+		            if(options.fail) {
+		                options.fail(event);
+		            } else {
+		                console.error(event.message);
+		            }
+		        } else {
+		            if(options.success) {
+                        options.success(result);
+		            }
+		        }
+		        
+		        if(options.finally) {
+		            options.finally(result, event);
+		        }
+		    };
+		}
+		
+        /*
+         * Creates a handler for JS Remoting functions that us the ADM_DMLResult result. It routes the outcome to the 
+         * success callback or the fail callback based on the occurred event. The finally callback is invoked regardless
+         * of outcome.
+         * @param {Function} [options.success] Invoked when the JS Remoting call was successful
+         * @param {Function} [options.fail] Invoked when the JS Remoting call was unsuccessful. If not specified, the message is
+         *                       is written to the console.
+         * @param {Function} [options.finally] Invoked after all other callbacks regardless of outcome.
+         */
+		function handleDmlResult(options) {
+            if(typeof options === 'undefined') {
+                options = {};
+            }
+            
+            var onFail = options.fail || function(e) {
+                console.error(event.message);
+            };
+            
+            var handleOpts = {
+                success: function(result) {
+                    if(result == null) {
+                        onFail({message: 'No data returned from VF Remoting'});
+                    } else if(!result.success){
+                        onFail({message: result.error});
+                    } else if(options.success){
+                        options.success(result);
+                    }
+                },
+                fail: onFail
+            }
+            
+            if(options.finally) {
+                handleOpts.finally = options.finally;
+            }
+            
+            return handle(handleOpts);
+		}
+
+        function openDialogWithProgressbar() {
+            if($('#dialog').dialog('isOpen')) {
+                $('#dialog').text('');
+                $('#dialog').dialog('close');
+            }
+            $("#dialog").dialog("option", "buttons", null);
+            $('#dialog').dialog("option", "title", "Saving");
+            $("#dialog").append('<div id="progressbar"><img src="{!$Resource.ADM_spinner_32}" /></div>');
+            $("#dialog").dialog("open");
+        }       
+        function closeDialogWithProgressbar() {
+            if($('#dialog #progressbar').length == 0) {
+                return;
+            }
+            $("#dialog").dialog("close");
+        }
+        
+        function closeDialog() {
+            $("#dialog").dialog("close");
+        }
+        
+        /**
+         * @param {String} options.message The message to display in the body of the dialog
+         */
+        function openErrorDialog(options) {
+            var $dialog = $('#errorDialog');
+            if($dialog.length === 0) {
+                $dialog = $('<div>')
+                    .attr('id', 'errorDialog')
+                    .appendTo(document.body)
+                    .dialog({
+				        autoOpen: false,
+				        modal: true,
+				        buttons: {
+                            "OK": function() {
+                                $(this).dialog("close");
+                            }
+                        }
+                    });
+            }
+            
+            var $body = $('<div class="ui-state-error ui-corner-all ui-helper-clearfix" style="margin: 5px; padding: 5px;"><span class="ui-icon ui-icon-alert" style="float: left; width: 16px; margin-right:4px;"></span><span style="float: left; width:220px;"><div class="dialog-body"></div></span></div>');
+            $body.find('.dialog-body').text(options.message);
+            
+            $dialog
+                .empty()
+                .append($body)
+                .dialog("option", "width", 325)
+                .dialog("option", "minWidth", 300)
+                .dialog('open');
+            
+            return $dialog;
+        }
+        
+        function getFilteredWork(options) {
+            var filterOptions = {};
+            
+            var selectedFilterType = $('#select_filter').val();
+            if(selectedFilterType.indexOf('build') > -1) {
+                filterOptions.obj__r = nameSpace+'Scheduled_Build__r.Name';
+            } else if(selectedFilterType.indexOf('sprint') > -1) {
+                filterOptions.obj__r = nameSpace+'Sprint__r.Name';
+            }
+            
+            filterOptions.object = selectedFilterType;
+            filterOptions.objectTitle = $('#select_filter option:selected').attr('title');
+            
+            //get the search value entered by the user
+            var fieldValue = $('#' + filterOptions.object).val();
+            if(jQuery.trim(fieldValue) != '') {
+                filterOptions.fieldValue = fieldValue;
+            }
+            val2use = fieldValue.toString();
+            
+            {!$RemoteAction.ADM_PriorExt.getFiltered}('{!team.Id}', filterOptions.obj__r || filterOptions.objectTitle, encodeURIComponent(val2use), handle({
+                success: function(vfResults){
+                    options.success(vfResults, filterOptions);
+                },
+                finally: function() {
+				    $('#dialog').dialog('close');
+				    handleHeightAdjustment();
+                }
+            }), {escape:false});
+        }
+        
+        function recalculateVelocity(selEl) {  
+            defaultSprints = selEl.value;
+            createCookie("apex__velocityControl_{!team.Id}", defaultSprints, 1);        
+            {!$RemoteAction.ADM_PriorExt.recalculateVelocity}(defaultSprints, '{!team.Id}', handleRecalculateVelocity);
+            openDialogWithProgressbar();
+        }
+        
+        function handleRecalculateVelocity(resultFromVfRemoting, event) {
+            if(event.type == 'exception') {
+                console.error(event.message);
+            } else {
+                if(resultFromVfRemoting == null) {
+                    alert('no results from handleRecalculateVelocity');
+                    console.error('no results from handleRecalculateVelocity');
+                } else {
+                    $('#teamVelocity').text(resultFromVfRemoting);
+                    teamVelocity = resultFromVfRemoting;
+                    addSprintDividersToBacklog();
+                }
+            }
+            $('#dialog').dialog('close');
+        }
+        
+        function selectNumSprints() {
+            var htmlMessage = '<div class="ui-corner-all ui-helper-clearfix" style="margin: 5px; padding: 5px;">';
+            htmlMessage += '<span class="ui-icon ui-icon-info" style="float: left; width:16px; margin-right: 4px;"></span>';
+            htmlMessage += '<span style="float: left; width:260px;">';          
+            
+            var selectedPts = '';
+            var currCookieVal = readCookie("apex__velocityControl_{!team.Id}");
+            
+            if(currCookieVal != null) {
+                defaultSprints = currCookieVal;
+            }
+            
+            if(defaultSprints > 1) {
+                htmlMessage += "Work items on the Backlog tile are grouped by your team's average velocity over the last " + defaultSprints + " sprints, based on the story points you've assigned to each Work item.<br /><br />";
+                htmlMessage += 'Sprints: <select onChange="recalculateVelocity(this);">';
+                        
+                for(var i = 2; i <= maxSprints; i++) {
+                    if(i == defaultSprints) {
+                        selected = 'selected="selected"';
+                    } else {
+                        selected = '';
+                    }    
+                    htmlMessage += '<option value="' + i + '" ' + selected + '>' + i + '</option>';
+                }
+            } else {
+                htmlMessage += 'The Prioritizer will delineate your average velocity in the Backlog tile once you\'ve completed at least 2 sprints, based on the story points you\'ve assigned to each Work item.<br /><br />';         
+            }
+            
+            htmlMessage+= '</span></div>';
+            
+            $('#dialog').append(htmlMessage);
+            $('#dialog').dialog("option", "title", "Details");
+            $('#dialog').dialog("option", "width", 330);
+            $('#dialog').dialog("option", "minWidth", 300);
+            $('#dialog').dialog("option", "minHeight", 200);
+            $('#dialog').dialog( "option", "buttons", {
+                "Cancel": function() {      
+                    $(this).dialog("close");
+                }
+            });
+            $('#dialog').dialog('open');
+        }  
+             
+        getMoreRecs();
+    </script>
+</apex:page>

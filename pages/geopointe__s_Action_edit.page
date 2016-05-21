@@ -1,0 +1,688 @@
+<apex:page showHeader="true" title="Geopointe Action Edit" sidebar="false" standardController="geopointe__Action__c" extensions="geopointe.s_ActionEdit_Extension" tabStyle="Geopointe_Setup__tab">
+    
+    <apex:includeScript value="{!URLFOR($Resource.geopointe__jquery, '/jquery-1.8.3.min.js')}" /> <!-- core jQuery -->
+    <apex:stylesheet value="{!URLFOR($Resource.geopointe__jquery, '/css/common/common.css')}"/><!-- Geopointe common css -->
+
+    <style type="text/css">
+        .standardGPmsg{
+            margin: 10px;
+            color: #CC0000;
+        }
+        .mergeField{
+            margin-right: 5px;
+        }
+        #mergeFieldList{
+            display: none;
+            margin-top: 4px;
+        }
+        .subSection{
+            margin-left: 2%;
+        }
+        .subSectionDivider{
+            color: #4a4a56;
+            font-weight: bold;
+            border-bottom: 3px solid #C6DDDC;
+            font-size: 13px;
+            padding: 0px 0px 3px 2px;
+        }
+        .tableLabel{
+            color: #4a4a56 !important;
+            font-weight: bold;
+            font-size: 90%;
+            text-align: right;
+        }
+        .tableHeader{
+            color: #4a4a56 !important;
+            font-weight: bold;
+            font-size: 13px;
+            text-decoration: underline;
+        }
+        .subSectionInstructions{
+            padding: 6px 8px 2px 8px;
+            color: #2D2D2D;
+        }
+    </style>
+    
+    <c:walkMeSnippet /> <!-- Walk me JavaScript -->
+
+    <apex:sectionHeader title="{!$ObjectType.geopointe__Action__c.Label} Edit" subtitle="{!geopointe__Action__c.Name}" rendered="{!AND($CurrentPage.parameters.Id != '',$CurrentPage.parameters.clone != '1')}"/>
+    <apex:sectionHeader title="{!$ObjectType.geopointe__Action__c.Label} Edit" subtitle="New {!$ObjectType.geopointe__Action__c.Label}" rendered="{!OR($CurrentPage.parameters.Id == '',$CurrentPage.parameters.clone == '1')}"/>
+
+    <p>To learn more about Geopointe Actions visit our <a href="http://help.geopointe.com/customer/portal/articles/1809592-actions">support site</a></p>
+
+    <apex:pageMessages />
+
+    <apex:form >
+        <apex:pageBlock title="{!$ObjectType.geopointe__Action__c.Label} Edit" mode="edit" id="pageBlock">
+            <apex:pageBlockButtons >
+                <apex:commandButton action="{!save}" value="Save"/>
+                <apex:outputLink styleClass="btn gpLinkButtonClassic" style="top: 1px; position: relative;" value="{!URLFOR($Action.geopointe__Action__c.Share, geopointe__Action__c.Id)}" rendered="{!$CurrentPage.parameters.Id != ''}">User Access</apex:outputLink> 
+                <apex:commandButton action="{!cancel}" value="Cancel"/>
+            </apex:pageBlockButtons>
+            
+            <apex:outputPanel rendered="{!geopointe__Action__c.geopointe__Standard_Action__c != ''}" layout="block" styleClass="standardGPmsg">
+                This is a Standard Geopointe Action. Some fields are not displayed and cannot be changed.
+            </apex:outputPanel>
+
+            <apex:pageBlockSection title="Action Information" columns="2">
+                
+                <apex:pageBlockSectionItem >
+                    <apex:outputLabel value="{!$ObjectType.geopointe__Action__c.Fields.Name.Label}"/>
+                    <apex:outputPanel styleClass="requiredInput" layout="block">
+                        <div class="requiredBlock"></div>
+                        <apex:inputField value="{!geopointe__Action__c.Name}" required="false"/>
+                    </apex:outputPanel>
+                </apex:pageBlockSectionItem>
+
+                <apex:pageBlockSectionItem rendered="{!$CurrentPage.parameters.Id != ''}">
+                    <apex:outputLabel value="Owner"/>
+                    <apex:outputPanel >
+                        <apex:outputField value="{!geopointe__Action__c.OwnerId}"/>
+                        <a href="/{!geopointe__Action__c.Id}/a?retURL={!$CurrentPage.URL}" onclick="return confirm('Changing the owner will reset the sharing for this Action.\n\nAfter changing the owner use the User Access button to ensure the correct users can use this Action.')">[Change Owner]</a>
+                    </apex:outputPanel>
+                </apex:pageBlockSectionItem>
+                <apex:outputPanel rendered="{!$CurrentPage.parameters.Id == ''}"/>
+
+                <apex:inputField value="{!geopointe__Action__c.geopointe__Available_Web__c}"/>
+                <apex:outputPanel />
+
+                <apex:inputField value="{!geopointe__Action__c.geopointe__Available_SF1__c}" rendered="{!NOT(isStandardAction)}"/>
+                <apex:outputPanel rendered="{!NOT(isStandardAction)}"></apex:outputPanel>
+
+                <apex:pageBlockSectionItem rendered="{!showEnableForAllUsers}" helpText="Make this Action availble to all users. This option available only when creating a new Action.">
+                    <apex:outputLabel value="Enable for All Users"/>
+                    <apex:inputCheckbox value="{!enableForAllUsers}"/>
+                </apex:pageBlockSectionItem>
+                <apex:outputPanel rendered="{!OR($CurrentPage.parameters.Id == '',$CurrentPage.parameters.clone == '1')}"/>
+            </apex:pageBlockSection>
+
+            <apex:pageBlockSection title="Action Options" columns="1" id="actionOptions" >
+                <apex:pageBlockSectionItem helpText="{!$ObjectType.geopointe__Action__c.Fields.geopointe__Apply_To__c.InlineHelpText}" rendered="{!NOT(isStandardAction)}">
+                    <apex:outputLabel value="{!$ObjectType.geopointe__Action__c.Fields.geopointe__Apply_To__c.Label}"/>
+                    <apex:outputPanel styleClass="requiredInput" layout="block">
+                        <div class="requiredBlock"></div>
+                        
+                        <apex:selectList value="{!geopointe__Action__c.geopointe__Apply_To__c}" size="1">
+                            <apex:selectOption itemValue="" itemLabel="--None--"/>
+                            <apex:selectOption itemValue="Point" itemLabel="Point"/>
+                            <apex:selectOption itemValue="List" itemLabel="List"/>
+                            <apex:actionSupport event="onchange" action="{!changeApplyTo}" rerender="pageBlock"/>
+                        </apex:selectList>
+                    </apex:outputPanel>
+                </apex:pageBlockSectionItem>
+
+                <apex:pageBlockSectionItem helpText="{!$ObjectType.geopointe__Action__c.Fields.geopointe__Display_Type__c.InlineHelpText}" rendered="{!geopointe__Action__c.geopointe__Apply_To__c == 'Point'}">
+                    <apex:outputLabel value="{!$ObjectType.geopointe__Action__c.Fields.geopointe__Display_Type__c.Label}"/>
+                    <apex:outputPanel styleClass="requiredInput" layout="block">
+                        <div class="requiredBlock"></div>
+                        <apex:selectList value="{!geopointe__Action__c.geopointe__Display_Type__c}" size="1">
+                            <apex:selectOption itemValue="" itemLabel="--None--"/>
+                            <apex:selectOption itemValue="Button" itemLabel="Button"/>
+                            <apex:selectOption itemValue="Link" itemLabel="Link"/>
+                            <apex:selectOption itemValue="Inline" itemLabel="Inline" rendered="{!geopointe__Action__c.geopointe__Behavior__c != 'Special'}"/>
+                            <apex:actionSupport event="onchange" action="{!changeDisplayType}" rerender="pageBlock"/>
+                        </apex:selectList>
+                    </apex:outputPanel>
+                </apex:pageBlockSectionItem>
+
+                <apex:pageBlockSectionItem helpText="{!$ObjectType.geopointe__Action__c.Fields.geopointe__Action_Type__c.inlineHelpText}" rendered="{!AND( geopointe__Action__c.geopointe__Apply_To__c != '' ,   NOT(isStandardAction))}">
+                    <apex:outputLabel value="{!$ObjectType.geopointe__Action__c.Fields.geopointe__Action_Type__c.Label}"/>
+                    <apex:outputPanel styleClass="requiredInput" layout="block">
+                        <div class="requiredBlock"></div>
+                        <apex:selectList value="{!geopointe__Action__c.geopointe__Action_Type__c}" size="1">
+                            <apex:selectOption itemValue="" itemLabel="--None--"/>
+                            <apex:selectOption itemValue="URL" itemLabel="URL" rendered="{!geopointe__Action__c.geopointe__Apply_To__c == 'Point'}"/>
+                            <apex:selectOption itemValue="Apex" itemLabel="Apex" rendered="{!OR(geopointe__Action__c.geopointe__Display_Type__c != 'Inline',geopointe__Action__c.geopointe__Apply_To__c == 'List')}"/>
+                            <apex:selectOption itemValue="Create Record" itemLabel="Create Record" rendered="{!AND(geopointe__Action__c.geopointe__Apply_To__c == 'Point',geopointe__Action__c.geopointe__Display_Type__c != 'Inline')}"/>
+                            <apex:selectOption itemValue="POST (Visualforce)" itemLabel="POST (Visualforce)" rendered="{!geopointe__Action__c.geopointe__Apply_To__c == 'List'}"/>
+                            <apex:actionSupport event="onchange" rerender="pageBlock"/>
+                        </apex:selectList>
+                    </apex:outputPanel>
+                </apex:pageBlockSectionItem>
+
+                <apex:pageBlockSectionItem helpText="{!$ObjectType.geopointe__Action__c.Fields.geopointe__Point_Type__c.InlineHelpText}" rendered="{! OR( Action__c.Standard_Action__c = 'add to route', Action__c.Standard_Action__c = 'save to my locations', AND(NOT(isStandardAction),Action__c.Apply_To__c == 'Point') )        }">
+                    <apex:outputLabel value="{!$ObjectType.geopointe__Action__c.Fields.geopointe__Point_Type__c.Label}"/>
+                    <apex:outputPanel styleClass="requiredInput" layout="block">
+                        <div class="requiredBlock"></div>
+                        
+                        <table>
+                            <tr style="display:{!IF(Action__c.Display_Type__c == 'Inline','none','')}">
+                                <td><apex:inputCheckbox value="{!pointTypeMap}"/></td>
+                                <td style="vertical-align: middle;">Map</td>
+                            </tr>
+                            <tr>
+                                <td><apex:inputCheckbox value="{!pointTypePlace}"/></td>
+                                <td style="vertical-align: middle;">Place</td>
+                            </tr>
+                            <tr>
+                                <td><apex:inputCheckbox value="{!pointTypeRecord}">
+                                        <apex:actionSupport event="onchange" rerender="actionOptions"/>
+                                    </apex:inputCheckbox>
+                                </td>
+                                <td style="vertical-align: middle;">Record</td>
+                            </tr>
+                            <tr>
+                                <td><apex:inputCheckbox value="{!pointTypeRouteStop}"/></td>
+                                <td style="vertical-align: middle;">Route Stop</td>
+                            </tr>
+                        </table>
+
+                    </apex:outputPanel>
+                </apex:pageBlockSectionItem>
+
+                <apex:pageBlockSectionItem helpText="{!$ObjectType.geopointe__Action__c.Fields.geopointe__Link_URL__c.InlineHelpText}" rendered="{!AND( NOT(isStandardAction) , OR(geopointe__Action__c.geopointe__Action_Type__c == 'URL',geopointe__Action__c.geopointe__Action_Type__c == 'POST (Visualforce)'))}">
+                    <apex:outputLabel value="{!$ObjectType.geopointe__Action__c.Fields.geopointe__Link_URL__c.Label}"/>
+                    <apex:outputPanel >
+                        <apex:outputPanel styleClass="requiredInput" layout="block">
+                            <div class="requiredBlock"></div>
+                            <apex:inputField id="linkURL" value="{!geopointe__Action__c.geopointe__Link_URL__c}" style="width:600px"/>
+                        </apex:outputPanel>
+                        
+                        <a href="#" id="showHideMergeFields">[Show Merge Fields]</a>
+
+                        <div id="mergeFieldList">
+                            <a href="#" class="mergeField">&#123;!Id&#125;</a>
+                            <a href="#" class="mergeField">&#123;!Id15&#125;</a>
+                            <a href="#" class="mergeField">&#123;!Name&#125;</a>
+                            <a href="#" class="mergeField">&#123;!Company&#125;</a>
+                            <a href="#" class="mergeField">&#123;!Latitude&#125;</a>
+                            <a href="#" class="mergeField">&#123;!Longitude&#125;</a>
+                            <a href="#" class="mergeField">&#123;!Street&#125;</a>
+                            <a href="#" class="mergeField">&#123;!City&#125;</a>
+                            <a href="#" class="mergeField">&#123;!PostalCode&#125;</a>
+                            <a href="#" class="mergeField">&#123;!State&#125;</a>
+                            <a href="#" class="mergeField">&#123;!Country&#125;</a>
+                            <a href="#" class="mergeField">&#123;!URL.parameterName&#125;</a>
+                            <div style="margin-top:4px; font-size: 10px;">
+                                * &#123;!Company&#125; is only supported for Lead, Opportunity, and Account objects.
+                            </div>
+                        </div>
+
+                    </apex:outputPanel>
+                </apex:pageBlockSectionItem>
+
+                <apex:pageBlockSectionItem helpText="{!$ObjectType.geopointe__Action__c.Fields.geopointe__Behavior__c.InlineHelpText}" rendered="{!AND(geopointe__Action__c.geopointe__Display_Type__c != 'Inline', OR(geopointe__Action__c.geopointe__Action_Type__c == 'URL',geopointe__Action__c.geopointe__Action_Type__c == 'POST (Visualforce)'))}">
+                    <apex:outputLabel value="{!$ObjectType.geopointe__Action__c.Fields.geopointe__Behavior__c.Label}"/>
+                    <apex:outputPanel styleClass="requiredInput" layout="block">
+                        <div class="requiredBlock"></div>
+                        <apex:selectList value="{!geopointe__Action__c.geopointe__Behavior__c}" size="1">
+                            <apex:selectOption itemValue="" itemLabel="--None--"/>
+                            <apex:selectOption itemValue="New Window" itemLabel="New Window"/>
+                            <apex:selectOption itemValue="Same Window" itemLabel="Same Window"/>
+                            <apex:selectOption itemValue="Modal Window" itemLabel="Modal Window"/>
+                            <apex:actionSupport event="onchange" rerender="pageBlock"/>
+                        </apex:selectList>
+                    </apex:outputPanel>
+                </apex:pageBlockSectionItem>
+
+                <apex:pageBlockSectionItem helpText="{!$ObjectType.geopointe__Action__c.Fields.geopointe__Apex_Class__c.InlineHelpText}" rendered="{!geopointe__Action__c.geopointe__Action_Type__c == 'Apex'}">
+                    <apex:outputLabel value="{!$ObjectType.geopointe__Action__c.Fields.geopointe__Apex_Class__c.Label}"/>
+                    <apex:outputPanel styleClass="requiredInput" layout="block">
+                        <div class="requiredBlock"></div>
+                        <apex:inputField value="{!geopointe__Action__c.geopointe__Apex_Class__c}"/>
+                    </apex:outputPanel>
+                </apex:pageBlockSectionItem>
+
+                <apex:pageBlockSectionItem helpText="{!$ObjectType.geopointe__Action__c.Fields.geopointe__Status_Message__c.InlineHelpText}" rendered="{!geopointe__Action__c.geopointe__Action_Type__c == 'Apex'}">
+                    <apex:outputLabel value="{!$ObjectType.geopointe__Action__c.Fields.geopointe__Status_Message__c.Label}"/>
+                    <apex:outputPanel styleClass="requiredInput" layout="block">
+                        <div class="requiredBlock"></div>
+                        <apex:inputField value="{!geopointe__Action__c.geopointe__Status_Message__c}" />
+                    </apex:outputPanel>
+                </apex:pageBlockSectionItem>
+
+                <apex:inputField value="{!geopointe__Action__c.geopointe__Batch_Size__c}" rendered="{!AND(geopointe__Action__c.geopointe__Action_Type__c == 'Apex',geopointe__Action__c.geopointe__Apply_To__c == 'List')}"/>
+
+                <apex:inputField value="{!geopointe__Action__c.geopointe__Modal_Width__c}" rendered="{!AND(geopointe__Action__c.geopointe__Action_Type__c != 'Create Record',OR( geopointe__Action__c.geopointe__Behavior__c == 'Modal Window' , geopointe__Action__c.geopointe__Action_Type__c == 'Apex' ))}"/>
+                <apex:pageBlockSectionItem helpText="Enter a value if you want to override the default of 99%. We recommend the width be less than 280px." rendered="{!geopointe__Action__c.geopointe__Display_Type__c == 'Inline'}">
+                    <apex:outputLabel value="iframe Width"/>
+                    <apex:inputField value="{!geopointe__Action__c.geopointe__Modal_Width__c}" />
+                </apex:pageBlockSectionItem>
+
+                <apex:inputField value="{!geopointe__Action__c.geopointe__Modal_Height__c}" rendered="{!AND(geopointe__Action__c.geopointe__Action_Type__c != 'Create Record',OR( geopointe__Action__c.geopointe__Behavior__c == 'Modal Window' , geopointe__Action__c.geopointe__Action_Type__c == 'Apex' ))}"/>
+                <apex:pageBlockSectionItem helpText="Enter a value if you want to override the default of 1.6em." rendered="{!geopointe__Action__c.geopointe__Display_Type__c == 'Inline'}">
+                    <apex:outputLabel value="iframe Height"/>
+                    <apex:inputField value="{!geopointe__Action__c.geopointe__Modal_Height__c}" />
+                </apex:pageBlockSectionItem>
+
+                <apex:pageBlockSectionItem helpText="{!$ObjectType.geopointe__Action__c.Fields.geopointe__Map_Objects__c.InlineHelpText}" rendered="{!OR(geopointe__Action__c.geopointe__Action_Type__c != 'Create Record', pointTypeRecord)}">
+                    <apex:outputLabel value="{!$ObjectType.geopointe__Action__c.Fields.geopointe__Map_Objects__c.Label}"/>
+                    <apex:outputPanel >
+                        <apex:selectRadio value="{!mapObjectsSelection}">
+                            <apex:selectOption itemValue="all" itemLabel="All Objects"/>
+                            <apex:selectOption itemValue="selected" itemLabel="Selected Objects"/>
+                            <apex:actionSupport event="onchange" rerender="pageBlock"/>
+                        </apex:selectRadio>         
+                        <apex:outputPanel rendered="{!mapObjectsSelection == 'selected'}">
+                            <apex:selectCheckboxes value="{!selectedMapObjects}" layout="pageDirection">
+                                <apex:selectOptions value="{!mapObjectSobjectSelectOptions}"/>
+                            </apex:selectCheckboxes>
+                        </apex:outputPanel>
+                    </apex:outputPanel>
+                </apex:pageBlockSectionItem>
+
+            </apex:pageBlockSection>
+
+            <apex:outputPanel id="createRecordConfig" rendered="{!geopointe__Action__c.geopointe__Action_Type__c == 'Create Record'}">
+                <apex:pageBlockSection title="Create Record Configuration" >
+                    <apex:pageBlockSectionItem >
+                        <apex:outputLabel value="Object"/>
+                        <apex:selectList size="1" value="{!geopointe__Action__c.geopointe__Create_Record_SObject__c}">
+                            <apex:selectOptions value="{!sObjectsSelectOptions}"/>
+                            <apex:actionSupport event="onchange"  action="{!changeCreateRecordObject}" rerender="createRecordConfig"/>
+                        </apex:selectList>
+                    </apex:pageBlockSectionItem>
+                </apex:pageBlockSection>
+                
+                <div style="width: 61%; margin: auto; margin-top: 10px;">
+                    <apex:pageMessage title="Field Set Setup Required" severity="info" strength="1" rendered="{!AND(geopointe__Action__c.geopointe__Create_Record_SObject__c != '',sObjectFieldSetSelectOptions.size = 0)}">
+                        <div style="margin-left: 8px;">You must create at least one Field Set for the selected Object before proceeding.</div>
+                    </apex:pageMessage>
+                 </div>
+
+                <apex:outputPanel rendered="{!AND(geopointe__Action__c.geopointe__Create_Record_SObject__c != '',sObjectFieldSetSelectOptions.size > 0)}">
+                    
+                    <div class="subSection">
+                        <div class="subSectionDivider">Field Set Mapping</div>
+                        <div class="subSectionInstructions">
+                            For each Record Type select the Field Set that should be used when creating the record. Only the fields in selected Field Set will be displayed to a user.
+                        </div>
+
+                        <table cellpadding="4px">
+                            <tr>
+                                <td class="tableHeader">Record Type</td>   
+                                <td class="tableHeader">Place Action</td>
+                                <td class="tableHeader">Map Action</td>
+                                <td class="tableHeader">Record Action</td>
+                                <td class="tableHeader">Route Stop Action</td>
+                            </tr>
+                            <apex:repeat value="{!recordTypeFieldSetMappings}" var="fm">
+                                <tr>
+                                    <td class="tableLabel">{!fm.recordTypeName}</td>   
+                                    <td>
+                                        <apex:selectList value="{!fm.placeFieldSetAPIName}" size="1">
+                                            <apex:selectOptions value="{!sObjectFieldSetSelectOptions}"/>
+                                        </apex:selectList>
+                                    </td>
+                                    <td>
+                                        <apex:selectList value="{!fm.mapFieldSetAPIName}" size="1">
+                                            <apex:selectOptions value="{!sObjectFieldSetSelectOptions}"/>
+                                        </apex:selectList>
+                                    </td>
+                                    <td>
+                                        <apex:selectList value="{!fm.recordFieldSetAPIName}" size="1">
+                                            <apex:selectOptions value="{!sObjectFieldSetSelectOptions}"/>
+                                        </apex:selectList>
+                                    </td>
+                                    <td>
+                                        <apex:selectList value="{!fm.routeStopFieldSetAPIName}" size="1">
+                                            <apex:selectOptions value="{!sObjectFieldSetSelectOptions}"/>
+                                        </apex:selectList>
+                                    </td>
+                                </tr>
+                            </apex:repeat>
+                        </table>
+                    </div>
+
+                    <div class="subSection">
+                        <div class="subSectionDivider" style="margin-top:20px;">Field Mapping</div>
+                        <div class="subSectionInstructions">
+                            When a record is created Geopointe will provide Name, Address, location, and other values. 
+                            Select the fields on your target object you would like these values to populate. These fields will only be displayed to the user if they
+                            are included in the Field Set selected above.
+                        </div>
+
+                        <table cellpadding="4px">
+                            <tr>
+                                <td></td>   
+                                <td class="tableHeader">Place Action</td>
+                                <td class="tableHeader">Map Action</td>
+                                <td class="tableHeader">Record Action</td>
+                                <td class="tableHeader">Route Stop Action</td>
+                            </tr>
+                            <tr>
+                                <td class="tableLabel">Name</td>   
+                                <td>
+                                    <apex:selectList value="{!geopointe__Action__c.geopointe__Place_Name__c}" size="1">
+                                        <apex:selectOptions value="{!sObjectFieldSelectOptions}"/>
+                                    </apex:selectList>
+                                </td>
+                                <td>
+                                    <apex:selectList value="{!geopointe__Action__c.geopointe__Map_Name__c}" size="1">
+                                        <apex:selectOptions value="{!sObjectFieldSelectOptions}"/>
+                                    </apex:selectList>
+                                </td>   
+                                <td>
+                                    <apex:selectList value="{!geopointe__Action__c.geopointe__Record_Name__c}" size="1">
+                                        <apex:selectOptions value="{!sObjectFieldSelectOptions}"/>
+                                    </apex:selectList>
+                                </td>
+                                <td>
+                                    <apex:selectList value="{!geopointe__Action__c.geopointe__Route_Stop_Name__c}" size="1">
+                                        <apex:selectOptions value="{!sObjectFieldSelectOptions}"/>
+                                    </apex:selectList>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="tableLabel">Street</td>   
+                                <td>
+                                    <apex:selectList value="{!geopointe__Action__c.geopointe__Place_Street__c}" size="1">
+                                        <apex:selectOptions value="{!sObjectFieldSelectOptions}"/>
+                                    </apex:selectList>
+                                </td>
+                                <td>
+                                    <apex:selectList value="{!geopointe__Action__c.geopointe__Map_Street__c}" size="1">
+                                        <apex:selectOptions value="{!sObjectFieldSelectOptions}"/>
+                                    </apex:selectList>
+                                </td>
+                                <td>
+                                    <apex:selectList value="{!geopointe__Action__c.geopointe__Record_Street__c}" size="1">
+                                        <apex:selectOptions value="{!sObjectFieldSelectOptions}"/>
+                                    </apex:selectList>
+                                </td>
+                                <td>
+                                    <apex:selectList value="{!geopointe__Action__c.geopointe__Route_Stop_Street__c}" size="1">
+                                        <apex:selectOptions value="{!sObjectFieldSelectOptions}"/>
+                                    </apex:selectList>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="tableLabel">City</td>   
+                                <td>
+                                    <apex:selectList value="{!geopointe__Action__c.geopointe__Place_City__c}" size="1">
+                                        <apex:selectOptions value="{!sObjectFieldSelectOptions}"/>
+                                    </apex:selectList>
+                                </td>
+                                <td>
+                                    <apex:selectList value="{!geopointe__Action__c.geopointe__Map_City__c}" size="1">
+                                        <apex:selectOptions value="{!sObjectFieldSelectOptions}"/>
+                                    </apex:selectList>
+                                </td>
+                                <td>
+                                    <apex:selectList value="{!geopointe__Action__c.geopointe__Record_City__c}" size="1">
+                                        <apex:selectOptions value="{!sObjectFieldSelectOptions}"/>
+                                    </apex:selectList>
+                                </td>
+                                <td>
+                                    <apex:selectList value="{!geopointe__Action__c.geopointe__Route_Stop_City__c}" size="1">
+                                        <apex:selectOptions value="{!sObjectFieldSelectOptions}"/>
+                                    </apex:selectList>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="tableLabel">State/Province</td>   
+                                <td>
+                                    <apex:selectList value="{!geopointe__Action__c.geopointe__Place_State__c}" size="1">
+                                        <apex:selectOptions value="{!sObjectFieldSelectOptions}"/>
+                                    </apex:selectList>
+                                </td>
+                                <td>
+                                    <apex:selectList value="{!geopointe__Action__c.geopointe__Map_State__c}" size="1">
+                                        <apex:selectOptions value="{!sObjectFieldSelectOptions}"/>
+                                    </apex:selectList>
+                                </td>
+                                <td>
+                                    <apex:selectList value="{!geopointe__Action__c.geopointe__Record_State__c}" size="1">
+                                        <apex:selectOptions value="{!sObjectFieldSelectOptions}"/>
+                                    </apex:selectList>
+                                </td>
+                                <td>
+                                    <apex:selectList value="{!geopointe__Action__c.geopointe__Route_Stop_State__c}" size="1">
+                                        <apex:selectOptions value="{!sObjectFieldSelectOptions}"/>
+                                    </apex:selectList>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="tableLabel">Postal Code</td>   
+                                <td>
+                                    <apex:selectList value="{!geopointe__Action__c.geopointe__Place_Postal_Code__c}" size="1">
+                                        <apex:selectOptions value="{!sObjectFieldSelectOptions}"/>
+                                    </apex:selectList>
+                                </td>
+                                <td>
+                                    <apex:selectList value="{!geopointe__Action__c.geopointe__Map_Postal_Code__c}" size="1">
+                                        <apex:selectOptions value="{!sObjectFieldSelectOptions}"/>
+                                    </apex:selectList>
+                                </td>
+                                <td>
+                                    <apex:selectList value="{!geopointe__Action__c.geopointe__Record_Postal_Code__c}" size="1">
+                                        <apex:selectOptions value="{!sObjectFieldSelectOptions}"/>
+                                    </apex:selectList>
+                                </td>
+                                <td>
+                                    <apex:selectList value="{!geopointe__Action__c.geopointe__Route_Stop_Postal_Code__c}" size="1">
+                                        <apex:selectOptions value="{!sObjectFieldSelectOptions}"/>
+                                    </apex:selectList>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="tableLabel">Country</td>   
+                                <td>
+                                    <apex:selectList value="{!geopointe__Action__c.geopointe__Place_Country__c}" size="1">
+                                        <apex:selectOptions value="{!sObjectFieldSelectOptions}"/>
+                                    </apex:selectList>
+                                </td>
+                                <td>
+                                    <apex:selectList value="{!geopointe__Action__c.geopointe__Map_Country__c}" size="1">
+                                        <apex:selectOptions value="{!sObjectFieldSelectOptions}"/>
+                                    </apex:selectList>
+                                </td>
+                                <td>
+                                    <apex:selectList value="{!geopointe__Action__c.geopointe__Record_Country__c}" size="1">
+                                        <apex:selectOptions value="{!sObjectFieldSelectOptions}"/>
+                                    </apex:selectList>
+                                </td>
+                                <td>
+                                    <apex:selectList value="{!geopointe__Action__c.geopointe__Route_Stop_Country__c}" size="1">
+                                        <apex:selectOptions value="{!sObjectFieldSelectOptions}"/>
+                                    </apex:selectList>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="tableLabel">Latitude</td>   
+                                <td>
+                                    <apex:selectList value="{!geopointe__Action__c.geopointe__Place_Latitude__c}" size="1">
+                                        <apex:selectOptions value="{!sObjectFieldSelectOptions}"/>
+                                    </apex:selectList>
+                                </td>
+                                <td>
+                                    <apex:selectList value="{!geopointe__Action__c.geopointe__Map_Latitude__c}" size="1">
+                                        <apex:selectOptions value="{!sObjectFieldSelectOptions}"/>
+                                    </apex:selectList>
+                                </td>
+                                <td>
+                                    <apex:selectList value="{!geopointe__Action__c.geopointe__Record_Latitude__c}" size="1">
+                                        <apex:selectOptions value="{!sObjectFieldSelectOptions}"/>
+                                    </apex:selectList>
+                                </td>
+                                <td>
+                                    <apex:selectList value="{!geopointe__Action__c.geopointe__Route_Stop_Latitude__c}" size="1">
+                                        <apex:selectOptions value="{!sObjectFieldSelectOptions}"/>
+                                    </apex:selectList>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="tableLabel">Longitude</td>   
+                                <td>
+                                    <apex:selectList value="{!geopointe__Action__c.geopointe__Place_Longitude__c}" size="1">
+                                        <apex:selectOptions value="{!sObjectFieldSelectOptions}"/>
+                                    </apex:selectList>
+                                </td>
+                                <td>
+                                    <apex:selectList value="{!geopointe__Action__c.geopointe__Map_Longitude__c}" size="1">
+                                        <apex:selectOptions value="{!sObjectFieldSelectOptions}"/>
+                                    </apex:selectList>
+                                </td>
+                                <td>
+                                    <apex:selectList value="{!geopointe__Action__c.geopointe__Record_Longitude__c}" size="1">
+                                        <apex:selectOptions value="{!sObjectFieldSelectOptions}"/>
+                                    </apex:selectList>
+                                </td>
+                                <td>
+                                    <apex:selectList value="{!geopointe__Action__c.geopointe__Route_Stop_Longitude__c}" size="1">
+                                        <apex:selectOptions value="{!sObjectFieldSelectOptions}"/>
+                                    </apex:selectList>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="tableLabel">Phone</td>   
+                                <td>
+                                    <apex:selectList value="{!geopointe__Action__c.geopointe__Place_Phone__c}" size="1">
+                                        <apex:selectOptions value="{!sObjectFieldSelectOptions}"/>
+                                    </apex:selectList>
+                                </td>
+                                <td>
+                                    <center>N/A</center>
+                                </td>
+                                <td>
+                                    <center>N/A</center>
+                                </td>
+                                <td>
+                                    <center>N/A</center>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="tableLabel">Website</td>   
+                                <td>
+                                    <apex:selectList value="{!geopointe__Action__c.geopointe__Place_Website__c}" size="1">
+                                        <apex:selectOptions value="{!sObjectFieldSelectOptions}"/>
+                                    </apex:selectList>
+                                </td>
+                                <td>
+                                    <center>N/A</center>
+                                </td>
+                                <td>
+                                    <center>N/A</center>
+                                </td>
+                                <td>
+                                    <center>N/A</center>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="tableLabel">Record Id</td>   
+                                <td>
+                                    <center>N/A</center>
+                                </td>
+                                <td>
+                                    <center>N/A</center>
+                                </td>
+                                <td>
+                                    <apex:selectList value="{!geopointe__Action__c.geopointe__Record_Record_Id__c}" size="1">
+                                        <apex:selectOptions value="{!sObjectFieldSelectOptions}"/>
+                                    </apex:selectList>
+                                </td>
+                                <td>
+                                    <center>N/A</center>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+
+                    <apex:outputPanel layout="block" styleClass="subSection" id="defaultValues">
+                        <div class="subSectionDivider" style="margin-top:20px;">Default Values</div>
+
+                        <table cellpadding="4px">
+                            <tr>
+                                <td class="tableHeader">Field</td>   
+                                <td class="tableHeader">Place Action</td>
+                                <td class="tableHeader">Map Action</td>
+                                <td class="tableHeader">Record Action</td>
+                                <td class="tableHeader">Route Stop Action</td>
+                            </tr>
+                            <apex:repeat value="{!DefaultFieldValues}" var="df">
+                                <tr>
+                                    <td class="tableLabel">
+                                        <apex:commandLink value="Del" action="{!removeDefaultValue}" reRender="defaultValues" style="color: #4a4a56;">
+                                            <apex:param name="defaultValueIndexToRemove" value="{!df.index}" assignTo="{!defaultValueIndexToRemove}"/>
+                                        </apex:commandLink>
+                                        &nbsp;
+                                        <apex:selectList value="{!df.fieldName}" size="1">
+                                            <apex:selectOptions value="{!sObjectFieldSelectOptions}"/>
+                                        </apex:selectList>
+                                    </td>   
+                                    <td>
+                                        <apex:inputText value="{!df.placeActionValue}" style="width: 160px;"/>
+                                    </td>
+                                    <td>
+                                        <apex:inputText value="{!df.mapActionValue}" style="width: 160px;"/>
+                                    </td>
+                                    <td>
+                                        <apex:inputText value="{!df.recordActionValue}" style="width: 160px;"/>
+                                    </td>
+                                    <td>
+                                        <apex:inputText value="{!df.routeStopActionValue}" style="width: 160px;"/>
+                                    </td>
+                                </tr>
+                            </apex:repeat>
+                        </table>
+
+                        <apex:commandButton value="Add Default Value" action="{!addNewDefaultValue}" rerender="defaultValues"/>
+                    </apex:outputPanel>
+
+                </apex:outputPanel>
+                
+            </apex:outputPanel>
+
+        </apex:pageBlock>
+    </apex:form>
+
+    <!-- object fields for use in the extension -->
+    <apex:outputField value="{!geopointe__Action__c.geopointe__Map_Objects__c}" rendered="false"/>
+    <apex:outputField value="{!geopointe__Action__c.geopointe__Standard_Action__c}" rendered="false"/>
+
+    <script type="text/javascript">
+        jQuery(document).ready(function(){
+            
+            //Show hide merge fields
+            jQuery("body").on("click","#showHideMergeFields",function(){
+                if(jQuery("#mergeFieldList").is(":visible")){
+                    jQuery("#mergeFieldList").hide();
+                    jQuery(this).text("[Show Merge Fields]");
+                }else{
+                    jQuery("#mergeFieldList").show();
+                    jQuery(this).text("[Hide Merge Fields]");
+                }
+            });
+
+            //Insert merge field
+            jQuery("body").on("click",".mergeField",function(e){
+                
+                var mergeValue = jQuery(this).text();
+
+                //Find cursor position in
+                var $urlInput = jQuery("input[id$='linkURL']");
+                var cursorPos = $urlInput.getCursorPosition();
+                
+                //Get val and split it into two parts based on position of cursor
+                var val = $urlInput.val();
+                var val1 = val.substring(0,cursorPos);
+                var val2 = val.substring(cursorPos,val.length);
+
+                //Place merge field where the cursor was and update the value
+                var newVal = val1 + mergeValue + val2;
+                $urlInput.val(newVal);
+
+                //Prevent normal link behavior
+                e.preventDefault();
+            });
+        });
+
+        //Extend jquery with a getCursorPosition function - http://stackoverflow.com/questions/1891444/how-can-i-get-cursor-position-in-a-textarea
+        (function ($, undefined) {
+            $.fn.getCursorPosition = function() {
+                var el = $(this).get(0);
+                var pos = 0;
+                if('selectionStart' in el) {
+                    pos = el.selectionStart;
+                } else if('selection' in document) {
+                    el.focus();
+                    var Sel = document.selection.createRange();
+                    var SelLength = document.selection.createRange().text.length;
+                    Sel.moveStart('character', -el.value.length);
+                    pos = Sel.text.length - SelLength;
+                }
+                return pos;
+            }
+        })(jQuery);
+    </script>
+</apex:page>

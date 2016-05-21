@@ -1,0 +1,250 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <actionCalls>
+        <name>FAULT</name>
+        <label>FAULT</label>
+        <locationX>393</locationX>
+        <locationY>373</locationY>
+        <actionName>emailSimple</actionName>
+        <actionType>emailSimple</actionType>
+        <connector>
+            <targetReference>Show_Error</targetReference>
+        </connector>
+        <inputParameters>
+            <name>emailBody</name>
+            <value>
+                <elementReference>txtErrorBody</elementReference>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>emailSubject</name>
+            <value>
+                <stringValue>FLOW ERROR - Submit for Closed Won</stringValue>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>emailAddresses</name>
+            <value>
+                <stringValue>ssg@coxautoinc.com</stringValue>
+            </value>
+        </inputParameters>
+    </actionCalls>
+    <actionCalls>
+        <name>Submit_for_Approval</name>
+        <label>Submit for Approval</label>
+        <locationX>187</locationX>
+        <locationY>424</locationY>
+        <actionName>submit</actionName>
+        <actionType>submit</actionType>
+        <faultConnector>
+            <targetReference>What_Type_of_Fault</targetReference>
+        </faultConnector>
+        <inputParameters>
+            <name>objectId</name>
+            <value>
+                <elementReference>varOppID</elementReference>
+            </value>
+        </inputParameters>
+    </actionCalls>
+    <decisions>
+        <name>Check_Opp_Closed</name>
+        <label>Check Opp Closed</label>
+        <locationX>187</locationX>
+        <locationY>177</locationY>
+        <defaultConnector>
+            <targetReference>Set_Opp_to_Pending_Won</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>No</defaultConnectorLabel>
+        <rules>
+            <name>Yes</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>varOppIsClosed</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Opp_is_Closed</targetReference>
+            </connector>
+            <label>Yes</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <name>What_Type_of_Fault</name>
+        <label>What Type of Fault</label>
+        <locationX>394</locationX>
+        <locationY>214</locationY>
+        <defaultConnector>
+            <targetReference>FAULT</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Other</defaultConnectorLabel>
+        <rules>
+            <name>Validation</name>
+            <conditionLogic>or</conditionLogic>
+            <conditions>
+                <leftValueReference>$Flow.FaultMessage</leftValueReference>
+                <operator>Contains</operator>
+                <rightValue>
+                    <stringValue>FIELD_CUSTOM_VALIDATION_EXCEPTION</stringValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Flow.FaultMessage</leftValueReference>
+                <operator>Contains</operator>
+                <rightValue>
+                    <stringValue>ENTITY_IS_LOCKED</stringValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Flow.FaultMessage</leftValueReference>
+                <operator>Contains</operator>
+                <rightValue>
+                    <stringValue>Cannot submit object already in process</stringValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Show_Error</targetReference>
+            </connector>
+            <label>Validation or Locked</label>
+        </rules>
+    </decisions>
+    <description>Adjusted error email recipient</description>
+    <formulas>
+        <name>ParseError</name>
+        <dataType>String</dataType>
+        <expression>SUBSTITUTE(
+   SUBSTITUTE(
+      SUBSTITUTE(
+         SUBSTITUTE(
+            {!$Flow.FaultMessage}, 
+            &quot;UPSERT --- UPSERT FAILED ---  ERRORS :  (FIELD_CUSTOM_VALIDATION_EXCEPTION)&quot;,
+            &quot;&quot;
+         ),
+         &quot; ---  for SFDC record with ID : null&quot;,
+         &quot;&quot;
+      ),
+      &quot;,&quot;,
+      {!carriagereturn}
+   ),
+   &quot;(FIELD_CUSTOM_VALIDATION_EXCEPTION)&quot;,
+   &quot;&quot;
+)</expression>
+    </formulas>
+    <interviewLabel>Submit for Closed Won {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>Submit for Closed Won</label>
+    <processType>Flow</processType>
+    <recordLookups>
+        <name>Get_Opp_Info</name>
+        <label>Get Opp Info</label>
+        <locationX>393</locationX>
+        <locationY>50</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>Check_Opp_Closed</targetReference>
+        </connector>
+        <faultConnector>
+            <targetReference>What_Type_of_Fault</targetReference>
+        </faultConnector>
+        <filters>
+            <field>Id</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>varOppID</elementReference>
+            </value>
+        </filters>
+        <object>Opportunity</object>
+        <outputAssignments>
+            <assignToReference>varOppIsClosed</assignToReference>
+            <field>IsClosed</field>
+        </outputAssignments>
+    </recordLookups>
+    <recordUpdates>
+        <name>Set_Opp_to_Pending_Won</name>
+        <label>Set Opp to Pending Won</label>
+        <locationX>187</locationX>
+        <locationY>301</locationY>
+        <connector>
+            <targetReference>Submit_for_Approval</targetReference>
+        </connector>
+        <faultConnector>
+            <targetReference>What_Type_of_Fault</targetReference>
+        </faultConnector>
+        <filters>
+            <field>Id</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>varOppID</elementReference>
+            </value>
+        </filters>
+        <inputAssignments>
+            <field>StageName</field>
+            <value>
+                <stringValue>Pending Won</stringValue>
+            </value>
+        </inputAssignments>
+        <object>Opportunity</object>
+    </recordUpdates>
+    <screens>
+        <name>Opp_is_Closed</name>
+        <label>Opp is Closed</label>
+        <locationX>21</locationX>
+        <locationY>179</locationY>
+        <allowBack>true</allowBack>
+        <allowFinish>true</allowFinish>
+        <allowPause>true</allowPause>
+        <fields>
+            <name>oppClosedTxt</name>
+            <fieldText>This opportunity is already closed, so it cannot be submitted for approval. If you believe you have received this message in error, please contact the Salesforce team.</fieldText>
+            <fieldType>DisplayText</fieldType>
+        </fields>
+    </screens>
+    <screens>
+        <name>Show_Error</name>
+        <label>Show Error</label>
+        <locationX>577</locationX>
+        <locationY>373</locationY>
+        <allowBack>true</allowBack>
+        <allowFinish>true</allowFinish>
+        <allowPause>true</allowPause>
+        <fields>
+            <name>parsedError</name>
+            <fieldText>Error:
+{!ParseError}</fieldText>
+            <fieldType>DisplayText</fieldType>
+        </fields>
+    </screens>
+    <startElementReference>Get_Opp_Info</startElementReference>
+    <textTemplates>
+        <name>carriagereturn</name>
+        <text>&lt;SPAN ALIGN=&quot;LEFT&quot;&gt;&lt;FONT FACE=&quot;Arial&quot; STYLE=&quot;font-size:12px&quot; COLOR=&quot;#000000&quot; LETTERSPACING=&quot;0&quot; KERNING=&quot;0&quot;&gt;&lt;/FONT&gt;&lt;/SPAN&gt;&lt;DIV ALIGN=&quot;LEFT&quot;&gt;&lt;FONT FACE=&quot;Arial&quot; STYLE=&quot;font-size:12px&quot; COLOR=&quot;#000000&quot; LETTERSPACING=&quot;0&quot; KERNING=&quot;0&quot;&gt;&lt;/FONT&gt;&lt;/DIV&gt;</text>
+    </textTemplates>
+    <textTemplates>
+        <name>txtErrorBody</name>
+        <text>Opp ID: {!varOppID}
+
+{!$Flow.FaultMessage}</text>
+    </textTemplates>
+    <variables>
+        <name>varErrorText</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+    <variables>
+        <name>varOppID</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>true</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+    <variables>
+        <name>varOppIsClosed</name>
+        <dataType>Boolean</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+</Flow>

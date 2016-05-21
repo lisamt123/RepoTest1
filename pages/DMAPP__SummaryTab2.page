@@ -1,0 +1,457 @@
+<apex:page standardController="Opportunity" extensions="DMAPP.SummaryTabController,DMAPP.SummaryController,DMAPP.StandardControllerPPTExtension,DMAPP.PartnerCEBController,DMAPP.PrimeActionController">
+    <!-- l10n data -->
+    <apex:includeScript value="{!$Resource.DMAPP__l10njs}"/>
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__prefix)}"/>
+    <!--<apex:includeScript value="{!URLFOR($Resource.DMAPP__ttgomjs, 'ttg/lib/ttgutils.js')}"/>-->    
+    
+
+    <apex:variable var="playbookSelected" value="{!IF(CONTAINS(selectedPage,'PB_Qualifiers'),true,false)}"/>
+    <apex:variable var="assessmentSelected" value="{!IF(CONTAINS(selectedPage,'Assessment'),true,false)}"/>
+    <apex:variable var="milestonesSelected" value="{!IF(CONTAINS(selectedPage,'Milestones'),true,false)}"/>
+    <apex:variable var="politicalSelected" value="{!IF(CONTAINS(selectedPage,'OM_Political_Analysis_Page'),true,false)}"/>
+    <apex:variable var="decisionSelected" value="{!IF(CONTAINS(selectedPage,'OM_Decision_Criteria'),true,false)}"/>
+    <apex:variable var="collabSelected" value="{!IF(   OR( CONTAINS(selectedPage,'OM_Collaboration_Map_Page'), CONTAINS(selectedPage,'om_desktop_insight_app') ),true,false) }"/>
+    <apex:variable var="competitiveSelected" value="{!IF(CONTAINS(LOWER(selectedPage),'competitivestrategy'),true,false)}"/>
+    <apex:variable var="primeSelected" value="{!IF(CONTAINS(LOWER(selectedPage),'primeaction'),true,false)}"/>
+    <apex:variable var="coachSelected" value="{!IF(CONTAINS(selectedPage,'CoachMe'),true,false)}"/>
+    <apex:variable var="printSelected" value="{!IF(CONTAINS(selectedPage,'Print'),true,false)}"/>   
+    <apex:variable var="qualificationSelected" value="{!IF(CONTAINS(selectedPage,'PB_Qualifiers'),true,false)}"/>
+    <apex:variable var="callplannerSelected" value="{!IF(CONTAINS(selectedPage,'om_desktop_callplanner_app'),true,false)}"/>
+    
+    <apex:variable var="callPlannerSelected" value="{! IF(CONTAINS(selectedPage,'om_desktop_callplanner_app'), true, false) }" />
+
+    <c:AddTask showPRIME="{!NOT(hidePRIMETypeColumn)}" listAllActions="{!listAllActions}" dateFormat="{!jQueryUIDateFormat}" opportunityId="{!JSENCODE(Opportunity.id)}" currencyISO="{!currencyISO}"/>
+
+    <div class="smartOMPanel">
+
+        <div class="smartOMOpportunitySummary">
+            
+            <apex:outputPanel id="smartOMBackLinkPolMapExpress" layout="block" styleClass="smartOMBackLink" rendered="{!NOT(isMoreThanOneSmartOMApplicationLicensed)}">
+                
+                <apex:outputLink styleClass="backlink hideableBackLink" target="_top" value="/{! opportunity.id }">Back to Opportunities</apex:outputLink>
+                                
+            </apex:outputPanel>   
+        
+            <strong>Dealmaker&nbsp;-&nbsp;</strong><apex:outputLink styleClass="opportunityLink backToOppName" target="_top" value="/{! opportunity.id }">{! opportunity.Name }</apex:outputLink>
+            <apex:outputText value=" - Read Only Access" styleClass="readOnlyText" rendered="{!NOT(isTAS120Editable)}"/>
+            
+            <div class="chatterContainer">
+                <apex:include pageName="DMAPP__ChatterPost2" rendered="{!NOT(((politicalSelected || callplannerSelected) && (isLicensedForPoliticalMapExpressWithoutPlaybook || isLicensedForPoliticalMapExpressAndCallPlannerOrPlaybook || isLicensedForPoliticalMapExpressAndCallPlannerAndNotLicensedForOM)))}"/>
+            </div>
+            
+            <div class="helpAndPPTContainer">
+            
+            	<apex:outputText rendered="{!(playbookSelected && isLicensedForPlaybookAndNotLicensedForOMorIMX)}">
+					<br />
+				</apex:outputText>
+            
+	            <apex:outputPanel id="smartOMPPTEx" layout="block" styleClass="smartOMHelpLinkExpress" rendered="{!NOT(isMoreThanOneSmartOMApplicationLicensed)}">
+	                <a id="TASHELPLINK" onclick="javascript: help.showTutorial(false);">Help</a>	                
+	            </apex:outputPanel>
+	            
+	            <apex:outputPanel id="smartOMPPTExTut" layout="block" styleClass="smartOMTutorialLink" rendered="{!(((politicalSelected || callplannerSelected) && (isLicensedForPoliticalMapExpressOnly || isLicensedForPoliticalMapExpressAndCallPlannerOrPlaybook || isLicensedForPoliticalMapExpressAndCallPlannerAndNotLicensedForOM)) || (playbookSelected && isLicensedForPlaybookAndNotLicensedForOMorIMX))}">
+	                
+	                <div id='smartOMPPTLink' class="smartOMPPTLink smartOMPPTLinkPMX"  style='display:none'>
+	                    <apex:form >
+	                        <a id="PPTEXPORT2" onclick="javascript: handlePPTX();" title="Click the icon to export to Powerpoint"></a>
+	                    </apex:form> 
+	                </div>
+	                <apex:outputText rendered="{!politicalSelected}"> 
+	                	<a id="TASTUTORIALLINK" onclick="javascript: help.showTutorial(true, 'PoliticalMapExpress');">Tutorial</a>
+	                </apex:outputText>
+	                <apex:outputText rendered="{!callplannerSelected}"> 
+	                	<a id="TASTUTORIALLINK" onclick="javascript: help.showTutorial(true, 'CallPlanner');">Tutorial</a>
+	                </apex:outputText>
+	            </apex:outputPanel>
+            </div>
+            
+        </div>
+
+        <apex:variable rendered="{!isMoreThanOneSmartOMApplicationLicensed}" value="" var="renderingDummyVar">            
+            <div class="smartOMTabContainer">
+                <div class="smartOMBackLink">
+                
+                    <apex:outputLink styleClass="backlink hideableBackLink" target="_top" value="/{! opportunity.id }">Back to Opportunities</apex:outputLink>                    
+                </div>            
+            
+                <c:NavTab id="NavTab" 
+                    isLaunch="false" 
+                    opportunityId="{!opportunity.id}" 
+                    isPlaybookEnabled="{!isPlaybookEnabled}" playbookSelected="{!playbookSelected}" playbookConfidence="{!playbookConfidence}" 
+                    isAssessmentEnabled="{!isAssessmentEnabled}" assessmentSelected="{!assessmentSelected}" shadowOpportunityAnsweredYesCount="{!shadowOpportunityAnsweredYesCount}" criteriaCount="{!criteriaCount}"  
+                    isMilestonesEnabled="{!isMilestonesEnabled}" isMilestonesSelected="{!milestonesSelected}" milestonesMaxValue="{!milestonesMaxValue}" milestonesValue="{!milestonesValue}"  
+                    isPoliticalMapEnabled="{!isPoliticalMapEnabled}" politicalSelected="{!politicalSelected}" politicalContacts="{!orgChartContactCount}" 
+                    isDecisionCriteriaEnabled="{!isDecisionCriteriaEnabled}" decisionSelected="{!decisionSelected}" decisionCriteriaCount="{!decisionCriteriaCount}" 
+                    isCollabMapEnabled="{!isCollabMapEnabled}" collabSelected="{!collabSelected}" mapCount="{!mapCount}" 
+                    isCompetitiveStrategyEnabled="{!isCompetitiveStrategyEnabled}" competitiveSelected="{!competitiveSelected}" selectedStrategy="{!selectedStrategy}" 
+                    isPRIMEActionsEnabled="{!isPRIMEActionsEnabled}" primeSelected="{!primeSelected}" openPRIMEActionCount="{!openPRIMEActionCount}" 
+                    isCoachMeEnabled="{!isCoachMeEnabled}" coachSelected="{!coachSelected}" 
+                    isCallPlannerEnabled="{! isCallPlannerEnabled }" callPlannerSelected="{! callPlannerSelected }" callPlanCount="{! callPlanCount }" 
+                />
+
+                
+                <div class="helpAndPPTContainer">
+	                <apex:outputPanel id="smartOMTabCreateTask" layout="block" styleClass="smartOMSummaryAddTask" rendered="{!isPRIMEActionsEnabled && isTAS120Editable}">
+	                    <a id="summary_add_new_task">Add {!$Label.DMAPP__resource_PRIME_Action}</a>
+	                </apex:outputPanel>
+				
+	                <div id='smartOMPPTEx' class="smartOMHelpLink">
+	                    <a id="TASHELPLINK" onclick="javascript: help.showHelp();">Help</a>
+	                </div>   
+	            
+	                <div id='smartOMPPTLink' class="smartOMPPTLink"  style='display:none'>
+	                    <apex:form >
+	                        <a id="PPTEXPORT2" onclick="javascript: handlePPTX();" title="Click the icon to export to Powerpoint"></a>
+	                    </apex:form> 
+	                </div>
+	                
+	                <div id='ONE_PAGER_PRINT_PREVIEW' class="OnePagerPrintPreview" style="{!IF(showOnePagerLink,'','display:none;')}" >
+	                    <a id="PARTNERLINK" onclick="javascript: partner.showPartner('{!onePagerLink}', '{!opportunity.id}');">Print Summary</a>
+	                </div>
+                </div>
+                
+            </div>
+            
+            <div class="smartOMTabContainerBottom"></div>
+            
+         </apex:variable>
+
+    </div>  
+
+    <script>
+
+        /* 
+         * Copyright � The TAS Group. All rights reserved.
+         *  
+         */
+    
+        var _PARTNER = function(spec) {
+            
+            var that = { };
+            
+            function showPartner(location, opportunityid) {
+                var url = '/apex/' + location + '?id=' + opportunityid;
+                var testwindow = window.open(url, "TAS", "resizable=1,location=1,status=1,scrollbars=1,width=1000,height=600");
+            }
+
+            that.showPartner = showPartner;
+            return that;
+        }
+    
+    
+        var _HELP = function(spec) {
+            
+            function showTutorial(isTutorial, type) {
+            
+                var url = '{!helpURLBase}';
+            
+                if(isTutorial) {
+                	
+                	if(type == 'PoliticalMapExpress') {
+                	
+                    	url += '/Default.htm#Political_Map_Express/Political_Map_Express_Tutorial.htm';
+                    	
+					} else if(type == 'CallPlanner') {
+                	
+                    	url += '/Default.htm#Smart_OM/Call_Planner/Smart_Call_Planner_Tutorial.htm';
+                    	
+					}
+                }
+                else {
+                    url += '/Default.htm#Generic/Political_Map/Political_Map_SOM.htm';
+                }                   
+            
+                
+                var testwindow = window.open(url, "TAS", "resizable=1,location=1,status=1,scrollbars=1,width=1000,height=600");
+			}  
+            
+            function showHelp() {
+            
+                var url = '{!helpURLBase}';
+            
+                if ({!assessmentSelected}) {
+                    url += '/Default.htm#Smart_OM/Assessment/Assessment.htm';
+                }
+                else if ({!politicalSelected}) {
+                    url += '/Default.htm#Generic/Political_Map/Political_Map_SOM.htm';
+                }
+                else if ({!decisionSelected}) {
+                    url += '/Default.htm#Smart_OM/Decision_Criteria.htm';
+                }
+                else if ({!collabSelected}) {
+                    url += '/Default.htm#Smart_OM/Insight_Map/Insight_Map.htm';
+                }
+                else if ({!competitiveSelected}) {
+                    url += '/Default.htm#Smart_OM/Competitive_Strategy/Competitive_Strategy.htm';
+                }
+                else if ({!primeSelected}) {
+                    url += '/Default.htm#Smart_OM/Prime_Actions.htm';
+                }
+                else if ({!coachSelected}) {
+                    url += '/Default.htm#Smart_OM/Coach_Me.htm';
+                }
+                else if ({!qualificationSelected}) {
+            		url += '/Default.htm#Smart_Playbook/Using_Playbook/Using_Smart_Playbook.htm';
+            		
+                } else if ({! milestonesSelected }) {
+                	url += '/Default.htm#Milestones/Milestones.htm';
+				
+				} else if ({!callplannerSelected}) {
+            	
+            		url += '/Default.htm#Smart_OM/Call_Planner/01_Smart_Call_Planner.htm';
+            		
+                } else {
+                
+                    alert('Sorry, help not available');
+                }
+                
+                var testwindow = window.open(url, "TAS", "resizable=1,location=1,status=1,scrollbars=1,width=1000,height=600");
+            }
+
+            return {
+            	showHelp : showHelp,
+            	showTutorial : showTutorial
+            };
+        }
+        
+        var help = _HELP({});
+        
+        var partner = _PARTNER({});
+        
+        var getFile = function() {
+        
+            var api = ttg.apiLayer.sfdcDelegate( { sessionid : '{!JSENCODE($Api.Session_ID)}', opportunityid : '{!recordId}' } );
+            api.getPPTGenerator('{!recordId}' , function(data) {
+                var d = data;
+            }, function() {}, function() {});
+        
+        };
+        
+            
+ 
+        var ttg = ttg || {};
+
+        ttg.simpleFlatPPTExporter = function(anchorOppId, isLicensedForPP) {
+
+        
+            var api = ttg.apiLayer.sfdcDelegate( { sessionid : '{!JSENCODE($Api.Session_ID)}', opportunityid : '{!recordId}' } );
+            var dialogOpen = true;
+            var callCount = 0;
+
+            var spinnerImg = 
+                jQuery('<img>')
+                    .attr('id', 'tas_ajax_spinner')
+                    .addClass('spinner')
+                    .attr('src', "{!JSENCODE(URLFOR($Resource.ttgomjs, '/ttg/graph/images/loader.gif'))}")
+                ;
+                
+            
+            function createFutureDownloadAdvice() {
+                if (isLicensedForPP) {
+                    return jQuery('<ol/>')
+                            .append(jQuery('<li/>').text('Dealmaker is preparing your powerpoint presentation.'))
+                            .append(jQuery('<li/>').text('Once complete a link will appear below.'))
+                }
+                else {
+                    return jQuery('<ol/>')
+                            .append(jQuery('<li/>').text('Dealmaker is preparing your powerpoint presentation.'))
+                            .append(jQuery('<li/>').text('Once complete a link will appear below.'))
+                            .append(jQuery('<li/>').text('Right click this link and save the file with an extention of \'.xml\'.'))
+                            .append(jQuery('<li/>').text('Open this saved file with powerpoint.'))
+                            .append(jQuery('<li/>').text('Close this dialog when then \'save as\' has completed.'))
+                }
+            }
+
+
+            function createFutureLinkDiv() {
+                callCount = 0;
+                return  jQuery('<div/>')
+                    .css({ width : '100%', 'text-align' : 'center'})
+                    .addClass('ttg_future_ppt_exporter_linkdiv')
+                    .append(jQuery('<span/>').text('Preparing'));
+                    
+            }
+
+            function deletefuturePPTX(id) {
+                api.deletePPTX(id,
+                
+                    function() { createfuturePPTX(id) },                    
+                    function() { /* error */ },                 
+                    function() { /* complete */ }               
+                )
+                
+            }           
+            
+            function createfuturePPTX(id) {
+                api.postPPTX(id,
+                    {param: { id: id } },
+                    function() { checkForFuturePPTXUrl(id) },                   
+                    function() { /* error */ },                 
+                    function() { /* complete */ }               
+                )
+                
+            }           
+
+            function checkForFuturePPTXUrl(id) {
+                api.getPPTX(id,
+                
+                    function(responseData) { 
+                        if (responseData != null && responseData.downloadURL != null) {
+
+                            jQuery('.ttg_future_ppt_exporter_linkdiv').html('');
+
+                            if (isLicensedForPP) {
+                                jQuery('.ttg_future_ppt_exporter_linkdiv').append(
+                                    jQuery('<div/>')
+                                            .css({width:'100%', 'text-align' : 'center' })
+                                            .append(jQuery('<iframe/>', {src : 'https://' + document.domain.replace('dmapp', 'dmppt') + responseData.downloadURL, height : '40px', width : '100%', frameBorder : 0, seamless : 'seamless' }))
+                                )
+                            }
+                            else {
+                                jQuery('.ttg_future_ppt_exporter_linkdiv').append(
+                                    jQuery('<a/>', {href: responseData.downloadURL }).css('cursor', 'pointer').text('Click to save presentation')
+                                )
+                            }
+                        }
+                        else {
+                            if (++callCount > 40) {
+                                jQuery('.ttg_future_ppt_exporter_linkdiv').html('');
+                                jQuery('.ttg_future_ppt_exporter_linkdiv').append(
+                                    jQuery('<a/>').text('Taking too long.  Continue waiting?').css('cursor', 'pointer').click(function() { callCount = 0; checkForFuturePPTXUrl(id)} ) 
+                                )
+                            }
+                            else {
+                                jQuery('.ttg_future_ppt_exporter_linkdiv').html('');
+                                jQuery('.ttg_future_ppt_exporter_linkdiv').append(
+                                    jQuery('<span/>').css({'display': 'inline-block', width: '100px', 'text-align': 'left'}).text('Waiting' + dots(callCount, 4))
+                                )
+                                if (dialogOpen) {
+                                    checkForFuturePPTXUrl(id);
+                                }
+                            }
+                            
+                        } 
+                    },
+                    function() { /* error */ },                 
+                    function() { /* complete */ }               
+                )
+
+            }
+            
+            function dots(num, mnum) {
+            
+                var s = '';
+                while(s.length < (num % mnum)) {
+                    s += '.';
+                }
+
+                while(s.length < mnum) {
+                    s += ' ';
+                }
+                
+                return s;
+            }
+
+            function futureFailure() {
+            }
+                
+            function closeDialog() {
+                dialogOpen = false;
+                jQuery('#ttg_simple_ppt_exporter_div').remove();
+            }
+            
+            function showDialog() {
+                
+                jQuery('<div/>',{ id : 'ttg_simple_ppt_exporter_div'})
+                    .addClass('ttg_simple_ppt_exporter')
+                    .append(
+                        createFutureDownloadAdvice() 
+                    )
+                    .append(
+                        createFutureLinkDiv() 
+                    )
+                    .dialog({
+                        title       :   'Export Powerpoint'
+                        , width     :   '500px',
+                        close: closeDialog
+                    });
+            }
+            /*
+            function showConfirmationDialog() {
+                jQuery('<div/>',{ id : 'ttg_simple_ppt_exporter_div'})
+                    .addClass('ttg_simple_ppt_exporter')
+                    .append(
+                        jQuery('<div/>').attr('id', 'ttg_confim_text').text('Are you sure?') 
+                    )
+                    .dialog({
+                        title       :   'Export Powerpoint'
+                        , width     :   '500px'
+                        
+                        ,buttons : {
+                            "Cancel" : function() {
+                                $(this).dialog("close");
+                            },
+                            "Confirm" : function() {
+                                alert("You have confirmed!");            
+                            }
+                        }
+                        ,close: closeDialog
+                    });
+            
+            }
+            
+            
+            showConfirmationDialog();
+            */
+            showDialog();
+            deletefuturePPTX(anchorOppId)
+            
+            return {
+            }
+        }
+
+        jQuery(document).ready(function() {
+        
+            //
+            // we show the link 
+            //  if your on windows as we can download the flat XML 
+            //  if you have the PPTX extension installed
+            //
+            //
+            if ({!showPPTLink}) {
+                if (navigator.appVersion.indexOf("Win")!=-1 || {!isLicensedForPPT}) {
+                    jQuery('#smartOMPPTLink').show();
+                }
+            }           
+          	
+          	if (salesforce1) {
+          	
+          		jQuery('.smartOMBackLink').click(function() {          		            	
+       				sforce.one.navigateToSObject('{! opportunity.id }', 'detail');
+            	});
+            }     
+
+            /* Salesforce1 navigation */
+            if (ttg_salesforce1) {              
+                jQuery('.hideableBackLink').hide();
+                jQuery('.backToOppName').click(function () {return false;});
+
+                // Removes the link attributes of the opportunity's name (DMPS-1056)
+                var opportunityLink = jQuery('.opportunityLink');               
+                opportunityLink.replaceWith(opportunityLink.html());
+            }
+
+            jQuery('.smartOMPanel a#summary_add_new_task').click(function() {createSummaryTabTask()});
+        });
+
+        function handlePPTX() {
+            // ttg.simpleFlatPPTExporter('{!opportunity.Id}', {!isLicensedForPPT}, 'https://DMAPP.na9.visual.force.com/apex/DJH_TestOC_Page?id=006E0000006B9sBIAS');
+            ttg.simpleFlatPPTExporter('{!recordId}', {!isLicensedForPPT});
+        }
+
+        function createSummaryTabTask() {
+            ttg.taskMgr.newTaskDialog(null, null, ttg.navTabMgr().incrementPrimeActionCount)
+        }
+
+    </script>
+</apex:page>

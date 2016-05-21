@@ -1,0 +1,618 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<script type="text/javascript" src="/js/functions.js"></script>
+<script src="/soap/ajax/12.0/connection.js"></script>
+<script language="javascript">
+
+function invoices()
+{
+//++++++++++++++++++++++++++++++++++++++++++++GATHER OPPORTUNITY INFO+++++++++++++++++++++
+
+
+var EndDate = '{!TEXT(IF(CONTAINS(Opportunity.Name, "CRM"), TODAY()+30, IF(CONTAINS(Opportunity.Name, "ILM"),TODAY()+20,IF(CONTAINS(Opportunity.Name, "DIY"),TODAY()+10, TODAY()+30))))}';
+
+var OpptyId='{!Opportunity.Id}';
+var ProjectName="{!Opportunity.Name}";
+var Account="{!Opportunity.AccountId}";
+var AccountName="{!Opportunity.Account}";
+
+//=======Creative Tasks (upon creation)
+var emailbanner="F";
+var CRMILM;
+var sendintroemail="F";
+var makeintrocall="F";
+//=======Implementation Tasks (upon creation)
+var sendpacket="F";
+
+//==========Check to see if Oppty Stage is Paid and set to paid if not==============
+
+var stage='{!Opportunity.StageName}';
+var paid='{!Opportunity.PAID__c}';
+
+
+if(stage == "Closed or Won"||'{!User.ProfileId}'=='00e70000000wzXQ'||'{User.ProfileId'=='00e70000001FaWM'
+||'{!User.ProfileId}'=='00e70000001FaWM')//agreement is active
+{
+paid="YES";
+
+var Opportunity = new sforce.SObject("Opportunity");
+var logId = '{!Opportunity.Id}';
+
+Opportunity.Id = logId;
+Opportunity.PAID__c=paid;
+
+saveResult = sforce.connection.update([Opportunity]);
+if (saveResult[0].getBoolean("success"))
+{
+//alert();
+}
+
+//+++++++++++++++++++++++++++++++++++++++++++++++++++PROJECT CREATION+++++++++++++++++++++++++++
+//Training Check
+
+var TrainingSet = 'FALSE';
+var TrainingExpensesPaid = 'FALSE';
+var IssueNameT;
+var resultT=sforce.connection.query("Select o.Id,   o.ProdProj_Default_Owner__c, o.Description, o.Product_Issue__c From OpportunityLineItem o where o.OpportunityId = '"+OpptyId+"'");
+
+var recT = resultT.getArray("records");
+
+for(var t=0;t<resultT.size;t++)
+{	
+	IssueNameT=recT[t].Product_Issue__c;
+
+	if(IssueNameT=="2 Trainers (On-Site) 2 days"||
+	IssueNameT=="1 Trainer (Professional)"||
+	IssueNameT=="2 Trainers (Professional)"||
+        IssueNameT=="3 Trainers (Professional)"||
+	IssueNameT=="4 Trainers (Professional)")
+	{
+		TrainingSet = 'TRUE';
+	}
+
+        if(IssueNameT=="2 Trainers - Expenses Paid by Dealer"||
+	IssueNameT=="1 Trainer (Professional) - expenses paid by dealer"||
+	IssueNameT=="2 Trainers - Expenses Paid by Dealer"||
+        IssueNameT=="3 Trainers - Expenses Paid by Dealer"||
+	IssueNameT=="4 Trainers - Expenses Paid by Dealer")
+	{
+		TrainingSet = 'TRUE';
+                TrainingExpensesPaid = 'TRUE';
+	}
+
+
+}
+
+
+
+//================Create Project====================
+
+var ProjectOwn = "00570000001JJ2D";
+
+var result=sforce.connection.query("Select o.Production_Department__c, o.Description, o.Production_Department3__c, o.Production_Department2__c, o.Id From OpportunityLineItem o where o.Production_Department__c != '012700000005e2z' and o.OpportunityId = '"+OpptyId+"'");
+
+var rec = result.getArray("records");
+var Crtv='F';
+if(result.size<1)
+{
+ProjectOwn = "00G70000001Kg6p";
+Crtv = 'T'
+//alert('test');
+}
+
+//============================================
+
+var datenum = '{!LEFT(TEXT(TODAY()),4)&MID(TEXT(TODAY()),6,2)&MID(TEXT(TODAY()),9,2)}';
+var callarray=[];
+
+for (i=1; i<=1; i++)
+{
+
+var callobj=new sforce.SObject("SFDC_520_Quote__c");
+
+callobj.set("OwnerId", ProjectOwn);
+callobj.set("Name", "IMP-"+AccountName+"-"+datenum);
+callobj.set("RecordTypeId", "012700000005dgPAAQ");
+callobj.set("Project_Name__c", ProjectName);
+callobj.set("Opportunity__c", OpptyId);
+callobj.set("Go_Live_Date__c", EndDate);
+callobj.set("Account__c", Account);
+callobj.set("Approval_Stage__c", "Introduction");
+callobj.set("Contact__c",'{!Opportunity.Deal_ContactId__c}');
+callobj.set("Training_Included__c", TrainingSet);
+callobj.set("Training_Expenses_Paid_by_Dealer__c", TrainingExpensesPaid);
+
+callarray.push(callobj);
+
+}
+
+var callcr = sforce.connection.create(callarray);
+
+for (var i=0; i<callcr.length ;i++ )
+{
+if (callcr[0].getBoolean("success"))
+{
+//alert("Call Project Create - Success");
+}
+else
+{
+alert("Call - Failure1");
+}
+
+}
+
+
+//================FIND THE PROJECT THAT WAS JUST CREATED==============================
+var ProjectId;
+var ProjOwner;
+var ebanner;
+var resultA=sforce.connection.query("Select p.Opportunity__c, p.OwnerId, p.Name, p.Email_Banners__c, p.Id From SFDC_520_Quote__c p where p.Opportunity__c = '"+OpptyId+"'");
+
+var recA = resultA.getArray("records");
+
+for(var i=0; i<resultA.size ; i++)
+{
+ebanner=recA[i].Email_Banners__c;
+ProjectId = recA[i].Id;
+ProjOwner=recA[i].OwnerId;
+}
+//window.open('/apex/editQuoteLines?id='+ProjectId+'&reloadQuote=1','Project');
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++END PROJECT CREATION++++++++++
+
+//Check for Inventory Light========================
+var Light;
+
+var resultZ = sforce.connection.query("Select o.PricebookEntry.Name From OpportunityLineItem o where OpportunityId = '{!Opportunity.Id}' AND PricebookEntry.Name='Inventory Light'");
+
+var recZ = resultZ.getArray("records");
+
+if(resultZ.size!=0)
+{
+Light = 'T';
+//alert("Light "+Light);
+}
+//=================================================
+//CHECK FOR CRM===================================
+var CRM;
+
+var resultCRM = sforce.connection.query("Select o.PricebookEntry.Name From OpportunityLineItem o where OpportunityId = '{!Opportunity.Id}' AND PricebookEntry.Name='CRM'");
+
+var recCRM = resultCRM.getArray("records");
+
+if(resultCRM.size!=0)
+{
+CRM= 'T';
+//alert("CRM "+CRM);
+}
+//=================================================
+//CHECK FOR ILM===================================
+var ILM;
+
+var resultILM = sforce.connection.query("Select o.PricebookEntry.Name From OpportunityLineItem o where OpportunityId = '{!Opportunity.Id}' AND PricebookEntry.Name='ILM'");
+
+var recILM = resultILM.getArray("records");
+
+if(resultILM.size!=0)
+{
+ILM= 'T';
+//alert("ILM "+ILM);
+}
+
+var BOTH;
+
+if(CRM=="T"&&ILM=="T")
+{
+BOTH="T";
+//alert(BOTH);
+}
+//=================================================
+
+
+//+++++++++++++++++++++++++++++++++++++++++++++++++ISSUE CREATION++++++++++++++++++++++++++++
+//========================Query data for Issues to be created====================================
+var ProductionDepartment;
+var ProductionDepartment2;
+var ProductionDepartment3;
+var IssueName
+var PieceName;
+var Piece2Name;
+var Piece3Name;
+var Quantity;
+var ProdProjOwner;
+var ProdProjOwner2;
+var ProdProjOwner3;
+var Special;
+var totalPrice;
+var QuantityException;
+
+var resultA = sforce.connection.query("Select o.Description, o.PricebookEntry.Name, o.ProdProj_Default_Owner__c, o.Product_Issue__c, o.Product_Issue2__c, o.Product_Issue3__c, o.ProdProj_Dept2_Owner__c, o.ProdProj_Dept3_Owner__c, o.Production_Department__c, o.Production_Department2__c, o.Production_Department3__c, o.Quantity, o.Quantity_Exception__c, o.PricebookEntryId, o.OpportunityId, o.Id, o.Total_List_Price__c, VS_Sale_Price__c From OpportunityLineItem o where OpportunityId = '{!Opportunity.Id}' AND Production_Department__c != '012700000005e2u'");
+
+var recA = resultA.getArray("records");
+
+for(var i=0; i<resultA.size ; i++)
+{
+Special = recA[i].Description;
+IssueName=recA[i].PricebookEntry.Name;
+PieceName = recA[i].Product_Issue__c;
+PieceName2 = recA[i].Product_Issue2__c;
+PieceName3 = recA[i].Product_Issue3__c;
+ProductionDepartment = recA[i].Production_Department__c;
+ProductionDepartment2=recA[i].Production_Department2__c;
+ProductionDepartment3=recA[i].Production_Department3__c;
+ProdProjOwner=recA[i].ProdProj_Default_Owner__c;
+ProdProjOwner2=recA[i].ProdProj_Dept2_Owner__c;
+ProdProjOwner3=recA[i].ProdProj_Dept3_Owner__c;
+totalPrice=recA[i].VS_Sale_Price__c;
+Quantity = recA[i].Quantity;
+QuantityException= recA[i].Quantity_Exception__c;
+
+
+//****************************************************************PROJECT-LEVEL TASKS****************************************
+
+//======Check to see if Creative Intro Tasks are needed============================
+if(sendintroemail=="F"&&makeintrocall=="F"&&Crtv=='F')
+{
+makeintrocall="T";
+sendintroemail="T";
+
+var Project = new sforce.SObject("SFDC_520_Quote__c");
+var logId = ProjectId;
+
+Project.Id = logId;
+Project.Make_Intro_Call__c=makeintrocall;
+Project.Send_Intro_Email__c=sendintroemail;
+
+saveResult = sforce.connection.update([Project]);
+if (saveResult[0].getBoolean("success"))
+{
+
+}
+else
+{
+//alert(ProjectId);
+}
+
+}
+//======Close Creative Intro Task Check=========================================
+
+//======Check to see if Implementation Intro Tasks are needed=======
+if(ProductionDepartment=="012700000005e34"&&sendpacket=="F")
+{
+if(IssueName=="CRM"||IssueName=="ILM"||IssueName=="Craigslist auto posting tool-MotoBlast"
+||IssueName=="Inventory Light"
+||IssueName=="Inventory Gallery for Website"
+||IssueName=="Inventory Module"
+||'{!Opportunity.Opportunity_Names__c}'=="DIY")
+{
+sendpacket="T"; //this should be only for CRM/ILM/or Motoblast
+
+var Project = new sforce.SObject("SFDC_520_Quote__c");
+var logId = ProjectId;
+
+Project.Id = logId;
+Project.Send_Packet__c=sendpacket;
+
+saveResult = sforce.connection.update([Project]);
+if (saveResult[0].getBoolean("success"))
+{
+//alert("success Packet ");
+}
+else
+{
+//alert(ProjectId);
+}
+}//====Close CRM/ILM/Motoblast test
+}
+//=====Close Implementation Intro Task Check
+
+//*************************************************END PROJECT-LEVEL TASKS**********************************************
+
+//*************************************************GENERIC-DEPENDANT PROJECT PIECE CREATION********************
+//====================Check to see if this issue requires a project task for email banners
+
+
+if(emailbanner=="F")
+{
+if(IssueName=="CRM" || IssueName=="ILM")
+{
+
+if(BOTH=='T')
+{
+PieceName="CRM Implementation";
+}
+
+//===========CREATE A PROJECT PIECE FOR EMAIL BANNERS===========
+var callarray=[];
+
+var callobj=new sforce.SObject("Project_Piece__c");
+callobj.set("name", "PP-Email Banners-"+PieceName+"-"+AccountName+"-"+datenum);
+callobj.set("OwnerId", "00570000001dofX");
+callobj.set("RecordTypeId", "012700000005e2z");
+callobj.set("Piece_Issue__c", "Email Banners - "+PieceName+" - "+AccountName);
+callobj.set("Project__c", ProjectId);
+callobj.set("Account__c", Account);
+callobj.set("Project_Piece_Special_Instructions__c", Special);
+callobj.set("Product_Value__c", totalPrice);
+callobj.set("Product_Name__c", PieceName);
+
+callarray.push(callobj);
+
+var callcr = sforce.connection.create(callarray);
+
+for (var r=1; r<=callcr.length ;r++ )
+{
+if (callcr[0].getBoolean("success"))
+{
+//alert("Call Quantity Issue Create - Success "+r);
+}//===============Close Alert for success
+else
+{
+alert("Call - Failure2");
+}
+}
+
+
+//=========================================CRM & ILM PIECE CREATION======================
+if(CRMILM!="T")
+{
+   if(IssueName=='ILM'&&BOTH=="T")
+   {
+      IssueName="CRM";
+   }
+   if(Light=="T")
+   {
+      IssueName = IssueName+" - Inventory Light";
+   }
+	var callarray=[];
+
+  var callobj=new sforce.SObject("Project_Piece__c");
+  callobj.set("name", "PP-"+PieceName+"-"+AccountName+"-"+datenum);
+  callobj.set("OwnerId", ProdProjOwner);
+  callobj.set("RecordTypeId", ProductionDepartment);
+  callobj.set("Piece_Issue__c", IssueName+" - "+AccountName);
+  callobj.set("Project__c", ProjectId);
+  callobj.set("Account__c", Account);
+  callobj.set("Project_Piece_Special_Instructions__c", Special);
+  callobj.set("Product_Value__c", totalPrice);
+  callobj.set("Product_Name__c", PieceName);
+
+  callarray.push(callobj);
+
+var callcr = sforce.connection.create(callarray);
+
+for (var r=1; r<=callcr.length ;r++ )
+{
+if (callcr[0].getBoolean("success"))
+{
+//alert("Call Quantity Issue Create - Success "+r);
+}//===============Close Alert for success
+else
+{
+alert("Call - Failure - CRM & ILM");
+}
+}
+	
+CRMILM="T";			
+}	
+
+}//==============close email banner CRM/ILM check
+
+emailbanner="T";	
+}//==========================close EMAIL BANNER CHECKER===================
+
+//********************************************END GENERIC-DEPENDANT PROJECT PIECE CREATION*********************
+
+//**************************START PRODUCT-UNIQUE MULTI-DEPARTMENT PROJECT PIECE CREATION****************
+
+
+
+
+
+//**************************END PRODUCT-UNIQUE MULTI-DEPARTMENT PROJECT PIECE CREATION****************
+
+
+//*************************************************START PROJECT PIECE CREATION FOR PRODUCTS******************
+//=======================Create Issue for this instance of Product Issue==============
+if(PieceName!='CRM Implementation'&&PieceName!='ILM Implementation')
+{
+var callarray=[];
+
+var callobj=new sforce.SObject("Project_Piece__c");
+callobj.set("name", "PP-"+PieceName+"-"+AccountName+"-"+datenum);
+callobj.set("OwnerId", ProdProjOwner);
+callobj.set("RecordTypeId", ProductionDepartment);
+callobj.set("Piece_Issue__c", PieceName+" - "+AccountName);
+callobj.set("Project__c", ProjectId);
+callobj.set("Account__c", Account);
+callobj.set("Project_Piece_Special_Instructions__c", Special);
+callobj.set("Product_Value__c", totalPrice);
+callobj.set("Product_Name__c", PieceName);
+
+
+//===================LOOP for Quantity FIRST==============================
+if(Quantity>1)
+{
+
+for(var q=1; q<=Quantity; q++)
+{
+//====================CHECK FOR HARDWARE/TRAINING QUANTITIES==========
+if(
+IssueName=="VinCamera & software" || 
+IssueName=="Trainer - day(s) on-site with one trainer"||
+IssueName=="Trainer - day(s) on-site with two trainers"||
+IssueName=="Trainer - day(s) on-site with three trainers"||
+IssueName=="Trainer - day(s) on-site with four trainers"||
+IssueName=="Trainer - day(s) dedicated Webex training"||
+IssueName=="Drivers License Scanner"||
+QuantityException=="True")
+{
+q = Quantity;
+totalPrice=totalPrice*Quantity;
+}
+var callarray=[];
+
+var callobj=new sforce.SObject("Project_Piece__c");
+callobj.set("name", "PP-"+PieceName+"-"+AccountName+"-"+datenum);
+callobj.set("OwnerId", ProdProjOwner);
+callobj.set("RecordTypeId", ProductionDepartment);
+callobj.set("Piece_Issue__c", PieceName+" - "+AccountName+" - "+q);
+callobj.set("Project__c", ProjectId);
+callobj.set("Account__c", Account);
+callobj.set("Project_Piece_Special_Instructions__c", Special);
+callobj.set("Product_Value__c", totalPrice);
+callobj.set("Product_Name__c", PieceName);
+
+callarray.push(callobj);
+
+var callcr = sforce.connection.create(callarray);
+
+for (var r=1; r<=callcr.length ;r++ )
+{
+if (callcr[0].getBoolean("success"))
+{
+//alert("Call Quantity Issue Create - Success "+r);
+}//===============Close Alert for success
+else
+{
+alert("Call - Failure3");
+}
+}
+}
+}
+else
+{
+callarray.push(callobj);
+
+var callcr = sforce.connection.create(callarray);
+
+for (var t=1; t<=callcr.length ;t++ )
+{
+if (callcr[0].getBoolean("success"))
+{
+//alert("Call Issue Create - Success "+t);
+}//===============Close Alert for success
+else
+{
+alert("Call - Failure4 "+PieceName);
+}
+}
+
+}//======Close non-quantity loop
+
+
+//*********************************CREATE MULTI-DEPT3 ISSUES***********************************
+if(ProdProjOwner3 != null)
+{
+
+var callarray=[];
+
+var callobj=new sforce.SObject("Project_Piece__c");
+callobj.set("name", "PP-"+PieceName+"-"+AccountName+"-"+datenum);
+callobj.set("OwnerId", ProdProjOwner3);
+callobj.set("RecordTypeId", ProductionDepartment3);
+callobj.set("Piece_Issue__c", PieceName3+" - "+PieceName+" - "+AccountName+" - "+Quantity);
+callobj.set("Project__c", ProjectId);
+callobj.set("Account__c", Account);
+callobj.set("Project_Piece_Special_Instructions__c", Special);
+callobj.set("Product_Value__c", totalPrice);
+callobj.set("Product_Name__c", PieceName);
+
+callarray.push(callobj);
+
+var callcr = sforce.connection.create(callarray);
+
+for (var ppp=1; ppp<=callcr.length ;ppp++ )
+{
+if (callcr[0].getBoolean("success"))
+{
+//alert("Call - Success6"+" O2 = "+ProdProjOwner3);
+}//===============Close Alert for success
+else
+{
+alert("Call - Failure6"+" O2 = "+ProdProjOwner3);
+}
+}
+
+
+}
+
+//************************************END MULTI-DEPT3 ISSUES********************************
+
+
+
+//********************************CREATE MULTI-DEPT2 ISSUES***********************************
+if(ProdProjOwner2 != null)
+{
+
+var callarray=[];
+
+var callobj=new sforce.SObject("Project_Piece__c");
+callobj.set("name", "PP-"+PieceName+"-"+AccountName+"-"+datenum);
+callobj.set("OwnerId", ProdProjOwner2);
+callobj.set("RecordTypeId", ProductionDepartment2);
+callobj.set("Piece_Issue__c", PieceName2+" - "+PieceName+" - "+AccountName+" - "+Quantity);
+callobj.set("Project__c", ProjectId);
+callobj.set("Account__c", Account);
+callobj.set("Project_Piece_Special_Instructions__c", Special);
+callobj.set("Product_Value__c", totalPrice);
+callobj.set("Product_Name__c", PieceName);
+
+callarray.push(callobj);
+
+var callcr = sforce.connection.create(callarray);
+
+for (var pp=1; pp<=callcr.length ;pp++ )
+{
+if (callcr[0].getBoolean("success"))
+{
+//alert("Call - Success5"+" O2 = "+ProdProjOwner2);
+}//===============Close Alert for success
+else
+{
+alert("Call - Failure5"+" O2 = "+ProdProjOwner2);
+}
+}
+
+
+}
+//*********************************END MULTI-DEPT2 ISSUES***********************************
+
+}
+}//================Close FIND DATA FOR ISSUES TO BE CREATED LOOP================
+
+var inst = '{!Opportunity.Number_of_Installments__c}';
+//alert("TEST - " + inst);
+
+if('{!Opportunity.Number_of_Installments__c}'!="")
+{
+alert("Please be sure that the applicable installments are marked as Paid");
+}
+parent.window.location.href = '/{!Opportunity.Id}';
+
+}//===================CLOSE STAGE CHECK
+else
+{
+alert('Stage must be "Closed or Won" to use "PAID" button');
+parent.window.location.href = '/{!Opportunity.Id}';
+}
+
+}//===============CLOSE ONLOAD===================
+
+
+
+
+
+
+
+
+
+</script>
+</head>
+<body onload="invoices();">
+<table width="100%">
+    <tr><td width="100%" align="center"><br><br><br>Please wait, a Project and Project Pieces are being generated&hellip;<br><br>
+    <img src="/img/waiting_dots.gif" border="0" width=156 height=34></td></tr>
+</table>
+</body>
+</html>

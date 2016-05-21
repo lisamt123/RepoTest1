@@ -1,0 +1,674 @@
+<apex:page standardController="DMAPP__Account_Political_Map__c" extensions="DMAPP.AccountPoliticalMapController" 
+    sidebar="false" 
+    showHeader="false"
+    docType="html-5.0"
+    >
+
+    <c:jQuery chosen="true"
+        jQueryUI="true"
+        touchPunch="true"
+        tableDnD="true"
+        tooltip="true" 
+        paging="true"
+        underscore="true"/>
+
+    <c:MobileRedirect />
+    <c:PlaceholderOne />
+
+    <c:CustomLabelJSBridge />
+
+    <!--[if lte IE 8]>
+    <style>
+        span#sidePanelToggleButton, #contactsSidePanelToggleButton {
+           -ms-filter: "progid:DXImageTransform.Microsoft.Matrix(M11=3.061616997868383e-16, M12=1, M21=-1, M22=3.061616997868383e-16, SizingMethod='auto expand')";
+        }
+        
+        span#contactsSidePanelToggleButton {
+            -ms-filter: "progid:DXImageTransform.Microsoft.Matrix(M11=-1.8369701987210297e-16, M12=-1, M21=1, M22=-1.8369701987210297e-16, SizingMethod='auto expand')";
+        }
+        
+        span#sidePanelToggleButton.sidePanelToggleButtonCollapsed {
+            -ms-filter: "progid:DXImageTransform.Microsoft.Matrix(M11=-1.8369701987210297e-16, M12=-1, M21=1, M22=-1.8369701987210297e-16, SizingMethod='auto expand')";
+        }
+        span#contactsSidePanelToggleButton.sidePanelToggleButtonCollapsed {
+           -ms-filter: "progid:DXImageTransform.Microsoft.Matrix(M11=3.061616997868383e-16, M12=1, M21=-1, M22=3.061616997868383e-16, SizingMethod='auto expand')";
+        }
+        
+        span.accordionHeaderToggleExpanded {
+           -ms-filter: "progid:DXImageTransform.Microsoft.Matrix(M11=-1, M12=1.2246467991473532e-16, M21=-1.2246467991473532e-16, M22=-1, SizingMethod='auto expand')";
+        }
+        span.accordionHeaderToggleCollapsed {
+            -ms-filter: "progid:DXImageTransform.Microsoft.Matrix(M11=-1.8369701987210297e-16, M12=-1, M21=1, M22=-1.8369701987210297e-16, SizingMethod='auto expand')";
+        }
+    </style>
+    <![endif]-->
+
+    <style>
+  
+        @import url("{!URLFOR($Resource.ttgcss,          'ttgcss/layout.css')}");
+        @import url("{!URLFOR($Resource.ttgomjs,         'ttg/graph/css/ttg_orgchart.css')}");
+        @import url("{!URLFOR($Resource.ttgomjs,         'ttg/graph/css/miniclicker.css')}");
+        @import url("{!URLFOR($Resource.ttgomjs,         'ttg/search-widget/searchWidget.css')}");
+        @import url("{!URLFOR($Resource.ttgcss,          'ttgcss/jquery.pulse.css')}");
+        @import url("{!URLFOR($Resource.ttgomjs,         'ttg/graph/css/political_side_panel.css')}"); 
+        @import url("{!URLFOR($Resource.ttgomjs,         'ttg/graph/css/political_map.css')}");
+        @import url("{!URLFOR($Resource.ttgomjs,         'ttg/graph/css/tooltip.css')}");
+        @import url("{!URLFOR($Resource.jQueryUI,        'css/custom-theme/jquery-ui-1.8.21.custom.css')}"); 
+        @import url("{!URLFOR($Resource.ttgomjs,         'ttg/graph/css/glyphs/style.css')}");
+
+        @import url("{!URLFOR($Resource.SmartOM,         'css/summarytab.css')}");
+        @import url("{!URLFOR($Resource.SmartOM,         'css/chatterpost.css')}");
+            
+        /* start of additions for Chatter */
+    
+        @import url("{!URLFOR($Resource.ttgomjs,         'ttg/chatter/css/chatter_side_panel.css')}");
+        @import url("{!URLFOR($Resource.ttgomjs,         'ttg/chatter/css/chatter_post.css')}");
+        @import url("{!URLFOR($Resource.ttgomjs,         'ttg/graph/css/glyphs/style.css')}");
+        @import url("{!URLFOR($Resource.ttgomjs,         'ttg/chatter/css/chatter_summary.css')}");
+        
+        /* end of additions for Chatter */
+
+        div#ttg_pol_map_watermark {
+            display: none;
+        } 
+                    
+        .fadedDialog {
+            opacity: 0.1;
+            filter: alpha(opacity=10); 
+        }
+        
+        div.draggableOpportunityHelper  {
+            z-index: 5;
+            border : 1px outset black;
+            background: url('{!URLFOR($Resource.TAM, 'images/icon_drag.png')}') 5px center no-repeat;            
+        }
+        
+        .contactname  {
+            padding-left: 25px;
+            background: url('{!URLFOR($Resource.TAM, 'images/icon_drag.png')}') 5px center no-repeat;        
+        }
+        
+        .contacttitle {
+            margin-left: 5px;
+            color: #999;
+        }
+        
+        div#sidePanelDiv {
+            z-index: 10;
+        }
+        
+        div.ttg-oc-dragging-helper {
+            z-index: 9;
+        }
+        
+        div.side_panel_rule_advice {
+            margin-top : 5px;
+            padding-bottom : 5px;
+        }
+
+        body {
+            font-family: Arial,Helvetica,Sans-Serif !important;
+        }
+        
+        div.smartOMOpportunitySummary div.smartOMBackLink {
+           margin-top: 0;
+        }
+        
+        /* Restores AJAX spinner size to normal (AMOF-813) */
+        .spinner {
+            height: auto;
+            width: auto;
+        }
+            #legendDiv { min-width: 715px; }
+        
+                    #legendDiv .ttg_org_chart_legend_box_panel ul {
+                        height: auto; 
+                        min-height: 193px;
+                    } 
+
+        .hideTab {
+            height: 0 !important;
+            padding: 0 !important;
+        }
+        
+        div#buyingroleedit_chosen { width: 150px !important; }
+        
+        div.tasZoomControl { z-index: 8 !important; }
+        
+        /* Reposition legend for iPad (AMOF-1057) */ 
+        
+        @media only screen 
+        and (min-device-width: 768px) 
+        and (max-device-width: 1024px)  {
+        
+            #legendDiv {
+                background-color: rgb(255, 255, 255); 
+                border: 2px solid rgb(156, 156, 156);
+                border-radius: 4px;
+                font-size: 8px;
+                left: 100px; 
+                padding: 3px;  
+                position: absolute;
+                z-index: 25;                    
+            }
+        }       
+                    
+        div.smartOMPanel .myChatterPostPopup .myChatterTextAreaContainer {
+            overflow: visible;
+        }
+        
+        div.smartOMPanel .myChatterPostPopup .myChatterTextAreaContainer {
+            max-height: none;
+        }
+        
+        div.smartOMPanel .feedcontainer {
+            max-height: 300px;
+            overflow: auto;
+        }
+    </style>
+
+    <script src="/soap/ajax/25.0/connection.js"></script>
+    
+    <apex:includeScript value="{!$Resource.DMAPP__l10njs}" />
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__prefix)}"/>
+    
+    <div id="TAS">
+        
+        <div class="all">       
+            <div id="ttgCanvasDiv" class="canvasDiv" style="overflow:hidden; position:relative;">       
+                <div id="ttgCanvas" class="canvas"></div>
+            </div>                 
+        </div>
+    </div>
+    
+    
+    <!-- some images that the code makes use of -->
+    <div style="display:none">
+  
+        <img id="ttg_oc_img_unknown"                                src="{!URLFOR($Resource.ttgomjs, 'ttg/orgchart/images/icon_unknown.png')}"/>
+        <img id="ttg_oc_img_not_set"                                src="{!URLFOR($Resource.ttgomjs, 'ttg/orgchart/images/not_set.gif')}"/>      
+        <img id="ttg_oc_img_attention"                              src="{!URLFOR($Resource.ttgomjs, 'ttg/graph/feimages/icon_approved.png')}"/>      
+        <img id="ttg_oc_img_grey_x"                                 src="{!URLFOR($Resource.ttgomjs, 'ttg/orgchart/images/grey_x.png')}"/>        
+        <img id="ttg_oc_img_influences"                             src="{!URLFOR($Resource.ttgomjs, 'ttg/orgchart/images/down_alt.png')}"/>      
+        <img id="ttg_oc_img_influencedby"                           src="{!URLFOR($Resource.ttgomjs, 'ttg/orgchart/images/up_alt.png')}"/>      
+        <img id="ttg_oc_img_key_player"                             src="{!URLFOR($Resource.ttgomjs, 'ttg/orgchart/images/icon_key_decision.png')}"/>       
+        <img id="ttg_oc_influence_drag"                             src="{!URLFOR($Resource.ttgomjs, 'ttg/orgchart/images/icon_influence_drag.png')}"/>       
+        <img id="ttg_oc_selected"                                   src="{!URLFOR($Resource.ttgomjs, 'ttg/orgchart/images/icon_selected.png')}"/>       
+    
+        <img id="ttg_graph_img_expand"                              src="{!URLFOR($Resource.ttgomjs, 'ttg/orgchart/images/icon_expand.png')}"/>       
+        <img id="ttg_graph_img_collapse"                            src="{!URLFOR($Resource.ttgomjs, 'ttg/orgchart/images/icon_collapse.png')}"/>       
+        <img id="ttg_graph_img_loading"                             src="{!URLFOR($Resource.ttgomjs, 'ttg/graph/images/loading_icon.gif')}"/>     
+        <img id="ttg_graph_img_open_contact"                        src="{!URLFOR($Resource.ttgomjs, 'ttg/graph/feimages/icon_contact_info.png')}"/>     
+        <img id="ttg_graph_img_linkedin"                            src="{!URLFOR($Resource.Assessment, 'common/images/linkedIn.png')}"/>     
+     
+    </div>
+    
+    
+    
+    
+    <!-- l10n data -->
+    <apex:includeScript value="{!$Resource.DMAPP__l10njs}"/>
+    
+    
+    <!-- these are general purpose js libraries -->
+
+    <script>
+    
+    var $j = jQuery.noConflict();
+        
+    $j.ajaxSetup({
+        jsonp: null,
+        jsonpCallback: null,
+        async: true
+    });
+    
+    </script>
+
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__excanvas)}"/> 
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__ftk, 'forcetk.js')}"/>
+    
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__Raphael, 'raphael-min.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__Raphael, 'rgbcolor.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__Raphael, 'canvg.js')}"/>
+    
+    <!-- these are org chart specific js pages -->
+    
+    
+    <!--[if lt IE 9]>
+    <apex:includeScript value="{!URLFOR($Resource.ttgomjs, 'ttg/lib/ie.js')}"/> 
+    <apex:includeScript value="{!URLFOR($Resource.ttgomjs, 'ttg/lib/json2.js')}"/> 
+    <!--[endif]-->
+
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__ttgomjs, 'ttg/lib/modernizr.js')}"/>
+
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__ttgomjs, 'ttg/lib/jquery-ui-touch-patch.js')}"/>
+     
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__ttgomjs, 'ttg/lib/ttgutils.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__ttgomjs, 'ttg/lib/simple_context.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__ttgomjs, 'ttg/lib/entity_editor.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__ttgomjs, 'ttg/lib/simple_printer.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__ttgomjs, 'ttg/lib/ttgservice.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__ttgomjs, 'ttg/graph/js/simple_events.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__ttgomjs, 'ttg/graph/js/graph.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__ttgomjs, 'ttg/graph/js/graph_layout_config.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__ttgomjs, 'ttg/graph/js/graph_layout.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__ttgomjs, 'ttg/graph/js/base_renderer.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__ttgomjs, 'ttg/graph/js/graph_renderer.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__ttgomjs, 'ttg/graph/js/graph_updater.js')}"/>    
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__ttgomjs, 'ttg/graph/js/graphic_button.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__ttgomjs, 'ttg/graph/js/add_node_button.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__ttgomjs, 'ttg/graph/js/zoom_in_button.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__ttgomjs, 'ttg/graph/js/zoom_out_button.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__ttgomjs, 'ttg/graph/js/zoom_manager.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__ttgomjs, 'ttg/graph/js/pan_manager.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__ttgomjs, 'ttg/graph/js/nav_control.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__ttgomjs, 'ttg/graph/js/contact_menu.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__ttgomjs, 'ttg/graph/js/tappit.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__ttgomjs, 'ttg/graph/js/graph_validator.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__ttgomjs, 'ttg/graph/js/gesture_observer.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__ttgomjs, 'ttg/graph/js/activity_info.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__ttgomjs, 'ttg/graph/js/left_right_button.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__ttgomjs, 'ttg/graph/js/compass_button.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__ttgomjs, 'ttg/graph/js/simple_ui.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__ttgomjs, 'ttg/graph/js/add_menu_button.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__ttgomjs, 'ttg/graph/js/options_menu_button.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__ttgomjs, 'ttg/graph/js/print_button.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__ttgomjs, 'ttg/graph/js/trash_bin.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__ttgomjs, 'ttg/graph/js/simple_title.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__ttgomjs, 'ttg/graph/js/chatter_button.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__ttgomjs, 'ttg/graph/js/empty_message.js')}"/>
+    
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__ttgomjs, 'ttg/orgchart/js/org_chart_node_renderer.js')}"/>   
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__ttgomjs, 'ttg/orgchart/js/org_chart_node_updater.js')}"/> 
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__ttgomjs, 'ttg/orgchart/js/edit_contact.js')}"/>
+    
+    <!-- <apex:includeScript value="{! URLFOR($Resource.ttgomjs, 'ttg/orgchart/js/side_panel_editor.js') }" /> --> 
+       
+    <apex:includeScript value="{! URLFOR($Resource.ttgomjs, 'ttg/orgchart/js/side_panel_editor.js') }" />
+    
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__ttgomjs, 'ttg/orgchart/js/org_chart_metadata.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__ttgomjs, 'ttg/orgchart/js/display_graph.js')}"/>  
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__ttgomjs, 'ttg/orgchart/js/import_button.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__ttgomjs, 'ttg/orgchart/js/import_dialog.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__ttgomjs, 'ttg/orgchart/js/influence_highlighter.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__ttgomjs, 'ttg/orgchart/js/popup_org_chart.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__ttgomjs, 'ttg/orgchart/js/create_contact_button.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__ttgomjs, 'ttg/orgchart/js/influence_line_renderer.js')}"/>       
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__ttgomjs, 'ttg/orgchart/js/add_contact_menu_button.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__ttgomjs, 'ttg/orgchart/js/show_influences_button.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__ttgomjs, 'ttg/orgchart/js/show_owners_button.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__ttgomjs, 'ttg/orgchart/js/show_legend_button.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__ttgomjs, 'ttg/orgchart/js/legend_box.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__ttgomjs, 'ttg/orgchart/js/synthetic_node_renderer.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__ttgomjs, 'ttg/orgchart/js/create_synthetic_node_button.js')}"/>    
+    <apex:includeScript value="{! URLFOR($Resource.ttgomjs, 'ttg/orgchart/js/contact_subs_side_panel.js') }" />    
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__ttgomjs, 'ttg/orgchart/js/subs_node_renderer.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__ttgomjs, 'ttg/orgchart/js/subs_bench_manager.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__ttgomjs, 'ttg/orgchart/js/map_title_control.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__ttgomjs, 'ttg/orgchart/js/sub_map_node_renderer.js')}"/>
+    
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__ttgomjs, 'ttg/search-widget/searchWidgetController.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__ttgomjs, 'ttg/search-widget/searchWidgetModel.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__ttgomjs, 'ttg/search-widget/searchWidgetRenderer.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__ttgomjs, 'ttg/search-widget/searchWidgetDataExtractor.js')}"/>
+    
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__CoachMe, 'new_coach/parser.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__CoachMe, 'new_coach/engine.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__CoachMe, 'new_coach/coach_manager.js')}"/>
+
+    <apex:include pageName="DMAPP__AMPoliticalMapCoachRules"/>
+        
+    <apex:include pageName="DMAPP__CRUD" />
+    <apex:include pageName="DMAPP__JSRemoting" />
+    
+    
+    <script>
+    
+
+        /* 
+         * Copyright � The TAS Group. All rights reserved.
+         *  
+         */        
+    
+    
+    ttg.context.orgchartbase =  '{!$Resource.DMAPP__ttgomjs}' ;
+    ttg.context.decision_criteria_base =  '{!$Resource.DMAPP__DecisionCriteria}' ;
+    ttg.context.orgId = 'RANDOM_ORG_ID';
+    ttg.context.sessionId = '{!$Api.Session_ID}';
+    ttg.context.url = 'RANDOM_URL';
+     
+    var daGraph; 
+        
+    jQuery(document).ready(function() { 
+        var accountPolMap = (function() {
+            function adaptAddOrgChartContact(data) {
+            
+                var adapted = {
+                    links : {
+                        link : []
+                    }
+                };
+                //TODO
+                jQuery.each(data.contacts, function(idx,c) {
+                    adapted.links.link.push({ id : c.orgchartcontactid});//, accountUnitId: c.accountUnitId });
+                })
+                
+                return adapted;
+            }
+            
+            function adaptSearchOrgCharts(data) {
+            
+                var adapted = {
+                    "org_charts": {
+                        "org_chart": []
+                        }
+                }
+                            
+                jQuery.each(data.records, function(idx,rec) {
+                    adapted.org_charts.org_chart.push({
+                        id      :   rec.Id,
+                        name    :   rec.Name,//rec[ttg.vfp+'Account__r'].Name,
+                        type    :   rec.attributes.type
+                    });
+                });
+                
+                return adapted;
+            }
+            
+                    
+            function adaptSearchOrgChartsJS(data, typevar) {
+            
+                var adapted = {
+                    "org_charts": {
+                        "org_chart": []
+                        }
+                }
+                            
+                jQuery.each(data.records, function(idx,rec) {
+                    adapted.org_charts.org_chart.push({
+                        id      :   rec.Id,
+                        name    :   rec.Name,//rec[ttg.vfp+'Account__r'].Name,
+                        type    :   typevar
+                    });
+                });
+                
+                return adapted;
+            }
+            
+                    
+            function adaptSearchOrgChartsJS(data, typevar) {
+            
+                var adapted = {
+                    "org_charts": {
+                        "org_chart": []
+                        }
+                }
+                            
+                jQuery.each(data.records, function(idx,rec) {
+                    adapted.org_charts.org_chart.push({
+                        id      :   rec.Id,
+                        name    :   rec.Name,//rec[ttg.vfp+'Account__r'].Name,
+                        type    :   typevar
+                    });
+                });
+                
+                return adapted;
+            }
+            
+            //
+            // The Org Chart related calls
+            //
+            function createGraph(graph, success, error, complete) {
+                // in sfdc native we dont have an org chart object
+                // every org chart is assumed to have one and so we 
+                // will always be able to load one and hence never 
+                // have to create one
+            };
+            
+            function addOrgChartContactJS(graphId, orgChartContacts, success, error, complete) {
+                
+                var succ = function(data) { try { success( adaptAddOrgChartContact(data) ); } finally { complete(); } };
+                var err = ttg.ajaxErrorFunction(error,complete);
+                
+                // handle the array ness in the orgChartContact param
+                
+                var req =  { "occs" : { "contacts" : [] } };
+                
+                jQuery.each( jQuery.makeArray(orgChartContacts), function(idx, occ) {
+                        req.occs.contacts.push( { 
+                            mapId               :   graphId,
+                            
+                            political           :   occ.political,
+                            adaptability        :   occ.adaptability,
+                            coverage            :   occ.coverage,
+                            status              :   occ.status,
+                            decisionorientation :   occ.decisionorientation,
+                            
+                            contactid           :   occ.id,
+                            hookstoid           :   occ.hookstoid
+                        }); 
+                });
+                
+                ttgInvoker.invokeVFR(ttg.getController('DMAPP.AccountPoliticalMapController.addOrgChartContact'),
+                    req.occs, 
+                    function(result, event) { 
+                        if (event.type == 'exception') { 
+                            err(result,event);
+                        } else {
+                            succ(result); 
+                        } 
+                    }, {escape: false}
+                )          
+            }
+        
+            
+            function updateContactAttributeJS(contactId, contactAttr, orgChartMetadata, success, error, complete) {
+            
+                var succ = function(data) { try { success(data); } finally { complete(); } };
+                var err = ttg.ajaxErrorFunction(error,complete);
+            
+                function makeContactsList(arr) {
+                    var cl = {
+                        contactid : []
+                    }
+                    
+                    jQuery.each(arr, function(idx, a) { cl.contactid.push(a); });
+                    
+                    return cl;
+                }
+                        
+                adaptedPost = {
+                    occs    :   {
+                        contacts : []
+                    }
+                };
+                
+                
+                jQuery.each(jQuery.makeArray(contactAttr), function(idx, cntct) {
+                    var newCntct = {
+                            mapId               :   '{!JSENCODE(DMAPP__Account_Political_Map__c.DMAPP__Linked_Map__c)}' ? '{!JSENCODE(DMAPP__Account_Political_Map__c.DMAPP__Linked_Map__c)}' : '{!JSENCODE(Id)}',
+                            polmapid            :   cntct.polmapid,
+                            contactid           :   cntct.id,
+                            orgchartcontactid   :   cntct.orgchartcontactid, 
+                            ownerid             :   cntct.ownerid,
+                            note                :   cntct.note,
+                            political           :   cntct.political,
+                            adaptability        :   cntct.adaptability,
+                            coverage            :   cntct.coverage,
+                            status              :   cntct.status,
+                            decisionorientation :   cntct.decisionorientation,
+                            //keyplayer           :   cntct.keyplayer,
+                            //approved            :   cntct.approved,
+                            influences          :   makeContactsList(cntct.influences),
+                            influencedby        :   makeContactsList(cntct.influencedBy),
+                            hookstoid           :   cntct.hookstoid,
+                            alwaysonmap         :   cntct.alwaysonmap
+                        };
+            
+                    adaptedPost.occs.contacts.push(newCntct);
+                })
+                
+                
+                var req = JSON.stringify(adaptedPost);
+                
+                ttgInvoker.invokeVFR(ttg.getController('DMAPP.AccountPoliticalMapController.updateContactAttribute'),
+                    adaptedPost.occs, 
+                    function(result, event) { 
+                        if (event.type == 'exception') { 
+                            err(result,event);
+                        } else {
+                            succ(result); 
+                        }
+                    }, {escape: false}
+                )                       
+            }
+            
+            
+    
+            function removeOrgChartContactJS(contactId, success, error, complete) {   
+            
+                var succ = function(data) { try { success(data); } finally { complete(); } };
+                var err = ttg.ajaxErrorFunction(error,complete);
+            
+                ttgInvoker.invokeVFR(ttg.getController('DMAPP.AccountPoliticalMapController.removeOrgChartContact'),
+                    contactId, 
+                    function(result, event) { 
+                        if (event.type == 'exception') { 
+                            err(result,event);
+                        } else {
+                            succ(result); 
+                        }
+                    }, {escape: false}
+                )   
+            }
+    
+            function loadOrgChart(id, success, error, complete) {   
+                    
+                function sfdc_success(data) {
+                    success(adapter.adaptLoadOrgChart(data));
+                }
+                
+                var succ = function(data) { try {sfdc_success(data)} finally { complete(); } };
+                var err = ttg.ajaxErrorFunction(error,complete); 
+                
+                ttgInvoker.invokeVFR(
+                    ttg.getController('DMAPP.AccountPoliticalMapController.loadAccountOrgChart'),
+                    '{!JSENCODE(id)}', 
+                    function(result, event) { 
+                        if (event.type == 'exception') { 
+                            err(result,event);
+                        } else {
+                            succ(result); 
+                        }
+                    }, {escape: false}
+                ) 
+            }
+    
+            var that = {};
+        
+            that.loadOrgChart = loadOrgChart;
+            //that.createGraph = createGraph;    // No need to migrate as it is redundant.
+            that.updateContactAttribute = updateContactAttributeJS;   // Migrated to use JS Remoting
+            that.removeOrgChartContact = removeOrgChartContactJS;     // Migrated to use JS remoting
+            that.addOrgChartContact = addOrgChartContactJS;           // Migrated to use JS remoting
+            //that.getOrgChartContact = getOrgChartContact;  // No need to migrate as it is redundant.
+            that.adaptSearchOrgCharts = adaptSearchOrgCharts;
+            that.adaptSearchOrgChartsJS = adaptSearchOrgChartsJS;
+            
+            return that;
+        })();
+    
+        var apilayer = ttg.apiLayer.sfdcDelegate( { sessionid : '{!JSENCODE($Api.Session_ID)}', graphId : '{!JSENCODE(id)}' } );
+        jQuery.extend(apilayer, accountPolMap);
+
+        apilayer = ttg.apiLayer(apilayer);
+        
+        var fetchapi = ttg.apiLayer.sfdcDelegate( { sessionid : '{!JSENCODE($Api.Session_ID)}', disableCreateContact : {!disableCreationOfContacts} } );
+        ttg.fetch.metadata('Account', fetchapi);
+        ttg.fetch.metadata('Contact', fetchapi);
+        
+        var accounts = [
+            {Id: '{!JSENCODE(DMAPP__Account_Political_Map__c.DMAPP__Account__c)}', Name: '{!JSENCODE(DMAPP__Account_Political_Map__c.Account__r.Name)}'}
+            
+        ];//politicalMapAccounts;
+        /**
+        accounts = _.map(accounts, function(account) {
+            return {Id: account[ttg.vfp + 'Account__r'].Id, Name: account.Name};
+        });
+        **/
+        var loadIt = function() {
+            
+            var graphId = 'Id'
+            
+            spec = {
+                    graphId                         :   '{!JSENCODE(DMAPP__Account_Political_Map__c.DMAPP__Linked_Map__c)}' ? '{!JSENCODE(DMAPP__Account_Political_Map__c.DMAPP__Linked_Map__c)}' : '{!JSENCODE(Id)}',
+                    //orgChartId                      :   '{!JSENCODE(Id)}',
+                    orgId                           :   ttg.context.orgId,
+                    sessionId                       :   ttg.context.sessionId,
+                    sessionid                       :   ttg.context.sessionId,
+                    url                             :   ttg.context.url,
+                    orgChartType                    :   'accountpolmap',
+                    mapaccounts                     :   accounts,
+                    orgChartName                    :   '{!JSENCODE(DMAPP__Account_Political_Map__c.name)}',
+                    readonly                        :   true,
+                    print                           :   true,
+                    associatedAccountId             :   '{!JSENCODE(DMAPP__Account_Political_Map__c.DMAPP__Account__c)}',
+                    associatedAccountName           :   '{!JSENCODE(DMAPP__Account_Political_Map__c.Account__r.Name)}',
+                    userName                        :   '{!JSENCODE(currentUserName)}',
+                    userId                          :   '{!JSENCODE(currentUserId)}',
+                    metadataOptions :   {
+                        skipAttributes              :   ['buyingrole','approval']
+                    },
+                    disableCreateContact            :   true,
+                    displayTitle                    :   [
+                                                             '{!JSENCODE(DMAPP__Account_Political_Map__c.DMAPP__Linked_Map__c)}' ?
+                                                             '{!JSENCODE(DMAPP__Account_Political_Map__c.Linked_Map__r.Name)}'
+                                                             :
+                                                             '{!JSENCODE(DMAPP__Account_Political_Map__c.Name)}'
+                                                        ],
+                    apiMetadataTimestamp            :   'apiMetadataTimestamp',    
+                    isStandaloneCRM                 :   false,
+                    ttgApi                          :   apilayer,
+                    add_contact_def_search_field    : 'AccountId',
+                    hasAM                           : {!isLicensedForAccountManager},
+                    hasOM                           : {! OR( isLicensedForOppManager, isLicensedForPoliticalMapExpress ) },
+                    hasPoliticalMapExpress          : {!isLicensedForPoliticalMapExpress} && !{!isLicensedForOppManager},
+                    nodeHeight                      :   110, //70,
+                    nodeWidth                       :   120, //100
+                    dateFormat                      :   '{!jQueryUIDateFormat}',
+                    disableContactCreation          : {!disableCreationOfContacts},
+                    hideActions                     : {!hideActions},
+                    skin                            : '{!JSENCODE(politicalMapSkin)}',
+                    socialSettings                  : '{!JSENCODE(socialMediaSettings)}',
+                    disableCoaching                 : {!disableCoaching},
+                    politicalMapCoachRules          : {
+                        contact_coaching_rules  : ttg.coach_am_political_map_contact_rules,
+                        contact_profile_rules   : ttg.coach_am_political_map_profile_rules,
+                        map_rules               : ttg.coach_am_political_map_rules
+                    },                    
+                    fullscreen                        : {!fullScreen},
+                    showInfluenceLines              : {!showInfluenceLines},
+                    calledFromAM                    : true,
+                    hideImportButton                : true
+             }
+            
+             daGraph = ttg.displayGraph(spec)         
+        }
+                 
+        loadIt();
+    });
+
+
+    function openit() {
+        ttg.legendBox(daGraph.getConfig(), daGraph.getOrgChartMetadata());
+    }
+
+
+
+
+    </script>   
+    
+
+
+
+</apex:page>

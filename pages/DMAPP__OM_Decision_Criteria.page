@@ -1,0 +1,1381 @@
+<apex:page standardController="opportunity" extensions="DMAPP.OMStandardController" action="{!logDecisionCriteriaUsage}" 
+    sidebar="false" 
+    showHeader="true"
+    docType="html-5.0"
+    >
+    
+    <c:jQuery jQueryUI="true"
+        tooltip="true"
+        paging="true"
+        underscore="true"
+        chosen="true"/>
+        
+    <c:MobileRedirect smartOM="true" />
+
+    <style>
+
+        @import url("{!URLFOR($Resource.DMAPP__ttgomjs,         'ttg/graph/css/political_map.css')}");
+        @import url("{!URLFOR($Resource.DMAPP__ttgomjs,         'ttg/graph/css/glyphs/style.css')}");
+        
+        DIV#criteria_main_div {
+            width       :   100%;
+            position    :   relative;
+        }
+        
+
+        DIV.clearer {
+            clear   :   left;
+        }
+        
+        DIV.working {
+            position            :   absolute;
+            background-image    :   url('{!$Resource.DMAPP__ttgomjs}/ttg/graph/images/loader.gif');
+            background-position :   center center;
+            background-repeat   :   no-repeat;
+            background-size     :   cover;
+            top                 :   45%;
+            left                :   45%;
+            height              :   32px;
+            width               :   32px;
+        }
+        
+        DIV.decision_criteria_panel {
+            margin      :   0.5%;
+            width       :   49%;
+            float       :   left;
+            display     :   inline;
+        }
+
+
+        DIV.decision_criteria_panel_wide {
+            border      :   none;
+            margin      :   0.5%;
+            width       :   49%;
+            float       :   left;
+            display     :   inline;
+        }
+
+        
+        DIV.decision_criteria_panel_desc {
+            margin          :   4px;
+            font-style      :   italic;
+            font-size       :   14px;
+            font-weight     :   bold;
+            height          :   5%;
+        }
+
+        DIV.decision_criteria_panel_detail {
+            border          :   1px solid #A0B5CA;
+            border-radius   :   4px;
+            background-color:   #CBD5E2;
+            margin          :   4px;
+            font-style      :   italic;
+            overflow        :   hidden;     
+            padding-top     :   10px;
+        }
+        
+        div.decision_criteria_panel_wide div.decision_criteria_panel_detail {
+            background-color: white;
+        }
+
+        DIV.decision_criteria_panel_action {
+            margin          :   4px;
+            font-style      :   italic;
+        }
+        
+        DIV.decision_criteria_panel_detail a                  { text-decoration:underline; }
+        DIV.decision_criteria_panel_detail a:hover            { color:green; text-decoration:underline; }
+        
+        DIV.rankings {
+            border          :   1px solid #C1C1C1;
+            margin-bottom   :   10px; 
+        }       
+        
+        .dragging_rank {
+            background-color: #A6DAAC;
+        }
+
+        td.highlighted_player {
+            background-color: #A6DAAC;
+        }
+        
+        div.decision_criteria_warning {
+            background-color:   #EDA9AF;
+            border-radius:      4px;
+            padding:            5px;
+        }
+        
+        
+
+        div.criterion_header_row {
+            margin-left     :   1%;
+            margin-right    :   1%;
+            width           :   98%;
+        }
+
+        div.criterion_row {
+            margin-left     :   1%;
+            margin-right    :   1%;
+            width           :   98%;
+            background-color:   white;
+            position        :   relative;
+            border-radius   :   4px;
+            margin-bottom   :   10px;
+            padding-top     :   5px;
+            padding-bottom  :   5px;
+        }
+        
+        div.criterion_row div.criterion_priority {
+            width   :   4%;
+            float   :   left;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        div.criterion_row div.criterion_text {
+            width   :   60%;
+            float   :   left;
+        }
+        
+        div.criterion_row div.criterion_our_position {
+            width       :   25%;
+            float       :   left;
+            text-align  :   right;
+        }
+
+        div.criterion_our_position img {
+            vertical-align: -4px;
+            margin-left:    5px;
+        }
+
+        div.criterion_row div.criterion_actions {
+            width       :   10%;
+            float       :   left;
+            text-align  :   right;
+        }
+
+        div.criterion_actions img {
+            vertical-align: -4px;
+        }
+
+        div.criterion_actions img:hover{
+            cursor  : pointer;
+        }
+        
+        br.clear {
+            clear   :   both;
+        }
+        
+        div.criterion_row div.create_actions {
+            float           :   right;
+            margin-right    :   5px;
+        }
+        
+        
+        div.criterion_row div.criterion_action {
+            float           :   right;
+            padding-top     :   0px;
+            padding-left    :   2px;
+            padding-right   :   2px;
+        }       
+        
+        
+        div.player_row {
+            border: 1px solid #A0B5CA;
+            border-radius: 4px;
+            background-color: #CBD5E2;
+            margin: 0 1% 8px;
+            overflow: hidden;
+            padding: 7px 2%;
+            position: relative;
+            width: 94%;
+        }
+
+
+        div.player_actions_row {
+            border-radius   :   4px;
+            background-color:   white;
+            margin-left     :   1%;
+            margin-right    :   1%;
+            padding-left    :   2%;
+            padding-right   :   2%;
+            padding-top     :   4px;
+            padding-bottom  :   4px;
+            width           :   94%;
+            position        :   relative;
+            margin-bottom   :   8px;
+        }
+        
+        
+        div.player_row div.player_expander {
+            width   :   5%;
+            float   :   left;
+        }       
+        
+        div.player_expander SPAN.spanToggle {
+            background-image: url('{!URLFOR($Resource.DMAPP__Assessment, 'drawer_expand.png')}');
+            background-repeat: no-repeat;
+            float: left;
+            height: 12px;
+            margin: 3px;
+            width: 12px;
+        }
+         
+        div.player_expander SPAN.spanToggleExpanded {
+            -webkit-transform: rotate(90deg);
+            -moz-transform: rotate(90deg);
+            filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=1);
+        }
+
+        div.player_row span.player_political {
+            float   :   left;
+            padding-right: 8px;
+        }   
+                
+        div.player_row div.player_name {
+            float   :   left;
+            font-weight: bold;
+        }       
+
+        div.player_row div.player_summary {
+            float           :   left;
+            white-space     :   nowrap;
+            overflow        :   hidden;
+            text-overflow   :   ellipsis;
+            margin-left     :   4%;
+        }       
+
+        div.player_row div.player_remove {
+            width   :   5%;
+            float   :   right;
+        }       
+        
+        div.player_remove img:hover {
+            cursor  :   pointer;
+        }
+        
+        div.player_row div.player_ranks {
+            margin-top  :   10px;
+            width       :   100%;
+            overflow    :   hidden;             /* WITHOUT THIS THE LAYOUT DISINTEGRATES, I DONT KNOW WHY */
+        }
+        
+        div.player_ranks div.player_rank {
+            width           :   98%;
+            background-color:   white;
+            margin-bottom   :   5px;
+            float           :   left;    
+            padding         :   1%;
+            border-radius   :   4px;
+            
+        }
+        
+        div.player_rank div.criterion_text {
+            float   :   left;
+            width   :   67%;            
+        }
+
+        div.player_rank div.criterion_rank {
+            float       :   left;
+            width       :   27%;    
+            text-align  :   right;      
+        }
+        
+        
+        
+        div.player_actions_row div.player_add_action {
+            float           :   right;
+            padding-top     :   0px;
+            padding-left    :   2px;
+            padding-right   :   2px;
+        }       
+        
+        div#emptyCriteriaMsg, div#emptyPlayersMsg {
+            text-align: left; 
+            color: #4D6B98;
+            padding: 8px 0;
+            margin: 0.5%;           
+        }
+        
+        div.priority-header {
+            float: left;
+            text-align: left;
+            width: 69%;         
+        }
+        
+        /* DMPS-1042 - MIN-HEIGHT FOR CHATTER WINDOW */
+        /* iPAD PORTRAIT STYLES */  
+        @media only screen 
+            and (min-device-width : 768px) 
+            and (max-device-width : 1024px){        
+            .salesforce1 #TAS{
+                min-height: 450px !important;   
+            }
+            
+            /* FIX FOR DMDEV-3423 */
+            .salesforce1 #add_contact_div select{
+                max-width: 145px;
+            } 
+         }
+    </style>
+    
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__ttgomjs, 'ttg/lib/ttgservice.js')}"/>
+    <apex:include pageName="DMAPP__APIDelegate" />
+
+    <!-- Fixes a strange IE bug that manifests in jquery --> 
+    <script>
+        if ( !window.console ) console = {log: function() {}};
+    </script>   
+            
+    <script>
+    
+    
+    var $j = jQuery.noConflict();
+        
+    $j.ajaxSetup({
+        jsonp: null,
+        jsonpCallback: null
+    });
+    
+    </script>
+    
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__excanvas)}"/> 
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__ftk, 'forcetk.js')}"/>
+
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__ttgomjs, 'ttg/lib/ttgutils.js')}"/>
+    
+    <!--  worth splitting org_chart_node_renderer.js into the node renderer itself and the glyph map manager -->
+    <apex:includeScript value="{! URLFOR($Resource.ttgomjs, 'ttg/orgchart/js/org_chart_node_renderer.js') }" />      
+
+    <style>
+        @import url("{!URLFOR($Resource.SmartOM,         'css/summarytab.css')}");
+        @import url("{!URLFOR($Resource.SmartOM,         'css/chatterpost.css')}");
+                
+        /* start of additions for Chatter */
+    
+        @import url("{!URLFOR($Resource.ttgomjs,         'ttg/chatter/css/chatter_side_panel.css')}");
+        @import url("{!URLFOR($Resource.ttgomjs,         'ttg/chatter/css/chatter_post.css')}");
+        @import url("{!URLFOR($Resource.ttgomjs,         'ttg/graph/css/glyphs/style.css')}");
+        @import url("{!URLFOR($Resource.ttgomjs,         'ttg/chatter/css/chatter_summary.css')}");
+        
+        /* end of additions for Chatter */
+        
+    </style>      
+    <div id="TAS" >
+        <apex:include pageName="DMAPP__SummaryTab2"/> 
+        
+        <div class="clearer"/>
+        
+        <div id="criteria_main_div">
+        </div>  
+    </div>
+    
+    
+    <script>
+
+        /* 
+         * Copyright © The TAS Group. All rights reserved.
+         *  
+         */    
+        
+        var ttg = ttg || {};
+    
+        ttg.decisionCriteria = function(spec) {
+            
+            if (!spec.parentDivId) {throw 'require a sessionId' }
+            if (!spec.sessionId) {throw 'require a sessionId' }
+            if (!spec.opportunityExtraId) {throw 'require an opportunityExtraId' }
+            
+            var imgRoot = '{!$Resource.DMAPP__DecisionCriteria}/';
+            var criteriaResponse = null;
+            var forceTkClient = null;
+            var expandedPlayers = {};
+            var vips = [];
+            var workingDiv = null;
+            
+            var levels = ['Critical','High','Medium', 'Low','Unknown'];
+            var vipPolitical = ['Inner Circle', 'Political Structure'];
+            
+            var noPlayersMsg = [
+                'There are no key players associated with this opportunity',
+                'Key Players are contacts, identified on the political map, who are assigned a Political Status of \'Inner Circle\' or \'Political Structure\'',
+                'You can also directly add contacts as Key Players by selecting from the list below.',
+                'The list below reflects the contacts who are currently added to the Political Map'
+            ];
+            
+            var emptyCriteriaDiv = jQuery('<div/>', {id: 'emptyCriteriaMsg'}).text('In the left column, add the key criterion that will impact the buying decision.');
+
+            var rightColumnText = 'In the right column include the key players (' + ({!HidePoliticalStatus} ? '' : 'auto import all inner circle/political structure contacts or ') + 'add individuals one-by-one).';
+            
+            var emptyPlayersDiv = jQuery('<div/>', {id: 'emptyPlayersMsg'})
+                                    .append(jQuery('<div/>').text(rightColumnText))
+                                    .append(jQuery('<div/>').text('Below each identified key player, set the importance of each criterion to him/her.'));
+                        
+                
+            var ourPostionImgSrcs = {
+                equal   :   imgRoot + 'icon_indicator_same.png',
+                up      :   imgRoot + 'icon_indicator_better.png',
+                down    :   imgRoot + 'icon_indicator_worse.png'
+            }
+            
+            var rowRemoveImgSrc = imgRoot + 'icon_row_remove.png';
+            
+            var imageMap = ttg.orgChartImageMap(spec.orgChartMetadata, spec.skin);
+            
+            var data;            
+            
+            function populateDiv() {
+                jQuery('#'+spec.parentDivId)
+                    .append(jQuery('<div/>',{id:'dc_crit'}).addClass('decision_criteria_panel').text('Retrieving Criteria Descriptions ...'))
+                    .append(jQuery('<div/>',{id:'dc_plyr'}).addClass('decision_criteria_panel_wide').text('Retrieving Key Players List ...'));
+            }
+
+            // Alex old code
+            // Alex old code
+            // function sfdcClient() {
+            //    forceTkClient =  forceTkClient || new forcetk.Client();
+            //    forceTkClient.setSessionToken(spec.sessionId);        
+            //    return forceTkClient;
+            // }
+        
+            
+            function checkLength(textarea,length) {
+                var text = textarea.val();  
+                var chars = text.length;  
+          
+                if(chars > length){
+                    var new_text = text.substr(0, length);  
+                    textarea.val(new_text);  
+                }  
+            }
+            //
+            // load the criteria and the ranks from the server
+            //
+            
+            function startWorking() {
+                workingDiv = workingDiv || jQuery('<div/>').addClass('working') ; 
+                jQuery('#'+spec.parentDivId).append(workingDiv);
+            }
+            
+            function stopWorking() {
+                if (workingDiv) {
+                    workingDiv.remove();
+                    workingDiv = null;
+                }
+            }
+            
+            function runQuery(q,successCallback, adaptingDataFunction) {
+                
+                startWorking();
+                
+                function success(data) {
+                    stopWorking();
+                    if (typeof adaptingDataFunction === "function") {
+                       data = adaptingDataFunction(data);
+                    }
+                    successCallback(data);
+                }
+                
+                function error() {
+                    stopWorking()
+                }
+
+                spec.ttgApi.queryJS(q, success, error);    // soql, success, error, complete
+        
+            }
+                    
+                    
+            function loadKeyPlayersDirectly() {
+            
+                var q =
+                    'Select ID,'+ttg.vfp+'Contact__r.Name, '+ttg.vfp+'Contact__r.Id, '+ttg.vfp+'Contact__c ' +
+                    'From '+ttg.vfp+'DM_Political_Map_Contact__c ' + 
+                    'WHERE '+ttg.vfp+'DM_Opportunity_Extra__c=\'' + spec.opportunityExtraId + '\' AND '+ttg.vfp+'Key_Player__c=true ' +
+                    'ORDER BY '+ttg.vfp+'Contact__r.Name ASC';
+                    
+                runQuery(q,populateKeyPlayerDivAlternative)
+            }       
+                    
+            
+            function retrieveDecisionCriteria() {
+
+                // function which will adapt data return from decision criteria query.
+                var adaptDecisionCriteria = function (data) {
+                    var adaptedData = [];
+                    if (data.records && data.records.length > 0)  {
+                       jQuery.each(data.records, function(idx, decisionCriteria){
+                           criterionRanks = decisionCriteria[ttg.vfp + 'Decision_Criteria_Score__r'];
+                           decisionCriteria[ttg.vfp + 'Decision_Criteria_Score__r'] = {records:criterionRanks};                        
+                       });
+                    }
+                    return data;
+                }
+
+                function callbackWrapper(data) {
+                    stopWorking();
+                    data = adaptDecisionCriteria(data);
+                    criteriaLoaded(data);
+                }
+
+                startWorking();
+                
+                spec.ttgApi.getDecisionCriterion(spec.opportunityExtraId, callbackWrapper);
+            }
+                    
+            function criteriaLoaded(data) {
+                
+                criteriaResponse = data;
+                populateCriteriaDiv(data);
+                
+                if (data.records && (data.records.length > 0)) {
+                    populateKeyPlayerDiv(data);                                 
+                } else {
+                    loadKeyPlayersDirectly();
+                }
+               
+            }
+
+
+            //
+            // This mehtod populates the left hand div
+            //
+                    
+            function populateCriteriaDiv(data) {
+
+                var critDiv = jQuery('#dc_crit');
+                
+                critDiv.empty();    
+
+                var critText = 'Decision Criteria';
+                                    
+                critDiv.append(jQuery('<div/>').addClass('decision_criteria_panel_desc').text(critText))
+                var detailDiv = jQuery('<div/>').addClass('decision_criteria_panel_detail');
+
+
+                //
+                // utility methods local to the criteria panel
+                //
+                function createNewDecisionCriterion(newCritText) {
+                    spec.ttgApi.createNewDecisionCriterion(spec.opportunityExtraId, newCritText, retrieveDecisionCriteria);
+                }
+
+
+                function remoteUpdate(criterion) {                    
+                    spec.ttgApi.updateDecisionCriterion(criterion, retrieveDecisionCriteria); 
+                }
+                
+                                
+
+                function createOurPositionClicker(c) {
+                    var imgSrc = ourPostionImgSrcs[c[ttg.vfp + 'Our_Position__c'].toLowerCase()];
+                    
+                    var select = jQuery('<select/>')
+                        .append(jQuery('<option/>').val('Up').text('Better'))
+                        .append(jQuery('<option/>').val('Equal').text('Same'))
+                        .append(jQuery('<option/>').val('Down').text('Worse'))
+                        .change(function() {
+                            startWorking();
+                            c[ttg.vfp + 'Our_Position__c'] = select.val();
+                            remoteUpdate(c);
+                        })
+                        
+                    select.val(c[ttg.vfp + 'Our_Position__c']).prop('selected');         
+                    
+                    if (spec.readonly) {
+                        select.attr('disabled','disabled');
+                    }
+                                    
+                    var img = imgSrc ? jQuery('<img/>',{src : imgSrc}) : null;
+                    var imgDiv = jQuery('<div/>').css({float:'left', 'padding-left':'20%'}).append(img);                
+                    return jQuery('<div/>').append(select).append(img);
+                }
+
+                
+                function createDeleteButton(c) {
+
+                    function deleteDecisionCriterion() {
+                    
+                        var confirmDialog = jQuery('<div/>', {id: 'deleteDecisionCriterionDialog'}).
+                                            append(jQuery('<span/>').text('Are you sure?'));
+                        confirmDialog.dialog({
+                            modal: true,
+                            title: 'Delete Decision Criterion',
+                            buttons: {
+                                'Yes' : function()  {   
+                                
+                                    var succDelete = function() { 
+                                        retrieveDecisionCriteria() 
+                                    };
+            
+                                    spec.ttgApi.deleteDecisionCriterion(c.Id, succDelete);
+
+                                    confirmDialog.dialog('close');
+                                },
+                                'No' : function() { 
+                                    confirmDialog.dialog('close'); 
+                                }
+                            }
+                        });
+                    }
+                    return jQuery('<img/>', {src : rowRemoveImgSrc}).click(deleteDecisionCriterion).addClass('actionImg')
+
+                }
+
+                
+                var editInProgress = false;
+                
+                function createEditButton(c) {
+                    
+                    function makeLink() {
+                        var pencilImgSrc = imgRoot + 'icon_edit_criteria.png' 
+                        return jQuery('<img/>',{src:pencilImgSrc}).click(editDecisionCriterion);
+                    }
+                        
+                    function editDecisionCriterion() {
+                    
+                        if (editInProgress) {
+                            return;
+                        }
+                        
+                        editInProgress = true;
+                        
+                        function save() {
+                            startWorking();
+                            c[ttg.vfp + 'Criterion__c'] = editTextArea.val(); 
+                            remoteUpdate(c);                    
+                        }
+                        
+                        function cancel() {
+                            var textCell = jQuery('#ctext_'+c.Id);
+                            textCell.empty();
+                            textCell.text(c[ttg.vfp + 'Criterion__c']);
+                            jQuery('#delete_'+c.Id).show();
+                            editInProgress = false;
+                        }
+                        
+                        var saveButton = 
+                            jQuery('<input/>', { type : 'button', value : 'Save'})
+                                .addClass('ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only')
+                                .click(save);
+                                
+                        var cancelButton = 
+                            jQuery('<input/>', { type : 'button', value : 'Cancel'})
+                                .addClass('ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only')
+                                .click(cancel);
+        
+                        var editTextArea = 
+                            jQuery('<textarea/>',{width:'100%',rows:3})
+                                .keyup(function() { checkLength(editTextArea,255); })
+                                .val(c[ttg.vfp + 'Criterion__c']).bind('focus keydown keyup', function () {
+                            if (jQuery(this).val().length > 0) {
+                                saveButton.removeAttr('disabled').removeClass('ui-state-disabled');
+                            } else {
+                                saveButton.attr("disabled", true).addClass("ui-state-disabled"); 
+                            }
+                        });
+                        
+                        var editDiv = 
+                            jQuery('<div/>')
+                                .css({'padding-right':'5%'})
+                                .append(editTextArea)
+                                .append(jQuery('<div/>').addClass('breaker'))
+                                .append(
+                                    jQuery('<div/>').addClass('criterion_action').append(cancelButton)
+                                )
+                                .append(
+                                    jQuery('<div/>').addClass('criterion_action').append(saveButton)
+                                )
+                        
+                        
+                        var textCell = jQuery('#ctext_'+c.Id);
+                        textCell.empty();
+                        textCell.append(editDiv)
+                        jQuery('#delete_'+c.Id).hide();
+                    }
+
+                    return makeLink();
+                }
+                
+                function createCriterionDiv(c,priority) {
+                    
+                    
+                    var rowDiv = jQuery('<div/>').addClass('criterion_row')
+                            .append(
+                                jQuery('<div/>').addClass('criterion_priority').text(priority)
+                            )
+                            .append(
+                                jQuery('<div/>',{id:'ctext_'+c.Id, name:'ctext_'+c.Id}).addClass('criterion_text').text(c[ttg.vfp + 'Criterion__c'])
+                            )
+                            .append(
+                                jQuery('<div/>').addClass('criterion_our_position').append(createOurPositionClicker(c))
+                            )
+                            .append(
+                                jQuery('<div/>').addClass('criterion_actions')
+                                    .append(spec.readonly ? null : createEditButton(c))
+                                    .append(spec.readonly ? null : createDeleteButton(c))   
+                            )
+                            .append(jQuery('<br/>').addClass('clear'))
+                            
+                    return rowDiv;
+                            
+                }               
+                
+                
+                function createNewCiterionRow() {
+                    
+                    function save() {
+                        startWorking();
+                        createNewDecisionCriterion(newTextArea.val());
+                        newTextArea.val('');
+                        newCriterionRow.toggle();   // hide
+                        addCriterionRow.toggle();   // show
+                    }
+                
+                    function cancel() {
+                        newTextArea.val('');
+                        newCriterionRow.toggle();   // hide
+                        addCriterionRow.toggle();   // show
+                    }
+                
+                    var newTextArea = jQuery('<textarea />', { rows: 3 })
+                        .css({ width : '100%' })
+                        .on('focus keydown keyup paste webkitspeechchange', function(event) {       
+                            
+                            checkLength(newTextArea, 255);
+                            
+                            if (jQuery(this).val().length > 0 || event.type === 'paste') {
+                            
+                                saveButton.removeAttr('disabled')
+                                    .removeClass('ui-state-disabled');
+                            } else {
+                               
+                                saveButton.addClass('ui-state-disabled')
+                                    .prop('disabled', true); 
+                            }
+                        });
+                                        
+                    var saveButton = 
+                        jQuery('<input/>', { type : 'button', value : 'Save'})
+                            .addClass('ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only')
+                            .click(save).attr("disabled", true).addClass("ui-state-disabled");
+                            
+                    var cancelButton = 
+                        jQuery('<input/>', { type : 'button', value : 'Cancel'})
+                            .addClass('ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only')
+                            .click(cancel);
+                
+                    return jQuery('<div/>').css({display:'none'}).addClass('criterion_row')
+                        .append(
+                            jQuery('<div/>')
+                                .css({'padding-right':'5%','padding-left':'5%'})
+                                .append(newTextArea)
+                                .append(jQuery('<div/>').addClass('breaker'))
+                                .append(
+                                    jQuery('<div/>').addClass('criterion_action').append(cancelButton)
+                                )
+                                .append(
+                                    jQuery('<div/>').addClass('criterion_action').append(saveButton)
+                                )
+                        )
+                        .append(
+                            jQuery('<br/>').addClass('clear')
+                        )
+                }
+                
+                
+                function createAddCriterionRow() {
+                
+                    if (spec.readonly) { return true;}
+                
+                    var newCriterionButton = 
+                        jQuery('<input/>', { type : 'button', value : 'Add Criterion' })
+                            .addClass('ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only')
+                            .click(function() {
+                                newCriterionRow.toggle();   // show
+                                addCriterionRow.toggle();   // hide
+                            })
+    
+                    return jQuery('<div/>').addClass('criterion_row')
+                        .append(
+                            jQuery('<div/>').addClass('create_actions').append(newCriterionButton)
+                        )
+                        .append(
+                            jQuery('<br/>').addClass('clear')
+                        )
+                }
+                
+                // end utility methods
+
+                var headerDiv = jQuery('<div/>').addClass('criterion_header_row')
+                    .append(
+                        jQuery('<div>').addClass('priority-header')
+                            .html('Priority')
+                    ).append(
+                        jQuery('<div>').css({
+                         
+                            float: 'left', 
+                            width: '20%' 
+                        }).html('Our Position')
+                    ).append(
+                        jQuery('<br />').addClass('clear')
+                    );
+                
+                detailDiv.append(headerDiv);
+
+                if (data.records && (data.records.length > 0)) {
+                    jQuery.each(data.records, function(idx,c) {
+                        detailDiv.append(createCriterionDiv(c,idx+1));
+                    })
+                } 
+
+                var newCriterionRow = createNewCiterionRow(); 
+                var addCriterionRow = createAddCriterionRow(); 
+                detailDiv.append(newCriterionRow);
+                detailDiv.append(addCriterionRow);
+
+                displayEmptyCriteriaMsg(criteriaResponse);
+
+                critDiv.append(detailDiv)
+                
+            } // end of decisionCriteria
+
+
+            
+            // 
+            // This populates the right hand div 
+            //
+            function populateKeyPlayerDiv(data) {
+
+                var playersDiv = jQuery('#dc_plyr'); 
+                playersDiv.empty(); 
+                
+                var playerText = 'Key Players';
+
+                playersDiv.append(jQuery('<div/>').addClass('decision_criteria_panel_desc').text(playerText))
+                var detailDiv = jQuery('<div/>').addClass('decision_criteria_panel_detail');
+                
+                
+                function normalize(l) {
+                    return l.toLowerCase().replace(' ','_');
+                }
+                
+                function createPlayerDetail(p) {
+                    
+                    var contactid = p[ttg.vfp + 'Political_Map_Contact__r'][ttg.vfp + 'Contact__c'];
+                    var contactname = p[ttg.vfp + 'Political_Map_Contact__r'][ttg.vfp + 'Contact__r'].Name; 
+                    var politicalStatus = p[ttg.vfp + 'Political_Map_Contact__r'][ttg.vfp + 'Political__c']; 
+                    var oppContactId = p[ttg.vfp + 'Political_Map_Contact__c'];      
+                    var detailRow = null;
+                    var rankCounts = {}
+                    var summary = '';
+                    
+                    function createSummary() {
+                        if (data.records && (data.records.length > 0)) {
+                            jQuery.each(levels, function(lidx,level){
+                                if (summary) { return; }
+                                var levelNormalized = normalize(level);
+                                jQuery.each(data.records, function(cidx, criterion) {
+                                if (summary) { return; }
+                                    jQuery.each(criterion[ttg.vfp + 'Decision_Criteria_Score__r'].records, function(ridx,rank) {
+                                        if (summary) { return; }
+                                        if (oppContactId == rank[ttg.vfp + 'Political_Map_Contact__c'] && levelNormalized == normalize(rank[ttg.vfp + 'Importance__c'])) {
+                                            summary = criterion[ttg.vfp + 'Criterion__c'].slice(0,40);
+                                        }
+                                    });                             
+                                });
+                            });
+                        }
+                    }
+                    
+                    function showHide() {
+                        if (expandedPlayers[oppContactId]) {
+                            delete expandedPlayers[oppContactId];
+                            jQuery(this).removeClass('spanToggleExpanded');
+                        } else {
+                            expandedPlayers[oppContactId] = true;
+                            jQuery(this).addClass('spanToggleExpanded');
+                        }
+                        jQuery('#ranks_' + oppContactId).toggle();
+                    }
+
+                    function removeKeyPlayer() {
+
+                        var confirmDialog = jQuery('<div/>', {id: 'deleteKeyPlayerDialog'}).
+                                            append(jQuery('<span/>').text('Are you sure?'));
+                        confirmDialog.dialog({
+                            modal: true,
+                            title: 'Delete Key Player',
+                            buttons: {
+                                'Yes' : function()  {   
+                                
+                                    setKeyPlayerField(oppContactId,false,retrieveDecisionCriteria);
+
+                                    confirmDialog.dialog('close');
+                                },
+                                'No' : function() { 
+                                    confirmDialog.dialog('close'); 
+                                }
+                            }
+                        });
+
+                    }
+
+                    createSummary();
+                    
+                    var deleteButton = spec.readonly ? null : jQuery('<img/>', {src : rowRemoveImgSrc}).click(removeKeyPlayer);
+
+                    var politicalClass = imageMap.getGlyph('political', politicalStatus);
+
+                    return jQuery('<div/>').addClass('player_row')
+                        .append(jQuery('<div/>').addClass('player_expander').append(jQuery('<span/>').addClass(expandedPlayers[oppContactId] ? 'spanToggle spanToggleExpanded' : 'spanToggle').click(showHide)))
+                        .append({!HidePoliticalStatus} ? null : jQuery('<span/>').addClass('player_political ' + politicalClass))
+                        .append(jQuery('<div/>').addClass('player_name').text(contactname))
+                        .append(jQuery('<div/>').addClass('player_summary').text('( ' + summary +'... )'))
+                        .append(jQuery('<div/>').addClass('player_remove').append(deleteButton))
+                        .append(jQuery('<br/>').addClass('breaker'))
+                }
+                
+                
+                if (data.records && (data.records.length > 0)) {
+                    var firstCriterionRanks = data.records[0][ttg.vfp + 'Decision_Criteria_Score__r']; 
+                    var firstCriterionRanksRecords = firstCriterionRanks.records;
+                    if (firstCriterionRanksRecords) {
+                        jQuery.each(firstCriterionRanksRecords, function(idx, rank) {
+                            var playerDiv = createPlayerDetail(rank);
+                            playerDiv.append(populatePlayerDetails(data, rank[ttg.vfp + 'Political_Map_Contact__c']));
+                            detailDiv.append(playerDiv);
+                        })
+                    } 
+                } 
+                
+                createKeyPlayerActionsDivs(detailDiv);
+                
+                playersDiv.append(detailDiv);
+                
+                displayEmptyPlayersMsg(firstCriterionRanks);
+                
+            }
+
+            
+            //
+            // this method is an alternative way to populate the key players div (RHS)
+            // its required in the case that we dont have criteria specified as the previous
+            // method drives itself from the player data which is joined on the initial 
+            // decision criterion. Id like to clean it up to use an explicit second query 
+            // for the key players 
+            //
+            function populateKeyPlayerDivAlternative(data) {
+                
+                var playerDiv = jQuery('#dc_plyr'); 
+                playerDiv.empty();  
+            
+                var playerText = 'Key Players';
+                playerDiv.append(jQuery('<div/>').addClass('decision_criteria_panel_desc').text(playerText))
+                var detailDiv = jQuery('<div/>').addClass('decision_criteria_panel_detail');
+                
+                if (data.records && (data.records.length > 0)) {
+                
+                    jQuery.each(data.records, function(idx, player) {
+                        
+                        function removeKeyPlayer() {
+
+                            var confirmDialog = jQuery('<div/>', {id: 'deleteKeyPlayerDialog'}).
+                                                append(jQuery('<span/>').text('Are you sure?'));
+                            confirmDialog.dialog({
+                                modal: true,
+                                title: 'Delete Key Player',
+                                buttons: {
+                                    'Yes' : function()  {   
+                                    
+                                        setKeyPlayerField(player.Id,false,retrieveDecisionCriteria);
+    
+                                        confirmDialog.dialog('close');
+                                    },
+                                    'No' : function() { 
+                                        confirmDialog.dialog('close'); 
+                                    }
+                                }
+                            });
+                        }
+
+                        var deleteButton = spec.readonly ? null : jQuery('<img/>', {src : rowRemoveImgSrc}).click(removeKeyPlayer)
+                        
+                        var playerName =  player[ttg.vfp + 'Contact__r'].Name;
+
+                        detailDiv.append(
+                            jQuery('<div/>').addClass('player_row')
+                                .append(jQuery('<div/>').addClass('player_expander'))
+                                .append(jQuery('<div/>').addClass('player_name').text(playerName))
+                                .append(jQuery('<div/>').addClass('player_summary').text('( Unknown )'))
+                                .append(jQuery('<div/>').addClass('player_remove').append(deleteButton))
+                                .append(jQuery('<br/>').addClass('breaker'))
+                        );
+                        
+                    })
+                } 
+                
+                createKeyPlayerActionsDivs(detailDiv);
+                
+                playerDiv.append(detailDiv);
+                
+                displayEmptyPlayersMsg(data);
+                                
+            }
+                
+                
+            function createKeyPlayerActionsDivs(detailDiv) {
+            
+                var addPlayerDiv = jQuery('<span/>');
+                var newContactSelect =  jQuery('<select/>').on('change', function() {
+                    if(jQuery(this).val()) {
+                        saveNewContactButton.removeAttr('disabled').removeClass("ui-state-disabled");   
+                    }
+                    else {
+                        saveNewContactButton.attr('disabled', 'disabled').addClass("ui-state-disabled");
+                    }
+                });
+                addPlayerDiv.append(newContactSelect);
+                
+                var addContactDiv = 
+                    jQuery('<div/>',{id:'add_contact_div'}).css({display:'none'}).addClass('player_row')
+                        .append(
+                            jQuery('<div/>')
+                                .append(jQuery('<span/>').text('Select a contact from the Political Map '))
+                                .append(addPlayerDiv)
+                        )
+                
+                detailDiv.append(addContactDiv);
+                
+                function showAddContact() {
+                    playerActionsDiv.toggle();      //hide
+                    addContactDiv.toggle();         //show
+                    saveNewContactDiv.toggle();     //show
+                }
+                
+                function showAddVIPs() {
+                    playerActionsDiv.toggle();      //hide
+                    addVIPsDiv.toggle();            //show
+                    saveVIPsDiv.toggle();           //show
+                    
+                    //console.log('there are ' + vips.length + ' vips');
+
+                    if (vips.length > 10) {
+                        excessiveVIPsDiv.toggle();
+                    }
+                    
+                }
+                
+                // add a row containing the addition buttons, visible at the start and hidden on action             
+                var addContactButton = 
+                    jQuery('<input/>',{type:'button',value:'Add Contact'})
+                        .addClass('ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only')
+                        .click(showAddContact);
+                        
+                var addVIPsButton = 
+                    jQuery('<input/>',{type:'button',value:'Import Key Players'})
+                        .addClass('ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only')
+                        .click(showAddVIPs);
+                
+                var playerActionsDiv =  jQuery('<div/>').addClass('player_actions_row')
+                        .append(jQuery('<div/>').addClass('player_add_action').append(addContactButton))
+                        .append(jQuery('<div/>').addClass('player_add_action').append({!HidePoliticalStatus} ? '' : addVIPsButton))
+                        .append(jQuery('<br/>').addClass('clear'))
+
+                detailDiv.append(spec.readonly ? null : playerActionsDiv);
+
+                // now add a row containg the save and cancel for the add new contact
+
+                function saveNewContact() {
+                    startWorking();
+                    setKeyPlayerField(newContactSelect.val(), true,retrieveDecisionCriteria);
+                }
+
+                function cancelNewContact() {
+                    playerActionsDiv.toggle();      //show
+                    addContactDiv.toggle();         //hide
+                    saveNewContactDiv.toggle();     //hide
+                }
+
+                var saveNewContactButton = 
+                    jQuery('<input/>',{type:'button',value:'Save'})
+                        .addClass('ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only')
+                        .click(saveNewContact).attr('disabled', 'disabled').addClass("ui-state-disabled");
+                        
+                var cancelNewContactButton = 
+                    jQuery('<input/>',{type:'button',value:'Cancel'})
+                        .addClass('ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only')
+                        .click(cancelNewContact);
+                
+                var saveNewContactDiv = jQuery('<div/>')
+                        .css({display:'none'}).addClass('player_actions_row')
+                        .append(jQuery('<div/>').addClass('player_add_action').append(cancelNewContactButton))
+                        .append(jQuery('<div/>').addClass('player_add_action').append(saveNewContactButton))
+                        .append(jQuery('<br/>').addClass('clear'))
+                
+                detailDiv.append(saveNewContactDiv);
+
+                
+                // now add a row to show the list of VIPs which will be added to the map
+
+                var contactsList = jQuery('<ul/>');
+                
+                var warnMsg = [
+                    'The Political Map includes more than 10 Key Players - identified as Inner Circle or Political Structure contacts. Inner Circle contacts ' + '\'Control the Outcomes\'' + '.  Political Structure contacts ' + '\'Make things Happen\'' + '.  Influencers that are not in the Political Structure or Inner Circle are not defined as Key Players.   Do all of your contacts  meet this definition?   Ensure your Political Map accurately reflects the Key Players in this opportunity.'                    
+                ];
+                var excessiveVIPsDiv = createWarningDiv(warnMsg).css({display:'none'}); 
+                
+                var addVIPsDiv = 
+                    jQuery('<div/>',{id:'add_vips_div'}).css({display:'none'}).addClass('player_row')
+                        .append(
+                            jQuery('<div/>')
+                                .append(excessiveVIPsDiv)
+                                .append(jQuery('<div/>').text('The following list of contacts will be added'))
+                                .append(jQuery('<div/>').append(contactsList))
+                        )
+                    
+                detailDiv.append(addVIPsDiv);
+                
+                function saveVIPs() {
+                    
+                    function reloadIfDone() {
+                    
+                        if (vips.length == 0) {
+                            retrieveDecisionCriteria();
+                        }
+                    }
+                    
+                    jQuery.each(vips, function(idx, vip) {
+                        setKeyPlayerField(vip, true,reloadIfDone);
+                    });
+                }
+
+                function cancelVIPs() {
+                    addVIPsDiv.toggle();            //hide
+                    saveVIPsDiv.toggle();           //hide
+
+                    if (vips.length > 10) {
+                        excessiveVIPsDiv.toggle();
+                    }
+
+                    playerActionsDiv.toggle();      //show
+                }
+                
+                var saveVIPsButton = 
+                    jQuery('<input/>',{type:'button',value:'Import'})
+                        .addClass('ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only')
+                        .click(saveVIPs);
+                        
+                var cancelVIPsButton = 
+                    jQuery('<input/>',{type:'button',value:'Cancel'})
+                        .addClass('ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only')
+                        .click(cancelVIPs);
+                
+                var saveVIPsDiv = jQuery('<div/>')
+                        .css({display:'none'}).addClass('player_actions_row')
+                        .append(jQuery('<div/>').addClass('player_add_action').append(cancelVIPsButton))
+                        .append(jQuery('<div/>').addClass('player_add_action').append(saveVIPsButton))
+                        .append(jQuery('<br/>').addClass('breaker'))
+            
+                detailDiv.append(saveVIPsDiv);
+                
+                populateAddPlayerElements(newContactSelect, contactsList)
+            }   
+            
+
+            function createWarningDiv(msg) {
+                var warningDiv = jQuery('<div/>').addClass('decision_criteria_warning');
+                jQuery.each(msg, function(idx,m) {
+                    warningDiv.append(jQuery('<div/>').text(m))
+                });
+                return warningDiv;
+            }   
+            
+
+            function populateAddPlayerElements(keyPlayerSelect, vipList) {
+
+                function success(data) {
+                
+                    vips = [];
+                    
+                    // keyPlayerSelect.append(jQuery('<option/>',{disabled:true, selected:true}).val('').text('Select ...'));   
+                    
+                    keyPlayerSelect.append(
+                        jQuery('<option>').attr('disabled', true)
+                            .prop('selected', true)
+                            .val('')
+                            .html('Select ...')
+                    );      
+                    
+                    jQuery.each(data.records, function(idx,cntct) {
+                        var polStatus = cntct[ttg.vfp + 'Political__c'] ? cntct[ttg.vfp + 'Political__c']  : '';
+                        
+                        var optionText = cntct[ttg.vfp + 'Contact__r'].Name + ((polStatus && !{!HidePoliticalStatus}) ? ' (' + polStatus + ') ' : '');
+                        keyPlayerSelect.append(jQuery('<option/>').val(cntct.Id).text(optionText))
+
+                        if (vipPolitical.ttg_find( function(e) { return e.toLowerCase() == polStatus.toLowerCase() } )) {
+                            vipList.append(jQuery('<li/>').append(jQuery('<span/>').text(optionText)))
+                            vips.push(cntct.Id);
+                        }
+                    });
+                    
+                    
+                }
+            
+                 var q =        
+                    'Select ID,'+ttg.vfp+'Political__c, '+ttg.vfp+'Contact__c, '+ttg.vfp+'Contact__r.Name ' +
+                    'From '+ttg.vfp+'DM_Political_Map_Contact__c ' +
+                    'WHERE '+ttg.vfp+'DM_Opportunity_Extra__c = \'' + spec.opportunityExtraId + '\' and '+ttg.vfp+'Key_Player__c = false ' +
+                    'ORDER BY '+ttg.vfp+'Contact__r.Name ASC';
+                                     
+                                     
+                spec.ttgApi.queryJS(q, success, ttg.ajaxErrorFunction());
+           }
+
+
+
+            function populatePlayerDetails(data, playerId) {
+                        
+                function collectRanksForPlayer(playerId) {
+
+                    var userRanks = [];
+                
+                    if (data.records) {
+                    
+                        jQuery.each(levels,function(lidx,level) {
+                            jQuery.each(data.records, function(idx,criterion) {
+                                var criterionRanks = criterion[ttg.vfp + 'Decision_Criteria_Score__r'];
+                                
+                                if (criterionRanks && criterionRanks.records) {
+                                    jQuery.each(criterionRanks.records, function(ridx, rank) {
+                                        if (rank[ttg.vfp + 'Political_Map_Contact__c'] == playerId && rank[ttg.vfp + 'Importance__c'].toLowerCase() == level.toLowerCase() ) {
+                                            userRanks.push({ 
+                                                    rankId          :   rank.Id
+                                                    , criterion     :   criterion[ttg.vfp + 'Criterion__c']
+                                                    , criterionId   :   criterion.Id
+                                                    , importance    :   rank[ttg.vfp + 'Importance__c']
+                                                });
+                                        }
+                                    });
+                                }
+                            }); 
+                        });
+                    }
+                    
+                    return userRanks;
+                }             
+                
+                function createPlayerCriterionRow(urank) {
+                
+                    var importanceSelect = jQuery('<select>');
+
+                    jQuery.each(levels, function(lidx, level) {
+                        importanceSelect.append(
+                            jQuery('<option>').val(level)
+                                .text(level)
+                        );                        
+                    });
+                    
+                    importanceSelect.val(urank.importance)
+                        .prop('selected', true);
+                    
+                    if (spec.readonly) {
+                        importanceSelect.attr('disabled', 'disabled');
+                    }
+                    
+                    importanceSelect.change(function clickHandler() {
+
+                        var id = urank.rankId;
+                        var importance = importanceSelect.val();
+                        spec.ttgApi.updateDecisionCriteriaScore(id, importance, retrieveDecisionCriteria);                  
+                    });
+                
+                    return jQuery('<div>', { name: 'ctext_' + urank.criterionId }).addClass('player_rank')
+                            .append(
+                                jQuery('<div>').addClass('criterion_text')
+                                    .text(urank.criterion)
+                            ).append(
+                                jQuery('<div>').addClass('criterion_rank')
+                                    .append(importanceSelect)
+                            ).append(
+                                jQuery('<br />').addClass('breaker')
+                            );
+                }                                
+            
+                var ranksDivCss = expandedPlayers[playerId] ? {} : { display:'none'};
+                                
+                var ranksDiv = jQuery('<div/>',{id : 'ranks_' + playerId}).css(ranksDivCss).addClass('player_ranks');
+            
+
+                jQuery.each(collectRanksForPlayer(playerId), function(idx, urank){
+                    ranksDiv.append(createPlayerCriterionRow(urank)).append(jQuery('<br/>').addClass('breaker'));
+                })
+                
+                ranksDiv.append(jQuery('<br/>').addClass('breaker'))
+                
+                return ranksDiv;
+            }
+
+            
+
+            function setKeyPlayerField(pid, newval, callback) {
+            
+                startWorking();
+            
+                function callbackWrapper() {
+                    vips = vips.ttg_remove(function(e) { return e == pid } );
+                    stopWorking();
+                    callback();
+                }
+                
+                spec.ttgApi.updatePoliticalMapContact(pid, newval, callbackWrapper); 
+            }
+            
+            function displayEmptyCriteriaMsg(criteriaData) {
+                if(!criteriaData || !criteriaData.records || criteriaData.records.length === 0) {
+                    jQuery('#dc_crit').prepend(emptyCriteriaDiv);   
+                } 
+                else {
+                    emptyCriteriaDiv.remove();
+                }
+            }
+            
+            function displayEmptyPlayersMsg(playersData) {
+                if(!playersData || !playersData.records || playersData.records.length === 0) {
+                    jQuery('#dc_plyr').prepend(emptyPlayersDiv);
+                }
+                else {
+                    emptyPlayersDiv.remove();
+                }
+            }            
+                
+                    
+            populateDiv();
+            retrieveDecisionCriteria();    
+                 
+        }
+        
+        
+        jQuery(document).ready(function() {
+        
+            var isIe9 = navigator.appVersion.indexOf('MSIE 9.') != -1;
+            
+            if (isIe9) {
+                var mainDiv = jQuery('#criteria_main_div'); 
+                mainDiv.width(mainDiv.width(mainDiv.width()));
+            }
+            
+            
+            ttg.decisionCriteria({
+                parentDivId             :   'criteria_main_div'
+                , sessionId             :   '{!JSENCODE($Api.Session_ID)}'
+                , opportunityExtraId    :   '{!opportunityExtra.id}'
+                , readonly              :   {! editable == false }
+                , ttgApi                : ttg.apiLayer.sfdcDelegate( { sessionid : '{!JSENCODE($Api.Session_ID)}', opportunityid : '{!JSENCODE(Opportunity.id)}' } ) // added by alex
+                , skin                  :   '{!JSENCODE(politicalMapSkin)}'
+                , orgChartMetadata      :   {!orgChartMetadata}
+            });
+        }); 
+        
+    </script>
+
+</apex:page>

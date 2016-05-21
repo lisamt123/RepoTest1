@@ -1,0 +1,814 @@
+<apex:page standardController="CRMfusionDBR101__Duplicate_Warning__c" extensions="CRMfusionDBR101.DB_ConvertMergeController" title="{!title}" showHeader="true" sidebar="false">
+    <apex:includeScript value="{!URLFOR($Resource.CRMfusionDBR101__DB_Javascript, 'jquery.min.js')}" />
+    <apex:includeScript value="{!URLFOR($Resource.CRMfusionDBR101__DB_Javascript, 'jquery-ui.min.js')}" />
+    <apex:includeScript value="{!URLFOR($Resource.CRMfusionDBR101__DB_Javascript, 'datatables/jquery.dataTables.min.js')}" />
+    <apex:includeScript value="{!URLFOR($Resource.CRMfusionDBR101__DB_Javascript, 'datatables/FixedColumns.min.js')}" />
+    <apex:stylesheet value="{!URLFOR($Resource.CRMfusionDBR101__DB_Themes, 'jquery-ui-lightness/jquery-ui-lightness.min.css')}" />
+    <style>
+h1.pageTitle {
+    font-size: 1.8em;
+    font-weight: normal;
+    line-height: 1.1em;
+    padding-bottom: 10px;
+    margin: 5px 0px 0px 10px;
+    display: block;
+}
+
+.row_even {
+    background-color: #f0f0f0;
+}
+
+.row_odd {
+    background-color: #f8f8f8;
+}
+
+.long_field {
+    width: 100px;
+    max-width: 200px;
+    min-width: 150px;
+}
+
+.dupeValue {
+    white-space: nowrap;
+    min-width: 100px;
+}
+
+body {
+    overflow: hidden
+}
+
+#tableContainer {
+    height: 50%;
+    width: 97%;
+    overflow: hidden;
+    margin: 0 auto;
+    padding-left: 0px;
+}
+
+#table_merge:scroller:fxcol {
+    border-right: 2px solid #ff0000;
+}
+
+table.dupesTable {
+    font-size: 11px;
+    border: 0px;
+    background-color: #eee;
+    width: 100%;
+    padding-bottom: 0px;
+    table-layout: fixed;
+}
+
+table.dupesTable td {
+    border-left: 1px solid #ddd;
+    cursor: pointer;
+    word-wrap: none;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: 150px;
+    min-width: 150px;
+    height: 20px;
+    border-top: 1px solid #fff;
+    border-bottom: 1px solid #ccc
+}
+
+table.dupesTable input[type="radio"],#table_merge input[type="checkbox"] {
+    
+}
+
+table.dupesTable tr.row_header {
+    background: white url('{!$Resource.DB_Icons}/grid_headerbg.gif') 0 bottom repeat-x;
+    font-weight: bold;
+}
+
+table.dupesTable tr.row_active {
+    background-color: #e8f6fb
+}
+
+table.dupesTable td.cell_active {
+    background-color: #c3ecfa
+}
+
+table.dupesTable .col_field {
+    background-color: #ddd;
+    color: #333;
+    background: #f6f8f9; /* Old browsers */
+    background: -moz-linear-gradient(top, #f6f8f9 0%, #e5ebee 50%, #d7dee3 51%, #f5f7f9 100%); /* FF3.6+ */
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #f6f8f9), color-stop(50%, #e5ebee), color-stop(51%, #d7dee3),
+        color-stop(100%, #f5f7f9) ); /* Chrome,Safari4+ */
+    background: -webkit-linear-gradient(top, #f6f8f9 0%, #e5ebee 50%, #d7dee3 51%, #f5f7f9 100%); /* Chrome10+,Safari5.1+ */
+    background: -o-linear-gradient(top, #f6f8f9 0%, #e5ebee 50%, #d7dee3 51%, #f5f7f9 100%); /* Opera 11.10+ */
+    background: -ms-linear-gradient(top, #f6f8f9 0%, #e5ebee 50%, #d7dee3 51%, #f5f7f9 100%); /* IE10+ */
+    background: linear-gradient(to bottom, #f6f8f9 0%, #e5ebee 50%, #d7dee3 51%, #f5f7f9 100%); /* W3C */
+    filter: progid :   DXImageTransform.Microsoft.gradient (     startColorstr = 
+         '#f6f8f9', endColorstr =   '#f5f7f9', GradientType =   0 ); /* IE6-9 */
+    text-shadow: 0px 1px 0px #fff;
+}
+
+.buttonBox {
+    margin-top: 15px;
+    text-align: center;
+}
+
+div.bodyDiv {
+    width: 100%;
+}
+
+form.enableListForm {
+    width: 100%;
+}
+
+td.noSidebarCell, table.outerNoSidebar {
+    width: 100%;
+    table-layout: fixed;
+}
+</style>
+
+    <!--[if IE 7]>
+<style>
+/*
+#tableContainer {
+    height:50%;
+    width:97%;
+    overflow:hidden;
+    margin:0 auto;
+    padding-left:0px;
+}
+*/
+
+</style>
+<![endif]-->
+
+    <script type="text/javascript">
+        (function($) {
+            $.fn.hoverIntent = function(f, g) {
+                var cfg = {
+                    sensitivity : 7,
+                    interval : 100,
+                    timeout : 0
+                };
+                cfg = $.extend(cfg, g ? {
+                    over : f,
+                    out : g
+                } : f);
+                var cX, cY, pX, pY;
+                var track = function(ev) {
+                    cX = ev.pageX;
+                    cY = ev.pageY
+                };
+                var compare = function(ev, ob) {
+                    ob.hoverIntent_t = clearTimeout(ob.hoverIntent_t);
+                    if ((Math.abs(pX - cX) + Math.abs(pY - cY)) < cfg.sensitivity) {
+                        $(ob).unbind("mousemove", track);
+                        ob.hoverIntent_s = 1;
+                        return cfg.over.apply(ob, [ ev ])
+                    } else {
+                        pX = cX;
+                        pY = cY;
+                        ob.hoverIntent_t = setTimeout(function() {
+                            compare(ev, ob)
+                        }, cfg.interval)
+                    }
+                };
+                var delay = function(ev, ob) {
+                    ob.hoverIntent_t = clearTimeout(ob.hoverIntent_t);
+                    ob.hoverIntent_s = 0;
+                    return cfg.out.apply(ob, [ ev ])
+                };
+                var handleHover = function(e) {
+                    var ev = jQuery.extend({}, e);
+                    var ob = this;
+                    if (ob.hoverIntent_t) {
+                        ob.hoverIntent_t = clearTimeout(ob.hoverIntent_t)
+                    }
+                    if (e.type == "mouseenter") {
+                        pX = ev.pageX;
+                        pY = ev.pageY;
+                        $(ob).bind("mousemove", track);
+                        if (ob.hoverIntent_s != 1) {
+                            ob.hoverIntent_t = setTimeout(function() {
+                                compare(ev, ob)
+                            }, cfg.interval)
+                        }
+                    } else {
+                        $(ob).unbind("mousemove", track);
+                        if (ob.hoverIntent_s == 1) {
+                            ob.hoverIntent_t = setTimeout(function() {
+                                delay(ev, ob)
+                            }, cfg.timeout)
+                        }
+                    }
+                };
+                return this.bind('mouseenter', handleHover).bind('mouseleave',
+                        handleHover)
+            }
+        })(jQuery);
+
+        var _apexNamespace = '{!nameSpace}';
+        var _dupesTable;
+        var _paddingHeight = 0;
+
+        $(document)
+                .ready(
+                        function() {
+                            if ( {!hasErrors} == true )
+                                return;
+                        
+                            Visualforce.remoting.Manager
+                                    .invokeAction(
+                                            '{!$RemoteAction.DB_ConvertMergeController.getMergeData}',
+                                            '{!Duplicate_Warning__c.Id}',
+                                            handleGetMergeDataResult, {
+                                                escape : false
+                                            });
+
+                            // processing status dialog box
+                            $("#statusWindow").dialog({
+                                modal : false,
+                                autoOpen : false,
+                                title : "Status"
+                            });
+                            
+                            if ( {!licenseVerificationNeeded} )
+	                            Visualforce.remoting.Manager
+	                                    .invokeAction(
+	                                            '{!$RemoteAction.DB_ConvertMergeController.isValidLicense}',
+	                                            'merge',
+	                                            handleLicenseCheckResult
+	                                            );
+
+                            // Figure out how much room is needed for the header
+                            // and footer parts of the table and save it.
+                            //_paddingHeight = $('div.dataTables_scrollHead').height();
+
+                            var bodyDivHeight = $(window).height() - 200;
+                            $('.bodyDiv').height(bodyDivHeight);
+                            $('#tableContainer').height(bodyDivHeight - 150);
+
+                            // Layout the dtable properly.
+                            _dupesTable = $('#table_merge').dataTable({
+                                "sScrollY" : "100%",
+                                "sScrollX" : "100%",
+                                //"sScrollXInner": "100%",
+                                "bScrollCollapse" : false,
+                                "bFilter" : false,
+                                "bInfo" : false,
+                                "bPaginate" : false,
+                                "bAutoWidth" : true,
+                                "bSort" : false
+                            });
+                            var fc = new FixedColumns(_dupesTable, {
+                                "sLeftWidth" : "fixed",
+                                "iLeftWidth" : 250,
+                                "sHeightMatch" : "auto"
+                            });
+                            _paddingHeight = $('div.dataTables_scrollHead')
+                                    .height();
+                            verticalResizeMergeTable(bodyDivHeight - 150);
+
+                            // Resize all columns on window resize.
+                            $(window).resize( doWindowResize );
+                        });
+        
+        // Resize the merge table whenever the window is resized.
+        function doWindowResize()
+        {
+            var bodyDivHeight = $(window)
+                    .height() - 200;
+            $('.bodyDiv').height(
+                    bodyDivHeight);
+            $('#tableContainer').height(
+                    bodyDivHeight - 150);
+            
+            // Resize the merge table to it's proper size.
+            verticalResizeMergeTable(bodyDivHeight - 150);
+        }
+
+        // Resize the merge table to it's proper size.
+        function verticalResizeMergeTable( height )
+        {
+            $('div.dataTables_scrollBody').height(height - _paddingHeight);
+            _dupesTable.fnAdjustColumnSizing();
+            $('table.dupesTable.dataTable.DTFC_Cloned').css('padding-bottom',
+                    "0px");
+        }
+    </script>
+    <apex:pageMessages />
+    <apex:form styleClass="enableListForm" rendered="{!NOT( hasErrors )}" >
+        <!--  Include fields we need for the controller. -->
+        <apex:outputText rendered="false" value="{!CRMfusionDBR101__Duplicate_Warning__c.CRMfusionDBR101__Scenario__c}" />
+        <apex:outputText rendered="false" value="{!CRMfusionDBR101__Duplicate_Warning__c.CRMfusionDBR101__Scenario_Type__c}" />
+        <apex:outputText rendered="false" value="{!CRMfusionDBR101__Duplicate_Warning__c.Scenario__r.CRMfusionDBR101__Person_Account_Scenario__c}" />
+        <apex:sectionHeader title="{!Title}" />
+        <apex:variable var="dataRowCount" value="{!0}" />
+        <div id="formContent" height="100%" width="100%" style="layout: block;">
+            <div id="tableContainer" width="97%">
+                <table width="100%" cellpadding="5" cellspacing="0" border="0" class="dupesTable" id="table_merge" align="center">
+                    <thead>
+                        <tr class="row_header">
+                            <th class="headerFirstCol" width="150">Field</th>
+                            <apex:repeat value="{!mergeRecords}" var="record">
+                                <th class="colHeader"><apex:outputText rendered="{!AND(NOT(isPersonAccount), LOWER(CRMfusionDBR101__Duplicate_Warning__c.CRMfusionDBR101__Scenario_Type__c) != 'opportunitylineitem')}"
+                                        value="{!record[mergeObjectNameField]}" /> <apex:outputText rendered="{!isPersonAccount}"
+                                        value="{!IF(ISBLANK(record['FirstName']), record['LastName'], record['FirstName'] + ' ' + record['LastName'])}" /> <apex:outputText rendered="{!LOWER(CRMfusionDBR101__Duplicate_Warning__c.CRMfusionDBR101__Scenario_Type__c) = 'opportunitylineitem'}" value="{!record['PricebookEntry']['Name']}" /></th>
+                            </apex:repeat>
+                        </tr>
+                    </thead>
+                    <tr class="row_even">
+                        <td class="col_field">Merge Record</td>
+                        <apex:repeat value="{!mergeRecords}" var="record">
+                            <td><input type="checkbox" name="mergerecord" data-recordId="{!record.Id}" checked="1" /></td>
+                        </apex:repeat>
+                    </tr>
+                    <tr class="row_odd">
+                        <td class="col_field" width="150">Master</td>
+                        <apex:repeat value="{!mergeRecords}" var="record">
+                            <td><input type="radio" name="master" data-recordId="{!record.Id}" /></td>
+                        </apex:repeat>
+                    </tr>
+                    <apex:variable var="oType" value="{!CRMfusionDBR101__Duplicate_Warning__c.CRMfusionDBR101__Scenario_Type__c}" />
+                    <apex:repeat value="{!mergeDisplayFields}" var="field">
+                        <tr class="{!IF(MOD(dataRowCount,2)==0,'row_even','row_odd')}">
+                            <td class="col_field" width="150"><apex:outputText escape="false" value="{!fieldLabels[field]}" />
+                            </td>
+                            <apex:repeat value="{!mergeRecords}" var="record">
+                                <td class="long_field" ><apex:outputPanel rendered="{!NOT( fieldDisplayStyle[field] = 'none' )}" title="{!record[field]}">
+                                        <input type="{!fieldDisplayStyle[field]}" name="{!field}" data-recordId="{!record.Id}" />
+                                    </apex:outputPanel> <span class="dupeValue" title="{!record[field]}" id="{!record.Id}"><apex:outputField label="" title="{!record[field]}"
+                                            value="{!record[field]}" /> </span>
+                                </td>
+                            </apex:repeat>
+                        </tr>
+                        <apex:variable var="dataRowCount" value="{!dataRowCount + 1}" />
+                    </apex:repeat>
+                </table>
+            </div>
+            <div class="buttonBox">
+                <input type="button" class="cancelButton btn" onclick="doCancel(); return false;" value="Cancel" /> <input type="button" class="mergeButton btn"
+                    onclick="doMerge(); return false;" disabled="disabled" value="Merge Selected" />
+            </div>
+        </div>
+    </apex:form>
+    <div id="statusWindow" title="Status">
+        <div id="statusText"></div>
+        <div id="statusProgress"></div>
+    </div>
+    <script type="text/javascript">
+        var mergeData;
+        var mergingRecords = new Array();
+        var masterRecord = null;
+        var totalMerges = 0;
+        var mergesDone = 0;
+        var merging = false;
+
+        // If the master changes, select all of it's fields that have data.
+        function masterChanged(recordId) {
+            if (typeof recordId == undefined)
+                return;
+
+            var master = mergeData.recordMap[recordId];
+            $('#table_merge input[data-recordId="' + recordId + '"]').each(
+                    function(index) {
+                        var name = $(this).attr('name');
+                        // If this is the mergerecord or master fields, check it if not checked and return.
+                        if (name == 'mergerecord' || name == 'master') {
+                            $(this).prop('checked', true);
+                            return;
+                        }
+
+                        // For other inputs, check to see if there is data for that field
+                        // and check the input if so.
+                        var pcField = mergeData.properCaseFieldFullNames[name];
+                        if ($(this).prop('checked') == false
+                                && master[pcField] != null
+                                && ( typeof master[pcField] != 'string' || master[pcField].length > 0 ) )
+                            $(this).prop('checked', true);
+                    });
+            updateHighlighting();
+        }
+
+        // If a merge record is deselected for merging, uncheck all checked radio buttons/checkboxes.
+        // In the case of radio buttons, find another to check..
+        function removeMergeRecord(recordId) {
+            // First, if this is the selected master, change the master to any other enabled record.
+            if ($(
+                    '#table_merge input[name="master"][data-recordId="'
+                            + recordId + '"]').prop('checked')) {
+                var nextRecordId = $(
+                        '#table_merge input:checked[name="mergerecord"]')
+                        .first().attr('data-recordId');
+                masterChanged(nextRecordId);
+            }
+
+            // Uncheck all checkbox inputs, we don't need to look for other fields to check when this is done.
+            $(
+                    '#table_merge input:checkbox:checked[data-recordId="'
+                            + recordId + '"]').each(function() {
+                $(this).prop('checked', false);
+            });
+
+            // Next, uncheck all radio inputs for this record Id.
+            // Track the fields we unchecked to look for replacements.
+            var uncheckedFields = new Array();
+            $(
+                    '#table_merge input:radio:checked[data-recordId="'
+                            + recordId + '"]').each(function() {
+                var name = $(this).attr('name');
+                // Only track actual object field names, not master or mergerecord
+                if (name != 'master' && name != 'mergerecord')
+                    uncheckedFields.push($(this).attr('name'));
+                $(this).prop('checked', false);
+            });
+
+            // Disable all inputs except the mergerecord input.
+            $(
+                    '#table_merge input[data-recordId="' + recordId
+                            + '"][name!="mergerecord"]').prop('disabled', true);
+
+            // Loop through all enabled radio value fields and look for fields that have no checked values, then
+            // find an available input with data to check.
+            for ( var x = 0; x < uncheckedFields.length; x++) {
+                var field = uncheckedFields[x];
+                var pcField = mergeData.properCaseFieldFullNames[field];
+
+                // Check each enabled radio input for this field and select
+                // the first one with a value.
+                var foundOne = false;
+                $('#table_merge input:radio:enabled[name="' + field + '"]')
+                        .each(
+                                function() {
+                                    // Exit if we already found one.
+                                    if (foundOne == true)
+                                        return;
+
+                                    // If the related record has data in this field, select it.
+                                    var record = mergeData.recordMap[$(this)
+                                            .attr('data-recordId')];
+                                    if (record[pcField] != null
+                                            && record[pcField].length > 0) {
+                                        foundOne = true;
+                                        $(this).prop('checked', true);
+                                    }
+                                });
+            }
+
+            updateHighlighting();
+        }
+
+        // If a record is enabled for merge, select any checkbox inputs that have data
+        // and any radio inputs that have data where there are no other records selected for the same field.
+        // If there is no other master chosen, set this record as the master.
+        function addMergeRecord(recordId) {
+            // Enable all inputs for this record.
+            $('#table_merge input[data-recordId="' + recordId + '"]').prop(
+                    'disabled', false);
+
+            // If there is no other master record, set this as the master and exit.
+            if ($('#table_merge input:radio:checked[name="master"]').length == 0) {
+                masterChanged(recordId);
+                updateHighlighting();
+                return;
+            }
+
+            var record = mergeData.recordMap[recordId];
+            // This isn't the master record.
+            // Check all fields for data and check any checkbox with data but only
+            // check radio inputs if they have no data and there are no other selections for that field.
+            $('#table_merge input[data-recordId="' + recordId + '"]')
+                    .each(
+                            function() {
+                                var field = $(this).attr('name');
+                                var pcField = mergeData.properCaseFieldFullNames[field];
+                                var inputType = mergeData.fieldDisplayStyle[field];
+                                if (inputType == 'checkbox'
+                                        && record[pcField] != null
+                                        && record[pcField].length > 0)
+                                    $(this).prop('checked', true);
+                                else if (record[pcField] != null
+                                        && record[pcField].length > 0
+                                        && $('#table_merge input:radio:checked[name="'
+                                                + field + '"]').length == 0)
+                                    $(this).prop('checked', true);
+                            });
+
+            updateHighlighting();
+        }
+
+        // Remove highlight from unchecked fields and highlight checked fields.
+        function updateHighlighting() {
+            // first clear all highlighted cells
+            $("#table_merge td").removeClass("cell_active");
+            // Find all checked checkboxes and highlight parent table cell
+            $("#table_merge input:checked").each(function() {
+                $(this).closest('td').addClass('cell_active');
+            });
+        }
+
+        // For mergeable fields, check all that have data.
+        // For non-mergeable fields (radio buttons) select the first one with data.
+        function selectDefaults() {
+            // Select the first record as the master.
+            $(
+                    '#table_merge input:radio[name="master"][data-recordId="'
+                            + mergeData.recordIds[0] + '"]').prop('checked',
+                    true);
+
+            var fields = mergeData.displayFields;
+            var displayStyle = mergeData.fieldDisplayStyle;
+            for ( var x = 0; x < fields.length; x++) {
+                var field = fields[x];
+                var pcField = mergeData.properCaseFieldFullNames[field];
+                var curStyle = displayStyle[field];
+                if (curStyle == 'none')
+                    continue;
+                else if (curStyle == 'checkbox') {
+                    // Check or uncheck fields based on whether their related objects have
+                    // data.
+                    $('#table_merge input[name="' + field + '"]:checkbox')
+                            .each(
+                                    function(index) {
+                                        var record = mergeData.recordMap[$(this)
+                                                .attr('data-recordId')];
+                                        if (record[pcField] == null
+                                                || record[pcField].length == 0)
+                                            $(this).prop('checked', false);
+                                        else
+                                            $(this).prop('checked', true);
+                                    });
+                } else if (curStyle == 'radio') {
+                    // Selet the first radio button with data.
+                    var selectionFound = false;
+                    $('#table_merge input[name="' + field + '"]:radio').each(
+                            function(index) {
+                                if (selectionFound != true) {
+                                    var record = mergeData.recordMap[$(this)
+                                            .attr('data-recordId')];
+                                    if (record[pcField] == null
+                                            || record[pcField].length == 0)
+                                        $(this).prop('checked', false);
+                                    else {
+                                        $(this).prop('checked', true);
+                                        selectionFound = true;
+                                    }
+                                }
+                            });
+                }
+            } // For each field.
+
+            updateHighlighting();
+        }
+
+        function handleGetMergeDataResult(result, event) {
+            // If the call failed, display an error and exit.
+            if (!event.status) {
+                displayError(event.message);
+                return;
+            }
+
+            // Save the merge data for use elsewhere.
+            mergeData = result;
+
+            // If this is an idea object remove problematic properties that weren't queried.
+            // These appear to be added by VF remoting and VF remoting won't accept them as properties when
+            // sending the objects back.
+            if ('{!scenarioType}'.toLowerCase() == 'idea') {
+                for ( var x = 0; x < mergeData.recordIds.length; x++) {
+                    delete mergeData.recordMap[mergeData.recordIds[x]].HalfLife;
+                    delete mergeData.recordMap[mergeData.recordIds[x]].ReferenceDate;
+                }
+            }
+
+            // Select default field values.
+            selectDefaults();
+
+            // Select a master.
+            var firstRecordId = $(
+                    '#table_merge input:checked[name="mergerecord"]')
+                    .first().attr('data-recordId');
+            masterChanged( firstRecordId );
+
+            // Enable the merge buttons.
+            $('.mergeButton').removeAttr('disabled');
+        }
+        
+        function handleLicenseCheckResult(result, event) {
+            // If the call failed, display an error and exit.
+            if (!event.status) {
+                displayError(event.message);
+                return;
+            }
+            
+            // If the license is invalid, display an error and exit.
+            if ( result == false )
+            {
+            	displayError( 'The DupeBlocker license has expired or is invalid, please contact your SalesForce administrator.' );
+            	doCancel();
+            	return;
+            }
+        }
+
+        function doMerge() {
+            // Mark us as merging and disable the merge buttons.
+            merging = true;
+            $('.mergeButton').attr('disabled', 'disabled');
+
+            // Find the selected master record.
+            var selectedMasterInput = $('#table_merge input[name="master"]:checked');
+            // If there was no master, display an error.
+            if (typeof selectedMasterInput === undefined
+                    || selectedMasterInput == null
+                    || $(selectedMasterInput).length == 0) {
+                displayError('You must select at least one master and one other record before merging.');
+                return;
+            }
+            var masterRecordId = $(selectedMasterInput).attr('data-recordId');
+            masterRecord = mergeData.recordMap[masterRecordId];
+
+            // Find all selected merge records, excluding the master.
+            var selectedRecords = $('#table_merge input[name="mergerecord"]:checked');
+            for ( var x = 0; x < $(selectedRecords).length; x++) {
+                var selectedId = $(selectedRecords[x]).attr('data-recordId');
+                if (selectedId != masterRecordId)
+                    mergingRecords.push(selectedId);
+            }
+            totalMerges = mergingRecords.length;
+
+            // If we have no mergerecords selected, display an error and exit.
+            if (totalMerges == 0) {
+                displayError('You must select at least one master and one other record before merging.');
+                return;
+            }
+
+            // Show a merge status window.
+            updateMergeStatus();
+
+            // Select all checked fields that don't belong to the master and update the master with those
+            // values.  Merging values where needed.
+            var updatedFields = new Array();
+            $(
+                    '#table_merge input:checked[data-recordId!="'
+                            + masterRecordId + '"]')
+                    .each(
+                            function() {
+                                var field = $(this).attr('name');
+                                // Skip mergerecord and master inputs.
+                                if (field == 'mergerecord' || field == 'master')
+                                    return;
+                                var pcField = mergeData.properCaseFieldFullNames[field];
+                                var recordId = $(this).attr('data-recordId');
+                                var record = mergeData.recordMap[recordId];
+                                var mergeable = (mergeData.fieldDisplayStyle[field] == 'checkbox');
+                                if ($.inArray(field, updatedFields) < 0)
+                                    updatedFields.push(field);
+                                if (mergeable == false
+                                        || masterRecord[pcField] == null
+                                        || masterRecord[pcField].length == 0) {
+                                    // Not a mergeable field, just update the master record.
+                                    masterRecord[pcField] = record[pcField];
+                                } else if ($.inArray(field,
+                                        mergeData.boolFields) >= 0) {
+                                    // Merge bool values.
+                                    masterRecord[pcField] = masterRecord[pcField]
+                                            || record[pcField];
+                                } else if ($.inArray(field,
+                                        mergeData.multiPicklistFields) >= 0) {
+                                    // Merge multi-select values and make sure the values remain unique.
+                                    var masterValues = masterRecord[pcField]
+                                            .toLowerCase().split(';');
+                                    var mergeValues = record[pcField]
+                                            .split(';');
+
+                                    for ( var x = 0; x < masterValues.length; x++)
+                                        masterValues[x] = masterValues[x]
+                                                .trim();
+
+                                    for ( var x = 0; x < mergeValues.length; x++) {
+                                        if ($.inArray(mergeValues[x].trim()
+                                                .toLowerCase(), masterValues) < 0)
+                                            masterRecord[pcField] += ';'
+                                                    + mergeValues[x];
+                                    }
+                                } else {
+                                    // Merge strings, with the master value first.
+                                    masterRecord[pcField] += (mergeData.fieldLengths[field] > 255 ? '\r\n\r\n--- Merged Data:\r\n\r\n'
+                                            : '\r\n')
+                                            + record[pcField];
+                                }
+                            });
+
+            // Merge the first record
+            Visualforce.remoting.Manager.invokeAction(
+                    '{!$RemoteAction.DB_ConvertMergeController.mergeRecord}',
+                    '{!JSENCODE( Duplicate_Warning__c.Scenario__c )}', masterRecord,
+                    mergingRecords.pop(), updatedFields,
+                    handleMergeRecordResult, {
+                        escape : false
+                    });
+        }
+
+        function handleMergeRecordResult(result, event) {
+            // If the call failed, display an error and exit.
+            if (!event.status) {
+                displayError(event.message);
+                doCancel();
+                return;
+            }
+
+            // Increment the merge counter and update the status.
+            mergesDone++;
+            updateMergeStatus();
+
+            // If we have more merges to do, do so now.  Otherwise, redirect to the master.
+            if (mergingRecords.length > 0) {
+                Visualforce.remoting.Manager
+                        .invokeAction(
+                                '{!$RemoteAction.DB_ConvertMergeController.mergeRecord}',
+                                '{!JSENCODE( Duplicate_Warning__c.Scenario__c )}',
+                                masterRecord, mergingRecords.pop(), null,
+                                handleMergeRecordResult, {
+                                    escape : false
+                                });
+            } else {
+                document.location.href = "/" + masterRecord.Id;
+            }
+        }
+
+        function updateMergeStatus() {
+            if (mergesDone < totalMerges) {
+                $('#statusText').text(
+                        'Merged ' + mergesDone + '/' + totalMerges);
+                $('#statusProgress').progressbar({
+                    value : mergesDone / totalMerges * 100
+                });
+                $('#statusWindow').removeClass('hideDiv');
+                $('#statusWindow').dialog('open');
+            } else {
+                $('#statusText').text('Done.');
+                $('#statusProgress').progressbar({
+                    value : 100
+                });
+                $('#statusWindow').dialog('close');
+                $('#statusWindow').addClass('hideDiv');
+            }
+        }
+
+        function displayError(error) {
+            alert(error);
+        }
+
+        function doCancel() {
+            document.location.href = "/{!Duplicate_Warning__c.Id}";
+        }
+
+        // Find all checked checkboxes and hightlight their parent cell
+        $("#table_merge tr td input:checked").each(function() {
+            $(this).closest('td').addClass('cell_active');
+        });
+
+        // highlight active table row and cell when checkbox/radio is clicked
+        $("#table_merge input").click(function() {
+            if ($(this).attr('checked')) {
+                $(this).prop('checked', false);
+                if ($(this).attr('name') == 'mergerecord')
+                    removeMergeRecord($(this).attr('data-recordId'));
+            } else {
+                $(this).prop('checked', true);
+                if ($(this).attr('name') == 'master')
+                    masterChanged($(this).attr('data-recordId'));
+                else if ($(this).attr('name') == 'mergerecord')
+                    addMergeRecord($(this).attr('data-recordId'));
+            }
+            updateHighlighting();
+        });
+        // same as above, but activate on table cell click
+        $("#table_merge tr td")
+                .click(
+                        function() {
+                            if ($(this).find('input').prop('checked')) {
+                                $(this).find('input').prop('checked', false);
+                                if ($(this).find('input').attr('name') == 'mergerecord')
+                                    removeMergeRecord($(this).find('input')
+                                            .attr('data-recordId'));
+                            } else {
+                                $(this).find('input').prop('checked', true);
+                                var name = $(this).find('input').attr('name');
+                                if (name == 'master')
+                                    masterChanged($(this).find('input').attr(
+                                            'data-recordId'));
+                                else if (name == 'mergerecord')
+                                    addMergeRecord($(this).find('input').attr(
+                                            'data-recordId'));
+
+                            }
+                            updateHighlighting();
+                        });
+
+        $("#table_merge tr").hover(function() {
+            $("#table_merge tr").removeClass("row_active");
+            $(this).closest("tr").addClass("row_active");
+        });
+
+        // disable SFDC's hoverdetaillookup JS that displays a tooltip bubble on hovered generated links like contact name
+        $('.dupeValue a').prop("onmouseover", null);
+    </script>
+</apex:page>

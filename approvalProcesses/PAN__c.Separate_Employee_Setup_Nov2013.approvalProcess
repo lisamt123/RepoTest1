@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ApprovalProcess xmlns="http://soap.sforce.com/2006/04/metadata">
+    <active>false</active>
+    <allowRecall>true</allowRecall>
+    <allowedSubmitters>
+        <submitter>Executive_Assistant</submitter>
+        <type>role</type>
+    </allowedSubmitters>
+    <allowedSubmitters>
+        <submitter>ProcessDevelopmentManager</submitter>
+        <type>roleSubordinatesInternal</type>
+    </allowedSubmitters>
+    <approvalPageFields>
+        <field>Name</field>
+        <field>Owner</field>
+    </approvalPageFields>
+    <approvalStep>
+        <allowDelegate>true</allowDelegate>
+        <approvalActions>
+            <action>
+                <name>ATG_Phone_Notification</name>
+                <type>Alert</type>
+            </action>
+            <action>
+                <name>Separated_Employee_SFDC_Setup</name>
+                <type>Alert</type>
+            </action>
+            <action>
+                <name>Update_Approval_Status_to_SFDC_Setup</name>
+                <type>FieldUpdate</type>
+            </action>
+        </approvalActions>
+        <assignedApprover>
+            <approver>
+                <name>Helpdesk</name>
+                <type>queue</type>
+            </approver>
+            <whenMultipleApprovers>FirstResponse</whenMultipleApprovers>
+        </assignedApprover>
+        <description>IT has finished updating the separated user&apos;s information.</description>
+        <label>IT Separation</label>
+        <name>IT_Separation2</name>
+        <rejectionActions>
+            <action>
+                <name>Additional_Information_Needed</name>
+                <type>Alert</type>
+            </action>
+        </rejectionActions>
+    </approvalStep>
+    <approvalStep>
+        <allowDelegate>true</allowDelegate>
+        <approvalActions>
+            <action>
+                <name>HR_confirmation_Complete</name>
+                <type>FieldUpdate</type>
+            </action>
+        </approvalActions>
+        <assignedApprover>
+            <approver>
+                <type>adhoc</type>
+            </approver>
+        </assignedApprover>
+        <description>Is the new employee&apos;s user profile removed from Salesforce?</description>
+        <label>SFDC Separation</label>
+        <name>SFDC_Separation2</name>
+        <rejectBehavior>
+            <type>BackToPrevious</type>
+        </rejectBehavior>
+    </approvalStep>
+    <description>Existing employee is separating from the company.</description>
+    <enableMobileDeviceAccess>false</enableMobileDeviceAccess>
+    <entryCriteria>
+        <criteriaItems>
+            <field>PAN__c.RecordType</field>
+            <operation>equals</operation>
+            <value>Separate,Process Separation</value>
+        </criteriaItems>
+    </entryCriteria>
+    <finalApprovalActions>
+        <action>
+            <name>PAN_Complete_Final_Notification</name>
+            <type>Alert</type>
+        </action>
+    </finalApprovalActions>
+    <finalApprovalRecordLock>true</finalApprovalRecordLock>
+    <finalRejectionRecordLock>false</finalRejectionRecordLock>
+    <initialSubmissionActions>
+        <action>
+            <name>Update_Approval_Status_to_IT_Setup</name>
+            <type>FieldUpdate</type>
+        </action>
+        <action>
+            <name>Vin_Separate_Employee_HR_Notification</name>
+            <type>Alert</type>
+        </action>
+        <action>
+            <name>WFT_Email_Alert_to_HR</name>
+            <type>Task</type>
+        </action>
+    </initialSubmissionActions>
+    <label>Separate Employee Setup Nov2013</label>
+    <recordEditability>AdminOrCurrentApprover</recordEditability>
+    <showApprovalHistory>false</showApprovalHistory>
+</ApprovalProcess>

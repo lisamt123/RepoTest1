@@ -1,0 +1,37 @@
+<apex:page controller="admin_ctrl_pdfReleaseNotesGenerator" renderAs="pdf">
+	
+	<!-- 
+	<ul>
+		<li>Hello</li>
+		<li style="margin-left: 20px;"><a href="https://www.google.com/">hello</a></li>
+		<li style="margin-left: 20px;">world</li>
+		<li style="margin-left: 20px;">indented</li>
+		<li>World</li>
+		<li>Bulleted</li>
+		<li>List</li>
+	</ul>
+	 
+	 
+	<ul>
+		<apex:repeat value="{!changeRequests}" var="cr">
+			<li>{!cr.Name} - Completed Date: {!cr.Date_Completed__c} - Related Object: {!cr.Related_Object__c}</li>
+		</apex:repeat>
+	</ul>
+	
+	<br /><br /><br /><br />
+	-->
+	<h2>Salesforce Release Notes - {!tFromDate} through {!tToDate}</h2> 
+	<h5>Below is a list of notable Change Requests completed this week. Please note that not every Change Request is listed, just the ones that will have an impact on multiple users.</h5>
+	<h5>If you'd like to view the full Change Request, you may click the Change Request number beside the description to open it in Salesforce. You may also click the "Train Me" link next to that number to request additional training or assistance on the Change Request in question.</h5>
+	
+	<ul>
+		<apex:repeat value="{!releaseNotesTables}" var="ro">
+			<li style="margin-top:20px; margin-bottom:5px;">{!ro.objectName}</li>
+			<apex:repeat value="{!ro.relatedCRs}" var="cr">
+				<li style="margin-left:20px; margin-bottom:10px;">{!cr.Release_Notes_Details__c} <span style="color:#666; font-style:italic; font-size:12px;">(Implemented</span>&nbsp;<apex:outputText style="color:#666; font-style:italic; font-size:12px;" value="{0,date,MM'/'dd'/'yyyy}"><apex:param value="{!cr.Date_Completed__c}" /></apex:outputText><span style="color:#666; font-style:italic; font-size:12px;">, Request </span><apex:outputLink value="/{!cr.Id}" target="_blank" style="font-size:12px; text-decoration:none;" styleClass="actionLink">#{!cr.Name}</apex:outputLink><span style="color:#666; font-style:italic; font-size:12px;">)</span>&nbsp;<apex:outputLink value="/apex/trainMe?parentCRSubject={!cr.Subject__c}&parentCRId={!cr.Id}" style="font-size:9px; text-decoration:none;" styleClass="actionLink">Train Me</apex:outputLink></li>
+			</apex:repeat>
+		</apex:repeat>
+	</ul>
+	
+
+</apex:page>

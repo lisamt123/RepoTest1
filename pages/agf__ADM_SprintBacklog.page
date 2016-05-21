@@ -1,0 +1,36 @@
+<apex:page standardController="agf__ADM_Sprint__c" extensions="agf.ADM_SprintBacklogControllerExtension" cache="true" standardStylesheets="true">
+    <apex:sectionHeader title="Sprint Backlog" subtitle="{!sprint.Name}"/>
+    <apex:outputPanel styleClass="ptBreadcrumb" style="position:relative;top:-15px;vertical-align:middle;">«&nbsp;<apex:outputLink value="/{!sprint.Id}">Back to sprint: {!sprint.Name}</apex:outputLink></apex:outputPanel>
+    <apex:pagemessages ></apex:pagemessages>
+    <apex:form >
+        <apex:pageBlock title="Work Records" rendered="{!resultSize > 0}">
+            <apex:pageBlockTable value="{!works}" var="work">
+                <apex:column value="{!work.Name}"/>
+                <apex:column value="{!work.agf__Subject__c}" width="50%"/>
+                <apex:column value="{!work.agf__Priority_Rank__c}"/>
+                <apex:column value="{!work.agf__Priority__c}"/>
+                <apex:column value="{!work.agf__Theme__c}"/>
+                <apex:column value="{!work.agf__Story_Points__c}"/>
+                <apex:column value="{!work.agf__Status__c}"/>
+                <apex:column value="{!work.agf__Scheduled_Build__c}"/>
+                <apex:column value="{!work.agf__Closed_On__c}"/>     
+            </apex:pageBlockTable>
+        </apex:pageBlock>
+       
+        <apex:panelGrid columns="5" styleClass="adm_table" rendered="{!rowEnd> 0}">
+            <apex:outputPanel styleclass="totalRow">{!rowStart} - {!rowEnd} of {!resultSize}</apex:outputPanel>        
+            <apex:commandLink action="{!first}" rendered="{!hasPrevious}" onclick="overlay();" styleclass="totalRow">            
+                <apex:image url="{!URLFOR($Resource.agf__silkIcons, 'icons/resultset_first.png')}"/>
+            </apex:commandlink>  
+            <apex:commandLink action="{!previous}" rendered="{!hasPrevious}" onclick="overlay();" styleclass="totalRow">
+                <apex:image url="{!URLFOR($Resource.agf__silkIcons, 'icons/resultset_previous.png')}"/>
+            </apex:commandlink>  
+            <apex:commandLink action="{!next}" rendered="{!hasNext}" onclick="overlay();" styleclass="totalRow">
+                <apex:image url="{!URLFOR($Resource.agf__silkIcons, 'icons/resultset_next.png')}"/>
+            </apex:commandlink>  
+            <apex:commandLink action="{!last}" rendered="{!hasNext}" onclick="overlay();" styleclass="totalRow">
+                <apex:image url="{!URLFOR($Resource.agf__silkIcons, 'icons/resultset_last.png')}"/>
+            </apex:commandlink>  
+        </apex:panelGrid>
+    </apex:form>
+</apex:page>

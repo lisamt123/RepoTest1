@@ -1,0 +1,222 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <assignments>
+        <name>Set_Variable</name>
+        <label>Set Variable</label>
+        <locationX>153</locationX>
+        <locationY>398</locationY>
+        <assignmentItems>
+            <assignToReference>varSprintText</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>Choose_sprint</elementReference>
+            </value>
+        </assignmentItems>
+    </assignments>
+    <choices>
+        <name>Klaatu_5_18_15</name>
+        <choiceText>Klaatu (5/18/15)</choiceText>
+        <dataType>String</dataType>
+        <value>
+            <stringValue>Klaatu</stringValue>
+        </value>
+    </choices>
+    <choices>
+        <name>Legless_Legolas_6_1_15</name>
+        <choiceText>Legless Legolas (6/1/15)</choiceText>
+        <dataType>String</dataType>
+        <value>
+            <stringValue>Legless Legolas (6/1/15)</stringValue>
+        </value>
+    </choices>
+    <choices>
+        <name>Mal_6_15_15</name>
+        <choiceText>Mal (6/15/15)</choiceText>
+        <dataType>String</dataType>
+        <value>
+            <stringValue>Mal (6/15/15) (Current)</stringValue>
+        </value>
+    </choices>
+    <choices>
+        <name>Nightcrawler_6_29_15</name>
+        <choiceText>Nightcrawler (6/29/15)</choiceText>
+        <dataType>String</dataType>
+        <value>
+            <stringValue>Nightcrawler (6/29/15)</stringValue>
+        </value>
+    </choices>
+    <choices>
+        <name>Optimus_7_13_15</name>
+        <choiceText>Optimus (7/13/15)</choiceText>
+        <dataType>String</dataType>
+        <value>
+            <stringValue>Optimus (7/13/15)</stringValue>
+        </value>
+    </choices>
+    <choices>
+        <name>Phantom_7_27_15</name>
+        <choiceText>Phantom (7/27/15)</choiceText>
+        <dataType>String</dataType>
+        <value>
+            <stringValue>Phantom (7/27/15)</stringValue>
+        </value>
+    </choices>
+    <choices>
+        <name>Q_8_10_15</name>
+        <choiceText>Q (8/10/15)</choiceText>
+        <dataType>String</dataType>
+        <value>
+            <stringValue>Q (8/10/15)</stringValue>
+        </value>
+    </choices>
+    <choices>
+        <name>R2_8_24_15</name>
+        <choiceText>R2 (8/24/15)</choiceText>
+        <dataType>String</dataType>
+        <value>
+            <stringValue>R2 (8/24/15)</stringValue>
+        </value>
+    </choices>
+    <choices>
+        <name>Spock_9_7_15_DF15</name>
+        <choiceText>Spock (9/7/15) (DF15)</choiceText>
+        <dataType>String</dataType>
+        <value>
+            <stringValue>Spock (9/7/15) (DF15)</stringValue>
+        </value>
+    </choices>
+    <choices>
+        <name>Tron_9_21_15</name>
+        <choiceText>Tron (9/21/15)</choiceText>
+        <dataType>String</dataType>
+        <value>
+            <stringValue>Tron (9/21/15)</stringValue>
+        </value>
+    </choices>
+    <choices>
+        <name>Uhura_10_5_15</name>
+        <choiceText>Uhura (10/5/15)</choiceText>
+        <dataType>String</dataType>
+        <value>
+            <stringValue>Uhura (10/5/15)</stringValue>
+        </value>
+    </choices>
+    <choices>
+        <name>Voltron_10_19_15</name>
+        <choiceText>Voltron (10/19/15)</choiceText>
+        <dataType>String</dataType>
+        <value>
+            <stringValue>Voltron (10/19/15)</stringValue>
+        </value>
+    </choices>
+    <choices>
+        <name>Wonder_Woman_11_2_15</name>
+        <choiceText>Wonder Woman (11/2/15)</choiceText>
+        <dataType>String</dataType>
+        <value>
+            <stringValue>Wonder Woman (11/2/15)</stringValue>
+        </value>
+    </choices>
+    <choices>
+        <name>Xavier_11_16_15</name>
+        <choiceText>Xavier (11/16/15)</choiceText>
+        <dataType>String</dataType>
+        <value>
+            <stringValue>Xavier (11/16/15)</stringValue>
+        </value>
+    </choices>
+    <choices>
+        <name>Yoda_11_30_15</name>
+        <choiceText>Yoda (11/30/15)</choiceText>
+        <dataType>String</dataType>
+        <value>
+            <stringValue>Yoda (11/30/15)</stringValue>
+        </value>
+    </choices>
+    <choices>
+        <name>Zhora_12_14_15</name>
+        <choiceText>Zhora (12/14/15)</choiceText>
+        <dataType>String</dataType>
+        <value>
+            <stringValue>Zhora (12/14/15)</stringValue>
+        </value>
+    </choices>
+    <description>Updated for new sprint - Mal</description>
+    <interviewLabel>Change Request - Set Sprint {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>Change Request - Set Sprint</label>
+    <processType>Flow</processType>
+    <recordUpdates>
+        <name>Set_CR</name>
+        <label>Set CR</label>
+        <locationX>154</locationX>
+        <locationY>274</locationY>
+        <connector>
+            <targetReference>Set_Variable</targetReference>
+        </connector>
+        <filters>
+            <field>Id</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>varCRID</elementReference>
+            </value>
+        </filters>
+        <inputAssignments>
+            <field>Sprint_Name__c</field>
+            <value>
+                <elementReference>Choose_sprint</elementReference>
+            </value>
+        </inputAssignments>
+        <object>Change_Request__c</object>
+    </recordUpdates>
+    <screens>
+        <name>Set_Sprint</name>
+        <label>Set Sprint</label>
+        <locationX>155</locationX>
+        <locationY>146</locationY>
+        <allowBack>true</allowBack>
+        <allowFinish>true</allowFinish>
+        <allowPause>true</allowPause>
+        <connector>
+            <targetReference>Set_CR</targetReference>
+        </connector>
+        <fields>
+            <name>Choose_sprint</name>
+            <choiceReferences>Klaatu_5_18_15</choiceReferences>
+            <choiceReferences>Legless_Legolas_6_1_15</choiceReferences>
+            <choiceReferences>Mal_6_15_15</choiceReferences>
+            <choiceReferences>Nightcrawler_6_29_15</choiceReferences>
+            <choiceReferences>Optimus_7_13_15</choiceReferences>
+            <choiceReferences>Phantom_7_27_15</choiceReferences>
+            <choiceReferences>Q_8_10_15</choiceReferences>
+            <choiceReferences>R2_8_24_15</choiceReferences>
+            <choiceReferences>Spock_9_7_15_DF15</choiceReferences>
+            <choiceReferences>Tron_9_21_15</choiceReferences>
+            <choiceReferences>Uhura_10_5_15</choiceReferences>
+            <choiceReferences>Voltron_10_19_15</choiceReferences>
+            <choiceReferences>Wonder_Woman_11_2_15</choiceReferences>
+            <choiceReferences>Xavier_11_16_15</choiceReferences>
+            <choiceReferences>Yoda_11_30_15</choiceReferences>
+            <choiceReferences>Zhora_12_14_15</choiceReferences>
+            <dataType>String</dataType>
+            <defaultSelectedChoiceReference>Legless_Legolas_6_1_15</defaultSelectedChoiceReference>
+            <fieldText>Choose sprint:</fieldText>
+            <fieldType>RadioButtons</fieldType>
+            <isRequired>false</isRequired>
+        </fields>
+    </screens>
+    <startElementReference>Set_Sprint</startElementReference>
+    <variables>
+        <name>varCRID</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>true</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+    <variables>
+        <name>varSprintText</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>true</isOutput>
+    </variables>
+</Flow>

@@ -1,0 +1,241 @@
+<apex:page controller="ActOn.hotProspectsController" showHeader="false" sidebar="false">
+
+<apex:stylesheet value="{!URLFOR($Resource.ActOn__actonstatic, 'common.css')}"/>
+<apex:stylesheet value="{!URLFOR($Resource.ActOn__jquery, 'css/start/jquery-ui-1.9.2.custom.css')}"/>
+
+<apex:includeScript value="{!URLFOR($Resource.ActOn__actonstatic, 'common.js')}"/>
+<apex:includeScript value="{!URLFOR($Resource.ActOn__jquery, 'js/jquery-1.7.2.min.js')}"/>
+<apex:includeScript value="{!URLFOR($Resource.ActOn__jquery, 'js/jquery-ui-1.9.2.custom.min.js')}"/>
+<apex:includeScript value="/soap/ajax/32.0/connection.js"/>
+<apex:includeScript value="/soap/ajax/32.0/apex.js"/>
+
+<style>
+    .contactUser
+        {
+        padding-left:           20px;
+        padding-top:            2px;
+        padding-bottom:         2px;
+        background:             url({!$Resource.actonstatic}/image/silk/user_orange.png) center left no-repeat;
+        }
+        
+    .leadUser
+        {
+        padding-left:           20px;
+        padding-top:            2px;
+        padding-bottom:         2px;
+        background:             url({!$Resource.actonstatic}/image/silk/user.png) center left no-repeat;
+        }       
+</style>
+
+        
+<script type="text/javascript">
+
+var j$ = jQuery.noConflict();
+
+sforce.connection.sessionId = "{!$Api.Session_ID}";
+var actonServer = sforce.apex.execute('ActOn/ActonWebService','getServerUrl',{});
+
+j$(document).ready(function(){
+});
+
+j$(window).load(function(){ 
+    getHotProspectsJSON(); 
+}); 
+
+var gDays = 7;
+var viewProfileClicked = false;
+
+function OnDaysChange (days) {
+    gDays = days;
+    getHotProspectsJSON();    
+}
+
+function setSelectedIndex(s, v) {
+    for ( var i = 0; i < s.options.length; i++ ) {
+        if ( s.options[i].value == v ) {
+            s.options[i].selected = true;
+            return;
+        }
+    }
+}
+    
+function getHotProspectsJSON() {
+    j$("#hotProspects").hide();
+    j$("#imgProg").show();
+    var apiUrl = "{!$Page.hotProspectsActonAjax}";
+    j$.ajax({
+        type: "GET",
+        url: apiUrl,
+        data: "core.apexpages.devmode.url=1&serverUrl={!$Api.Partner_Server_URL_190}&days=" + gDays,
+        contentType: "application/json",
+        dataType: "json",
+        success: function(response) {
+            processHotProspectsJSON(response);
+            //alert(JSON.stringify(response));
+        },
+        error:function (xhr, ajaxOptions, thrownError){
+            //alert(xhr.statusText);
+            //alert(thrownError);
+            j$("#imgProg").hide();
+        }       
+    });
+}    
+
+function processHotProspectsJSON(prospects) {
+    var divJson = document.getElementById('hotProspects');
+
+    //var html = '<img src="{!$Resource.actonstatic}/image/logo-medium.gif"><div style="margin-left: 130px;margin-top: -30px"><table cellspacing="10" cellpadding="10">';
+    //html += '<div>';
+    //html += JSON.stringify(result);
+    //html += '</div>';
+    //divJson.innerHTML = html;
+    
+    var now = new Date();
+
+    var html =  '<div style="padding-left:10px;">';
+    //html +=       '<div style="width:820px;text-align:right"><img src="{!$Resource.actonstatic}/image/logo-small.gif" /></div>';
+    html +=     '<div class="huge bold nobr fgOrange">Hot Prospects &nbsp;&nbsp;';
+    html +=             '<select id="days" name="days" onchange="OnDaysChange(this.options[this.selectedIndex].value)">';
+    html +=                 '<option value="1">Last 1 day</option>';
+    html +=                 '<option value="3">Last 3 days</option>';
+    html +=                 '<option value="7">Last 7 days</option>';
+    html +=                 '<option value="10">Last 10 days</option>';
+    html +=                 '<option value="15">Last 15 days</option>';
+    html +=                 '<option value="30">Last 30 days</option>';
+    html +=                 '<option value="60">Last 60 days</option>';
+    html +=                 '<option value="90">Last 90 days</option>';
+    html +=             '</select>&nbsp;&nbsp&nbsp;';
+    html +=             '<button type="submit" onClick="getHotProspectsJSON()"><img src="{!$Resource.actonstatic}/image/refresh.gif" />&nbsp;Refresh</button>';
+    html +=     '</div>';
+    html +=     '<br/><div class="fgGrey" style="width:780px;text-align:left">This is a prioritized list of your currently most active and engaged leads and contacts, based on the types of activities and scores outlined in your score sheet.</div>';
+    html +=     '<br/><table cellspacing="0" cellpadding="2">';
+            
+    html +=         '<tr>';
+    //html +=             '<td align="left" width="35" class="husky bold nobr fgBlue">&nbsp;</td>';
+    html +=               '<td align="left" width="100" class="husky bold nobr fgBlue">Priority</td>';
+    html +=             '<td align="left" width="175" class="husky bold nobr fgBlue">Name</td>';
+    html +=             '<td align="left" width="75" class="husky bold nobr fgBlue">Type</td>';
+    html +=             '<td align="left" width="200" class="husky bold nobr fgBlue">Company</td>';
+    
+    html +=             '<td align="left" width="100"class="husky bold nobr fgBlue">Last</td>';
+    html +=             '<td align="right" width="100"class="husky bold nobr fgBlue">&nbsp;</td>';
+    html +=         '</tr>';
+    html +=         '<tr><td colspan="7" class="t2"><div style="height: 5px; overflow: hidden">&nbsp;</div></td></tr>';
+
+    if (prospects != null) 
+    {
+        var propectCount = prospects.length;
+        if(propectCount > 0) 
+            {
+            var maxScore = parseFloat(prospects[0].Score);
+            var minScore = parseFloat(prospects[propectCount-1].Score);
+            var bucketSize = (maxScore - minScore)/4;
+            //alert ('Max: ' + maxScore + ' Min: ' + minScore + ' Bucket: ' + bucketSize);
+            }
+        for (var i = 0; i < prospects.length; i++) 
+            {
+            var p = prospects[i];
+            
+            var hotness;
+            var score = parseFloat(p.Score);
+            if ( score <= (minScore + bucketSize))
+                {
+                hotness = '<img src="{!$Resource.actonstatic}/image/dollar.png"/><img src="{!$Resource.actonstatic}/image/nodollar.png"/><img src="{!$Resource.actonstatic}/image/nodollar.png"/><img src="{!$Resource.actonstatic}/image/nodollar.png"/>';
+                }
+            else if (score <= (minScore + bucketSize + bucketSize))
+                {
+                hotness = '<img src="{!$Resource.actonstatic}/image/dollar.png"/><img src="{!$Resource.actonstatic}/image/dollar.png"/><img src="{!$Resource.actonstatic}/image/nodollar.png"/><img src="{!$Resource.actonstatic}/image/nodollar.png"/>';
+                }   
+            else if (score <= (minScore + bucketSize + bucketSize + bucketSize))
+                {
+                hotness = '<img src="{!$Resource.actonstatic}/image/dollar.png"/><img src="{!$Resource.actonstatic}/image/dollar.png"/><img src="{!$Resource.actonstatic}/image/dollar.png"/><img src="{!$Resource.actonstatic}/image/nodollar.png"/>';
+                }
+            else 
+                {
+                hotness = '<img src="{!$Resource.actonstatic}/image/dollar.png"/><img src="{!$Resource.actonstatic}/image/dollar.png"/><img src="{!$Resource.actonstatic}/image/dollar.png"/><img src="{!$Resource.actonstatic}/image/dollar.png"/>';
+                }
+                        
+            html +=     '<tr>';
+            html +=         '<td align="left" class="fgGrey nobr" title="' + p.Score + '">' + hotness + '</td>';
+            
+            var externalId = escape(p.ExternalId);
+            var company = p.Company;
+            var email = escape(p.Email);
+            var fname = p['First Name'];
+            var lname = p['Last Name'];
+            if (externalId.indexOf('003') == 0)
+                {
+                html +=         '<td align="left" title="Click to open Contact" class="fgGrey nobr"><a href="#" OnClick="leadContactDrilldown(\'' + externalId + '\',\'' + email + '\')">' + fname + ' ' + lname + '</a></td>';
+                html +=         '<td align="left"  class="fgGrey nobr">Contact</td>';
+                }
+            else
+                {
+                html +=         '<td align="left" title="Click to open Lead" class="fgGrey nobr"><a href="#" OnClick="leadContactDrilldown(\'' + externalId + '\',\'' + email + '\')">' + fname + ' ' + lname + '</a></td>';
+                html +=         '<td align="left" class="fgGrey nobr">Lead</td>';
+                }
+            html +=         '<td align="left" class="fgGrey nobr"           >' + company + '</td>';
+            
+            var lastAction = '';
+            if (p.LastAction != null) 
+                {
+                lastAction = p.LastAction;
+                }
+            html +=         '<td align="left" title="' + lastAction + '">' + howLongAgo(p.LAST_TS, now.getTime()) + '</td>';
+            html +=         '<td align="left"><a href="#" OnClick="actonInfoDrilldown(\'' + externalId + '\',\'' + email + '\')">Act-On Profile</a></td>';
+            html +=     '</tr>';
+            html +=     '<tr><td colspan="7" class="tt"><div style="height: 5px; overflow: hidden">&nbsp;</div></td></tr>';
+            }  
+    }         
+    html +=     '</table>';
+    html +=     '</div>';
+    //alert (html);
+    divJson.innerHTML = html;
+    j$("#imgProg").hide();
+    j$("#hotProspects").show();
+    
+    var daySelector = document.getElementById('days');
+    setSelectedIndex(daySelector, gDays);
+}
+
+function actonInfoDrilldown(id, email)
+{
+    viewProfileClicked = true;
+    var url = actonServer + '/acton/sforce/sforceActivityHistory_Acton.jsp?' +
+        'id=' + id +
+        '&email=' + email +
+        '&v={!Version}' +
+        '&session={!$Api.Session_ID}' +
+        '&server={!$Api.Partner_Server_URL_190}';
+    
+    window.open (url,"ActonInfoDrilldown", "status=1,toolbar=1,menubar=1,resizable=1,location=1,width=800,height=600");
+}
+
+function leadContactDrilldown(id, email)
+{
+    if (viewProfileClicked) {
+        viewProfileClicked = false;
+        return;
+    }
+
+    window.parent.location = '/' + id;
+}
+
+function escape (string) 
+{
+    return (''+string).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#x27;').replace(/\//g,'&#x2F;');
+}
+</script>
+
+<div id="imgProg" style="display: none; text-align: center; width: 800px; height: 400px; margin-top: 60px;">
+    <img alt="Processing" src="{!$Resource.actonstatic}/image/dotdotdotdot.gif"  />
+</div>
+
+<table width="100%" height="100%" cellspacing="0" cellpadding="0"><tr>
+<td width="*"   valign="top">
+    <div id="hotProspects" style="padding: 10px 0px 10px 10px;"></div>
+</td>
+</tr>
+</table>
+
+ 
+</apex:page>

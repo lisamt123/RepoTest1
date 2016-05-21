@@ -1,0 +1,359 @@
+<apex:page controller="geopointe.AddToCampaign" sidebar="{!userSettings.geopointe__Hide_Sidebar__c = false}" extensions="geopointe.AddToCampaignRemotes" showHeader="false" standardStylesheets="false" tabStyle="Lead" title="Geopointe - Add To Campaign" applyHtmlTag="false" applyBodyTag="false" docType="html-5.0">
+  <html xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+	<apex:stylesheet value="{!URLFOR($Resource.geopointe__jquery, '/css/common/common.css')}"/><!-- Geopointe common css -->
+    <apex:stylesheet value="{!URLFOR($Resource.geopointe__jquery, '/css/common/common-lightning.css')}"/> <!-- Common geopointe CSS for lightning styled pages--> 
+    <apex:stylesheet value="https://maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css"/> <!--Font awesome library for icons and such -->
+    <apex:stylesheet value="{!URLFOR($Resource.geopointe__SLDS, '/0.8.0/assets/styles/salesforce-lightning-design-system-vf.min.css')}"/> <!-- Salesforce Lightning Design System -->
+	
+	<style>
+		.vAlignTop{
+			vertical-align:top !important;
+		}
+		.slds th.labelCol { text-align: right; padding-right: 15px; }
+		.slds td.pbButtonb { text-align: center; }
+		i.fa-check-circle { color: green; }
+		i.fa-info-circle { color:#3096c4; }
+		i.fa-warning { color: rgb(255, 183, 93); }
+	</style>
+
+	<apex:includeScript value="{!URLFOR($Resource.geopointe__jquery, '/jquery-1.8.3.min.js')}" /> <!-- core jQuery -->
+	<script src="{!URLFOR($Resource.jquery, '/js/lib/async.js')}"></script> <!-- async.js for help with asynchronous flow control -->
+	<script src="{!URLFOR($Page.translations)}"></script> <!-- Geopointe translations -->
+    <!-- localize.js -->
+    <script src="https://cdn.localizejs.com/localize.js"></script>
+    <script>!function(a){if(!a.Localize){a.Localize={};for(var e=["translate","untranslate","phrase","initialize","translatePage","setLanguage","getLanguage","detectLanguage","untranslatePage","bootstrap","prefetch","on","off"],t=0;t<e.length;t++)a.Localize[e[t]]=function(){}}}(window);</script>
+
+    <script>
+        Localize.initialize({
+            key: '1SeX6sYAXWLng', 
+            rememberLanguage: false,
+            saveNewPhrases: false,
+            translateBody: true
+        });
+        Localize.setLanguage('{!userLanguage}');
+    </script>
+	
+	<apex:includeScript value="{!URLFOR($Resource.geopointe__jquery, '/jquery-1.8.3.min.js')}" /> <!-- core jQuery -->
+	<apex:includeScript value="{!URLFOR($Resource.geopointe__jquery, '/ui/js/jquery-ui-1.9.2.custom.min.js')}" /> <!-- jQuery UI -->
+	<apex:includeScript value="{!$Resource.geopointe__GeopointeJS}" /> <!-- Geopointe universal functions -->
+	<apex:includeScript value="{!$Page.geopointe__js_GA}" /> <!-- Google Analytics --> 
+
+<div class="slds slds-p-around--xx-large slds-container--large slds-container--center">
+	
+	<apex:pageMessages id="pageMessages"></apex:pageMessages>
+
+	<apex:form >
+		
+		<apex:outputPanel id="campaignselector" style="width:690px;" layout="block">
+
+			<apex:inputTextArea id="leadContactIds" value="{!inputLeadContactIDsJSON}" style="display:none;"/>
+			
+			<apex:pageBlock rendered="{!Not(Completed) && !IDsFiguredOut && campaignHandlersEmpty && hasMessages = false}">
+				
+				<apex:outputPanel style="margin: 10px 20px; font-size" layout="block">
+					<i class="fa fa-info-circle"></i> <b>Objects have no Lead or Contact Relationship</b><br/><br/>
+					We could not determine a way to obtain Leads or Contacts using the records selected for Add to Campaign.
+				</apex:outputPanel>
+				
+			</apex:pageBlock>
+			
+			<apex:pageBlock rendered="{!Not(Completed) && !IDsFiguredOut && !campaignHandlersEmpty}">
+				
+				<apex:pageBlockButtons location="bottom">
+					<apex:commandButton styleClass="slds-button slds-button--neutral" value="Continue" action="{!processCampaignHandlers}" rerender="campaignselector,pageMessages,leadContactIdsJS" onclick="geopointeAjaxStart('body', '{!$Label.geopointe__Retrieving_Records}...');" oncomplete="geopointeAjaxEnd();"/>
+				</apex:pageBlockButtons>
+				
+				<div class="slds-card slds-m-bottom--medium">
+					<section class="slds-card__body slds-text-body--regular slds-p-horizontal--medium">
+						<i class="fa fa-warning"></i> <b>Other Objects Detected</b><br/>
+						How should Geopointe determine the Leads and Contacts to Add to the Campaign?
+					</section>
+				</div>
+
+					
+				<apex:outputPanel rendered="{!OR(numberOfLeads > 0, numberOfContacts > 0)}">
+					<div class="slds-card slds-m-bottom--medium">
+						<header class="slds-card__header slds-grid">
+							<h3 class="slds-text-heading--small slds-truncate">{!IF(numberOfLeads > 0,'Leads','')}  {!IF(AND(numberOfLeads > 0,numberOfContacts > 0),' & ','')}  {!IF(numberOfcontacts > 0,'Contacts','')}</h3>
+						</header>
+
+						<section class="slds-card__body slds-text-body--small slds-p-horizontal--medium">
+						{!IF(numberOfLeads > 0,TEXT(numberOfLeads) & ' Leads','')}  {!IF(AND(numberOfLeads > 0,numberOfContacts > 0),' and ','')}  {!IF(numberOfcontacts > 0,TEXT(numberOfContacts) & ' Contacts','')}
+						were selected based on the mapped data. These will be automatically added to the Campaign selected in the next step.
+						</section>
+					</div>
+				</apex:outputPanel>
+				
+				<apex:repeat value="{!campaignHandlers}" var="chKey">
+					<div class="slds-card slds-m-bottom--medium">
+						<header class="slds-card__header slds-grid">
+							<h3 class="slds-text-heading--small slds-truncate">{!chKey}</h3>
+						</header>
+
+						<section class="slds-card__body slds-text-body--small slds-p-horizontal--medium">
+						<apex:pageBlockTable value="{!campaignHandlers[chKey]}" var="ch"> 
+							<apex:column headerValue="Use?" styleClass="vAlignTop slds-text-align--center">
+								<div data-isOCR="{!ch.isOCR}" class="useCHcheckbox"><apex:inputCheckbox value="{!ch.selected}"/></div>
+							</apex:column>
+							<apex:column headerValue="Relationship">
+								<apex:outputText value="All {!ch.lookupObjectLabelPlural} identified by the '{!ch.lookupFieldLabel}' field on {!ch.objectLabel}" rendered="{!ch.handlerTypeName == 'LOOKUP'}"/>
+								<apex:outputText value="All {!ch.childObjectLabelPlural} related to these {!ch.objectLabelPlural} by the '{!ch.childRefFieldLabel}' field on {!ch.childObjectLabel}" rendered="{!AND(NOT(ch.isOCR),ch.handlerTypeName == 'CHILD')}"/>
+							
+								<apex:outputPanel rendered="{!AND(ch.isOCR,ch.handlerTypeName == 'CHILD')}">
+									All <strong>Opportunity Contact Roles</strong> with the selected Roles:<br/>
+									
+									<div style="margin-top:4px;" >
+										<a href="#" id="selectAllLink">Select All</a> | <a href="#" id="deselectAllLink">Deselect All</a>&nbsp;&nbsp; - &nbsp;
+										
+										<apex:inputCheckBox value="{!primaryOCRonly}"/> Primary Contacts only with the selected roles: 
+										
+									</div>
+									<span id="oppContactRoles" class="notranslate">
+										<apex:selectCheckboxes value="{!selectedOppContactRoles}" layout="pageDirection">
+            								<apex:selectOptions value="{!oppContactRoles}"/>
+										</apex:selectCheckBoxes>
+									</span>
+								</apex:outputPanel>
+							
+							</apex:column>
+							<apex:column headerValue="Relationship Type" styleClass="vAlignTop">
+								<div style="margin-top:2px;">{!ch.handlerTypeName}</div>
+							</apex:column>
+						</apex:pageBlockTable> 
+						</section>
+					</div>
+
+				</apex:repeat>
+					
+			</apex:pageBlock>
+			
+			<apex:pageBlock rendered="{!Not(Completed) && IDsFiguredOut}">
+					
+				<apex:pageBlockButtons location="bottom" >
+					<apex:outputPanel rendered="{!Not(createmembers)}"><button class="slds-button slds-button--neutral" disabled="disabled">Create Members</button></apex:outputPanel>
+					<apex:commandButton rendered="{!createmembers}" styleClass="slds-button slds-button--neutral" value="Create Members" rerender="dummyRerenderPanel" onclick="insertUpdateCampaignMembers();"/>
+				</apex:pageBlockButtons>
+				
+				<div class="slds-card slds-m-bottom--medium">
+					<header class="slds-card__header slds-grid">
+						<h3 class="slds-text-heading--small slds-truncate">Select a Campaign</h3>
+					</header>
+
+					<section class="slds-card__body slds-text-body--regular slds-p-horizontal--medium">
+						<apex:outputPanel styleClass="uiInput uiInputSelect forceInputPicklist uiInput--default uiInput--select">
+							<apex:selectList value="{!SelectedCampaign}" multiselect="false" size="1" id="campaignList" styleClass="notranslate select">
+								<apex:selectOptions value="{!CampaignSList}"/>
+								<apex:actionSupport event="onchange" rerender="campaignselector" action="{!setCampaign}" onsubmit="geopointeAjaxStart('body');" oncomplete="geopointeAjaxEnd();"/>
+							</apex:selectList>
+						</apex:outputPanel>
+					</section>
+					<section class="slds-card__body slds-text-body--small slds-p-horizontal--medium">
+						<apex:pageBlockSection >
+							<apex:pageBlockSectionItem rendered="{!SelectedCampaign!=''}">
+								<apex:outputLabel value="Campaign Name" />
+								<apex:outputPanel >
+									<apex:outputText value="{!SelectedCampaignDetails.cname}" rendered="{!SelectedCampaignDetails.id = ''}"/>
+									<apex:outputLink value="/{!SelectedCampaignDetails.id}" rendered="{!SelectedCampaignDetails.id != ''}" target="_blank">
+										<apex:outputText value="{!SelectedCampaignDetails.cname}" />
+									</apex:outputLink>
+								</apex:outputPanel>
+							</apex:pageBlockSectionItem> 
+							<apex:pageBlockSectionItem rendered="{!SelectedCampaign!=''}">
+								<apex:outputLabel value="Number of Leads" />
+								<apex:outputText value="{!SelectedCampaignDetails.numleads}" />
+							</apex:pageBlockSectionItem>
+							
+							<apex:pageBlockSectionItem rendered="{!SelectedCampaign!=''}">
+								<apex:outputLabel value="Type" />
+								<apex:outputText value="{!SelectedCampaignDetails.ctype}" />
+							</apex:pageBlockSectionItem>
+							<apex:pageBlockSectionItem rendered="{!SelectedCampaign!=''}">
+								<apex:outputLabel value="Number of Converted Leads" />
+								<apex:outputText value="{!SelectedCampaignDetails.numconvertedleads}" />
+							</apex:pageBlockSectionItem>
+							
+							<apex:pageBlockSectionItem rendered="{!SelectedCampaign!=''}">
+								<apex:outputLabel value="Status" />
+								<apex:outputText value="{!SelectedCampaignDetails.cstatus}" />
+							</apex:pageBlockSectionItem>
+							<apex:pageBlockSectionItem rendered="{!SelectedCampaign!=''}">
+								<apex:outputLabel value="Number of Contacts" />
+								<apex:outputText value="{!SelectedCampaignDetails.numcontacts}" />
+							</apex:pageBlockSectionItem>
+						</apex:pageBlockSection>
+					</section>
+				</div>	<!-- Close Select a Campaign -->
+                
+                <apex:outputPanel rendered="{!SelectedCampaign!=''}">
+					<div class="slds-card slds-m-bottom--medium">
+						<header class="slds-card__header slds-grid">
+							<h3 class="slds-text-heading--small slds-truncate">Add to Campaign Details</h3>
+						</header>
+
+						<section class="slds-card__body slds-p-horizontal--medium">
+							<apex:outputPanel rendered="{!NumberofMembersToUpdate==0}"><i class="fa fa-check-circle" style="color:green"></i> <b>All records will be created as new Campaign Members</b></apex:outputPanel>
+							<apex:outputPanel rendered="{!NumberofMembersToUpdate!=0}"><i class="fa fa-info-circle" style="color:#3096c4"></i> <b>Existing members found in this Campaign</b></apex:outputPanel>
+
+							<br/><br/>
+							<b><var>{!NumberofMemberstoAdd}</var> member(s)</b> will be added to this campaign. <br/>
+							<apex:outputLabel value="Status for new members" for="SCMStatus" rendered="{!SelectedCampaign!=''}"/>
+							<apex:selectList style="margin: 0 0 0 5px;" value="{!SelectedCampaignMemberStatus}" multiselect="false" size="1" id="SCMStatus">
+								<apex:selectOptions value="{!CampaignMemberStatusList}"/>
+							</apex:selectList>
+
+							<apex:outputPanel rendered="{!NumberofMembersToUpdate!=0}">
+								<br/><br/>
+								<b><var>{!numberofMembersToUpdate}</var> member(s)</b> exist in the current campaign.<br/>
+								<div>
+									<apex:outputLabel value="Overwrite the Status for existing members " for="OS"/>
+									<apex:inputCheckbox style="margin: 0 0 0 5px;" value="{!OverwriteStatus}" id="OS"/>
+								</div>
+							</apex:outputPanel>
+						</section>
+					</div>
+				</apex:outputPanel>
+			
+			</apex:pageBlock> 
+			
+			<apex:pageBlock rendered="{!Completed}">
+				<div class="slds-card slds-m-bottom--medium">
+					<section class="slds-card__body slds-p-horizontal--medium">
+						<div><i class="fa fa-check-circle" style="color:green"></i> <b>Add to Campaign was successful</b></div>
+
+						<br/>
+						<apex:outputPanel rendered="{!(numberofMemberstoAdd > 0)}"><b><var>{!numberofMemberstoAdd}</var> member(s)</b> were added to this campaign. <br/></apex:outputPanel>
+						<apex:outputPanel rendered="{!(numberofMemberstoUpdate > 0) && OverwriteStatus}"><b><var>{!numberofMembersToUpdate}</var> member(s)</b> were updated in this campaign. <br/></apex:outputPanel>
+						<apex:outputPanel rendered="{!NOT(overwriteStatus)}"><b><var>0</var> member(s)</b> were updated in this campaign because you opted not to overwrite statuses for existing members. <br/></apex:outputPanel>
+						<br/>Go to <var><apex:commandLink target="_blank" action="{!linktoCampaign}">{!SelectedCampaignDetails.cname}</apex:commandlink></var>
+					</section>
+				</div>
+			</apex:pageBlock>
+			
+		</apex:outputPanel>
+
+		<apex:actionFunction name="createMembersComplete" action="{!insertUpdateComplete}" rerender="campaignselector" oncomplete="geopointeAjaxEnd();"/>
+
+	</apex:form>
+
+</div>
+
+	<apex:outputPanel id="dummyRerenderPanel"/>
+
+	<apex:outputPanel id="leadContactIdsJS">
+		<script type="text/javascript">
+			var leadContactIDs = {!leadContactIdsJSON};
+			jQuery("textarea[id$='leadContactIds']").val(JSON.stringify(leadContactIDs));
+		</script>
+	</apex:outputPanel>
+	
+	<script type="text/javascript">
+
+		function insertUpdateCampaignMembers(){
+			var campaignId = jQuery("select[id$='campaignList']").val();
+			var campaignMemberStatus = jQuery("select[id$='SCMStatus']").val();
+			var overwriteStatus = jQuery("input[id$='OS']").is(":checked");
+			var numOfBatches = 0;
+
+			geopointeAjaxStart('body','{!$Label.Updating_Members}...');
+
+			var q = async.queue(function (task, callback) {
+
+				//Calculatea and update percent in ajax spinner
+				var percentComplete = Math.round( (1 - (q.length() + 1) / numOfBatches) * 100 );
+
+				jQuery(".geopointeAjaxImgPercent").text(percentComplete + "%");
+
+				//Perform a remoting call to update/insert lead/contact records
+				Visualforce.remoting.Manager.invokeAction('{!$RemoteAction.AddToCampaignRemotes.insertUpdateCampaignMembers}',task.recordIds, campaignId, campaignMemberStatus, overwriteStatus, function(result, event){
+					if (event.status) {
+						//Nothing to do				
+					} else {
+						//Error handling
+						alert(gp_translations.Something_didnt_work_quite_right + ': ' + event.message);
+					}
+					callback();
+
+				},{escape: true, timeout: 120000, buffer: false});
+
+			},1); //Has to be 1 due to dml row locking issues
+
+			//Called when the q is all done inserting campaign members
+			q.drain = function(){
+				jQuery(".geopointeAjaxImgPercent").text("100%");
+				createMembersComplete();
+			}
+
+			//Load up the queue
+			var CHUNKSIZE = 500;
+			var tempIds = [];
+			for(var i = 0; i < leadContactIDs.length; i++){
+				tempIds.push(leadContactIDs[i]);
+
+				if(tempIds.length == CHUNKSIZE){
+					numOfBatches++;
+					q.push({recordIds: tempIds},function(err){
+						if(err){
+							console.log(err);
+						}	
+					});
+
+					//Reset temp list
+					tempIds = [];
+				}
+			}
+
+			//Add last chunk of ids
+			if(tempIds.length > 0){
+				numOfBatches++;
+				q.push({recordIds: tempIds},function(err){
+					if(err){
+						console.log(err);
+					}	
+				});
+			}
+		}
+		
+		jQuery(document).ready(function(){
+			//Add toggle even listner for show hide links
+			jQuery("#selectAllLink").click(function(e){
+				jQuery("#oppContactRoles input").prop('checked', true);
+				jQuery(".useCHcheckbox[data-isOCR='true'] input").prop('checked', true);
+				e.preventDefault();
+			});
+			jQuery("#deselectAllLink").click(function(e){
+				jQuery("#oppContactRoles input").prop('checked', false);
+				jQuery(".useCHcheckbox[data-isOCR='true'] input").prop('checked', false);
+				e.preventDefault();
+			});
+			
+			//if someone choose the campaing handler for OCR, select all roles
+			jQuery(".useCHcheckbox").click(function(){
+				//Determine if this is for OCRs and update contact role checkboxes
+				if(jQuery(this).attr('data-isOCR') == 'true'){
+					var selected = jQuery(this).find("input").is(':checked');
+					jQuery("#oppContactRoles input").prop('checked', selected);
+				}
+			});
+			
+			//If user changes contact role selections ensure the use check box is updated appropriately
+			jQuery("#oppContactRoles input").click(function(){
+				var rolesSelected = 0;			
+				
+				//determine number of selected roles
+				jQuery("#oppContactRoles input").each(function(){
+					if(jQuery(this).is(':checked')){
+						rolesSelected++;
+					}
+				});
+				
+				//Update use OCR checkfox
+				if(rolesSelected == 0){
+					jQuery(".useCHcheckbox[data-isOCR='true'] input").prop('checked', false);
+				}else{
+					jQuery(".useCHcheckbox[data-isOCR='true'] input").prop('checked', true);
+				}
+			});
+		});
+	</script>
+</html>
+</apex:page>

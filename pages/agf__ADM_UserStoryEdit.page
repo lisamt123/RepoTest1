@@ -1,0 +1,146 @@
+<apex:page id="userStoryWorkPage" standardController="agf__ADM_Work__c" extensions="agf.ADM_UserStoryExtension,agf.ADM_WorkRemoteActionsExtension" showHeader="true" sidebar="false" docType="html-5.0" title="{!title}">
+<meta name="viewport" content="user-scalable=no,width=device-width,initial-scale=1.0,maximum-scale=1.0" />
+<apex:stylesheet value="{!URLFOR($Resource.agf__jquery_ui_1_11_4, 'jquery-ui-1.11.4/jquery-ui.structure.min.css')}" /> 
+<apex:styleSheet value="{!$Resource.agf__ADM_common_css}" />
+<apex:styleSheet value="{!$Resource.agf__ADM_work_css}" />
+<apex:includeScript value="{!$Resource.agf__jquery_1_8_3_min}" />
+<apex:includeScript value="{!URLFOR($Resource.agf__jquery_ui_1_11_4, 'jquery-ui-1.11.4/jquery-ui.min.js')}" /> 
+<apex:includeScript value="{!$Resource.agf__ADM_common_js}" />
+<apex:includeScript value="{!$Resource.agf__productTag_js}" />
+<apex:includeScript value="{!$Resource.agf__ADM_autocomplete2js}" />
+<apex:includeScript value="{!$Resource.agf__ADM_Work_js}" />
+
+<script type="text/javascript">
+var view;
+$(function() {
+    view = new UserStoryEditView({
+        app: window,
+        controller: {
+            getWorkAssignments: window.getWorkAssignments
+        },
+        productTagComponent: window.productTag,
+        recordTypeId: '{!JSINHTMLENCODE(ADM_Work__c.RecordTypeId)}',
+        isNew: {!isNew}
+    });
+});
+
+</script>
+
+ 
+  
+<div class="bPageTitle" id="editTitleBreadcrumb">
+    <div class="ptBody">
+        <div class="content">
+            <img src="{!URLFOR($Resource.storyicon)}" alt="Work" class="pageTitleIcon" title="Work" />
+            <h1 class="pageType"><a href="/{!$ObjectType.ADM_Work__c.keyPrefix}">All Work</a> &gt;</h1>
+            <h2 class="pageDescription">{!IF(OR(isNew,isClone), ADM_Work__c.RecordType.Name, ADM_Work__c.Name)}</h2>
+            <div class="blank">&nbsp;</div>
+        </div>
+    </div>
+    <div class="ptBreadcrumb"></div>
+</div>
+
+<apex:form id="storyWorkForm">
+     <apex:actionFunction name="callgetAdditionalFields" action="{!getMyAdditionalFieldsForUserStory}" rerender="refreshPanelId,myId">
+     <apex:param name="myParamId" value="" assignTo="{!myProdTag}"/>
+     </apex:actionFunction>
+    <apex:messages globalOnly="true" styleClass="message gusFormMessage"/>
+    <div class="gusFieldset">
+        <div class="gusLegend">{!ADM_Work__c.RecordType.Name}</div>
+        <div class="gusRequiredText"></div>
+
+        <div class="gusFormToolbar gusFormToolbarTop">       
+            <apex:commandButton styleClass="userStoryEditSaveButton" action="{!doSaveAndDetail}" value="Save" html-onTouchStart="this.className='active';" />
+            <apex:commandButton action="{!doSaveAndNew}" value="Save & New" html-onTouchStart="this.className='active';" />
+            <apex:commandButton action="{!cancel}" value="Cancel" html-onTouchStart="this.className='active';" /> 
+        </div>
+        
+           <div class="gusForm" id="mainTop">
+            <div class="gusForm1Column">
+
+
+                
+                <div class="gusFormRow gusRow_ADM_Work__c_Subject__c">
+
+                    <div class="gusFormField gusFormFieldLeft gusFieldRequired">
+                        <label for="userStoryWorkPage:storyWorkForm:input">
+                            <apex:outputText value=" {!$ObjectType.agf__ADM_Work__c.fields.agf__Subject__c.Label}" />
+                            <apex:outputText value="*" styleClass="assistiveText"/>
+                        </label>
+                    </div>
+                    <div class="gusFormField gusFormFieldRight gusFieldRequired">
+                        <apex:inputField id="input" value="{!agf__ADM_Work__c.agf__Subject__c}" styleClass="subjectInput gusStyle"  />
+                    </div>
+
+                </div>
+
+
+
+
+
+<!--Please don't remove:- Added the below field with rendering = false to make sure VF engine will default query the field or else in package we get the Field used without querying error -->
+                <apex:outputText value="{!agf__ADM_Work__c.Name}" rendered="false" />
+                <!--c:ADM_FormRow object="{!agf__ADM_Work__c}" id="subjectInput" type="ADM_Work__c" required="false"  field="Subject__c" value="{!agf__ADM_Work__c.agf__Subject__c}" cssClass="subjectInput gusStyle" /--> 
+                <c:ADM_FormRow object="{!agf__ADM_Work__c}" id="detailsInput" type="ADM_Work__c" required="false"  field="Details__c" value="{!agf__ADM_Work__c.agf__Details__c}" cssClass="detailsInput gusStyle" />
+            </div>
+        </div>
+
+        <div class="gusForm" id="productTagRow">
+            <div class="gusForm1Column">
+                <div class="gusFormRow gusRow_ADM_Work__c_Product_Tag__c">
+                    <div class="gusFormField gusFormFieldLeft gusFieldRequired"><label for="productTagInput">{!$ObjectType.agf__ADM_Work__c.fields.agf__Product_Tag__c.Label}
+                    <apex:outputText value="*" styleClass="assistiveText"/>
+                    </label></div>
+                    <div class="gusFormField gusFormFieldRight gusFieldRequired">
+                             <c:ADM_ProductTagInput id="productTagInput" work="{!agf__ADM_Work__c}" recordType="{!recordType}" />
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        
+        <div class="gusForm" id="userStoryDetails">
+            <div id="userStoryDetailsColumn1" class="gusForm3Column">
+                <c:ADM_Input id="statusInput" object="{!agf__ADM_Work__c}" inputFieldName="Status__c" inputObjectName="ADM_Work__c" renderRow="true" inputStyleClass="statusInput gusStyle" />
+                <c:ADM_Input id="sprintInput" object="{!agf__ADM_Work__c}" inputFieldName="Sprint__c" inputObjectName="ADM_Work__c" lookupObject="ADM_Sprint__c" renderRow="true" inputStyleClass="sprintInput gusStyle" />
+                <c:ADM_Input id="scheduledBuildInput" object="{!agf__ADM_Work__c}" inputFieldName="Scheduled_Build__c" inputObjectName="ADM_Work__c" lookupObject="ADM_Build__c" renderRow="true" inputStyleClass="scheduledBuildInput gusStyle" />
+                <c:ADM_Input id="storyPointsInput" object="{!agf__ADM_Work__c}" inputFieldName="Story_Points__c" inputObjectName="ADM_Work__c" renderRow="true" inputStyleClass="storyPointsInput gusStyle" />
+            </div>
+            <div id="storyDetailsColumn2" class="gusForm3Column">
+                <c:ADM_FormRowUserInput id="assigneeInput" object="{!agf__ADM_Work__c}" field="Assignee__c" type="ADM_Work__c" required="false" value="{!agf__ADM_Work__c.agf__Assignee__c}" cssClass="assigneeInput" />
+                <c:ADM_FormRowUserInput id="qaEngineerInput" object="{!agf__ADM_Work__c}" field="QA_Engineer__c" type="ADM_Work__c" required="false" value="{!agf__ADM_Work__c.agf__QA_Engineer__c}" cssClass="qaEngineerInput" />
+                <c:ADM_FormRowUserInput id="productOwnerInput" object="{!agf__ADM_Work__c}" field="Product_Owner__c" type="ADM_Work__c" required="false" value="{!agf__ADM_Work__c.agf__Product_Owner__c}" cssClass="productOwnerInput" />
+                <c:ADM_FormRowUserInput id="techWriterInput" object="{!agf__ADM_Work__c}" field="Tech_Writer__c" type="ADM_Work__c" required="false" value="{!agf__ADM_Work__c.agf__Tech_Writer__c}" cssClass="techWriterInput" />
+            </div>
+            <div id="storyDetailsColumn3" class="gusForm3Column">
+                <c:ADM_FormRow id="rootCauseAnalysisInput" object="{!agf__ADM_Work__c}" field="Root_Cause_Analysis_2__c" type="ADM_Work__c" required="false" value="{!agf__ADM_Work__c.agf__Root_Cause_Analysis_2__c}" cssClass="rootCauseAnalysisInput" />
+                
+                <apex:outputPanel layout="none" rendered="{!OR(AND(isNew, $ObjectType.agf__ADM_Work__c.fields.agf__Perforce_Status__c.createable), AND(NOT(isNew), $ObjectType.agf__ADM_Work__c.fields.agf__Perforce_Status__c.updateable))}">
+                    <c:ADM_FormRow object="{!agf__ADM_Work__c}" id="perforceStatusInput" type="ADM_Work__c" required="false" field="Perforce_Status__c" value="{!agf__ADM_Work__c.agf__Perforce_Status__c}" cssClass="perforceStatusInput" />
+                </apex:outputPanel>
+            </div>
+        </div>
+        
+
+<apex:outputPanel id="refreshPanelId">
+    
+    <apex:outputPanel rendered="{!additionalFieldsForUserStory.size != 0}" id="myId">
+           
+    <div class="gusForm">
+        <div class="gusForm3Column" style="width:100%!important;display:flex;flex-wrap:wrap">
+            <apex:repeat var="af" value="{!additionalFieldsForUserStory}">
+                <div style="width:33%;" >
+                <c:ADM_Input id="myId" object="{!agf__ADM_Work__c}" inputFieldName="{!af.agf__Field_API_Name__c}" inputObjectName="ADM_Work__c" renderRow="true" required="{!af.agf__User_Story_Setting__c == 'Required'}" inputStyleClass="scheduledBuildInput gusStyle" />
+                </div>
+            </apex:repeat>
+            </div>
+            </div>
+    </apex:outputPanel>
+  
+</apex:outputPanel>
+<c:ADM_WorkHiddenPanel workObject="{!agf__ADM_Work__c}" workPanelViewPreference="{!workPanelViewPreference}" packagedOrg="{!packagedOrg}" readonly="false" />
+
+         
+    </div> 
+</apex:form>
+</apex:page>

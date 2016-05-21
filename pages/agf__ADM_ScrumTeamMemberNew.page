@@ -1,0 +1,45 @@
+<apex:page standardController="agf__ADM_Scrum_Team_Member__c"  showHeader="true" sidebar="true" extensions="agf.ADM_ScrumTeamWorkExtension,agf.ADM_CommonControllerExtension" title="New Team Member">
+<apex:styleSheet value="{!$Resource.agf__ADM_common_css}" />
+<apex:stylesheet value="{!URLFOR($Resource.agf__jquery_ui_1_9_2_redmond, 'css/redmond/jquery-ui-1.9.2.custom.css')}" />
+<apex:stylesheet value="{!$Resource.agf__ADM_CustomerPortalInclude_css}" />
+<apex:includeScript value="{!$Resource.agf__jquery_1_8_3_min}" />
+<apex:includeScript value="{!URLFOR($Resource.agf__jquery_ui_1_9_2_redmond, 'js/jquery-ui-1.9.2.custom.min.js')}" />
+<apex:includeScript value="{!$Resource.agf__ADM_common_js}" />
+
+<div class="bPageTitle">
+    <div class="ptBody">
+        <div class="content">
+            <img src="{!$Resource.icon_scrum_team_member}" alt="Team" class="pageTitleIcon" title="Team" />
+            <h1 class="pageType"><a href="{!ListViewLink}">All Teams</a> &gt;</h1>
+            <h2 class="pageDescription"> New Team Member</h2>
+            <div class="blank">&nbsp;</div>
+        </div>
+    </div>
+    <div class="ptBreadcrumb"></div>
+</div>
+
+<apex:form >
+    <apex:messages styleClass="message gusFormMessage" />
+    
+    <div class="gusFieldset">
+        <div class="gusLegend">Member Detail</div>
+        <div class="gusRequiredText"></div>
+        
+        <div class="gusFormToolbar gusFormToolbarTop">
+            <apex:commandButton action="{!doSaveAndTeamDetail}" value="Save" />
+            <apex:commandButton action="{!doSaveAndNew}" value="Save & New" />
+            <input type="button" onClick="checkAndNavigateToURL('/{!JSINHTMLENCODE(ADM_Scrum_Team_Member__c.Scrum_Team__c)}');" value="Cancel" />
+        </div>
+        
+        <div class="gusForm" style="width:100%;">
+            <div class="gusForm2Column">
+                <c:ADM_FormRow object="{!agf__ADM_Scrum_Team_Member__c}" type="ADM_Scrum_Team_Member__c" required="true"  field="Scrum_Team__c" value="{!agf__ADM_Scrum_Team_Member__c.agf__Scrum_Team__c}" />
+                <c:ADM_FormRow object="{!agf__ADM_Scrum_Team_Member__c}" type="ADM_Scrum_Team_Member__c" required="true"  field="Member_Name__c" value="{!agf__ADM_Scrum_Team_Member__c.agf__Member_Name__c}" />
+                <c:ADM_FormRow object="{!agf__ADM_Scrum_Team_Member__c}" type="ADM_Scrum_Team_Member__c" required="false" field="Role__c" value="{!agf__ADM_Scrum_Team_Member__c.agf__Role__c}" />
+                <c:ADM_FormRow object="{!agf__ADM_Scrum_Team_Member__c}" type="ADM_Scrum_Team_Member__c" required="true"  field="Allocation__c" value="{!agf__ADM_Scrum_Team_Member__c.agf__Allocation__c}" />
+            </div>
+        </div>
+    </div>
+</apex:form>
+
+</apex:page>

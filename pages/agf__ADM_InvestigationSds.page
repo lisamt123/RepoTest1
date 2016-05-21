@@ -1,0 +1,461 @@
+<apex:page id="workSds" standardController="agf__ADM_Work__c" extensions="agf.ADM_InvestigationExtension,agf.ADM_WorkRemoteActionsExtension" showHeader="false" standardStylesheets="true" sidebar="false" applyHtmlTag="false" applyBodyTag="false" docType="html-5.0">
+
+<html xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+
+<head>
+    <title>
+        <apex:outputPanel layout="none" rendered="{!isNew}">Create {!agf__ADM_Work__c.RecordType.Name}</apex:outputPanel>
+        <apex:outputPanel layout="none" rendered="{!NOT(isNew)}">{!agf__ADM_Work__c.Name}: {!agf__ADM_Work__c.agf__Subject__c}</apex:outputPanel>
+    </title>
+    <meta name="viewport" content="user-scalable=no,width=device-width,initial-scale=1.0,maximum-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge"/>
+    <apex:stylesheet value="{!URLFOR($Resource.agf__SLDS042, 'assets/styles/salesforce-lightning-design-system-vf.css')}" />
+    <apex:includeScript value="{!$Resource.agf__jquery_1_8_3_min}" />
+    <apex:styleSheet value="{!$Resource.agf__ADM_work_css}" />
+    <apex:styleSheet value="{!$Resource.agf__extended}" />
+    <apex:includeScript value="{!URLFOR($Resource.agf__jquery_ui_1_9_2_redmond, 'js/jquery-ui-1.9.2.custom.min.js')}" />
+    <apex:includeScript value="{!$Resource.agf__ADM_common_js}" />
+    <apex:includeScript value="{!$Resource.agf__productTagSds_js}" />
+    <apex:includeScript value="{!$Resource.agf__ADM_autocomplete2js}" />
+    <apex:includeScript value="{!$Resource.agf__ADM_Work_js}" />
+    <script type="text/javascript">
+    var view;
+    $(function() {
+        view = new UserStoryEditView({
+            app: window,
+            controller: {
+                getWorkAssignments: window.getWorkAssignments
+            },
+            productTagComponent: window.productTag,
+            recordTypeId: '{!JSINHTMLENCODE(agf__ADM_Work__c.RecordTypeId)}',
+            isNew: {!isNew}
+        });
+    });
+    </script>
+    <style>
+    #tabpanel_details div.slds-form-element{border-bottom:1px solid #D8DDE6;}
+    .slds .slds-modal--large .slds-modal__container{width:90%;max-width:960px;min-width:640px;}
+    .slds #editModal .slds-pill{display:block;}
+    .slds #editModal .slds-pill:hover{background-color:#fff;}
+    .slds #editModal .slds-pill__label{max-width:15.5rem;}
+    .slds #editModal .productTagItemRemove{position:absolute;bottom:9px;right:7px;}
+    .slds .slds-form-element__label{font-size:.75rem;color:#54698D;font-weight:600;}
+    .slds .slds-form-element__static,.sfdc_richtext{font-family:"Salesforce Sans", Arial, sans-serif;font-size:.875rem;color:#16325C;line-height:normal;font-weight:400;}
+    
+    .slds .gusRichAutoCompleteProfileImage{position:absolute;left:5px;bottom:6px;width:24px;height:24px;border-radius:5px;}
+    .slds .gusRichAutoCompleteInput{padding-left:35px;}
+    .has-avatar span.slds-avatar{position:absolute;bottom:6px;left:7px;}
+    .has-avatar input.slds-input{padding-left:38px;}
+    .ui-helper-hidden-accessible{border:0;clip:rect(0 0 0 0);height:1px;margin:-1px;overflow:hidden;padding:0;position:absolute;width:1px;}
+    .slds .sfdc_richtext ul{margin:1em;margin-left:40px;list-style-type:disc;}
+    </style>
+</head>
+<body class="slds">
+
+<script>
+$(function() {
+    $('#editModal form').on('submit', function(e) {
+        if ($('#editModal .subjectInput').val().length == 0) {
+            if ($('#editModal .slds-modal__content .slds-notify--error').length == 0) {
+                $('#editModal .slds-modal__content').prepend('<div class="slds-notify slds-notify--alert slds-notify--error slds-theme--inverse-text slds-theme--alert-texture">Please correct the following error(s): Subject is a required field.</div>');
+            }
+            e.preventDefault();
+        } else {
+            $('#editModal .slds-modal__content .slds-notify--error').remove();
+            $('#editModal .slds-modal').removeClass('slds-fade-in-open');
+        }
+    }).on('keypress', function (e) {
+        if (e.keyCode == 13 && e.target.nodeName != "TEXTAREA") {
+            return false;
+        }
+    });
+});
+
+$(function() {
+    if ($('#editModal .slds-notify--error').length > 0) {
+        $('#editModal .slds-modal').addClass('slds-fade-in-open');
+        $('#editModal .slds-modal-backdrop').addClass('slds-modal-backdrop--open');
+    }
+});
+</script>
+    
+    <div id="editModal">
+        <apex:form id="storyWorkForm">
+        <apex:actionFunction name="callgetAdditionalFields" action="{!getMyAdditionalFieldsForAll}" rerender="refreshPanelId,productTagFieldsId,myId,myId1">
+                <apex:param name="myParamId" value="" assignTo="{!myProdTag}"/>
+            </apex:actionFunction>
+            <div aria-hidden="false" role="dialog" class="slds-modal slds-modal--large{!IF(showEditDialog,' slds-fade-in-open','')}">
+                <div class="slds-modal__container">
+                    <div class="slds-modal__header">
+                        <h2 class="slds-text-heading--medium">
+                            <apex:outputPanel layout="none" rendered="{!OR(isNew,clonedRecord == '1')}">Create {!agf__ADM_Work__c.RecordType.Name}</apex:outputPanel>
+                            <apex:outputPanel layout="none" rendered="{!AND(NOT(isNew),clonedRecord == '0')}">Edit Work: {!agf__ADM_Work__c.Name}</apex:outputPanel>
+                        </h2>
+                        <apex:outputPanel layout="none" rendered="{!AND(NOT(showEditDialog),clonedRecord == '0')}">
+                            <button class="slds-button slds-modal__close" onClick="console.log('Close button clicked');$('#editModal form')[0].reset();$('#editModal .slds-modal').removeClass('slds-fade-in-open');$('#editModal .slds-modal-backdrop').removeClass('slds-modal-backdrop--open');return false">
+                                <svg aria-hidden="true" class="slds-button__icon slds-button__icon--inverse">
+                                    <use xlink:href="{!URLFOR($Resource.SLDS042, 'assets/icons/action-sprite/svg/symbols.svg#close')}"></use>
+                                </svg>
+                                <span class="slds-assistive-text">Close</span>
+                            </button>
+                        </apex:outputPanel>
+                        <apex:outputPanel layout="none" rendered="{!AND(isNew,NOT(isReturnUrl))}">
+                            <button class="slds-button slds-modal__close" onClick="console.log('Close button clicked for New Work');$('#editModal form')[0].reset();$('#editModal .slds-modal').removeClass('slds-fade-in-open');$('#editModal .slds-modal-backdrop').removeClass('slds-modal-backdrop--open');sforce.one.navigateToObjectHome('ADM_Work__c');return false">
+                                <svg aria-hidden="true" class="slds-button__icon slds-button__icon--inverse">
+                                    <use xlink:href="{!URLFOR($Resource.SLDS042, 'assets/icons/action-sprite/svg/symbols.svg#close')}"></use>
+                                </svg>
+                                <span class="slds-assistive-text">Close</span>
+                            </button>
+                        </apex:outputPanel>
+                        <apex:outputPanel layout="none" rendered="{!OR(AND(isNew,isReturnUrl),clonedRecord == '1')}">
+                            <button class="slds-button slds-modal__close" onClick="console.log('Close button clicked for New Work');$('#editModal form')[0].reset();$('#editModal .slds-modal').removeClass('slds-fade-in-open');$('#editModal .slds-modal-backdrop').removeClass('slds-modal-backdrop--open');sforce.one.navigateToURL('{!retUrl}');">
+                                <svg aria-hidden="true" class="slds-button__icon slds-button__icon--inverse">
+                                    <use xlink:href="{!URLFOR($Resource.SLDS042, 'assets/icons/action-sprite/svg/symbols.svg#close')}"></use>
+                                </svg>
+                                <span class="slds-assistive-text">Close</span>
+                            </button>
+                        </apex:outputPanel>
+                    </div>
+                        <div class="slds-modal__content">
+                            <div>
+                                <apex:messages styleClass="slds-notify slds-notify--alert slds-notify--error slds-theme--inverse-text slds-theme--alert-texture" />
+                
+                                <div class="slds-grid slds-wrap slds-p-top--medium slds-p-bottom--medium">
+                                    <c:ADM_InputSds inputStyleClass="slds-input    subjectInput"        id="subjectInput"       object="{!agf__ADM_Work__c}" inputFieldName="Subject__c"                         inputObjectName="ADM_Work__c" renderRow="true" inputColumnStyleClass="slds-size--1-of-1 slds-medium-size--1-of-1 slds-large-size--1-of-1" required="true" />
+                                    <c:ADM_InputSds inputStyleClass="slds-textarea dstpInput"           id="dstpInput"          object="{!agf__ADM_Work__c}" inputFieldName="Details_And_Steps_To_Reproduce__c"  inputObjectName="ADM_Work__c" renderRow="true" inputColumnStyleClass="slds-size--1-of-1 slds-medium-size--1-of-1 slds-large-size--1-of-1" />
+                                </div>
+                                <div class="slds-grid slds-wrap">
+                                    <div class="slds-col slds-col--padded slds-p-bottom--medium slds-size--1-of-1 slds-medium-size--1-of-1 slds-large-size--1-of-3">
+                                        <div class="slds-form-element">
+                                            <label class="slds-form-element__label" for="{!$Component.inputWithContainer}">{!$ObjectType.agf__ADM_Work__c.fields.agf__Product_Tag__c.Label}</label>
+                                            <div class="slds-form-element__control">
+                                                <c:ADM_ProductTagInputSds id="productTagInput" work="{!agf__ADM_Work__c}" recordType="{!agf__ADM_Work__c.RecordType}" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <c:ADM_InputSds inputStyleClass="slds-select statusInput"                   id="statusInput"                    object="{!agf__ADM_Work__c}" inputFieldName="Status__c"                      inputObjectName="ADM_Work__c" renderRow="true" inputColumnStyleClass="slds-size--1-of-1 slds-medium-size--1-of-2 slds-large-size--1-of-3" />
+                                    <c:ADM_InputSds inputStyleClass="slds-select severityLevelInput"            id="severityLevel"                  object="{!agf__ADM_Work__c}" inputFieldName="Severity_Level__c"              inputObjectName="ADM_Work__c" renderRow="true" inputColumnStyleClass="slds-size--1-of-1 slds-medium-size--1-of-2 slds-large-size--1-of-3" required="true" />
+                                    <c:ADM_InputSds inputStyleClass="slds-select dealAtRiskInput"               id="dealAtRiskInput"                object="{!agf__ADM_Work__c}" inputFieldName="Deal_at_Risk__c"                inputObjectName="ADM_Work__c" renderRow="true" inputColumnStyleClass="slds-size--1-of-1 slds-medium-size--1-of-2 slds-large-size--1-of-3" />
+                                    <c:ADM_InputSds inputStyleClass="slds-input estimatedFinancialImpactInput"  id="estimatedFinancialImpactInput"  object="{!agf__ADM_Work__c}" inputFieldName="Estimated_Financial_Impact__c"  inputObjectName="ADM_Work__c" renderRow="true" inputColumnStyleClass="slds-size--1-of-1 slds-medium-size--1-of-2 slds-large-size--1-of-3" />
+                                    <c:ADM_InputSds inputStyleClass="slds-input minorFuncAreaInput"             id="minorFuncAreaInput"             object="{!agf__ADM_Work__c}" inputFieldName="Minor_Func_Area__c"             inputObjectName="ADM_Work__c" renderRow="true" inputColumnStyleClass="slds-size--1-of-1 slds-medium-size--1-of-2 slds-large-size--1-of-3" />
+                                    <c:ADM_InputSds inputStyleClass="slds-input rootCauseAnalysisInput"         id="rootCauseAnalysisInput"         object="{!agf__ADM_Work__c}" inputFieldName="Root_Cause_Analysis_2__c"       inputObjectName="ADM_Work__c" renderRow="true" inputColumnStyleClass="slds-size--1-of-1 slds-medium-size--1-of-2 slds-large-size--1-of-3" />
+                                    <c:ADM_InputSds inputStyleClass="slds-input requestMgrReviewInput"          id="requestMgrReviewInput"          object="{!agf__ADM_Work__c}" inputFieldName="Request_RD_Mgr_Review__c"       inputObjectName="ADM_Work__c" renderRow="true" inputColumnStyleClass="slds-size--1-of-1 slds-medium-size--1-of-2 slds-large-size--1-of-3" />
+                                    <c:ADM_InputSds inputStyleClass="slds-input executiveInvolvedInput"         id="executiveInvolvedInput"         object="{!agf__ADM_Work__c}" inputFieldName="Executive_Involved__c"          inputObjectName="ADM_Work__c" renderRow="true" inputColumnStyleClass="slds-size--1-of-1 slds-medium-size--1-of-2 slds-large-size--1-of-3" />
+                                    <c:ADM_InputSds inputStyleClass="slds-input redAccountInput"                id="redAccountInput"                object="{!agf__ADM_Work__c}" inputFieldName="Red_Account__c"                 inputObjectName="ADM_Work__c" renderRow="true" inputColumnStyleClass="slds-size--1-of-1 slds-medium-size--1-of-2 slds-large-size--1-of-3" />
+                                    <c:ADM_InputSds inputStyleClass="slds-input criticalCRMFeatureInput"        id="criticalCRMFeatureInput"        object="{!agf__ADM_Work__c}" inputFieldName="Critical_CRM_Feature__c"        inputObjectName="ADM_Work__c" renderRow="true" inputColumnStyleClass="slds-size--1-of-1 slds-medium-size--1-of-2 slds-large-size--1-of-3" />
+                                    <c:ADM_InputSds inputStyleClass="slds-input casesInput"                     id="casesInput"                     object="{!agf__ADM_Work__c}" inputFieldName="Number_of_Cases__c"             inputObjectName="ADM_Work__c" renderRow="true" inputColumnStyleClass="slds-size--1-of-1 slds-medium-size--1-of-2 slds-large-size--1-of-3" readOnly="true"/>
+                                </div>
+
+                                <h4>Assignments</h4>
+                                <div class="slds-grid slds-wrap">
+                                    <c:ADM_InputUserSds inputStyleClass="slds-input assigneeInput"              id="assigneeInput"              object="{!agf__ADM_Work__c}" inputFieldName="Assignee__c"                inputObjectName="ADM_Work__c" renderRow="true" inputColumnStyleClass="slds-size--1-of-1 slds-medium-size--1-of-2 slds-large-size--1-of-3" smallPhotoUrl="{!agf__ADM_Work__c.Assignee__r.SmallPhotoUrl}" />
+                                    <c:ADM_InputUserSds inputStyleClass="slds-input qaEngineerInput"            id="qaEngineerInput"            object="{!agf__ADM_Work__c}" inputFieldName="QA_Engineer__c"             inputObjectName="ADM_Work__c" renderRow="true" inputColumnStyleClass="slds-size--1-of-1 slds-medium-size--1-of-2 slds-large-size--1-of-3" smallPhotoUrl="{!agf__ADM_Work__c.QA_Engineer__r.SmallPhotoUrl}" />
+                                    <c:ADM_InputUserSds inputStyleClass="slds-input productOwnerInput"          id="productOwnerInput"          object="{!agf__ADM_Work__c}" inputFieldName="Product_Owner__c"           inputObjectName="ADM_Work__c" renderRow="true" inputColumnStyleClass="slds-size--1-of-1 slds-medium-size--1-of-2 slds-large-size--1-of-3" smallPhotoUrl="{!agf__ADM_Work__c.Product_Owner__r.SmallPhotoUrl}" />
+                                    <c:ADM_InputUserSds inputStyleClass="slds-input performanceEngineerInput"   id="performanceEngineerInput"   object="{!agf__ADM_Work__c}" inputFieldName="System_Test_Engineer__c"    inputObjectName="ADM_Work__c" renderRow="true" inputColumnStyleClass="slds-size--1-of-1 slds-medium-size--1-of-2 slds-large-size--1-of-3" smallPhotoUrl="{!agf__ADM_Work__c.System_Test_Engineer__r.SmallPhotoUrl}" />
+                                    <c:ADM_InputUserSds inputStyleClass="slds-input ueEngineerInput"            id="ueEngineerInput"            object="{!agf__ADM_Work__c}" inputFieldName="UE_Engineer__c"             inputObjectName="ADM_Work__c" renderRow="true" inputColumnStyleClass="slds-size--1-of-1 slds-medium-size--1-of-2 slds-large-size--1-of-3" smallPhotoUrl="{!agf__ADM_Work__c.UE_Engineer__r.SmallPhotoUrl}" />
+                                    <c:ADM_InputUserSds inputStyleClass="slds-input techWriterInput"            id="techWriterInput"            object="{!agf__ADM_Work__c}" inputFieldName="Tech_Writer__c"             inputObjectName="ADM_Work__c" renderRow="true" inputColumnStyleClass="slds-size--1-of-1 slds-medium-size--1-of-2 slds-large-size--1-of-3" smallPhotoUrl="{!agf__ADM_Work__c.Tech_Writer__r.SmallPhotoUrl}" />
+                                    <c:ADM_InputUserSds inputStyleClass="slds-input seniorManagementPOCInput"   id="seniorManagementPOCInput"   object="{!agf__ADM_Work__c}" inputFieldName="Senior_Management_POC__c"   inputObjectName="ADM_Work__c" renderRow="true" inputColumnStyleClass="slds-size--1-of-1 slds-medium-size--1-of-2 slds-large-size--1-of-3" smallPhotoUrl="{!agf__ADM_Work__c.Senior_Management_POC__r.SmallPhotoUrl}" />
+                                    <c:ADM_InputUserSds inputStyleClass="slds-input supportContactInput"        id="supportContactInput"        object="{!agf__ADM_Work__c}" inputFieldName="CS_Contact__c"              inputObjectName="ADM_Work__c" renderRow="true" inputColumnStyleClass="slds-size--1-of-1 slds-medium-size--1-of-2 slds-large-size--1-of-3" smallPhotoUrl="{!agf__ADM_Work__c.CS_Contact__r.SmallPhotoUrl}" />
+                                </div>
+                                <apex:outputPanel id="refreshPanelId" >
+                                    <apex:outputPanel rendered="{!additionalFieldsForInvestigation.size > 0}" id="productTagFieldsId">
+                                        <h4>Product Tag Fields</h4>
+                                        <div class="slds-grid slds-wrap">
+                                            <apex:repeat var="af" value="{!additionalFieldsForInvestigation}">
+                                                <c:ADM_InputSds required="{!IF(af.agf__Investigation_Setting__c=='Required',true,false)}" inputStyleClass="slds-input" object="{!agf__ADM_Work__c}" inputFieldName="{!af.agf__Field_API_Name__c}" inputObjectName="ADM_Work__c" renderRow="true" inputColumnStyleClass="slds-size--1-of-1 slds-medium-size--1-of-2 slds-large-size--1-of-3" />
+                                            </apex:repeat>
+                                        </div>
+                                    </apex:outputPanel>
+                                </apex:outputPanel>
+                            </div>
+                        </div>
+                        <div class="slds-modal__footer">
+                            <apex:outputPanel layout="none" rendered="{!AND(NOT(isNew),clonedRecord == '0')}">
+                                <button class="slds-button slds-button--neutral" onClick="console.log('Cancel button clicked');$('#editModal form')[0].reset();$('#editModal .slds-modal').removeClass('slds-fade-in-open');$('#editModal .slds-modal-backdrop').removeClass('slds-modal-backdrop--open');return false">Cancel</button>
+                            </apex:outputPanel>
+                            <apex:outputPanel layout="none" rendered="{!AND(isNew,NOT(isReturnUrl))}">
+                                <button id="cancelButtonForNewWithoutReturnUrl" class="newButton1 slds-button slds-button--neutral" 
+                                onClick="console.log('Cancel button clicked');$('#editModal form')[0].reset();$('#editModal .slds-modal').removeClass('slds-fade-in-open');$('#editModal .slds-modal-backdrop').removeClass('slds-modal-backdrop--open');sforce.one.navigateToObjectHome('ADM_Work__c');"
+                                >Cancel</button>
+                            </apex:outputPanel>
+                            
+                            <apex:outputPanel layout="none" rendered="{!OR(AND(isNew,isReturnUrl),clonedRecord == '1') }">
+                                <button id="cancelButtonForNew" class="newButton slds-button slds-button--neutral" 
+                                onClick="console.log('Cancel button clicked');$('#editModal form')[0].reset();$('#editModal .slds-modal').removeClass('slds-fade-in-open');$('#editModal .slds-modal-backdrop').removeClass('slds-modal-backdrop--open');
+                                sforce.one.navigateToURL('{!retUrl}');"
+                                >Cancel</button>
+                            </apex:outputPanel>
+                            <apex:commandButton styleClass="slds-button slds-button--neutral slds-button--brand" action="{!doSaveAndDetail}" value="Save" />
+
+                        </div>
+                </div>
+            </div>
+            <div class="slds-modal-backdrop{!IF(showEditDialog,' slds-modal-backdrop--open','')}"></div>
+        </apex:form>
+    </div>
+    
+    <header class="slds-anchor slds-anchor--rec-home">
+        <div class="slds-grid slds-grid--align-spread">
+            <div class="slds-media slds-col slds-media--rec-home">
+                <div class="slds-media__figure">
+                    <svg aria-hidden="true" class="slds-icon slds-icon--large slds-icon-custom-62">
+                        <use xlink:href="{!URLFOR($Resource.SLDS042, 'assets/icons/custom-sprite/svg/symbols.svg#custom39')}" />
+                    </svg>
+                </div>
+                <div class="slds-media__body">
+                    <p class="slds-text-heading--label">Work</p>
+                        <div class="slds-grid">
+                            <div class="slds-col">
+                                <h1 class="slds-text-heading--medium slds-media--rec-home__title slds-truncate">
+                                    <apex:outputPanel layout="none" rendered="{!isNew}">Create {!agf__ADM_Work__c.RecordType.Name}</apex:outputPanel>
+                                    <apex:outputPanel layout="none" rendered="{!NOT(isNew)}">{!agf__ADM_Work__c.agf__Subject__c}</apex:outputPanel>
+                                </h1>
+                            </div>
+                        <div class="slds-col slds-shrink-none slds-align-bottom">
+                            <div id="chatterFollowButton">
+                                <chatter:follow entityId="{!agf__ADM_Work__c.Id}" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="slds-col slds-shrink-none slds-align-bottom">
+                <div class="slds-button-group" role="group">
+                    <button class="slds-button slds-button--neutral" onClick="$('#editModal .slds-modal').addClass('slds-fade-in-open');$('#editModal .slds-modal-backdrop').addClass('slds-modal-backdrop--open');">Edit</button>
+                    <apex:form >
+                        <apex:commandButton id="cloneButtonTop" action="{!doClone}" value="Clone" rendered="{!$ObjectType.agf__ADM_Work__c.createable}" html-onTouchStart="this.className='btn active';" html-onTouchEnd="this.className='btn';" />
+                    </apex:form>
+                </div>
+            </div>
+        </div>
+        <apex:outputPanel layout="none" rendered="{!NOT(isNew)}">
+            <div class="slds-grid slds-anchor--rec-home__detail-row">
+                <div class="slds-col--padded slds-size--1-of-4">
+                    <dl class="slds-anchor--rec-home__detail-item">
+                        <dt><p class="slds-text-heading--label slds-truncate">Product Tag</p></dt>
+                    	<dd><a href="/{!agf__ADM_Work__c.Product_Tag__r.agf__Team__c}"><apex:outputField value="{!agf__ADM_Work__c.Product_Tag__r.Team__r.Name}" /></a> &gt; <a href="/{!ADM_Work__c.Product_Tag__c}"><apex:outputField value="{!agf__ADM_Work__c.Product_Tag__r.Name}" /></a></dd>
+					</dl>
+                </div>
+                <div class="slds-col--padded slds-size--1-of-4">
+                    <dl class="anchor--rec-home__detail-item">
+                        <dt><p class="slds-text-heading--label slds-truncate">Status</p></dt>
+                        <dd><p class="slds-text-body--regular slds-truncate">{!agf__ADM_Work__c.agf__Status__c}</p></dd>
+                    </dl>
+                </div>
+                <div class="slds-col--padded slds-size--1-of-4">
+                    <dl class="anchor--rec-home__detail-item">
+                        <dt><p class="slds-text-heading--label slds-truncate">Assigned To</p></dt>
+                        <dd>
+                            <apex:outputPanel layout="none" rendered="{!NOT(ISBLANK(agf__ADM_Work__c.agf__Assignee__c))}">
+                                <span class="slds-avatar slds-avatar--circle slds-avatar--x-small slds-m-right--x-small"><img src="{!agf__ADM_Work__c.Assignee__r.SmallPhotoUrl}" /></span>
+                                <apex:outputField value=" {!agf__ADM_Work__c.agf__Assignee__c}" />
+                            </apex:outputPanel>
+                            <apex:outputPanel layout="none" rendered="{!ISBLANK(agf__ADM_Work__c.agf__Assignee__c)}">
+                                Not Assigned
+                            </apex:outputPanel>
+                        </dd>
+                    </dl>
+                </div>
+                <div class="slds-col--padded slds-size--1-of-4">
+                    <dl class="slds-anchor--rec-home__detail-item">
+                        <dt><p class="slds-text-heading--label truncate">Created By</p></dt>
+                        <dd>
+                            <span class="slds-avatar slds-avatar--circle slds-avatar--x-small slds-m-right--x-small"><img src="{!ADM_Work__c.CreatedBy.SmallPhotoUrl}" /></span>
+                            <apex:outputField value=" {!agf__ADM_Work__c.CreatedById}" />
+                        </dd>
+                    </dl>
+                </div>
+            </div>
+        </apex:outputPanel>
+    </header>
+
+    <div class="main" role="main">
+
+        <div class="slds-grid slds-wrap slds-p-top--large">
+            <div class="slds-col slds-col--padded slds-size--1-of-1 slds-medium-size--1-of-1 slds-large-size--7-of-12" style="border-right:1px solid #D8DDE6;"><!--FIX-->
+                <!-- start: tabs -->
+                <div class="slds-tabs slds-tabs--default" role="tablist">
+                    <ul class="slds-tabs--default__nav" role="presentation">
+                        <li class="slds-tabs__item slds-text-heading--label slds-active" title="Details" data-tabpanel="tabpanel_details"><a href="#" role="tab" tabindex="0" aria-selected="true">Details</a></li>
+                        <li class="slds-tabs__item slds-text-heading--label" title="Related" data-tabpanel="tabpanel_related"><a href="#" role="tab" tabindex="-1" aria-selected="false">Related</a></li>
+                        <li class="slds-tabs__item slds-text-heading--label" title="Exception Requests" data-tabpanel="tabpanel_exception_requests"><a href="#" role="tab" tabindex="-1" aria-selected="false">Exception Requests</a></li>
+                        <li class="slds-tabs__item slds-text-heading--label" title="Cases" data-tabpanel="tabpanel_cases"><a href="#" role="tab" tabindex="-1" aria-selected="false">Cases</a></li>
+                    </ul>
+                    <div class="slds-tabs__content slds-show" id="tabpanel_details" role="tabpanel">
+                        
+                        <apex:form >
+
+                            <!-- Details -->
+                            <div class="slds-col--padded slds-text-body--small">
+                                <div class="slds-grid slds-wrap">
+                                    <div class="slds-col slds-col--padded slds-p-bottom--medium slds-size--1-of-1 slds-medium-size--1-of-1 slds-large-size--1-of-1">
+                                        <div class="slds-form-element">
+                                                <span class="slds-form-element__label">Details &amp; Steps to Reproduce</span>
+                                                <div class="slds-form-element__control">
+                                                    <span class="slds-form-element__static" style="overflow-y:auto;width:100%;"><apex:outputField value="{!agf__ADM_Work__c.agf__Details_and_Steps_to_Reproduce__c}"  /></span>
+                                                </div>
+                                        </div>
+                                    </div>
+                                    <div class="slds-col slds-col--padded slds-p-bottom--medium slds-size--1-of-1 slds-medium-size--1-of-2 slds-large-size--1-of-2">
+                                        <div class="slds-form-element">
+                                            <span class="slds-form-element__label">Work ID</span>
+                                            <div class="slds-form-element__control">
+                                                <span class="slds-form-element__static">{!agf__ADM_Work__c.Name}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="slds-col slds-col--padded slds-p-bottom--medium slds-size--1-of-3 slds-medium-size--1-of-2 slds-large-size--1-of-2">
+                                        <div class="slds-form-element">
+                                            <span class="slds-form-element__label">Record Type</span>
+                                            <div class="slds-form-element__control">
+                                                <span class="slds-form-element__static">{!agf__ADM_Work__c.RecordType.Name}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <c:ADM_InputSds readonly="true" object="{!agf__ADM_Work__c}" inputFieldName="Severity_Level__c"              inputObjectName="ADM_Work__c" renderRow="true" inputColumnStyleClass="slds-size--1-of-1 slds-medium-size--1-of-2 slds-large-size--1-of-2" />
+                                    <!-- SLA Due Time -->
+                                    <apex:outputPanel rendered="{!NOT(ISNULL(agf__ADM_Work__c.agf__Due_Date__c))}" layout="none">
+                                        <div class="slds-col slds-col--padded slds-p-bottom--medium slds-size--1-of-1 slds-medium-size--1-of-2 slds-large-size--1-of-2">
+                                            <div class="slds-form-element">
+                                                <span class="slds-form-element__label" style="{!SLACountdownLabelStyle}">{!SLACountdownLabel}</span>
+                                                <div class="slds-form-element__control">
+                                                    <span class="slds-form-element__static">
+                                                        <apex:outputField value="{!agf__ADM_Work__c.agf__Due_Date__c}"/><br/>
+                                                        <span style="{!SLACountdownStyle}">{!SLADueTimeDiff}</span>                                                        
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div> 
+                                    </apex:outputPanel>
+                                    <c:ADM_InputSds readonly="true" object="{!agf__ADM_Work__c}" inputFieldName="Deal_at_Risk__c"                inputObjectName="ADM_Work__c" renderRow="true" inputColumnStyleClass="slds-size--1-of-1 slds-medium-size--1-of-2 slds-large-size--1-of-2" />
+                                    <c:ADM_InputSds readonly="true" object="{!agf__ADM_Work__c}" inputFieldName="Estimated_Financial_Impact__c"  inputObjectName="ADM_Work__c" renderRow="true" inputColumnStyleClass="slds-size--1-of-1 slds-medium-size--1-of-2 slds-large-size--1-of-2" />
+                                    <c:ADM_InputSds readonly="true" object="{!agf__ADM_Work__c}" inputFieldName="Minor_Func_Area__c"             inputObjectName="ADM_Work__c" renderRow="true" inputColumnStyleClass="slds-size--1-of-1 slds-medium-size--1-of-2 slds-large-size--1-of-2" />
+                                    <c:ADM_InputSds readonly="true" object="{!agf__ADM_Work__c}" inputFieldName="Root_Cause_Analysis_2__c"       inputObjectName="ADM_Work__c" renderRow="true" inputColumnStyleClass="slds-size--1-of-1 slds-medium-size--1-of-2 slds-large-size--1-of-2" />
+                                    <c:ADM_InputSds readonly="true" object="{!agf__ADM_Work__c}" inputFieldName="Number_of_Cases__c"             inputObjectName="ADM_Work__c" renderRow="true" inputColumnStyleClass="slds-size--1-of-1 slds-medium-size--1-of-2 slds-large-size--1-of-2" />
+                                    <c:ADM_InputSds readonly="true" object="{!agf__ADM_Work__c}" inputFieldName="Request_RD_Mgr_Review__c"       inputObjectName="ADM_Work__c" renderRow="true" inputColumnStyleClass="slds-size--1-of-1 slds-medium-size--1-of-2 slds-large-size--1-of-2" />
+                                    <c:ADM_InputSds readonly="true" object="{!agf__ADM_Work__c}" inputFieldName="Executive_Involved__c"          inputObjectName="ADM_Work__c" renderRow="true" inputColumnStyleClass="slds-size--1-of-1 slds-medium-size--1-of-2 slds-large-size--1-of-2" />
+                                    <c:ADM_InputSds readonly="true" object="{!agf__ADM_Work__c}" inputFieldName="Red_Account__c"                 inputObjectName="ADM_Work__c" renderRow="true" inputColumnStyleClass="slds-size--1-of-1 slds-medium-size--1-of-2 slds-large-size--1-of-2" />
+                                    <c:ADM_InputSds readonly="true" object="{!agf__ADM_Work__c}" inputFieldName="Critical_CRM_Feature__c"        inputObjectName="ADM_Work__c" renderRow="true" inputColumnStyleClass="slds-size--1-of-1 slds-medium-size--1-of-2 slds-large-size--1-of-2" />
+                                </div>
+                                
+                                
+                            
+                                <!-- Assignments -->
+                                <h4>Assignments</h4>
+                                <div class="slds-grid slds-wrap">
+                                    <c:ADM_InputSds readonly="true" object="{!agf__ADM_Work__c}" inputFieldName="Assignee__c"                inputObjectName="ADM_Work__c" renderRow="true" inputColumnStyleClass="slds-size--1-of-1 slds-medium-size--1-of-2 slds-large-size--1-of-2" smallPhotoUrl="{!agf__ADM_Work__c.Assignee__r.SmallPhotoUrl}" />
+                                    <c:ADM_InputSds readonly="true" object="{!agf__ADM_Work__c}" inputFieldName="QA_Engineer__c"             inputObjectName="ADM_Work__c" renderRow="true" inputColumnStyleClass="slds-size--1-of-1 slds-medium-size--1-of-2 slds-large-size--1-of-2" smallPhotoUrl="{!agf__ADM_Work__c.QA_Engineer__r.SmallPhotoUrl}" />
+                                    <c:ADM_InputSds readonly="true" object="{!agf__ADM_Work__c}" inputFieldName="Product_Owner__c"           inputObjectName="ADM_Work__c" renderRow="true" inputColumnStyleClass="slds-size--1-of-1 slds-medium-size--1-of-2 slds-large-size--1-of-2" smallPhotoUrl="{!agf__ADM_Work__c.Product_Owner__r.SmallPhotoUrl}" />
+                                    <c:ADM_InputSds readonly="true" object="{!agf__ADM_Work__c}" inputFieldName="Senior_Management_POC__c"   inputObjectName="ADM_Work__c" renderRow="true" inputColumnStyleClass="slds-size--1-of-1 slds-medium-size--1-of-2 slds-large-size--1-of-2" smallPhotoUrl="{!agf__ADM_Work__c.Senior_Management_POC__r.SmallPhotoUrl}" />
+                                    <c:ADM_InputSds readonly="true" object="{!agf__ADM_Work__c}" inputFieldName="CS_Contact__c"              inputObjectName="ADM_Work__c" renderRow="true" inputColumnStyleClass="slds-size--1-of-1 slds-medium-size--1-of-2 slds-large-size--1-of-2" smallPhotoUrl="{!agf__ADM_Work__c.CS_Contact__r.SmallPhotoUrl}" />
+                                </div>
+    
+                                <apex:outputPanel rendered="{!additionalFieldsForInvestigation.size > 0}">
+                                    <h4>Product Tag Fields</h4>
+                                    <div class="slds-grid slds-wrap">
+                                        <apex:repeat var="af" value="{!additionalFieldsForInvestigation}">
+                                            <c:ADM_InputSds readonly="true" object="{!agf__ADM_Work__c}" inputFieldName="{!af.agf__Field_API_Name__c}" inputObjectName="ADM_Work__c" renderRow="true" inputColumnStyleClass="slds-size--1-of-1 slds-medium-size--1-of-2 slds-large-size--1-of-2" />
+                                        </apex:repeat>
+                                    </div>
+                                </apex:outputPanel>
+
+                                <!-- System Information -->
+                                <h4>System Information</h4>
+                                <div class="slds-grid slds-wrap">
+                                    <div class="slds-col slds-col--padded slds-p-bottom--medium size--1-of-1 slds-medium-size--1-of-2 large-size--1-of-2">
+                                        <div class="slds-form-element">
+                                            <span class="slds-form-element__label">Created By</span>
+                                            <div class="slds-form-element__control">
+                                                <span class="slds-form-element__static">
+                                                    <apex:outputField value=" {!agf__ADM_Work__c.CreatedById}" />,&nbsp; <apex:outputField value=" {!agf__ADM_Work__c.CreatedDate}" />
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="slds-col slds-col--padded slds-p-bottom--medium size--1-of-1 slds-medium-size--1-of-2 large-size--1-of-2">
+                                        <div class="slds-form-element">
+                                            <span class="slds-form-element__label">Last Modified By</span>
+                                            <div class="slds-form-element__control">
+                                                <span class="slds-form-element__static">
+                                                    <apex:outputField value=" {!agf__ADM_Work__c.LastModifiedById}" />,&nbsp; <apex:outputField value=" {!agf__ADM_Work__c.LastModifiedDate}" />
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div><!-- end: gray box -->
+                        </apex:form>
+                    </div>
+                    <apex:outputPanel layout="none" rendered="{!NOT(isNew)}">
+                        <div class="slds-tabs__content slds-hide" id="tabpanel_related" role="tabpanel">
+                            <apex:form >
+                                <c:ADM_ParentWorkRelatedList id="parentWorkRelatedList" aworkID="{!agf__ADM_Work__c.Id}" />
+                                <c:ADM_WorkTree id="childWorkRelatedList" aworkID="{!agf__ADM_Work__c.Id}" />
+                            </apex:form>
+                        </div>
+                    </apex:outputPanel>
+                    <apex:outputPanel layout="none" rendered="{!NOT(isNew)}">
+                        <div class="slds-tabs__content slds-hide" id="tabpanel_exception_requests" role="tabpanel">
+                            <apex:relatedList list="Investigation_Exceptions__r" pageSize="30" />
+                        </div>
+                    </apex:outputPanel>
+                    <apex:outputPanel layout="none" rendered="{!NOT(isNew)}">
+                        <div class="slds-tabs__content slds-hide" id="tabpanel_cases" role="tabpanel">
+                            <div><h2>Cases</h2></div>
+                            <c:ADM_CaseRelatedList id="caseRelatedList" aworkID="{!agf__ADM_Work__c.Id}" aworkName="{!agf__ADM_Work__c.Name}" />
+                            
+                        </div>
+                    </apex:outputPanel>
+                    <apex:outputPanel layout="none" rendered="{!NOT(isNew)}">
+                        <div class="slds-tabs__content slds-hide" id="tabpanel_sla_violations" role="tabpanel">
+                           <apex:outputPanel rendered="{!agf__ADM_Work__c.agf__Number_of_Cases__c==0}" layout="none">
+                               <div style="text-align:center;width=100%">
+                                   <div class="slds-notify slds-notify--toast slds-theme--alt-inverse" role="alert">
+                                     <h2>
+                                       <svg aria-hidden="true" class="slds-icon" style="margin-right:10px;"><use xlink:href="{!URLFOR($Resource.SLDS042,'assets/icons/utility-sprite/svg/symbols.svg#info')}"></use></svg>
+                                       SLA Violations will not be captured for this investigation because it has no 62 Org Cases.
+                                     </h2>
+                                   </div>
+                                 </div>                               
+                            </apex:outputPanel>
+                            <apex:relatedList list="SLA_Violations__r" pageSize="30" />
+                        </div>
+                    </apex:outputPanel>
+                </div>
+                <!-- end: tabs -->
+            </div>
+
+            <div class="slds-col slds-col--padded slds-size--1-of-1 slds-medium-size--1-of-1 slds-large-size--5-of-12" style="border-left:1px solid #D8DDE6;margin-left:-1px;">
+                <!-- start: tabs -->
+                <div class="slds-tabs slds-tabs--default" role="tablist">
+                    <ul class="slds-tabs--default__nav" role="presentation">
+                        <li class="slds-tabs__item slds-text-heading--label slds-active" data-tabpanel="tabpanel_collaborate" title="Collaborate" role="presentation"><a href="#" role="tab" tabindex="0" aria-selected="true">Collaborate</a></li>
+                        <li class="slds-tabs__item slds-text-heading--label" data-tabpanel="tabpanel_followers" title="Followers"><a href="#" role="tab" tabindex="-1" aria-selected="false">Followers</a></li>
+                        <li class="slds-tabs__item slds-text-heading--label" data-tabpanel="tabpanel_attachments" title="Attachments"><a href="#" role="tab" tabindex="-1" aria-selected="false">Attachments</a></li>
+                    </ul>
+                    <div class="slds-tabs__content slds-show" id="tabpanel_collaborate" role="tabpanel">
+                        <apex:outputPanel layout="none" rendered="{!NOT(isNew)}">
+                            <chatter:feed entityId="{!agf__ADM_Work__c.Id}" />
+                        </apex:outputPanel>
+                    </div>
+                    <div class="slds-tabs__content slds-hide" id="tabpanel_followers" role="tabpanel">
+                        <apex:outputPanel layout="none" rendered="{!NOT(isNew)}">
+                            <c:ADM_ChatterFollowers entityId="{!agf__ADM_Work__c.Id}" />
+                        </apex:outputPanel>
+                    </div>
+                    <div class="slds-tabs__content slds-hide" id="tabpanel_attachments" role="tabpanel">
+                        <apex:outputPanel layout="none" rendered="{!NOT(isNew)}">
+                            <apex:relatedList list="CombinedAttachments" pageSize="30" />
+                        </apex:outputPanel>
+                    </div>
+                </div>
+                <!-- end: tabs -->
+            </div>
+
+        </div><!-- end: class: grid wrap -->
+    </div><!--- end: class: main -->
+
+</body>
+</html>
+</apex:page>

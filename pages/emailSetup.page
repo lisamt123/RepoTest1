@@ -1,0 +1,61 @@
+<apex:page controller="ctrl_EmailSetup">
+<html>
+<head>
+<style>
+.centered{
+	text-align:center;
+}
+</style>
+</head>
+</html>
+	<apex:form id="the_Form">
+		<apex:pageblock >
+			<apex:pageBlockSection columns="1"
+				rendered="{!tempSelectedFlag == false}" collapsible="false">
+				<apex:outputText value="Please Select Your Email Template" />
+				<apex:selectList value="{!tempNum}" size="1">
+					<apex:selectOptions value="{!templateOptions}" />
+				</apex:selectList>
+				<apex:commandButton value="Go" action="{!findTemplate}" />
+			</apex:pageBlockSection>
+			<apex:pageBlockSection rendered="{!tempSelectedFlag}"
+				title="Configure Email" columns="1" collapsible="false">
+				<apex:panelGrid columns="1" width="100%">
+					<c:bannerComponent templateID="{!mainTemplate.ID}" />
+				</apex:panelGrid>
+				<apex:panelGrid columns="2">
+					<apex:outputText value="Urgency:" />
+					<apex:inputField value="{!dynamicEmail.Urgency__c}" required="true">
+						<apex:actionSupport event="onchange" action="{!findUrgencyImage}" rerender="UrgencyPG"/>
+					</apex:inputField>
+				</apex:panelGrid>
+				<apex:panelGrid columns="1" width="100%" id="UrgencyPG">
+					<apex:image url="{!UrgencyImage}" style="float:right"/>
+				</apex:panelGrid>
+				
+				<apex:panelGrid columns="2" width="100%" style="text-align:left;">
+					<apex:panelGrid columns="1" style="text-align:left" width="25%">
+						<apex:outputText value="Enter anything that you would like to appear in the sidebar" />
+						<apex:inputField value="{!dynamicEmail.Sidebar_Body__c}" style="width:100%" />
+					</apex:panelGrid>
+					<apex:panelGrid columns="1" >
+						<apex:outputText value="{!standardText}" style="word-break:hyphenate;" escape="false"/>
+					</apex:panelGrid>
+					<apex:outputPanel />
+					<!-- TODO:  -->
+					<apex:outputPanel layout="block" style="text-align:left;width:100%">
+						<c:emailTables RID="{!relatedToID}" templateID="{!mainTemplate.ID}"/>
+					</apex:outputPanel>
+				</apex:panelGrid>
+				<apex:panelGrid columns="1" style="text-align:right" width="100%">
+					<apex:panelGrid columns="1" style="float:right;" width="70%">
+					<apex:outputText value="Enter any additional text to appear under the standard text" style="float:left"/>
+						<apex:inputField value="{!dynamicEmail.Main_Body__c}" style="width:150%"/>
+					</apex:panelGrid>
+				</apex:panelGrid>
+			</apex:pageBlockSection>
+		</apex:pageblock>
+		<apex:commandButton value="Preview" rendered="{!tempSelectedFlag}"
+			action="{!runHandler}" style="width:100%" />
+	</apex:form>
+</apex:page>

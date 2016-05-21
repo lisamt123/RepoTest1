@@ -1,0 +1,241 @@
+<apex:page id="bugWorkPage" standardController="agf__ADM_Work__c" extensions="agf.ADM_BugExtension,agf.ADM_WorkRemoteActionsExtension" showHeader="true" sidebar="false" docType="html-5.0" title="{!title}">
+<meta name="viewport" content="user-scalable=no,width=device-width,initial-scale=1.0,maximum-scale=1.0" />
+<apex:stylesheet value="{!URLFOR($Resource.agf__jquery_ui_1_11_4, 'jquery-ui-1.11.4/jquery-ui.structure.min.css')}" />
+
+<apex:styleSheet value="{!$Resource.agf__ADM_common_css}" />
+<apex:includeScript value="{!$Resource.agf__jquery_1_8_3_min}" />
+<apex:includeScript value="{!URLFOR($Resource.agf__jquery_ui_1_11_4, 'jquery-ui-1.11.4/jquery-ui.min.js')}" /> 
+<!-- apex:includeScript value="{!URLFOR($Resource.jquery_ui_1_9_2_redmond, 'js/jquery-ui-1.9.2.custom.min.js')}" /> -->
+    
+
+    
+<apex:includeScript value="{!$Resource.agf__ADM_common_js}" />
+<apex:includeScript value="{!$Resource.agf__productTag_js}" />
+<apex:includeScript value="{!$Resource.agf__ADM_autocomplete2js}" />
+<apex:styleSheet value="{!$Resource.agf__ADM_work_css}" />
+<apex:includeScript value="{!$Resource.agf__ADM_Work_js}" />    
+    
+<script type="text/javascript">
+var view;
+var isGlobalAction = false;
+$(function() {
+    view = new BugEditView({
+        app: window,
+        controller: {
+            calculatePriority: window.calculatePriority,
+            getWorkAssignments: window.getWorkAssignments
+        },
+        productTagComponent: window.productTag,
+        recordTypeId: '{!JSINHTMLENCODE(ADM_Work__c.RecordTypeId)}',
+        isNew: {!isNew},
+        inputIds: {
+            'priorityInput': '{!$Component.bugWorkForm.priorityInput}',
+            'priorityOverrideReasonInput': '{!$Component.bugWorkForm.priorityOverrideReasonInput}',
+            'priorityCurrentInput': '{!$Component.bugWorkForm.priorityCurrentInput}',
+            'priorityCalculatedInput': '{!$Component.bugWorkForm.priorityCalculatedInput}',
+            'typeInput': '{!$Component.bugWorkForm.workHiddenPanelComponent.workHiddenPanelWrapper.TypeInput.inputComponent.inputFieldWithContainer}' 
+        }
+    });
+});
+
+</script>
+ 
+<div class="bPageTitle" id="editTitleBreadcrumb">
+    <div class="ptBody">
+        <div class="content">
+            <img src="{!URLFOR($Resource.bugicon)}" alt="Work" class="pageTitleIcon" title="Work" />
+            <h1 class="pageType"><a href="/{!$ObjectType.ADM_Work__c.keyPrefix}">All Work</a> &gt;</h1>
+            <h2 class="pageDescription">{!IF(OR(isNew, isClone), ADM_Work__c.RecordType.Name, ADM_Work__c.Name)}</h2>
+            <div class="blank">&nbsp;</div>
+        </div>
+    </div>
+    <div class="ptBreadcrumb"></div>
+</div>
+
+<apex:form id="bugWorkForm">
+<apex:actionFunction name="callgetAdditionalFields" action="{!getMyAdditionalFieldsForBug}" rerender="refreshPanelId,myId">
+     <apex:param name="myParamId" value="" assignTo="{!myProdTag}"/>
+     </apex:actionFunction>
+    <apex:inputHidden id="typeInput" value="{!agf__ADM_Work__c.agf__Type__c}" />
+    
+    <apex:messages globalOnly="true" styleClass="message gusFormMessage"/>
+    <div class="gusFieldset">
+        <div class="gusLegend">{!ADM_Work__c.RecordType.Name}</div>
+        <div class="gusRequiredText"></div>
+    
+        <div class="gusFormToolbar gusFormToolbarTop">       
+            <apex:commandButton styleClass="bugEditSaveButton" action="{!doSaveBugAndDetail}" value="Save" html-onTouchStart="this.className='active';" />
+            <apex:commandButton action="{!doSaveBugAndNew}" value="Save & New" html-onTouchStart="this.className='active';" />
+            <apex:commandButton action="{!cancel}" value="Cancel" html-onTouchStart="this.className='active';" /> 
+        </div>
+        
+        <div class="gusForm" id="mainTop">
+            <div class="gusForm1Column gusFieldRequired">
+
+
+
+                <div class="gusFormRow gusRow_ADM_Work__c_Subject__c">
+
+                    <div class="gusFormField gusFormFieldLeft gusFieldRequired">
+                        <label for="bugWorkPage:bugWorkForm:input">
+                            <apex:outputText value=" {!$ObjectType.agf__ADM_Work__c.fields.agf__Subject__c.Label}" />
+                            <apex:outputText value="*" styleClass="assistiveText"/>
+                        </label>
+                    </div>
+                    <div class="gusFormField gusFormFieldRight gusFieldRequired">
+                        <apex:inputField id="input" value="{!agf__ADM_Work__c.agf__Subject__c}" styleClass="subjectInput gusStyle"  />
+                    </div>
+
+                </div>
+
+
+                <!--TODO Investigate why ADM_FormRow with required=true breaks action functions, meaning dynamic product tags do not work -->
+
+                <!--c:ADM_FormRow id="subjectInput" object="{!agf__ADM_Work__c}" type="ADM_Work__c" required="true"  field="Subject__c" value="{!agf__ADM_Work__c.agf__Subject__c}" cssClass="subjectInput gusStyle" /-->
+                
+                <div id="richDetailsWrapper" class="gusFormRow gusRow_ADM_Work__c_Details_and_Steps_to_Reproduce__c">
+                    <div class="gusFormField gusFormFieldLeft">                    
+                         <label for="{!$Component.detailsInput}">
+                            {!$ObjectType.ADM_Work__c.fields.Details_and_Steps_to_Reproduce__c.Label}
+                            <c:ADM_HelpHover2 id="detailsInputHelpHover" type="ADM_Work__c" field="Details_and_Steps_to_Reproduce__c" />
+                        </label>
+                    </div>
+                    <div class="gusFormField gusFormFieldRight">
+                        <apex:inputField id="richDetailsInput" value="{!agf__ADM_Work__c.agf__Details_and_Steps_to_Reproduce__c}" styleClass="detailsInput gusStyle" />
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="gusForm" id="productTagRow">
+            <div class="gusForm1Column">
+                <div class="gusFormRow gusRow_ADM_Work__c_Product_Tag__c">
+                    <div class="gusFormField gusFormFieldLeft gusFieldRequired"><label for="productTagInput">{!$ObjectType.agf__ADM_Work__c.fields.agf__Product_Tag__c.Label}
+                    <apex:outputText value="*" styleClass="assistiveText"/>
+                    </label></div>
+                    <div class="gusFormField gusFormFieldRight gusFieldRequired">
+                             <c:ADM_ProductTagInput id="productTagInput" work="{!agf__ADM_Work__c}" recordType="{!recordType}" />
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="gusForm" id="bugDetails">
+            <div id="bugDetailsColumn1" class="gusForm3Column">
+<!--Please don't remove:- Added the below field with rendering = false to make sure VF engine will default query the field or else in package we get the Field used without querying error -->
+                <apex:outputText value="{!agf__ADM_Work__c.Name}" rendered="false" />
+                <c:ADM_Input id="statusInput" object="{!agf__ADM_Work__c}" inputFieldName="Status__c" inputObjectName="ADM_Work__c" renderRow="true" inputStyleClass="statusInput gusStyle" />
+                <c:ADM_Input id="sprintInput" object="{!agf__ADM_Work__c}" inputFieldName="Sprint__c" inputObjectName="ADM_Work__c" lookupObject="ADM_Sprint__c" renderRow="true" inputStyleClass="sprintInput gusStyle" />
+                <c:ADM_Input id="foundInBuildInput" object="{!agf__ADM_Work__c}" inputFieldName="Found_in_Build__c" inputObjectName="ADM_Work__c" lookupObject="ADM_Build__c" required="true" renderRow="true" inputStyleClass="foundInBuildInput gusStyle" />
+                <c:ADM_Input id="scheduledBuildInput" object="{!agf__ADM_Work__c}" inputFieldName="Scheduled_Build__c" inputObjectName="ADM_Work__c" lookupObject="ADM_Build__c" required="false" renderRow="true" inputStyleClass="scheduledBuildInput gusStyle" />
+                <c:ADM_Input id="storyPointsInput" object="{!agf__ADM_Work__c}" inputFieldName="Story_Points__c" inputObjectName="ADM_Work__c" renderRow="true" inputStyleClass="storyPointsInput gusStyle" />
+            </div>
+            <div id="bugDetailsColumn2" class="gusForm3Column">
+                <c:ADM_FormRowUserInput id="assigneeInput" object="{!agf__ADM_Work__c}" field="Assignee__c" type="ADM_Work__c" required="false" value="{!agf__ADM_Work__c.agf__Assignee__c}" cssClass="assigneeInput" />
+                <c:ADM_FormRowUserInput id="qaEngineerInput" object="{!agf__ADM_Work__c}" field="QA_Engineer__c" type="ADM_Work__c" required="false" value="{!agf__ADM_Work__c.agf__QA_Engineer__c}" cssClass="qaEngineerInput" />
+                <c:ADM_FormRowUserInput id="productOwnerInput" object="{!agf__ADM_Work__c}" field="Product_Owner__c" type="ADM_Work__c" required="false" value="{!agf__ADM_Work__c.agf__Product_Owner__c}" cssClass="productOwnerInput" />
+                <c:ADM_FormRowUserInput id="techWriterInput" object="{!agf__ADM_Work__c}" field="Tech_Writer__c" type="ADM_Work__c" required="false" value="{!agf__ADM_Work__c.agf__Tech_Writer__c}" cssClass="techWriterInput" />
+            </div>
+            <div id="bugDetailsColumn3" class="gusForm3Column">
+                <div class="gusFormRow gusRow_ADM_Work__c_Impact__c">
+                    <div class="gusFormField gusFormFieldLeft gusFieldRequired">
+                        <label for="{!$Component.impactInput}">
+                            {!$ObjectType.ADM_Work__c.fields.Impact__c.Label}
+                            <apex:outputText value="*" styleClass="assistiveText"/>
+                            <c:ADM_HelpHover2 type="ADM_Work__c" field="Impact__c" />
+                        </label>
+                    </div>
+                    <div class="gusFormField gusFormFieldRight">
+                        <apex:selectList id="impactInput" value="{!agf__ADM_Work__c.agf__Impact__c}" size="1" styleClass="impactInput">
+                            <apex:selectOptions value="{!impactOptions}"/>
+                        </apex:selectList>
+                    </div>
+                </div>
+                
+                <div class="gusFormRow gusRow_ADM_Work__c_Frequency__c">
+                    <div class="gusFormField gusFormFieldLeft gusFieldRequired">
+                        <label for="{!$Component.frequencyInput}">
+                            {!$ObjectType.agf__ADM_Work__c.fields.agf__Frequency__c.Label}
+                            <apex:outputText value="*" styleClass="assistiveText"/>
+                            <c:ADM_HelpHover2 type="ADM_Work__c" field="Frequency__c" />
+                        </label>
+                    </div>
+                    <div class="gusFormField gusFormFieldRight">
+                        <apex:selectList id="frequencyInput" value="{!agf__ADM_Work__c.agf__Frequency__c}" size="1" styleClass="frequencyInput">
+                            <apex:selectOptions value="{!frequencyOptions}"/>
+                        </apex:selectList>
+                    </div>
+                </div>
+                
+                <div class="gusFormRow gusRow_ADM_Work__c_Priority__c">
+                    <div class="gusFormField gusFormFieldLeft">
+                        <label>
+                            {!$ObjectType.agf__ADM_Work__c.fields.agf__Priority__c.Label}
+                            <c:ADM_HelpHover2 type="ADM_Work__c" field="Priority__c" />
+                        </label>
+                    </div>
+                    <div class="gusFormField gusFormFieldRight">
+                        <apex:inputHidden id="priorityInput" value="{!agf__ADM_Work__c.agf__Priority__c}" />
+                        <apex:inputHidden id="priorityOverrideReasonInput" value="{!agf__ADM_Work__c.agf__Priority_Override_Explanation__c}" />
+                        <apex:inputHidden id="priorityCurrentInput" value="{!currentPriority}" />
+                        <apex:inputHidden id="priorityCalculatedInput" value="{!calculatedPriority}" />
+                        <img src="{!$Resource.ajaxloadersmall}" id="calculatePriorityProgress" style="display:none" />
+                        <div class="priority"></div>
+                    </div>
+                </div>
+
+                <c:ADM_Input id="rootCauseAnalysisInput" object="{!agf__ADM_Work__c}" inputFieldName="Root_Cause_Analysis_2__c" inputObjectName="ADM_Work__c" renderRow="true" inputStyleClass="rootCauseAnalysisInput gusStyle" />
+                <apex:outputPanel layout="none" rendered="{!OR(AND(isNew, $ObjectType.agf__ADM_Work__c.fields.agf__Perforce_Status__c.createable), AND(NOT(isNew), $ObjectType.agf__ADM_Work__c.fields.agf__Perforce_Status__c.updateable))}">
+                    <c:ADM_Input id="perforceStatusInput" object="{!agf__ADM_Work__c}" inputFieldName="Perforce_Status__c" inputObjectName="ADM_Work__c" renderRow="true" inputStyleClass="rootCauseAnalysisInput gusStyle" />
+                </apex:outputPanel>
+            </div>
+        </div>
+        <apex:outputPanel id="refreshPanelId">
+    
+    <apex:outputPanel rendered="{!additionalFieldsForBug.size != 0}" id="myId">
+           
+    <div class="gusForm">
+        <div class="gusForm3Column" style="width:100%!important;display:flex;flex-wrap:wrap">
+            <apex:repeat var="af" value="{!additionalFieldsForBug}">
+                <div style="width:33%;" >
+                <c:ADM_Input id="myId" object="{!agf__ADM_Work__c}" inputFieldName="{!af.agf__Field_API_Name__c}" inputObjectName="ADM_Work__c" renderRow="true" required="{!af.agf__Bug_Setting__c == 'Required'}" inputStyleClass="scheduledBuildInput gusStyle" />
+                </div>
+            </apex:repeat>
+            </div>
+            </div>
+    </apex:outputPanel>
+  
+</apex:outputPanel>
+     
+       <c:ADM_WorkHiddenPanel id="workHiddenPanelComponent" workObject="{!agf__ADM_Work__c}" workPanelViewPreference="{!workPanelViewPreference}" readonly="false" packagedOrg="{!packagedOrg}"  /> 
+    </div> 
+
+
+    <div id="dialog-priorityOverride" style="display: none" title="Override Priority">
+        <p>Select the new priority for this bug and explain why the default priority should be overridden.</p>
+        <div style="display: table; width: 100%">
+            <div style="display: table-row;">
+                <div style="display: table-cell; width: 40%; vertical-align: top; text-align: right; padding-right: 20px;"><label>Default Priority</label></div>
+                <div style="display: table-cell" class="priorityCalculated"></div>
+            </div>
+            <div style="display: table-row">
+                <div style="display: table-cell; vertical-align: top; text-align: right; padding-right: 20px;"><label for="priorityOverrideInput">New Priority</label></div>
+                <div style="display: table-cell">
+                    <select id="priorityOverrideInput" class="priorityOverrideInput">
+                        <apex:repeat value="{!priorityOptions}" var="priorityOption">
+                            <option value="{!priorityOption.value}">{!priorityOption.label}</option>
+                        </apex:repeat>
+                    </select>
+                    <a href="#" onclick="window.open('{!$Page.ADM_PriorityMatrix}','popup','width=900,height=800,scrollbars=yes,resizable=no,toolbar=no,directories=no,location=no,menubar=no,status=no,left=0,top=0'); return false">
+                        Help me decide
+                    </a>
+                </div>
+            </div>
+            <div style="display: table-row">
+                <div style="display: table-cell; vertical-align: top; text-align: right; padding-right: 20px;"><label for="priorityOverrideReason">Reason for Override</label></div>
+                <div style="display: table-cell"><textarea id="priorityOverrideReason" placeholder="Explain why this bug should have a different priority"></textarea></div>
+            </div>
+        </div>
+    </div>
+</apex:form>
+</apex:page>

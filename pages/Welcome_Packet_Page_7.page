@@ -1,0 +1,83 @@
+<apex:page controller="WelcomePacketWizard" showHeader="false"
+	cache="false">
+	<head>
+<apex:stylesheet value="{!$Resource.styles}"></apex:stylesheet>
+	</head>
+
+	<script>
+function confirmCancel()
+{
+	var isCancel = confirm("Are you sure you wish to quit?");
+	return isCancel;
+}
+</script>
+
+	<table border="0" width="100%" height="100%" id="bg">
+		<tr valign="top">
+			<td>
+				<div class="maincontainer">
+					<apex:image id="key1" width="100%"
+						value="/resource/1265230873000/Header" />
+
+					<apex:sectionHeader title="VinSolutions Welcome Packet"
+						subtitle="{!if(welcome.Packet_Includes__c!=null, 'Step 7 of 13','')}" />
+
+					<apex:form >
+						<apex:pageBlock title="DEALERTRACK">
+
+							<table border="0" width="100%" align="center">
+								<tr align="center">
+									<td align="center"><apex:commandButton action="{!step6}"
+											value="Previous Step" /> <apex:commandButton action="{!step8}" value="Next Step" /> <apex:commandButton action="{!cancel}" value="Save & Quit"
+											onclick="return confirmCancel()" immediate="true" /> <apex:commandButton action="{!confirmCRM}" value="Save - To Confirmation Page"
+											rendered="{!if(welcome.Packet_Includes__c!=null&&welcome.ReachedCRMConfirm__c, true, false)}" />
+									</td>
+								</tr>
+							</table>
+
+
+							<apex:pageBlockSection collapsible="false" title="DealerTrack"
+								columns="1"></apex:pageBlockSection>
+					
+					With certain VinSolutions CRM packages you are able to push deals desked within VinSolutions to DealerTrack 
+					providing your dealership is setup with them and you choose to do so.<br />
+							<br /> 
+					
+					In order for VinSolutions to be able to push to DealerTrack, additional information will be required.<br />
+							<br />
+
+							<table>
+								<tr>
+									<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+									<td>
+										<li><b><u>DealerTrack:</u> </b> You will need to have a
+											login to Dealer Track. Deals pushed into DealerTrack will
+											show up under the leads tab within Dealer Track.</li> <br /></td>
+								</tr>
+							</table>
+
+							<apex:pageblockSection columns="1">
+								<apex:inputField value="{!welcome.Is_your_Dealership_setup_w_DealerTrack__c}" />
+							</apex:pageblockSection>
+							<br />
+
+							<apex:pageBlockSection collapsible="false" title=""></apex:pageBlockSection>
+
+							<table border="0" width="100%" align="center">
+								<tr align="center">
+									<td align="center"><apex:commandButton action="{!step6}"
+											value="Previous Step" /> <apex:commandButton action="{!step8}" value="Next Step" /> <apex:commandButton action="{!cancel}" value="Save & Quit"
+											onclick="return confirmCancel()" immediate="true" /> <apex:commandButton action="{!confirmCRM}" value="Save - To Confirmation Page"
+											rendered="{!if(welcome.Packet_Includes__c!=null&&welcome.ReachedCRMConfirm__c, true, false)}" />
+									</td>
+								</tr>
+							</table>
+
+						</apex:pageBlock>
+
+					</apex:form>
+				</div>
+			</td>
+		</tr>
+	</table>
+</apex:page>

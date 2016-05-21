@@ -1,0 +1,257 @@
+<apex:page standardController="agf__ADM_Release_Event_Template__c" cache="true" title="Release Event Template Edit: {!agf__ADM_Release_Event_Template__c.Name}">
+<apex:styleSheet value="{!$Resource.agf__ADM_common_css}" />
+<apex:stylesheet value="{!URLFOR($Resource.agf__jquery_ui_1_9_2_redmond, 'css/redmond/jquery-ui-1.9.2.custom.css')}" />
+<apex:includeScript value="{!$Resource.agf__jquery_1_8_3_min}" />
+<apex:includeScript value="{!URLFOR($Resource.agf__jquery_ui_1_9_2_redmond, 'js/jquery-ui-1.9.2.custom.min.js')}" />
+<apex:includeScript value="{!$Resource.agf__ADM_common_js}" />
+
+<div class="bPageTitle">
+    <div class="ptBody">
+        <div class="content">
+            <img src="{!$Resource.icon_releaseeventtemplate}" alt="New Release Event Template" class="pageTitleIcon" title="New Release Event Template" />
+            <h1 class="pageType">&nbsp;</h1>                    
+            <h2 class="pageDescription">New Release Event Template</h2>
+            <div class="blank">&nbsp;</div>
+        </div>
+    </div>
+    <div class="ptBreadcrumb"></div>
+</div>
+
+<script>
+
+function toggleOption(which) {
+    if (which === "InstanceKey") {
+        if ( $('#expand_' + which).is(":visible") ) {
+            $('#expand_' + which).css('display','none');
+        } else {
+            $('#expand_' + which).css('display','table-row');
+            $('[id*=checkBoxField]').css('display','none');
+        }
+    } else if (which === "StartTime") {
+        $('#expand_' + which).css('display','table-row');
+        $('#expand_' + "Offset").css('display','none');
+        $('[id*=retOffsetHourEnter]').val("");
+        $('[id*=retOffsetMinuteEnter]').val("");
+    } else {
+        $('#expand_' + which).css('display','table-row');
+        $('#expand_' + "StartTime").css('display','none');
+        $('[id*=retStartTimeEnter]').val("");                
+    }
+}
+
+function setToBaseEvent() {
+    $('[id*=retStartTimeEnter]').val("");
+    $('[id*=retDayOffset]').val("0");
+    $('[id*=retEventDuration]').val("0");                    
+    $('[id*=retOffsetHourEnter]').val("0");
+    $('[id*=retOffsetMinuteEnter]').val("0");
+    $('#expand_' + "StartTime").css('display','none');
+    $('#expand_' + "Offset").css('display','table-row');
+    $('[id*=retRadioOffset]').attr('checked', true);        
+}
+
+function baseEventCheckbox() {
+    if ($('[name*=SetToBaseEvent]').attr('checked') != 'checked') {
+        return;
+    } else if (confirm('Are you sure? This sets Day Offset, Event Duration, Hour Offset and Minute Offset to zero. Start Time will be set to blank.')) {
+        setToBaseEvent();
+    } else { 
+        resetBaseEventCheckbox();
+    }
+}
+
+function resetBaseEventCheckbox() {
+    $('[name*=SetToBaseEvent]').attr('checked', false);
+}
+
+</script>
+
+
+<apex:form target="_parent">
+<apex:messages globalOnly="true" styleClass="message gusFormMessage"/>
+
+    <div class="gusFieldset gusFieldsetExtraPadding">
+        <div class="gusLegend">Create Release Event Template</div>
+        <div class="gusRequiredText"></div>
+        <div class="gusFormToolbar gusFormToolbarTop">
+            <apex:commandButton id="retSave" action="{!save}" value="Save"/>
+            <apex:commandButton id="retCancel" action="{!cancel}" immediate="true" value="Cancel"/>  
+        </div>
+    
+        <div class="gusForm">
+            <div class="gusForm3Column gusStackedRows gusAltLabels">
+                <c:ADM_FormRow id="retName" object="{!agf__ADM_Release_Event_Template__c}" type="ADM_Release_Event_Template__c" required="true" 
+                    field="Event_Template_Name__c" value="{!agf__ADM_Release_Event_Template__c.agf__Event_Template_Name__c}" />
+                <style>
+                	.gusRow_ADM_Release_Event_Template__c_Release_Type__c table.multiSelectPicklistTable{width:100%;}
+					body .gusForm .gusForm3Column.gusStackedRows .gusFormRow.gusRow_ADM_Release_Event_Template__c_Release_Type__c .gusFormFieldRight select[multiple]{width:117px !important;}
+                </style>
+                <c:ADM_FormRow id="retReleaseType" object="{!agf__ADM_Release_Event_Template__c}" type="ADM_Release_Event_Template__c" required="true" 
+                    field="Release_Type__c" value="{!agf__ADM_Release_Event_Template__c.agf__Release_Type__c}" />
+            </div>
+            <div class="gusForm3Column gusStackedRows gusAltLabels">            
+                <c:ADM_FormRow id="retNotify" object="{!agf__ADM_Release_Event_Template__c}" type="ADM_Release_Event_Template__c" required="true" 
+                    field="Notify_Customers__c" value="{!agf__ADM_Release_Event_Template__c.agf__Notify_Customers__c}" />
+                <c:ADM_FormRow id="retDayOffset" object="{!agf__ADM_Release_Event_Template__c}" type="ADM_Release_Event_Template__c" required="true" 
+                    field="Day_Offset__c" value="{!agf__ADM_Release_Event_Template__c.agf__Day_Offset__c}" />
+            </div>
+            <div class="gusForm3Column gusStackedRows gusAltLabels">
+                <c:ADM_FormRow id="retApplication" object="{!agf__ADM_Release_Event_Template__c}" type="ADM_Release_Event_Template__c" required="true"
+                    field="Application__c" value="{!agf__ADM_Release_Event_Template__c.agf__Application__c}" />
+                <c:ADM_FormRow id="retEventDuration" object="{!agf__ADM_Release_Event_Template__c}" type="ADM_Release_Event_Template__c" required="true"                 
+                    field="Event_Duration__c" value="{!agf__ADM_Release_Event_Template__c.agf__Event_Duration__c}" />                 
+            </div>
+        </div>  
+        <div class="gusForm">
+            <apex:outputPanel layout="none">
+            <div class="gusForm2Column gusStackedRows">
+                <div class="gusFormRow">
+                    <div class="gusFormField gusFormFieldLeft baseEventLabel"><label>Base Release Event</label></div>
+                    <div class="gusFormField gusFormFieldRight" style="padding-bottom:0;">
+                    A Base Release Event Template creates Release Events that have a start time equal to the Release's 
+                    Base Release Date and an End Time equal to the Release's Base End Date. Base Release Event 
+                    Templates have these four fields set to zero: Day Offset, Event Duration, Hour Offset and Minute Offset.
+                    </div>
+                </div>
+            </div>
+            </apex:outputPanel>
+        </div>  
+        <div class="gusForm">
+            <div class="gusForm2Column gusStackedRows gusAltLabels">        
+                <div class="gusFormRow">
+                    <div class="gusFormField gusFormFieldLeft">
+                            <input 
+                                onClick="baseEventCheckbox();" 
+                                type="checkbox" name="SetToBaseEvent" value="SetToBaseEvent" /> 
+                        <label>Make Base Event</label>
+                        <br/>&nbsp;
+                    </div>
+                </div>
+            </div>
+        </div>
+                        
+    </div>
+    <div class="gusFieldset gusFieldsetConnected gusFieldsetExtraPadding">
+        <div class="gusLegend">Release Event Time</div>
+        <div class="gusForm">
+            <div class="gusFormField gusFormFieldLeft" style="text-align:left;padding-bottom:0;">
+                <span>Release Event Time can be specified either by providing a Start Time for the event or an 
+                    Hour and Minute Offset from the base Release Event.<br/>
+                    <b>NOTE: Changing the method used will set the prior method to blank. Either Start Time or Offset must be specified.</b>
+                </span>
+            </div>
+        </div>
+        <div class="gusForm">        
+            <div class="gusForm2Column gusStackedRows gusAltLabels">        
+                <div class="gusFormRow">
+                    <div class="gusFormField gusFormFieldLeft">
+                            <input onClick="toggleOption('StartTime');" type="radio" name="TimeOrOffset" value="StartTime" id="retRadioStartTime"
+                                checked="{!IF(NOT(ISBLANK(ADM_Release_Event_Template__c.Start_Time__c)), 'checked','')}" />
+                        <label>Use Start Time</label>
+                    </div>
+                </div>
+            </div>
+            <div class="gusForm2Column gusStackedRows gusAltLabels">        
+                <div class="gusFormRow">
+                    <div class="gusFormField gusFormFieldLeft">
+                        <input onClick="toggleOption('Offset');" type="radio" name="TimeOrOffset" value="Offset" id="retRadioOffset"
+           checked="{!IF(NOT(OR(ISBLANK(ADM_Release_Event_Template__c.Hour_Offset__c),ISBLANK(ADM_Release_Event_Template__c.Minute_Offset__c))), 'checked','')}" />
+                        <label>Use Offset</label>
+                    </div>
+                </div>
+            </div>
+            <input type="radio" name="TimeOrOffset" value="HiddenValue" style="display:none;"
+                checked="{!IF(AND(ISBLANK(ADM_Release_Event_Template__c.Start_Time__c),AND(ISBLANK(ADM_Release_Event_Template__c.Hour_Offset__c),ISBLANK(ADM_Release_Event_Template__c.Minute_Offset__c))), 'checked','')}" />          
+        </div>
+        <div class="gusForm">
+            <div id="expand_StartTime" style="{!IF(ISBLANK(ADM_Release_Event_Template__c.Start_Time__c),'display:none;', 'display:table-row;')}">
+              <div class="gusForm3Column gusStackedRows gusAltLabels" style="width:10%;">
+                <c:ADM_FormRow id="retStartTimeEnter" object="{!agf__ADM_Release_Event_Template__c}" type="ADM_Release_Event_Template__c" 
+                    field="Start_Time__c" value="{!agf__ADM_Release_Event_Template__c.agf__Start_Time__c}" />
+              </div>
+              <div class="gusForm3Column gusStackedRows gusAltLabels" >
+              </div>
+              <div class="gusForm3Column gusStackedRows gusAltLabels" >
+              </div>              
+            </div>
+            <div id="expand_Offset" 
+                style="{!IF(AND(ISBLANK(ADM_Release_Event_Template__c.Hour_Offset__c),ISBLANK(ADM_Release_Event_Template__c.Minute_Offset__c)),'display:none;', 'display:table-row;')}" >
+                <div class="gusForm2Column gusStackedRows gusAltLabels" style="width:10%;">
+                    <c:ADM_FormRow id="retOffsetHourEnter" object="{!agf__ADM_Release_Event_Template__c}" type="ADM_Release_Event_Template__c" 
+                        field="Hour_Offset__c" value="{!agf__ADM_Release_Event_Template__c.agf__Hour_Offset__c}" />
+                </div>                
+                <div class="gusForm2Column gusStackedRows gusAltLabels" style="width:10%;">
+                    <c:ADM_FormRow id="retOffsetMinuteEnter" object="{!agf__ADM_Release_Event_Template__c}" type="ADM_Release_Event_Template__c" 
+                        field="Minute_Offset__c" value="{!agf__ADM_Release_Event_Template__c.agf__Minute_Offset__c}" />
+                </div>
+            </div>
+        </div>
+        
+    </div>
+    
+    <div class="gusFieldset gusFieldsetConnected gusFieldsetExtraPadding">
+        <div class="gusLegend">Instance Key</div>
+        <div class="gusForm">
+            <div class="gusFormField gusFormFieldLeft" style="text-align: left;padding-bottom:0;">
+                <span>An Instance Key can be used for Applications that deploy to Salesforce instances to 
+                    specify which instances are to be included in the Release Event. Instance Keys are Regular Expressions.
+                    For additional information on Regular Expressions, see:
+                <apex:outputLink target="_blank" id="retWikiRegex" value="http://en.wikipedia.org/wiki/Regular_expression">
+                    Wikipedia article on Regular Expressions
+                </apex:outputLink>
+                <br/>
+                <b>NOTE: The result of evaluating the value entered into the Instance Key field on the text in the 
+                    Test Instance List field will be displayed in the Instance Key Verification field when this record is saved.</b>
+                </span>
+            </div>      
+        </div>
+        <div class="gusForm">        
+            <div class="gusForm2Column gusStackedRows gusAltLabels">        
+                <div class="gusFormRow">
+                    <div class="gusFormField gusFormFieldLeft" id="checkBoxField">
+                            <input onClick="toggleOption('InstanceKey');" type="checkbox" name="UseInstanceKey" value="UseInstanceKey" />
+                        <label>Use Instance Key</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="gusForm">
+            <div id="expand_InstanceKey" style="{!IF(ISBLANK(ADM_Release_Event_Template__c.Instance_Key__c),'display:none;', 'display:table-row;')}">
+              <div class="gusForm2Column gusStackedRows gusAltLabels">
+                <c:ADM_FormRow id="retInstanceKey" object="{!agf__ADM_Release_Event_Template__c}" type="ADM_Release_Event_Template__c" 
+                    field="Instance_Key__c" value="{!agf__ADM_Release_Event_Template__c.agf__Instance_Key__c}" />
+                <c:ADM_FormRow id="retInstanceList" object="{!agf__ADM_Release_Event_Template__c}" type="ADM_Release_Event_Template__c" 
+                        field="Test_Instance_List__c" value="{!agf__ADM_Release_Event_Template__c.agf__Test_Instance_List__c}" />
+              </div>
+              <div class="gusForm2Column gusStackedRows gusAltLabels">
+                    <c:ADM_FormRow id="retKeyVerification" object="{!agf__ADM_Release_Event_Template__c}" type="ADM_Release_Event_Template__c" required="true" 
+                        readonly="true" field="Instance_Key_Verification__c" value="{!agf__ADM_Release_Event_Template__c.agf__Instance_Key_Verification__c}" />
+              </div>  
+            </div>
+        </div>
+        
+    </div>
+    
+</apex:form>
+
+<script>
+// Set the Instance Key value if needed
+if ("{!IF(NOT(ISBLANK(agf__ADM_Release_Event_Template__c.agf__Instance_Key__c)),'checked','unchecked')}" === 'checked') {
+    $('[name*=UseInstanceKey]').attr('checked', true);        
+}
+// Hide "Use Instance Key" checkbox is the field has content.
+if ("{!IF(NOT(ISBLANK(agf__ADM_Release_Event_Template__c.agf__Instance_Key__c)),'checked','unchecked')}" === 'checked') {
+    $('[id*=checkBoxField]').css('display','none');
+}
+// Set the Start Time radio button if needed
+if ("{!IF(NOT(ISBLANK(agf__ADM_Release_Event_Template__c.agf__Start_Time__c)),'checked','unchecked')}" === 'checked') {
+    $('[id*=retRadioStartTime]').attr('checked', true);        
+}
+// Set the Offset radio button if needed
+if ("{!IF(AND(NOT(ISBLANK(agf__ADM_Release_Event_Template__c.agf__Hour_Offset__c)),NOT(ISBLANK(agf__ADM_Release_Event_Template__c.agf__Minute_Offset__c))),'checked','unchecked')}" === 'checked') {
+    $('[id*=retRadioOffset]').attr('checked', true);        
+}
+
+</script>
+
+</apex:page>

@@ -1,0 +1,117 @@
+<apex:page controller="agf.QA_TPAddDefault">
+<style type="text/css">
+    .tableTextField {
+        border:0px;
+        background-color:inherit;
+        overflow:auto;  
+        width:100%;
+        height:60px;
+    }
+    .tableBorder {
+        border:1px solid #C6C3C6;
+        background-color:white;
+        border-collapse:collapse;
+    }
+    .bodyFontPadding {
+        padding:3px;
+        font-size:11px;
+        font-family:Arial,Helvetica,sans-serif;
+    }
+    .bodyPadding {
+        padding:3px;
+    }
+    .tableHeader {
+        background-color:#E3F3FF;
+        padding:3px;
+        font-size:12px;
+        font-family:Arial,Helvetica,sans-serif;
+    }
+    .errorFont {
+        color:#DE4C3B;
+    }
+    .errorBorder {
+        border:2px solid #CC0000;
+        margin-left:-2px;
+    }
+    .dropDown {
+        font-size:11px;
+        font-family:Arial,Helvetica,sans-serif;
+    }
+</style>
+
+<script>
+function checkAll(cb){
+    var inputElem = document.getElementsByTagName("input");
+    for(var i=0; i < inputElem.length; i++){
+        if(inputElem[i].id.indexOf("checkbox") != -1) {
+            inputElem[i].checked = cb.checked;
+        }
+    }
+}
+</script>
+
+<apex:form >
+<apex:sectionHeader title="Add Default Test Cases"></apex:sectionHeader>
+<apex:pageBlock id="main" title="Step 1 of 2: Customize Default Test Cases">
+    <apex:outputPanel id="messages" styleClass="errorFont">
+        <apex:messages />
+    </apex:outputPanel>
+    
+    <apex:dataTable id="table" value="{!defaultTCs}" var="defaultTC" width="100%" styleClass="tableBorder" rules="all" headerClass="tableHeader">
+        <apex:column width="20px" styleClass="bodyFontPadding">
+            <apex:facet name="header">
+                <apex:inputCheckBox value="{!selectAllCheckbox}" onclick="checkAll(this)"> 
+                    <apex:actionSupport event="onclick" action="{!selectAll}" rerender="table"/>
+                </apex:inputCheckBox>
+            </apex:facet>
+            <apex:inputCheckbox id="checkbox" value="{!defaultTC.selected}"/>
+        </apex:column>
+        <apex:column width="25%" styleClass="bodyFontPadding">
+            <apex:facet name="header">Hierarchy</apex:facet>
+            <apex:outputPanel styleClass="errorFont" rendered="{!defaultTC.isHierarchyError}">
+                <strong>Error:</strong> {!defaultTC.hierarchyError}
+            </apex:outputPanel>
+            <apex:inputTextArea styleClass="tableTextField {!IF(defaultTC.isHierarchyError, 'errorBorder', '')}" required="false" value="{!defaultTC.testCase.agf__Hierarchy__c}"/>
+        </apex:column>
+        <apex:column width="25%" styleClass="bodyFontPadding">
+            <apex:facet name="header">Brief Description</apex:facet>
+            <apex:outputPanel styleClass="errorFont" rendered="{!defaultTC.isBriefDescError}">
+                <strong>Error:</strong> {!defaultTC.briefDescError}
+            </apex:outputPanel>
+            <apex:inputTextArea styleClass="tableTextField {!IF(defaultTC.isBriefDescError, 'errorBorder', '')}" required="false" value="{!defaultTC.testCase.agf__Brief_Description__c}"/>
+        </apex:column>
+        <apex:column width="25%" styleClass="bodyFontPadding">
+            <apex:facet name="header">Long Description</apex:facet>
+            <apex:outputPanel styleClass="errorFont" rendered="{!defaultTC.isLongDescError}">
+                <strong>Error:</strong> {!defaultTC.longDescError}
+            </apex:outputPanel>
+            <apex:inputTextArea styleClass="tableTextField {!IF(defaultTC.isLongDescError, 'errorBorder', '')}" required="false" value="{!defaultTC.testCase.agf__Steps_to_Reproduce__c}"/>
+        </apex:column>
+        <apex:column width="25%" styleClass="bodyFontPadding">
+            <apex:facet name="header">Expected Results</apex:facet>
+            <apex:outputPanel styleClass="errorFont" rendered="{!defaultTC.isExpectedResultsError}">
+                <strong>Error:</strong> {!defaultTC.expectedResultsError}
+            </apex:outputPanel>
+            <apex:inputTextArea styleClass="tableTextField {!IF(defaultTC.isExpectedResultsError, 'errorBorder', '')}" required="false" value="{!defaultTC.testCase.agf__Expected_Results__c}"/>
+        </apex:column>
+        <apex:column styleClass="bodyPadding">
+            <apex:facet name="header">Priority</apex:facet>
+            <apex:selectList value="{!defaultTC.testCase.agf__Priority__c}" multiselect="false" size="1" styleClass="dropDown">
+                <apex:selectOptions value="{!priorityOptions}"/>
+            </apex:selectList>
+        </apex:column>
+        <apex:column styleClass="bodyPadding">
+            <apex:facet name="header">Execution Type</apex:facet>
+            <apex:selectList value="{!defaultTC.testCase.agf__Execution_Type__c}" multiselect="false" size="1" styleClass="dropDown">
+                <apex:selectOptions value="{!execTypeOptions}"/>
+            </apex:selectList>
+        </apex:column>
+    </apex:dataTable>
+    <p/>
+    <apex:commandLink value="Add a Row" action="{!addRow}" rerender="table, messages"/>
+    <p/>
+    <apex:commandButton value="Next" action="{!step2}"/>&nbsp;
+    <apex:commandButton value="Cancel" action="{!cancel}" immediate="true"/>
+</apex:pageBlock>
+</apex:form>
+</apex:page>

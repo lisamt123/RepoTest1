@@ -1,0 +1,79 @@
+<apex:page StandardController="Document" extensions="documentExt"
+	showheader="false" action="{!initList}">
+	<head>
+<apex:stylesheet value="{!$Resource.styles}"></apex:stylesheet>
+	</head>
+	<table border="0" width="100%" height="100%" id="bg">
+		<tr valign="top">
+			<td>
+				<div class="maincontainer">
+
+					<apex:messages />
+
+					<apex:image id="key1" width="100%"
+						value="/resource/1265230873000/Header" />
+
+					<apex:sectionHeader title="Welcome to Vinsolutions"
+						subtitle="Vinsolutions Website Packet" />
+
+					<apex:form >
+						<apex:pageBlock title="Upload Website Graphics">
+
+							<table border="0" width="100%" align="center">
+								<tr align="center">
+									<td align="center"><apex:commandButton action="{!'/WebsitePacketPage1?Id='+document.Description}"
+											value="Previous Step" /> <apex:commandButton action="{!'/WebsitePacketPage2?Id='+document.Description}"
+											value="Done - Next Step" />
+									</td>
+								</tr>
+							</table>
+
+
+							<apex:pageBlockSection columns="1">
+								<br />
+           	Optionally, you may upload a user list from your computer using the "Choose File" button below. 
+   			<br />
+								<br /> 
+ 			If you don't have a user list at this time, you may either complete this step by 
+ 			returning to the Welcome Packet after your list is prepared, or by contacting your Implementation Manager.
+            <apex:inputFile value="{!document.body}"
+									filename="{!document.name}" />
+								<apex:commandButton value="Upload" action="{!docSaveWebsite}" />
+							</apex:pageBlockSection>
+
+							<table border="0" width="100%" align="center">
+								<tr align="center">
+									<td align="center"><apex:commandButton action="{!'/WebsitePacketPage1?Id='+document.Description}"
+											value="Previous Step" /> <apex:commandButton action="{!'/WebsitePacketPage2?Id='+document.Description}"
+											value="Done - Next Step" />
+									</td>
+								</tr>
+							</table>
+
+						</apex:pageBlock>
+
+
+						<apex:pageBlock title="Dealer-Uploaded Document List"
+							rendered="{!NOT(ISNULL(Docmnts))}">
+							<apex:pageBlockTable id="JobList" value="{!Docmnts}"
+								var="Document">
+								<apex:column >
+									<apex:facet name="header">
+										<apex:outputText value="Uploaded Documents List" />
+									</apex:facet>
+									<img height="50"
+										src="{!'/servlet/servlet.ImageServer?id='+Document.Id+'&oid='+$Organization.Id}" /> 
+						&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+						<apex:outputText value="{!Document.name}" />
+								</apex:column>
+							</apex:pageBlockTable>
+						</apex:pageBlock>
+
+					</apex:form>
+
+
+				</div>
+			</td>
+		</tr>
+	</table>
+</apex:page>

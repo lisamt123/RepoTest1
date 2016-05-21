@@ -1,0 +1,116 @@
+<apex:page controller="WelcomePacketWizard" showHeader="false"
+	cache="false">
+	<head>
+<apex:stylesheet value="{!$Resource.styles}"></apex:stylesheet>
+	</head>
+
+	<script>
+function confirmCancel()
+{
+	var isCancel = confirm("Are you sure you wish to quit?");
+	return isCancel;
+}
+</script>
+
+	<table border="0" width="100%" height="100%" id="bg">
+		<tr valign="top">
+			<td>
+				<div class="maincontainer">
+					<apex:image id="key1" width="100%"
+						value="/resource/1265230873000/Header" />
+
+					<apex:sectionHeader title="VinSolutions Welcome Packet"
+						subtitle="{!if(
+																				!CONTAINS(welcome.Packet_Includes__c, 'CRM')
+																				&&!CONTAINS(welcome.Packet_Includes__c, 'ILM')
+																				&&CONTAINS(welcome.Packet_Includes__c, 'DIY'),'Step 2 of 7', 
+																				
+																			if(
+																				!CONTAINS(welcome.Packet_Includes__c, 'CRM')
+																				&&CONTAINS(welcome.Packet_Includes__c, 'ILM')
+																				,'Step 2 of 9', 
+																				
+																			if(
+																				CONTAINS(welcome.Packet_Includes__c, 'CRM')																				
+																				,'Step 2 of 13', 
+																				
+																				'')))}" />
+
+					<apex:form >
+						<apex:pageBlock title="ACCOUNT SET UP FORM (continued)">
+
+							<table border="0" width="100%" align="center">
+								<tr align="center">
+									<td align="center"><apex:commandButton action="{!step1}"
+											value="Previous Step" /> <apex:commandButton action="{!step3}" value="Next Step" /> <apex:commandButton action="{!cancel}" value="Save & Quit"
+											onclick="return confirmCancel()" immediate="true" /> <apex:commandButton action="{!confirmCRM}" value="Save - To Confirmation Page"
+											rendered="{!if(welcome.Packet_Includes__c!=null&&welcome.ReachedCRMConfirm__c, true, false)}" />
+									</td>
+								</tr>
+							</table>
+
+
+							<apex:pageBlockSection collapsible="false" title="Site Survey"
+								columns="1">
+								<apex:inputField value="{!welcome.Number_of_Buildings__c}" />
+								<apex:inputField value="{!welcome.Are_all_the_Buildings_in_the_same_lot__c}" />
+								<apex:inputField value="{!welcome.Type_of_network_Connection_building_2__c}" />
+								<apex:inputField value="{!welcome.Type_of_network_Connection_building_3__c}" />
+								<apex:inputField value="{!welcome.Type_of_network_Connection_building_4__c}" />
+								<apex:inputField value="{!welcome.Type_of_network_Connection_building_5__c}" />
+							</apex:pageBlockSection>
+
+							<apex:pageBlockSection collapsible="false"
+								title="Building (Rooftop) Survey" columns="1">
+								<apex:inputField value="{!welcome.Building_Number_1_2_3_etc__c}" />
+								<apex:inputField value="{!welcome.Building_Description_Main_Used_Etc__c}" />
+								<apex:inputField value="{!welcome.Building_Location_Address__c}" />
+								<apex:inputField value="{!welcome.Number_of_Salespersons_using_MotoSnap__c}" />
+								<apex:inputField value="{!welcome.Number_of_Managers_using_MotoSnap__c}" />
+								<apex:inputField value="{!welcome.Number_of_F_I_persons_using_MotoSnap__c}" />
+								<apex:inputField value="{!welcome.Number_of_existing_PC_s_for_MotoSnap__c}" />
+								<apex:inputField value="{!welcome.Number_of_new_PC_s_to_be_added__c}" />
+								<apex:inputField value="{!welcome.Number_of_existing_Network_Printers__c}" />
+								<apex:inputField value="{!welcome.Number_of_Network_Printers_to_be_added__c}" />
+							</apex:pageBlockSection>
+
+							<apex:pageBlockSection collapsible="false" title="Showroom Hours"
+								columns="2">
+								<apex:inputField value="{!welcome.Time_Zone__c}" />
+								<apex:outputtext value="" />
+								<apex:inputField value="{!welcome.Monday_Open__c}" />
+								<apex:inputField value="{!welcome.Monday_Close__c}" />
+								<apex:inputField value="{!welcome.Tuesday_Open__c}" />
+								<apex:inputField value="{!welcome.Tuesday_Close__c}" />
+								<apex:inputField value="{!welcome.Wednesday_Open__c}" />
+								<apex:inputField value="{!welcome.Wednesday_Close__c}" />
+								<apex:inputField value="{!welcome.Thursday_Open__c}" />
+								<apex:inputField value="{!welcome.Thursday_Close__c}" />
+								<apex:inputField value="{!welcome.Friday_Open__c}" />
+								<apex:inputField value="{!welcome.Friday_Close__c}" />
+								<apex:inputField value="{!welcome.Saturday_Open__c}" />
+								<apex:inputField value="{!welcome.Saturday_Close__c}" />
+								<apex:inputField value="{!welcome.Sunday_Open__c}" />
+								<apex:inputField value="{!welcome.Sunday_Close__c}" />
+							</apex:pageBlockSection>
+
+							<apex:pageBlockSection collapsible="false" title=""></apex:pageBlockSection>
+
+							<table border="0" width="100%" align="center">
+								<tr align="center">
+									<td align="center"><apex:commandButton action="{!step1}"
+											value="Previous Step" /> <apex:commandButton action="{!step3}" value="Next Step" /> <apex:commandButton action="{!cancel}" value="Save & Quit"
+											onclick="return confirmCancel()" immediate="true" /> <apex:commandButton action="{!confirmCRM}" value="Save - To Confirmation Page"
+											rendered="{!if(welcome.Packet_Includes__c!=null&&welcome.ReachedCRMConfirm__c, true, false)}" />
+									</td>
+								</tr>
+							</table>
+
+						</apex:pageBlock>
+
+					</apex:form>
+				</div>
+			</td>
+		</tr>
+	</table>
+</apex:page>

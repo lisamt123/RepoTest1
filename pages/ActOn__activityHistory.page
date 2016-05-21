@@ -1,0 +1,232 @@
+<apex:page controller="ActOn.activityHistoryController" showHeader="false">
+
+<apex:stylesheet value="{!URLFOR($Resource.ActOn__actonstatic, 'common.css')}"/>
+<apex:stylesheet value="{!URLFOR($Resource.ActOn__jquery, 'css/start/jquery-ui-1.9.2.custom.css')}"/>
+
+<apex:includeScript value="{!URLFOR($Resource.ActOn__actonstatic, 'common.js')}"/>
+<apex:includeScript value="{!URLFOR($Resource.ActOn__jquery, 'js/jquery-1.7.2.min.js')}"/>
+<apex:includeScript value="{!URLFOR($Resource.ActOn__jquery, 'js/jquery-ui-1.9.2.custom.min.js')}"/>
+<apex:includeScript value="/soap/ajax/32.0/connection.js"/>
+<apex:includeScript value="/soap/ajax/32.0/apex.js"/>
+
+<script type="text/javascript">
+
+var j$ = jQuery.noConflict();
+sforce.connection.sessionId = "{!$Api.Session_ID}";
+var actonServer = sforce.apex.execute('ActOn/ActonWebService','getServerUrl',{});
+var remoteSiteEror = sforce.apex.execute('ActOn/ActonWebService','getRemoteSiteError',{});
+
+j$(document).ready(function(){
+});
+
+j$(window).load(function(){ 
+    j$("#imgProg").show();
+    setTimeout('getActivityHistoryJSON()', 200);
+    //getActivityHistoryJSON();
+});
+                
+function getActivityHistoryJSON() {
+    var apiUrl = "{!$Page.ActivityHistoryActonAjax}";
+    var escapedEmail = "{!JSENCODE(leadContact.email)}";
+    escapedEmail = escapedEmail.replace("#", "%23").replace("+", "%2B");
+    j$.ajax({
+        type: "GET",
+        url: apiUrl,
+        data: "core.apexpages.devmode.url=1&id={!JSENCODE(leadContact.id)}&email=" + escapedEmail + "&serverUrl={!$Api.Partner_Server_URL_190}",
+        contentType: "application/json",
+        dataType: "json",
+        success: function(response) {
+            processActivityHistoryJSON(response);
+        },
+        error:function (xhr, ajaxOptions, thrownError){
+            //alert(xhr.statusText);
+            //alert(thrownError);
+            document.getElementById('errMsg').innerHTML = remoteSiteError;
+            j$("#errMsg").show();
+            j$("#imgProg").hide();
+        }       
+    });
+}
+
+var tracking = 0;
+
+function processActivityHistoryJSON(result) {
+
+    if (result.status != null && result.status == 'error') 
+        {
+        //alert(result.message);
+        document.getElementById('errMsg').innerHTML = result.message;
+        j$("#errMsg").show();
+        j$("#imgProg").hide();        
+        return;
+        }
+
+    document.getElementById('id-sent').innerHTML = result.EmailSent;
+    document.getElementById('id-opened').innerHTML = result.EmailOpens;
+    document.getElementById('id-clicked').innerHTML = result.EmailClicks;
+    document.getElementById('id-pageviews').innerHTML = result.WebPageViews;
+    document.getElementById('id-formviews').innerHTML = result.FormViews;
+    document.getElementById('id-formsubmits').innerHTML = result.FormSubmits;
+    document.getElementById('id-registered').innerHTML = result.WebinarRegistrations;
+    document.getElementById('id-attended').innerHTML = result.WebinarAttendance;
+    document.getElementById('id-downloads').innerHTML = result.WhitePapers;
+    //document.getElementById('id-score-period').innerHTML = 'Activity History for ' + result.ScorePeriod;
+    document.getElementById('id-score-period').innerHTML = 'Activity History';
+
+    j$("#imgProg").hide();
+    j$("#activityHistory").show();  
+
+    if (result.WebsiteVisitsTracked == 0) {
+        tracking = 0;
+    }
+    else {
+        tracking = 1;
+    }
+}
+
+function prospectTrackingToggle()
+{
+    if (tracking == 1) {
+        tracking = 0;
+    }
+    else {
+        tracking = 1;
+    }
+    var apiUrl = "{!$Page.TrackingToggleActonAjax}";
+    var escapedEmail = "{!JSENCODE(leadContact.email)}";
+    escapedEmail = escapedEmail.replace("#", "%23").replace("+", "%2B");
+    j$.ajax({
+        type: "GET",
+        url: apiUrl,
+        data: "core.apexpages.devmode.url=1&id={!JSENCODE(leadContact.id)}&email=" + escapedEmail + "&serverUrl={!$Api.Partner_Server_URL_190}",
+        contentType: "application/json",
+        dataType: "json",
+        success: function(response) {
+            renderTracking();
+        },
+        error:function (xhr, ajaxOptions, thrownError){
+            if (xhr.statusText == "OK") {
+                renderTracking();
+            }
+            else {
+                alert(xhr.statusText);
+                alert(thrownError);
+            }
+        }       
+    }); 
+}
+
+function renderTracking()
+{
+    if (tracking == 0) {
+        document.getElementById('tracking').innerHTML = '<a href="#" title="Turn on" OnClick="prospectTrackingToggle();"><img src="{!$Resource.actonstatic}/image/off.gif" style="border-style: none"/></a>';
+    }
+    else {
+        document.getElementById('tracking').innerHTML = '<a href="#" title="Turn off" OnClick="prospectTrackingToggle();"><img src="{!$Resource.actonstatic}/image/on.gif" style="border-style: none"/></a>';
+    }
+}
+
+function prospectInfoDrilldown(ddType)
+{
+    var escapedEmail = "{!JSENCODE(leadContact.email)}";
+    escapedEmail = escapedEmail.replace("#", "%23").replace("+", "%2B");
+    var url = actonServer + '/acton/sforce/sforceActivityHistory_Acton.jsp?' +
+    'id={!JSENCODE(leadContact.Id)}' +
+    '&email=' + escapedEmail +
+//    '&sforceId={!UserId}' +
+    '&v={!Version}' +
+    '&session={!$Api.Session_ID}' +
+    '&server={!$Api.Partner_Server_URL_190}' +
+    '&bin=' + ddType;
+    window.open (url,"ProspectInfoDrilldown", "status=1,toolbar=1,menubar=1,resizable=1,location=1,width=800,height=600");
+}
+</script>
+
+<div id="errMsg" style="display: none; text-align: center; width: 800px; height: 200px; margin-top: 60px;">
+</div>  
+<div id="imgProg" style="display: none; text-align: center; width: 800px; height: 200px; margin-top: 60px;">
+    <img alt="Processing" src="{!$Resource.actonstatic}/image/dotdotdotdot.gif"  />
+</div>  
+<div id="activityHistory" style="display: none; width: 800px; padding-left: 25px; padding-top: 10px; padding-bottom: 10px;">
+    <img src="{!$Resource.actonstatic}/image/logo-small.gif" />
+    <div style="margin-left: 130px;margin-top: -30px">
+        <table cellspacing="0" cellpadding="2">
+            <tr><td colspan="11"><div style="height: 5px; overflow: hidden">&nbsp;</div></td></tr>
+            <tr><td style="padding: 0px" colspan="11" ><div class="big fgBlue" id="id-score-period">Activity for all time</div></td></tr>
+            <tr><td colspan="11" class="b2"><div style="height: 5px; overflow: hidden">&nbsp;</div></td></tr>
+            <tr><td colspan="11"><div style="height: 5px; overflow: hidden">&nbsp;</div></td></tr>
+            <tr onmouseover="style.backgroundColor='#E8F2FE'" onmouseout="style.backgroundColor=''" style="cursor: pointer"  onClick="prospectInfoDrilldown('EMAIL')">
+                <td align="left"                                            ><img src="{!$Resource.actonstatic}/image/silk/email.png"/></td>
+                <td align="left" class="bold fgGrey" width="120"            >Mailing Activity</td>
+                <td align="left" class="fgGrey"                             ></td>
+                <td align="right" class="fgGrey" width="100"                >Sent:</td>
+                <td align="left" class="bold fgGrey" id="id-sent"           >0</td>
+                <td align="left" class="fgGrey"                             ></td>
+                <td align="right" class="fgGrey" width="100"                >Opened:</td>
+                <td align="left" class="bold fgGrey"    id="id-opened"      >0</td>
+                <td align="left" class="fgGrey"                             ></td>
+                <td align="right" class="fgGrey" width="100"                >Clicked:</td>
+                <td align="left" class="bold fgGrey"    id="id-clicked"     >0</td>
+            </tr>
+            <tr><td colspan="11" class="tt"><div style="height: 3px; overflow: hidden">&nbsp;</div></td></tr>
+            <tr onmouseover="style.backgroundColor='#E8F2FE'" onmouseout="style.backgroundColor=''" style="cursor: pointer"  onClick="prospectInfoDrilldown('WEB')">
+                <td align="left"                                            ><img src="{!$Resource.actonstatic}/image/16page_visitor.gif"/></td>
+                <td align="left" class="bold fgGrey" width="150"            >Web Activity</td>
+                <td align="left" class="fgGrey"                             ></td>
+                <td align="right" class="fgGrey"                            >Page Views:</td>
+                <td align="left" class="bold fgGrey" id="id-pageviews"      >0</td>
+                <td align="left" class="fgGrey"                             ></td>
+                <td align="right" class="fgGrey"                            ></td>
+                <td align="left" class="fgGrey"                             ></td>
+                <td align="left" class="fgGrey"                             ></td>
+                <td align="right" class="fgGrey"                            ></td>
+                <td align="left" class="fgGrey"                             ></td>
+            </tr>
+            <tr><td colspan="11" class="tt"><div style="height: 3px; overflow: hidden">&nbsp;</div></td></tr>
+            <tr onmouseover="style.backgroundColor='#E8F2FE'" onmouseout="style.backgroundColor=''" style="cursor: pointer"  onClick="prospectInfoDrilldown('FORM')">
+                <td align="left"                                            ><img src="{!$Resource.actonstatic}/image/silk/application_form.png" /></td>
+                <td align="left" class="bold fgGrey" width="120"            >Form Activity</td>
+                <td align="left" class="fgGrey"                             ></td>
+                <td align="right" class="fgGrey"                            >Views:</td>
+                <td align="left" class="bold fgGrey" id="id-formviews"      >0</td>
+                <td align="left" class="fgGrey"                             ></td>
+                <td align="right" class="fgGrey"                            >Submits:</td>
+                <td align="left" class="bold fgGrey" id="id-formsubmits"    >0</td>
+                <td align="left" class="fgGrey"                             ></td>  
+                <td align="right" class="fgGrey"                            ></td>
+                <td align="left" class="fgGrey"                             ></td>
+            </tr>
+            <tr><td colspan="11" class="tt"><div style="height: 3px; overflow: hidden">&nbsp;</div></td></tr>
+            <tr onmouseover="style.backgroundColor='#E8F2FE'" onmouseout="style.backgroundColor=''" style="cursor: pointer"  onClick="prospectInfoDrilldown('WEBINAR')">
+                <td align="left"                                            ><img src="{!$Resource.actonstatic}/image/webex-dot.png" /></td>
+                <td align="left" class="bold fgGrey" width="120"            >Webinar Activity </td>
+                <td align="left" class="fgGrey"                             ></td>
+                <td align="right" class="fgGrey"                            >Registered:</td>
+                <td align="left" class="bold fgGrey" id="id-registered"     >0</td>
+                <td align="left" class="fgGrey"                             ></td>  
+                <td align="right" class="fgGrey"                            >Attended:</td>
+                <td align="left" class="bold fgGrey" id="id-attended"       >0</td>
+                <td align="left" class="fgGrey"                             ></td>
+                <td align="right" class="fgGrey"                            ></td>
+                <td align="left" class="fgGrey"                             ></td>
+            </tr>
+            <tr><td colspan="11" class="tt"><div style="height: 3px; overflow: hidden">&nbsp;</div></td></tr>
+            <tr onmouseover="style.backgroundColor='#E8F2FE'" onmouseout="style.backgroundColor=''" style="cursor: pointer"  onClick="prospectInfoDrilldown('DOC')">
+                <td align="left"                                            ><img src="{!$Resource.actonstatic}/image/arrow_download.gif" /></td>
+                <td align="left" class="bold fgGrey" width="120"            >Media Download Activity </td>
+                <td align="left" class="fgGrey"                             ></td>
+                <td align="right" class="fgGrey"                            >Downloads:</td>
+                <td align="left" class="bold fgGrey" id="id-downloads"      >0</td>
+                <td align="left" class="fgGrey"                             ></td>  
+                <td align="right" class="fgGrey"                            ></td>
+                <td align="left" class="fgGrey"                             ></td>
+                <td align="left" class="fgGrey"                             ></td>  
+                <td align="right" class="fgGrey"                            ></td>
+                <td align="left" class="fgGrey"                             ></td>
+            </tr>
+            <tr><td style="padding: 0px" colspan="11" class="b2"><div style="height: 5px; overflow: hidden">&nbsp;</div></td></tr>
+        </table>
+    </div>
+</div>
+
+</apex:page>

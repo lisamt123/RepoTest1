@@ -1,0 +1,1084 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <actionOverrides>
+        <actionName>Accept</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>CancelEdit</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Clone</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Delete</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Edit</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Follow</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>List</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>New</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>SaveEdit</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Tab</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>View</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <allowInChatterGroups>false</allowInChatterGroups>
+    <compactLayoutAssignment>SYSTEM</compactLayoutAssignment>
+    <deploymentStatus>Deployed</deploymentStatus>
+    <enableActivities>true</enableActivities>
+    <enableBulkApi>true</enableBulkApi>
+    <enableFeeds>true</enableFeeds>
+    <enableHistory>true</enableHistory>
+    <enableReports>true</enableReports>
+    <enableSearch>true</enableSearch>
+    <enableSharing>true</enableSharing>
+    <enableStreamingApi>true</enableStreamingApi>
+    <fields>
+        <fullName>Billing_Notes__c</fullName>
+        <externalId>false</externalId>
+        <label>Billing Notes</label>
+        <required>false</required>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>TextArea</type>
+    </fields>
+    <fields>
+        <fullName>Check__c</fullName>
+        <externalId>false</externalId>
+        <inlineHelpText>enter the check number</inlineHelpText>
+        <label>Check#</label>
+        <length>25</length>
+        <required>false</required>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Confirmed__c</fullName>
+        <defaultValue>false</defaultValue>
+        <externalId>false</externalId>
+        <label>Confirmed</label>
+        <trackFeedHistory>true</trackFeedHistory>
+        <trackHistory>true</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>Contact_Email__c</fullName>
+        <externalId>false</externalId>
+        <label>Contact Email</label>
+        <required>false</required>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Email</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Deal_Contact__c</fullName>
+        <externalId>false</externalId>
+        <formula>Opportunity__r.Deal_Contact__r.FirstName</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>Deal Contact</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Dealer_Id__c</fullName>
+        <externalId>false</externalId>
+        <formula>Opportunity__r.Account.AccountNumber</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>Dealer Id</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Due_Date_Change_Counter__c</fullName>
+        <defaultValue>0</defaultValue>
+        <externalId>false</externalId>
+        <inlineHelpText>Only counts going forward from 1/25/12.</inlineHelpText>
+        <label>Due Date Change Counter</label>
+        <precision>3</precision>
+        <required>false</required>
+        <scale>0</scale>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Number</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Installment_Age__c</fullName>
+        <externalId>false</externalId>
+        <formula>IF( Confirmed__c = False, today()- DATEVALUE(CreatedDate) , null)</formula>
+        <inlineHelpText>formula field that calculates the age of the installment from the created date to today</inlineHelpText>
+        <label>Installment Age</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>2</scale>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Number</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Installment_Amount__c</fullName>
+        <externalId>false</externalId>
+        <label>Installment Amount</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>2</scale>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>true</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Currency</type>
+    </fields>
+    <fields>
+        <fullName>Installment_Due_Date__c</fullName>
+        <externalId>false</externalId>
+        <label>Installment Due Date</label>
+        <required>false</required>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>true</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Date</type>
+    </fields>
+    <fields>
+        <fullName>Installment_Due_Month__c</fullName>
+        <externalId>false</externalId>
+        <formula>MONTH( Installment_Due_Date__c )</formula>
+        <inlineHelpText>hidden formula field for reporting</inlineHelpText>
+        <label>Installment Due Month</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>0</scale>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Number</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Installment_Number__c</fullName>
+        <externalId>false</externalId>
+        <label>Installment Number</label>
+        <precision>2</precision>
+        <required>false</required>
+        <scale>0</scale>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>true</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Number</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Last_4_Digits_of_Credit_Card__c</fullName>
+        <externalId>false</externalId>
+        <inlineHelpText>enter the last 4 numbers of the credit card being used for payment</inlineHelpText>
+        <label>Last 4 Digits of Credit Card</label>
+        <length>4</length>
+        <required>false</required>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Name__c</fullName>
+        <externalId>false</externalId>
+        <inlineHelpText>Enter the Cardholder name or name on the check</inlineHelpText>
+        <label>Name on Check/Credit Card</label>
+        <length>150</length>
+        <required>false</required>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Opportunity_Close_Date__c</fullName>
+        <externalId>false</externalId>
+        <formula>Opportunity__r.CloseDate</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>Opportunity Close Date</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Date</type>
+    </fields>
+    <fields>
+        <fullName>Opportunity_ID__c</fullName>
+        <externalId>false</externalId>
+        <formula>Opportunity__r.Opportunity_ID__c</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>Opportunity ID</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Opportunity_Owner_Email__c</fullName>
+        <externalId>false</externalId>
+        <label>Opportunity Owner Email</label>
+        <required>false</required>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Email</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Opportunity_Stage__c</fullName>
+        <externalId>false</externalId>
+        <formula>IF(
+   Opportunity__r.IsWon,
+   &quot;Won&quot;,
+   IF(
+      Opportunity__r.IsClosed,
+      &quot;Lost&quot;,
+      &quot;ReOpened&quot;
+   )
+)</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>Opportunity Stage</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Opportunity__c</fullName>
+        <deleteConstraint>SetNull</deleteConstraint>
+        <externalId>false</externalId>
+        <label>Opportunity</label>
+        <referenceTo>Opportunity</referenceTo>
+        <relationshipLabel>Installments</relationshipLabel>
+        <relationshipName>Installments</relationshipName>
+        <required>false</required>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>true</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Lookup</type>
+    </fields>
+    <fields>
+        <fullName>Original_Due_Date__c</fullName>
+        <externalId>false</externalId>
+        <inlineHelpText>input the date the installment was originally due</inlineHelpText>
+        <label>Original Due Date</label>
+        <required>false</required>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Date</type>
+    </fields>
+    <fields>
+        <fullName>Paid2__c</fullName>
+        <externalId>false</externalId>
+        <label>Paid2</label>
+        <required>false</required>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>DateTime</type>
+    </fields>
+    <fields>
+        <fullName>Paid_Month__c</fullName>
+        <externalId>false</externalId>
+        <formula>MONTH( DATEVALUE(Paid__c))</formula>
+        <inlineHelpText>auto populated from the Paid Date</inlineHelpText>
+        <label>Paid Month</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>0</scale>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Number</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Paid_Status__c</fullName>
+        <externalId>false</externalId>
+        <formula>IF( text(Paid__c )!=null, &quot;Yes&quot;, &quot;No&quot;)</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>Paid Status</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Paid__c</fullName>
+        <externalId>false</externalId>
+        <label>Paid</label>
+        <required>false</required>
+        <trackFeedHistory>true</trackFeedHistory>
+        <trackHistory>true</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>DateTime</type>
+    </fields>
+    <fields>
+        <fullName>Payment_Information__c</fullName>
+        <externalId>false</externalId>
+        <formula>&quot;Chk/CC#&quot;&amp; &quot;:&quot;&amp;Check__c &amp;&quot; &quot;&amp; Last_4_Digits_of_Credit_Card__c &amp;&quot;-&quot;&amp; &quot;Name&quot;&amp;&quot;-&quot;&amp;Name__c</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>Payment Information</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Payment_Type__c</fullName>
+        <externalId>false</externalId>
+        <label>Payment Type</label>
+        <picklist>
+            <picklistValues>
+                <fullName>Check by Fax</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Check (Real Paper Check)</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>ACH</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Credit Card</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>No monies exchanged</fullName>
+                <default>false</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Picklist</type>
+    </fields>
+    <fields>
+        <fullName>Status__c</fullName>
+        <externalId>false</externalId>
+        <formula>IF( Confirmed__c = false,  IMAGE(&quot;/servlet/servlet.ImageServer?id=01570000001Vbxu&amp;oid=00D700000008zHZ&amp;lastMod=1372782818000&quot;, &quot;Not Confirmed&quot;) , NULL)</formula>
+        <inlineHelpText>displays an warning image when the order has not been confirmed</inlineHelpText>
+        <label>Status</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Type__c</fullName>
+        <externalId>false</externalId>
+        <formula>CASE(Opportunity__r.Type, 
+&quot;New Business&quot;, &quot;New Dealer&quot;, 
+&quot;Existing Business&quot;, &quot;Existing Dealer&quot;,
+&quot;New Dealer&quot;)</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>Type of Business</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>ValidationRules__c</fullName>
+        <defaultValue>false</defaultValue>
+        <externalId>false</externalId>
+        <label>ValidationRules</label>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>installmentAmtPlusSalesTax__c</fullName>
+        <externalId>false</externalId>
+        <label>installmentAmtPlusSalesTax</label>
+        <precision>16</precision>
+        <required>false</required>
+        <scale>2</scale>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>true</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Currency</type>
+    </fields>
+    <label>Installment</label>
+    <listViews>
+        <fullName>All</fullName>
+        <columns>CREATED_DATE</columns>
+        <columns>NAME</columns>
+        <columns>Opportunity__c</columns>
+        <columns>Installment_Amount__c</columns>
+        <columns>Installment_Due_Date__c</columns>
+        <columns>Installment_Number__c</columns>
+        <columns>Paid__c</columns>
+        <filterScope>Everything</filterScope>
+        <filters>
+            <field>NAME</field>
+            <operation>notContain</operation>
+            <value>test</value>
+        </filters>
+        <label>All</label>
+    </listViews>
+    <listViews>
+        <fullName>All_Unpaid_Installments</fullName>
+        <columns>Opportunity_Stage__c</columns>
+        <columns>NAME</columns>
+        <columns>Opportunity__c</columns>
+        <columns>OWNER.FIRST_NAME</columns>
+        <columns>Installment_Amount__c</columns>
+        <columns>Opportunity_Close_Date__c</columns>
+        <columns>Installment_Due_Date__c</columns>
+        <columns>Type__c</columns>
+        <columns>Paid__c</columns>
+        <columns>Installment_Number__c</columns>
+        <columns>Due_Date_Change_Counter__c</columns>
+        <filterScope>Everything</filterScope>
+        <filters>
+            <field>Paid__c</field>
+            <operation>equals</operation>
+        </filters>
+        <filters>
+            <field>NAME</field>
+            <operation>notContain</operation>
+            <value>test</value>
+        </filters>
+        <filters>
+            <field>Opportunity__c</field>
+            <operation>notEqual</operation>
+        </filters>
+        <filters>
+            <field>Installment_Amount__c</field>
+            <operation>notEqual</operation>
+        </filters>
+        <filters>
+            <field>Opportunity_Stage__c</field>
+            <operation>notEqual</operation>
+            <value>lost,reopened</value>
+        </filters>
+        <label>!All Unpaid Installments</label>
+    </listViews>
+    <listViews>
+        <fullName>All_Unpaid_Installments_Lost</fullName>
+        <columns>NAME</columns>
+        <columns>Opportunity__c</columns>
+        <columns>OWNER.FIRST_NAME</columns>
+        <columns>Opportunity_ID__c</columns>
+        <columns>Installment_Amount__c</columns>
+        <columns>Installment_Due_Date__c</columns>
+        <columns>Paid__c</columns>
+        <columns>Opportunity_Stage__c</columns>
+        <columns>Opportunity_Close_Date__c</columns>
+        <filterScope>Everything</filterScope>
+        <filters>
+            <field>Paid__c</field>
+            <operation>equals</operation>
+        </filters>
+        <filters>
+            <field>NAME</field>
+            <operation>notContain</operation>
+            <value>test</value>
+        </filters>
+        <filters>
+            <field>Opportunity__c</field>
+            <operation>notEqual</operation>
+        </filters>
+        <filters>
+            <field>Installment_Amount__c</field>
+            <operation>notEqual</operation>
+            <value>0</value>
+        </filters>
+        <filters>
+            <field>Opportunity_Stage__c</field>
+            <operation>contains</operation>
+            <value>lost,unknown</value>
+        </filters>
+        <label>All Unpaid Installments-Stage Lost</label>
+    </listViews>
+    <listViews>
+        <fullName>All_Unpaid_Installments_OEM</fullName>
+        <columns>Opportunity_Stage__c</columns>
+        <columns>NAME</columns>
+        <columns>Opportunity__c</columns>
+        <columns>OWNER.FIRST_NAME</columns>
+        <columns>Installment_Amount__c</columns>
+        <columns>Opportunity_Close_Date__c</columns>
+        <columns>Installment_Due_Date__c</columns>
+        <columns>Type__c</columns>
+        <columns>Paid__c</columns>
+        <columns>Installment_Number__c</columns>
+        <columns>Due_Date_Change_Counter__c</columns>
+        <filterScope>Everything</filterScope>
+        <filters>
+            <field>Paid__c</field>
+            <operation>equals</operation>
+        </filters>
+        <filters>
+            <field>NAME</field>
+            <operation>contains</operation>
+            <value>OEM</value>
+        </filters>
+        <filters>
+            <field>Opportunity__c</field>
+            <operation>notEqual</operation>
+        </filters>
+        <filters>
+            <field>Installment_Amount__c</field>
+            <operation>notEqual</operation>
+        </filters>
+        <filters>
+            <field>Opportunity_Stage__c</field>
+            <operation>notEqual</operation>
+            <value>lost,reopened</value>
+        </filters>
+        <label>!All Unpaid Installments - OEM</label>
+    </listViews>
+    <listViews>
+        <fullName>All_Unpaid_Installments_notfirst</fullName>
+        <columns>Opportunity_Stage__c</columns>
+        <columns>NAME</columns>
+        <columns>Opportunity__c</columns>
+        <columns>OWNER.FIRST_NAME</columns>
+        <columns>Installment_Amount__c</columns>
+        <columns>Opportunity_Close_Date__c</columns>
+        <columns>Installment_Due_Date__c</columns>
+        <columns>Type__c</columns>
+        <columns>Paid__c</columns>
+        <columns>Installment_Number__c</columns>
+        <columns>Due_Date_Change_Counter__c</columns>
+        <filterScope>Everything</filterScope>
+        <filters>
+            <field>Paid__c</field>
+            <operation>equals</operation>
+        </filters>
+        <filters>
+            <field>NAME</field>
+            <operation>notContain</operation>
+            <value>test</value>
+        </filters>
+        <filters>
+            <field>Opportunity__c</field>
+            <operation>notEqual</operation>
+        </filters>
+        <filters>
+            <field>Installment_Amount__c</field>
+            <operation>notEqual</operation>
+        </filters>
+        <filters>
+            <field>Installment_Number__c</field>
+            <operation>greaterThan</operation>
+            <value>1</value>
+        </filters>
+        <label>All Unpaid Installments - not first</label>
+    </listViews>
+    <listViews>
+        <fullName>All_Unpaid_Installments_this_year</fullName>
+        <columns>NAME</columns>
+        <columns>Opportunity__c</columns>
+        <columns>Installment_Amount__c</columns>
+        <columns>Opportunity_Close_Date__c</columns>
+        <columns>Installment_Due_Date__c</columns>
+        <columns>Paid__c</columns>
+        <columns>Opportunity_ID__c</columns>
+        <filterScope>Everything</filterScope>
+        <filters>
+            <field>Paid__c</field>
+            <operation>equals</operation>
+        </filters>
+        <filters>
+            <field>NAME</field>
+            <operation>lessOrEqual</operation>
+            <value>test</value>
+        </filters>
+        <filters>
+            <field>Installment_Due_Date__c</field>
+            <operation>equals</operation>
+            <value>THIS_YEAR</value>
+        </filters>
+        <label>All Unpaid Installments-This Year</label>
+    </listViews>
+    <listViews>
+        <fullName>Haystak_Confirmed</fullName>
+        <booleanFilter>1 AND 2 AND 3 AND 4 AND 5 and 6 and 7</booleanFilter>
+        <columns>Paid__c</columns>
+        <columns>Opportunity_Stage__c</columns>
+        <columns>NAME</columns>
+        <columns>Opportunity__c</columns>
+        <columns>OWNER.FIRST_NAME</columns>
+        <columns>Installment_Amount__c</columns>
+        <columns>Opportunity_Close_Date__c</columns>
+        <columns>Installment_Due_Date__c</columns>
+        <columns>Type__c</columns>
+        <columns>Installment_Number__c</columns>
+        <columns>Due_Date_Change_Counter__c</columns>
+        <filterScope>Everything</filterScope>
+        <filters>
+            <field>NAME</field>
+            <operation>notContain</operation>
+            <value>vinsolutions,oem</value>
+        </filters>
+        <filters>
+            <field>Opportunity__c</field>
+            <operation>notEqual</operation>
+        </filters>
+        <filters>
+            <field>Installment_Amount__c</field>
+            <operation>notEqual</operation>
+        </filters>
+        <filters>
+            <field>Opportunity_Stage__c</field>
+            <operation>notEqual</operation>
+            <value>lost,reopened</value>
+        </filters>
+        <filters>
+            <field>Confirmed__c</field>
+            <operation>equals</operation>
+            <value>1</value>
+        </filters>
+        <filters>
+            <field>CREATED_DATE</field>
+            <operation>greaterOrEqual</operation>
+            <value>6/24/2013 12:00 AM</value>
+        </filters>
+        <filters>
+            <field>NAME</field>
+            <operation>contains</operation>
+            <value>Haystak,kore 360</value>
+        </filters>
+        <label>!Haystak Confirmed</label>
+    </listViews>
+    <listViews>
+        <fullName>Not_Confirmed</fullName>
+        <booleanFilter>1 AND 2 AND 3 AND 4 AND 5 and 6</booleanFilter>
+        <columns>Paid__c</columns>
+        <columns>Opportunity_Stage__c</columns>
+        <columns>NAME</columns>
+        <columns>Opportunity__c</columns>
+        <columns>OWNER.FIRST_NAME</columns>
+        <columns>Installment_Amount__c</columns>
+        <columns>Opportunity_Close_Date__c</columns>
+        <columns>Installment_Due_Date__c</columns>
+        <columns>Type__c</columns>
+        <columns>Installment_Number__c</columns>
+        <columns>Due_Date_Change_Counter__c</columns>
+        <filterScope>Everything</filterScope>
+        <filters>
+            <field>NAME</field>
+            <operation>notContain</operation>
+            <value>test,vinsolutions,oem</value>
+        </filters>
+        <filters>
+            <field>Opportunity__c</field>
+            <operation>notEqual</operation>
+        </filters>
+        <filters>
+            <field>Installment_Amount__c</field>
+            <operation>notEqual</operation>
+        </filters>
+        <filters>
+            <field>Opportunity_Stage__c</field>
+            <operation>notEqual</operation>
+            <value>lost,reopened</value>
+        </filters>
+        <filters>
+            <field>Confirmed__c</field>
+            <operation>equals</operation>
+            <value>0</value>
+        </filters>
+        <filters>
+            <field>CREATED_DATE</field>
+            <operation>greaterOrEqual</operation>
+            <value>6/24/2013 12:00 AM</value>
+        </filters>
+        <label>!Not Confirmed</label>
+    </listViews>
+    <listViews>
+        <fullName>Not_Confirmed_Hay</fullName>
+        <booleanFilter>1 AND 2 AND 3 AND 4 AND 5 and 6 and 7</booleanFilter>
+        <columns>Paid__c</columns>
+        <columns>Opportunity_Stage__c</columns>
+        <columns>NAME</columns>
+        <columns>Opportunity__c</columns>
+        <columns>OWNER.FIRST_NAME</columns>
+        <columns>Installment_Amount__c</columns>
+        <columns>Opportunity_Close_Date__c</columns>
+        <columns>Installment_Due_Date__c</columns>
+        <columns>Type__c</columns>
+        <columns>Installment_Number__c</columns>
+        <columns>Due_Date_Change_Counter__c</columns>
+        <filterScope>Everything</filterScope>
+        <filters>
+            <field>NAME</field>
+            <operation>notContain</operation>
+            <value>vinsolutions,oem</value>
+        </filters>
+        <filters>
+            <field>Opportunity__c</field>
+            <operation>notEqual</operation>
+        </filters>
+        <filters>
+            <field>Installment_Amount__c</field>
+            <operation>notEqual</operation>
+        </filters>
+        <filters>
+            <field>Opportunity_Stage__c</field>
+            <operation>notEqual</operation>
+            <value>lost,reopened</value>
+        </filters>
+        <filters>
+            <field>Confirmed__c</field>
+            <operation>equals</operation>
+            <value>0</value>
+        </filters>
+        <filters>
+            <field>CREATED_DATE</field>
+            <operation>greaterOrEqual</operation>
+            <value>6/24/2013 12:00 AM</value>
+        </filters>
+        <filters>
+            <field>NAME</field>
+            <operation>contains</operation>
+            <value>Haystak,kore 360</value>
+        </filters>
+        <label>!Haystak Not Confirmed</label>
+    </listViews>
+    <listViews>
+        <fullName>Paid_Installments</fullName>
+        <columns>NAME</columns>
+        <columns>Dealer_Id__c</columns>
+        <columns>Opportunity__c</columns>
+        <columns>Installment_Amount__c</columns>
+        <columns>Installment_Due_Date__c</columns>
+        <columns>Paid__c</columns>
+        <filterScope>Everything</filterScope>
+        <filters>
+            <field>Paid__c</field>
+            <operation>notEqual</operation>
+        </filters>
+        <label>Paid Installments</label>
+    </listViews>
+    <listViews>
+        <fullName>Paid_Installments_30</fullName>
+        <columns>NAME</columns>
+        <columns>Dealer_Id__c</columns>
+        <columns>Opportunity__c</columns>
+        <columns>Installment_Amount__c</columns>
+        <columns>Installment_Due_Date__c</columns>
+        <columns>Paid__c</columns>
+        <columns>Opportunity_ID__c</columns>
+        <columns>UPDATEDBY_USER</columns>
+        <columns>LAST_UPDATE</columns>
+        <filterScope>Everything</filterScope>
+        <filters>
+            <field>Paid__c</field>
+            <operation>equals</operation>
+            <value>LAST_N_DAYS:30</value>
+        </filters>
+        <label>Paid Installments Last 30 Days</label>
+    </listViews>
+    <listViews>
+        <fullName>Unpaid_but_Confirmed_Installments</fullName>
+        <booleanFilter>1 AND 2 AND 3 AND 4 AND 5 AND 6 and 7</booleanFilter>
+        <columns>Opportunity_Stage__c</columns>
+        <columns>NAME</columns>
+        <columns>Opportunity__c</columns>
+        <columns>OWNER.FIRST_NAME</columns>
+        <columns>Installment_Amount__c</columns>
+        <columns>Opportunity_Close_Date__c</columns>
+        <columns>Installment_Due_Date__c</columns>
+        <columns>Type__c</columns>
+        <columns>Paid__c</columns>
+        <columns>Installment_Number__c</columns>
+        <columns>Due_Date_Change_Counter__c</columns>
+        <filterScope>Everything</filterScope>
+        <filters>
+            <field>Paid__c</field>
+            <operation>equals</operation>
+        </filters>
+        <filters>
+            <field>NAME</field>
+            <operation>notContain</operation>
+            <value>test</value>
+        </filters>
+        <filters>
+            <field>Opportunity__c</field>
+            <operation>notEqual</operation>
+        </filters>
+        <filters>
+            <field>Installment_Amount__c</field>
+            <operation>notEqual</operation>
+        </filters>
+        <filters>
+            <field>Opportunity_Stage__c</field>
+            <operation>notEqual</operation>
+            <value>lost,reopened</value>
+        </filters>
+        <filters>
+            <field>Confirmed__c</field>
+            <operation>equals</operation>
+            <value>1</value>
+        </filters>
+        <filters>
+            <field>CREATED_DATE</field>
+            <operation>greaterOrEqual</operation>
+            <value>6/24/2013 12:00 AM</value>
+        </filters>
+        <label>!Unpaid but Confirmed Installments</label>
+    </listViews>
+    <listViews>
+        <fullName>Zero_Dollar_Installments</fullName>
+        <columns>NAME</columns>
+        <columns>Opportunity__c</columns>
+        <columns>Installment_Amount__c</columns>
+        <columns>Installment_Due_Date__c</columns>
+        <columns>Installment_Number__c</columns>
+        <columns>Opportunity_Stage__c</columns>
+        <filterScope>Everything</filterScope>
+        <filters>
+            <field>Installment_Amount__c</field>
+            <operation>lessThan</operation>
+            <value>1</value>
+        </filters>
+        <filters>
+            <field>Paid__c</field>
+            <operation>equals</operation>
+        </filters>
+        <filters>
+            <field>Opportunity__c</field>
+            <operation>notEqual</operation>
+        </filters>
+        <label>Zero Dollar Installments</label>
+        <sharedTo>
+            <allInternalUsers></allInternalUsers>
+        </sharedTo>
+    </listViews>
+    <listViews>
+        <fullName>find</fullName>
+        <columns>NAME</columns>
+        <columns>Confirmed__c</columns>
+        <columns>LAST_UPDATE</columns>
+        <filterScope>Everything</filterScope>
+        <filters>
+            <field>UPDATEDBY_USER</field>
+            <operation>equals</operation>
+            <value>Danielle dennis</value>
+        </filters>
+        <label>find</label>
+    </listViews>
+    <listViews>
+        <fullName>paid_not_confirmed</fullName>
+        <booleanFilter>1 AND 2 AND 3 AND 4 AND 5 AND 6 and 7</booleanFilter>
+        <columns>Opportunity_Stage__c</columns>
+        <columns>NAME</columns>
+        <columns>Opportunity__c</columns>
+        <columns>OWNER.FIRST_NAME</columns>
+        <columns>Installment_Amount__c</columns>
+        <columns>Opportunity_Close_Date__c</columns>
+        <columns>Installment_Due_Date__c</columns>
+        <columns>Type__c</columns>
+        <columns>Paid__c</columns>
+        <columns>Installment_Number__c</columns>
+        <columns>Due_Date_Change_Counter__c</columns>
+        <filterScope>Everything</filterScope>
+        <filters>
+            <field>Paid__c</field>
+            <operation>notEqual</operation>
+        </filters>
+        <filters>
+            <field>NAME</field>
+            <operation>notContain</operation>
+            <value>test</value>
+        </filters>
+        <filters>
+            <field>Opportunity__c</field>
+            <operation>notEqual</operation>
+        </filters>
+        <filters>
+            <field>Installment_Amount__c</field>
+            <operation>notEqual</operation>
+        </filters>
+        <filters>
+            <field>Opportunity_Stage__c</field>
+            <operation>notEqual</operation>
+            <value>lost,reopened</value>
+        </filters>
+        <filters>
+            <field>Confirmed__c</field>
+            <operation>equals</operation>
+            <value>0</value>
+        </filters>
+        <filters>
+            <field>CREATED_DATE</field>
+            <operation>greaterThan</operation>
+            <value>6/24/2013 12:00 AM</value>
+        </filters>
+        <label>!Paid Installments - Not Confirmed</label>
+    </listViews>
+    <listViews>
+        <fullName>unpaid_prior</fullName>
+        <columns>NAME</columns>
+        <columns>Opportunity__c</columns>
+        <columns>OWNER.FIRST_NAME</columns>
+        <columns>Installment_Amount__c</columns>
+        <columns>Opportunity_Close_Date__c</columns>
+        <columns>Installment_Due_Date__c</columns>
+        <columns>Type__c</columns>
+        <columns>Paid__c</columns>
+        <columns>Opportunity_Stage__c</columns>
+        <columns>Opportunity_ID__c</columns>
+        <filterScope>Everything</filterScope>
+        <filters>
+            <field>Paid__c</field>
+            <operation>equals</operation>
+        </filters>
+        <filters>
+            <field>NAME</field>
+            <operation>notContain</operation>
+            <value>test</value>
+        </filters>
+        <filters>
+            <field>Opportunity__c</field>
+            <operation>notEqual</operation>
+        </filters>
+        <filters>
+            <field>Installment_Amount__c</field>
+            <operation>notEqual</operation>
+        </filters>
+        <label>unpaid prior to last 30 days</label>
+    </listViews>
+    <nameField>
+        <label>Installment Name</label>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>true</trackHistory>
+        <type>Text</type>
+    </nameField>
+    <pluralLabel>Installments</pluralLabel>
+    <searchLayouts/>
+    <sharingModel>ReadWrite</sharingModel>
+    <validationRules>
+        <fullName>Already_marked_confirmed</fullName>
+        <active>false</active>
+        <description>Checks to see if the opportunity was already marked confirmed</description>
+        <errorConditionFormula>ISPICKVAL(Opportunity__r.Confirmed__c, &quot;Yes&quot;) &amp;&amp; 
+Installment_Number__c ==1 &amp;&amp; 
+Confirmed__c = TRUE &amp;&amp; 
+ISCHANGED(Confirmed__c) &amp;&amp;
+Opportunity__r.RecordTypeId != &quot;01270000000Q9Me&quot; &amp;&amp;
+NOT ( OR(
+   $User.UserRoleId = &quot;00E70000001GBsB&quot;, /*Senior Business Analyst*/
+   $User.UserRoleId = &quot;00E70000001GJu5&quot;, /*CRM Systems Administrator*/
+   $User.UserRoleId = &quot;00E70000001GFEU&quot;, /*Customer Service Representative*/
+   $User.UserRoleId = &quot;00E70000001GE8B&quot;, /*Salesforce Developer*/
+   $User.UserRoleId = &quot;00E70000001G9uk&quot; /*Program Manager (Ryan)*/
+) )</errorConditionFormula>
+        <errorMessage>First installment has already been confirmed and the project generated.  Please see an administrator if you have any questions.</errorMessage>
+    </validationRules>
+    <validationRules>
+        <fullName>Cannot_Confirm_Old_Opps</fullName>
+        <active>false</active>
+        <errorConditionFormula>ISCHANGED(Confirmed__c) &amp;&amp;
+Confirmed__c = TRUE &amp;&amp;
+Paid__c &lt; DATETIMEVALUE(DATE(2013,6,1))</errorConditionFormula>
+        <errorMessage>You cannot confirm an opp this old.</errorMessage>
+    </validationRules>
+    <validationRules>
+        <fullName>Cannot_Confirm_if_No_Website</fullName>
+        <active>true</active>
+        <description>when a Haystak opp is closed won, the website url required</description>
+        <errorConditionFormula>Opportunity__r.IsWon &amp;&amp;
+ISBLANK(Opportunity__r.Website__c) &amp;&amp;
+Opportunity__r.RecordType.DeveloperName = &quot;Digital_Marketing&quot; &amp;&amp;
+OR(
+   ISCHANGED(Confirmed__c) &amp;&amp; Confirmed__c = TRUE,
+   ISCHANGED(Paid__c) &amp;&amp; !ISBLANK(Paid__c)
+) &amp;&amp;
+ValidationRules__c = FALSE</errorConditionFormula>
+        <errorMessage>You must enter the website url for this product request into the opp before you can confirm.</errorMessage>
+    </validationRules>
+    <validationRules>
+        <fullName>Invoice_not_generated</fullName>
+        <active>false</active>
+        <description>Checks to see if invoice has been generated</description>
+        <errorConditionFormula>if( Opportunity__r.Invoice_Generated__c ==true &amp;&amp; Installment_Number__c ==1 &amp;&amp; text(Paid__c)!=&quot;&quot;,TRUE, FALSE)</errorConditionFormula>
+        <errorMessage>Invoice needs to be generated before the opportunity can be marked paid.</errorMessage>
+    </validationRules>
+    <validationRules>
+        <fullName>Paid_Field_Restrictions</fullName>
+        <active>false</active>
+        <description>Must have the VinSystem Admin, Controller, VP of Sales, Director of Inside Sales, or Director of Sales role to change the Paid field.</description>
+        <errorConditionFormula>IF(   
+   AND( 
+      ISCHANGED( Paid__c ),
+      NOT ( OR(
+         $User.UserRoleId = &quot;00E70000001GBsB&quot;, /*Business Analyst*/
+         $User.UserRoleId = &quot;00E70000000xjyA&quot;, /*Controller*/
+         $User.UserRoleId = &quot;00E70000000wHfS&quot;, /*VP of Sales*/
+         $User.UserRoleId = &quot;00E70000001GJrp&quot;, /*Director of Inside Sales*/
+         $User.UserRoleId = &quot;00E70000001GJu5&quot;, /*CRM Systems Administrator*/
+         $User.UserRoleId = &quot;00E70000001GFEU&quot;, /*Customer Service Representative*/
+         $User.UserRoleId = &quot;00E70000001GE8B&quot;, /*Salesforce Developer*/
+         $User.UserRoleId = &quot;00E70000000yjXQ&quot;, /*Director of Sales*/
+         $User.UserRoleId = &quot;00E70000001G9uk&quot; /*Marketing Manager*/
+      ) )
+   ),
+TRUE,
+FALSE
+)</errorConditionFormula>
+        <errorDisplayField>Paid__c</errorDisplayField>
+        <errorMessage>Only the Controller, VP of Sales, Director of Sales, Director of Inside Sales, or Salesforce Admins may change this field.</errorMessage>
+    </validationRules>
+    <validationRules>
+        <fullName>Prevent_Installment_Due_Date</fullName>
+        <active>false</active>
+        <description>Prevents the Installment Due Date field from being changed if it is not a brand new record.</description>
+        <errorConditionFormula>AND (
+   ISCHANGED( Installment_Due_Date__c ),
+   NOT( ISNEW() ) 
+)</errorConditionFormula>
+        <errorDisplayField>Installment_Due_Date__c</errorDisplayField>
+        <errorMessage>You cannot change the Installment Due Date. Please submit a Salesforce Change Request for this kind of change.</errorMessage>
+    </validationRules>
+</CustomObject>

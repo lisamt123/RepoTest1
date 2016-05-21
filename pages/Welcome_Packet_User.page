@@ -1,0 +1,157 @@
+<apex:page controller="WelcomePacketUser" showHeader="false"
+	cache="false">
+	<head>
+<apex:stylesheet value="{!$Resource.styles}"></apex:stylesheet>
+	</head>
+
+	<script TYPE="text/javascript">
+
+function popup(mylink, windowname)
+{
+	if (! window.focus) return true;
+	
+	var href;
+	
+	if (typeof(mylink) == 'string') href=mylink;
+	else href=mylink.href;
+	
+	window.open(href, windowname, 'width=1100,height=500,scrollbars=yes');
+	return false;
+}
+
+</script>
+
+
+	<table border="0" width="100%" height="100%" id="bg"
+		style="background-color: #EEEEEE; background: none !important;">
+		<tr valign="top">
+			<td>
+				<div class="maincontainer">
+
+					<apex:messages />
+
+					<apex:image id="key1" width="100%"
+						value="/resource/1265230873000/Header" />
+
+					<apex:sectionHeader title="Welcome to Vinsolutions"
+						subtitle="Vinsolutions Welcome Packet" />
+
+
+
+					<apex:form >
+						<apex:pageBlock >
+
+							<apex:pageBlockButtons >
+								<apex:commandButton value="Previous Step" action="{!goBack}"
+									immediate="true" />
+								<apex:commandButton value="Save - Add More Later"
+									action="{!save}" rerender="error" immediate="true" />
+								<apex:commandButton value="Save - User List Complete"
+									action="{!saveUserListComplete}" rerender="error" />
+								<!--   <apex:commandButton value="Done" action="{!skip}" />-->
+							</apex:pageBlockButtons>
+							<apex:pageBlockSection collapsible="false"
+								title="ADD USER SETUP FORM" />
+        	Please add any and all users who will be using Motosnap. All the requested 
+        	information should be complete for each user. If any user in your DMS is not 
+        	identified here, all the data related to them will be put into an orphan account.
+        	
+			<br />
+							<br />
+							<b>By default our system will only allow 2 Administrators per
+								account (Please review the user access form <a
+								style="color: blue; font-size: 12px;"
+								href="/VINWelcomePackets/UserAccess"
+								onClick="return popup(this, 'notes')">here</a> ). If you feel
+								that your account needs more than 2 Administrators on your
+								account, you must submit in writing to your Implementation
+								stating that you have been informed of the perils of having
+								multiple Administrators and are willing to accept responsibility
+								having more than 2 Administrators.</b>
+							<br />
+							<br />
+
+							<small><i>Note: To add an additional user, click "Add
+									Row" in the bottom left corner of the section.</i> </small>
+
+
+
+							<apex:pageBlockTable value="{!user}" var="a" id="table"
+								align="center">
+								<apex:facet name="footer">
+									<apex:commandLink value="Add Row" action="{!addRow}"
+										rerender="table,error" />
+								</apex:facet>
+
+
+								<apex:column headerValue="">
+									<b>First Name</b>
+									<br />
+									<apex:inputField required="true" value="{!a.First_Name__c}" />
+									<br />
+									<br />
+									<b>Last Name</b>
+									<br />
+									<apex:inputField required="true" value="{!a.Name}" />
+									<!--  <apex:commandLink value="Remove Row" action="{!removeRow}" rerender="table">
+	                     	<apex:param name="removeId" value="{!a.Id}" />
+	                     </apex:commandLink>-->
+								</apex:column>
+
+								<apex:column headerValue="">
+									<b>DMS ID</b>
+									<br />
+									<apex:inputField required="true" value="{!a.DMS_ID__c}" />
+									<br />
+									<br />
+									<b>Position</b>
+									<br />
+									<apex:inputField value="{!a.Position__c}" />
+								</apex:column>
+
+								<apex:column headerValue="">
+									<b>Receive Leads</b>
+									<br />
+									<apex:inputField value="{!a.Receive_Leads__c}" />
+									<br />
+									<br />
+									<b>Receive Orphans</b>
+									<br />
+									<apex:inputField value="{!a.Receive_Orphans__c}" />
+								</apex:column>
+
+								<apex:column headerValue="">
+									<b>ILM/CRM Access</b>
+									<br />
+									<apex:inputField required="true" value="{!a.Access__c}" />
+									<br />
+									<br />
+
+									<b>Inventory Access</b>
+									<br />
+									<apex:inputField required="true"
+										value="{!a.Inventory_Access__c}" />
+								</apex:column>
+
+								<apex:column headerValue="">
+									<b>Email</b>
+									<br />
+									<apex:inputField value="{!a.Email__c}" />
+									<br />
+									<br />
+									<b>Day(s) Off</b>
+									<br />
+									<small>Select all that apply</small>
+									<apex:inputField value="{!a.Day_s_Off__c}" />
+								</apex:column>
+
+							</apex:pageBlockTable>
+
+						</apex:pageBlock>
+					</apex:form>
+
+				</div>
+			</td>
+		</tr>
+	</table>
+</apex:page>

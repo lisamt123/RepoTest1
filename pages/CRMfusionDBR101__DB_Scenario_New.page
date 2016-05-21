@@ -1,0 +1,123 @@
+<apex:page standardController="CRMfusionDBR101__Scenario__c" extensions="CRMfusionDBR101.DB_ScenarioController" showHeader="true" tabStyle="CRMfusionDBR101__Scenario__c" standardStylesheets="true">
+    <apex:sectionHeader title="{!$Label.CRMfusionDBR101__DB_Scenario_Edit_Page_Title}" subTitle="{!$Label.CRMfusionDBR101__DB_Scenario_New_Title}" />
+    <style>
+textarea {
+    width: 65%;
+}
+</style>
+    <apex:pageMessages escape="false" />
+    <apex:form >
+        <apex:pageBlock id="mainBlock" title="{!$Label.CRMfusionDBR101__DB_Scenario_Edit_Block_Title}" mode="edit">
+            <apex:pageBlockButtons >
+                <apex:commandButton value="{!$Label.CRMfusionDBR101__DB_Save_Word}" action="{!save}" />
+                <apex:commandButton value="{!$Label.CRMfusionDBR101__DB_Cancel_Word}" action="{!cancel}" />
+            </apex:pageBlockButtons>
+            <apex:pageBlockSection columns="2" collapsible="false" title="{!$Label.CRMfusionDBR101__DB_Scenario_Information_Section_Title}" showHeader="true">
+                <apex:pageBlockSectionItem helpText="{!$ObjectType.CRMfusionDBR101__Scenario__c.Fields.Name.inlineHelpText}">
+                    <apex:outputLabel for="scenarioType" value="{!$ObjectType.CRMfusionDBR101__Scenario__c.Fields.Name.label}" />
+                    <apex:outputPanel styleClass="requiredInput" layout="block">
+                        <apex:outputPanel styleClass="requiredBlock" layout="block" />
+                        <apex:inputText id="scenarioName" value="{!CRMfusionDBR101__Scenario__c.Name}" />
+                    </apex:outputPanel>
+                </apex:pageBlockSectionItem>
+                <apex:inputField value="{!CRMfusionDBR101__Scenario__c.CRMfusionDBR101__Deployed__c}" />
+                <apex:pageBlockSectionItem helpText="{!$ObjectType.CRMfusionDBR101__Scenario__c.Fields.CRMfusionDBR101__Scenario_Type__c.inlineHelpText}">
+                    <apex:outputLabel for="scenarioType" value="{!$ObjectType.CRMfusionDBR101__Scenario__c.Fields.CRMfusionDBR101__Scenario_Type__c.label}" />
+                    <apex:outputPanel styleClass="requiredInput" layout="block">
+                        <apex:outputPanel styleClass="requiredBlock" layout="block" />
+                        <apex:selectList id="scenarioType" size="1" required="true" value="{!CRMfusionDBR101__Scenario__c.CRMfusionDBR101__Scenario_Type__c}" multiselect="false">
+                            <apex:selectOptions value="{!scenarioTypes}" />
+                            <apex:actionStatus layout="block" id="scenarioTypeStatus" startText="{!$Label.CRMfusionDBR101__DB_Updating_Available_Options}" />
+                            <apex:actionSupport event="onchange" rerender="insertAction" status="scenarioTypeStatus" />
+                        </apex:selectList>
+                    </apex:outputPanel>
+                </apex:pageBlockSectionItem>
+                <apex:inputField value="{!CRMfusionDBR101__Scenario__c.CRMfusionDBR101__Bypass_Security__c}" />
+                <apex:pageBlockSectionItem helpText="{!$ObjectType.CRMfusionDBR101__Scenario__c.Fields.CRMfusionDBR101__Match_on_Insert_Action__c.inlineHelpText}">
+                    <apex:outputLabel for="insertAction" value="{!$ObjectType.CRMfusionDBR101__Scenario__c.Fields.CRMfusionDBR101__Match_on_Insert_Action__c.label}" />
+                    <apex:outputPanel styleClass="requiredInput" layout="block">
+                        <apex:outputPanel styleClass="requiredBlock" layout="block" />
+                        <apex:selectList id="insertAction" size="1" required="true" value="{!CRMfusionDBR101__Scenario__c.CRMfusionDBR101__Match_on_Insert_Action__c}" multiselect="false">
+                            <apex:selectOption itemValue="Do Not Insert" itemLabel="{!$Label.CRMfusionDBR101__DB_Select_Option_Do_Not_Insert}" />
+                            <apex:selectOption itemValue="Redirect to Existing" itemLabel="{!$Label.CRMfusionDBR101__DB_Select_Option_Redirect_to_Existing}" />
+                            <apex:selectOption itemValue="Report Duplicate" itemLabel="{!$Label.CRMfusionDBR101__DB_Select_Option_Report_Duplicate}" />
+                            <apex:selectOption itemValue="Do Nothing" itemLabel="{!$Label.CRMfusionDBR101__DB_Select_Option_Do_Nothing}" />
+                            <apex:selectOption itemValue="Auto-Convert Lead" itemLabel="{!$Label.CRMfusionDBR101__DB_Select_Option_AutoConvert_Lead}"
+                                rendered="{!BEGINS(CRMfusionDBR101__Scenario__c.CRMfusionDBR101__Scenario_Type__c, 'Lead to')}" />
+                            <apex:selectOption itemValue="Auto-Merge" itemLabel="{!$Label.CRMfusionDBR101__DB_Select_Option_AutoMerge}"
+                                rendered="{!NOT(BEGINS(CRMfusionDBR101__Scenario__c.CRMfusionDBR101__Scenario_Type__c, 'Lead to'))}" />
+                            <apex:selectOption itemValue="Redirect to VisualForce Page" itemLabel="{!$Label.CRMfusionDBR101__DB_Select_Option_Redirect_to_VF_Page}" />
+                            <apex:selectOption itemValue="Custom Apex Code" itemLabel="{!$Label.CRMfusionDBR101__DB_Select_Option_Apex_Code}" />
+                            <apex:actionStatus layout="block" id="matchOnInsertStatus" startText="{!$Label.CRMfusionDBR101__DB_Updating_Available_Options}" />
+                            <apex:actionSupport event="onchange" rerender="errorMessageSection" status="matchOnInsertStatus" />
+                        </apex:selectList>
+                    </apex:outputPanel>
+                </apex:pageBlockSectionItem>
+                <apex:inputField value="{!CRMfusionDBR101__Scenario__c.CRMfusionDBR101__Enable_Dual_Filters__c}" />
+                <apex:pageBlockSectionItem helpText="{!$ObjectType.CRMfusionDBR101__Scenario__c.Fields.CRMfusionDBR101__Match_on_Update_Action__c.inlineHelpText}">
+                    <apex:outputLabel for="updateAction" value="{!$ObjectType.CRMfusionDBR101__Scenario__c.Fields.CRMfusionDBR101__Match_on_Update_Action__c.label}" />
+                    <apex:outputPanel styleClass="requiredInput" layout="block">
+                        <apex:outputPanel styleClass="requiredBlock" layout="block" />
+                        <apex:selectList id="updateAction" size="1" required="true" value="{!CRMfusionDBR101__Scenario__c.CRMfusionDBR101__Match_on_Update_Action__c}" multiselect="false">
+                            <apex:selectOption itemValue="Do Not Update" itemLabel="Do Not Update" />
+                            <apex:selectOption itemValue="Report Duplicate" itemLabel="{!$Label.CRMfusionDBR101__DB_Select_Option_Report_Duplicate}" />
+                            <apex:selectOption itemValue="Do Nothing" itemLabel="{!$Label.CRMfusionDBR101__DB_Select_Option_Do_Nothing}" />
+                            <apex:selectOption itemValue="Custom Apex Code" itemLabel="{!$Label.CRMfusionDBR101__DB_Select_Option_Apex_Code}" />
+                            <apex:actionStatus layout="block" id="matchOnUpdateStatus" startText="{!$Label.CRMfusionDBR101__DB_Updating_Available_Options}" />
+                            <apex:actionSupport event="onchange" rerender="errorMessageSection" status="matchOnUpdateStatus" />
+                        </apex:selectList>
+                    </apex:outputPanel>
+                </apex:pageBlockSectionItem>
+                <apex:inputField value="{!CRMfusionDBR101__Scenario__c.CRMfusionDBR101__Person_Account_Scenario__c}" />
+                <apex:pageBlockSectionItem helpText="{!$ObjectType.CRMfusionDBR101__Scenario__c.Fields.CRMfusionDBR101__Create_Task__c.inlineHelpText}">
+                    <apex:outputLabel for="createTask" value="{!$ObjectType.CRMfusionDBR101__Scenario__c.Fields.CRMfusionDBR101__Create_Task__c.label}" />
+                    <apex:outputPanel styleClass="requiredInput" layout="block">
+                        <apex:outputPanel styleClass="requiredBlock" layout="block" />
+                        <apex:selectList id="createTask" size="1" required="true" value="{!CRMfusionDBR101__Scenario__c.CRMfusionDBR101__Create_Task__c}" multiselect="false">
+                            <apex:selectOption itemValue="No" itemLabel="No" />
+                            <apex:selectOption itemValue="Yes - Current User" itemLabel="Yes - Current User" />
+                            <apex:selectOption itemValue="Yes - Scenario Owner" itemLabel="Yes - Scenario Owner" />
+                            <apex:selectOption itemValue="Yes - Current User and Scenario Owner" itemLabel="Yes - Current User and Scenario Owner" />
+                        </apex:selectList>
+                    </apex:outputPanel>
+                </apex:pageBlockSectionItem>
+                <apex:inputField value="{!CRMfusionDBR101__Scenario__c.CRMfusionDBR101__Rebuild_Needed__c}" />
+            </apex:pageBlockSection>
+            <apex:outputPanel id="errorMessageSection">
+                <apex:pageblockSection columns="2" collapsible="false" showHeader="false" rendered="{!showCodeOptions}">
+                    <apex:pageBlockSectionItem rendered="{!showVfPageSelector}" helpText="{!$ObjectType.CRMfusionDBR101__Scenario__c.Fields.CRMfusionDBR101__VisualForce_Handler__c.inlineHelpText}">
+                        <apex:outputLabel for="vfRedirectionPage" value="{!$ObjectType.CRMfusionDBR101__Scenario__c.Fields.CRMfusionDBR101__VisualForce_Handler__c.label}" />
+                        <apex:outputPanel styleClass="requiredInput" layout="block">
+                            <apex:outputPanel styleClass="requiredBlock" layout="block" />
+                            <apex:selectList id="vfRedirectionPage" size="1" value="{!CRMfusionDBR101__Scenario__c.CRMfusionDBR101__VisualForce_Handler__c}" multiselect="false">
+                                <apex:selectOptions value="{!vfPagesList}" />
+                            </apex:selectList>
+                        </apex:outputPanel>
+                    </apex:pageBlockSectionItem>
+                    <apex:pageBlockSectionItem rendered="{!showApexClassSelector}" helpText="{!$ObjectType.CRMfusionDBR101__Scenario__c.Fields.CRMfusionDBR101__Apex_Handler__c.inlineHelpText}">
+                        <apex:outputLabel for="apexHandler" value="{!$ObjectType.CRMfusionDBR101__Scenario__c.Fields.CRMfusionDBR101__Apex_Handler__c.label}" />
+                        <apex:outputPanel styleClass="requiredInput" layout="block">
+                            <apex:outputPanel styleClass="requiredBlock" layout="block" />
+                            <apex:selectList id="apexHandler" size="1" value="{!CRMfusionDBR101__Scenario__c.CRMfusionDBR101__Apex_Handler__c}" multiselect="false">
+                                <apex:selectOptions value="{!apexClassList}" />
+                            </apex:selectList>
+                        </apex:outputPanel>
+                    </apex:pageBlockSectionItem>
+                </apex:pageblockSection>
+                <apex:pageBlockSection columns="1" collapsible="false" showHeader="false"
+                    rendered="{!OR(scenario.CRMfusionDBR101__Match_on_Insert_Action__c == 'Do Not Insert', scenario.CRMfusionDBR101__Match_on_Update_Action__c == 'Do Not Update')}">
+                    <apex:pageBlockSectionItem helpText="{!$ObjectType.CRMfusionDBR101__Scenario__c.Fields.CRMfusionDBR101__Error_Message__c.inlineHelpText}">
+                        <apex:outputLabel for="errorMessage" value="{!$ObjectType.CRMfusionDBR101__Scenario__c.Fields.CRMfusionDBR101__Error_Message__c.label}" />
+                        <apex:outputPanel styleClass="requiredInput" layout="block">
+                            <apex:outputPanel styleClass="requiredBlock" layout="block" />
+                            <apex:inputTextArea id="errorMessage" value="{!CRMfusionDBR101__Scenario__c.CRMfusionDBR101__Error_Message__c}" />
+                        </apex:outputPanel>
+                    </apex:pageBlockSectionItem>
+                    <apex:inputField rendered="{!usesAllowBlockBypass}" value="{!CRMfusionDBR101__Scenario__c.CRMfusionDBR101__Allow_Block_Bypass__c}" />
+                    <apex:inputField value="{!CRMfusionDBR101__Scenario__c.CRMfusionDBR101__Max_Blocks_Shown__c}" />
+                    <apex:inputField rendered="{!BEGINS( CRMfusionDBR101__Scenario__c.CRMfusionDBR101__Scenario_Type__c, 'Lead to' )}" value="{!CRMfusionDBR101__Scenario__c.CRMfusionDBR101__Block_Related_Matches__c}" />
+                </apex:pageBlockSection>
+            </apex:outputPanel>
+        </apex:pageBlock>
+    </apex:form>
+</apex:page>

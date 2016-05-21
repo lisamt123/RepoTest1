@@ -1,0 +1,98 @@
+<apex:page standardController="agf__ADM_Work__c" extensions="agf.ADM_AddWorkToSprintController" recordSetVar="stories" showHeader="false" sidebar="false">
+<apex:include pageName="agf__ADM_Overlay_CSS"/>
+    <apex:includeScript value="{!$Resource.agf__jquery_mini}"/>
+    <apex:includeScript value="{!$Resource.agf__jquery_mini_ui}"/>
+<script>
+
+
+
+function overlay() {
+            el = document.getElementById("overlay");
+            el.style.visibility = (el.style.visibility == "visible") ? "hidden" : "visible";            
+        }
+
+</script>
+<!--Start div overlay container, this box specifies the width of the overlay-->
+    <div id="overlay">
+        <apex:outputPanel id="overlaycontainer" layout="block" styleClass="overlaycontainer">
+            <!--TOOL BAR-->
+            <apex:outputPanel layout="block" styleClass="overlaylefttopcrn">                
+                <apex:outputPanel layout="block" styleClass="overlaytoolbar">
+                    <apex:outputPanel style="color:#ffffff; font-weight:bold; font-size:1.2em;">
+                        &nbsp;
+                    </apex:outputPanel>
+                </apex:outputPanel>
+            </apex:outputPanel>
+            <!--CONTENT DIV TOOL BAR-->
+            <apex:outputPanel layout="block" styleClass="overlaycontentbox" style="text-align:center;font-size:150%;">
+                <apex:image url="{!$Resource.agf__ajaxloaderlarge}" alt="Loading" style="padding:0 5px;"/> <span id="loadingMessage">Loading...</span>
+            </apex:outputPanel>
+            <!--BOTTOM CORNERS AND BOTTOM BORDER-->
+            <apex:outputPanel layout="block" styleClass="overlayleftbtmcrn"><apex:outputPanel layout="block" styleClass="overlaybtm"></apex:outputPanel></apex:outputPanel>
+            <!-- overlay container div-->
+        </apex:outputPanel>
+    </div> 
+
+<apex:form >
+	<apex:pageMessages id="pm"/>
+	
+	<apex:outputPanel layout="block" id="stories" style="height:470px; overflow: auto;">
+		
+		<apex:pageBlock >
+			<apex:pageblockButtons location="top">
+                <apex:outputPanel >
+                    <apex:commandButton value="Add To Sprint"  action="{!addToSprint}"  /> 
+                </apex:outputPanel>
+            </apex:pageblockButtons>        
+			<apex:pageBlockTable value="{!Work}" var="workrec" width="100%" id="workrecs">
+						<apex:column >
+					 		<apex:facet name="header">
+					 			<apex:outputPanel >
+					 				<input type="checkbox" id="checkAllAuto" />	
+					 			</apex:outputPanel>
+					 		</apex:facet>
+							<apex:outputPanel >
+								 <apex:inputCheckbox value="{!workrec.checked}" styleClass="workCheckBox" rendered="{!AND(workrec.work.agf__Status__c != 'Closed', workrec.work.agf__Sprint__c != SprintID)}" />
+								 <apex:image url="{!$Resource.agf__checkedbox}" rendered="{!AND(workrec.work.agf__Status__c != 'Closed', workrec.work.agf__Sprint__c == SprintID)}" />
+								 <apex:outputText value="N/A" rendered="{!workrec.work.agf__Status__c == 'Closed'}" />
+
+				 			</apex:outputPanel>
+					 	</apex:column>
+					 	<apex:column value="{!workrec.work.Name}"/>
+					 		
+					 	<apex:column >
+					 		<apex:outputText value="{!LEFT(workrec.work.agf__Subject__c,60)}" />
+					 		<apex:outputText value="..." rendered="{!LEN(workrec.work.Subject__c) > 60}"/> 
+					 	</apex:column>
+					 		
+				 		<apex:column value="{!workrec.work.agf__Priority__c}" />
+				 		
+				 		<apex:column value="{!workrec.work.agf__Theme__c}" />
+				 		
+				 		<apex:column value="{!workrec.work.agf__Scheduled_Build__c}" /> 
+				 		
+				 		<apex:column value="{!workrec.work.agf__Sprint__c}" /> 
+					 		
+					 	
+			</apex:pageBlockTable>	 	 	
+		</apex:pageBlock>
+		
+        <script>
+
+$('#checkAllAuto').click(
+    function() {
+        $(".workCheckBox").attr('checked', $('#checkAllAuto').is(':checked'));   
+    }
+);
+
+
+</script>
+	</apex:outputPanel>
+	
+
+</apex:form>
+
+	
+	
+
+</apex:page>

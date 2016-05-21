@@ -1,0 +1,283 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <choices>
+        <name>Done</name>
+        <choiceText>Am done with Wizards, take me back</choiceText>
+        <dataType>String</dataType>
+    </choices>
+    <choices>
+        <name>No</name>
+        <choiceText>No</choiceText>
+        <dataType>Boolean</dataType>
+        <value>
+            <booleanValue>false</booleanValue>
+        </value>
+    </choices>
+    <choices>
+        <name>Opportunity_Wizard</name>
+        <choiceText>Review Opportunity Wizard</choiceText>
+        <dataType>String</dataType>
+        <value>
+            <stringValue>Opportunity Wizard</stringValue>
+        </value>
+    </choices>
+    <choices>
+        <name>Pledge_Wizard</name>
+        <choiceText>Review Pledge Wizard</choiceText>
+        <dataType>String</dataType>
+        <value>
+            <stringValue>Pledge Wizard</stringValue>
+        </value>
+    </choices>
+    <choices>
+        <name>Yes</name>
+        <choiceText>Yes</choiceText>
+        <dataType>Boolean</dataType>
+        <value>
+            <booleanValue>true</booleanValue>
+        </value>
+    </choices>
+    <decisions>
+        <name>Run_Opty_Wizard</name>
+        <label>Run Opty Wizard?</label>
+        <locationX>475</locationX>
+        <locationY>333</locationY>
+        <defaultConnector>
+            <targetReference>WizardsByFlow</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>No Dont Run Opportunity Wizard</defaultConnectorLabel>
+        <rules>
+            <name>Try_Opty_Wizard</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>TryOptyWizard</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>RunOpportunityWizard</targetReference>
+            </connector>
+            <label>Run Opty Wizard</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <name>Run_Pledge_Wizard</name>
+        <label>Run Pledge Wizard?</label>
+        <locationX>746</locationX>
+        <locationY>251</locationY>
+        <defaultConnector>
+            <targetReference>WizardsByFlow</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>No Dont Run Pledge Wizard</defaultConnectorLabel>
+        <rules>
+            <name>Try_Pledge_Wizard</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>TryPledgeWizard</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Run_Pledge_Flow</targetReference>
+            </connector>
+            <label>Run Pledge Wizard</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <name>Try_Wizards_Again</name>
+        <label>Try Wizards Again?</label>
+        <locationX>620</locationX>
+        <locationY>697</locationY>
+        <defaultConnectorLabel>No. I am done</defaultConnectorLabel>
+        <rules>
+            <name>Yes_Try_Wizards_Again</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>TryWizardsAgain</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>WizardsByFlow</targetReference>
+            </connector>
+            <label>Yes, Try Wizards Again</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <name>Which_Wizard</name>
+        <label>Which Wizard?</label>
+        <locationX>475</locationX>
+        <locationY>40</locationY>
+        <defaultConnectorLabel>None</defaultConnectorLabel>
+        <rules>
+            <name>OpportunityWizard</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>Opportunity_Wizard</leftValueReference>
+                <operator>WasSelected</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Opportunity_Wizard_Summary</targetReference>
+            </connector>
+            <label>Opportunity Wizard</label>
+        </rules>
+        <rules>
+            <name>PledgeWizard</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>Pledge_Wizard</leftValueReference>
+                <operator>WasSelected</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Pledge_Wizard_Summary</targetReference>
+            </connector>
+            <label>Pledge Wizard</label>
+        </rules>
+    </decisions>
+    <description>This flow introduces the wizard samples included in the package and lets the user try them out.</description>
+    <label>Wizards by Flow</label>
+    <processType>Flow</processType>
+    <screens>
+        <name>Opportunity_Wizard_Summary</name>
+        <label>Opportunity Wizard Summary</label>
+        <locationX>474</locationX>
+        <locationY>158</locationY>
+        <allowBack>true</allowBack>
+        <allowFinish>true</allowFinish>
+        <allowPause>true</allowPause>
+        <connector>
+            <targetReference>Run_Opty_Wizard</targetReference>
+        </connector>
+        <fields>
+            <name>OptyWizardhowSummary</name>
+            <fieldText>&lt;SPAN ALIGN=&quot;LEFT&quot;&gt;&lt;FONT FACE=&quot;Arial&quot; STYLE=&quot;font-size:14px&quot; COLOR=&quot;#000000&quot; LETTERSPACING=&quot;0&quot; KERNING=&quot;0&quot;&gt;&lt;B&gt;Opportunity Creation Wizard by Flow&lt;/B&gt;&lt;/FONT&gt;&lt;/SPAN&gt;&lt;DIV ALIGN=&quot;LEFT&quot;&gt;&lt;FONT FACE=&quot;Arial&quot; STYLE=&quot;font-size:12px&quot; COLOR=&quot;#000000&quot; LETTERSPACING=&quot;0&quot; KERNING=&quot;0&quot;&gt;The purpose of this Wizard is to guide the user through a three-step wizard that allows users to create an opportunity at the same time as a related contact and account.&lt;/FONT&gt;&lt;/DIV&gt;&lt;TEXTFORMAT LEADING=&quot;2&quot;&gt;&lt;LI&gt;&lt;FONT FACE=&quot;Arial&quot; STYLE=&quot;font-size:12px&quot; COLOR=&quot;#000000&quot; LETTERSPACING=&quot;0&quot; KERNING=&quot;0&quot;&gt;The first step captures information related to the account.&lt;/FONT&gt;&lt;/LI&gt;&lt;/TEXTFORMAT&gt;&lt;TEXTFORMAT LEADING=&quot;2&quot;&gt;&lt;LI&gt;&lt;FONT FACE=&quot;Arial&quot; STYLE=&quot;font-size:12px&quot; COLOR=&quot;#000000&quot; LETTERSPACING=&quot;0&quot; KERNING=&quot;0&quot;&gt;The second step captures information related to the contact.&lt;/FONT&gt;&lt;/LI&gt;&lt;/TEXTFORMAT&gt;&lt;TEXTFORMAT LEADING=&quot;2&quot;&gt;&lt;LI&gt;&lt;FONT FACE=&quot;Arial&quot; STYLE=&quot;font-size:12px&quot; COLOR=&quot;#000000&quot; LETTERSPACING=&quot;0&quot; KERNING=&quot;0&quot;&gt;The last step captures information related to the opportunity. &lt;/FONT&gt;&lt;/LI&gt;&lt;/TEXTFORMAT&gt;&lt;DIV ALIGN=&quot;LEFT&quot;&gt;&lt;FONT FACE=&quot;Arial&quot; STYLE=&quot;font-size:12px&quot; COLOR=&quot;#000000&quot; LETTERSPACING=&quot;0&quot; KERNING=&quot;0&quot;&gt;&lt;/FONT&gt;&lt;/DIV&gt;&lt;DIV ALIGN=&quot;LEFT&quot;&gt;&lt;FONT FACE=&quot;Arial&quot; STYLE=&quot;font-size:12px&quot; COLOR=&quot;#000000&quot; LETTERSPACING=&quot;0&quot; KERNING=&quot;0&quot;&gt;Once this is done, the flow creates the relevant records and provides the user with a summary screen to view the records.&lt;/FONT&gt;&lt;/DIV&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
+        </fields>
+        <fields>
+            <name>TryOptyWizard</name>
+            <choiceReferences>Yes</choiceReferences>
+            <choiceReferences>No</choiceReferences>
+            <dataType>Boolean</dataType>
+            <fieldText>Would you like to try this?</fieldText>
+            <fieldType>RadioButtons</fieldType>
+            <isRequired>false</isRequired>
+        </fields>
+    </screens>
+    <screens>
+        <name>Pledge_Wizard_Summary</name>
+        <label>Pledge Wizard Summary</label>
+        <locationX>743</locationX>
+        <locationY>40</locationY>
+        <allowBack>true</allowBack>
+        <allowFinish>true</allowFinish>
+        <allowPause>true</allowPause>
+        <connector>
+            <targetReference>Run_Pledge_Wizard</targetReference>
+        </connector>
+        <fields>
+            <name>PledgeWizardShowSummary</name>
+            <fieldText>&lt;SPAN ALIGN=&quot;LEFT&quot;&gt;&lt;FONT FACE=&quot;Arial&quot; STYLE=&quot;font-size:14px&quot; COLOR=&quot;#000000&quot; LETTERSPACING=&quot;0&quot; KERNING=&quot;0&quot;&gt;&lt;B&gt;Pledge/Donation Wizard by Flow&lt;/B&gt;&lt;/FONT&gt;&lt;/SPAN&gt;&lt;DIV ALIGN=&quot;LEFT&quot;&gt;&lt;FONT FACE=&quot;Arial&quot; STYLE=&quot;font-size:12px&quot; COLOR=&quot;#000000&quot; LETTERSPACING=&quot;0&quot; KERNING=&quot;0&quot;&gt;The purpose of this wizard is to make the process of managing donations simple.&lt;/FONT&gt;&lt;/DIV&gt;&lt;TEXTFORMAT LEADING=&quot;2&quot;&gt;&lt;LI&gt;&lt;FONT FACE=&quot;Arial&quot; STYLE=&quot;font-size:12px&quot; COLOR=&quot;#000000&quot; LETTERSPACING=&quot;0&quot; KERNING=&quot;0&quot;&gt;The first step accepts information about the person donating the amount and the level.&lt;/FONT&gt;&lt;/LI&gt;&lt;/TEXTFORMAT&gt;&lt;TEXTFORMAT LEADING=&quot;2&quot;&gt;&lt;LI&gt;&lt;FONT FACE=&quot;Arial&quot; STYLE=&quot;font-size:12px&quot; COLOR=&quot;#000000&quot; LETTERSPACING=&quot;0&quot; KERNING=&quot;0&quot;&gt;The second step provides the user a set of thank you gifts based on the donation level.&lt;/FONT&gt;&lt;/LI&gt;&lt;/TEXTFORMAT&gt;&lt;DIV ALIGN=&quot;LEFT&quot;&gt;&lt;FONT FACE=&quot;Arial&quot; STYLE=&quot;font-size:12px&quot; COLOR=&quot;#000000&quot; LETTERSPACING=&quot;0&quot; KERNING=&quot;0&quot;&gt;&lt;/FONT&gt;&lt;/DIV&gt;&lt;DIV ALIGN=&quot;LEFT&quot;&gt;&lt;FONT FACE=&quot;Arial&quot; STYLE=&quot;font-size:12px&quot; COLOR=&quot;#000000&quot; LETTERSPACING=&quot;0&quot; KERNING=&quot;0&quot;&gt;The flow then checks if a contacts exists in your salesforce org based on the information provided in step one and creates a contact only if it does not find.&lt;/FONT&gt;&lt;/DIV&gt;&lt;DIV ALIGN=&quot;LEFT&quot;&gt;&lt;FONT FACE=&quot;Arial&quot; STYLE=&quot;font-size:12px&quot; COLOR=&quot;#000000&quot; LETTERSPACING=&quot;0&quot; KERNING=&quot;0&quot;&gt;&lt;/FONT&gt;&lt;/DIV&gt;&lt;DIV ALIGN=&quot;LEFT&quot;&gt;&lt;FONT FACE=&quot;Arial&quot; STYLE=&quot;font-size:12px&quot; COLOR=&quot;#000000&quot; LETTERSPACING=&quot;0&quot; KERNING=&quot;0&quot;&gt;It finally provides a confirmation page to the user.&lt;/FONT&gt;&lt;/DIV&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
+        </fields>
+        <fields>
+            <name>TryPledgeWizard</name>
+            <choiceReferences>Yes</choiceReferences>
+            <choiceReferences>No</choiceReferences>
+            <dataType>Boolean</dataType>
+            <fieldText>Would you like to try this?</fieldText>
+            <fieldType>RadioButtons</fieldType>
+            <isRequired>false</isRequired>
+        </fields>
+    </screens>
+    <screens>
+        <name>WizardsByFlow</name>
+        <label>Wizards</label>
+        <locationX>144</locationX>
+        <locationY>260</locationY>
+        <allowBack>true</allowBack>
+        <allowFinish>true</allowFinish>
+        <allowPause>true</allowPause>
+        <connector>
+            <targetReference>Which_Wizard</targetReference>
+        </connector>
+        <fields>
+            <name>Welcome</name>
+            <fieldText>&lt;SPAN ALIGN=&quot;LEFT&quot;&gt;&lt;FONT FACE=&quot;Arial&quot; STYLE=&quot;font-size:14px&quot; COLOR=&quot;#000000&quot; LETTERSPACING=&quot;0&quot; KERNING=&quot;0&quot;&gt;&lt;B&gt;Wizards&lt;/B&gt;&lt;FONT STYLE=&quot;font-size:12px&quot;&gt;&lt;/FONT&gt;&lt;/FONT&gt;&lt;/SPAN&gt;&lt;DIV ALIGN=&quot;LEFT&quot;&gt;&lt;FONT FACE=&quot;Arial&quot; STYLE=&quot;font-size:12px&quot; COLOR=&quot;#000000&quot; LETTERSPACING=&quot;0&quot; KERNING=&quot;0&quot;&gt;&lt;/FONT&gt;&lt;/DIV&gt;&lt;DIV ALIGN=&quot;LEFT&quot;&gt;&lt;FONT FACE=&quot;Arial&quot; STYLE=&quot;font-size:12px&quot; COLOR=&quot;#000000&quot; LETTERSPACING=&quot;0&quot; KERNING=&quot;0&quot;&gt;With Visual Workflow, you can quickly build a powerful wizard that allows your users to smoothly navigate through a series of screens while the flow executes logic and decides which branches of the flow to take. The logic can be based on user input, data queried from Salesforce, data or logic embedded in an Apex plug-in, or even a web service callout—all within the same flow, and without writing any code!&lt;/FONT&gt;&lt;/DIV&gt;&lt;DIV ALIGN=&quot;LEFT&quot;&gt;&lt;FONT FACE=&quot;Arial&quot; STYLE=&quot;font-size:12px&quot; COLOR=&quot;#000000&quot; LETTERSPACING=&quot;0&quot; KERNING=&quot;0&quot;&gt;&lt;/FONT&gt;&lt;/DIV&gt;&lt;DIV ALIGN=&quot;LEFT&quot;&gt;&lt;FONT FACE=&quot;Arial&quot; STYLE=&quot;font-size:12px&quot; COLOR=&quot;#000000&quot; LETTERSPACING=&quot;0&quot; KERNING=&quot;0&quot;&gt;The Visual Workflow Sample Pack includes a few wizards to help you get started.&lt;/FONT&gt;&lt;/DIV&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
+        </fields>
+        <fields>
+            <name>selectAction</name>
+            <choiceReferences>Opportunity_Wizard</choiceReferences>
+            <choiceReferences>Pledge_Wizard</choiceReferences>
+            <choiceReferences>Done</choiceReferences>
+            <dataType>String</dataType>
+            <fieldText>Here are your choices</fieldText>
+            <fieldType>RadioButtons</fieldType>
+            <isRequired>false</isRequired>
+        </fields>
+        <fields>
+            <name>EmptySection</name>
+            <fieldText>&lt;SPAN ALIGN=&quot;LEFT&quot;&gt;&lt;FONT FACE=&quot;Arial&quot; STYLE=&quot;font-size:12px&quot; COLOR=&quot;#000000&quot; LETTERSPACING=&quot;0&quot; KERNING=&quot;0&quot;&gt;&lt;/FONT&gt;&lt;/SPAN&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
+        </fields>
+    </screens>
+    <screens>
+        <name>WizardsEnd</name>
+        <label>WizardsEnd</label>
+        <locationX>626</locationX>
+        <locationY>590</locationY>
+        <allowBack>true</allowBack>
+        <allowFinish>true</allowFinish>
+        <allowPause>true</allowPause>
+        <connector>
+            <targetReference>Try_Wizards_Again</targetReference>
+        </connector>
+        <fields>
+            <name>hola</name>
+            <fieldText>&lt;SPAN ALIGN=&quot;LEFT&quot;&gt;&lt;FONT FACE=&quot;Arial&quot; STYLE=&quot;font-size:14px&quot; COLOR=&quot;#000000&quot; LETTERSPACING=&quot;0&quot; KERNING=&quot;1&quot;&gt;&lt;B&gt;Wizards by Flow&lt;/B&gt;&lt;FONT STYLE=&quot;font-size:12px&quot; KERNING=&quot;0&quot;&gt;&lt;/FONT&gt;&lt;/FONT&gt;&lt;/SPAN&gt;&lt;DIV ALIGN=&quot;LEFT&quot;&gt;&lt;FONT FACE=&quot;Arial&quot; STYLE=&quot;font-size:12px&quot; COLOR=&quot;#000000&quot; LETTERSPACING=&quot;0&quot; KERNING=&quot;0&quot;&gt;That was a simple wizard built entirely in Flow without writing any code!&lt;/FONT&gt;&lt;/DIV&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
+        </fields>
+        <fields>
+            <name>TryWizardsAgain</name>
+            <choiceReferences>Yes</choiceReferences>
+            <choiceReferences>No</choiceReferences>
+            <dataType>Boolean</dataType>
+            <fieldText>Would you like to try any of the other wizards?</fieldText>
+            <fieldType>RadioButtons</fieldType>
+            <isRequired>false</isRequired>
+        </fields>
+    </screens>
+    <startElementReference>WizardsByFlow</startElementReference>
+    <subflows>
+        <name>Run_Pledge_Flow</name>
+        <label>Run Pledge Flow</label>
+        <locationX>750</locationX>
+        <locationY>482</locationY>
+        <connector>
+            <targetReference>WizardsEnd</targetReference>
+        </connector>
+        <flowName>Pledge_Flow</flowName>
+    </subflows>
+    <subflows>
+        <name>RunOpportunityWizard</name>
+        <label>RunOpportunityWizard</label>
+        <locationX>485</locationX>
+        <locationY>474</locationY>
+        <connector>
+            <targetReference>WizardsEnd</targetReference>
+        </connector>
+        <flowName>Opportunity_Wizard</flowName>
+    </subflows>
+</Flow>

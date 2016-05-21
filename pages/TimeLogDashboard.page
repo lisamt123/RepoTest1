@@ -1,0 +1,69 @@
+<apex:page controller="TimeLogDashboardController" showHeader="false"
+	setup="false" sidebar="false">
+	<apex:form style="background-color: #CFEEF8; height: 125px;"
+		rendered="{!if(isError,False, True)}">
+		<table width="100%">
+			<tr>
+				<td width="100%" align="center" colspan="2"><apex:selectList id="timeLogRequest" value="{!requestType}" size="1">
+						<apex:selectOptions value="{!requestOptions}" />
+					</apex:selectList>
+				</td>
+			</tr>
+			<tr>
+				<td width="50%" align="right"><apex:commandButton action="{!updateTimeLogIn}" value=" Start " />
+				</td>
+				<td width="50%" align="left"><apex:commandButton action="{!updateTimeLogOut}" value="  End  " />
+				</td>
+			</tr>
+			<tr>
+				<td align="center" colspan="2"><b>Current Status:</b>
+				</td>
+			</tr>
+			<tr>
+				<td align="center" colspan="2"><apex:outputtext style="color:{!color};" value="{!thisTimeLog.Status__c}" />
+				</td>
+			</tr>
+			<tr>
+				<td width="100%" align="center" colspan="2"><apex:outputText value="Login Time:"
+						rendered="{!IF(thisTimeLog.Login__c == true, true, false)}" />
+				</td>
+			</tr>
+			<tr>
+				<td width="100%" align="center" colspan="2"><apex:outputField value="{!thisTimeLog.Login_Time__c}"
+						rendered="{!IF(thisTimeLog.Login__c == true, true, false)}" /> <!--  <apex:outputText value="{0, date, hh - 6:mm:ss z}">
+                        <apex:param value="{!thisTimeLog.Login_Time__c}" /> 
+                    </apex:outputText> -->
+				</td>
+			</tr>
+
+		</table>
+	</apex:form>
+
+	<apex:form style="background-color: #CFEEF8; height: 100px;"
+		rendered="{!if(isError,True, False)}">
+		<table width="100%">
+			<tr>
+				<td width="100%" align="center" colspan="2"><apex:selectList id="timeLogRequest" value="{!requestType}" size="1">
+						<apex:selectOptions value="{!requestOptions}" />
+					</apex:selectList>
+				</td>
+			</tr>
+			<tr>
+				<td width="50%" align="right"><apex:commandButton action="{!updateTimeLogIn}" value=" Start " />
+				</td>
+				<td width="50%" align="left"><apex:commandButton action="{!updateTimeLogOut}" value="  End  " />
+				</td>
+			</tr>
+			<tr>
+				<td align="center" colspan="2"><font color="red"><b>Error:</b>
+				</font>
+				</td>
+			</tr>
+			<tr>
+				<td align="center" colspan="2"><font color="red"><apex:outputtext value="{!errorMessage}" /> </font>
+				</td>
+			</tr>
+
+		</table>
+	</apex:form>
+</apex:page>

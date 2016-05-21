@@ -1,0 +1,34 @@
+<apex:page title="Experimental Settings" controller="CRMfusionDBR101.DB_SettingsController" showHeader="true" sidebar="false"
+    tabStyle="DupeBlocker_Settings_VF__tab">
+    <c:DB_Settings_Style />
+
+    <table class="pageTable" width="100%" cellspacing="0" cellpadding="0">
+        <tr>
+            <td class="leftCol" width="220px"><c:DB_Settings_Menu page="general" /></td>
+            <td class="rightCol">
+                <div>
+                    <apex:sectionHeader title="Experimental Settings" subTitle="Edit Experimental Settings" />
+                    <apex:pageMessages />
+                    <c:DB_Disabled_Warning />
+                    <apex:form id="mainForm">
+                        <apex:pageBlock id="mainBlock" mode="edit" title="Experimental Settings">
+                            <apex:pageBlockButtons >
+                                <apex:commandButton action="{!saveExperimental}" value="{!$Label.CRMfusionDBR101__DB_Save_Word}" />
+                                <apex:commandButton action="{!cancelExperimental}" value="{!$Label.CRMfusionDBR101__DB_Cancel_Word}" />
+                            </apex:pageBlockButtons>
+                            <apex:pageBlockSection columns="2">
+                                <apex:pageBlockSectionItem helpText="Disable the number of scenario rules limit.  This allows you to exceed the maximium number of rules allowed by DupeBlocker.  Using this option could cause governor limits to be exceeded, especially during batch operations.">
+                                    <apex:outputLabel value="Disable Scenario Rule Limit" />
+                                    <apex:inputCheckbox value="{!disableRuleLimit}" />
+                                </apex:pageBlockSectionItem>
+                                <apex:pageBlockSectionItem helpText="Disable caching of the Person Account check.  This should only be enabled in orgs getting the 'Invalid field isPersonAccount for Account' error and only after discussing it with support.">
+                                    <apex:outputLabel value="Disable Person Account Test Caching" />
+                                    <apex:inputCheckbox value="{!disablePACheckCaching}" />
+                                </apex:pageBlockSectionItem>
+                            </apex:pageBlockSection>
+                        </apex:pageBlock>
+                    </apex:form>
+                </div></td>
+        </tr>
+    </table>
+</apex:page>

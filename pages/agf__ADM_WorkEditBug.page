@@ -1,0 +1,422 @@
+<apex:page standardController="agf__ADM_Work__c" extensions="agf.ADM_WorkControllerExtension" id="pageEdit"  title="{!recordType.Name}">
+    <apex:include pageName="agf__ADM_Overlay_CSS" /> 
+    <apex:stylesheet value="{!$Resource.agf__ADM_common_css}" />
+    <apex:stylesheet value="{!URLFOR($Resource.agf__jquery_ui_1813_redmond, 'css/redmond/jquery-ui-1.8.13.custom.css')}" />  
+    <apex:stylesheet value="{!$Resource.agf__productTag_css}"/>
+    <script type="text/javascript" src="{!URLFOR($Resource.jquery_1_5_2_min)}"></script>
+	<script type="text/javascript" src="{!URLFOR($Resource.jquery_ui_1813_redmond, 'js/jquery-ui-1.8.13.custom.min.js')}"></script>
+    <script type="text/javascript" src="{!URLFOR($Resource.ADM_common_js)}"></script>
+    <script type="text/javascript" src="{!URLFOR($Resource.ADM_WorkEdit_js)}"></script>
+	<script type="text/javascript" src="{!URLFOR($Resource.productTag_js)}"></script>
+    <script type="text/javascript" src="{!URLFOR($Resource.ADM_autocomplete2js)}"></script>
+    <script type="text/javascript">
+        initAutoCompleteBrowserSettings();
+        
+		//this page loads components that also include a copy of jquery. save
+		//a reference to the page version that includes the ui plugin
+   		var jQueryPage = $j = $;
+    </script>
+
+    <apex:sectionHeader id="sectionHeaderWork"  title="{!recordType.Name}" subtitle="{!work.Name}" />    
+
+    <apex:form id="formEdit">
+        <apex:inputHidden id="assignmentValue" value="{!details.fieldLabel}"/>
+        <!--Start div overlay container, this box specifies the width of the overlay-->
+        <div id="overlay">
+            <apex:outputPanel id="overlaycontainer" layout="block" styleClass="overlaycontainer">
+                <apex:actionFunction name="cancelPriorityChange" action="{!cancelPriorityChange}" rerender="{!$Component.messagesPriorityRequiredDiv},{!$Component.priorityOverrideDialogWrapper}" />
+                <!--TOOL BAR-->
+                <apex:outputPanel layout="block" styleClass="overlaylefttopcrn">
+                    <a href="#" class="closex" onclick="overlay(); cancelPriorityChange(); return false;"></a>
+                    <apex:outputPanel layout="block" styleClass="overlaytoolbar">
+                        <apex:outputPanel style="color:#ffffff; font-weight:bold; font-size:1.2em;">
+                            Override Priority
+                        </apex:outputPanel>
+                    </apex:outputPanel>
+                </apex:outputPanel>
+                <!--CONTENT DIV TOOL BAR-->
+                <apex:actionRegion immediate="false">
+                  <apex:outputPanel id="priorityOverrideDialogWrapper" layout="block" styleClass="overlaycontentbox">
+                      <apex:outputPanel layout="block" styleClass="adm_padding_small">Select the new priority for this bug and explain why the default priority should be overridden.</apex:outputPanel>
+                      <table>
+                          <tr>
+                            <td class="labelCol adm_padding_small" style="font-weight:bold" align="right" colspan="2">Default Priority</td>
+                            <td class="adm_padding_small"><div id="currentPriority"><apex:outputText value="{!CalculatedPriority}"/></div></td>
+                          </tr>
+                          <tr>
+                              <td class="labelCol adm_padding_small" style="font-weight:bold" align="right" colspan="2">Current Priority</td>
+                              <td class="adm_padding_small">
+                                  <div id="currentPriority">
+                                      <apex:outputText value="{!priorityCurrent}"/>
+                                      <apex:inputHidden value="{!work.agf__Priority_Default__c}"/>
+                                  </div>
+                              </td>
+                          </tr>
+                          <tr>
+                              <td class="labelCol adm_padding_small" style="font-weight:bold" align="right" colspan="2">New Priority</td>
+                              <td class="adm_padding_small" id="workNewPrioritySelect">
+                                  <apex:selectList size="1" id="overlayPriority" value="{!priorityNew}">
+                                      <apex:selectOptions value="{!priorities}"/>
+                                  </apex:selectList>&nbsp;&nbsp;
+                                  <apex:outputlink onclick="window.open('{!gusUrl}/apex/ADM_PriorityMatrix','popup','width=900,height=800,scrollbars=yes,resizable=no,toolbar=no,directories=no,location=no,menubar=no,status=no,left=0,top=0'); return false">
+                                      Help me decide
+                                  </apex:outputlink>
+                              </td>
+                          </tr>
+                          <tr>
+                              <td class="labelCol adm_padding_small" style="font-weight:bold" align="right">Reason for Override</td>
+                              <td class="adm_padding_small, requiredInput">
+                              <apex:outputPanel layout="block" id="messagesPriorityRequiredDiv">
+                                  <apex:outputPanel styleClass="req1">|</apex:outputPanel>
+                              </apex:outputPanel>
+                              </td>
+                              <td class="adm_padding_small" align="center">
+                                  <apex:inputTextarea id="Priority_Override_Explanation" rows="2" cols="50" style="color:gray" value="{!priorityExplanationNew}" onfocus="eraseValue(this);" onblur="populateOverrideExplanation(this);"/>
+                              </td>
+                          </tr>
+                      </table><br />
+                      <table align="center">
+                          <tr>
+                              <td>
+                                  <apex:commandButton value="OK" onclick="$('workNewPrioritySelect').addClass('hidden');overlay();" action="{!setPriority}" status="pStatus" rerender="{!$Component.messagesPriorityRequiredDiv},{!$Component.pageEdit.formEdit.pageBlockEdit.pageBlockSectionInformation.pageBlockSectionItemPriority.priorityOP}"/>
+                                  <apex:commandButton value="Cancel" onclick="$('workNewPrioritySelect').addClass('hidden');overlay1();" action="{!cancelPriorityChange}" rerender="{!$Component.messagesPriorityRequiredDiv},{!$Component.priorityOverrideDialogWrapper}"/>
+                              </td>
+                          </tr>
+                      </table>
+                  </apex:outputPanel>
+                </apex:actionRegion>
+                <!--BOTTOM CORNERS AND BOTTOM BORDER-->
+                <apex:outputPanel layout="block" styleClass="overlayleftbtmcrn"><apex:outputPanel layout="block" styleClass="overlaybtm"></apex:outputPanel></apex:outputPanel>
+                <!-- overlay container div-->
+            </apex:outputPanel>
+        </div>
+            
+        <apex:pageBlock id="pageBlockEdit" title="Edit Work">
+            <apex:pageBlockButtons >
+                <apex:commandButton action="{!saveAndView}" value="Save" alt="Save" title="Save" />
+                <apex:commandButton action="{!saveAndNew}" value="Save & New" alt="Save & New" title="Save & New"/>
+                <apex:commandButton action="{!cancel}" value="Cancel" onClick="$(this).addClass('btnDisabled');" />
+            </apex:pageBlockButtons>
+            <apex:pageBlockSection title="Errors" id="pageBlockSectionErrors" columns="1" showHeader="false">
+                <c:ADM_ErrorBlock />
+            </apex:pageBlockSection>
+            
+            <!-- PAGEBLOCKSECTION Subject -->
+            <apex:pageBlockSection id="pbsSubject" title="Subject" columns="1" showHeader="false">
+                <!-- Subject -->                           
+                <apex:pageBlockSectionItem id="pageBlockSectionItemSubject">
+                    <apex:outputLabel value="Subject" />
+                    <apex:outputPanel layout="block" styleClass="{!requiredInputSubject}">
+                        <apex:outputPanel layout="block" styleClass="requiredBlock"/>
+                        <apex:inputField id="workSubject" value="{!work.agf__Subject__c}" styleClass="adm_longInputField" />
+                    </apex:outputPanel>
+                </apex:pageBlockSectionItem>
+            </apex:pageBlockSection>
+            
+            <apex:actionRegion immediate="true" renderRegionOnly="false">            
+                <!-- PAGEBLOCKSECTION Information -->
+                <apex:pageBlockSection title="Information" id="pageBlockSectionInformation" columns="2" showHeader="false">
+                    <!-- Type and Impact -->
+                    <apex:pageBlockSectionItem id="pageBlockSectionItemType" rendered="{!renderType}">
+                        <apex:outputLabel value="Type"/>
+                        <apex:outputPanel layout="block" styleClass="{!requiredInputType}">
+                            <apex:outputPanel layout="block" styleClass="requiredBlock" rendered="{!NOT(isWorkTemplate)}"/>
+                            <apex:actionRegion immediate="true" renderRegionOnly="false">
+                                <apex:selectList value="{!workType}" size="1" id="Type__c" styleClass="typeField"> 
+                                    <apex:selectOptions value="{!workTypes}"/>
+                                    <apex:actionSupport status="typeStatus" action="{!handleTypeOnChangeEvent}" onsubmit="localSetRegressedValue();" event="onchange" rerender="impact,frequency,priorityOP,priorityManualOP"  immediate="false"/>
+                                </apex:selectList>                                
+                                <apex:actionStatus id="typeStatus" onstart="$(this).removeClass('hidden');" onstop="$(this).addClass('hidden');">
+                                    <apex:facet name="start"><img src="{!$Resource.ajaxloadersmall}" id="typeStatusChange" /></apex:facet>
+                                </apex:actionStatus>
+                            </apex:actionRegion>
+                        </apex:outputPanel>
+                    </apex:pageBlockSectionItem>
+                    <apex:pageBlockSectionItem id="pageBlockSectionItemImpact" rendered="{!renderFrequencyAndImpact}">
+                        <apex:outputLabel value="Impact"/>
+                        <apex:outputPanel layout="block" styleClass="requiredInput">
+                            <apex:outputPanel layout="block" styleClass="requiredBlock" />
+                            <apex:actionRegion immediate="true" renderRegionOnly="false">
+                                <apex:selectList value="{!work.agf__Impact__c}" disabled="{!IsDisabledImpacts}" size="1" id="impact"  styleClass="adm_inputField" >
+                                    <apex:actionSupport action="{!calculatePriority}" status="pStatus" event="onchange" rerender="{!$Component.pageEdit.formEdit.pageBlockEdit.pageBlockSectionInformation.pageBlockSectionItemPriority.priorityOP}, {!$Component.pageEdit.formEdit.overlayPriority}"  immediate="false" />
+                                    <apex:selectOptions value="{!impacts}"/>
+                                </apex:selectList>&nbsp;&nbsp;<a href="{!gusUrl}/apex/ADM_PriorityMatrixHelp" onclick="window.open('{!gusUrl}/apex/ADM_PriorityMatrixHelp','popup','width=900,height=600,scrollbars=yes,resizable=no,toolbar=no,directories=no,location=no,menubar=no,status=no,left=0,top=0'); return false">View Examples</a>
+                            </apex:actionRegion>
+                        </apex:outputPanel>
+                    </apex:pageBlockSectionItem>
+                    
+                    <!-- Status and Frequency -->
+                    <apex:pageBlockSectionItem id="pageBlockSectionItemStatus">
+                        <apex:outputLabel value="Status" />
+                        <apex:outputPanel layout="block" styleClass="{!requiredInputStatus}">
+                            <apex:outputPanel layout="block" styleClass="requiredBlock"/>
+                            <apex:selectList value="{!work.agf__Status__c}" styleClass="adm_inputField" size="1">
+                                <apex:selectOptions value="{!statuses}"/>
+                            </apex:selectList>
+                        </apex:outputPanel>
+                    </apex:pageBlockSectionItem>
+                    <apex:pageBlockSectionItem id="pageBlockSectionItemFrequency" rendered="{!renderFrequencyAndImpact}">
+                        <apex:outputPanel >
+                            <c:helpHover label="Frequency" id="helpHoverFrequency" body="Frequency reflects how often the target user will encounter the issue." type="help"/>
+                        </apex:outputPanel>
+                        <apex:outputPanel layout="block" styleClass="requiredInput">
+                            <apex:outputPanel layout="block" styleClass="requiredBlock" />
+                            <apex:selectList value="{!work.agf__Frequency__c}" disabled="{!IsDisabledFrequencies}" size="1" id="frequency"  styleClass="adm_inputField" >
+                                <apex:actionSupport action="{!calculatePriority}" status="pStatus" event="onchange" rerender="{!$Component.overlaycontainer}, {!$Component.pageEdit.formEdit.pageBlockEdit.pageBlockSectionInformation.pageBlockSectionItemPriority.priorityOP}"  immediate="false"/>
+                                <apex:selectOptions value="{!frequencies}"/>
+                            </apex:selectList>                      
+                        </apex:outputPanel>
+                    </apex:pageBlockSectionItem>
+                    
+                    <!-- Help Status and Priority -->
+                    <apex:inputField value="{!work.agf__Help_Status__c}" styleClass="adm_inputField"/>
+                    <apex:pageBlockSectionItem id="pageBlockSectionItemPriority" rendered="{!renderFrequencyAndImpact}">
+                        <apex:outputPanel >
+                             <c:helpHover label="Priority" id="helpHoverPriority" body="Priority is automatically determined based upon the combination of Impact and Frequency." type="help"/>
+                        </apex:outputPanel>
+                        <apex:outputPanel >
+                            <apex:outputPanel id="priorityManualOP" styleClass="requiredInput" layout="block">
+                                <apex:outputPanel layout="block" styleClass="requiredBlock" rendered="{!NOT(isWorkTemplate)}"/>
+                                <apex:inputField id="priorityManual" rendered="{!NOT(IsDisabledPriority)}" value="{!work.agf__Priority__c}"  styleClass="adm_inputField" />
+                            </apex:outputPanel>
+                            <apex:outputPanel layout="block" id="priorityOP">
+                                <apex:outputPanel rendered="{!IsDisabledPriority}">
+                                    <apex:outputPanel layout="block"   rendered="{!NOT(isWorkTemplate)}"/>
+                                    <apex:actionStatus id="pStatus" onstart="document.getElementById('priorityWrapper').className='hidden'" onstop="document.getElementById('priorityWrapper').className=''">
+                                        <apex:facet name="start"><img src="{!$Resource.ajaxloadersmall}" id="calculatePriorityProgress" /></apex:facet>
+                                    </apex:actionStatus>
+                                    <span id="priorityWrapper">
+                                        <apex:outputLabel rendered="{!OR(AND(NOT(ISNULL(priorityCurrent)),isNewWork),OR(ISNULL(work.agf__Frequency__c),ISNULL(work.agf__Impact__c)))}" style="color:gray">To Be Calculated</apex:outputLabel>
+                                        <apex:outputLabel rendered="{!AND(NOT(ISNULL(priorityCurrent)),OR(ISNULL(work.agf__Frequency__c),ISNULL(work.agf__Impact__c)))}" style="color:gray">
+                                             - Previously&nbsp;<apex:outputText value="{!priorityCurrent}"  />
+                                        </apex:outputLabel>
+                                        <apex:messages rendered="{!(work.agf__Priority__c == CalculatedPriority)}">
+                                            <apex:outputField value="{!work.agf__Priority__c}"/>
+                                        </apex:messages>
+                                        <apex:messages rendered="{!AND(work.agf__Priority__c != CalculatedPriority,NOT(ISNULL(work.agf__Priority__c)),NOT(ISNULL(work.agf__Impact__c)),NOT(ISNULL(work.agf__Frequency__c)))}">
+                                            <apex:outputPanel style="padding:0 3px; margin:0 3px 0 0; color: white; background-color: orange; font-weight: bold;">
+                                                <apex:outputField value="{!work.agf__Priority__c}"/>
+                                            </apex:outputPanel>
+                                            <i>Overridden (Default&nbsp;<apex:outputText value="{!CalculatedPriority}"/>)</i>
+                                        </apex:messages>
+                                        <apex:messages rendered="{!AND(work.agf__Priority__c != '',NOT(ISNULL(work.agf__Impact__c)),NOT(ISNULL(work.agf__Frequency__c)))}">&nbsp;
+                                            <apex:outputLink style="text-decoration:underline; margin:0 0 0 3px" value="#" onclick="document.getElementById('workNewPrioritySelect').className=''; populateOverrideExplanation($('[id$=Priority_Override_Explanation]').get(0)); overlay(); return false;" >Override</apex:outputLink>
+                                        </apex:messages>
+                                    </span>
+                                </apex:outputPanel>
+                            </apex:outputPanel>
+                        </apex:outputPanel>
+                    </apex:pageBlockSectionItem>
+                    
+                    <apex:inputField value="{!work.agf__Attributes__c}" id="Attributes__c"/>  
+                    
+                    
+                 
+                    
+                    
+                    <apex:pageBlockSectionItem dataStyle="padding: 0px;" labelStyle="padding: 0px;">
+                    	<apex:outputPanel >
+                    		<table class="detailList">
+				        
+                    			<tr>
+	                    			<td class="labelCol">
+				                    	<apex:outputLabel value="Customer" />
+			                    	</td>
+			                    	<td class="dataCol">
+			                    		<apex:inputField value="{!work.agf__Customer__c}" id="workCustomer"/>
+			                    	</td>
+		                    	</tr>
+		                    	
+		                   
+		                    	<apex:outputPanel layout="none" rendered="{!OR(RecordType.Name == 'Bug', RecordType.Name == 'Template')}">
+			                    	<tr>
+			                    		<td class="labelCol">
+				                    		<c:helpHover label="Found In Build" id="helpHoverFoundInBuild" body="The Found In Build field is a lookup to the Build object.  Enter the build where the bug was introduced." type="help"/>
+				                    	</td>
+				                    	<td class="dataCol">
+					                        <apex:outputPanel layout="block" styleClass="{!requiredInputFoundInBuild}">
+					                            <apex:outputPanel layout="block" styleClass="requiredBlock" rendered="{!NOT(isWorkTemplate)}"/>
+					                            <c:ADM_AutoComplete2 id="fibField" ObjectName="Build" obj="{!work}" inputFieldName="Found_In_Build_Copy__c" inputStyleClass="adm_inputField cField" />
+					                        </apex:outputPanel>
+				                        </td>
+			                        </tr>
+		                        </apex:outputPanel>
+		                        
+		                       
+		                        <tr>
+		                        	<td class="labelCol">
+		                        		<c:helpHover label="Scheduled Build" id="helpHoverScheduledBuild" body="The Scheduled Build field is a lookup to the Build object.  Enter a pre-existing build where the change will be made." type="help"/>
+		                        	</td>
+		                        	<td class="dataCol">
+			                        	<c:ADM_AutoComplete2 id="sbField" ObjectName="Build" obj="{!work}" inputFieldName="Scheduled_Build_Copy__c" inputStyleClass="cField scheduled-build-input" />
+			                        </td>
+			                    </tr>
+	                        </table>
+                        </apex:outputPanel>
+                        
+                    </apex:pageBlockSectionItem> 
+                    
+                    <apex:inputField value="{!work.agf__Minor_Func_Area__c}" id="Minor_Func_Area__c"/>
+                      
+                    
+                    <apex:inputHidden value="{!hiddenReps}" id="theHiddenReps" />
+                </apex:pageBlockSection>
+             </apex:actionRegion> 
+        
+        	  
+        
+            <apex:actionRegion immediate="true" renderRegionOnly="false">
+                
+                <!-- ASSIGNMENTS PAGE BLOCK SECTION -->
+                <apex:pageBlockSection title="Assignments" id="productTagSection" columns="1" showHeader="true" collapsible="false">
+                    <!-- Product Tag -->
+                    <apex:pageBlockSectionItem id="pageBlockSectionItemProductTag">
+                        <apex:outputLabel value="Product Tag" styleClass="productTagLabel" />
+                        <apex:outputPanel id="productTagPanel" layout="block" styleClass="{!requiredInputProductTag}">
+                            <apex:outputPanel layout="block" styleClass="requiredBlock"/>
+                            <c:ADM_ProductTagInput work="{!work}" recordType="{!recordType}" missingProductTagInstructions="{!requiredInputProductTagInstructions}" onchange="tagChanged(event);" oninit="adjustProductTagLabelPadding();" />
+                        </apex:outputPanel>
+                    </apex:pageBlockSectionItem>
+                </apex:pageBlockSection>
+            
+                <apex:pageBlockSection title="Assignments" id="assignments" columns="2" showHeader="false">
+                	
+                    <!-- Assigned To and Product Owner -->
+                    <apex:pageBlockSectionItem id="pageBlockSectionItemAssignee">
+                        <apex:outputLabel value="Assigned To"/>
+                        <apex:outputPanel layout="block" styleClass="{!requiredInputAssignee}">
+                            <apex:outputPanel layout="block" styleClass="requiredBlock" />
+							<c:ADM_AutoComplete2 id="aField" ObjectName="User" obj="{!work}" inputFieldName="Assignee__c" inputStyleClass="adm_inputField cField assigneeField" />
+                        </apex:outputPanel>
+                    </apex:pageBlockSectionItem>
+					<apex:pageBlockSectionItem id="pageBlockSectionItemPO">
+						<apex:outputLabel value="Product Owner"/>
+						<c:ADM_AutoComplete2 id="poField" ObjectName="User" obj="{!work}" inputFieldName="Product_Owner__c" inputStyleClass="adm_inputField cField productOwnerField" />
+    				</apex:pageBlockSectionItem>
+
+					<!-- QA Engineer and Tech Writer -->
+					<apex:pageBlockSectionItem id="pageBlockSectionItemQA">
+						<apex:outputLabel value="QA Engineer"/>
+						<c:ADM_AutoComplete2 id="qaField" ObjectName="User" obj="{!work}" inputFieldName="QA_Engineer__c" inputStyleClass="adm_inputField cField qaField" />
+					</apex:pageBlockSectionItem>
+    				<apex:pageBlockSectionItem id="pageBlockSectionItemTW">	                
+						<apex:outputLabel value="Tech Writer"/>
+						<c:ADM_AutoComplete2 id="twField" ObjectName="User" obj="{!work}" inputFieldName="Tech_Writer__c" inputStyleClass="adm_inputField cField techWriterField" />
+					</apex:pageBlockSectionItem>
+    				
+                    <!-- UE Engineer and Performance Engineer -->
+                    <apex:pageBlockSectionItem id="pageBlockSectionItemUE">
+	                    <apex:outputLabel value="UE Engineer"/>
+	                    <c:ADM_AutoComplete2 id="ueField" ObjectName="User" obj="{!work}" inputFieldName="UE_Engineer__c" inputStyleClass="adm_inputField cField ueField" />
+					</apex:pageBlockSectionItem>
+    				<apex:pageBlockSectionItem id="pageBlockSectionItemSTE">
+	                    <apex:outputLabel value="Performance Engineer"/>
+	                    <c:ADM_AutoComplete2 id="steField" ObjectName="User" obj="{!work}" inputFieldName="System_Test_Engineer__c" inputStyleClass="adm_inputField cField systemTestEngineerField" />					
+					</apex:pageBlockSectionItem>
+                </apex:pageBlockSection>
+            </apex:actionRegion>
+
+            <!-- SPRINT DETAILS PAGE BLOCK SECTION -->
+            <apex:pageBlockSection title="Sprint Details" columns="2" showHeader="true">
+                <!-- Sprint and Include in Prioritize View -->
+                <apex:pageBlockSectionItem id="pageBlockSectionItemSprint">
+                	<apex:outputLabel value="Sprint"/>
+                	<c:ADM_AutoComplete2 id="sField" ObjectName="sprint" obj="{!work}" inputFieldName="Sprint__c" inputStyleClass="adm_inputField cField" />
+                </apex:pageBlockSectionItem>
+                <apex:inputField value="{!work.agf__Use_Prioritizer__c}" styleClass="adm_inputField"/>
+
+                <!-- Story Points and Backlog Rank -->
+                <apex:pageBlockSectionItem id="pageBlockSectionItemStoryPoints">
+                    <apex:outputLabel value="Story Points"/>
+                    <apex:outputPanel layout="block">
+                        <apex:outputPanel layout="block" />
+                        <apex:inputField value="{!work.agf__Story_Points__c}" styleClass="adm_inputField"/>
+                    </apex:outputPanel>
+                </apex:pageBlockSectionItem>
+                <apex:pageBlockSectionItem id="pageBlockSectionItemPriorityRank">
+                    <apex:outputLabel value="Backlog Rank"/>
+                    <apex:outputPanel layout="block">
+                        <apex:outputPanel layout="block" />
+                        <apex:inputField value="{!work.agf__Priority_Rank__c}" styleClass="adm_inputField"/>
+                    </apex:outputPanel>
+                </apex:pageBlockSectionItem>
+            </apex:pageBlockSection>
+
+            <apex:pageBlockSection title="Other Information" columns="2" showHeader="true">
+                <!-- Perforce Status and Cases -->
+                <apex:inputField value="{!work.agf__Perforce_Status__c}"/>
+                <apex:outputField value="{!work.agf__Number_of_Cases__c}" styleClass="adm_inputField"/> 
+                
+                <!-- Root Cause Analysis and Age -->
+                <apex:inputField value="{!work.agf__Root_Cause_Analysis_2__c}" styleClass="adm_inputField"/>
+                <apex:outputField value="{!work.agf__Age__c}" styleClass="adm_inputField" />
+                
+                <!-- Production Incidents and Age With Scrum Team-->
+                <apex:inputField value="{!work.agf__Num_Of_Prod_Occ__c}" styleClass="adm_inputField" />
+                <apex:outputField value="{!work.agf__Age_With_Scrum_Team__c}" styleClass="adm_inputField" />
+                
+                 <!-- Test Failure Status and Age with Scrum Team When Closed -->
+                <apex:inputField value="{!work.agf__Test_Failure_Status__c}" styleClass="adm_inputField" />
+                <apex:outputField value="{!work.agf__Age_With_Scrum_Team_When_Closed__c}" styleClass="adm_inputField" /> 
+            </apex:pageBlockSection>
+            
+            <!-- PAGEBLOCKSECTION HIDDEN HEADER --> 
+            <apex:pageBlockSection id="pageBlockSectionOtherInformation2" columns="1" showHeader="false">                
+                <apex:inputField value="{!work.agf__Related_URL__c}" styleClass="adm_longInputField"/>
+                <apex:inputField value="{!work.agf__ftest__c}" styleClass="adm_longInputField"/>
+            	 <apex:inputField value="{!work.agf__Readme_Notes__c}" styleClass="adm_longInputField"  />
+            </apex:pageBlockSection>
+ 
+		   	<apex:actionRegion immediate="true"  id="notifyActionRegion">
+				<apex:outputPanel id="theHiddenRepsPanel"> 
+					<!-- <c:ADM_Notifier workObject="{!work}" hiddenInputID="{!$Component.pageBlockSectionInformation.theHiddenReps}" id="workEditNotifier"/> -->
+				</apex:outputPanel>
+			</apex:actionRegion>             
+
+            <!-- PAGEBLOCKSECTION COMMENTS -->
+            
+            <c:ADM_Comments workObject="{!work}" renderCommentsSection="true" isNewWork="{!isNewWork}" recordType="{!recordType.Name}"/>
+            
+            <apex:inputHidden id="detailsValue" value="{!details.fieldLabel}"/>
+            <c:ADM_WorkIconSet recordTypeName="{!recordType.Name}" /> 
+            <script language="javascript" type="text/javascript">                
+                var details = $('{!$Component.pageEdit.formEdit.pageBlockEdit.pbsSubject.workDetails}');
+                var detailsCheck = $('{!$Component.pageEdit.formEdit.pageBlockEdit.detailsValue}');                
+                //populateDetails(details);                
+            </script>
+            <script language="javascript" type="text/javascript">
+                                                                    
+                function localSetRegressedValue() {                                        
+                    var types = document.getElementById('{!$Component.formEdit.pageBlockEdit.pageBlockSectionInformation.pageBlockSectionItemType.Type__c}');
+                    var attributes =   document.getElementById('{!$Component.formEdit.pageBlockEdit.pageBlockSectionInformation.Attributes__c}');
+                    
+                    var text = types[types.selectedIndex].text;
+                   
+                    if(text == 'Test Failure' || text == 'Test Change') {
+                        for(var i = 0; i < attributes.options.length; i++) {
+                            attribute = attributes.options[i];
+                            if(attribute.text == 'Regressed') {
+                                attribute.selected = "1";
+                                MultiSelectPicklist.handleMSPSelect('{!$Component.formEdit.pageBlockEdit.pageBlockSectionInformation.Attributes__c}');
+                            }
+                        }
+                    }                                            
+                }
+                
+                var isNewWork = '{!isNewWork}';
+               
+                if(isNewWork === 'true') {
+                	localSetRegressedValue();
+                }
+            </script>  
+        </apex:pageBlock>
+        <script type="text/javascript">
+            var form = new WorkEditForm({
+                recordType : {
+                    Id: '{!JSINHTMLENCODE(recordType.Id)}',
+                    Name: '{!JSINHTMLENCODE(recordType.Name)}'
+                }
+            });
+        </script>
+    </apex:form>
+</apex:page>

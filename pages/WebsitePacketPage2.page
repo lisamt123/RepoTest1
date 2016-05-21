@@ -1,0 +1,201 @@
+<apex:page controller="WebsitePacket" showHeader="false">
+
+	<head>
+<apex:stylesheet value="{!$Resource.styles}"></apex:stylesheet>
+<apex:includeScript value="{!$Resource.jQuery}"></apex:includeScript>
+	</head>
+
+	<script type="text/javascript">
+function confirmCancel()
+{
+    var isCancel = confirm("Are you sure you wish to quit?");
+    return isCancel;
+}
+
+</script>
+
+	<table border="0" width="100%" height="100%" id="bg">
+		<tr valign="top">
+			<td>
+				<div class="maincontainer">
+					<apex:image id="key1" width="100%"
+						value="/resource/1265230873000/Header" />
+
+					<apex:sectionHeader title="VinSolutions" subtitle="Website Packet" />
+
+					<apex:form >
+						<apex:pageBlock id="pb1" title="WEBSITE SET UP FORM"
+							id="thePageBlock">
+
+							<table border="0" width="100%" align="center">
+								<tr align="center">
+									<td align="center"><apex:commandButton action="{!goBack}"
+											value="Previous Step" /> <apex:commandButton action="{!toPage3}" value="Next Step" /> <apex:commandButton action="{!cancel}" value="Save & Quit"
+											onclick="return confirmCancel()" immediate="true" />
+									</td>
+								</tr>
+							</table>
+
+							<apex:pageBlockSection >
+								<apex:inputField value="{!Welcome.Main_Menu_Bar_Tab_Selections__c}" id="name">
+									<apex:actionSupport event="onchange" rerender="thePageBlock" />
+								</apex:inputField>
+							</apex:pageBlockSection>
+
+							<apex:pageBlockSection title="Home Tab" columns="2"
+								collapsible="false">
+
+							</apex:pageBlockSection>
+
+
+							<apex:pageBlockSection title="Specials Tab" columns="2"
+								collapsible="false"
+								rendered="{!AND(welcome.Main_Menu_Bar_Tab_Selections__c!=null,
+			    CONTAINS(welcome.Main_Menu_Bar_Tab_Selections__c,'Specials'))}">
+								<apex:inputfield value="{!welcome.Select_Specials_Tab_Features__c}" />
+							</apex:pageBlockSection>
+
+
+							<apex:pageBlockSection title="Incentives Tab" columns="2"
+								collapsible="false"
+								rendered="{!AND(welcome.Main_Menu_Bar_Tab_Selections__c!=null,
+			    CONTAINS(welcome.Main_Menu_Bar_Tab_Selections__c,'Incentives'))}">
+
+							</apex:pageBlockSection>
+
+							<apex:pageBlockSection title="New Inventory Tab" columns="2"
+								collapsible="false"
+								rendered="{!AND(welcome.Main_Menu_Bar_Tab_Selections__c!=null,
+			    CONTAINS(welcome.Main_Menu_Bar_Tab_Selections__c,'New Inventory'))}">
+								<apex:inputfield value="{!welcome.Select_New_Inventory_Tab_Features__c}" />
+							</apex:pageBlockSection>
+
+
+							<apex:pageBlockSection title="Pre-Owned Inventory Tab"
+								columns="2" collapsible="false"
+								rendered="{!AND(welcome.Main_Menu_Bar_Tab_Selections__c!=null,
+			    CONTAINS(welcome.Main_Menu_Bar_Tab_Selections__c,'Pre-Owned Inventory'))}">
+								<apex:inputfield value="{!welcome.Select_Pre_Owned_Inventory_Features__c}" />
+							</apex:pageBlockSection>
+
+
+							<apex:pageBlockSection title="Certified Inventory Tab"
+								columns="2" collapsible="false"
+								rendered="{!AND(welcome.Main_Menu_Bar_Tab_Selections__c!=null,
+			    CONTAINS(welcome.Main_Menu_Bar_Tab_Selections__c,'Certified Inventory'))}">
+								<apex:inputfield value="{!welcome.Select_Certified_Inventory_Tab_Features__c}" />
+							</apex:pageBlockSection>
+
+
+							<apex:pageBlockSection title="Financing Tab" columns="2"
+								collapsible="false"
+								rendered="{!AND(welcome.Main_Menu_Bar_Tab_Selections__c!=null,
+			    CONTAINS(welcome.Main_Menu_Bar_Tab_Selections__c,'Financing'))}">
+								<apex:inputfield value="{!welcome.Select_Financing_Tab_Features__c}" />
+							</apex:pageBlockSection>
+
+
+							<apex:pageBlockSection title="Parts & Service Tab (combined)"
+								columns="2" collapsible="false"
+								rendered="{!AND(welcome.Main_Menu_Bar_Tab_Selections__c!=null,
+			    CONTAINS(welcome.Main_Menu_Bar_Tab_Selections__c,'Parts & Service'))}">
+								<apex:inputfield value="{!welcome.Select_Parts_Service_Tab_Features__c}" />
+							</apex:pageBlockSection>
+
+
+							<apex:pageBlockSection title="Parts Tab (separate from service)"
+								columns="2" collapsible="false"
+								rendered="{!AND(welcome.Main_Menu_Bar_Tab_Selections__c!=null,
+			    CONTAINS(welcome.Main_Menu_Bar_Tab_Selections__c,'Parts (separate from service)'))}">
+								<apex:inputfield value="{!welcome.Select_Parts_Tab_Features__c}" />
+							</apex:pageBlockSection>
+
+
+							<apex:pageBlockSection title="Service Tab" columns="2"
+								collapsible="false"
+								rendered="{!AND(welcome.Main_Menu_Bar_Tab_Selections__c!=null,
+			    CONTAINS(welcome.Main_Menu_Bar_Tab_Selections__c,'Service (separate from Parts)'))}">
+								<apex:inputfield value="{!welcome.Select_Service_Tab_Features__c}" />
+							</apex:pageBlockSection>
+
+
+							<apex:pageBlockSection title="Body Shop Tab" columns="2"
+								collapsible="false"
+								rendered="{!AND(welcome.Main_Menu_Bar_Tab_Selections__c!=null,
+			    CONTAINS(welcome.Main_Menu_Bar_Tab_Selections__c,'Body Shop'))}">
+
+							</apex:pageBlockSection>
+
+
+							<apex:pageBlockSection title="Dealer Information Tab" columns="2"
+								collapsible="false"
+								rendered="{!AND(welcome.Main_Menu_Bar_Tab_Selections__c!=null,
+			    CONTAINS(welcome.Main_Menu_Bar_Tab_Selections__c,'Dealer Information'))}">
+								<apex:inputfield value="{!welcome.Select_Dealer_Information_Tab_Features__c}" />
+							</apex:pageBlockSection>
+
+
+							<apex:pageBlockSection title="Hours & Location Tab" columns="2"
+								collapsible="false"
+								rendered="{!AND(welcome.Main_Menu_Bar_Tab_Selections__c!=null,
+			    CONTAINS(welcome.Main_Menu_Bar_Tab_Selections__c,'Hours & Location'))}">
+								<apex:inputfield value="{!welcome.Select_Hours_and_Locations_Tab_Features__c}" />
+							</apex:pageBlockSection>
+
+
+							<apex:pageBlockSection title="About Us Tab" columns="2"
+								collapsible="false"
+								rendered="{!AND(welcome.Main_Menu_Bar_Tab_Selections__c!=null,
+			    CONTAINS(welcome.Main_Menu_Bar_Tab_Selections__c,'About Us'))}">
+
+							</apex:pageBlockSection>
+
+
+							<apex:pageBlockSection title="Contact Us Tab" columns="2"
+								collapsible="false"
+								rendered="{!AND(welcome.Main_Menu_Bar_Tab_Selections__c!=null,
+			    CONTAINS(welcome.Main_Menu_Bar_Tab_Selections__c,'Contact Us'))}">
+
+							</apex:pageBlockSection>
+
+
+							<apex:pageBlockSection title="Employment Tab" columns="2"
+								collapsible="false"
+								rendered="{!AND(welcome.Main_Menu_Bar_Tab_Selections__c!=null,
+			    CONTAINS(welcome.Main_Menu_Bar_Tab_Selections__c,'Employment'))}">
+
+							</apex:pageBlockSection>
+
+
+							<apex:pageBlockSection title="Commercial Tab" columns="2"
+								collapsible="false"
+								rendered="{!AND(welcome.Main_Menu_Bar_Tab_Selections__c!=null,
+			    CONTAINS(welcome.Main_Menu_Bar_Tab_Selections__c,'Commercial'))}">
+
+							</apex:pageBlockSection>
+
+							<apex:pageBlockSection title="" columns="2" collapsible="false">
+								<apex:inputField value="{!welcome.Select_Research_Section_Tab_Features__c}" />
+							</apex:pageBlockSection>
+
+
+
+							<apex:pageBlockSection collapsible="false" title=""></apex:pageBlockSection>
+
+							<table border="0" width="100%" align="center">
+								<tr align="center">
+									<td align="center"><apex:commandButton action="{!goBack}"
+											value="Previous Step" /> <apex:commandButton action="{!toPage3}" value="Next Step" /> <apex:commandButton action="{!cancel}" value="Save & Quit"
+											onclick="return confirmCancel()" immediate="true" />
+									</td>
+								</tr>
+							</table>
+
+						</apex:pageBlock>
+
+					</apex:form>
+				</div>
+			</td>
+		</tr>
+	</table>
+</apex:page>

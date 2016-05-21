@@ -1,0 +1,58 @@
+<apex:page standardController="agf__QA_Test_Execution__c" extensions="agf.QA_TEDetailUSSectionController">
+<link type="text/css" rel="stylesheet" media="handheld,print,projection,screen,tty,tv" href="/sCSS/Theme2/default/elements.css" />
+<link type="text/css" rel="stylesheet" media="handheld,print,projection,screen,tty,tv" href="/sCSS/Theme2/default/common.css" />
+<link type="text/css" rel="stylesheet" media="handheld,print,projection,screen,tty,tv" href="/sCSS/Theme2/dStandard.css" />
+<link type="text/css" rel="stylesheet" media="handheld,print,projection,screen,tty,tv" href="/sCSS/Theme2/default/extended.css" />
+
+<div class="bPageBlock" style="margin-right: 0px; margin-bottom: 0px; border-top: 0px; padding-bottom: 0px;" >
+    <div class="pbBody" style="margin-right:0px;" >
+        {!findUserStory}
+        <apex:messages style="color:red;" />
+        <table class="detailList" cellspacing="0" cellpadding="0" border="0">
+            <tr>
+                <td class="labelCol">Subject </td>
+                <td class="dataCol col02" colspan="3"><apex:outputLink target="_top" value="/{!UserStoryId}">{!subject}</apex:outputLink></td>
+                
+            </tr>   
+            
+            <tr>
+                <td class="labelCol">User Type (As a...)</td>
+                <td class="dataCol col02">{!userType}</td>
+                <td class="labelCol">Theme</td>
+                <td class="dataCol col02">{!theme}</td>
+            </tr>
+            <tr>
+                <td class="labelCol">Goal (I want to...)</td>
+                <td class="dataCol col02">{!goal}</td>
+                <td class="labelCol">Sprint</td>
+                <td class="dataCol col02">{!sprintBacklog}</td>
+            </tr>
+            <tr>
+                <td class="labelCol">Reason (so that...)</td>
+                <td class="dataCol col02">{!reason}</td>
+                <td class="labelCol">Story Points</td>
+                <td class="dataCol col02">{!storyPoints}</td>
+            </tr>
+
+        </table>
+        <BR />
+    </div>
+</div>
+
+<script lang="javascript">
+      var ie = document.all;
+      var iframes = parent.document.getElementsByTagName("IFRAME");
+      var thisiframe;
+      for(var i=0; i<iframes.length; i++)
+            if(iframes[i].title=="QA_TEDetailUSSection") thisiframe = iframes[i];
+
+      try{
+            if(ie){
+                  thisiframe.height = thisiframe.Document.body.scrollHeight;
+            }else{
+                  thisiframe.height = thisiframe.contentWindow.document.documentElement.scrollHeight;
+            }
+      }catch(e){}
+</script>
+
+</apex:page>

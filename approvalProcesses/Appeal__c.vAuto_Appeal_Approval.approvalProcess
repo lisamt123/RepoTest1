@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ApprovalProcess xmlns="http://soap.sforce.com/2006/04/metadata">
+    <active>false</active>
+    <allowRecall>true</allowRecall>
+    <allowedSubmitters>
+        <submitter>vAuto_Accounting</submitter>
+        <type>role</type>
+    </allowedSubmitters>
+    <approvalPageFields>
+        <field>Name</field>
+        <field>Owner</field>
+        <field>Type_of_Credit__c</field>
+        <field>Dealership_Name__c</field>
+        <field>Date_Credited__c</field>
+        <field>Primary_Reason_for_Cancellation__c</field>
+        <field>Amount_Requested_Credit__c</field>
+    </approvalPageFields>
+    <enableMobileDeviceAccess>false</enableMobileDeviceAccess>
+    <entryCriteria>
+        <criteriaItems>
+            <field>Appeal__c.Business_Unit__c</field>
+            <operation>equals</operation>
+            <value>vAuto</value>
+        </criteriaItems>
+        <criteriaItems>
+            <field>Appeal__c.Type_of_Credit__c</field>
+            <operation>equals</operation>
+            <value>Credit</value>
+        </criteriaItems>
+    </entryCriteria>
+    <finalApprovalRecordLock>true</finalApprovalRecordLock>
+    <finalRejectionRecordLock>false</finalRejectionRecordLock>
+    <label>vAuto Appeal Approval</label>
+    <recordEditability>AdminOrCurrentApprover</recordEditability>
+    <showApprovalHistory>true</showApprovalHistory>
+</ApprovalProcess>

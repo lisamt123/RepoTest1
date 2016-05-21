@@ -1,0 +1,22 @@
+<apex:page standardController="tinderbox__content__c" extensions="tinderbox.contentExtension">
+    <apex:includeScript value="{!$Resource.tinderbox__TB_scripts}"/>
+    <apex:stylesheet value="{!$Resource.tinderbox__TB_PageStyles}"/>
+    
+    <div id="progressIndicator" class="progressIndicatorStyle">
+        <h1>Loading...</h1>
+        <div id="overlay" style="margin-top:20px;"><apex:image value="{!$Resource.tinderbox__TB_LoadingImage}"/></div>
+    </div>
+
+    <apex:outputText value="{!tinderbox__content__c.tinderbox__TBAccount__c}" rendered="false"/>    
+    <apex:outputText value="{!tinderbox__content__c.tinderbox__tinderboxid__c}" rendered="false"/>
+    
+    <iframe onload="closeProgressIndicator()" frameborder="false" width="100%" height="700px" 
+        src="{!IF(TBAccountEndPoint == null, 
+                    IF(($Setup.tinderbox__TinderBox__c.tinderbox__Use_HTTPS__c), 'https://', 'http://')
+                    + $Setup.tinderbox__TinderBox__c.tinderbox__Company_URL__c,
+                TBAccountEndPoint )
+        }/contents/{!TinderboxId}/edit?remote_systemtype=sfdc&remote_sessionid={!
+        $Api.Session_ID}&remote_serverurl={!$Api.Partner_Server_URL_190}">
+    </iframe>
+  
+</apex:page>

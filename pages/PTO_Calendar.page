@@ -1,0 +1,182 @@
+<apex:page sidebar="false" showheader="false"
+    controller="PTO_Calendar_Controller" id="mainPage">
+    <apex:includeScript value="{!URLFOR($Resource.FullCalendar, 'fullcalendar-1.5.1/jquery/jquery-1.5.2.min.js')}" />
+    <apex:includeScript value="{!URLFOR($Resource.FullCalendar, 'fullcalendar-1.5.1/jquery/jquery-ui-1.8.11.custom.min.js')}" />
+    <apex:includeScript value="{!URLFOR($Resource.FullCalendar, 'fullcalendar-1.5.1/fullcalendar/fullcalendar.min.js')}" />
+    <apex:stylesheet value="{!URLFOR($Resource.FullCalendar, 'fullcalendar-1.5.1/fullcalendar/fullcalendar.css')}" />
+
+
+    <script type='text/javascript'>
+
+    var j$ = jQuery.noConflict();
+    j$(document).ready(function() {     
+
+        j$('#calendar').fullCalendar({
+
+            header: {
+
+                left: 'prev,next today',
+                center: 'title',
+                right: 'month,agendaWeek,agendaDay'
+
+            },          
+
+            editable: false,
+
+            events: 
+            [           
+                <apex:repeat value="{!ptoRequests}" var="request" id="ptoEvents">
+                {               
+                    title: '{!request.Employee_s_Name__r.Name} ({!request.Employee_s_Name__r.Department}) ({!request.Hours_to_be_Used__c})',
+                    start: '{!request.From_Date__c}', 
+                    end: '{!request.To_Date__c}', 
+                    url: '/{!request.Id}',
+                    <apex:outputText value="color: '#bfdaf2', textColor: 'black'" rendered="{!IF(request.Approval_Status__c = 'Awaiting Manager Approval', true, false)}"/> 
+                    <apex:outputText value="color: '#324e80', textColor: 'white'" rendered="{!IF(request.Approval_Status__c = 'Approved', true, false)}"/>
+                },
+                </apex:repeat>
+                
+                {}
+            ]
+        });
+    });
+</script>
+
+
+
+    <style type='text/css'>
+body {
+    margin-top: 40px;
+    text-align: center;
+    font-size: 14px;
+    font-family: "Lucida Grande", Helvetica, Arial, Verdana, sans-serif;
+    background: light grey;
+}
+
+#calendar {
+    width: 900px;
+    margin: 0 auto;
+    position: relative;
+    padding-top: 25px;
+}
+
+#calHeader {
+    width: 900px;
+    margin: 0 auto;
+    position: relative;
+    clear: both;
+}
+
+<!--
+hiding broken pieces of the calendar below due to   <apex:form>issues-->.calBody
+    {
+    visibility: hidden;
+}
+
+.datePicker {
+    visibility: hidden;
+}
+
+.wrapper {
+    background: #EDEDED;
+    padding: 10px 0 10px 0;
+    width: 920px;
+    margin: 0 auto;
+}
+
+.wrapperHeader {
+    text-align: center;
+    font-size: 20px;
+    font-weight: bold;
+    background: #CCC;
+    width: 920px;
+    margin: 0 auto;
+    align: center;
+}
+
+.wrappersubHeader {
+    text-align: center;
+    font-size: 10px;
+    font-weight: bold;
+    background: #CCC;
+    width: 920px;
+    margin: 0 auto;
+    align: center;
+}
+</style>
+
+
+
+
+    <div class="wrapperHeader">PTO CALENDAR</div>
+    <div class="wrappersubHeader">The PTO calendar only shows future
+        requests. For past ones please click the button for the Time Off
+        request page.</div>
+    <apex:form id="calendarSection" styleClass="wrapper">
+        <div id="calHeader" style="padding-bottom: 5px;">
+            <div style="background-color: #CCC; float: left; width: 150px">
+                Legend:
+                <div style="color: white; background-color: #324e80">Approved</div>
+                <div style="color: black; background-color: #bfdaf2">Awaiting
+                    Approval</div>
+            </div>
+
+            <div style="float: right; text-align: right;">
+
+                <div>
+                    <apex:selectList id="timeLogRequest" value="{!departmentString}"
+                        size="1" onselect="resendRequest">
+                        <apex:selectOptions value="{!requestOptions}" />
+                    </apex:selectList>
+                </div>
+                <div>
+                    <apex:selectList id="timeLogRequest2" value="{!managerString}"
+                        size="1" onselect="resendRequest">
+                        <apex:selectOptions value="{!requestOptionsB}" />
+                    </apex:selectList>
+                </div>
+
+                <div style="float: right;">
+                    <apex:commandButton action="{!setptoRequests}" value="Refresh" />
+                </div>
+                <div style="float: right;">
+                    <apex:commandButton action="{!returnHome}" value="Home" />
+                    <div style="float: right;">
+                        <apex:commandButton action="{!PTOobjrctPage}" value="Time Off Tab" />
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+
+        <div id='calendar' style="clear: both;"></div>
+
+
+
+
+    </apex:form>
+    <apex:form >
+        <apex:actionFunction action="{!setptoRequests}" name="resendRequest"
+            rerender="calendarSection" />
+    </apex:form>
+   <!-- <Apex:pageBlock title="Admin"
+        rendered="{!$User.Id == '00570000001gIugAAE'}">
+{!$User.Id}
+ <apex:pageblockTable value="{!ptoRequests}" var="request"
+            id="ptoEvents">
+            <apex:column value="{!request.Id}" />
+            <apex:column value="{!request.Employee_s_Name__r.Name}" />
+            <apex:column value="{!request.Employee_s_Name__r.Department}" />
+            <apex:column value="{!request.Hours_to_be_Used__c}" />
+            <apex:column value="{!request.From_Date__c}" />
+            <apex:column value="{!request.To_Date__c}" />
+            <apex:column headervalue="Awaiting Manager Approval">
+                <apex:outputText value="{!IF(request.Approval_Status__c = 'Awaiting Manager Approval', true, false)}" />
+            </apex:column>
+            <apex:column headervalue="Approved">
+                <apex:outputText value="{!IF(request.Approval_Status__c = 'Approved', true, false)}" />
+            </apex:column>
+        </apex:pageblockTable>
+        </apex:pageBlock>-->
+</apex:page>

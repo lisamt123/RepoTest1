@@ -1,0 +1,400 @@
+<apex:page standardController="DMAPP__Plan_Type__c" 
+	extensions="DMAPP.AM_PlanTypeController" 
+    sidebar="false" 
+    showHeader="{!$CurrentPage.parameters.enableHeader}">
+    
+    <apex:includeScript value="{! URLFOR($Resource.prefix) }" />
+    <script type="text/javascript" src="{! $Resource.l10njs }"></script>
+
+    <c:jQuery jQueryUI="true"
+        cookies="true"
+        underscore="true"
+        tooltip="false"
+        tools="false"
+        validate="false"
+        paging="false"
+        jqGrid="false"
+        textareaMaxlength="false"
+        dropdown="false"
+        chosen="false"
+    />
+
+
+    <apex:include pageName="DMAPP__tmpCommoncss" />
+    <script type="text/javascript" src="{! URLFOR($Resource.ttgomjs, 'ttg/lib/ttgservice.js') }"></script>
+    <script type="text/javascript" src="{! URLFOR($Resource.tooltipjs) }"></script>
+    <script type="text/javascript" src="{! URLFOR($Resource.ttgomjs, 'ttg/lib/jquery-ui-touch-patch.js') }"></script>
+    <script type="text/javascript" src="{! URLFOR($Resource.ftk, 'forcetk.js') }"></script> 
+    <apex:includeScript value="{! URLFOR($Resource.Underscore, 'underscore-min.js') }" /> 
+    
+    <apex:include pageName="DMAPP__APIDelegate" />
+
+<style>
+	div.errorMessage {
+		color: red;
+		font-weight:bold;
+	}
+</style>
+    <div class="smartOMPanel">
+        <div class="smartOMTabContainer">
+		 	<apex:outputPanel id="detailContainer">
+		        <apex:detail id="theDetails" subject="{!thePlanType.Id}" relatedList="true" />
+		    </apex:outputPanel>
+            <apex:form id="loadForComparisionFileForm" enctype="multipart/form-data" >
+            	<div>
+					<apex:inputCheckbox id="importActive" value="{!importActive}" rendered="false"/>
+	                <apex:inputFile id="loadForComparisionFileField" value="{!contentFile}" filename="{!nameFile}" style="display:none;"  onchange="loadOnChange(this)"/>
+		        	<apex:commandButton id="loadForComparisionFileButton" action="{!loadForComparision}" value="Load" style="display:none;" styleClass="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only"/>
+	        	</div>
+	        	<div class='errorMessage' id='loadForComparisionFileErrorDiv'>
+					<apex:outputText id="loadForComparisionFileError"  value="{!importErrorMessage}" styleClass="errorMsg" rendered="{!importActive}"/>
+				</div>
+             </apex:form>
+         </div>  
+         <div class="smartOMTabContainerBottom"/>
+    </div> 
+        
+    <script>
+                      
+        var ttg = ttg || {};
+
+
+        ttg.configExporterAll = function(anchorId) {
+        
+            var dialogOpen = true;
+            var callCount = 0;
+
+            function createFutureDownloadAdvice() {
+                return jQuery('<ol/>')
+                        .append(jQuery('<li/>').text('Dealmaker is preparing to export your plan type.'))
+                        .append(jQuery('<li/>').text('Once complete a link will appear below.'))
+                        .append(jQuery('<li/>').text('Right click this link and save the file.'))
+            }
+
+            function createFutureLinkDiv() {
+                callCount = 0;
+                return  jQuery('<div/>')
+                    .css({ width : '100%', 'text-align' : 'center'})
+                    .addClass('ttg_future_ppt_exporter_linkdiv')
+                    .append(jQuery('<span/>').text('Preparing'));
+                    
+            }
+                
+            function getConfig(id, success, error, complete) {
+                var succ = function(data) { try { success(data); } finally { complete(); } };
+                var err = ttg.ajaxErrorFunction(
+                	error,
+                	complete,
+                	{
+						showDetail: false, 
+                        title: 'Error Exporting Plan Type'
+                    }
+                );
+                ttgInvoker.invokeVFR(ttg.getController('DMAPP.AM_PlanTypeController.exportPlanType'), 
+                    id, 
+                    function(result, event) { 
+                        if (event.type == 'exception') { 
+                            err(result,event);
+                        } else {
+                            succ(result); 
+                        } 
+                    }, 
+                    {escape: false});
+            }    
+
+            function deleteConfig(id, success, error, complete) {
+                var succ = function(data) { try { success(data); } finally { complete(); } };
+                var err = ttg.ajaxErrorFunction(
+                	error,
+                	complete,
+                	{
+						showDetail: false, 
+                        title: 'Error Exporting Plan Type'
+                    }
+                );
+                ttgInvoker.invokeVFR(ttg.getController('DMAPP.AM_PlanTypeController.deleteConfig'), 
+                    id, 
+                    function(result, event) { 
+                        if (event.type == 'exception') { 
+                            err(result,event);
+                        } else {
+                            succ(result); 
+                        } 
+                    }, 
+                    {escape: false});
+            }    
+
+            function deletefutureConfigExport(id) {
+                deleteConfig(id,
+                
+                    function() { checkForFutureConfigExportUrl(id) },                    
+                    function() { /* error */ },                 
+                    function() { /* complete */ }               
+                )
+                
+            }           
+            
+            function checkForFutureConfigExportUrl(id) {
+                getConfig(id,
+                    function(responseData) { 
+                        if (responseData != null && responseData.downloadURL != null) {
+                            jQuery('.ttg_future_ppt_exporter_linkdiv').html('');
+
+                            jQuery('.ttg_future_ppt_exporter_linkdiv').append(
+                                jQuery('<a/>', {href: responseData.downloadURL }).css('cursor', 'pointer').text('Click to save plan type')
+                            )
+                        }
+                        else {
+                            if (++callCount > 40) {
+                                jQuery('.ttg_future_ppt_exporter_linkdiv').html('');
+                                jQuery('.ttg_future_ppt_exporter_linkdiv').append(
+                                    jQuery('<a/>').text('Taking too long.  Continue waiting?').css('cursor', 'pointer').click(function() { callCount = 0; checkForFuturePPTXUrl(id)} ) 
+                                )
+                            }
+                            else {
+                                jQuery('.ttg_future_ppt_exporter_linkdiv').html('');
+                                jQuery('.ttg_future_ppt_exporter_linkdiv').append(
+                                    jQuery('<span/>').css({'display': 'inline-block', width: '100px', 'text-align': 'left'}).text('Waiting' + dots(callCount, 4))
+                                )
+
+                                if (dialogOpen) {
+                                    checkForFutureConfigExportUrl(id);
+                                }
+                            }
+                            
+                        } 
+                    },
+                    function() { /* error */ },                 
+                    function() { /* complete */ }               
+                )
+
+            }
+            
+            function dots(num, mnum) {
+            
+                var s = '';
+                while(s.length < (num % mnum)) {
+                    s += '.';
+                }
+
+                while(s.length < mnum) {
+                    s += ' ';
+                }
+                
+                return s;
+            }
+            
+            function futureFailure() {
+            }
+                
+            function closeDialog() {
+                dialogOpen = false;
+                jQuery('ttg_simple_ppt_exporter_div').remove();
+            }
+            
+            function showDialog() {
+                
+                
+                jQuery('<div/>',{ id : 'ttg_simple_ppt_exporter_div'})
+                    .addClass('ttg_simple_ppt_exporter')
+                    .append(
+                        createFutureDownloadAdvice() 
+                    )
+                    .append(
+                        createFutureLinkDiv() 
+                    )
+                    .dialog({
+                        title       :   'Export Plan Type'
+                        , width     :   '500px',
+                        close: closeDialog
+                    });
+                
+            }
+                    
+            showDialog();
+            deletefutureConfigExport(anchorId);            
+        }
+        
+        
+        ttg.configClonePlanType = function() {
+        
+            var dialogOpen = true;
+
+            
+            function performClonePlanType(id, clonedPlanName, success, error, complete) {
+                var succ = function(data) { try { success(data); } finally { complete(); } };
+                var err = ttg.ajaxErrorFunction(
+                	error,
+                	complete,
+                	{
+						showDetail: true, 
+                        title: 'Error Cloning Plan Type'
+                    }
+                );
+                ttgInvoker.invokeVFR(ttg.getController('DMAPP.AM_PlanTypeController.clonePlanType'), 
+                    id, 
+                    clonedPlanName,
+                    function(result, event) { 
+                        if (event.type == 'exception') { 
+                            err(result,event);
+                        } else {
+                            succ(result); 
+                        } 
+                    }, 
+                    {escape: false});
+            }  
+            
+            function createPlanTypeCloneDiv() {
+                var div = jQuery('<div/>');
+                div.append(jQuery('<div/>').text('Enter the name of the cloned plan type:'));
+                div.append(jQuery('<input/>', {id: 'planTypeCloneNameInput', type:'text', maxlength: 80, autofocus: 'true'}).val('{!thePlanType.Name}' + ' clone').on('change keydown keyup', function() {
+                    var text = jQuery.trim(jQuery(this).val());
+                    if(text && text.length > 0) {
+                        jQuery('#doPlanTypeClone').button('enable');
+                    }
+                    else {
+                        jQuery('#doPlanTypeClone').button('disable');
+                    }
+                }));
+                return div;
+            }  
+  
+            function closeDialog() {
+                dialogOpen = false;
+                jQuery('#ttg_plan_type_clone_div').dialog('close').remove();
+            }
+            
+            function doPlanTypeClone(clonedPlanName) {
+                performClonePlanType('{!thePlanType.Id}', 
+                    clonedPlanName,
+                    function(responseData) { 
+                        if (responseData != null) {
+                        	document.location = '/' + responseData;
+                        }
+                    },
+                    function() {/* error */
+                    	jQuery('#planTypeCloneNameInput').focus(); 
+                    },                 
+                    function() { /* complete */ }               
+                )            
+            }
+            
+            function showDialog() {
+                
+                
+                jQuery('<div/>',{ id : 'ttg_plan_type_clone_div'})
+                    .addClass('ttg_simple_ppt_exporter')
+                    .append(
+                        createPlanTypeCloneDiv()
+                    )
+                    .dialog({
+                        title       :   'Clone Plan Type', 
+                        width     :   '400px',
+                        buttons: { 'Ok' : {
+                                        text: 'Ok',
+                                        id: "doPlanTypeClone",
+                                        click : function() {
+                                            doPlanTypeClone(jQuery.trim(jQuery('#planTypeCloneNameInput').val()));
+                                        }                           
+                                    },
+                                    'Cancel': {
+                                        text: 'Cancel',
+                                        id: "cancelPlanTypeClone",
+                                        click : function() {
+                                            closeDialog();
+                                        }                                       
+                                    }
+                        },
+                        close: closeDialog
+                    });
+                
+            }
+                    
+            showDialog();
+
+        }        
+              
+        ttg.configLoadForComparision = function() {
+        
+            var dialogOpen = true;
+
+            function createDownloadAdvice() {
+                return jQuery('<ol/>')
+                        .append(jQuery('<li/>').text('Dealmaker is preparing to load a JSON file for comparision to this Plan Type.').css('margin-left', '0'))
+                        .append(jQuery('<li/>').text('Select a file to load and click load.').css('margin-left', '0'))
+            }
+
+            function createButtonsDiv() {
+                
+                var importForm = jQuery('form[id$="loadForComparisionFileForm"]');
+                var importField = jQuery('input[id$="loadForComparisionFileField"]');
+                var importButton = jQuery('input[id$="loadForComparisionFileButton"]');
+       
+                var buttonDiv = jQuery('<div/>')
+                    .css({ width : '100%', 'text-align' : 'center'})
+                    .addClass('ttg_future_ppt_exporter_buttondiv')
+                    .append(importForm);
+                        
+                importForm.show(); 
+                importField.show();
+                importButton.show();
+                
+                return buttonDiv;
+                    
+            }
+
+            function closeDialog() {
+                dialogOpen = false;
+		        jQuery('span[id$="loadForComparisionFileError"]').hide();
+                jQuery("input[id$='loadActive']").prop("checked", false);
+                jQuery('form[id$="loadForComparisionFileForm"]').hide().appendTo(jQuery('body'));
+                jQuery('#ttg_simple_ppt_importer_div').remove();
+            }
+            
+            function showDialog() {
+                
+                jQuery('<div/>',{ id : 'ttg_simple_ppt_importer_div'})
+                    .addClass('ttg_simple_ppt_exporter')
+                    .append(
+                        createDownloadAdvice() 
+                    )
+                    .append(
+                        createButtonsDiv() 
+                    )
+                    .dialog({
+                        title       :   'Load JSON',
+                        width       :   '500px',
+                        close       :   function() {closeDialog();}
+                    });
+                
+            }
+                    
+            showDialog();
+
+        }
+        
+        function handleExportAll() {
+            ttg.configExporterAll('{!thePlanType.Id}', true);
+        }
+        
+        function handleClonePlanType() {
+            ttg.configClonePlanType();
+        }        
+
+        function handleLoadForComparision() {
+            ttg.configLoadForComparision();
+        }
+        
+       jQuery(document).ready(function(){
+       		if ({!importActive}) {
+				handleLoadForComparision();
+			}
+        });
+        
+		function loadOnChange() {
+        	jQuery("input[id$='importActive']").prop("checked", false);
+        	jQuery('span[id$="loadForComparisionFileError"]').hide();
+        }
+
+    </script>
+</apex:page>

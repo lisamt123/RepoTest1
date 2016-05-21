@@ -1,0 +1,437 @@
+<apex:page standardController="Opportunity" showHeader="false"
+	renderas="pdf">
+	<head>
+<style type="text/css">
+#bg {
+	background:
+		url(/resource/1244134120000/WATERMARKLOGOcollateral2);
+	background-position: 0% 0%;
+	background-size: 10;
+	background-repeat: no-repeat;
+}
+</style>
+	</head>
+
+	<!--Outer Table - Covers the whole page-->
+	<table border="0" width="100%">
+		<tr>
+			<td height="900" align="center" valign="center">
+				<!--Middle Table - horizontal strip across the page-->
+				<table border="0" align="center" width="100%" valign="center">
+					<tr align="left">
+						<td>
+							<!--Center Table - Contains the Logo and Cover page info-->
+							<table border="0" align="center" width="60%">
+								<tr>
+									<td colspan="2" align="right"><img
+										src='{!URLFOR($Resource.LargeLogoCollateral2)}' width="100%"
+										height="100%" title="logo" /></td>
+								</tr>
+								<tr>
+									<td align="right"><big><big>PREPARED BY:
+												{!Opportunity.Owner.Name}</big> </big></td>
+								</tr>
+								<tr>
+									<td align="right"><big><big>FOR:
+												{!Opportunity.Account.Name}</big> </big></td>
+								</tr>
+							</table> <!--Close Middle Table-->
+						</td>
+					</tr>
+				</table> <!--Close Outer Table-->
+			</td>
+		</tr>
+	</table>
+
+	<!--Page1 Footer-->
+	<div style="page-break-after: always;">
+		<p style="text-align: center">VinSolutions 913-825-6124 · 6405
+			Metcalf Avenue Suite 400 · Overland Park, KS 66202</p>
+	</div>
+
+
+
+	<!----------------DOCUMENT SELECTION CODE---------------------------------------------------------------------------------->
+
+
+
+	<!----------------END DOCUMENT SELECTION CODE----------------------------------------------------------------------------->
+	<apex:outputField rendered="False" value="{!Opportunity.Quote_Docs__c}" />
+	<!--Packages-->
+	<apex:include rendered="{!IF(CONTAINS(Opportunity.Quote_Docs__c, 'Platinum'), TRUE, FALSE)}"
+		pageName="CRM_Quote" />
+	<apex:include rendered="{!IF(CONTAINS(Opportunity.Quote_Docs__c, 'Platinum'), TRUE, FALSE)}"
+		pageName="ILM_Quote" />
+	<apex:include rendered="{!IF(CONTAINS(Opportunity.Quote_Docs__c, 'Platinum'), TRUE, FALSE)}"
+		pageName="Inventory_Quote" />
+	<apex:include rendered="{!IF(CONTAINS(Opportunity.Quote_Docs__c, 'Platinum'), TRUE, FALSE)}"
+		pageName="Website_Quote" />
+
+	<apex:include rendered="{!IF(CONTAINS(Opportunity.Quote_Docs__c, 'Gold'), TRUE, FALSE)}"
+		pageName="CRM_Quote" />
+	<apex:include rendered="{!IF(CONTAINS(Opportunity.Quote_Docs__c, 'Gold'), TRUE, FALSE)}"
+		pageName="ILM_Quote" />
+	<apex:include rendered="{!IF(CONTAINS(Opportunity.Quote_Docs__c, 'Gold'), TRUE, FALSE)}"
+		pageName="Inventory_Quote" />
+	<apex:include rendered="{!IF(CONTAINS(Opportunity.Quote_Docs__c, 'Gold'), TRUE, FALSE)}"
+		pageName="Website_Quote" />
+
+	<apex:include rendered="{!IF(CONTAINS(Opportunity.Quote_Docs__c, 'Silver'), TRUE, FALSE)}"
+		pageName="ILM_Quote" />
+	<apex:include rendered="{!IF(CONTAINS(Opportunity.Quote_Docs__c, 'Silver'), TRUE, FALSE)}"
+		pageName="Inventory_Quote" />
+	<apex:include rendered="{!IF(CONTAINS(Opportunity.Quote_Docs__c, 'Silver'), TRUE, FALSE)}"
+		pageName="Website_Quote" />
+
+	<apex:include rendered="{!IF(CONTAINS(Opportunity.Quote_Docs__c, 'Bronze'), TRUE, FALSE)}"
+		pageName="Inventory_Quote" />
+	<apex:include rendered="{!IF(CONTAINS(Opportunity.Quote_Docs__c, 'Bronze'), TRUE, FALSE)}"
+		pageName="Website_Quote" />
+
+	<apex:include rendered="{!IF(CONTAINS(Opportunity.Quote_Docs__c, 'Nickel - Pro'), TRUE, FALSE)}"
+		pageName="Inventory_Quote" />
+	<apex:include rendered="{!IF(CONTAINS(Opportunity.Quote_Docs__c, 'Nickel - Plus'), TRUE, FALSE)}"
+		pageName="Inventory_Quote" />
+
+	<apex:include rendered="{!IF(CONTAINS(Opportunity.Quote_Docs__c, 'CRM'), TRUE, FALSE)}"
+		pageName="CRM_Quote" />
+	<apex:include rendered="{!IF(CONTAINS(Opportunity.Quote_Docs__c, 'ILM'), TRUE, FALSE)}"
+		pageName="ILM_Quote" />
+	<apex:include rendered="{!IF(CONTAINS(Opportunity.Quote_Docs__c, 'Inventory'), TRUE, FALSE)}"
+		pageName="Inventory_Quote" />
+	<apex:include rendered="{!IF(CONTAINS(Opportunity.Quote_Docs__c, 'Website'), TRUE, FALSE)}"
+		pageName="Website_Quote" />
+
+	<apex:include rendered="{!IF(CONTAINS(Opportunity.Quote_Docs__c, 'New Quote Documents'), TRUE, FALSE)}"
+		pageName="ProductDocuments" />
+
+	<!--START PROPOSAL PAGE------------------------------------------------------------------------>
+
+	<!--Headline Table - VIN solutions logo and address-->
+	<table border="0" cellspacing="0" cellpadding="0" width="100%"
+		id="table1">
+		<tr>
+			<td><img src='{!URLFOR($Resource.LargeLogoCollateral2)}'
+				align="left" valign="top" width="240" height="75" title="logo" />
+			</td>
+			<td align="right"><font face="Arial">
+					{!$Organization.Name}<br /> {!$Organization.Street}<br />
+					{!$Organization.City}, KS {!$Organization.PostalCode}<br />
+					www.vinsolutions.com<br /> Sales and Support: 913-825-6124<br />
+			</font><br /></td>
+		</tr>
+	</table>
+
+	<hr />
+
+	<!--Proposal For Table -->
+	<table border="0" width="100%" id="table2">
+		<tr>
+			<td align="center">Custom Proposal For</td>
+		</tr>
+		<tr>
+			<td align="center"><b><big><big><big>{!Opportunity.Account.Name}</big>
+					</big> </big> </b></td>
+		</tr>
+	</table>
+
+
+
+	<!--Quote Number/Good For Table-->
+	<table border="0" width="100%" id="table2">
+		<tr>
+			<td align="Center" width="100%">Quote
+				number:{!Opportunity.QuoteNumber__c}{!Opportunity.QuoteVersion__c}
+				&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Good Through:&nbsp;<apex:OutputField value="{!Opportunity.QuoteEndDate__c}" /></td>
+		</tr>
+	</table>
+
+
+
+	<!--Prepared by Table-->
+	<table border="0" width="100%" id="table2">
+		<tr>
+			<td align="center">Prepared By: {!Opportunity.Owner.FirstName}
+				{!Opportunity.Owner.LastName}</td>
+		</tr>
+	</table>
+
+
+
+	<!--Email Address/Phone Table-->
+	<table border="0" width="100%" id="table2">
+		<tr>
+			<td align="center">Email:{!Opportunity.Owner.Email} Voice:
+				{!Opportunity.Owner.Phone}</td>
+		</tr>
+	</table>
+
+	<!--Product Table(s)-->
+	<br />
+	<hr />
+	<p>
+		<b><font color="#000080" face="Arial">Products</font> </b>
+	</p>
+
+	<!--Outer Product Table-->
+	<table style="margin-bottom: 10px;" border="0" width="100%"
+		height="100%" id="table5">
+		<tr>
+
+
+
+			<!-- <td  valign="top" border="0"> -->
+
+
+
+
+			<!--Product Table-->
+			<!--<table border="0" width="100%" id="table4">-->
+
+			<!--===================PRODUCT LIST SECTION(S)============================================================-->
+
+			<th align="center" width="27%" bgcolor="#FFFFFF"
+				style="border-style: solid; border-width: thin; border-color: #000000;"><font
+				face="Arial Unicode MS">Product</font></th>
+			<th align="center" width="40%" bgcolor="#FFFFFF"
+				style="border-style: solid; border-width: thin; border-color: #000000;"><font
+				face="Arial Unicode MS"> Description</font></th>
+			<th align="center" width="5%" bgcolor="#FFFFFF"
+				style="border-style: solid; border-width: thin; border-color: #000000;"><font
+				face="Arial Unicode MS"> Qty.</font></th>
+			<th align="center" width="9%" bgcolor="#FFFFFF"
+				style="border-style: solid; border-width: thin; border-color: #000000;"><font
+				face="Arial Unicode MS">List Price</font></th>
+
+			<th align="center" width="8%" bgcolor="#FFFFFF"
+				style="border-style: solid; border-width: thin; border-color: #000000;"><font
+				face="Arial Unicode MS">Sales Price</font></th>
+			<th align="center" width="8%" bgcolor="#FFFFFF"
+				style="border-style: solid; border-width: thin; border-color: #000000;"><font
+				face="Arial Unicode MS"><apex:outputLabel value="Sales Tax"
+						rendered="{!Opportunity.TNOPPST__Sales_Tax__c > 0}" /> </font></th>
+			<!--  -->
+
+			<c:sortedlineitems1 value="{!Opportunity}" />
+			<th width="220"></th>
+			<th width="300"></th>
+			<th width="5%"></th>
+			<th align="center" width="8%"></th>
+			<th align="center" width="8%"></th>
+			<th align="center" width="9%"></th>
+			<c:sortedlineitems value="{!Opportunity}" />
+			<th width="220"></th>
+			<th width="300"></th>
+			<th width="5%"></th>
+			<th align="center" width="8%"></th>
+			<th align="center" width="8%"></th>
+			<th align="center" width="9%"></th>
+			<hr></hr>
+			<c:sortedlineitems2 value="{!Opportunity}" />
+			<th width="220"></th>
+			<th width="300"></th>
+			<th width="5%"></th>
+			<th align="center" width="8%"></th>
+			<th align="center" width="8%"></th>
+			<th align="center" width="9%"></th>
+			<hr></hr>
+			<c:sortedlineitems3 value="{!Opportunity}" />
+			<th width="220"></th>
+			<th width="300"></th>
+			<th width="5%"></th>
+			<th align="center" width="8%"></th>
+			<th align="center" width="8%"></th>
+			<th align="center" width="9%"></th>
+			<c:sortedlineitems4 value="{!Opportunity}" />
+			<th width="220"></th>
+			<th width="300"></th>
+			<th width="5%"></th>
+			<th align="center" width="8%"></th>
+			<th align="center" width="8%"></th>
+			<th align="center" width="9%"></th>
+
+			<!--================================================================================-->
+
+
+		</tr>
+	</table>
+
+
+	<!--One-time/Subscription Fees Table-->
+	<!--  <br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>-->
+
+
+
+	<div
+		style="clear: both; display: block; margin-bottom: 10px; page-break-inside: avoid">
+
+
+		<table style="margin-left: 54%;" border="0" cellspacing="0"
+			cellpadding="0" width="43%" id="table 10" height="100%">
+			<tr>
+				<td>Products/One Time:</td>
+				<td align="right"><apex:OutputField value="{!Opportunity.Amount2__c}" /></td>
+			</tr>
+			<tr>
+				<td>One Time Shipping:</td>
+				<td align="right"><apex:OutputField value="{!Opportunity.Freight_Cost__c}" /></td>
+			</tr>
+			<tr>
+				<td>One Time Sales Tax:</td>
+				<td align="right"><apex:outputField value="{!Opportunity.One_Time_Sales_Tax__c}" /></td>
+			</tr>
+			<tr>
+				<td>Monthly Recurring:</td>
+				<td align="right"><apex:OutputField value="{!Opportunity.Monthly_Recurring_Fees__c}" /></td>
+			</tr>
+			<!--  <tr>
+		<td>Pricebook:</td>
+		<td align="right"><apex:outputLabel value="{!Opportunity.Pricebook2.Name}"/></td>
+	</tr>-->
+
+			<tr>
+				<!-- This is the new code that renders based on sales tax being greater than 0 -->
+				<td><apex:outputLabel value="Monthly Recurring Sales Tax:"
+						rendered="{!Opportunity.TNOPPST__Sales_Tax__c > 0}" /></td>
+				<td align="right"><apex:outputField value="{!Opportunity.Monthly_Recurring_Sales_Tax__c}"
+						rendered="{!Opportunity.TNOPPST__Sales_Tax__c > 0}" /></td>
+
+
+
+			</tr>
+			<tr>
+				<td bgcolor="#C0C0C0"><b>Total Now Due:</b></td>
+				<td align="right" bgcolor="#C0C0C0"><b><apex:OutputField value="{!Opportunity.Invoice_Total3__c}" /> </b></td>
+			</tr>
+			<tr>
+				<td></td>
+			</tr>
+			<tr>
+				<td bgcolor="#C0C0C0"><b>Total Monthly Recurring:</b></td>
+				<td align="right" bgcolor="#C0C0C0"><b><apex:OutputField value="{!Opportunity.TotalMonthlyIncludingSaletax__c}" /> </b></td>
+			</tr>
+		</table>
+	</div>
+	<div
+		style="clear: both; display: block; margin-bottom: 10px; margin-top: 10px; page-break-inside: avoid">
+		<table style="margin-left: 54%;" border="0" cellspacing="0"
+			cellpadding="0" width="43%" id="table 21" height="100%">
+			<tr>
+				<td line-height="50%"><apex:outputLabel style="font-size:6pt; line-height:60%;"
+						value="*Taxes are subject to state and local regulations and are subject to change" />
+				</td>
+			</tr>
+			<tr>
+				<td><apex:outputLabel style="font-size:6pt;"
+						value="*Does not include Dealer-paid Travel Expenses related to onsite training" />
+				</td>
+			</tr>
+		</table>
+	</div>
+
+	<!--  <div style="clear:both; display:block; margin-bottom:10px; margin-top:15px; page-break-inside:avoid">
+	<table style="margin-top:10px; margin-left:54%;" border="0" cellspacing="0" cellpadding="0" width="43%" id="table20" height="100%">
+	<tr>
+		<td>Monthly Recurring:</td>
+		<td align="right"><apex:outputField value="{!Opportunity.Monthly_Recurring_Fees__c}"/></td>
+	</tr>
+	<tr>
+		<td>Recurring Sales Tax:</td>
+		<td align="right"><apex:outputField value="{!Opportunity.Monthly_Recurring_Sales_Tax__c}"/></td>
+	</tr>
+	<tr>
+		<td bgcolor="#C0C0C0"><b>Total Monthly Recurring:</b></td>
+		<td align="right" bgcolor="#C0C0C0"><b><apex:OutputField value="{!Opportunity.TotalMonthlyIncludingSaletax__c}"/></b></td>		
+	</tr>
+</table>
+</div>-->
+
+	<div>
+		<table border="0" width="100%" align="center">
+			<apex:outputLabel style="font-size:9pt; font-weight:bold; visibility: {!if(Opportunity.Type='Existing Business', 'visible', 'hidden')};"
+				value="*this invoice does not replace or supersede current billing" />
+		</table>
+
+
+	</div>
+	<br />
+	<div
+		style="clear: both; display: block; margin-bottom: 5px; page-break-inside: avoid">
+		<table>
+			<tr border="0" width="25%" id="table6" align="left">
+				<td bgcolor="#C0C0C0" align="left" colspan="10"><font
+					face="Arial"><big><b>Proposal Total</b> </big> </font></td>
+			</tr>
+			<tr>
+				<td>Retail Value:</td>
+				<td align="right">&nbsp;<apex:OutputField value="{!Opportunity.Total_List_Price_ROLL__c}" /></td>
+			</tr>
+			<tr>
+				<td><apex:outputText value="Total Discount:"
+						rendered="{!if(Opportunity.Discount_Amount_ROLL__c>=0, FALSE, TRUE)}" />
+				</td>
+				<td align="right">&nbsp;<apex:OutputField value="{!Opportunity.Discount_Amount_ROLL__c}"
+						rendered="{!if(Opportunity.Discount_Amount_ROLL__c>=0, FALSE, TRUE)}" />
+				</td>
+			</tr>
+			<tr>
+				<td>Proposal Total:</td>
+				<td align="right">&nbsp;<apex:OutputField value="{!Opportunity.Amount}" /></td>
+			</tr>
+		</table>
+	</div>
+
+
+	<!--Close Outer Product Table-->
+	<!-- </td></tr><br/></table>-->
+
+
+
+	<!--START SIGNATURE SPACE------------------------------->
+	<div style="page-break-after: never">
+
+		<br />
+		<table width="100%" id="table5" valign="bottom">
+
+			<tr>
+				<td width="50%">&nbsp;</td>
+				<td width="50%">&nbsp;</td>
+			</tr>
+			<tr>
+				<td width="80%">Signature
+					<hr color="black" size="1" /></td>
+				<td width="20%">Date
+					<hr color="black" size="1" /></td>
+			</tr>
+		</table>
+	</div>
+	<!--END SIGNATURE SPACE------------------------------------>
+
+	<!--VinSolutions LogoFooter-------------------------------------------->
+
+	<div style="page-break-before: auto">
+		<p align="center">
+			<font face="Arial"><i>Copyright {!$Organization.Name}.</i> </font>
+		</p>
+
+
+
+		<table border="0" cellspacing="0" cellpadding="0" width="100%"
+			id="table 12" valign="bottom">
+			<tr>
+				<td align="center" valign="bottom"><img
+					src='{!URLFOR($Resource.BottomCollateral)}' width="100%"
+					height="100%" title="logo" />
+				</td>
+			</tr>
+		</table>
+
+	</div>
+	<!--END PROPOSAL PAGE------------------------------------------>
+
+</apex:page>

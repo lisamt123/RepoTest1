@@ -1,0 +1,55 @@
+<apex:page standardController="Opportunity" extensions="OpportunityPopupController">
+    <apex:includeScript value="{!URLFOR($Resource.JQueryUI, 'js/jquery-1.4.2.min.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.JQueryUI, 'js/jquery-ui-1.8.2.custom.min.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.jqModal, 'jqModal.js')}"/>
+
+    <apex:stylesheet value="{!URLFOR($Resource.JQueryUI, 'css/ui-lightness/jquery-ui-1.7.2.custom.css')}"/>
+    <apex:stylesheet value="{!URLFOR($Resource.jqModal, 'jqModal.css')}"/>
+
+<script type="text/javascript">
+    var j$ = jQuery.noConflict();
+    
+    j$(document).ready(function()
+    {
+  		if ( "{!showPopup}" == "true")
+  		{
+  		j$('#popup').jqm
+	  		({
+	  			modal: true,
+	  		}).jqmShow();
+	  	}	  	
+		j$('#saveButton').click(function() {
+	  		if (j$('#noshow:checked').val() !== undefined)
+	  		{
+	  			window.setTimeout(updateOppToNoShow,2000);
+	  		}
+	  		j$('#popup').jqmHide();
+		});		
+	});
+
+	
+	
+     </script>        
+	<apex:form >
+	  			<apex:actionFunction name="updateOppToNoShow" action="{!updateOppToNoShow}" rerender="detailpage" />
+	 </apex:form>
+	
+	<apex:pageBlock id="detailpage">
+	<apex:detail showChatter="true" />
+	</apex:pageBlock>
+
+	<div class="jqmWindow" id="popup" style="text-align:center">
+	<br />
+	
+	Please include the appropriate Data Integration product in this opportunity.  <br />
+	Use Bi-directional if customer has Advanced Desking or Service Aisle CRM.<br />
+	<b>Excludes Arkona/DealerTrack DMS.</b>  <br />
+	<form>
+	<input type="button" id = "saveButton" value="Okay" />
+	<apex:form >
+	</apex:form>
+	<input type="checkbox" name="noshow" value="Don't show again" id="noshow" style="visibility: hidden"></input>
+	</form>
+	
+	</div>
+</apex:page>

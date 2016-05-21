@@ -1,0 +1,1688 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <actionOverrides>
+        <actionName>AddProduct</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>CancelEdit</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>ChoosePricebook</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Delete</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Edit</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>EditAllProduct</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>SaveEdit</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>View</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <compactLayoutAssignment>SYSTEM</compactLayoutAssignment>
+    <enableFeeds>false</enableFeeds>
+    <fields>
+        <fullName>Active_Product__c</fullName>
+        <externalId>false</externalId>
+        <formula>IF(PricebookEntry.Product2.IsActive = TRUE, &quot;TRUE&quot;, &quot;FALSE&quot;)</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>Active Product</label>
+        <required>false</required>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>ActualDescription__c</fullName>
+        <externalId>false</externalId>
+        <label>ActualDescription</label>
+        <length>255</length>
+        <required>false</required>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Business_Unit__c</fullName>
+        <externalId>false</externalId>
+        <formula>Opportunity.Business_Unit__c</formula>
+        <inlineHelpText>Automatically pulls from Opp Business Unit.</inlineHelpText>
+        <label>Business Unit (Opp)</label>
+        <required>false</required>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Conquest_Setup_Fees__c</fullName>
+        <externalId>false</externalId>
+        <formula>IF( PricebookEntry.Product2.ProductCode = &quot;CQ Set Up&quot;,TotalPrice, 0)</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>Conquest Setup Fees</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>2</scale>
+        <type>Currency</type>
+    </fields>
+    <fields>
+        <fullName>Data_Integration_Fees__c</fullName>
+        <externalId>false</externalId>
+        <formula>IF( PricebookEntry.Product2.ProductCode = &quot;PV Data Int&quot;,TotalPrice, 0)</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>Data Integration Fees</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>2</scale>
+        <type>Currency</type>
+    </fields>
+    <fields>
+        <fullName>Description</fullName>
+    </fields>
+    <fields>
+        <fullName>Disable_Price_Change__c</fullName>
+        <externalId>false</externalId>
+        <formula>IF(PricebookEntry.Product2.Disable_Price_Change__c ==TRUE, &quot;TRUE&quot;, &quot;FALSE&quot;)</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>Disable Price Change</label>
+        <required>false</required>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Discount</fullName>
+    </fields>
+    <fields>
+        <fullName>Discount_Amount__c</fullName>
+        <description>The amount this line item has been discounted by.</description>
+        <externalId>false</externalId>
+        <formula>IF(
+   OR(
+      Total_List_Price__c = 0,
+      VS_Sale_Price__c &gt; Total_List_Price__c
+   ),
+   0,
+   (VS_Sale_Price__c - Total_List_Price__c)
+)</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>Discount Amount</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>2</scale>
+        <type>Currency</type>
+    </fields>
+    <fields>
+        <fullName>ExpPaidByDealer__c</fullName>
+        <externalId>false</externalId>
+        <formula>IF( PricebookEntry.Product2.ExpPaidByDealer__c , &quot;True&quot;, &quot;False&quot;)</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>ExpPaidByDealer</label>
+        <required>false</required>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Floor__c</fullName>
+        <description>Used by Vin. Workflow calculation used for Target Floors on Opportunity. Do not lock down field access, but DO NOT put on Opp Prod page layout, to prevent changes.</description>
+        <externalId>false</externalId>
+        <label>Floor</label>
+        <precision>11</precision>
+        <required>false</required>
+        <scale>2</scale>
+        <type>Currency</type>
+    </fields>
+    <fields>
+        <fullName>Freight_Cost__c</fullName>
+        <description>Cost to ship product</description>
+        <externalId>false</externalId>
+        <formula>PricebookEntry.Product2.Freight_Cost__c * Quantity</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <inlineHelpText>Cost to ship product</inlineHelpText>
+        <label>Freight Cost</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>2</scale>
+        <type>Currency</type>
+    </fields>
+    <fields>
+        <fullName>Fulfillment__c</fullName>
+        <defaultValue>false</defaultValue>
+        <externalId>false</externalId>
+        <label>Fulfillment</label>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>Generated_by_Product_Flow__c</fullName>
+        <defaultValue>false</defaultValue>
+        <externalId>false</externalId>
+        <inlineHelpText>Indicates that this product was created by Flow designed to add products</inlineHelpText>
+        <label>Generated by Product Flow</label>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>Generated_by_Website_Flow__c</fullName>
+        <defaultValue>false</defaultValue>
+        <externalId>false</externalId>
+        <inlineHelpText>Checked if this product was generated by the Add Website Products flow. Used by a validation rule that governs website creation.</inlineHelpText>
+        <label>Generated by Website Flow</label>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>Genius_Labs_Setup_Fees__c</fullName>
+        <externalId>false</externalId>
+        <formula>IF( PricebookEntry.Product2.ProductCode = &quot;GL Set Up&quot;,TotalPrice, 0)</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>Genius Labs Setup Fees</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>2</scale>
+        <type>Currency</type>
+    </fields>
+    <fields>
+        <fullName>Goal_Price__c</fullName>
+        <externalId>false</externalId>
+        <formula>(List_Price_Formula__c) * 0.80</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>Goal Price</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>2</scale>
+        <type>Currency</type>
+    </fields>
+    <fields>
+        <fullName>Hardware_Product__c</fullName>
+        <defaultValue>false</defaultValue>
+        <externalId>false</externalId>
+        <label>Hardware Product</label>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>Hardware__c</fullName>
+        <externalId>false</externalId>
+        <formula>IF( PricebookEntry.Product2.Hardware_Product__c  ==TRUE, &quot;TRUE&quot;, &quot;FALSE&quot;)</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>Hardware</label>
+        <required>false</required>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>IsBeingCloned__c</fullName>
+        <defaultValue>false</defaultValue>
+        <description>If this is checked, the package product population will not fire off. This is used when the custom clone button is working to ensure no duplicate products are created.</description>
+        <externalId>false</externalId>
+        <label>IsBeingCloned</label>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>IsOppClosed__c</fullName>
+        <externalId>false</externalId>
+        <formula>IF(
+   Opportunity.IsClosed = True,
+   &quot;True&quot;,
+   &quot;False&quot;
+)</formula>
+        <label>IsOppClosed</label>
+        <required>false</required>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>IsPackageChild__c</fullName>
+        <defaultValue>false</defaultValue>
+        <description>Only applicable to Monthly items.</description>
+        <externalId>false</externalId>
+        <inlineHelpText>Only applicable to Monthly items.</inlineHelpText>
+        <label>IsPackageChild</label>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>IsTraining_Workflow__c</fullName>
+        <defaultValue>false</defaultValue>
+        <externalId>false</externalId>
+        <label>IsTraining (Workflow)</label>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>IsTraining__c</fullName>
+        <externalId>false</externalId>
+        <formula>IF( PricebookEntry.Product2.isTraining__c , &quot;True&quot;, &quot;False&quot;)</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>IsTraining</label>
+        <required>false</required>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Legacy_ID__c</fullName>
+        <description>Legacy ObjectID for Migration Purposes</description>
+        <externalId>false</externalId>
+        <label>Legacy_ID</label>
+        <length>18</length>
+        <required>false</required>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>ListPrice</fullName>
+        <inlineHelpText>comes from the Product Library Standard Price</inlineHelpText>
+    </fields>
+    <fields>
+        <fullName>List_Price_Formula__c</fullName>
+        <externalId>false</externalId>
+        <formula>IF(
+   !ISBLANK(Package_Discount_Percentage__c),
+   IF(
+      IsPackageChild__c &amp;&amp; One_Time_Fee__c = FALSE, 
+      (ListPrice*Quantity*Package_Discount_Percentage__c), 
+      (ListPrice*Quantity)  
+   ),
+   IF(
+      IsPackageChild__c,
+      0,
+      (ListPrice*Quantity)
+   )
+)</formula>
+        <inlineHelpText>If PDP is filled in, check to see if IsPackageChild is TRUE and OneTimeFee is FALSE. If so, apply PDP to the List Price. Otherwise, straight List Price.
+If PDP is not filled in, check if PackageChild is TRUE. If so, this is 0. If not straight List Price.</inlineHelpText>
+        <label>List Price Pkg&apos;d</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>2</scale>
+        <type>Currency</type>
+    </fields>
+    <fields>
+        <fullName>Make__c</fullName>
+        <externalId>false</externalId>
+        <inlineHelpText>enter the make related to this product, required for conquest franchise product</inlineHelpText>
+        <label>Make</label>
+        <picklist>
+            <picklistValues>
+                <fullName>Acura</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Audi</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Austin Martin</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Bentley</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>BMW</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Bugati</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Buick</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Cadillac</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Chevrolet</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Chrysler</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Dodge</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Dodge/Ram</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Ferrari</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Fiat</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Fisker</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Ford</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>GMC</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Harley Davidson</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Honda</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Hummer</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Hyundai</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Infiniti</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Isuzu</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Jaguar</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Jeep</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Kia</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Lamborghini</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Land Rover</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Lexus</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Lincoln</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Maserati</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Maybach</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Mazda</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Mercedes-Benz</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Mercury</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Mini Cooper</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Mitsubishi</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Nissan</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Peugeot</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Pontiac</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Porsche</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>RAM</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Rolls Royce</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Saab</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Scion</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Subaru</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Suzuki</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Toyota</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Toyota/Scion</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Values</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Volkswagen</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Volvo</fullName>
+                <default>false</default>
+            </picklistValues>
+            <sorted>true</sorted>
+        </picklist>
+        <type>Picklist</type>
+    </fields>
+    <fields>
+        <fullName>Monthly_Advertising_Budget__c</fullName>
+        <externalId>false</externalId>
+        <label>Monthly Advertising Budget</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>0</scale>
+        <type>Currency</type>
+    </fields>
+    <fields>
+        <fullName>Non_Monthly_Created_by_Pkg__c</fullName>
+        <defaultValue>false</defaultValue>
+        <description>Populated by code. Indicates that this OLI is a non-monthly product that was generated by a package.</description>
+        <externalId>false</externalId>
+        <label>Non-Monthly Created by Pkg</label>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>Number_of_Training_Days__c</fullName>
+        <externalId>false</externalId>
+        <formula>PricebookEntry.Product2.Number_of_Training_Days__c</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <inlineHelpText>Formula pulling from Number of Training Days on Product</inlineHelpText>
+        <label>Number of Training Days</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>0</scale>
+        <type>Number</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>OLI_Cost_Factor__c</fullName>
+        <description>*** ADMIN ONLY ***
+List Price x Opportunity Cost Factor x % to Retail (aka the inverse of Recurring Discount Percent)</description>
+        <externalId>false</externalId>
+        <formula>ListPrice * Opportunity.Cost_Factor__c * Opportunity.to_Retail__c</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>OLI Cost Factor</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>2</scale>
+        <type>Currency</type>
+    </fields>
+    <fields>
+        <fullName>OLI_ID__c</fullName>
+        <externalId>false</externalId>
+        <formula>Id</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>OLI ID</label>
+        <required>false</required>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>One_Time_Fee__c</fullName>
+        <defaultValue>false</defaultValue>
+        <externalId>false</externalId>
+        <label>One Time Fee</label>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>Opp_Close_Date__c</fullName>
+        <externalId>false</externalId>
+        <formula>Opportunity.CloseDate</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>Opp Close Date</label>
+        <required>false</required>
+        <type>Date</type>
+    </fields>
+    <fields>
+        <fullName>Opp_Product_Suite__c</fullName>
+        <externalId>false</externalId>
+        <formula>TEXT(Opportunity.Opportunity_Names__c)</formula>
+        <inlineHelpText>formula field that reads the opportunity product suite</inlineHelpText>
+        <label>Opp Product Suite</label>
+        <required>false</required>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>OpportunityId</fullName>
+        <type>Lookup</type>
+    </fields>
+    <fields>
+        <fullName>Override_Related_Product__c</fullName>
+        <defaultValue>false</defaultValue>
+        <externalId>false</externalId>
+        <inlineHelpText>check box to override the related product error</inlineHelpText>
+        <label>Override Related Product</label>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>POA__c</fullName>
+        <deleteConstraint>SetNull</deleteConstraint>
+        <description>This will hold the POA for this product.</description>
+        <externalId>false</externalId>
+        <label>POA</label>
+        <referenceTo>POA__c</referenceTo>
+        <relationshipLabel>Opportunity Product</relationshipLabel>
+        <relationshipName>Opportunity_Product</relationshipName>
+        <required>false</required>
+        <type>Lookup</type>
+    </fields>
+    <fields>
+        <fullName>PackageNotForTinderbox__c</fullName>
+        <externalId>false</externalId>
+        <formula>PricebookEntry.Product2.PackageNotForTinderbox__c</formula>
+        <label>PackageNotForTinderbox</label>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>Package_Discount_Percentage__c</fullName>
+        <externalId>false</externalId>
+        <label>Package Discount Percentage</label>
+        <precision>9</precision>
+        <required>false</required>
+        <scale>6</scale>
+        <type>Percent</type>
+    </fields>
+    <fields>
+        <fullName>Package_Value__c</fullName>
+        <description>Affects nothing. Only used for reference by Tinderbox and sales reps.</description>
+        <externalId>false</externalId>
+        <formula>PricebookEntry.Product2.Package_Value__c</formula>
+        <inlineHelpText>Affects nothing. Only used for reference by Tinderbox and sales reps.</inlineHelpText>
+        <label>Package Value</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>2</scale>
+        <type>Currency</type>
+    </fields>
+    <fields>
+        <fullName>Pass_Thru_Product__c</fullName>
+        <defaultValue>false</defaultValue>
+        <externalId>false</externalId>
+        <label>Pass Thru Product</label>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>Phased_Implementation_Product__c</fullName>
+        <externalId>false</externalId>
+        <formula>IF(PricebookEntry.Product2.Phased_Implementation_Product__c ==TRUE, &quot;TRUE&quot;, &quot;FALSE&quot;)</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>Phased Implementation Product</label>
+        <required>false</required>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Price_Book_ID__c</fullName>
+        <externalId>false</externalId>
+        <formula>Opportunity.Pricebook2Id</formula>
+        <label>Price Book ID</label>
+        <required>false</required>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Pricing_HTML__c</fullName>
+        <externalId>false</externalId>
+        <formula>&apos;&lt;tr&gt;&lt;td&gt;&apos; &amp; PricebookEntry.Product2.Name &amp; &apos;&lt;/td&gt;&lt;td&gt;&apos; &amp; 
+IF( ISNULL( PricebookEntry.Product2.Description ) , &apos;&apos;, PricebookEntry.Product2.Description) &amp; 
+&apos;&lt;/td&gt;&lt;td&gt;&apos; &amp; TEXT(Quantity) &amp; &apos;&lt;/td&gt;&lt;td&gt;$&apos; &amp; 
+IF(TotalPrice/Quantity &gt;= 1000000, TEXT(FLOOR(TotalPrice/Quantity / 1000000)) &amp; &quot;,&quot;, &quot;&quot;) &amp; 
+IF(TotalPrice/Quantity &gt;= 1000, RIGHT(TEXT(FLOOR(TotalPrice/Quantity / 1000)), 3) &amp; &quot;,&quot;, &quot;&quot;) &amp; 
+RIGHT(TEXT(FLOOR(TotalPrice/Quantity)), 3) &amp; &quot;.&quot; &amp; 
+IF(MOD(TotalPrice/Quantity , 1) * 100 &lt; 10, &quot;0&quot; &amp; TEXT(ROUND(MOD(TotalPrice/Quantity , 1), 2) * 100), TEXT(MIN(ROUND(MOD(TotalPrice/Quantity , 1), 2) * 100, 99))) &amp; 
+&apos;&lt;/td&gt;&lt;td&gt;$&apos; &amp; 
+IF(TotalPrice&gt;= 1000000, TEXT(FLOOR(TotalPrice/ 1000000)) &amp; &quot;,&quot;, &quot;&quot;) &amp; 
+IF(TotalPrice&gt;= 1000, RIGHT(TEXT(FLOOR(TotalPrice/ 1000)), 3) &amp; &quot;,&quot;, &quot;&quot;) &amp; 
+RIGHT(TEXT(FLOOR(TotalPrice)), 3) &amp; &quot;.&quot; &amp; 
+IF(MOD(TotalPrice, 1) * 100 &lt; 10, &quot;0&quot; &amp; TEXT(ROUND(MOD(TotalPrice, 1), 2) * 100), TEXT(MIN(ROUND(MOD(TotalPrice, 1), 2) * 100, 99))) &amp; 
+&apos;&lt;/td&gt;&lt;/tr&gt;&apos;</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>Pricing HTML</label>
+        <required>false</required>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>ProdProj_Default_Owner__c</fullName>
+        <externalId>false</externalId>
+        <formula>PricebookEntry.Product2.ProdProj_Default_Owner__r.Id</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>ProdProj Default Owner</label>
+        <required>false</required>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>ProdProj_Dept2_Owner__c</fullName>
+        <externalId>false</externalId>
+        <formula>PricebookEntry.Product2.ProdProj_Dept2_OwnerID__c</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>ProdProj Dept2 Owner</label>
+        <required>false</required>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>ProdProj_Dept3_Owner__c</fullName>
+        <externalId>false</externalId>
+        <formula>PricebookEntry.Product2.ProdProj_Dept3_OwnerID__c</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>ProdProj Dept3 Owner</label>
+        <required>false</required>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Product2Id</fullName>
+        <type>Lookup</type>
+    </fields>
+    <fields>
+        <fullName>ProductCode</fullName>
+    </fields>
+    <fields>
+        <fullName>ProductDescription__c</fullName>
+        <externalId>false</externalId>
+        <formula>PricebookEntry.Product2.Description</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>ProductDescription</label>
+        <required>false</required>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>ProductId__c</fullName>
+        <externalId>false</externalId>
+        <formula>PricebookEntry.Product2.Id</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>ProductId</label>
+        <required>false</required>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>ProductIsParent__c</fullName>
+        <externalId>false</externalId>
+        <formula>if(PricebookEntry.Product2.IsPackageParent__c, &quot;T&quot;, &quot;F&quot;)</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>ProductIsParent</label>
+        <required>false</required>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Product_Contact__c</fullName>
+        <deleteConstraint>SetNull</deleteConstraint>
+        <externalId>false</externalId>
+        <inlineHelpText>Only required for Conquest Franchise</inlineHelpText>
+        <label>Product Contact</label>
+        <referenceTo>Contact</referenceTo>
+        <relationshipLabel>Opportunity Product</relationshipLabel>
+        <relationshipName>Opportunity_Product</relationshipName>
+        <required>false</required>
+        <type>Lookup</type>
+    </fields>
+    <fields>
+        <fullName>Product_Cost_Factor__c</fullName>
+        <description>*** ADMIN ONLY ***
+Cost Factor rolled over from the related Product</description>
+        <externalId>false</externalId>
+        <formula>PricebookEntry.Product2.Cost_Factor__c</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>Product Cost Factor</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>4</scale>
+        <type>Number</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Product_Family_Workflow__c</fullName>
+        <description>A copy of Product Family, but populated by Workflow on Opp Prod creation. Necessary for Rollup Summaries, because Rollups cannot refer to Formula fields in criteria. Cannot use OR logic in Rollup Summaries either.</description>
+        <externalId>false</externalId>
+        <label>Product Family (Workflow)</label>
+        <length>255</length>
+        <required>false</required>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Product_Family__c</fullName>
+        <externalId>false</externalId>
+        <formula>TEXT(PricebookEntry.Product2.Family)</formula>
+        <label>Product Family</label>
+        <required>false</required>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Product_Issue2__c</fullName>
+        <externalId>false</externalId>
+        <formula>PricebookEntry.Product2.Production_Issue2__c</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>Product Issue2</label>
+        <required>false</required>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Product_Issue3__c</fullName>
+        <externalId>false</externalId>
+        <formula>PricebookEntry.Product2.Production_Issue3__c</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>Product Issue3</label>
+        <required>false</required>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Product_Issue__c</fullName>
+        <externalId>false</externalId>
+        <formula>PricebookEntry.Product2.Production_Issue__c</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>Product Issue</label>
+        <required>false</required>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Product_MRR__c</fullName>
+        <description>Repeats the Total Price ONLY if the product is monthly recurring revenue.</description>
+        <externalId>false</externalId>
+        <formula>IF(
+   CONTAINS(Product_Family__c, &quot;Monthly&quot;), 
+   TotalPrice,
+   0
+)</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <inlineHelpText>Repeats the Total Price ONLY if the product is monthly recurring revenue.</inlineHelpText>
+        <label>Product MRR</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>2</scale>
+        <type>Currency</type>
+    </fields>
+    <fields>
+        <fullName>Product_NameWF__c</fullName>
+        <description>Set by workflow. This is necessary, as opposed to a formula, because of a Flow bug which does not allow Products to be referenced through formula fields without crashing.</description>
+        <externalId>false</externalId>
+        <label>Product Name (Workflow)</label>
+        <length>80</length>
+        <required>false</required>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Product_Name__c</fullName>
+        <description>Used by Flow, reports, and workflow that needs to access the Product Name without diving down another layer or two just to get it.</description>
+        <externalId>false</externalId>
+        <formula>PricebookEntry.Product2.Name</formula>
+        <label>Product Name</label>
+        <required>false</required>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Product_Separation__c</fullName>
+        <description>SHOULD be ProJECT Separation despite the API name</description>
+        <externalId>false</externalId>
+        <formula>PricebookEntry.Product2.Project_Separation__c</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>Project Separation</label>
+        <required>false</required>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Product_Sort_Order__c</fullName>
+        <externalId>false</externalId>
+        <formula>if( One_Time_Fee__c =TRUE||Setup_Fee__c =TRUE|| Fulfillment__c =TRUE, 2, if( Hardware_Product__c =TRUE, 3, if( Solution_Product__c = TRUE, 1, 4)))</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>Product Sort Order</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>0</scale>
+        <type>Number</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Product_Suite__c</fullName>
+        <description>Pushed up from Product&apos;s field &quot;Product Suite&quot; by Workflow. Necessary to use Workflow because cannot use formula field for Rollup Summaries.</description>
+        <externalId>false</externalId>
+        <inlineHelpText>Pushed up from Product&apos;s field &quot;Product Suite&quot; by Workflow.</inlineHelpText>
+        <label>Product Suite</label>
+        <length>255</length>
+        <required>false</required>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Production_Department2__c</fullName>
+        <externalId>false</externalId>
+        <formula>CASE(PricebookEntry.Product2.Production_Department2__c,
+&quot;Creative&quot;,&quot;012700000005e2z&quot;,
+&quot;DDM&quot;,&quot;012700000005e3J&quot;,
+&quot;Implementation&quot;,&quot;012700000005e34&quot;,
+&quot;Integration&quot;,&quot;012700000005e3O&quot;,
+&quot;Shipping&quot;,&quot;012700000005e3E&quot;,
+&quot;Support&quot;,&quot;012700000005e3T&quot;,
+&quot;Training&quot;,&quot;012700000005e39&quot;,
+&quot;Training - Sales&quot;,&quot;012700000005ebs&quot;,
+&quot;Training - Purchasing&quot;,&quot;012700000005ebn&quot;,
+&quot;Implementation Hardware&quot;, &quot;012700000005eOt&quot;,
+&quot;Implementation Click to Chat&quot;, &quot;012700000005eOy&quot;,
+&quot;Support - Custom Form Design&quot;, &quot;012700000005ejj&quot;,
+&quot;Implementation - VinVideos&quot;, &quot;01270000000Q3VI&quot;, 
+&quot;700 Credit&quot;,&quot;01270000000Q3eo&quot;,
+&quot;AIS Rebates&quot;,&quot;01270000000Q3hd&quot;,
+&quot;Craigslist Manual&quot;,&quot;01270000000Q3rn&quot;,
+&quot;Desking Module&quot;,&quot;01270000000Q3rh&quot;,
+&quot;Inventory Gallery&quot;,&quot;01270000000Q3rm&quot;,
+&quot;Inventory Module&quot;,&quot;01270000000Q3rv&quot;,
+&quot;KnowMe&quot;,&quot;01270000000Q3rg&quot;,
+&quot;Market Pricing Tool&quot;,&quot;01270000000Q3rw&quot;,
+&quot;Training (WebEx/Internet)&quot;,&quot;01270000000Q3rl&quot;,
+&quot;012700000005e2u&quot;)</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>Production Department2</label>
+        <required>false</required>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Production_Department3__c</fullName>
+        <externalId>false</externalId>
+        <formula>CASE(PricebookEntry.Product2.Production_Department3__c,
+&quot;Creative&quot;,&quot;012700000005e2z&quot;,
+&quot;DDM&quot;,&quot;012700000005e3J&quot;,
+&quot;Implementation&quot;,&quot;012700000005e34&quot;,
+&quot;Integration&quot;,&quot;012700000005e3O&quot;,
+&quot;Shipping&quot;,&quot;012700000005e3E&quot;,
+&quot;Support&quot;,&quot;012700000005e3T&quot;,
+&quot;Training&quot;,&quot;012700000005e39&quot;,
+&quot;Training - Sales&quot;,&quot;012700000005ebs&quot;,
+&quot;Training - Purchasing&quot;,&quot;012700000005ebn&quot;,
+&quot;Implementation Hardware&quot;, &quot;012700000005eOt&quot;,
+&quot;Implementation Click to Chat&quot;, &quot;012700000005eOy&quot;,
+&quot;Support - Custom Form Design&quot;, &quot;012700000005ejj&quot;,
+&quot;Implementation - VinVideos&quot;, &quot;01270000000Q3VI&quot;, 
+&quot;700 Credit&quot;,&quot;01270000000Q3eo&quot;,
+&quot;AIS Rebates&quot;,&quot;01270000000Q3hd&quot;,
+&quot;Craigslist Manual&quot;,&quot;01270000000Q3rn&quot;,
+&quot;Desking Module&quot;,&quot;01270000000Q3rh&quot;,
+&quot;Inventory Gallery&quot;,&quot;01270000000Q3rm&quot;,
+&quot;Inventory Module&quot;,&quot;01270000000Q3rv&quot;,
+&quot;KnowMe&quot;,&quot;01270000000Q3rg&quot;,
+&quot;Market Pricing Tool&quot;,&quot;01270000000Q3rw&quot;,
+&quot;Training (WebEx/Internet)&quot;,&quot;01270000000Q3rl&quot;,
+&quot;012700000005e2u&quot;)</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>Production Department3</label>
+        <required>false</required>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Production_Department__c</fullName>
+        <description>Selects the proper Department page layout for created issues</description>
+        <externalId>false</externalId>
+        <formula>CASE(PricebookEntry.Product2.Production_Department__c, 
+&quot;Creative&quot;,&quot;012700000005e2z&quot;,
+&quot;DDM&quot;,&quot;012700000005e3J&quot;,
+&quot;Implementation&quot;,&quot;012700000005e34&quot;,
+&quot;Integration&quot;,&quot;012700000005e3O&quot;,
+&quot;Shipping&quot;,&quot;012700000005e3E&quot;,
+&quot;Support&quot;,&quot;012700000005e3T&quot;,
+&quot;Training&quot;,&quot;012700000005e39&quot;,
+&quot;Training - Sales&quot;,&quot;012700000005ebs&quot;,
+&quot;Training - Purchasing&quot;,&quot;012700000005ebn&quot;,
+&quot;Implementation Hardware&quot;, &quot;012700000005eOt&quot;,
+&quot;Implementation Click to Chat&quot;, &quot;012700000005eOy&quot;,
+&quot;Support - Custom Form Design&quot;, &quot;012700000005ejj&quot;,
+&quot;Implementation - VinVideos&quot;, &quot;01270000000Q3VI&quot;,
+&quot;700 Credit&quot;,&quot;01270000000Q3eo&quot;,
+&quot;AIS Rebates&quot;,&quot;01270000000Q3hd&quot;,
+&quot;Craigslist Manual&quot;,&quot;01270000000Q3rn&quot;,
+&quot;Desking Module&quot;,&quot;01270000000Q3rh&quot;,
+&quot;Inventory Gallery&quot;,&quot;01270000000Q3rm&quot;,
+&quot;Inventory Module&quot;,&quot;01270000000Q3rv&quot;,
+&quot;KnowMe&quot;,&quot;01270000000Q3rg&quot;,
+&quot;Market Pricing Tool&quot;,&quot;01270000000Q3rw&quot;,
+&quot;Training (WebEx/Internet)&quot;,&quot;01270000000Q3rl&quot;,
+&quot;012700000005e2u&quot;)</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>Production Department</label>
+        <required>false</required>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Project_Definition_Name__c</fullName>
+        <externalId>false</externalId>
+        <formula>PricebookEntry.Product2.Project_Definition__r.Name</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>Project Definition Name</label>
+        <required>false</required>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Project__c</fullName>
+        <deleteConstraint>SetNull</deleteConstraint>
+        <externalId>false</externalId>
+        <label>Project</label>
+        <referenceTo>SFDC_520_Quote__c</referenceTo>
+        <relationshipLabel>Opportunity Product</relationshipLabel>
+        <relationshipName>Opportunity_Product</relationshipName>
+        <required>false</required>
+        <type>Lookup</type>
+    </fields>
+    <fields>
+        <fullName>Proposal_Grouping__c</fullName>
+        <externalId>false</externalId>
+        <formula>TEXT(PricebookEntry.Product2.Proposal_Grouping__c)</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>Proposal Grouping</label>
+        <required>false</required>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Proposal_Sort_Order__c</fullName>
+        <externalId>false</externalId>
+        <formula>PricebookEntry.Product2.Proposal_Sort_Order__c</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>Proposal Sort Order</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>2</scale>
+        <type>Number</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Provision_Setup_Fees__c</fullName>
+        <externalId>false</externalId>
+        <formula>IF( PricebookEntry.Product2.ProductCode  = &quot;PV SetUp&quot;,TotalPrice, 0)</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>Provision Setup Fees</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>2</scale>
+        <type>Currency</type>
+    </fields>
+    <fields>
+        <fullName>Quantity</fullName>
+    </fields>
+    <fields>
+        <fullName>Quantity_Exception__c</fullName>
+        <externalId>false</externalId>
+        <formula>IF( PricebookEntry.Product2.Quantity_Exception__c , &quot;True&quot;, &quot;False&quot;)</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>Quantity Exception</label>
+        <required>false</required>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>RCI_Setup_Fees__c</fullName>
+        <externalId>false</externalId>
+        <formula>IF( PricebookEntry.Product2.ProductCode = &quot;PV RCI SU&quot;,TotalPrice, 0)</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>RCI Setup Fees</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>2</scale>
+        <type>Currency</type>
+    </fields>
+    <fields>
+        <fullName>Related_ProductId__c</fullName>
+        <externalId>false</externalId>
+        <formula>PricebookEntry.Product2.Related_Product__r.Id</formula>
+        <label>Related ProductId</label>
+        <required>false</required>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>ServiceDate</fullName>
+    </fields>
+    <fields>
+        <fullName>Setup_Fee__c</fullName>
+        <defaultValue>false</defaultValue>
+        <externalId>false</externalId>
+        <label>Setup Fee</label>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>Solution_Product__c</fullName>
+        <defaultValue>false</defaultValue>
+        <description>Indicates that this is a major product for Vin. Ensures the generated project is set to the Staged layout.</description>
+        <externalId>false</externalId>
+        <label>Vin Keystone Product</label>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>Source_Package_Product__c</fullName>
+        <deleteConstraint>SetNull</deleteConstraint>
+        <description>Populated by code. Indicates what product was added to this opp, that lead to the creation of this opp product.</description>
+        <externalId>false</externalId>
+        <label>Source Package Product</label>
+        <referenceTo>Product2</referenceTo>
+        <relationshipLabel>Opportunity Product</relationshipLabel>
+        <relationshipName>Opportunity_Product</relationshipName>
+        <required>false</required>
+        <type>Lookup</type>
+    </fields>
+    <fields>
+        <fullName>StickyOpportunityId__c</fullName>
+        <externalId>false</externalId>
+        <label>StickyOpportunityId</label>
+        <length>18</length>
+        <required>false</required>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Subtotal</fullName>
+    </fields>
+    <fields>
+        <fullName>TNOPPST__Details__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <inlineHelpText>Jurisdictions that were applied to the SalesTax Calculation, including name and rate.  Cannot be Edited.</inlineHelpText>
+        <label>Sales Tax Details</label>
+        <length>32768</length>
+        <type>LongTextArea</type>
+        <visibleLines>4</visibleLines>
+    </fields>
+    <fields>
+        <fullName>TNOPPST__LineTax__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <inlineHelpText>Sales Tax Calculated For This Line - Cannot Be Edited</inlineHelpText>
+        <label>Sales Tax Amount</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>2</scale>
+        <type>Currency</type>
+    </fields>
+    <fields>
+        <fullName>TNOPPST__LineTotal__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <formula>TotalPrice  +  TNOPPST__LineTax__c</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>Total</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>2</scale>
+        <type>Currency</type>
+    </fields>
+    <fields>
+        <fullName>TNOPPST__Rate__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <inlineHelpText>Tax Rate applied to this line.  Cannot be Edited</inlineHelpText>
+        <label>Sales Tax Rate</label>
+        <length>8</length>
+        <required>false</required>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>TNOPPST__Sales_Tax_Rate__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>Sales Tax Rate</label>
+        <precision>4</precision>
+        <required>false</required>
+        <scale>2</scale>
+        <type>Percent</type>
+    </fields>
+    <fields>
+        <fullName>TotalPrice</fullName>
+        <inlineHelpText>Sales Price x Quantity</inlineHelpText>
+    </fields>
+    <fields>
+        <fullName>Total_List_Price_Converted__c</fullName>
+        <externalId>false</externalId>
+        <formula>IF(
+   Opportunity.Price_Book_Used__c = &quot;Vin Canada&quot;,
+   TotalPrice * Opportunity.CAD_Conversion_Rate__c,
+   TotalPrice
+)</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>Total List Price Converted</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>2</scale>
+        <type>Currency</type>
+    </fields>
+    <fields>
+        <fullName>Total_List_Price__c</fullName>
+        <description>CAN BE REMOVED. All it does now is regurgitate List_Price_Formula__c. Just need to replace wherever it is called.</description>
+        <externalId>false</externalId>
+        <formula>List_Price_Formula__c</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <inlineHelpText>List_Price_Formula__c</inlineHelpText>
+        <label>Total List Price</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>2</scale>
+        <type>Currency</type>
+    </fields>
+    <fields>
+        <fullName>Training_Flow_Generated__c</fullName>
+        <defaultValue>false</defaultValue>
+        <description>A hidden checkbox to indicate that this product has had a Training record generated for it. Used by reporting and Flow.</description>
+        <externalId>false</externalId>
+        <label>Training Flow-Generated</label>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>UnitPrice</fullName>
+        <inlineHelpText>the price the user set for the product</inlineHelpText>
+    </fields>
+    <fields>
+        <fullName>UserPriceChange__c</fullName>
+        <defaultValue>false</defaultValue>
+        <externalId>false</externalId>
+        <label>UserPriceChange</label>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>VS_List_Price__c</fullName>
+        <externalId>false</externalId>
+        <formula>List_Price_Formula__c</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <inlineHelpText>Internal field used to store List Price without 2 digit decimals - List_Price_Formula__c</inlineHelpText>
+        <label>VS List Price</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>2</scale>
+        <type>Currency</type>
+    </fields>
+    <fields>
+        <fullName>VS_Quantity__c</fullName>
+        <externalId>false</externalId>
+        <formula>Quantity</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <inlineHelpText>reads the existing quantity field</inlineHelpText>
+        <label>VS Quantity</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>2</scale>
+        <type>Number</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>VS_Sale_Price__c</fullName>
+        <externalId>false</externalId>
+        <formula>UnitPrice*Quantity</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <inlineHelpText>UnitPrice*Quantity</inlineHelpText>
+        <label>VS Sale Price</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>2</scale>
+        <type>Currency</type>
+    </fields>
+    <fields>
+        <fullName>VS_Total_Price__c</fullName>
+        <externalId>false</externalId>
+        <formula>TotalPrice</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <inlineHelpText>reads the Total Price field</inlineHelpText>
+        <label>VS Total Price</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>2</scale>
+        <type>Currency</type>
+    </fields>
+    <fields>
+        <fullName>ValidationRules__c</fullName>
+        <defaultValue>false</defaultValue>
+        <description>Used to bypass validation rules in unit tests.</description>
+        <externalId>false</externalId>
+        <label>ValidationRules</label>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>of_Goal__c</fullName>
+        <externalId>false</externalId>
+        <formula>IF(Goal_Price__c = 0, 0, TotalPrice  /  Goal_Price__c)</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <inlineHelpText>IF(Goal_Price__c = 0, 0, TotalPrice  /  Goal_Price__c)</inlineHelpText>
+        <label>% of Goal</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>0</scale>
+        <type>Percent</type>
+    </fields>
+    <fields>
+        <fullName>of_List__c</fullName>
+        <externalId>false</externalId>
+        <formula>IF(List_Price_Formula__c = 0, 0, TotalPrice /  List_Price_Formula__c)</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <inlineHelpText>IF(List_Price_Formula__c = 0, 0, TotalPrice /  List_Price_Formula__c)</inlineHelpText>
+        <label>% of List</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>0</scale>
+        <type>Percent</type>
+    </fields>
+    <fields>
+        <fullName>requiresWelcomePacket__c</fullName>
+        <externalId>false</externalId>
+        <formula>IF( PricebookEntry.Product2.requiresWelcomePacket__c , &quot;True&quot;, &quot;False&quot;)</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>requiresWelcomePacket</label>
+        <required>false</required>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>tinderbox__Include_Content__c</fullName>
+        <defaultValue>false</defaultValue>
+        <deprecated>false</deprecated>
+        <description>If checked it will include the associated TinderBox content for this product.</description>
+        <externalId>false</externalId>
+        <label>Include Content</label>
+        <type>Checkbox</type>
+    </fields>
+    <validationRules>
+        <fullName>Auto_Red_Wagon</fullName>
+        <active>true</active>
+        <description>verify opportunity is for Red Wagon</description>
+        <errorConditionFormula>(ISPICKVAL(Opportunity.Type,&quot;Account Setup&quot; )  || ISPICKVAL(Opportunity.Type,&quot;Book&quot; )  || ISPICKVAL(Opportunity.Type,&quot;Module&quot; ) || ISPICKVAL(Opportunity.Type,&quot;Trial&quot; ) || ISPICKVAL(Opportunity.Type,&quot;Window Stickers&quot; ) || ISPICKVAL(Opportunity.Type,&quot;Real Deal&quot; )) &amp;&amp; ( Product2.Name = &quot;Red Wagon&quot;)</errorConditionFormula>
+        <errorMessage>Red Wagon needs to be in a separate opportunity</errorMessage>
+    </validationRules>
+    <validationRules>
+        <fullName>CannotCreateVinDIWithoutFlow</fullName>
+        <active>true</active>
+        <errorConditionFormula>!CONTAINS(Opportunity.RecordType.Name, &quot;vAuto&quot;) &amp;&amp;
+BEGINS(Product2.Name, &quot;Data Integration&quot;) &amp;&amp; 
+Generated_by_Product_Flow__c = FALSE &amp;&amp; 
+ISNEW() &amp;&amp;
+$Setup.Master_Switches__c.Validation_Rules__c = TRUE</errorConditionFormula>
+        <errorMessage>Please use the &quot;Add Data Integration&quot; button to create Data Integration products.</errorMessage>
+    </validationRules>
+    <validationRules>
+        <fullName>Cannot_Add_Products_if_Opp_is_Closed</fullName>
+        <active>true</active>
+        <errorConditionFormula>ISNEW() &amp;&amp;
+Opportunity.IsClosed = TRUE &amp;&amp;
+!CONTAINS(LOWER($Profile.Name),&quot;admin&quot;) &amp;&amp;
+$User.Alias != &quot;elern&quot; &amp;&amp; /*Elliot Lerner*/
+$User.Alias != &quot;dglif&quot; &amp;&amp; /*Debbie Gliffe*/
+$User.Alias != &quot;mdrin&quot; &amp;&amp; /*Jill Tyson*/
+$User.Alias != &quot;jtyso&quot; /*Michelle Drinnan*/</errorConditionFormula>
+        <errorMessage>You cannot add products to a closed opportunity.</errorMessage>
+    </validationRules>
+    <validationRules>
+        <fullName>Cannot_Change_Price_When_Disabled</fullName>
+        <active>true</active>
+        <errorConditionFormula>PricebookEntry.Product2.Disable_Price_Change__c = TRUE &amp;&amp;
+PricebookEntry.UnitPrice != UnitPrice &amp;&amp; 
+!OR( 
+   $User.Alias != &quot;muser&quot;, /*migration user*/
+   $User.CommunityNickname != &quot;mark.ross&quot;,
+   $User.CommunityNickname != &quot;Danielle.dennis&quot;
+) &amp;&amp; 
+ValidationRules__c = FALSE</errorConditionFormula>
+        <errorDisplayField>UnitPrice</errorDisplayField>
+        <errorMessage>This product is one that DOES NOT allow price differentiation. Please set the Sales Price back to its original value.</errorMessage>
+    </validationRules>
+    <validationRules>
+        <fullName>Cannot_Change_Pricing_if_Opp_is_Closed</fullName>
+        <active>true</active>
+        <errorConditionFormula>OR(
+   ISCHANGED(UnitPrice),
+   ISCHANGED(Quantity),
+   ISCHANGED(TNOPPST__LineTax__c)
+) &amp;&amp;
+Opportunity.IsClosed &amp;&amp;
+!CONTAINS(LOWER($Profile.Name),&quot;admin&quot;) &amp;&amp;
+$User.Alias != &quot;elern&quot; &amp;&amp; /*Elliot Lerner*/
+$User.Alias != &quot;dglif&quot; &amp;&amp; /*Debbie Gliffe*/
+$User.Alias != &quot;mdrin&quot; &amp;&amp; /*Jill Tyson*/
+$User.Alias != &quot;jtyso&quot; /*Michelle Drinnan*/</errorConditionFormula>
+        <errorMessage>You cannot change Products on a Closed Opportunity.</errorMessage>
+    </validationRules>
+    <validationRules>
+        <fullName>Cannot_Change_Sales_Price</fullName>
+        <active>false</active>
+        <errorConditionFormula>!ISNEW() &amp;&amp;
+!ValidationRules__c &amp;&amp;
+ISCHANGED(UnitPrice) &amp;&amp; 
+UserPriceChange__c = FALSE &amp;&amp; 
+CONTAINS(Opportunity.Price_Book_Used__c,&quot;Standard&quot;) &amp;&amp;
+ABS(UnitPrice-PRIORVALUE(UnitPrice)) &gt; 0.05 &amp;&amp;
+NOT ( OR( 
+$UserRole.DeveloperName = &quot;ProcessDevelopmentManager&quot;,
+$UserRole.DeveloperName = &quot;SystemsAdministrator&quot;,
+$UserRole.DeveloperName = &quot;CustomerServiceRepresentative&quot;,
+$UserRole.DeveloperName = &quot;SalesforceDeveloper&quot;,
+$UserRole.DeveloperName = &quot;AccountingSupport&quot;,
+$UserRole.DeveloperName = &quot;Controller&quot;,
+BEGINS($UserRole.DeveloperName, &quot;HY&quot;)
+) )</errorConditionFormula>
+        <errorMessage>You can only make a change up to .05 per product. Please use the Price Adjustment button to change the Sales Price of your products.</errorMessage>
+    </validationRules>
+    <validationRules>
+        <fullName>Conquest_Franchise_Make_And_Contact</fullName>
+        <active>true</active>
+        <description>This will make sure for conquest franchise product Make and contact are required.</description>
+        <errorConditionFormula>Product2.Name == &quot;Conquest Franchise&quot; &amp;&amp;
+(
+   ISBLANK(TEXT(Make__c)) ||
+   ISBLANK(Product_Contact__c)
+) &amp;&amp;
+$Setup.Master_Switches__c.Validation_Rules__c = TRUE</errorConditionFormula>
+        <errorMessage>Conquest Franchise Line requires Make and Contact fields.</errorMessage>
+    </validationRules>
+    <validationRules>
+        <fullName>Is_New_and_Sales_Price_Changed</fullName>
+        <active>true</active>
+        <errorConditionFormula>ISNEW() &amp;&amp; 
+UnitPrice*Quantity != List_Price_Formula__c &amp;&amp; 
+Opportunity.Business_Unit__c = &quot;VinSolutions&quot; &amp;&amp;
+UserPriceChange__c = FALSE</errorConditionFormula>
+        <errorMessage>Please use the Price Adjustment button to change the Sales Price of your products.</errorMessage>
+    </validationRules>
+    <validationRules>
+        <fullName>Is_product_deposit</fullName>
+        <active>true</active>
+        <description>prevent users from adding deposit product as opp line tiems as they need to update the information on the opportunity</description>
+        <errorConditionFormula>OR( Product_Name__c = &quot;30 Day Deposit&quot;, Product_Name__c = &quot;Deposit Conquest&quot;)</errorConditionFormula>
+        <errorMessage>Deposit information is entered on the Opportunity not added as lines</errorMessage>
+    </validationRules>
+    <validationRules>
+        <fullName>Lock_Down_Package_Only_Products</fullName>
+        <active>true</active>
+        <errorConditionFormula>ISBLANK(Source_Package_Product__c) &amp;&amp;
+ISNEW() &amp;&amp;
+OR(
+   PricebookEntry.Product2.Name = &quot;CRM/ILM&quot;,
+   PricebookEntry.Product2.Name = &quot;CRM/ILM Limited Users&quot;,
+   PricebookEntry.Product2.Name = &quot;ILM&quot;,
+   PricebookEntry.Product2.Name = &quot;ILM Integration&quot;,
+   PricebookEntry.Product2.Name = &quot;Website - Vin Advanced&quot;,
+   PricebookEntry.Product2.Name = &quot;Website - Vin Basic&quot;,
+   PricebookEntry.Product2.Name = &quot;Website - Portal&quot;,
+   PricebookEntry.Product2.Name = &quot;Website - Scion Only&quot;,
+   PricebookEntry.Product2.Name = &quot;CRM Upgrade from ILM&quot;,
+   PricebookEntry.Product2.Name = &quot;CRM Upgrade from ILM Limited Users&quot;,
+   PricebookEntry.Product2.Name = &quot;Digital Marketing Advanced SEO&quot;,
+   PricebookEntry.Product2.Name = &quot;Website - Vin Basic to Advanced Upgrade&quot;,
+   PricebookEntry.Product2.Name = &quot;Kore360 Essential Website&quot;,
+   PricebookEntry.Product2.Name = &quot;Kore360 Portal&quot;,
+   PricebookEntry.Product2.Name = &quot;Kore360 Pro Website&quot;,
+   PricebookEntry.Product2.Name = &quot;Kore360 Essential Website (Converted)&quot;,
+   PricebookEntry.Product2.Name = &quot;Kore360 Pro Website (Converted)&quot;,
+   PricebookEntry.Product2.Name = &quot;Vin Website Conversion - Essential&quot;,
+   PricebookEntry.Product2.Name = &quot;Vin Website Conversion - Pro&quot;,
+   PricebookEntry.Product2.Name = &quot;Lexus Kore360 Pro Website&quot;,
+   PricebookEntry.Product2.Name = &quot;Mitsubishi Kore360 Pro Website&quot;,
+   PricebookEntry.Product2.Name = &quot;Website - Premier Edition&quot;,
+   PricebookEntry.Product2.Name = &quot;Website - Pro Edition&quot;,
+   PricebookEntry.Product2.Name = &quot;Website - Standard Edition&quot;,
+   PricebookEntry.Product2.Name = &quot;Website - Portal Pro&quot;,
+   PricebookEntry.Product2.Name = &quot;Website - Portal Premier&quot;,
+   PricebookEntry.Product2.Name = &quot;Website Optimization for Website - Premier&quot;,
+   PricebookEntry.Product2.Name = &quot;Website Optimization Onetime Fee for Website - Premier&quot;
+)</errorConditionFormula>
+        <errorDisplayField>ActualDescription__c</errorDisplayField>
+        <errorMessage>You have added a product that cannot be added without a package, like CRM/ILM or a Kore360 Website. Please add the appropriate package instead. It will be a similar name, but ending in the word &quot;Package&quot;.</errorMessage>
+    </validationRules>
+    <validationRules>
+        <fullName>Prevent_Haystak_Selling_Vin_SEO</fullName>
+        <active>true</active>
+        <description>Prevents users with Haystak roles from selling Vin SEO products.</description>
+        <errorConditionFormula>CONTAINS(Opportunity.Owner.UserRole.Name,&quot;HY &quot;) &amp;&amp;
+CONTAINS(Product2.Name,&quot;SEO&quot;) &amp;&amp;
+ISPICKVAL(Product2.Product_BU__c,&quot;VinSolutions&quot;)</errorConditionFormula>
+        <errorMessage>You have included a Vin SEO product. As a Haystak employee, you must select a Haystak SEO product.</errorMessage>
+    </validationRules>
+    <validationRules>
+        <fullName>Vin_Cannot_Change_Sales_Price</fullName>
+        <active>true</active>
+        <errorConditionFormula>!ISNEW() &amp;&amp;
+!ValidationRules__c &amp;&amp;
+ISCHANGED(UnitPrice) &amp;&amp;
+UserPriceChange__c = FALSE &amp;&amp;
+CONTAINS(Opportunity.Price_Book_Used__c,&quot;Standard&quot;) &amp;&amp;
+ABS(UnitPrice-PRIORVALUE(UnitPrice)) &gt; 0.05 &amp;&amp;
+NOT ( OR(
+$User.Id = &quot;00570000000njuz&quot;,
+$UserRole.DeveloperName = &quot;ProcessDevelopmentManager&quot;,
+$UserRole.DeveloperName = &quot;SystemsAdministrator&quot;,
+$UserRole.DeveloperName = &quot;CustomerServiceRepresentative&quot;,
+$UserRole.DeveloperName = &quot;SalesforceDeveloper&quot;,
+$UserRole.DeveloperName = &quot;AccountingSupport&quot;,
+$UserRole.DeveloperName = &quot;Controller&quot;,
+$UserRole.DeveloperName = &quot;DirectorofSales&quot;,
+$UserRole.DeveloperName = &quot;Vin_Sr_Manager_of_Inside_Sales&quot;,
+$UserRole.DeveloperName = &quot;DirectorofInsideSales&quot;,
+$UserRole.DeveloperName = &quot;Vin_Sr_Manager_of_Outside_Sales&quot;,
+BEGINS($UserRole.DeveloperName, &quot;HY&quot;)
+) )</errorConditionFormula>
+        <errorMessage>You can only make a change up to .05 per product. Please use the Price Adjustment button to change the Sales Price of your products.</errorMessage>
+    </validationRules>
+    <validationRules>
+        <fullName>Vin_Is_New_and_Sales_Price_Changed</fullName>
+        <active>true</active>
+        <errorConditionFormula>Business_Unit__c = &quot;VinSolutions&quot; &amp;&amp;
+ISNEW() &amp;&amp; 
+UnitPrice*Quantity != List_Price_Formula__c &amp;&amp; 
+UserPriceChange__c = FALSE</errorConditionFormula>
+        <errorMessage>Please use the Price Adjustment button to change the Sales Price of your products.</errorMessage>
+    </validationRules>
+    <validationRules>
+        <fullName>vAuto_AG_module_Add</fullName>
+        <active>true</active>
+        <description>verify opportunity for Auction Genius</description>
+        <errorConditionFormula>(ISPICKVAL(Opportunity.Opportunity_Names__c,&quot;Account Setup&quot; )  || ISPICKVAL(Opportunity.Opportunity_Names__c,&quot;Book&quot; )   || ISPICKVAL(Opportunity.Opportunity_Names__c,&quot;Account Setup&quot; )   || ISPICKVAL(Opportunity.Opportunity_Names__c,&quot;Listings/Photos/Syndication&quot; )   || ISPICKVAL(Opportunity.Opportunity_Names__c,&quot;Module&quot; )   || ISPICKVAL(Opportunity.Opportunity_Names__c,&quot;Real Deal&quot; )  ||    ISPICKVAL(Opportunity.Opportunity_Names__c,&quot;Trial&quot; )  || ISPICKVAL(Opportunity.Opportunity_Names__c,&quot;Red Wagon&quot; )   || ISPICKVAL(Opportunity.Opportunity_Names__c,&quot;TIM - No Training&quot; )  || ISPICKVAL(Opportunity.Opportunity_Names__c,&quot;TIM - With Training&quot; )   || ISPICKVAL(Opportunity.Opportunity_Names__c,&quot;Window Stickers&quot; )) &amp;&amp; (  BEGINS (Product2.Name, &quot;Auction Genius&quot;))</errorConditionFormula>
+        <errorMessage>Auction Genius needs to be in a separate Auction Genius opportunity</errorMessage>
+    </validationRules>
+    <validationRules>
+        <fullName>vAuto_AG_module_Add_only_validation</fullName>
+        <active>true</active>
+        <description>verify opportunity for Auction Genius</description>
+        <errorConditionFormula>(ISPICKVAL(Opportunity.Opportunity_Names__c,&quot;Auction Genius&quot; )   &amp;&amp; (NOT( BEGINS (Product2.Name, &quot;Auction Genius&quot;))&amp;&amp; NOT( BEGINS (Product2.Name, &quot;PriceGuide&quot;)) ))</errorConditionFormula>
+        <errorMessage>Only Auction Genius products can be in Auction Genius opportunity</errorMessage>
+    </validationRules>
+    <validationRules>
+        <fullName>vAuto_AV_module_Add</fullName>
+        <active>true</active>
+        <description>verify opportunity for AutoVisor</description>
+        <errorConditionFormula>(ISPICKVAL(Opportunity.Opportunity_Names__c,&quot;Account Setup&quot; )  || ISPICKVAL(Opportunity.Opportunity_Names__c,&quot;Book&quot; )   || ISPICKVAL(Opportunity.Opportunity_Names__c,&quot;Account Setup&quot; )   || ISPICKVAL(Opportunity.Opportunity_Names__c,&quot;Auction Genius&quot; )  || ISPICKVAL(Opportunity.Opportunity_Names__c,&quot;Listings/Photos/Syndication&quot; )   || ISPICKVAL(Opportunity.Opportunity_Names__c,&quot;Module&quot; )   || ISPICKVAL(Opportunity.Opportunity_Names__c,&quot;Real Deal&quot; )  ||     ISPICKVAL(Opportunity.Opportunity_Names__c,&quot;Red Wagon&quot; )   || ISPICKVAL(Opportunity.Opportunity_Names__c,&quot;TIM - No Training&quot; )  || ISPICKVAL(Opportunity.Opportunity_Names__c,&quot;TIM - With Training&quot; )   || ISPICKVAL(Opportunity.Opportunity_Names__c,&quot;Window Stickers&quot; )) &amp;&amp; (  BEGINS (Product2.Name, &quot;AutoVisor&quot;))</errorConditionFormula>
+        <errorMessage>AuctionVisor needs to be in a separate AutoVisor opportunity</errorMessage>
+    </validationRules>
+    <validationRules>
+        <fullName>vAuto_AV_module_Add_only_validation</fullName>
+        <active>true</active>
+        <description>verify opportunity for Auction Genius</description>
+        <errorConditionFormula>((ISPICKVAL(Opportunity.Type,&quot;AutoVisor - Existing Provision Client&quot; )  || ISPICKVAL(Opportunity.Type,&quot;AutoVisor - New Provision Client&quot; ) || ISPICKVAL(Opportunity.Type,&quot;AutoVisor - Stand Alone&quot; ) )    &amp;&amp; (NOT( BEGINS (Product2.Name, &quot;AutoVisor&quot;)) &amp;&amp; NOT( BEGINS (Product2.Name, &quot;AutoWriter&quot;)) &amp;&amp; NOT( BEGINS (Product2.Name, &quot;PriceGuide&quot;))   ))</errorConditionFormula>
+        <errorMessage>Only AutoVisor (along with AutoWriter) can be in AutoVisor opportunity</errorMessage>
+    </validationRules>
+    <validationRules>
+        <fullName>vAuto_Conquest_Cannot_Enter_Make</fullName>
+        <active>false</active>
+        <description>You cannot enter a make for non &quot;Conquest Franchise&quot; Products</description>
+        <errorConditionFormula>AND( 
+   (Product2Id &lt;&gt; &apos;01t80000003S6Ra&apos;),
+   (NOT(ISPICKVAL(Make__c, &quot;&quot;)))
+)</errorConditionFormula>
+        <errorDisplayField>ActualDescription__c</errorDisplayField>
+        <errorMessage>You cannot enter a make for this product.  You can only enter a Make for &quot;Conquest Franchise&quot;</errorMessage>
+    </validationRules>
+    <validationRules>
+        <fullName>vAuto_Conquest_Franchise_NotEqualTo_1</fullName>
+        <active>true</active>
+        <description>Conquest Franchise can only be one at a time</description>
+        <errorConditionFormula>AND( 
+   (Product2Id = &apos;01t80000003S6Ra&apos;),
+   ( Quantity &lt;&gt; 1 )
+)</errorConditionFormula>
+        <errorDisplayField>Quantity</errorDisplayField>
+        <errorMessage>You can only enter one Conquest Franchise at a time.  Please select 1, and choose make, then re-add extra Conquest Makes to this Opportunity</errorMessage>
+    </validationRules>
+    <validationRules>
+        <fullName>vAuto_Conquest_Must_be_in_Separate_Oppty</fullName>
+        <active>true</active>
+        <description>Verify opportunity is for Conquest only</description>
+        <errorConditionFormula>(ISPICKVAL(Opportunity.Opportunity_Names__c,&quot;Account Setup&quot; )  || ISPICKVAL(Opportunity.Opportunity_Names__c,&quot;Auction Genius - Stand Alone&quot; )  || 
+ISPICKVAL(Opportunity.Opportunity_Names__c,&quot;Auction Genius - With Provision Client&quot; )  ||
+ISPICKVAL(Opportunity.Opportunity_Names__c,&quot;Autovisor - Stand Alone&quot; )  || 
+ISPICKVAL(Opportunity.Opportunity_Names__c,&quot;Autovisor - With Provision Client&quot; )  ||
+ISPICKVAL(Opportunity.Opportunity_Names__c,&quot;Book&quot; )  ||  
+ISPICKVAL(Opportunity.Opportunity_Names__c,&quot;Module&quot; ) || ISPICKVAL(Opportunity.Opportunity_Names__c,&quot;Trial&quot; ) || ISPICKVAL(Opportunity.Opportunity_Names__c,&quot;TIM - With Training&quot; )|| ISPICKVAL(Opportunity.Opportunity_Names__c,&quot;TIM - No Training&quot; ) || 
+ISPICKVAL(Opportunity.Opportunity_Names__c,&quot;Real Deal&quot; )  || ISPICKVAL(Opportunity.Opportunity_Names__c,&quot;Window Stickers&quot; )) 
+
+&amp;&amp; (CONTAINS(Product2.Name,&quot;Conquest&quot;))</errorConditionFormula>
+        <errorMessage>Conquest Products need to be in a separate opportunity</errorMessage>
+    </validationRules>
+    <validationRules>
+        <fullName>vAuto_Listing_Photos_Syndication</fullName>
+        <active>true</active>
+        <description>verify opportunity is for Listing/Photos/Syndication</description>
+        <errorConditionFormula>Product2.Name = &quot;Listings/Photos/Syndication&quot; &amp;&amp; !ISPICKVAL( Opportunity.Opportunity_Names__c ,&quot;Listings/Photos/Syndication&quot;)
+
+
+ 
+/* rebuilt to be more efficient by MJ ((ISPICKVAL( Opportunity.Opportunity_Names__c ,&quot;Account Setup&quot; )  || ISPICKVAL(Opportunity.Opportunity_Names__c,&quot;Book&quot; )  || ISPICKVAL(Opportunity.Opportunity_Names__c,&quot;Module&quot; ) || ISPICKVAL(Opportunity.Opportunity_Names__c,&quot;Trial&quot; ) || ISPICKVAL(Opportunity.Opportunity_Names__c,&quot;Window Stickers&quot; )) || ISPICKVAL(Opportunity.Opportunity_Names__c,&quot;Real Deal&quot; ) )&amp;&amp; ( Product2.Name = &quot;Listings/Photos/Syndication&quot;)*/</errorConditionFormula>
+        <errorMessage>Listings/Photos/Syndication needs to be in a separate opportunity</errorMessage>
+    </validationRules>
+    <validationRules>
+        <fullName>vAuto_Real_Deal</fullName>
+        <active>true</active>
+        <description>Verify opportunity is for Real Deal only</description>
+        <errorConditionFormula>(ISPICKVAL(Opportunity.Opportunity_Names__c,&quot;Account Setup&quot; )  || ISPICKVAL(Opportunity.Opportunity_Names__c,&quot;Book&quot; )  || ISPICKVAL(Opportunity.Opportunity_Names__c,&quot;Module&quot; ) || ISPICKVAL(Opportunity.Opportunity_Names__c,&quot;Trial&quot; ) || ISPICKVAL(Opportunity.Opportunity_Names__c,&quot;TIM - With Training&quot; )|| ISPICKVAL(Opportunity.Opportunity_Names__c,&quot;TIM - No Training&quot; ) || ISPICKVAL(Opportunity.Opportunity_Names__c,&quot;Window Stickers&quot; )) &amp;&amp; ( Product2.Name = &quot;Real Deal&quot;)</errorConditionFormula>
+        <errorMessage>Real Deal needs to be in a separate opportunity</errorMessage>
+    </validationRules>
+    <validationRules>
+        <fullName>vAuto_Stockwave</fullName>
+        <active>true</active>
+        <description>vauto stockwave product can only have stockwave and SW standalone opp product suites.</description>
+        <errorConditionFormula>(ISPICKVAL(Opportunity.Opportunity_Names__c,&quot;Account Setup&quot; )  || ISPICKVAL(Opportunity.Opportunity_Names__c,&quot;Book&quot; )   || ISPICKVAL(Opportunity.Opportunity_Names__c,&quot;Auction Genius - Stand  Alone&quot; )  || ISPICKVAL(Opportunity.Opportunity_Names__c,&quot;Auction Genius - With Provision Client&quot;) ||
+ISPICKVAL(Opportunity.Opportunity_Names__c,&quot;Listings/Photos/Syndication&quot; )   || ISPICKVAL(Opportunity.Opportunity_Names__c,&quot;Module&quot; )   || ISPICKVAL(Opportunity.Opportunity_Names__c,&quot;Real Deal&quot; )  ||    ISPICKVAL(Opportunity.Opportunity_Names__c,&quot;Trial&quot; )  || ISPICKVAL(Opportunity.Opportunity_Names__c,&quot;Red Wagon&quot; )   || ISPICKVAL(Opportunity.Opportunity_Names__c,&quot;TIM - No Training&quot; )  || ISPICKVAL(Opportunity.Opportunity_Names__c,&quot;TIM - With Training&quot; )   || ISPICKVAL(Opportunity.Opportunity_Names__c,&quot;Window Stickers&quot; )) &amp;&amp; (  BEGINS (Product2.Name, &quot;Stockwave&quot;))</errorConditionFormula>
+        <errorMessage>The Stockwave products can only be added if the Opp Product Suite – Stockwave or Stockwave Stand Alone.</errorMessage>
+    </validationRules>
+    <validationRules>
+        <fullName>vAuto_Stockwave_Must_be_in_Separate_Opp</fullName>
+        <active>true</active>
+        <description>Verify opportunity is for Stockwave only</description>
+        <errorConditionFormula>(ISPICKVAL(Opportunity.Opportunity_Names__c,&quot;Account Setup&quot; )  || ISPICKVAL(Opportunity.Opportunity_Names__c,&quot;Auction Genius - Stand Alone&quot; )  || ISPICKVAL(Opportunity.Opportunity_Names__c,&quot;Conquest&quot; )||
+ISPICKVAL(Opportunity.Opportunity_Names__c,&quot;Auction Genius - With Provision Client&quot; )  ||
+ISPICKVAL(Opportunity.Opportunity_Names__c,&quot;Autovisor - Stand Alone&quot; )  || 
+ISPICKVAL(Opportunity.Opportunity_Names__c,&quot;Autovisor - With Provision Client&quot; )  ||
+ISPICKVAL(Opportunity.Opportunity_Names__c,&quot;Book&quot; )  ||  
+ISPICKVAL(Opportunity.Opportunity_Names__c,&quot;Module&quot; ) || ISPICKVAL(Opportunity.Opportunity_Names__c,&quot;Trial&quot; ) || ISPICKVAL(Opportunity.Opportunity_Names__c,&quot;TIM - With Training&quot; )|| ISPICKVAL(Opportunity.Opportunity_Names__c,&quot;TIM - No Training&quot; ) || 
+ISPICKVAL(Opportunity.Opportunity_Names__c,&quot;Real Deal&quot; )  || ISPICKVAL(Opportunity.Opportunity_Names__c,&quot;Window Stickers&quot; )) 
+
+&amp;&amp; (CONTAINS(Product2.Name,&quot;Stockwave&quot;))</errorConditionFormula>
+        <errorMessage>Stockwave Products need to be in a separate opportunity</errorMessage>
+    </validationRules>
+    <validationRules>
+        <fullName>vAuto_Window_Stickers</fullName>
+        <active>true</active>
+        <description>verify opportunity is for Window Stickers</description>
+        <errorConditionFormula>Product2.Name = &quot;Window Stickers&quot; &amp;&amp; !ISPICKVAL( Opportunity.Opportunity_Names__c ,&quot;Window Stickers&quot;) 
+
+/*updated rule MJ(ISPICKVAL(Opportunity.Opportunity_Names__c,&quot;Account Setup&quot; )  || ISPICKVAL(Opportunity.Opportunity_Names__c,&quot;Book&quot; )  || ISPICKVAL(Opportunity.Opportunity_Names__c,&quot;Module&quot; ) || ISPICKVAL(Opportunity.Opportunity_Names__c,&quot;Trial&quot; ) || ISPICKVAL(Opportunity.Opportunity_Names__c,&quot;Listings/Photos/Syndication&quot; )) &amp;&amp; ( Product2.Name = &quot;Window Stickers&quot;)*/</errorConditionFormula>
+        <errorMessage>Please create a separate opportunity for window stickers :-)</errorMessage>
+    </validationRules>
+    <webLinks>
+        <fullName>Add_Data_Integration</fullName>
+        <availability>online</availability>
+        <displayType>massActionButton</displayType>
+        <encodingKey>UTF-8</encodingKey>
+        <linkType>url</linkType>
+        <masterLabel>Add Data Integration</masterLabel>
+        <openType>replace</openType>
+        <protected>false</protected>
+        <requireRowSelection>false</requireRowSelection>
+        <url>/flow/Add_Data_Integration?varOppID={!Opportunity.Id}
+&amp;varClickerID={!$User.Id}
+&amp;retURL=/{!Opportunity.Id}</url>
+    </webLinks>
+    <webLinks>
+        <fullName>Add_Website_Product</fullName>
+        <availability>online</availability>
+        <displayType>massActionButton</displayType>
+        <encodingKey>UTF-8</encodingKey>
+        <linkType>url</linkType>
+        <masterLabel>Add ATC Website</masterLabel>
+        <openType>replace</openType>
+        <protected>false</protected>
+        <requireRowSelection>false</requireRowSelection>
+        <url>/flow/Add_Website_Product?varOppID={!Opportunity.Id}&amp;retURL=/{!Opportunity.Id}</url>
+    </webLinks>
+    <webLinks>
+        <fullName>Swap_Inventory_for_Light</fullName>
+        <availability>online</availability>
+        <displayType>massActionButton</displayType>
+        <encodingKey>UTF-8</encodingKey>
+        <linkType>url</linkType>
+        <masterLabel>Swap Inventory for Light</masterLabel>
+        <openType>replace</openType>
+        <protected>false</protected>
+        <requireRowSelection>false</requireRowSelection>
+        <url>/flow/Inventory_Swap_Button?varOppID={!Opportunity.Id}&amp;retURL=/{!Opportunity.Id}&amp;saveURL=/{!Opportunity.Id}</url>
+    </webLinks>
+</CustomObject>

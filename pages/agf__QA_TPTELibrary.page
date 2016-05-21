@@ -1,0 +1,255 @@
+<apex:page standardController="agf__QA_Test_Plan__c" extensions="agf.QA_TreeLibrary" showHeader="false" sidebar="false">
+    <apex:includeScript value="{!$Resource.agf__QA_JSGeneral}"/>
+    <apex:includeScript value="{!$Resource.agf__QA_JSTreeUI}"/>
+    <apex:stylesheet value="{!$Resource.agf__QA_TreeCSS}"/>
+
+    <style>
+        body {
+            background-color: #F3F3EC;
+            margin-left: 0px;
+            margin-top: 0px;
+            margin-right: 0px;
+            margin-bottom: 0px;
+        }
+    </style>
+
+    <script lang="javascript">
+        var ie = document.all;
+        var iframes = parent.document.getElementsByTagName("IFRAME");
+        var thisiframe;
+        for(var i=0; i<iframes.length; i++)
+            if(iframes[i].title=="QA_TPTELibrary") thisiframe = iframes[i];
+
+        function resize(){
+            try{
+                if(ie){
+                    thisiframe.height = document.getElementById("pageBottom").offsetTop;
+                }else{
+                    thisiframe.height = document.getElementById("pageBottom").offsetTop;
+                }
+            }catch(e){}
+            setTimeout("resize()", 500);
+        }
+
+        resize();
+    </script>
+
+    <apex:form id="apexFunctions" >
+        <apex:actionFunction action="{!doNothing}" name="regenerateTree" rerender="baseTree">
+            <apex:param name="hierParam" assignTo="{!tree.baseHierarchy}" value="" />
+        </apex:actionFunction>
+
+        <apex:actionFunction action="{!doNothing}" name="initTree" rerender="baseTree">
+            <apex:param name="widthParam" assignTo="{!tree.uiWidth}" value="" />
+        </apex:actionFunction>
+
+        <apex:actionFunction action="{!loadBranch}" name="loadBranch" rerender="populateBranch, openRemainingBranches" oncomplete="unblockLoadBranch()">
+            <apex:param name="pathParam" assignTo="{!tree.treePath}" value="" />
+            <apex:param name="targetIdParam" assignTo="{!tree.targetBranchId}" value="" />
+        </apex:actionFunction>
+
+        <apex:actionFunction action="{!doNothing}" name="openRemainingBranches" rerender="openRemainingBranches">
+        </apex:actionFunction>
+
+        <apex:actionFunction action="{!openBranchPath}" name="openBranchPath" rerender="openRemainingBranches, openBranchesList" oncomplete="unblockLoadBranch()">
+            <apex:param name="pathParam" assignTo="{!tree.selectedBranch}" value="" />
+            <apex:param name="taskParam" assignTo="{!tree.postOpenTask}" value="" />
+        </apex:actionFunction>
+
+        <apex:actionFunction action="{!openAllSubBranches}" name="openAllSubBranches" rerender="openRemainingBranches, openBranchesList" oncomplete="unblockLoadBranch()">
+            <apex:param name="pathParam" assignTo="{!tree.selectedBranch}" value="" />
+            <apex:param name="taskParam" assignTo="{!tree.postOpenTask}" value="" />
+        </apex:actionFunction>
+
+        <apex:actionFunction action="{!loadDetails}" name="loadDetails" rerender="populateDetails" oncomplete="unblockLoadDetails()">
+            <apex:param name="teIdParam" assignTo="{!tree.elemId}" value="" />
+            <apex:param name="targetIdParam" assignTo="{!tree.targetElemId}" value="" />
+        </apex:actionFunction>
+
+        <apex:actionFunction action="{!selectElem}" name="selectElem" rerender="confirmationMessage" oncomplete="unblockSelect()">
+            <apex:param name="idParam" assignTo="{!tree.selectedId}" value="" />
+            <apex:param name="pathParam" assignTo="{!tree.selectedPath}" value="" />
+        </apex:actionFunction>
+
+        <apex:actionFunction action="{!selectElems}" name="selectElems" rerender="confirmationMessage" oncomplete="unblockSelect()">
+            <apex:param name="idParam" assignTo="{!tree.selectedId}" value="" />
+            <apex:param name="pathParam" assignTo="{!tree.selectedPath}" value="" />
+        </apex:actionFunction>
+
+        <apex:actionFunction action="{!deselectElem}" name="deselectElem" rerender="confirmationMessage" oncomplete="unblockSelect()">
+            <apex:param name="idParam" assignTo="{!tree.selectedId}" value="" />
+            <apex:param name="pathParam" assignTo="{!tree.selectedPath}" value="" />
+        </apex:actionFunction>
+
+        <apex:actionFunction action="{!deselectElems}" name="deselectElems" rerender="confirmationMessage" oncomplete="unblockSelect()">
+            <apex:param name="idParam" assignTo="{!tree.selectedId}" value="" />
+            <apex:param name="pathParam" assignTo="{!tree.selectedPath}" value="" />
+        </apex:actionFunction>
+
+        <apex:actionFunction action="{!removeOpenBranch}" name="removeOpenBranchApex" rerender="" oncomplete="unblockSelectBranch()">
+            <apex:param name="pathParam" assignTo="{!tree.selectedBranch}" value="" />
+        </apex:actionFunction>
+
+        <apex:actionFunction action="{!addOpenBranch}" name="addOpenBranchApex" rerender="" oncomplete="unblockSelectBranch()">
+            <apex:param name="pathParam" assignTo="{!tree.selectedBranch}" value="" />
+        </apex:actionFunction>
+
+        <apex:actionFunction action="{!searchTree}" name="searchTreeApex" rerender="populateSearch, confirmationMessage">
+            <apex:param name="searchParam" assignTo="{!tree.searchTerm}" value="" />
+        </apex:actionFunction>
+    </apex:form>
+
+    <div id="treeWrapper" style="position:relative">
+        <table border="0" cellspacing="0" cellpadding="0" id="treeTable">
+            <tr>
+                <td><apex:outputText value="{!confirmationMessage}" id="confirmationMessage" escape="false" /></td>
+            </tr>
+            <tr>
+                <td bgcolor="#F6F6F6" class="textRegular borderLeftDark borderRightDark borderTopDark borderBottomDark">
+                    <apex:tabPanel id="controlPanel" selectedTab="actions" switchType="client">
+                        <apex:tab label="Actions" name="actions" id="actionsTab">
+                            <apex:form id="treeControls" >
+                                <apex:commandLink action="{!deleteSelected}" rerender="confirmationMessage, baseTree, openRemainingBranches" styleClass="textRegular" value="Delete Selected" />&nbsp;|&nbsp;
+                                <apex:commandLink action="{!cloneTEs}" rerender="confirmationMessage, baseTree, openRemainingBranches" styleClass="textRegular" value="Clone Selected" />&nbsp;|&nbsp;
+                                <apex:commandLink action="{!markAs}" rerender="confirmationMessage, baseTree, openRemainingBranches" styleClass="textRegular" value="Mark as In Progress">
+                                    <apex:param name="markAsParam" assignTo="{!tree.markAsStatus}" value="In Progress" />
+                                </apex:commandLink>&nbsp;|&nbsp;
+                                <apex:commandLink action="{!markAs}" rerender="confirmationMessage, baseTree, openRemainingBranches" styleClass="textRegular" value="Mark as Passed">
+                                    <apex:param name="markAsParam" assignTo="{!tree.markAsStatus}" value="Passed" />
+                                </apex:commandLink>&nbsp;|&nbsp;
+                                <apex:commandLink action="{!markAs}" rerender="confirmationMessage, baseTree, openRemainingBranches" styleClass="textRegular">Mark as Failed
+                                    <apex:param name="markAsParam" assignTo="{!tree.markAsStatus}" value="Failed" />
+                                </apex:commandLink>&nbsp;|&nbsp;
+                                <apex:commandLink action="{!markAs}" rerender="confirmationMessage, baseTree, openRemainingBranches" styleClass="textRegular">Mark as Blocked
+                                    <apex:param name="markAsParam" assignTo="{!tree.markAsStatus}" value="Blocked" />
+                                </apex:commandLink>&nbsp;|
+                                <a class="textRegular" target="_top" href="/apex/QA_AddTEtoUS?tpid={!$CurrentPage.parameters.id}">Add Test Executions</a>
+                            </apex:form>
+                        </apex:tab>
+                        <apex:tab label="Move to a Different User Story" name="moveUSTab" id="moveUSTab">
+                            <apex:form id="moveUS" >
+                                <apex:panelGrid columns="3" id="moveUSGrid" styleClass="textRegular">
+                                    <apex:outputPanel ><strong>User Story: </strong></apex:outputPanel>
+                                    <apex:outputPanel layout="block" id="newUSOP" styleClass="requiredInput">
+	                                    <apex:outputPanel layout="block" styleClass="requiredBlock"/>
+	                                    <apex:inputfield id="newUS" value="{!tree.dummyTE.agf__User_Story__c}" onkeypress="return blockEnter(this, event)" />
+                                    </apex:outputPanel>
+                                    <apex:commandButton action="{!moveTEtoDifferentUS}" rerender="newUSOP, confirmationMessage, baseTree, openRemainingBranches" value="Move"/>
+                                    
+                                </apex:panelGrid>
+                            </apex:form>
+                        </apex:tab>
+                        <apex:tab label="Switch Assignee" name="switchAssigneeTab" id="switchAssigneeTab">
+                            <apex:form id="switchAssignee">
+                                <apex:panelGrid columns="3" id="mswitchAssigneeTabGrid" styleClass="textRegular">
+                                    <apex:outputPanel ><strong>Assignee: </strong></apex:outputPanel>
+                                    <apex:outputPanel layout="block" id="newAssigneeOP" styleClass="requiredInput">
+                                    	<apex:outputPanel layout="block" styleClass="requiredBlock"/>
+                                    	<apex:inputfield id="newAssignee" value="{!tree.dummyTE.agf__Assignee__c}" onkeypress="return blockEnter(this, event)"/>
+                                    </apex:outputPanel>
+                                    <apex:commandButton action="{!switchTEAssignee}" rerender="newAssigneeOP, confirmationMessage, baseTree, openRemainingBranches" value="Switch"/>
+                                </apex:panelGrid>
+                            </apex:form>
+                        </apex:tab>
+                        <apex:tab label="Filter By" name="filters" id="filtersTab">
+                            <apex:form id="treeFilters">
+                                <apex:panelGrid columns="4">
+                                    <apex:outputPanel >Execution Type</apex:outputPanel>
+                                    <apex:outputPanel >Status</apex:outputPanel>
+                                    <apex:outputPanel >Related To</apex:outputPanel>
+                                    <apex:outputPanel />
+                                    <apex:selectList id="ExecutionType" size="1" title="Execution Type" value="{!tree.executionTypeFilter}">
+                                        <apex:selectOptions value="{!executionTypeFT}" />
+                                    </apex:selectList>
+                                    <apex:selectList id="Status" size="1" title="Status" value="{!tree.statusFilter}">
+                                        <apex:selectOptions value="{!statusFT}" />
+                                    </apex:selectList>
+                                    <apex:selectList id="RelatedTo" size="1" title="Related To" value="{!tree.relatedToFilter}">
+                                        <apex:selectOptions value="{!relatedToFT}" />
+                                    </apex:selectList>
+                                    <apex:commandButton action="{!filter}" value="Filter" id="filter" rerender="baseTree, openRemainingBranches"/>
+                                </apex:panelGrid>
+                            </apex:form>
+                        </apex:tab>
+                        <apex:tab label="Search" name="search" id="searchTab" >
+                            <table width="100%" class="textRegular" border="0" cellspacing="0" cellpadding="0">
+                                <tr>
+                                    <td>
+                                        <input name="search.tf" onkeydown="searchEnter(event)" type="text" class="textRegular" id="search.tf" style="width:250px; border:solid; border-width:1px; border-color:#666666" />
+                                        <input name="search.btn" onclick="searchTree()" type="submit" class="textRegular" id="search.btn" value="Search" style="width:50px; background-color:#FBFBFB; border:solid; border-width:1px; border-color:#666666" />
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td height="3"></td>
+                                </tr>
+                                <tr align="left">
+                                    <td style="background-color:#FBFBFB; padding:3px">
+                                        <div id="searchResults"></div>
+                                    </td>
+                                </tr>
+                            </table>
+                        </apex:tab>
+                    </apex:tabPanel>
+                </td>
+            </tr>
+            <tr>
+                <td height="4"></td>
+            </tr>
+            <tr>
+                <td><apex:outputText value="{!baseTree}" id="baseTree" escape="false" /></td>
+            </tr>
+        </table>
+        <div id="loadBg" class="loadDivBg" />
+        <div id="loadText" class="loadDivText"> Please hang on, still loading... </div>
+    </div>
+    <div id="pageBottom" />
+
+    <apex:form id="populateBranch" >
+        <script language="javascript">
+            var curBranchHtml = "<apex:repeat var="elem" value="{!tree.curBranch}" >{!elem}</apex:repeat>";
+
+            targetDiv = document.getElementById("{!tree.targetBranchId}.content");
+            if(targetDiv != null) targetDiv.innerHTML = curBranchHtml;
+        </script>
+    </apex:form>
+
+    <apex:form id="populateDetails" >
+        <script language="javascript">
+            var curDetailsHtml = "{!tree.curDetails}";
+
+            targetDiv = document.getElementById("{!tree.targetElemId}.content");
+            if(targetDiv != null) targetDiv.innerHTML = curDetailsHtml;
+        </script>
+    </apex:form>
+
+    <apex:form id="openRemainingBranches" >
+        <script language="javascript">
+            if({!anymoreOpenBranches}){
+                var nextBranch = "{!nextOpenBranch}";
+                forceLoadBranch(nextBranch);
+            }else{
+                {!tree.postOpenTask};
+                hideLoadScreen();
+            }
+        </script>
+    </apex:form>
+
+    <apex:form id="populateSearch" >
+        <script language="javascript">
+            var curSearchHtml = unescapeEntities("{!tree.searchMatches}");
+
+            targetDiv = document.getElementById("searchResults");
+            if(targetDiv != null) targetDiv.innerHTML = curSearchHtml;
+        </script>
+    </apex:form>
+
+    <script language="javascript" type="text/javascript">
+        var offset = 10;
+        var treeWidth = document.body.clientWidth - offset;
+
+        document.getElementById("treeTable").width = treeWidth;
+
+        initTree(treeWidth);
+        initTreeUI("rgb(242,242,242)","rgb(221,221,221)","rgb(190,238,190)","rgb(140,238,140)");
+    </script>
+</apex:page>

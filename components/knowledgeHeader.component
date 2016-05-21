@@ -1,0 +1,63 @@
+<apex:component controller="KnowledgeController">
+	<apex:outputPanel styleClass="pkbHeader" layout="block">
+
+		<h1>
+			<apex:outputLink value="{!homeUrl}">
+				<apex:param name="{!languageParameterName}"
+					value="{!currentLanguage}" />
+			</apex:outputLink>
+		</h1>
+
+		<script>
+        function changeLanguageJs() {
+            var isRenderer = {!isRendererPage};
+            var form = document.getElementById('{!$Component.changeLanguage}');
+            if (isRenderer) {
+                var element = document.getElementById('{!$Component.changeLanguage.articleLanguages}');
+                if (element != null)
+                    window.location = element.value;
+            }
+        }
+    </script>
+
+		<ul class="pkbHeaderTabs">
+			<li class="{!IF(isHomePage, 'selected', '')}"><apex:outputLink value="{!homeUrl}">{!$Label.PKB_Tab_Home}<apex:param name="{!languageParameterName}" value="{!currentLanguage}" />
+				</apex:outputLink></li>
+			<li class="{!IF(!isHomePage, 'selected', '')}"><apex:outputLink value="{!productUrl}">{!$Label.PKB_Tab_Product}<apex:param name="{!languageParameterName}" value="{!currentLanguage}" />
+				</apex:outputLink></li>
+			<apex:outputPanel layout="none" rendered="{!showLanguagePickList}">
+				<li class="pkbLanguage"><apex:form id="changeLanguage">
+                {!$Label.PKB_Language}
+                <input type="hidden" name="{!keywordParameterName}"
+							value="{!currentKeyword}" />
+						<input type="hidden" name="{!categoryParameterName}"
+							value="{!currentCategory}" />
+						<input type="hidden" name="{!articleTypeParameterName}"
+							value="{!currentArticleType}" />
+						<input type="hidden" name="{!articleTypeLabelParameterName}"
+							value="{!currentArticleTypeLabel}" />
+						<input type="hidden" name="{!pageNumberParameterName}"
+							value="{!currentPageNumber}" />
+						<input type="hidden" name="{!newLanguageParameterName}" value="1" />
+
+						<apex:actionFunction action="{!changeSiteLanguage}"
+							name="changeSiteLanguage" />
+
+						<apex:selectList id="siteLanguages" size="1"
+							value="{!currentLanguage}" onChange="changeSiteLanguage();"
+							rendered="{!!isRendererPage}">
+							<apex:selectOptions value="{!siteAvailableLanguagesList}" />
+						</apex:selectList>
+
+						<apex:selectList id="articleLanguages" size="1"
+							value="{!currentArticleUrl}" onChange="changeLanguageJs();"
+							rendered="{!isRendererPage}">
+							<apex:selectOptions value="{!articleAvailableLanguagesList}" />
+						</apex:selectList>
+					</apex:form>
+				</li>
+			</apex:outputPanel>
+		</ul>
+
+	</apex:outputPanel>
+</apex:component>

@@ -1,0 +1,97 @@
+<apex:page controller="agf.ADM_PlannerBacklogListController" showHeader="false" showChat="false" standardStylesheets="false" id="workListPage">
+<apex:stylesheet value="{!$Resource.agf__ADM_Planner_Worklist_CSS}" />
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+<link href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet" />
+
+<div id="refreshButton" onClick="window.location.href=window.location.href;">
+	<div class="fa fa-refresh"></div>
+</div>
+
+<script>var urlTeamId = '', urlListviewId = '';</script>
+<apex:outputPanel layout="none" rendered="{!NOT(ISBLANK($CurrentPage.parameters.teamid))}">
+<script>urlTeamId += 'teamid={!JSENCODE($CurrentPage.parameters.teamid)}&';</script>
+</apex:outputPanel>
+<apex:outputPanel layout="none" rendered="{!NOT(ISBLANK($CurrentPage.parameters.workListPage:workListView:fcf))}">
+<script>urlListviewId += 'workListPage%3AworkListView%3Afcf={!JSENCODE($CurrentPage.parameters.workListPage:workListView:fcf)}';</script>
+</apex:outputPanel>
+<apex:outputPanel layout="none" rendered="{!NOT(ISBLANK($CurrentPage.parameters.teamid))}">
+<script>
+function listViewChange(el) {
+	if ($(el).val() === '0') {
+		if (self !== top) {
+			window.parent.changeHistory(urlTeamId);
+		}
+		location.href='/apex/ADM_Planner_BacklogList?' + urlTeamId;
+	} else {
+		urlListviewId = 'workListPage%3AworkListView%3Afcf=' + $(el).val();
+		if (self !== top) {
+			window.parent.changeHistory(urlTeamId + urlListviewId);
+		}
+		location.href='/apex/ADM_Planner_WorkList?workListPage%3AworkListView%3Arowsperpage=200&' + urlTeamId + urlListviewId;
+		return false;
+	}
+}
+</script>
+</apex:outputPanel>
+
+<script>if (self == top) {location.href='/apex/ADM_Planner?' + urlTeamId;}</script>
+
+<div id="backlogPageHolder" class="pageHolder">
+	<div id="notUsedListview">
+		<apex:ListViews id="workListView" type="agf__ADM_Work__c" />
+	</div>
+
+	<div class="bPageBlock brandSecondaryBrd secondaryPalette">
+	    <div class="pbBody">
+	        <table class="list usedListview" border="0" cellspacing="0" cellpadding="0">
+	            <tbody>
+	                <apex:repeat value="{!getBacklogItems}" var="backlogItem">
+	                    <tr class="dataRow" data-id="{!backlogItem.Id}">
+	                        <td class="dataCell" style="display:table-cell !important;">
+	                            <a href="/{!backlogItem.Id}">
+	                            	<apex:outputPanel layout="none" rendered="{!backlogItem.RecordType.Name == 'Bug'}"><div class="fa fa-bug"></div></apex:outputPanel>
+	                            	<apex:outputPanel layout="none" rendered="{!backlogItem.RecordType.Name == 'User Story'}"><div class="fa fa-book"></div></apex:outputPanel>
+	                            	<div class="text">{!backlogItem.agf__Subject__c}</div>
+	                            </a>
+	                        </td>
+	                    </tr>
+	                </apex:repeat>
+	            </tbody>
+	        </table>
+	    </div>
+	</div>
+</div>
+
+<script>
+$(function() {
+	var secondFrame = $('.column2', window.parent.document);
+
+    $('table.usedListview tr.dataRow').each(function() {
+    	var dataRow = $(this);
+        var workURL = dataRow.find('a').attr('href');
+    	var longId = dataRow.attr('data-id');
+
+        if(secondFrame.length > 0) {
+			dataRow.find('a').bind('click', function(e) {
+	    		e.preventDefault();
+                secondFrame.find('iframe').attr('src',workURL).hide();
+			    secondFrame.find('div.loader').show();
+			    secondFrame.find('div.notice').hide();
+				$('tr').removeClass('selected');
+			    dataRow.addClass('selected');
+			});
+        }
+
+		if(secondFrame.length > 0 && $('.column2 > iframe', window.parent.document).attr('src').indexOf(longId) > 0) {
+			dataRow.addClass('selected');
+		}
+
+    });
+
+    $('#filter_element').attr('action','/apex/ADM_Planner_Worklist');
+	$('span.bFilter span.fBody select').attr('onchange','listViewChange(this)').prepend('<option value="0" selected>Team Backlog</option>');
+    
+	$('span.fFooter a').attr('target','_parent');
+});
+</script>
+</apex:page>

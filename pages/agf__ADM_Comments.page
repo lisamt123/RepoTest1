@@ -1,0 +1,133 @@
+<apex:page standardController="agf__ADM_Work__c" extensions="agf.ADM_CommentsControllerExtension">
+    <apex:include pageName="agf__ADM_common_css"/> 
+    <apex:form >
+	    <apex:outputPanel id="commentsPanel">
+	        <table class="detailList" border="0" cellpadding="0" cellspacing="0" width="100%">
+	            <tbody>
+	                <tr>
+	                    <td width="17%" valign="top" align="right">                     
+	                        <div style="padding:7px;"><strong>Previous Comments</strong></div>
+	                    </td>
+	                    <td width="16" valign="top">
+	                        <div style="padding:4px 0px 0px 0px; cursor:pointer;">
+	                        <apex:outputPanel >
+	                            <apex:image url="{!URLFOR($Resource.agf__silkIcons, 'icons/comments_add.png')}" rendered="{!showAllComments == 'true'}"/>
+	                            <apex:image url="{!URLFOR($Resource.agf__silkIcons, 'icons/comments_delete.png')}" rendered="{!showAllComments == 'false'}"/>                        
+	                            <apex:actionStatus id="commentsStatus" startText="Updating..."/>
+	                            <apex:actionSupport event="onclick" action="{!toggleComments}" rerender="commentsPanel"/>
+	                        </apex:outputPanel>           
+	                        </div>                         
+	                    </td>
+	                    <td>
+	                    	<div id="commentsDiv">
+	                        <table class="list" border="0" cellspacing="0" cellpadding="0" width="100%">	                        	
+                            	<apex:messages rendered="{!NOT(hasComments)}">
+									<input type="hidden" id="commentsState" value="true"/>
+								</apex:messages>
+	                            <apex:messages rendered="{!hasComments}">                       
+	                                <apex:repeat value="{!Comments}" var="comment" id="commentsOutputPanel" rendered="{!NOT(ISNULL(Comments))}">
+	                                    <tr onfocus="if (window.hiOn){hiOn(this);}" onmouseout="if (window.hiOff){hiOff(this);}" onblur="if (window.hiOff){hiOff(this);}" onmouseover="if (window.hiOn){hiOn(this);}">
+	                                        <td>                                                             
+	                                            <apex:outputPanel layout="block">
+	                                            <!-- *** Alexis Williams: I removed this for now since it will not resize properly if we are including this on a page layout ***
+	                                            	 *** onclick="Effect.Combo('{!comment.Id}', {duration: 0, scaleX: true, scaleContent: true});resizeIframe();resizeIframe();" *** -->                                        
+	                                                <strong>
+	                                                    {!comment.Comment_Created_By__r.Name}
+                                                        <img src="{!URLFOR($Resource.silkIcons, 'icons/comment.png')}" id="img_{!comment.Id}"/>
+	                                                    <apex:messages rendered="{!showAllComments == 'true'}">
+	                                                    	<input type="hidden" id="commentsState" value="true"/>
+	                                                    </apex:messages>
+	                                                    <apex:messages rendered="{!showAllComments == 'false'}">
+	                                                    	<input type="hidden" id="commentsState" value="false"/>
+	                                                    </apex:messages>
+	                                                    &nbsp;                                            
+	                                                    <span style="font-size:80%">[{!comment.LocaleCreatedDate__c}]</span>
+	                                                </strong>                                                                                
+	                                            </apex:outputPanel>
+	                                            <apex:outputPanel layout="block">
+	                                                <div id="{!comment.Id}" style="{!commentsStyle}" class="adm_comments_handle">
+	                                                     <apex:outputText value="{!comment.agf__Body__c}"/>
+	                                                 </div>                 
+	                                            </apex:outputPanel>                        
+	                                        </td>
+	                                    </tr>
+	                                </apex:repeat>                                 
+	                            </apex:messages>
+	                            <apex:messages rendered="{!NOT(hasComments)}">
+	                                <tr><td>No comments to display</td></tr>
+	                            </apex:messages>
+	                        </table>
+	                        </div>
+	                    </td>
+	                </tr>
+	            </tbody>
+	        </table> 
+	         
+	        <script type="text/javascript">				
+				var commentsDiv = document.getElementById('commentsDiv');
+	            var iFrame = parent.document.getElementsByTagName('iframe');
+	            var iFrameTitle = 'ADM_Comments'; 
+	            var iFrameId = '';
+	            var hasFound = false;
+				var viewportwidth;
+				var viewportheight;
+	            
+	            for ( i = 0; i < iFrame.length; i++ ) {	            	
+	                if (iFrame[i].title == iFrameTitle) { 
+	                     hasFound = true;
+	                     iFrameId = iFrame[i].id;            
+	                     break;
+	                }
+	            }
+	            
+	            if(hasFound) {           
+	                resizeIframe();
+	            }
+	                 
+	            function resizeIframe(){
+	                if(window.addEventListener) {	                
+	                    window.addEventListener("resize", resizeIframeCaller, false);
+	                    window.addEventListener("load", resizeIframeCaller, false);
+	                } else {
+	                    window.attachEvent("resize", resizeIframeCaller);
+	                    window.attachEvent("load", resizeIframeCaller);
+	                }
+	            
+					var tds = parent.document.getElementsByTagName('td');    					
+	                var iframe = parent.document.getElementById(iFrameId); 
+	                var commentsState = document.getElementById('commentsState');
+	                var commentsDivOffset = 200;	                
+	                
+					// the more standards compliant browsers (mozilla/netscape/opera/IE7) use window.innerWidth and window.innerHeight
+					if (typeof window.innerWidth != 'undefined') {
+						viewportwidth = window.innerWidth,
+				    	viewportheight = window.innerHeight
+					}	
+				            
+		            if(commentsState.value == 'false') {
+		            	for(i = 0; i < tds.length; i++) {
+			            	if(tds[i].className == 'labelCol' && tds[i].innerHTML.indexOf('Comment') > -1) {
+				            	if(!isIE) {
+					            	commentsDivOffset = viewportwidth - tds[i].clientWidth;
+					            } else {
+					            	commentsDivOffset = tds[i+1].clientWidth;
+//					            	height += 100;
+					            }
+			            	}
+			            }                
+			            
+			            commentsDiv.style.overflowX = 'scroll';
+						commentsDiv.style.width = commentsDivOffset + 'px';
+	                }	                
+					
+	                var height = document.body.clientHeight;	                
+	                iframe.style.height = height + 'px';
+	            }
+	            
+	            function resizeIframeCaller() {         
+	                resizeIframe();
+	            }  
+	        </script>
+	    </apex:outputPanel>
+    </apex:form>
+</apex:page>

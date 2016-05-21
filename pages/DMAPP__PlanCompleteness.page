@@ -1,0 +1,476 @@
+<apex:page controller="DMAPP.AMScoreCardController" showHeader="true" sidebar="false" action="{! logPlanCompletenessUsage }" docType="html-5.0" tabStyle="Account_Plans__tab">
+
+	<c:jQuery jQueryUI="true"
+		cookies="true"
+		underscore="true"
+		tooltip="true"
+		tools="true"
+		validate="true"
+		paging="true"
+		jqGrid="true"
+		chosen="true"
+		textareaMaxlength="true"
+		dropdown="true"/>
+
+    <c:MobileRedirect TAM="true" />
+
+	<style>
+	
+		@import url("{!URLFOR($Resource.DMAPP__TAM,         'css/common.css')}");
+		@import url("{! URLFOR($Resource.DMAPP__TAM,        'css/solutionTooltip.css') }");
+		
+		/* start of additions for Chatter */
+	
+		@import url("{!URLFOR($Resource.DMAPP__ttgomjs,         'ttg/chatter/css/chatter_side_panel.css')}");
+		@import url("{!URLFOR($Resource.DMAPP__ttgomjs,         'ttg/chatter/css/chatter_post.css')}");
+		@import url("{!URLFOR($Resource.DMAPP__ttgomjs,         'ttg/graph/css/glyphs/style.css')}");
+		@import url("{!URLFOR($Resource.DMAPP__ttgomjs,         'ttg/chatter/css/chatter_summary.css')}");
+        
+        /* end of additions for Chatter */
+		
+		DIV#SCORECARD_SUMMARY_DATA DIV.title-left, DIV#SCORECARD_SUMMARY_DATA DIV.title-right { 
+		  float: left;
+		  padding-left: 3px; 
+		}
+	
+		DIV#SCORECARD_SUMMARY_DATA DIV.title-left { 
+			margin-right: 4%;
+			width: 75%; 
+		}
+		
+		DIV#SCORECARD_SUMMARY_DATA DIV.title-right { width: 20%; }		
+		
+		DIV#SCORECARD_SUMMARY_DATA SPAN.completenessTitle {
+			color: #7F7F7F;
+			font-size: 1.5em;			
+		}
+		
+		DIV#SCORECARD_SUMMARY_DATA SPAN.activityTitle {
+			color: #7F7F7F;
+			font-size: 1.5em;			
+		}
+		
+		DIV#SCORECARD_SUMMARY_DATA DIV#summaryDataFirstRow {
+			color: #7F7F7F;
+			font-size: .9em;			
+			width: 80px;
+		}
+		
+		DIV#SCORECARD_SUMMARY_DATA TABLE.metricTable {
+			margin: auto;
+			padding: 10px;
+			-webkit-user-select: none;
+			-moz-user-select: none;
+			-ms-user-select: none;
+			user-select: none;
+		}	
+		
+		DIV#SCORECARD_SUMMARY_DATA TABLE.metricTable TD {
+			padding: 5px;
+			text-align: center;
+			vertical-align: top;			
+			width: 400px;
+		}
+		
+		DIV#SCORECARD_SUMMARY_DATA TABLE.metricTable TD.selected {
+			background-color: #A0B5CA;
+			border: 2px solid #FFFFFF;
+			/*background-color: #EEE;*/
+			/*border: 2px solid #7F7F7F;*/
+			border-radius: 5px;
+			cursor: pointer;
+			padding: 3px;		
+		}	
+		
+		DIV#SCORECARD_SUMMARY_DATA TABLE.metricTable TD:hover {
+			/*border: 2px solid #36F;*/
+			border: 2px solid #A0B5CA;
+			border-radius: 5px;
+			cursor: pointer;
+			padding: 3px;			
+		}	
+		
+		
+		
+		DIV#SCORECARD_SUMMARY_DATA TABLE.metricTable td#planDetailsAttainmentcurrentCell DIV.badge
+		{
+		    background-position:5px 0;
+		}
+		
+		DIV#SCORECARD_SUMMARY_DATA TABLE.metricTable td#segmentationCompletioncurrentCell DIV.badge {
+            background-position:-90px 0;
+		}
+		
+		DIV#SCORECARD_SUMMARY_DATA TABLE.metricTable td#whiteSpacecurrentCell DIV.badge {
+            background-position:-195px 0;
+		}
+		
+		DIV#SCORECARD_SUMMARY_DATA TABLE.metricTable td#LORCompletioncurrentCell DIV.badge {
+            background-position:-295px 0;
+		}
+		
+		DIV#SCORECARD_SUMMARY_DATA TABLE.metricTable td#strategyMapLevelcurrentCell DIV.badge {
+            background-position:-495px 0;
+		}
+		
+		DIV#SCORECARD_SUMMARY_DATA TABLE.metricTable td#politicalMapLevelcurrentCell DIV.badge {
+            background-position:-590px 0;
+		}
+		
+		DIV#SCORECARD_SUMMARY_DATA TABLE.metricTable td#valueMapCompletioncurrentCell DIV.badge {
+            background-position:-695px 0;
+		}
+		
+		DIV#SCORECARD_SUMMARY_DATA TABLE.metricTable td#objectivesLevelcurrentCell DIV.badge {
+            background-position:-795px 0;
+		}
+		
+		DIV#SCORECARD_SUMMARY_DATA TABLE.metricTable td#actionscurrentCell DIV.badge {
+            background-position:-395px 0;
+		}
+		
+		DIV#SCORECARD_SUMMARY_DATA TABLE.metricTable td#teamAccesscurrentCell DIV.badge {
+            background-position:-895px 0;
+		}
+		
+		DIV#SCORECARD_SUMMARY_DATA TABLE.metricTable TD DIV.badge {
+		    background: url('{! URLFOR($Resource.DMAPP__TAM, 'images/completeness_sprites.png') }') no-repeat center center transparent;
+		    height: 100px;
+		    padding: 2px;
+	    	margin: 0 15%;
+		}
+
+		DIV#SCORECARD_SUMMARY_DATA TABLE.metricTable TD DIV.scoreLabel {
+			/*color: #7F7F7F;
+	    	font-size: 1.2em;
+	    	padding: 2px; */
+	    	color: #000000;
+		    font-size: 1.1em;
+		    margin-bottom: 5px;
+		    padding: 0 2px 2px;    	
+		}			
+	
+		DIV#SCORECARD_SUMMARY_DATA TABLE.metricTable TD DIV.scoreValue {
+		    border: 1px solid #DADADA;
+		    /*background-color: #FFF;*/
+		    background: none repeat scroll 0 0 #EFEFEF !important;
+		    font-size: 1em;
+		    /*font-size: 1.2em;*/
+		    /*padding: 2px;*/
+		}
+		
+		DIV#SCORECARD_SUMMARY_DATA TABLE.metricTable TD.selected DIV.scoreValue {
+		    border: 1px solid #8AA2BF;
+		}
+		
+		DIV#SCORECARD_SUMMARY_DATA TABLE.metricTable TD.selected DIV.scoreValue .ui-widget-header {
+			border: 1px solid #8AA2BF;
+		}	
+		
+		DIV#SCORECARD_SUMMARY_DATA TABLE.metricTable TD DIV.scoreInfoValue {
+		   	color: #7F7F7F;
+	    	font-size: 1.2em;
+	    	padding: 2px;
+		}	
+		
+		DIV#TAS { width: 950px; }
+		
+		span.processInfoLabel {
+		    left: 135px;
+		    position: absolute;
+		    top: 125px;
+		}
+		
+		span.lastBatchExecutionLabel {
+		    left: 665px;
+		    top: 125px;
+		}	
+		
+		DIV#SCORECARD_BATCH {
+			border: 1px solid #CCC;
+			border-radius: 4px;
+			margin-bottom: 5px;
+			padding: 5px;		
+		}	
+		
+		DIV#completenessSection, DIV#activitySection {			
+			border: 1px solid #CCC;
+	    	border-radius: 4px;		
+	    	margin-top: 5px;
+	    	padding: 5px;
+		}
+		
+		DIV#completenessSection {
+			float: left;
+			margin-bottom: 5px;
+			width: 75%;		
+		}
+		
+		DIV#activitySection {			
+			float: right;
+			margin-bottom: 5px;
+			width: 20%;
+		}
+		
+		DIV.scoreValue { position: relative; }		
+		
+		DIV.scoreProgressLabel {
+			font-weight: bold;
+			left: 45%;
+			position: absolute;		
+			top: 20%;					
+		}
+		
+		div.metricHelpText {
+			border: 1px solid #CCC;
+	    	border-radius: 4px;
+	    	clear: both;
+	    	margin-bottom: 5px;
+	    	padding: 5px;	    	
+	        overflow: hidden;
+	    }
+	    
+	    div.metricHelpText2 {
+			border: 1px solid #CCC;
+	    	border-radius: 4px;
+	    	clear: both;
+	    	margin-bottom: 10px;
+	    	padding: 0px;
+	    	overflow: hidden;
+	    } 
+	    
+	    div.metricHelpText .msg_text {
+	       float: left;
+	    }
+	    
+	    div.metricHelpText .msg_text {
+	        background: url('{!URLFOR($Resource.DMAPP__Common, 'images/icon_help_msg.png')}') no-repeat scroll 0 5px transparent;
+	        white-space: pre-line;
+	    }
+		
+		#myHelpText {
+		    padding-right: 10px;
+		}	    
+	    
+	    div.metricHelpText2 .msg_text2 {
+	    	/*
+	        background: url('{! URLFOR($Resource.DMAPP__Common, 'images/icon_help_msg.png') }') no-repeat scroll 0 5px transparent;
+	        */
+	        float: left;
+	        white-space: pre-line;
+	        width: 100%;
+	    }
+	    
+	    .msg_container .msg_text2 {
+	    	/*
+    		background: url("../images/icon_help_msg.png") no-repeat scroll left center rgba(0, 0, 0, 0);
+    		*/
+    		background-color: #5883B3;
+    		color: white;
+    		padding: 4px 6px 4px 4px;
+		}
+	    
+	    div.ui-progressbar-value {
+	       /*background: #019040;*/
+	       background: url('{!URLFOR($Resource.DMAPP__TAM, 'images/progress_bar.png')}') repeat scroll top left transparent;
+	    }
+	    
+		DIV#SCORECARD_SUMMARY_DATA TABLE.metricTable.segmentless td#whiteSpacecurrentCell DIV.badge
+		{
+		    background-position: -193px 0;
+		}
+		
+		
+		DIV#SCORECARD_SUMMARY_DATA TABLE.metricTable.segmentless td#objectivesLevelcurrentCell DIV.badge {
+		    background-position: -793px 0;
+		}
+
+		/* Settings dropdown fix jQueryMigration  */
+		.TAMAdminLink{
+			position: relative;
+		}
+		
+		.dropdown .dropdown-menu, .dropdown .dropdown-panel {
+			min-width: 80px;
+		}
+		
+		.dropdown {
+			left: -39px !important;
+		}
+		
+		/*   iPAD PORTRAIT STYLES  */				
+		@media only screen 
+			and (min-device-width : 768px) 
+			and (max-device-width : 1024px) 
+			and (orientation : portrait) {
+
+				.salesforce1 DIV#SCORECARD_BATCH {
+					width: 97%;
+					margin-left:1%;
+				}
+				
+				.salesforce1 #SCORECARD_SUMMARY_DATA{
+					width: 98%;
+					margin-left: 1%;
+				}
+				
+				.salesforce1 DIV#activitySection{
+					height: 378px !important;
+				}
+				
+				.salesforce1 DIV#SCORECARD_SUMMARY_DATA TABLE.metricTable TD DIV.badge {
+					margin: 0 2%;
+				}
+		}
+
+
+		/*   iPAD LANDSCAPE STYLES  */	
+		@media only screen 
+		and (min-device-width : 768px) 
+		and (max-device-width : 1024px) 
+		and (orientation : landscape) { 
+		 		
+		 		.salesforce1 #SCORECARD_SUMMARY_DATA{
+					width: 98%;
+					position: relative;
+					margin: 0 auto;
+		 		}
+		 		
+		 		.salesforce1 #SCORECARD_BATCH{
+					width: 98%;
+					position: relative;
+					margin: 0 auto;
+		 		}
+		 		
+	 			.salesforce1 .msg_text2{
+	 				width: 100%;
+	 			}	
+	 	}
+	    
+	</style>
+
+    <apex:includeScript value="{! URLFOR($Resource.prefix) }" />
+	<script type="text/javascript" src="{! $Resource.l10njs } "></script>	
+		
+	<apex:include pageName="DMAPP__tmpCommoncss" />
+	<apex:include pageName="DMAPP__PlanCompletenessJS" />
+	<apex:include pageName="DMAPP__CRUD" />
+	<script type="text/javascript" src="{! URLFOR($Resource.ttgomjs, 'ttg/lib/ttgservice.js') }"></script>
+	<script type="text/javascript" src="{! URLFOR($Resource.OpportunityMapConfiguration) }"></script>
+	<script type="text/javascript" src="{! URLFOR($Resource.ftk, 'forcetk.js') }"></script>
+	<apex:include pageName="DMAPP__APIDelegate" />
+	<apex:include pageName="DMAPP__TAMSummaryTab" />	
+	
+		<div id="TAS">
+			<div id="SPINNER"></div>
+			<div id="SCORECARD_BATCH" class="msg_container text_right">
+				<table style="width:100%">
+					<tr>
+						<td style="float:left">
+							<button id="batchProcessButton" disabled="disabled">Update</button>
+						</td>
+						<td>
+							<apex:form id="formBatch">
+								<apex:outputText id="lastBatchExecutionLabel" styleClass="lastBatchExecutionLabel msg_text" value="{! lastActivityBatchDate }"></apex:outputText>
+								<apex:actionFunction action="{! recomputeActivityBatch }" name="recomputeBatch" reRender="lastBatchExecutionLabel" onComplete="refreshScorecard()" />
+							</apex:form>				
+						</td>
+					</tr>
+				</table>
+			</div>
+			<div id="SCORECARD_SUMMARY_DATA"></div>					
+		</div>
+		<script>
+	
+		var spec = {
+			sessionid : '{! $Api.Session_ID }',
+	    	userId: '{! $User.id }',
+			ttgApi: ttg.apiLayer.sfdcDelegate( { sessionid : '{! $Api.Session_ID}' } ),
+			planId: '{! JSENCODE(planId) }',
+			readonly: {! PlanRecordEditable == false },
+	        inactive: {! inactive },
+	        hideSegmentation: {! hideSegmentation }
+		};
+
+		var ttg_planactivity = ttg.am.planactivity(spec);
+
+		/* IF SALESFORCE1 IS PRESENT, SALESFORCE1 NAVIGATION STAYS IN APP. OTHERWISE, REDIRECTS TO BROWSER  */	
+		function refreshScorecard() {
+			var thisURL = '/apex/DMAPP__PlanCompleteness?id=' + encodeURIComponent('{! JSENCODE(planId) }');		
+			(window.ttg_salesforce1) ? sforce.one.navigateToURL(thisURL) : top.location.href=thisURL;		
+		}
+	
+	    jQuery(document).ready(function() {
+				  
+				ttg_planactivity.render();  
+				    
+	    		var spec = {
+	    			sessionid : '{! $Api.Session_ID }',
+	    			userId: '{! $User.id }',
+					ttgApi: ttg.apiLayer.sfdcDelegate( { sessionid : '{! $Api.Session_ID }' } ),
+	                planId: '{! JSENCODE(planId) }',
+	                planname: '{!JSENCODE(accountPlan.Name)}',
+	                spinnerURL: '{! JSENCODE(URLFOR($Resource.ttgomjs, '/ttg/graph/images/loader.gif')) }',
+	                calendarURL: "{! URLFOR($Resource.Common, 'images/icon_calendar.png') }",
+					title: 'Plan Settings',
+	                readonly: {! PlanRecordEditable == false },
+	                candelete: {!Candelete},
+	                inactive: {! inactive },
+	                hideScorecard: {! NOT(showScorecard) },
+	                fiscalYearStartMonth: {!fiscalYearStartMonth},
+	                usesStartDateAsFiscalYearName: {!usesStartDateAsFiscalYearName},
+	                isoCode: '{!JSENCODE(CurrencyISO)}',
+	                showAutoPostOption: {!showAutoPostOption} 
+	    		};
+	
+                var amConfiguration = ttg.am.configuration(spec);
+        
+				var hasCreateAccess = {!planObjectCreateable};
+        
+                var specClone = spec;
+                specClone['clone'] = true;
+                var amConfigurationClone = ttg.am.configuration(specClone);
+    
+                var ctrl = jQuery('#TAMADMINLINK').parent();
+                jQuery('#TAMADMINLINK').remove();
+                
+                var a = jQuery('<a href="#" data-dropdown="#dropdown-{!accountPlan.Id}"/>').append(
+                    jQuery('<img src="{!URLFOR($Resource.Common, 'images/icon_cog.png')}" alt="Options" title="Options" ttgid="AccountPlanOPTIONSLIST"/>')
+                );
+                
+                var div = jQuery('<div id="dropdown-{!accountPlan.Id}" class="dropdown dropdown-relative"/>').append(
+                    jQuery('<ul class="dropdown-menu"/>').append(
+                        jQuery('<li/>').append(
+                            jQuery('<a href="#"/>').click(amConfiguration.configure).text('Settings')
+                                .attr('ttgid', "AccountPlanOPTIONSSETTINGS")
+                        )
+        			).append(hasCreateAccess ?
+         					jQuery('<li/>').append(
+         						jQuery('<a href="#"/>').click(amConfigurationClone.configure).text('Clone')
+         						    .attr('ttgid', "AccountPlanOPTIONSCLONE")
+         					)
+     						:
+       						null
+       				)
+                );
+
+                ctrl.append(a);
+                ctrl.append(div);
+
+				var batchButton = jQuery('#batchProcessButton').button();
+				if(spec.readonly) {
+					batchButton.button('option', 'disabled', true);
+				}
+				else {
+					batchButton.button('enable').on('click', function() {
+						jQuery(this).button('disable');
+						recomputeBatch();		
+					});
+				}
+  		
+	    	}
+	    );
+	
+	</script>	
+	<apex:include pageName="DMAPP__OpportunityMapConfiguration" />
+</apex:page>

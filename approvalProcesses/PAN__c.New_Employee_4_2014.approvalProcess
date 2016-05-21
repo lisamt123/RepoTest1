@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ApprovalProcess xmlns="http://soap.sforce.com/2006/04/metadata">
+    <active>true</active>
+    <allowRecall>true</allowRecall>
+    <allowedSubmitters>
+        <submitter>Executive_Assistant</submitter>
+        <type>role</type>
+    </allowedSubmitters>
+    <allowedSubmitters>
+        <submitter>ProcessDevelopmentManager</submitter>
+        <type>roleSubordinatesInternal</type>
+    </allowedSubmitters>
+    <approvalPageFields>
+        <field>Name</field>
+        <field>Owner</field>
+        <field>Vin_Employee__c</field>
+        <field>Department__c</field>
+    </approvalPageFields>
+    <approvalStep>
+        <allowDelegate>false</allowDelegate>
+        <assignedApprover>
+            <approver>
+                <name>angelica.bourret@vinsolutions.com</name>
+                <type>user</type>
+            </approver>
+            <approver>
+                <name>paul.duryee@vinsolutions.com</name>
+                <type>user</type>
+            </approver>
+            <whenMultipleApprovers>FirstResponse</whenMultipleApprovers>
+        </assignedApprover>
+        <description>Is the new employee&apos;s user setup complete in Salesforce?</description>
+        <label>SFDC Set up</label>
+        <name>SFDC_Set_up</name>
+    </approvalStep>
+    <description>All PANs now follow this process effective 4/15/2014</description>
+    <enableMobileDeviceAccess>false</enableMobileDeviceAccess>
+    <entryCriteria>
+        <criteriaItems>
+            <field>PAN__c.RecordType</field>
+            <operation>equals</operation>
+            <value>New,Process New,Modify,Process Modify,Separate,Process Separation,Job Requisition</value>
+        </criteriaItems>
+    </entryCriteria>
+    <finalApprovalActions>
+        <action>
+            <name>HR_confirmation_Complete</name>
+            <type>FieldUpdate</type>
+        </action>
+    </finalApprovalActions>
+    <finalApprovalRecordLock>true</finalApprovalRecordLock>
+    <finalRejectionRecordLock>false</finalRejectionRecordLock>
+    <initialSubmissionActions>
+        <action>
+            <name>Update_Approval_Status_to_SFDC_Setup</name>
+            <type>FieldUpdate</type>
+        </action>
+        <action>
+            <name>Vin_New_Employee_HR_Notification</name>
+            <type>Alert</type>
+        </action>
+        <action>
+            <name>WFT_Email_Alert_to_HR</name>
+            <type>Task</type>
+        </action>
+    </initialSubmissionActions>
+    <label>Employee PAN 4-2014</label>
+    <recallActions>
+        <action>
+            <name>Additional_Information_Needed</name>
+            <type>Alert</type>
+        </action>
+    </recallActions>
+    <recordEditability>AdminOrCurrentApprover</recordEditability>
+    <showApprovalHistory>false</showApprovalHistory>
+</ApprovalProcess>

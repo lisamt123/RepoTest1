@@ -1,0 +1,48 @@
+<apex:page standardController="RecordType" extensions="agf.ADM_selectWorkRecordTypeExtensions" title="New Work: Select Work Record Type" tabStyle="agf__ADM_Work__c">    
+    <apex:include pageName="agf__ADM_common_css"/>
+    <apex:sectionHeader title="New Work" subtitle="Select Work Record Type" />
+    
+    <apex:outputPanel layout="block" styleClass="bDescription">
+    	Select a record type for the new work. To skip this page in the future, change your record type settings on your personal setup page.
+    </apex:outputPanel>    
+    <apex:form >
+        <apex:pageBlock title="Select Work Record Type">
+        	<apex:pageBlockButtons location="bottom">
+        		<apex:commandButton value="Continue" action="{!gotoWorkEdit}"/>
+        		<apex:commandButton value="Cancel" action="{!cancel}"/>
+        	</apex:pageBlockButtons> 
+			<table cellspacing="0" cellpadding="0" border="0" class="detailList">
+	            <tbody>
+	            	<tr>
+	            		<td class="labelCol requiredInput">
+	            			<label><span class="requiredMark">*</span>Record Type of new record</label>
+	           			</td>
+	           			<td colspan="3" class="data2Col">
+	           				<div class="requiredInput">
+	           					<div class="requiredBlock"/>
+	           						<apex:selectList title="Record Type of new record" value="{!recordType}" size="1" required="true">
+				                    	<apex:selectOptions value="{!recordTypeOptions}"/>
+				                	</apex:selectList>
+	           					</div>
+							</td>
+						</tr>		
+					</tbody>
+				</table>
+			</apex:pageBlock>
+    </apex:form>
+    <h3 class="recordTypesHeading">Available Work Record Types</h3>
+	<table class="infoTable" cellspacing="0" cellpadding="0" border="0">
+		<tbody>
+			<tr class="headerRow">
+				<th class="recordTypeName" scope="col">Record Type Name</th>
+				<th class="recordTypeDescription" scope="col">Description</th>
+			</tr>
+			<apex:repeat value="{!recordTypes}" var="el">
+				<tr>
+					<th class="recordTypeName"><apex:outputText value="{!el.Name}"/></th>
+					<th class="recordTypeDescription"><apex:outputText value="{!el.Description}"/></th>					
+				</tr>
+			</apex:repeat>
+		</tbody>
+	</table>
+</apex:page>

@@ -1,0 +1,40 @@
+<apex:page standardController="Account" extensions="AddTeamMemberController" action="{!init}" showHeader="true" sidebar="true" docType="html-5.0">
+    <style type="text/css">
+        .datacell { 
+            padding: 2px 5px 2px 5px; 
+        }
+    </style>
+
+    <apex:pageMessages rendered="{!renderPageMessage}"/>
+    <apex:form >
+        <apex:sectionHeader title="{!Account.Name}" subtitle="New Account Team Members" rendered="{!NOT(renderPageMessage)}"/>
+        <apex:pageBlock mode="edit" rendered="{!NOT(renderPageMessage)}">
+            <apex:pageBlockButtons location="top">
+                <apex:commandButton value="Save" action="{!save}" />
+                <apex:commandButton value="Cancel" action="{!cancel}" />
+            </apex:pageBlockButtons>
+            <apex:outputPanel rendered="true">
+                <table style="width: 80%; border: 0px; padding: 12px 11px; border-spacing: 0px;">
+                    <tbody>
+                        <tr style="font-weight: bold;">
+                            <td class="datacell">User</td>
+                            <td class="datacell">Account Access</td>
+                            <td class="datacell">Contact Access</td>
+                            <td class="datacell">Opportunity Access</td>
+                            <td class="datacell">Case Access</td>
+                            <td class="datacell">Team Role</td>
+                        </tr>
+                        <tr>
+                            <td class="datacell"><apex:inputField value="{!atmh.tm.UserId}" required="false" /></td>
+                            <td class="datacell"><apex:selectList value="{!atmh.acctShare.AccountAccessLevel}" size="1"><apex:selectOption itemValue="Read" itemLabel="Read Only"/><apex:selectOption itemValue="Edit" itemLabel="Read/Write"/></apex:selectList></td>
+                            <td class="datacell"><apex:selectList value="{!atmh.acctShare.ContactAccessLevel}" size="1"><apex:selectOption itemValue="None" itemLabel="Private"/><apex:selectOption itemValue="Read" itemLabel="Read Only"/><apex:selectOption itemValue="Edit" itemLabel="Read/Write"/></apex:selectList></td>
+                            <td class="datacell"><apex:selectList value="{!atmh.acctShare.OpportunityAccessLevel}" size="1"><apex:selectOption itemValue="None" itemLabel="Private"/><apex:selectOption itemValue="Read" itemLabel="Read Only"/><apex:selectOption itemValue="Edit" itemLabel="Read/Write"/></apex:selectList></td>
+                            <td class="datacell"><apex:selectList value="{!atmh.acctShare.CaseAccessLevel}" size="1"><apex:selectOption itemValue="None" itemLabel="Private"/><apex:selectOption itemValue="Read" itemLabel="Read Only"/><apex:selectOption itemValue="Edit" itemLabel="Read/Write"/></apex:selectList></td>
+                            <td class="datacell"><apex:inputField value="{!atmh.tm.TeamMemberRole}" required="false" /></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </apex:outputPanel>
+        </apex:pageBlock>
+    </apex:form>
+</apex:page>

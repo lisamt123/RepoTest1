@@ -1,0 +1,62 @@
+<apex:page controller="agf.ADM_HeadCountController" tabStyle="agf__Headcount__c" >
+
+<script>
+
+function transferSelectedHeadcount(selectedIds) {
+    window.location.href="/apex/ADM_TransferHeadcount?selectedIds="+selectedIds + "&retURL=" + document.URL;
+}
+
+</script>
+
+
+<style>
+
+.greeting {
+   font-size:16px;
+   color:#666;
+}
+
+.wrapper {
+    padding-top:10px;
+    padding-bottom:10px;
+}
+
+
+            
+.curvedHighlight {
+    
+    -moz-border-radius-topleft: 5px;
+    -moz-border-radius-topright: 5px;
+    -moz-border-radius-bottomright: 5px;
+    -moz-border-radius-bottomleft: 5px;
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+    border-bottom-right-radius: 5px;
+    border-bottom-left-radius: 5px;
+    margin-right:3px;
+    margin-bottom:2px; 
+    
+} 
+
+ .countHighlight {
+    padding-right:8px;
+    padding-left:8px;
+    height:24px;
+    font-size:16px;
+    font-weight:bold;
+    
+    background: #1797c0;
+    color:#FFFFFF;    
+    
+ } 
+
+</style>
+
+<div class="wrapper">
+<span class="greeting"> You have <span class="curvedHighlight countHighlight"><strong>{!OpenHeadcountForCurrentUser.size}</strong></span> open position(s).  </span>
+
+</div>
+<apex:enhancedList height="500" customizable="true" type="Headcount__c" />  
+  
+  
+</apex:page>

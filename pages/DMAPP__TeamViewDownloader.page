@@ -1,0 +1,6 @@
+<apex:page contentType="text/csv#export.csv" controller="DMAPP.TeamViewDownloaderController" readOnly="true" cache="true" expires="1"><apex:outputText >Account,Name,Process,Stage,Close Date,Probability,Amount,Size,Health,Projected,Last Updated,Pause Date
+<apex:repeat var="detail" value="{!detailResponse.detail}" >
+"{!detail.accountName}","{!detail.name}","{!detail.process}","{!detail.stage}","{!detail.closedate}","{!detail.formattedProbability}","{!detail.formattedAmount}","{!IF(detail.mix == -1, '', '')}{!IF(detail.mix == 3, 'Pebbles', '')}{!IF(detail.mix == 1, 'Rocks', '')}{!IF(detail.mix != 1 && detail.mix != -1 && detail.mix != 3, 'Stones', '')}","{!IF(detail.health == -1, '', '')}{!IF(detail.health == 4, 'Inactive', '')}{!IF(detail.health == 3, 'Stalled', '')}{!IF(detail.health == 2, 'Paused', '')}{!IF(detail.health == 1, 'Active', '')}","{!IF(detail.projected == 1, 'Projected', '')}{!IF(detail.projected == 2, 'Won', '')}{!IF(detail.projected == -1, 'Lost', '')}{!IF(detail.projected != 1 && detail.projected != 2 && detail.projected != -1, 'Possible', '')}","{!detail.lastUpdated}","{!detail.pauseDate}"
+</apex:repeat>
+</apex:outputText>
+</apex:page>

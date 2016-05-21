@@ -1,0 +1,114 @@
+<apex:page controller="geopointe.CreateRecord_Controller" extensions="geopointe.RemoteAction" standardStylesheets="false" showHeader="false" sidebar="false" action="{!initMain}" applyHtmlTag="false" applyBodyTag="false" docType="html-5.0">
+	
+	<script src="{!URLFOR($Resource.jquery, '/jquery-1.8.3.min.js')}"></script> <!-- core jQuery -->
+    <apex:stylesheet value="{!URLFOR($Resource.geopointe__jquery, '/css/common/common-lightning.css')}"/> <!-- Common geopointe CSS for lightning styled pages--> 
+    <apex:stylesheet value="{!URLFOR($Resource.geopointe__SLDS, '/0.8.0/assets/styles/salesforce-lightning-design-system-vf.min.css')}"/> <!-- Salesforce Lightning Design System -->
+	<style>
+		.slds td.pbButton, .slds td.pbButtonb { text-align: center; }
+		.uiInput--input input.input, .uiInput--input textarea, .uiInput--input select { width: 300px; }
+	</style>
+
+	<!-- localize.js -->
+    <script src="https://cdn.localizejs.com/localize.js"></script>
+    <script>!function(a){if(!a.Localize){a.Localize={};for(var e=["translate","untranslate","phrase","initialize","translatePage","setLanguage","getLanguage","detectLanguage","untranslatePage","bootstrap","prefetch","on","off"],t=0;t<e.length;t++)a.Localize[e[t]]=function(){}}}(window);</script>
+
+    <script>
+        Localize.initialize({
+            key: '1SeX6sYAXWLng', 
+            rememberLanguage: false,
+            saveNewPhrases: false,
+            translateBody: true,
+        });
+        Localize.setLanguage('{!userLanguage}');
+    </script>
+
+	<style type="text/css">
+		.labelCol{
+			white-space: nowrap !important;
+		}
+		.data2Col input{
+			min-width: 200px !important;
+		}
+		.data2Col textarea{
+			min-width: 200px !important;
+    		min-height: 42px !important;
+		}
+	</style>
+
+	<div class="slds slds-p-around--xx-large slds-container--large slds-container--center">
+	<apex:form >	
+		<apex:outputPanel id="pageBlocksWrapper">
+			<apex:pageMessages rendered="{!showPageMessages}"/>
+
+			<!-- Step 1, select record type if necessary -->
+			<apex:pageBlock tabStyle="{!IF(tabStyle == 'lead','lead','account')}" rendered="{!renderSection == 'recordType'}" mode="edit">
+				<div class="slds-card slds-m-bottom--medium">
+					<header class="slds-card__header slds-grid">
+						<h3 class="slds-text-heading--small slds-truncate">Select Record Type</h3>
+					</header>
+
+					<section class="slds-card__body slds-text-body--regular slds-p-horizontal--medium uiInput--input">
+						<apex:outputLabel value="Record Type of new record"/>
+						<apex:selectList value="{!selectedRecordTypId}" size="1">
+							<apex:selectOptions value="{!recordTypeSelectOptions}"/>
+						</apex:selectList>
+					</section>
+				</div>
+
+				<apex:pageBlockButtons location="bottom">
+					<apex:commandButton styleClass="slds-button slds-button--neutral" value="Continue" action="{!selectRecordType}" reRender="pageBlocksWrapper" oncomplete="resetIFrameHeight();"/>
+				</apex:pageBlockButtons>
+			</apex:pageBlock>
+
+			<!-- Step 2, enter fields -->
+			<apex:pageBlock tabStyle="{!IF(tabStyle == 'lead','lead','account')}" rendered="{!renderSection == 'fields'}" mode="edit">
+				<div class="slds-card slds-m-vertical--medium slds-p-bottom--medium">
+					<section class="slds-card__body slds-text-body--regular slds-p-horizontal--medium uiInput--input">
+					<apex:repeat value="{!fieldSetToUse}" var="f">
+						<apex:outputLabel value="{!f.label}" rendered="{!AND(f.fieldPath != 'RecordTypeId',$ObjectType[action.geopointe__Create_Record_SObject__c].Fields[f.fieldPath].Createable)}"/>
+						<apex:inputField styleClass="input" value="{!obj[f.fieldPath]}" required="{!OR(f.required, f.dbrequired)}" rendered="{!AND(f.fieldPath != 'RecordTypeId',$ObjectType[action.geopointe__Create_Record_SObject__c].Fields[f.fieldPath].Createable)}"/>
+					</apex:repeat>
+					</section>
+				</div>
+
+				<apex:pageBlockButtons >
+					<apex:commandButton styleClass="slds-button slds-button--neutral" value="Save" action="{!save}" reRender="pageBlocksWrapper" oncomplete="parent.gp_scrollActionIframeToTop(); resetIFrameHeight();"/>
+				</apex:pageBlockButtons>
+			</apex:pageBlock>
+
+			<!-- Save complete -->
+			<apex:outputPanel rendered="{!renderSection == 'complete'}">
+				<apex:pageMessage title="Record Created Successfully!" severity="confirm" strength="1">
+					<div style="margin-left: 8px;">
+						<strong><a href="/{!obj['id']}" onclick="goToRecord('/{!obj['id']}',event);">{!newRecordName}</a></strong> &nbsp;<a href="/{!obj['id']}" onclick="window.open('/{!obj['id']}'); return false;">(open in new window)</a>
+					</div>
+				</apex:pageMessage>
+			</apex:outputPanel>
+
+		</apex:outputPanel>
+	</apex:form>
+	</div>
+
+	<script type="text/javascript">
+
+		jQuery(document).ready(function(){
+			parent.gp_setActionIframeAutoHeight(jQuery("html").height());
+		});
+
+		function resetIFrameHeight(){
+			parent.gp_setActionIframeAutoHeight(jQuery("html").height());
+		}
+
+		function goToRecord(url,event){
+			if(event.which == 2){
+				window.open(url); 
+			}else{
+				window.top.location.href = url; 
+			}
+
+			event.preventDefault();
+			return false;
+		}
+	</script>
+
+</apex:page>

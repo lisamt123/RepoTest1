@@ -1,0 +1,38 @@
+<apex:page standardController="TNOPPST__TaxNowSetting__c" extensions="TNOPPST.TaxNowSettings_OriginValidation" action="{!ValidateAddress}" >
+    <apex:pageBlock title="Verify Replacement For Origin Address">
+	<apex:form >
+			<table border="0" width="70%" cellpadding="5">
+				<col width="2%"/><col width="28%"/><col width="10%"/><col width="2%"/><col width="28%"/>
+				<tr><th><h1>Current Address</h1></th><th/><th/><th><h1>Validated/Standardized Address</h1></th></tr>
+				<tr>
+					<td><h1>Line 1:</h1></td><td><apex:outputText value="{!oaOriginal.Line1}" /></td><td/>
+					<td><h1>Line 1:</h1></td><td><apex:outputText value="{!oaValidated.Line1}" /></td>
+				</tr>
+				<tr>
+					<td><h1>Line 2:</h1></td><td><apex:outputText value="{!oaOriginal.Line2}" /></td><td/>
+					<td><h1>Line 2:</h1></td><td><apex:outputText value="{!oaValidated.Line2}" /></td>
+				</tr>
+				<tr>
+					<td><h1>Line 3:</h1></td><td><apex:outputText value="{!oaOriginal.Line3}" /></td><td/>
+					<td><h1>Line 3:</h1></td><td><apex:outputText value="{!oaValidated.Line3}" /></td>
+				</tr>
+				<tr>
+					<td><h1>City, State, Zip:</h1></td>
+					<td><apex:outputText value="{!oaOriginal.City}, {!oaOriginal.Region} {!oaOriginal.PostalCode}" /></td><td/>
+					<td><h1>City, State, Zip:</h1></td>
+					<td><apex:outputText value="{!oaValidated.City}, {!oaValidated.Region} {!oaValidated.PostalCode}" /></td>
+				</tr>
+				<tr>
+					<td><h1>Country:</h1></td>
+					<td><apex:outputText value="{!oaOriginal.Country}" /></td><td/>
+					<td><h1>Country:</h1></td>
+					<td><apex:outputText value="{!oaValidated.Country}" /></td>
+				</tr>
+				<tr>
+					<td><apex:commandButton action="{!RedirectPage}" value="Keep Address As Entered" /></td><td/><td/>
+					<td><apex:commandButton action="{!UpdateAddress}" value="Replace With Validated Address" /></td><td/>
+				</tr>
+		</table>
+	</apex:form>
+    </apex:pageBlock>
+</apex:page>

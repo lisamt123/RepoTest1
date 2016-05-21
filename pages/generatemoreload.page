@@ -1,0 +1,122 @@
+<apex:page controller="generatemoreload" sidebar="false">
+<apex:form >
+	 
+	<apex:stylesheet value="{!URLFOR($Resource.modalDirectory, 'reveal/reveal.css')}" />
+	
+	<apex:includeScript value="{!URLFOR($Resource.modalDirectory, 'reveal/jquery-1.4.4.min.js')}" />
+	<apex:includeScript value="{!URLFOR($Resource.modalDirectory, 'reveal/jquery.reveal.js')}" />
+	 
+	  
+	<div id="locationTypeModal" class="reveal-modal large" style="width:520px; top:-50px;">
+        
+        <div style="position:relative; overflow:auto;"> 
+        
+            <apex:outputPanel >
+                <apex:actionStatus id="status3">
+                    <apex:facet name="start">
+                        <div style="width: 100%; height: 100%; background-color:#fbfbfb; opacity:0.65;" class="waitingSearchDiv" id="el_loading">
+                            <div class="waitingHolder" style="top: 60px; ">
+                                <img src="/img/loading.gif" class="waitingImage" title="Please Wait..." />
+                                <span class="waitingDescription">Loading...</span>
+                            </div>
+                        </div>
+                    </apex:facet>
+                </apex:actionStatus>
+            </apex:outputPanel>
+            
+                <apex:outputPanel id="opRouteToSfdc" rendered="true" >
+                    <apex:outputPanel id="opQuoteType" >
+                        
+                        <div style="float: left; margin:0px 100px 0px 50px;">
+                        
+                        <apex:outputText value="So far you have" style="font-weight: bold; font-size: 16px;" />
+                        <br />
+                        <apex:outputText value="generated:" style="font-weight: bold; font-size: 16px;" />
+                        
+                        <br /><br />
+                        {!opportunity.Load_Counter__c} 
+                        <br />
+                        Load
+                        
+                        </div>
+                        <div style="float: left;">
+                        
+                        <apex:outputText value="Load available" style="font-weight: bold; font-size: 16px;" />
+                        <br />
+                        <apex:outputText value="to generate:" style="font-weight: bold; font-size: 16px;" />
+                        
+                        <br /><br />
+                        <apex:outputText value="{0, number, 0}">
+                        	<apex:param value="{!availableLoad}" />
+                        </apex:outputText>
+                        <br />
+                        Load
+                        
+                        </div>
+                        <div style="clear:both;"></div>
+                        
+                        <br /><br />
+                        <div style="margin:0px 0px 0px 50px;">
+                        	<apex:outputText value="How much would you like to generate now?" style="font-weight: bold; font-size: 13px;" />
+                        	<br />
+                        	<apex:inputText value="{!amountToGenerate}" size="5">
+                        		<apex:actionSupport event="onkeyup" action="{!checkLoadToGenerate}" rerender="debug,btnSave" />
+                        	</apex:inputText>
+                        	
+                        	<br /><br />
+                        	<apex:commandButton id="btnSave" value="Save" action="{!doLoad}" disabled="{!saveButtonDisabled}" status="status3" /> 
+                        	<apex:commandLink value="Cancel" action="{!backToOpp}" />
+                        </div>
+                        
+                    </apex:outputPanel>
+                    
+                </apex:outputPanel>
+
+         
+         </div>     
+        
+        <apex:commandLink styleclass="close-reveal-modal" action="{!backToOpp}" rerender="locationTypeOp">
+            &#215;
+            <!-- 
+            <apex:param name="locationType" value="" assignTo="{!locationType}" />
+             -->
+        </apex:commandLink>
+        
+    </div>
+    
+    
+    <!-- 
+    <a href="#" class="modalButton">Select</a>
+    
+    <script type="text/javascript">
+        jQuery(document).ready(function(jQuery) {
+             jQuery('.modalButton').click(function(e) { 
+                e.preventDefault();
+                jQuery('#locationTypeModal').reveal();
+                
+                var closeButton2 = jQuery('.saveModal').bind('click.modalEvent', function () {
+                    jQuery('#locationTypeModal').trigger('reveal:close');
+                });
+             });
+        }); 
+    </script>
+     -->
+    
+    <script type="text/javascript">
+        jQuery(document).ready(function(jQuery) {
+             //jQuery('.modalButton').click(function(e) { 
+                //e.preventDefault();
+                jQuery('#locationTypeModal').reveal();
+                
+                var closeButton2 = jQuery('.saveModal').bind('click.modalEvent', function () {
+                    jQuery('#locationTypeModal').trigger('reveal:close');
+                });
+             //});
+        }); 
+    </script>
+    
+    
+    
+    
+</apex:form>
+</apex:page>

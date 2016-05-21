@@ -1,0 +1,70 @@
+<apex:page Controller="DMAPP.DMSendUsageDetailsAdminController" sidebar="false">
+
+<h1>DM Usage Stats</h1>
+   <apex:pageBlock >
+      <apex:facet name="header"><div class="title">Usage stats</div></apex:facet>
+      <apex:outputText value="Lower bound Date: {!LowerBoundDate}"/>  <apex:outputText value="Upper bound date: {!UpperBoundDate}"/>
+      <apex:outputText value="Total Usage Records in date range: {!NumberOfLatestUsageStats}"/>   
+      <apex:pageBlockTable value="{!UsageStats}" var="usageStatRecord">  
+         <apex:column headerValue="DM Usage Id" value="{!usageStatRecord.Source_Id}"/>
+         <apex:column headerValue="User name" value="{!usageStatRecord.Usage_User_Name}"/>
+         <apex:column headerValue="Org name" value="{!usageStatRecord.orgName}"/>         
+         <apex:column headerValue="Company name" value="{!usageStatRecord.Company_Name}"/>
+         <apex:column headerValue="Email" value="{!usageStatRecord.Email}"/>
+          
+         <apex:column headerValue="Manager" value="{!usageStatRecord.managerName}"/>
+         <apex:column headerValue="Manager Email" value="{!usageStatRecord.managerEmail}"/>
+         <apex:column headerValue="Role" value="{!usageStatRecord.roleName}"/>
+         <apex:column headerValue="Profile" value="{!usageStatRecord.profileName}"/>
+       
+         <apex:column headerValue="AM_Details" value="{!usageStatRecord.AM_Details}"/>
+         <apex:column headerValue="AM_Objectives" value="{!usageStatRecord.AM_Objectives}"/>
+         <apex:column headerValue="AM_Settings" value="{!usageStatRecord.AM_Settings}"/>
+         <apex:column headerValue="Actions" value="{!usageStatRecord.Actions}"/>
+         <apex:column headerValue="Assessment" value="{!usageStatRecord.Assessment}"/> 
+         <apex:column headerValue="Coach" value="{!usageStatRecord.Coach}"/>
+         <apex:column headerValue="Criteria" value="{!usageStatRecord.Criteria}"/>
+         <apex:column headerValue="Name" value="{!usageStatRecord.Name}"/>
+         <apex:column headerValue="DVLS" value="{!usageStatRecord.DVLS}"/>
+         <apex:column headerValue="DealmakerID" value="{!usageStatRecord.DealmakerID}"/> 
+         <apex:column headerValue="AM_Settings" value="{!usageStatRecord.AM_Settings}"/>
+         <apex:column headerValue="Insight" value="{!usageStatRecord.Insight}"/>
+         <apex:column headerValue="Opportunity_Map" value="{!usageStatRecord.Opportunity_Map}"/>
+         <apex:column headerValue="Playbook" value="{!usageStatRecord.Playbook}"/>
+         <apex:column headerValue="Segmentation_Map" value="{!usageStatRecord.Segmentation_Map}"/>
+         <apex:column headerValue="Strategy" value="{!usageStatRecord.Strategy}"/>
+         <apex:column headerValue="Usage_Date" value="{!usageStatRecord.Usage_Date}"/>
+         <apex:column headerValue="Value_Map" value="{!usageStatRecord.Value_Map}"/>          
+         <apex:column headerValue="Launchpad" value="{!usageStatRecord.Launch_pad}"/>
+         <apex:column headerValue="PB_Launchpad" value="{!usageStatRecord.PB_Launchpad}"/>
+         
+         <apex:column headerValue="PoliticalMap_Launchpad" value="{!usageStatRecord.PoliticalMap_Launchpad}"/>
+         <apex:column headerValue="Milestones" value="{!usageStatRecord.Milestones}"/>
+         <apex:column headerValue="OM_PPT" value="{!usageStatRecord.OM_PPT}"/>
+         <apex:column headerValue="AM_PPT" value="{!usageStatRecord.AM_PPT}"/>
+         <apex:column headerValue="Team_View" value="{!usageStatRecord.Team_View}"/>
+         <apex:column headerValue="Quicklink" value="{!usageStatRecord.Quicklink}"/>
+         
+      </apex:pageBlockTable> 
+      <apex:form >
+         <apex:pageBlockSection >
+             <apex:commandButton action="{!sendEmails}" id="sendMails" value="Send Emails"/>
+         </apex:pageBlockSection>
+      </apex:form>
+      <h1>Batch log info</h1>
+      <apex:pageBlockTable value="{!DealmakerUsageSendDetail}" var="sendDetail">
+         <apex:column headerValue="Job Name" value="{!sendDetail.DMAPP__Job_name__c}"/>
+         <apex:column headerValue="DateTime" value="{!sendDetail.DMAPP__Execution_DateTime__c}"/>
+         <apex:column headerValue="RecordsSent" value="{!sendDetail.DMAPP__RecordsSent__c}"/>
+         <apex:column headerValue="Email Receiver" value="{!sendDetail.DMAPP__EmailReceiver__c}"/>
+         <apex:column headerValue="Email CC Receiver" value="{!sendDetail.DMAPP__EmailCCReceiver__c}"/>
+         <apex:column headerValue="Status" value="{!sendDetail.DMAPP__Status__c}"/>
+      </apex:pageBlockTable>
+      <apex:form >
+         <apex:pageBlockSection > 
+             <apex:commandButton action="{!clearDealmakerUsageSendDetail}" id="clearDealmakerUsageSendDetail" value="Clear send history"/>
+         </apex:pageBlockSection>
+      </apex:form>
+   </apex:pageBlock>
+
+</apex:page>

@@ -1,0 +1,152 @@
+<apex:page standardController="PAN__c" extensions="PanCustomController" renderas="pdf" >
+	<html>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		
+		<title>PAN Form Terminate</title>
+
+		<head>
+		
+			<p class="MsoNormal" align="center" style='text-align: center'>
+				<apex:image url="{!$Resource.autotraderlogo}" width="356" height="44" />
+			</p>
+			<p class="MsoNormal" align="center" style='text-align: center'>
+				<b><span style='font-size: 14.0pt; line-height: 100%; font-family: &amp; amp;'>Personnel Action Form</span> </b>
+			</p>
+		
+		</head>
+		
+		<body>
+			<div>
+				<table cellspacing="0" cellpadding="0" width="100%" id="table333">
+					<tr>
+						<td width="25%">
+							<apex:outputLabel style="font-size:11pt; font-weight:bold;" value="Effective Date: " />
+							<apex:outputText value="{!MONTH(DATEVALUE(PAN__c.Effective_Date__c))}" />/<apex:outputText value="{!DAY(DATEVALUE(PAN__c.Effective_Date__c))}" />/<apex:outputText value="{!YEAR(DATEVALUE(PAN__c.Effective_Date__c))}" />
+						</td>
+						<td align="right">
+							<apex:outputLabel style="font-size:11pt; font-weight:bold;" value="EE ID# "/>
+							<apex:outputText style="font-size:11pt;" value="{!PAN__c.Vin_Employee__r.EmployeeNumber}"/>
+						</td>
+					</tr>
+				</table>
+			</div>
+			<br /><br />
+			<div>
+			<table cellspacing="0" cellpadding="0" width="100%" id="table3">
+				<tr>
+					<td width="33%" align="left">
+						<apex:outputLabel style="font-size:11pt; font-weight:bold;" value="First Name: " />
+						<apex:outputText style="font-size:11pt;  " value="{!PAN__c.Vin_Employee__r.FirstName}" />
+					</td>
+					<td width="33%" align="left">
+						<apex:outputLabel style="font-size:11pt; font-weight:bold;" value="MI: " />
+						<apex:outputText style="font-size:11pt; " value="{!PAN__c.Vin_Employee__r.MI__c}" />
+					</td>
+					<td width="33%" align="left">
+						<apex:outputLabel style="font-size:11pt; font-weight:bold;" value="Last Name: " />
+						<apex:outputLabel style="font-size:11pt; " value="{!PAN__c.Vin_Employee__r.LastName}" />
+					</td>
+				</tr>
+				<tr>
+					<td width="25%">
+						<apex:outputLabel style="font-size:11pt; font-weight:bold;" value="Home Address: " />
+					</td>
+					<td align="left">
+						<apex:outputLabel style="font-size:11pt; " value="{!PAN__c.Vin_Employee__r.Home_Address__c}" />
+					</td>
+				</tr>
+				<tr>
+					<td width="25%"><apex:outputLabel style="font_size:11pt; font-weight:bold;"
+							value="State Worked In: " />
+					</td>
+					<td align="left"><apex:outputLabel style="font-size:11pt; "
+							value="{!PAN__c.State_Worked_In__c}" />
+					</td>
+				</tr>
+				<tr>
+					<td width="25%"><apex:outputLabel style="font-size:11pt; font-weight:bold;"
+							value="Phone Number: " />
+					</td>
+					<td align="left"><apex:outputText style="font-size:11pt; "
+							value="{!PAN__c.Vin_Employee__r.Phone}" />
+					</td>
+				</tr>
+				<tr>
+					<td width="25%"><apex:outputLabel style="font-size:11pt; font-weight:bold;"
+							value="Email Address: " />
+					</td>
+					<td align="left"><apex:outputLabel style="font-size:11pt; "
+							value="{!PAN__c.Employee_Email__c}" />
+					</td>
+				</tr>
+				<tr>
+					<td width="25%"><apex:outputLabel style="font-size:11pt; font-weight:bold;"
+							value="Job Title: " />
+					</td>
+					<td align="left"><apex:outputLabel style="font-size:11pt; "
+							value="{!PAN__c.Vin_Employee__r.Title}" />
+					</td>
+				</tr>
+				<tr>
+					<td width="25%"><apex:outputLabel style="font-size:11pt; font-weight:bold;"
+							value="Supervisor & Title: " />
+					</td>
+					<td align="left">
+						<!-- <apex:outputLabel style="font-size:11pt; font-weight:bold;" value="{!PAN__c.Reports_To__r.FirstName}" /> <apex:outputLabel style="font-size:11pt; font-weight:bold;" value="{!PAN__c.Reports_To__r.LastName}" /> -<apex:outputLabel style="font-size:11pt; font-weight:bold;" value="{!PAN__c.Reports_To__r.Title}" /> -->
+						<apex:outputLabel style="font-size:11pt; " value="{!PAN__c.Vin_Employee__r.Manager.Name} - {!PAN__c.Vin_Employee__r.Manager.Title}"/>
+					</td>
+				</tr>
+				<tr>
+					<td width="25%"><apex:outputLabel style="font-size:11pt; font-weight:bold;"
+							value="Department Number: " />
+					</td>
+					<td align="left"><apex:outputLabel style="font-size:11pt; "
+							value="{!PAN__c.Vin_Employee__r.HR_Department__c}" />
+					</td>
+				</tr>
+				<tr>
+					<td width="25%"><apex:outputLabel style="font-size:11pt; font-weight:bold;"
+							value="Termination: " />
+					</td>
+					<td align="left"><apex:outputLabel style="font-size:11pt; "
+							value="{!PAN__c.Seperation_Reason__c}" />
+					</td>
+				</tr>
+				<tr>
+					<td width="25%"><apex:outputLabel style="font-size:11pt; font-weight:bold;"
+							value="Last Day Worked: " />
+					</td>
+					<td align="left"><apex:outputText value="{0,date,MM'/'dd'/'yyyy}">
+							<apex:param value="{!PAN__c.Last_Day_Worked__c}" />
+						</apex:outputText>
+					</td>
+				</tr>
+				<tr>
+					<td width="25%"><apex:outputLabel style="font-size:11pt; font-weight:bold;"
+							value="PTO Hours Taken YTD: " />
+					</td>
+					<td align="left"><apex:outputField style="font-size:11pt; "
+							value="{!PAN__c.PTO_Hours_Taken_YTD__c}" />
+					</td>
+				</tr>
+				<tr>
+					<td width="25%"><apex:outputLabel style="font-size:11pt; font-weight:bold;"
+							value="Eligible for Rehire: " />
+					</td>
+					<td align="left"><apex:outputLabel style="font-size:11pt; "
+							value="{!PAN__c.Eligible_for_Rehire__c}" />
+					</td>
+				</tr>
+				<tr>
+					<td width="25%"><apex:outputLabel style="font-size:11pt; font-weight:bold;"
+							value="Justification if Applicable: " />
+					</td>
+					<td align="left">
+						<apex:outputLabel style="font-size:11pt; " value="{!PAN__c.Justification__c}" />
+					</td>
+				</tr>
+			</table>
+		</div> 
+		</body>
+	</html>
+</apex:page>

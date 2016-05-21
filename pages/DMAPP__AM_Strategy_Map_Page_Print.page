@@ -1,0 +1,251 @@
+<apex:page standardController="DMAPP__DM_Account_Plan__c" extensions="DMAPP.TAMStandardController"  
+    showHeader="false" 
+    sidebar="false"
+    docType="html-5.0"
+    >
+
+    <c:CustomLabelJSBridge />
+
+    <style>
+
+        @import url("{!URLFOR($Resource.ttgcss,          'ttgcss/layout.css')}");
+        @import url("{!URLFOR($Resource.ttgomjs,         'ttg/graph/css/ttg_orgchart.css')}");
+        @import url("{!URLFOR($Resource.ttgcss,          'ttgcss/jquery.pulse.css')}");
+        @import url("{!URLFOR($Resource.ttgomjs,          'ttg/graph/css/political_side_panel.css')}");
+        /* @import url("{!URLFOR($Resource.jQueryUI,        'css/custom-theme/jquery-ui-1.8.21.custom.css')}"); */
+        
+        body {
+            font-family: Arial,Helvetica,Sans-Serif;
+        } 
+        
+    </style>
+
+    <script src="/soap/ajax/25.0/connection.js"></script>
+
+    <apex:includeScript value="{!$Resource.DMAPP__l10njs}" />
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__prefix)}"/>
+        
+    <div id="TAS">
+
+        <div class="all">       
+            <div id="ttgCanvasDiv" class="canvasDivNoBackground" style="overflow:hidden; position:relative;">       
+                <div id="ttgCanvas" class="canvasNoBackground"></div>
+            </div>              
+        </div>
+    </div>
+    
+   
+    <div style="display:none">
+    
+        <!--  collab map node type icons -->
+        <img id="ttg_maps_img_collaboration_key_business_requirement"   src="{!URLFOR($Resource.ttgomjs, 'ttg/maps/images/icon_btn_bus_req.png')}"/>
+        <img id="ttg_maps_img_collaboration_consequential_pain"         src="{!URLFOR($Resource.ttgomjs, 'ttg/maps/images/icon_btn_conseq_pain.png')}"/>
+        <img id="ttg_maps_img_collaboration_tactical_pain"              src="{!URLFOR($Resource.ttgomjs, 'ttg/maps/images/icon_btn_tactical_pain.png')}"/>
+        <img id="ttg_maps_img_collaboration_solution"                   src="{!URLFOR($Resource.ttgomjs, 'ttg/maps/images/icon_btn_solution.png')}"/>
+
+    
+        <!--  strategy node type icons -->
+        <img id="ttg_maps_img_strategy_goal"                            src="{!URLFOR($Resource.ttgomjs, 'ttg/maps/images/Icon_Goal.png')}"/>
+        <img id="ttg_maps_img_strategy_business_driver"                 src="{!URLFOR($Resource.ttgomjs, 'ttg/maps/images/Icon_Business_Driver.png')}"/>
+        <img id="ttg_maps_img_strategy_initiative"                      src="{!URLFOR($Resource.ttgomjs, 'ttg/maps/images/Icon_Initiative.png')}"/>
+        <img id="ttg_maps_img_strategy_csf"                             src="{!URLFOR($Resource.ttgomjs, 'ttg/maps/images/Icon_CSF.png')}"/>
+    
+    
+        <!--  common map icons  -->
+        <img id="ttg_maps_img_node_private"                             src="{!URLFOR($Resource.ttgomjs, 'ttg/maps/images/Icon_Locked_Padlock.png')}"/>
+        <img id="ttg_maps_img_node_confirmed"                           src="{!URLFOR($Resource.ttgomjs, 'ttg/maps/images/icon_small_confirmed.png')}"/>
+        <img id="ttg_maps_img_node_unconfirmed"                         src="{!URLFOR($Resource.ttgomjs, 'ttg/maps/images/icon_small_unknown.png')}"/>
+        
+        <!--  collab map competition icons -->
+        <img id="ttg_maps_img_competiton"                               src="{!URLFOR($Resource.ttgomjs, 'ttg/maps/images/Icon_Competition.png')}"/>
+        <img id="ttg_maps_img_our_position_down"                        src="{!URLFOR($Resource.ttgomjs, 'ttg/maps/images/Icon_DownRed.png')}"/>
+        <img id="ttg_maps_img_our_position_equal"                       src="{!URLFOR($Resource.ttgomjs, 'ttg/maps/images/Icon_EqualYellow.png')}"/>
+        <img id="ttg_maps_img_our_position_up"                          src="{!URLFOR($Resource.ttgomjs, 'ttg/maps/images/Icon_UpGreen.png')}"/>
+        <img id="ttg_maps_img_our_position_unknown"                     src="{!URLFOR($Resource.ttgomjs, 'ttg/maps/images/Icon_Question.png')}"/>
+        
+        
+        <img id="ttg_maps_img_error"                                    src="{!URLFOR($Resource.ttgomjs, 'ttg/maps/images/Icon_Error.png')}"/>
+        <img id="ttg_maps_img_project"                                  src="{!URLFOR($Resource.ttgomjs, 'ttg/maps/images/Icon_Project.png')}"/>
+        <img id="ttg_maps_img_warning"                                  src="{!URLFOR($Resource.ttgomjs, 'ttg/maps/images/Icon_WarningTriangle.gif')}"/>
+    
+    
+        <img id="ttg_oc_img_not_set"                                    src="{!URLFOR($Resource.ttgomjs, 'ttg/orgchart/images/not_set.gif')}"/>     
+        <img id="ttg_oc_img_attention"                                  src="{!URLFOR($Resource.ttgomjs, 'ttg/orgchart/images/attention.jpg')}"/>       
+        <img id="ttg_oc_img_grey_x"                                     src="{!URLFOR($Resource.ttgomjs, 'ttg/orgchart/images/grey_x.png')}"/>      
+        <img id="ttg_graph_img_expand"                                  src="{!URLFOR($Resource.ttgomjs, 'ttg/orgchart/images/icon_expand.png')}"/>       
+        <img id="ttg_graph_img_collapse"                                src="{!URLFOR($Resource.ttgomjs, 'ttg/orgchart/images/icon_collapse.png')}"/>       
+        <img id="ttg_graph_img_loading"                                 src="{!URLFOR($Resource.ttgomjs, 'ttg/graph/images/loading_icon.gif')}"/>
+        <img id="ttg_maps_img_attention"                                src="{!URLFOR($Resource.ttgomjs, 'ttg/orgchart/images/attention.jpg')}"/>       
+        <img id="ttg_maps_img_blocked"                                  src="{!URLFOR($Resource.ttgomjs, 'ttg/maps/images/Icon_Error.png')}"/>      
+        <img id="ttg_maps_img_plus"                                     src="{!URLFOR($Resource.ttgomjs, 'ttg/graph/feimages/icon_drag_add.png')}"/>      
+
+    
+    </div>
+        
+
+
+    
+    <!-- These are general purpose js libraries -->
+    <c:jQuery chosen="true" 
+    	jQueryUI="true"
+    	tableDnD="true" 
+    	tooltip="true"
+    />
+    
+    <c:MobileRedirect TAM="true" />    	
+    
+    <script>
+    
+    var $j = jQuery.noConflict();
+        
+    $j.ajaxSetup({
+        jsonp: null,
+        jsonpCallback: null
+    });
+    
+    </script>
+
+    <!--  <apex:includeScript value="{!URLFOR($Resource.jQueryUI, 'js/jquery-ui-1.8.21.custom.min.js')}"/> -->
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__excanvas)}"/> 
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__ftk, 'forcetk.js')}"/>
+
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__Raphael, 'raphael-min.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__Raphael, 'rgbcolor.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__Raphael, 'canvg.js')}"/>
+
+
+    <!--[if lt IE 9]>
+    <apex:includeScript value="{!URLFOR($Resource.ttgomjs, 'ttg/lib/ie.js')}"/> 
+    <apex:includeScript value="{!URLFOR($Resource.ttgomjs, 'ttg/lib/json2.js')}"/> 
+    <!--[endif]-->
+
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__ttgomjs, 'ttg/lib/modernizr.js')}"/>
+        
+    <!--  <apex:includeScript value="{!URLFOR($Resource.DMAPP__ttgomjs, 'ttg/lib/jquery-ui-touch-patch.js')}"/> --> 
+    
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__ttgomjs, 'ttg/lib/ttgutils.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__ttgomjs, 'ttg/lib/simple_context.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__ttgomjs, 'ttg/lib/entity_editor.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__ttgomjs, 'ttg/lib/simple_printer.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__ttgomjs, 'ttg/lib/DMServiceImpl.js')}"/> 
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__ttgomjs, 'ttg/lib/ttgservice.js')}"/> 
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__ttgomjs, 'ttg/graph/js/simple_events.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__ttgomjs, 'ttg/graph/js/graph2.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__ttgomjs, 'ttg/graph/js/graph_layout_config.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__ttgomjs, 'ttg/graph/js/graph_layout2.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__ttgomjs, 'ttg/graph/js/channel_layout.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__ttgomjs, 'ttg/graph/js/graph_layout3.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__ttgomjs, 'ttg/graph/js/base_renderer.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__ttgomjs, 'ttg/graph/js/graph_renderer2.js')}"/>    
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__ttgomjs, 'ttg/graph/js/graph_renderer3.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__ttgomjs, 'ttg/graph/js/graphic_button.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__ttgomjs, 'ttg/graph/js/add_node_button.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__ttgomjs, 'ttg/graph/js/zoom_in_button.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__ttgomjs, 'ttg/graph/js/zoom_out_button.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__ttgomjs, 'ttg/graph/js/zoom_manager.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__ttgomjs, 'ttg/graph/js/pan_manager.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__ttgomjs, 'ttg/graph/js/nav_control.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__ttgomjs, 'ttg/graph/js/contact_menu.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__ttgomjs, 'ttg/graph/js/tappit.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__ttgomjs, 'ttg/graph/js/graph_validator.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__ttgomjs, 'ttg/graph/js/gesture_observer.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__ttgomjs, 'ttg/graph/js/activity_info.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__ttgomjs, 'ttg/graph/js/left_right_button.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__ttgomjs, 'ttg/graph/js/compass_button.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__ttgomjs, 'ttg/graph/js/simple_ui.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__ttgomjs, 'ttg/graph/js/trash_bin.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__ttgomjs, 'ttg/graph/js/add_menu_button.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__ttgomjs, 'ttg/graph/js/options_menu_button.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__ttgomjs, 'ttg/graph/js/print_button.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__ttgomjs, 'ttg/graph/js/simple_title.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__ttgomjs, 'ttg/graph/js/empty_message.js')}"/>
+        
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__ttgomjs, 'ttg/maps/js/map_metadata.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__ttgomjs, 'ttg/maps/js/map_node_renderer.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__ttgomjs, 'ttg/maps/js/map_node_updater.js')}"/>    
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__ttgomjs, 'ttg/maps/js/map.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__ttgomjs, 'ttg/maps/js/map_node_editor.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__ttgomjs, 'ttg/maps/js/new_node_dnd.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__ttgomjs, 'ttg/maps/js/popup_map.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__ttgomjs, 'ttg/maps/js/create_map_dialog.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__ttgomjs, 'ttg/maps/js/map_selector.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__ttgomjs, 'ttg/maps/js/select_plan_opp.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__ttgomjs, 'ttg/maps/js/import_button.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__ttgomjs, 'ttg/maps/js/show_hide_private_button.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__ttgomjs, 'ttg/maps/js/show_hide_solutions_button.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__ttgomjs, 'ttg/maps/js/import_dialog.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__ttgomjs, 'ttg/maps/js/importer.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__ttgomjs, 'ttg/maps/js/exporter.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__ttgomjs, 'ttg/maps/js/renamer.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__ttgomjs, 'ttg/maps/js/deleter.js')}"/>
+    
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__ttgomjs, 'ttg/search-widget/searchWidgetController.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__ttgomjs, 'ttg/search-widget/searchWidgetModel.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__ttgomjs, 'ttg/search-widget/searchWidgetRenderer.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__ttgomjs, 'ttg/search-widget/searchWidgetDataExtractor.js')}"/>
+    
+    <apex:include pageName="DMAPP__APIDelegate" />
+    
+
+    <script>
+
+		/* 
+		 * Copyright © The TAS Group. All rights reserved.
+		 *  
+		 */    
+
+        ttg.context.orgchartbase =  '{!$Resource.ttgomjs}' ;
+        ttg.context.orgId = 'RANDOM_ORG_ID';
+        ttg.context.sessionId = 'RANDOM_SESSION_ID';
+        ttg.context.url = 'RANDOM_URL';
+        
+        jQuery(document).ready(function() {
+        
+            var height = screen.height;
+            jQuery('#Maps').css('height', height);
+            
+            var apilayer = ttg.apiLayer.sfdcDelegate({ sessionid : '{!JSENCODE($Api.Session_ID)}' });
+            jQuery.extend(apilayer, apilayer.am);
+
+            var searchParams = { 
+                    whatId  : '{!JSENCODE($CurrentPage.parameters.mapId)}' + '-' + '{!JSENCODE($CurrentPage.parameters.accountId)}' 
+            };
+
+            var loadIt = function() {
+
+                spec = {
+                    orgId           :   ttg.context.orgId,
+                    crmType         :   ttg.context.crmType,
+                    sessionId       :   ttg.context.sessionId,
+                    url             :   ttg.context.url,
+                    isaccount       :   true,
+                    accountId       :   '{!JSENCODE($CurrentPage.parameters.accountId)}',
+                    accountUnitId   :   '{!JSENCODE($CurrentPage.parameters.accountId)}',
+                    unitId          :   null,
+                    planId          :   '{!JSENCODE($CurrentPage.parameters.mapId)}',
+                    mapName         :   '{!JSENCODE($CurrentPage.parameters.accountName)}',
+                    readonly        :   true,
+                    print           :   true,
+                    mapType         :   'strategy',
+                    whatId          :   searchParams.whatId,
+                    searchParams    :   searchParams,
+                    rowId           :   '{!JSENCODE($CurrentPage.parameters.accountId)}',
+                    //oppmap          :   oppmap,
+                    displayTitle    :   [ '{!JSENCODE($CurrentPage.parameters.accountName)}' ],
+                    orgChartName    :   '{!JSENCODE($CurrentPage.parameters.accountName)}',
+                    potentialOpText :   'Potential',
+                    currentOpText   :   'Current',
+                    installedOpText :   'Closed Won',
+                    ttgApi          :   apilayer
+                }
+
+                ttg.map(spec)               
+            }
+                    
+            setTimeout(loadIt,1000);
+        });
+                            
+    
+    </script>
+
+</apex:page>

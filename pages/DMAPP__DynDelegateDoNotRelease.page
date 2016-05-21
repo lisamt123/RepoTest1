@@ -1,0 +1,1232 @@
+<apex:page >
+
+<script>
+
+var ttg = ttg || {};
+ttg.apiLayer = ttg.apiLayer || {};
+
+
+ttg.storm_hardcodedOrgChart = {
+    "reportingedges": {
+        "edge": [{
+            "to": "003E000000GgGaMIAV",
+            "fromc": "003E000000GgGFSIA3"
+        }, {
+            "to": "003E000000GgGZaIAN",
+            "fromc": "003E000000GgGaRIAV"
+        }, {
+            "to": "003E000000GgGZaIAN",
+            "fromc": "003E000000GgGaMIAV"
+        }, {
+            "to": "003E000000GgGaMIAV",
+            "fromc": "003E000000GgGZkIAN"
+        }, {
+            "to": "003E000000GgGZaIAN",
+            "fromc": "003E000000LKXE1IAP"
+        }, {
+            "to": "003E000000LKXE1IAP",
+            "fromc": "003E000000LKXEQIA5"
+        }]
+    },
+    "metadata": {
+        "attributedefinitions": {
+            "attributedefinition": [{
+                "type": "Political",
+                "displayname": "Political Status",
+                "attributevalues": {
+                    "attributevalue": [{
+                        "sortOrder": 1,
+                        "name": "Unknown",
+                        "displayvalue": "U",
+                        "displayname": "Unknown"
+                    }, {
+                        "sortOrder": 2,
+                        "name": "Outside Political Structure",
+                        "displayvalue": "O",
+                        "displayname": "Outside Political Structure"
+                    }, {
+                        "sortOrder": 3,
+                        "name": "Political Structure",
+                        "displayvalue": "P",
+                        "displayname": "Political Structure"
+                    }, {
+                        "sortOrder": 4,
+                        "name": "Inner Circle",
+                        "displayvalue": "I",
+                        "displayname": "Inner Circle"
+                    }]
+                }
+            }, {
+                "type": "Status",
+                "displayname": "Your Status",
+                "attributevalues": {
+                    "attributevalue": [{
+                        "sortOrder": 1,
+                        "name": "Unknown",
+                        "displayvalue": "U",
+                        "displayname": "Unknown"
+                    }, {
+                        "sortOrder": 2,
+                        "name": "Enemy",
+                        "displayvalue": "E",
+                        "displayname": "Enemy"
+                    }, {
+                        "sortOrder": 3,
+                        "name": "Non-Supporter",
+                        "displayvalue": "N",
+                        "displayname": "Non-Supporter"
+                    }, {
+                        "sortOrder": 4,
+                        "name": "Neutral",
+                        "displayvalue": "e",
+                        "displayname": "Neutral"
+                    }, {
+                        "sortOrder": 5,
+                        "name": "Supporter",
+                        "displayvalue": "S",
+                        "displayname": "Supporter"
+                    }, {
+                        "sortOrder": 6,
+                        "name": "Mentor",
+                        "displayvalue": "M",
+                        "displayname": "Mentor"
+                    }]
+                }
+            }, {
+                "type": "Adaptability",
+                "displayname": "Adaptability",
+                "attributevalues": {
+                    "attributevalue": [{
+                        "sortOrder": 1,
+                        "name": "Unknown",
+                        "displayvalue": "U",
+                        "displayname": "Unknown"
+                    }, {
+                        "sortOrder": 2,
+                        "name": "Laggard",
+                        "displayvalue": "L",
+                        "displayname": "Laggard"
+                    }, {
+                        "sortOrder": 3,
+                        "name": "Conservative",
+                        "displayvalue": "C",
+                        "displayname": "Conservative"
+                    }, {
+                        "sortOrder": 4,
+                        "name": "Pragmatist",
+                        "displayvalue": "P",
+                        "displayname": "Pragmatist"
+                    }, {
+                        "sortOrder": 5,
+                        "name": "Innovator",
+                        "displayvalue": "I",
+                        "displayname": "Innovator"
+                    }, {
+                        "sortOrder": 6,
+                        "name": "Visionary",
+                        "displayvalue": "V",
+                        "displayname": "Visionary"
+                    }]
+                }
+            }, {
+                "type": "Coverage",
+                "displayname": "Coverage",
+                "attributevalues": {
+                    "attributevalue": [{
+                        "sortOrder": 1,
+                        "name": "Unknown",
+                        "displayvalue": "U",
+                        "displayname": "Unknown"
+                    }, {
+                        "sortOrder": 2,
+                        "name": "No Contact",
+                        "displayvalue": "N",
+                        "displayname": "No Contact"
+                    }, {
+                        "sortOrder": 3,
+                        "name": "Brief contact",
+                        "displayvalue": "B",
+                        "displayname": "Brief contact"
+                    }, {
+                        "sortOrder": 4,
+                        "name": "Multiple contacts",
+                        "displayvalue": "M",
+                        "displayname": "Multiple contacts"
+                    }, {
+                        "sortOrder": 5,
+                        "name": "In-depth",
+                        "displayvalue": "I",
+                        "displayname": "In-depth"
+                    }]
+                }
+            }, {
+                "type": "BuyingRole",
+                "displayname": "Buying Role",
+                "attributevalues": {
+                    "attributevalue": [{
+                        "sortOrder": 1,
+                        "name": "User",
+                        "displayvalue": "U",
+                        "displayname": "User"
+                    }, {
+                        "sortOrder": 2,
+                        "name": "Evaluator",
+                        "displayvalue": "E",
+                        "displayname": "Evaluator"
+                    }, {
+                        "sortOrder": 3,
+                        "name": "Decision Maker",
+                        "displayvalue": "D",
+                        "displayname": "Decision Maker"
+                    }, {
+                        "sortOrder": 4,
+                        "name": "Approver",
+                        "displayvalue": "A",
+                        "displayname": "Approver"
+                    }, {
+                        "sortOrder": 5,
+                        "name": "Other",
+                        "displayvalue": "O",
+                        "displayname": "Other"
+                    }]
+                }
+            }, {
+                "type": "Approved",
+                "displayname": "Approved",
+                "attributevalues": {
+                    "attributevalue": [{
+                        "sortOrder": 1,
+                        "name": "false",
+                        "displayvalue": "F",
+                        "displayname": "false"
+                    }, {
+                        "sortOrder": 2,
+                        "name": "true",
+                        "displayvalue": "T",
+                        "displayname": "true"
+                    }]
+                }
+            }]
+        }
+    },
+    "influenceedges": {
+        "edge": [{
+            "to": "003E000000GgGZaIAN",
+            "fromc": "003E000000GgGaRIAV"
+        }, {
+            "to": "003E000000GgGaRIAV",
+            "fromc": "003E000000LKXEQIA5"
+        }]
+    },
+    "contacts": {
+        "contact": [{
+            "title": "",
+            "salutation": "",
+            "reportstoname": "Giovanni O'Neill",
+            "reportstoid": "003E000000GgGaMIAV",
+            "ownername": "",
+            "ownerid": "",
+            "orgchartcontactid": "a0aE0000003zmJuIAI",
+            "note": "",
+            "lastname": "Cancellara",
+            "keyplayer": false,
+            "id": "003E000000GgGFSIA3",
+            "firstname": "Eros",
+            "department": "",
+            "defaultowner": true,
+            "decisioncriteria": {
+                "decisioncriterium": []
+            },
+            "crmownername": "Alan Eustace",
+            "crmownerid": "005E0000001NuXnIAK",
+            "contactname": "Eros Cancellara",
+            "attributes": {
+                "attribute": [{
+                    "value": "Political Structure",
+                    "type": "Political"
+                }, {
+                    "value": "Conservative",
+                    "type": "Adaptability"
+                }, {
+                    "value": "Brief contact",
+                    "type": "Coverage"
+                }, {
+                    "value": "true",
+                    "type": "Approved"
+                }, {
+                    "value": "Decision Maker",
+                    "type": "BuyingRole"
+                }]
+            },
+            "accountid": "",
+            "account": ""
+        }, {
+            "title": "",
+            "salutation": "",
+            "reportstoname": "Deirdre Passi",
+            "reportstoid": "003E000000GgGZaIAN",
+            "ownername": "",
+            "ownerid": "",
+            "orgchartcontactid": "a0aE0000003zmJzIAI",
+            "note": "",
+            "lastname": "Gozzo",
+            "keyplayer": false,
+            "id": "003E000000GgGaRIAV",
+            "firstname": "Deirdre",
+            "department": "",
+            "defaultowner": true,
+            "decisioncriteria": {
+                "decisioncriterium": []
+            },
+            "crmownername": "Alan Eustace",
+            "crmownerid": "005E0000001NuXnIAK",
+            "contactname": "Deirdre Gozzo",
+            "attributes": {
+                "attribute": [{
+                    "value": "Inner Circle",
+                    "type": "Political"
+                }, {
+                    "value": "In-depth",
+                    "type": "Coverage"
+                }, {
+                    "value": "true",
+                    "type": "Approved"
+                }, {
+                    "value": "User",
+                    "type": "BuyingRole"
+                }, {
+                    "value": "Other",
+                    "type": "BuyingRole"
+                }]
+            },
+            "accountid": "",
+            "account": ""
+        }, {
+            "title": "",
+            "salutation": "",
+            "reportstoname": "",
+            "reportstoid": "",
+            "ownername": "",
+            "ownerid": "",
+            "orgchartcontactid": "a0aE0000003zmK4IAI",
+            "note": "",
+            "lastname": "Passi",
+            "keyplayer": false,
+            "id": "003E000000GgGZaIAN",
+            "firstname": "Deirdre",
+            "department": "",
+            "defaultowner": true,
+            "decisioncriteria": {
+                "decisioncriterium": []
+            },
+            "crmownername": "Alan Eustace",
+            "crmownerid": "005E0000001NuXnIAK",
+            "contactname": "Deirdre Passi",
+            "attributes": {
+                "attribute": [{
+                    "value": "Pragmatist",
+                    "type": "Adaptability"
+                }, {
+                    "value": "true",
+                    "type": "Approved"
+                }, {
+                    "value": "Decision Maker",
+                    "type": "BuyingRole"
+                }]
+            },
+            "accountid": "",
+            "account": ""
+        }, {
+            "title": "",
+            "salutation": "",
+            "reportstoname": "Deirdre Passi",
+            "reportstoid": "003E000000GgGZaIAN",
+            "ownername": "",
+            "ownerid": "",
+            "orgchartcontactid": "a0aE0000003zmK9IAI",
+            "note": "",
+            "lastname": "O'Neill",
+            "keyplayer": false,
+            "id": "003E000000GgGaMIAV",
+            "firstname": "Giovanni",
+            "department": "",
+            "defaultowner": true,
+            "decisioncriteria": {
+                "decisioncriterium": []
+            },
+            "crmownername": "Alan Eustace",
+            "crmownerid": "005E0000001NuXnIAK",
+            "contactname": "Giovanni O'Neill",
+            "attributes": {
+                "attribute": [{
+                    "value": "true",
+                    "type": "Approved"
+                }, {
+                    "value": "DJH TMP 1",
+                    "type": "BuyingRole"
+                }]
+            },
+            "accountid": "",
+            "account": ""
+        }, {
+            "title": "",
+            "salutation": "",
+            "reportstoname": "Giovanni O'Neill",
+            "reportstoid": "003E000000GgGaMIAV",
+            "ownername": "",
+            "ownerid": "",
+            "orgchartcontactid": "a0aE0000003zmKEIAY",
+            "note": "",
+            "lastname": "Passi",
+            "keyplayer": false,
+            "id": "003E000000GgGZkIAN",
+            "firstname": "Giovanni",
+            "department": "",
+            "defaultowner": true,
+            "decisioncriteria": {
+                "decisioncriterium": []
+            },
+            "crmownername": "Alan Eustace",
+            "crmownerid": "005E0000001NuXnIAK",
+            "contactname": "Giovanni Passi",
+            "attributes": {
+                "attribute": [{
+                    "value": "Unknown",
+                    "type": "Status"
+                }, {
+                    "value": "true",
+                    "type": "Approved"
+                }, {
+                    "value": "Evaluator",
+                    "type": "BuyingRole"
+                }]
+            },
+            "accountid": "",
+            "account": ""
+        }, {
+            "title": "",
+            "salutation": "",
+            "reportstoname": "Deirdre Passi",
+            "reportstoid": "003E000000GgGZaIAN",
+            "ownername": "",
+            "ownerid": "",
+            "orgchartcontactid": "a0aE0000003zmKJIAY",
+            "note": "",
+            "lastname": "Person",
+            "keyplayer": false,
+            "id": "003E000000LKXE1IAP",
+            "firstname": "New",
+            "department": "",
+            "defaultowner": true,
+            "decisioncriteria": {
+                "decisioncriterium": []
+            },
+            "crmownername": "David Hayes",
+            "crmownerid": "005E00000019Rc5IAE",
+            "contactname": "New Person",
+            "attributes": {
+                "attribute": [{
+                    "value": "Neutral",
+                    "type": "Status"
+                }, {
+                    "value": "true",
+                    "type": "Approved"
+                }, {
+                    "value": "Approver",
+                    "type": "BuyingRole"
+                }]
+            },
+            "accountid": "",
+            "account": ""
+        }, {
+            "title": "",
+            "salutation": "",
+            "reportstoname": "New Person",
+            "reportstoid": "003E000000LKXE1IAP",
+            "ownername": "",
+            "ownerid": "",
+            "orgchartcontactid": "a0aE0000003zmKOIAY",
+            "note": "",
+            "lastname": "New Person",
+            "keyplayer": false,
+            "id": "003E000000LKXEQIA5",
+            "firstname": "Second",
+            "department": "",
+            "defaultowner": true,
+            "decisioncriteria": {
+                "decisioncriterium": []
+            },
+            "crmownername": "David Hayes",
+            "crmownerid": "005E00000019Rc5IAE",
+            "contactname": "Second New Person",
+            "attributes": {
+                "attribute": [{
+                    "value": "true",
+                    "type": "Approved"
+                }, {
+                    "value": "Other",
+                    "type": "BuyingRole"
+                }]
+            },
+            "accountid": "",
+            "account": ""
+        }]
+    }
+}
+ 
+
+
+
+        
+ttg.apiLayer.dynamicsDelegate = function(spec) {
+    
+    var delegateSpec = spec;
+
+    adapter = (function() {
+
+        function adaptLoadOrgChart(data) {
+            
+            var adapted = {
+                "org_charts": {
+                    "org_chart": null
+                }
+            };
+            
+            adapted.org_charts.org_chart = data;
+            
+            var reporting_edges = adapted.org_charts.org_chart.reportingedges.edge;
+            var influence_edges = adapted.org_charts.org_chart.influenceedges.edge;
+            
+            jQuery.each(jQuery.makeArray(reporting_edges), function (idx,e) {
+                e.from = e.fromc;
+            });
+            
+            jQuery.each(jQuery.makeArray(influence_edges), function (idx,e) {
+                e.from = e.fromc;
+            });
+                                    
+            return adapted;         
+        };
+        
+        
+        function adaptAddOrgChartContact(data) {
+        
+        }
+        
+        
+        function adaptGetSearchableFields(data) {
+
+        }
+        
+        
+        function adaptDoSearch(data) {
+        
+        }
+        
+        
+        function adaptSearchOrgCharts(data) {
+        
+       }
+        
+        
+        function adaptSearchCollaborationMaps(data) {
+            
+        }
+        
+        
+        function adaptCreateCollaborationMap(data) {
+                    
+        }       
+        
+        
+        function adaptLoadCollaborationMaps(data) {
+            
+        }
+        
+        
+        function adaptSaveCollaborationMapNodes(data) {
+
+        }
+        
+        function adaptGetCoachMeRules(data) {
+
+        }
+            
+        function adaptCoachMeOpportunitiesView(data) {
+
+        }
+
+        function adaptSearchOwners(data) {
+            
+        }
+
+        function adaptOurCompanyLogo(data) {
+            
+        }  
+        
+        
+        function adaptSearchPlanOpportunities(data, planId, config) {
+            
+        }              
+
+
+        function adaptSearchContacts(data) {
+            
+        }   
+        
+        function adaptSearchAccountUnits(data) {
+
+        }
+        
+        function adaptLoadStrategyMaps(data) {
+            
+        }
+        
+        function adaptSearchStrategyMaps(data) {
+            
+        }
+        
+        return {
+            adaptLoadOrgChart               :   adaptLoadOrgChart,
+            adaptAddOrgChartContact         :   adaptAddOrgChartContact,
+            adaptGetSearchableFields        :   adaptGetSearchableFields,
+            adaptDoSearch                   :   adaptDoSearch,
+            adaptSearchOrgCharts            :   adaptSearchOrgCharts,
+            adaptSearchCollaborationMaps    :   adaptSearchCollaborationMaps,
+            adaptCreateCollaborationMap     :   adaptCreateCollaborationMap,
+            adaptLoadCollaborationMaps      :   adaptLoadCollaborationMaps,
+            adaptSaveCollaborationMapNodes  :   adaptSaveCollaborationMapNodes,
+            adaptSearchOwners               :   adaptSearchOwners,
+            adaptOurCompanyLogo             :   adaptOurCompanyLogo,
+            adaptSearchPlanOpportunities    :   adaptSearchPlanOpportunities,            
+            adaptSearchAccountUnits         :   adaptSearchAccountUnits,
+            adaptSearchContacts             :   adaptSearchContacts,
+            adaptGetCoachMeRules            :   adaptGetCoachMeRules,
+            adaptCoachMeOpportunitiesView   :   adaptCoachMeOpportunitiesView,
+            adaptLoadStrategyMaps           :   adaptLoadStrategyMaps,
+            adaptSearchStrategyMaps         :   adaptSearchStrategyMaps
+        }
+        
+    }());
+    
+    
+    
+    
+    
+    
+    // the remote calls 
+    
+    function createGraph(graph, success, error, complete) {
+    };
+    
+    
+    function loadOrgChart(id, success, error, complete) {   
+        
+        success(adapter.adaptLoadOrgChart(ttg.storm_hardcodedOrgChart));
+        
+        complete();
+    }
+
+    
+    function addOrgChartContact(graphId, orgChartContacts, success, error, complete) {
+        
+    }
+    
+    
+    function updateContactAttribute(contactId, contactAttr, orgChartMetadata, success, error, complete) {
+    
+    }
+    
+    function updateReportsTo(contactId, reportsTo, contact, success, error, complete) {
+
+    }
+    
+    function removeOrgChartContact(contactId, success, error, complete) {   
+
+    }
+        
+        
+    function searchOrgCharts(search, success, error, complete) {
+    
+    }
+
+
+    function getSearchableFields(spc, success, error, complete) {
+    
+    }
+    
+    
+    function doSearch(spec, success, error, complete, crit) {
+    
+    }   
+
+
+    function searchCollaborationMaps(search, success, error, complete, orderby) {
+        
+    }   
+    
+    function createCollaborationMap(spec, success, error, complete) {
+
+    }
+    
+    
+    function loadCollaborationMaps(mapid, success, error, complete) {
+    
+    }
+    
+    
+    function saveCollaborationMapNodes(mapId, nodesArray, mapType, nodeTypes, success, error, complete) {
+        
+    }
+    
+    
+    function deleteCollaborationMapNode(nodeid, success, error, complete) {
+    
+    }
+
+    
+    function getCoachMeRules(success, error, complete) {
+
+    }
+
+    
+    function searchOwners(search, success, error, complete) {
+
+    };
+
+    
+    function searchAccountPlanTeamMembers(planId, search, success, error, complete) {
+
+    };  
+
+    
+    function getAccountPlanTeamMembers(planId, success, error, complete) {
+
+    }; 
+
+    
+    function getAccountPlanOwner(planId, success, error, complete) {
+
+    };       
+
+
+    function searchAccountUnits(planId, search, success, error, complete) {
+
+    };
+
+    
+    function getCoachMeOpportunitiesView(oppid, success, error, complete) {
+
+    }
+
+    
+    function searchContacts(search, success, error, complete) {
+
+    }
+
+    function getReport(reportType, queryStr, success, error, complete) {
+
+    }
+    
+
+    function getOrgChartContact(contactId, success, error, complete) {
+
+    }
+    
+
+    function getCollaborationMapNode(nodeid, success, error, complete) {
+
+    }
+
+    //
+    // Account Management Related
+    //
+    function searchPlanOpportunities(search, planId, config, success, error, complete) {
+
+    }
+    
+
+
+    function getOurCompanyLogo(success, error, complete) {
+    
+    }
+
+    
+    //
+    // Strategy Map Releated
+    //
+    function searchStrategyMaps(search, success, error, complete, orderby) {
+
+    }
+
+    
+    function loadStrategyMaps(mapid, success, error, complete) {
+
+    }
+
+    
+    function createStrategyMap(spec, success, error, complete) {
+
+    }
+    
+    function saveStrategyMapNodes(mapId, nodesArray, mapType, nodeTypes, success, error, complete) {
+
+    }
+    
+    function deleteStrategyMapNode(nodeid, success, error, complete) {
+
+    }
+    
+    function getStrategyMapNode(nodeid, success, error, complete) {
+
+    }
+
+
+    // Auto Complete
+    function autocomplete(id, entity, holder, selectCallback) {
+        
+    }
+
+
+    function handleError(data, textStatus, errorThrown) {
+
+        try {
+            switch(data.status) {
+                case 200:   // OK
+                case 201:   // CREATED
+                case 202:   // ACCEPTED
+                case 204:   // NO_CONTENT
+                case 206:   // PARTIAL_CONTENT
+                case 300:   // MULTIPLE_CHOICES
+                case 301:   // MOVED_PERMANENTLY
+                case 302:   // FOUND
+                case 304:   // NOT_MODIFIED
+                case 400:   // BAD_REQUEST
+                case 401:   // UNAUTHORIZED
+                case 403:   // FORBIDDEN
+                case 404:   // NOT_FOUND
+                case 405:   // METHOD_NOT_ALLOWED
+                case 406:   // NOT_ACCEPTABLE
+                case 409:   // CONFLICT
+                case 410:   // GONE
+                case 412:   // PRECONDITION_FAILED
+                case 413:   // REQUEST_ENTITY_TOO_LARGE
+                case 414:   // REQUEST_URI_TOO_LARGE
+                case 415:   // UNSUPPORTED_MEDIA_TYPE
+                case 417:   // EXPECTATION_FAILED
+                case 500:   // INTERNAL_SERVER_ERROR
+                case 503:   // SERVER_UNAVAILABLE
+    
+                default:
+                
+                    var msg = 'An error has occured communicating with the service.';
+                    if (data.responseText[0].message != undefined) {
+                        msg +=  '\nMessage returned is \n\n\t' + data.responseText[0].message;
+                    }
+                    if (data.statusText != undefined) {
+                        msg +=  '\n\n\t' + data.statusText;
+                    }
+
+                    alert(msg);
+
+                    return true;
+                    
+            }
+        }
+        catch(e)
+        {
+            // WTF?
+        }
+
+        return false;
+    }
+
+
+    function getAssessment(opportunityId, success, error, complete) {
+    
+    }
+
+
+    function putAssessment(opportunityId, assessment, success, error, complete) {
+
+    }
+
+
+    function getCompetitiveStrategy(opportunityId, success, error, complete) {
+        
+    }   
+
+    
+    function putCompetitiveStrategy(opportunityId, competitiveStrategy, success, error, complete) {
+
+    }   
+
+    
+    function getCompetitiveStrategyCompetitors(opportunityId, success, error, complete) {
+        
+    }   
+
+
+    function putCompetitiveStrategyCompetitor(opportunityId, competitor, success, error, complete) {
+
+    }   
+
+    
+    function postCompetitiveStrategyCompetitor(opportunityId, competitor, success, error, complete) {
+
+    }
+    
+    
+    function deleteCompetitiveStrategyCompetitor(competitorId, success, error, complete) {
+
+    }   
+            
+        
+    function getDVLSCurricula(success, error, complete) {
+
+    }
+
+    
+    function startDVLSCurriculum(curriculumId, success, error, complete) {
+
+    }
+
+    
+    function updateDVLSQuicklinkProgress(quicklinkid, iscomplete, success, error, complete) {
+
+    }
+    
+
+    function getDVLSAssessment(componentid, success, error, complete) {
+
+    }
+
+    
+    function submitDVLSAssessment(assessment, success, error, complete) {
+
+    }
+
+    
+    function resetDVLSAssessmentAnswers(componentid, success, error, complete) {
+
+    }
+
+    
+    function getQualification(opportunityId, success, error, complete) {
+
+    }
+
+
+    function putQualification(opportunityId, qualification, success, error, complete) {
+
+    }
+
+
+    function getRoleInformation(roleId, success, error, complete) {
+
+    }
+
+
+    function getMetadata(spec, success, error, complete) {
+
+    }
+
+
+    function getValueMap(id, success, error, complete) {
+
+    }
+
+
+    function putValueMap(id, qualification, success, error, complete) {
+
+    }
+
+
+    function getSegmentation(id, success, error, complete) {
+
+    }
+
+
+    function putSegmentation(id, qualification, success, error, complete) {
+
+    }
+
+
+    function getPlanDetails(planId, success, error, complete) {
+
+    }
+
+
+    function putPlanDetails(planId, planDetail, success, error, complete) {
+
+    }     
+
+
+    function getPlanObjectives(planId, accountUnitId, success, error, complete) {
+
+    }
+
+
+    function getOpportunityMapUnitSolution(planId, solutionId, unitId, success, error, complete) {
+
+    }        
+
+
+    function putOpportunityMapUnitSolution(unitSolutionId, changes, success, error, complete) {
+
+    }         
+
+    
+    function postOpportunityMapUnitSolution(planId, solutionId, unitId, unitSolution, success, error, complete) {
+
+    }         
+
+      
+    function getOpportunityMapUnitSolutionOpp(planId, solutionId, unitId, oppType, success, error, complete) {
+
+    }   
+    
+    
+    function deleteOpportunityMapUnitSolutionOpp(unitSolutionOppId, success, error, complete) {
+
+    }    
+
+    
+    function putOpportunityMapUnitSolutionOpp(unitSolutionOppId, changes, success, error, complete) {
+
+    }     
+
+    
+    function postOpportunityMapUnitSolutionOpp(changes, success, error, complete) {
+
+    }  
+
+    
+    function getOpportunityMapUnitSolutionCompetitor(unitSolutionId, success, error, complete) {
+    
+    }    
+
+
+    function putOpportunityMapUnitSolutionCompetitor(changes, success, error, complete) {
+
+    }
+
+    
+    function postOpportunityMapUnitSolutionCompetitor(unitSolutionId, changes, success, error, complete) {
+
+    }    
+
+    
+    function deleteOpportunityMapUnitSolutionCompetitor(competitorId, success, error, complete) {
+
+    }    
+
+     
+    function getPlanCompetitor(searchString, success, error, complete) {
+    
+    }   
+    
+            
+    function postPlanCompetitor(changes, success, error, complete) {
+
+    } 
+    
+    function getAccountPlanOpportunity(planId, accountIds, isWon, searchString, config, success, error, complete) {
+
+    }   
+
+    
+    function postAccountPlanOpportunity(unitSolutionId, changes, success, error, complete) {
+
+    }           
+       
+
+    var am = (function() {
+        
+        function adaptAddOrgChartContact(data) {
+        
+        }
+        
+        function adaptSearchOrgCharts(data) {
+        
+        }
+        
+
+        function createGraph(graph, success, error, complete) {
+
+        };
+
+
+        function loadOrgChart(id, success, error, complete) {   
+
+        }
+
+
+        function addOrgChartContact(graphId, orgChartContacts, success, error, complete) {
+
+        }
+
+        
+        function updateContactAttribute(contactId, contactAttr, orgChartMetadata, success, error, complete) {
+
+        }
+
+        
+        function removeOrgChartContact(contactId, success, error, complete) {   
+
+        }
+
+
+        function searchOrgCharts(search, success, error, complete) {
+        
+        }
+
+        var that = {};
+    
+        that.loadOrgChart = loadOrgChart;
+        that.createGraph = createGraph;
+        that.updateContactAttribute = updateContactAttribute;
+        that.removeOrgChartContact = removeOrgChartContact;
+        that.addOrgChartContact = addOrgChartContact;
+        that.getOrgChartContact = getOrgChartContact;
+        that.searchOrgCharts = searchOrgCharts;
+        
+        return that;
+    })();
+    
+    function getOpportunityMap(planid, targeted, success, error, complete) {
+
+    }
+    
+    
+    function getPPTGenerator(oppid, success, error, complete) {
+
+    }   
+
+
+    function saveUnitLOR(unitId, lor, success, error, complete) {
+
+    }
+
+
+    function getMarketViewReport(reportid, orderby, orderdir, pgsize, start, success, error, complete) {
+
+    }
+
+
+    function getMarketViewReportDetail(reportplanid, viewtype, orderby, orderdir, pgsize, start, success, error, complete) {
+
+    }
+
+
+    function genericSearch(spec, success, error, complete) {
+
+    }   
+
+
+    function upsertObject(spec, success, error, complete) {
+
+    }   
+
+
+    function getObject(spec, success, error, complete) {
+
+    }   
+
+    var that = {};
+    
+    that.am = am;
+    that.loadOrgChart = loadOrgChart;
+    that.createGraph = createGraph;
+    that.updateContactAttribute = updateContactAttribute;
+    that.updateReportsTo = updateReportsTo;
+    that.removeOrgChartContact = removeOrgChartContact;
+    that.addOrgChartContact = addOrgChartContact;
+    that.getOrgChartContact = getOrgChartContact;
+    that.searchOwners = searchOwners;
+    that.searchAccountPlanTeamMembers = searchAccountPlanTeamMembers;
+    that.getAccountPlanTeamMembers = getAccountPlanTeamMembers;
+    that.getAccountPlanOwner = getAccountPlanOwner;
+    that.searchAccountUnits = searchAccountUnits;
+    that.searchOrgCharts = searchOrgCharts;
+    that.searchPlanOpportunities = searchPlanOpportunities;
+    that.searchContacts = searchContacts;
+    that.searchCollaborationMaps = searchCollaborationMaps;
+    that.searchStrategyMaps = searchStrategyMaps;
+    that.loadCollaborationMaps = loadCollaborationMaps;
+    that.loadStrategyMaps = loadStrategyMaps;
+    that.createCollaborationMap = createCollaborationMap;
+    that.createStrategyMap = createStrategyMap;
+    that.saveCollaborationMapNodes = saveCollaborationMapNodes;
+    that.saveStrategyMapNodes = saveStrategyMapNodes;
+    that.deleteCollaborationMapNode = deleteCollaborationMapNode;
+    that.deleteStrategyMapNode = deleteStrategyMapNode;
+    that.getCollaborationMapNode = getCollaborationMapNode;
+    that.getStrategyMapNode = getStrategyMapNode;
+    that.getSearchableFields = getSearchableFields;
+    that.doSearch = doSearch;
+    that.autocomplete = autocomplete;
+    that.getCoachMeRules = getCoachMeRules;
+    that.getCoachMeOpportunitiesView = getCoachMeOpportunitiesView;
+    that.getAssessment = getAssessment;  
+    that.putAssessment = putAssessment;  
+    that.getReport = getReport;
+    that.getCompetitiveStrategy = getCompetitiveStrategy;
+    that.putCompetitiveStrategy = putCompetitiveStrategy;
+    that.getCompetitiveStrategyCompetitors = getCompetitiveStrategyCompetitors;
+    that.putCompetitiveStrategyCompetitor = putCompetitiveStrategyCompetitor;
+    that.postCompetitiveStrategyCompetitor = postCompetitiveStrategyCompetitor;
+    that.deleteCompetitiveStrategyCompetitor = deleteCompetitiveStrategyCompetitor;
+    that.getDVLSCurricula = getDVLSCurricula;
+    that.startDVLSCurriculum = startDVLSCurriculum;
+    that.updateDVLSQuicklinkProgress = updateDVLSQuicklinkProgress;
+    that.getDVLSAssessment = getDVLSAssessment;
+    that.submitDVLSAssessment = submitDVLSAssessment;
+    that.resetDVLSAssessmentAnswers = resetDVLSAssessmentAnswers;
+    that.getQualification = getQualification; 
+    that.putQualification = putQualification;
+    that.getRoleInformation = getRoleInformation;
+    
+    that.getOurCompanyLogo = getOurCompanyLogo;
+    
+    
+    that.getPlanDetails = getPlanDetails;  
+    that.putPlanDetails = putPlanDetails;
+    that.getPlanObjectives = getPlanObjectives;  
+    that.getOpportunityMapUnitSolution = getOpportunityMapUnitSolution;     
+    that.postOpportunityMapUnitSolution = postOpportunityMapUnitSolution; 
+    that.putOpportunityMapUnitSolution = putOpportunityMapUnitSolution;    
+    that.getOpportunityMapUnitSolutionOpp = getOpportunityMapUnitSolutionOpp;   
+    that.deleteOpportunityMapUnitSolutionOpp = deleteOpportunityMapUnitSolutionOpp;
+    that.putOpportunityMapUnitSolutionOpp = putOpportunityMapUnitSolutionOpp;  
+    that.postOpportunityMapUnitSolutionOpp = postOpportunityMapUnitSolutionOpp;
+    that.getOpportunityMapUnitSolutionCompetitor = getOpportunityMapUnitSolutionCompetitor; 
+    that.putOpportunityMapUnitSolutionCompetitor = putOpportunityMapUnitSolutionCompetitor;
+    that.postOpportunityMapUnitSolutionCompetitor = postOpportunityMapUnitSolutionCompetitor;   
+    that.deleteOpportunityMapUnitSolutionCompetitor = deleteOpportunityMapUnitSolutionCompetitor;   
+    that.getAccountPlanOpportunity = getAccountPlanOpportunity;
+    that.postAccountPlanOpportunity = postAccountPlanOpportunity;
+    that.getPlanCompetitor = getPlanCompetitor;
+    that.postPlanCompetitor = postPlanCompetitor;
+    that.getValueMap = getValueMap;
+    that.putValueMap = putValueMap;
+    that.getSegmentation = getSegmentation;
+    that.putSegmentation = putSegmentation;
+    that.getOpportunityMap = getOpportunityMap;
+    that.saveUnitLOR = saveUnitLOR;
+    that.getPPTGenerator = getPPTGenerator;
+    
+    that.getMarketViewReport = getMarketViewReport;
+    that.getMarketViewReportDetail = getMarketViewReportDetail;
+
+    that.search = genericSearch;
+    that.getMetadata = getMetadata;
+    that.upsertObject = upsertObject;
+    that.getObject = getObject;
+    
+    return that;
+};
+
+</script>
+
+</apex:page>

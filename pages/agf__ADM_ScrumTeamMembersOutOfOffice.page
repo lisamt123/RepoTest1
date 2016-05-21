@@ -1,0 +1,64 @@
+<apex:page standardController="agf__ADM_Scrum_Team__c" extensions="agf.ADM_ScrumTeamMembersOutOfOffice" tabStyle="agf__ADM_Scrum_Team__c">
+    <apex:include pageName="agf__ADM_common_css"/>
+    <apex:pageMessages ></apex:pageMessages>
+    <apex:dataTable width="100%" border="0" cellpadding="0" cellspacing="0" styleClass="list tableSize" headerClass="headerRow" value="{!teamMembersOutOfOffice}" var="teamMember" rowClasses="odd,even" rendered="{!teamMembersOutOfOffice.size > 0}">
+        <apex:column >
+            <apex:facet name="header">Scrum Team Member</apex:facet>        
+            <apex:outputLink value="/{!teamMember.id}" target="_parent" >
+                <apex:outputField value="{!teamMember.User__r.Name}" />
+            </apex:outputLink>
+        </apex:column>
+        <apex:column headervalue="Record Type" value="{!teamMember.RecordType.Name}"/>
+        <apex:column headerValue="Start Date" value="{!teamMember.agf__Start_Date__c}"/>            
+        <apex:column headerValue="End Date" value="{!teamMember.agf__End_Date__c}"/>
+        <apex:column headerValue="% Allocation" value="{!teamMember.agf__Allocation__c}"/>
+        <apex:column headerValue="Description" value="{!teamMember.agf__Description__c}"/>
+    </apex:dataTable>
+    
+             
+    <script type="text/javascript">             
+        var iFrame = parent.document.getElementsByTagName('iframe');
+        var iFrameTitle = 'ADM_ScrumTeamMembersOutOfOffice'; 
+        var iFrameId = '';
+        var isFound = false;
+        var viewportwidth;
+        var viewportheight;
+        
+        for ( i = 0; i < iFrame.length; i++ ) {           
+            if (iFrame[i].title == iFrameTitle) { 
+                 isFound = true;
+                 iFrameId = iFrame[i].id;            
+                 break;
+            }
+        }
+        
+        if(isFound) {
+            resizeIframe();
+        }
+             
+        function resizeIframe(){
+            if(window.addEventListener) {                   
+                window.addEventListener("resize", resizeIframeCaller, false);
+                window.addEventListener("load", resizeIframeCaller, false);
+            } else {
+                window.attachEvent("resize", resizeIframeCaller);
+                window.attachEvent("load", resizeIframeCaller);
+            }
+                               
+            var iframe = parent.document.getElementById(iFrameId);
+            
+            // the more standards compliant browsers (mozilla/netscape/opera/IE7) use window.innerWidth and window.innerHeight
+            if (typeof window.innerWidth != 'undefined') {
+                viewportwidth = window.innerWidth,
+                viewportheight = window.innerHeight
+            }                  
+            
+            var height = document.body.clientHeight;                    
+            iframe.style.height = height + 8 + 'px';
+        }
+        
+        function resizeIframeCaller() {         
+            resizeIframe();
+        }  
+    </script>
+</apex:page>

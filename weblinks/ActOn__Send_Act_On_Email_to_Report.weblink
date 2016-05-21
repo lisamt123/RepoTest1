@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomPageWebLink xmlns="http://soap.sforce.com/2006/04/metadata">
+    <availability>online</availability>
+    <displayType>link</displayType>
+    <linkType>javascript</linkType>
+    <masterLabel>Send Act-On Email to Report</masterLabel>
+    <openType>onClickJavaScript</openType>
+    <protected>false</protected>
+    <url>{!REQUIRESCRIPT(&quot;/soap/ajax/32.0/connection.js&quot;)} 
+{!REQUIRESCRIPT(&quot;/soap/ajax/32.0/apex.js&quot;)} 
+
+var url = sforce.apex.execute(&apos;ActOn/ActonWebService&apos;,&apos;getServerUrl&apos;,{}); 
+url += &apos;/acton/sforce/sforceMassImportAndEmail.jsp?server={!API.Partner_Server_URL_190}&amp;session={!API.Session_ID}&apos;;
+
+window.open(url,&quot;_blank&quot;, &quot;width=1200,height=768&quot;);</url>
+</CustomPageWebLink>

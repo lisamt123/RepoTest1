@@ -1,0 +1,147 @@
+<apex:page controller="WelcomePacketWizard" showHeader="false"
+	cache="false" cache="false">
+
+	<head>
+<apex:stylesheet value="{!$Resource.styles}"></apex:stylesheet>
+<apex:includeScript value="{!$Resource.jQuery}"></apex:includeScript>
+	</head>
+
+	<script type="text/javascript">
+function confirmCancel()
+{
+    var isCancel = confirm("Are you sure you wish to quit?");
+    return isCancel;
+}
+
+/*$(document).ready(function(){
+    var outerIndex = 0;
+    $("div.tabSection").each(function(){
+        var firstCount = 0;
+        var secondCount = 0;
+        $(this).find("input.col1").each(function(i){
+            $(this).attr('tabindex',i + 1 + outerIndex);
+            firstCount++;
+        });
+        $(this).find("input.col2").each(function(i){
+            $(this).attr('tabindex',i + 1 + runningIndex + outerIndex);
+            secondCount++;
+        });
+        outerIndex += firstCount;
+        outerIndex += secondCount;
+    });
+});*/
+
+</script>
+
+	<table border="0" width="100%" height="100%" id="bg">
+		<tr valign="top">
+			<td>
+				<div class="maincontainer">
+					<apex:image id="key1" width="100%"
+						value="/resource/1265230873000/Header" />
+
+					<apex:sectionHeader title="VinSolutions Welcome Packet"
+						subtitle="{!if(
+                                                                                !CONTAINS(welcome.Packet_Includes__c, 'CRM')
+                                                                                &&!CONTAINS(welcome.Packet_Includes__c, 'ILM')
+                                                                                &&CONTAINS(welcome.Packet_Includes__c, 'DIY'),'Step 1 of 7', 
+                                                                                
+                                                                            if(
+                                                                                !CONTAINS(welcome.Packet_Includes__c, 'CRM')
+                                                                                &&CONTAINS(welcome.Packet_Includes__c, 'ILM')
+                                                                                ,'Step 1 of 9', 
+                                                                                
+                                                                            if(
+                                                                                CONTAINS(welcome.Packet_Includes__c, 'CRM')                                                                             
+                                                                                ,'Step 1 of 13', 
+                                                                                
+                                                                                '')))}" />
+
+					<apex:form >
+						<apex:pageBlock id="pb1" title="ACCOUNT SET UP FORM">
+
+							<table border="0" width="100%" align="center">
+								<tr align="center">
+									<td align="center"><apex:commandButton action="{!start}"
+											value="Previous Step" /> <apex:commandButton action="{!step2}" value="Next Step" /> <apex:commandButton action="{!cancel}" value="Save & Quit"
+											onclick="return confirmCancel()" immediate="true" /> <apex:commandButton action="{!confirmCRM}" value="Save - To Confirmation Page"
+											rendered="{!if(welcome.Packet_Includes__c!=null&&welcome.ReachedCRMConfirm__c, true, false)}" />
+									</td>
+								</tr>
+							</table>
+
+							<apex:pageBlockSection collapsible="false"
+								title="Dealership Information" columns="2">
+								<apex:outputField value="{!welcome.Account__r.Name}" />
+								<apex:outputField value="{!welcome.Account__r.Phone}" />
+								<apex:outputField value="{!welcome.Account__r.BillingStreet}" />
+								<apex:outputField value="{!welcome.Account__r.Fax}" />
+								<apex:outputField value="{!welcome.Account__r.Website}" />
+								<apex:inputField value="{!welcome.Dealer_Manufacturer_Code_BAC__c}" />
+							</apex:pageBlockSection>
+
+							<div class="tabSection">
+								<apex:pageBlockSection collapsible="false" title="Contacts"
+									columns="2">
+
+									<apex:inputField styleClass="col1" id="tab1"
+										value="{!welcome.Primary_Contact__c}" />
+									<apex:inputField styleClass="col2" id="tab5"
+										value="{!welcome.Secondary_Contact__c}" />
+									<apex:inputField styleClass="col1"
+										value="{!welcome.Primary_Contact_Position__c}" />
+									<apex:inputField styleClass="col2"
+										value="{!welcome.Secondary_Contact_Position__c}" />
+									<apex:inputField styleClass="col1" id="tab2"
+										value="{!welcome.Primary_Contact_Phone__c}" />
+									<apex:inputField styleClass="col2" id="tab6"
+										value="{!welcome.Secondary_Contact_Phone__c}" />
+									<apex:inputField styleClass="col1" id="tab3"
+										value="{!welcome.Primary_Contact_Email__c}" />
+									<apex:inputField styleClass="col2" id="tab7"
+										value="{!welcome.Secondary_Contact_Email__c}" />
+									<apex:inputField styleClass="col1" id="tab4"
+										value="{!welcome.Primary_Contact_Access__c}" />
+									<apex:inputField styleClass="col2" id="tab8"
+										value="{!welcome.Secondary_Contact_Access__c}" />
+
+								</apex:pageBlockSection>
+							</div>
+
+							<apex:pageBlockSection collapsible="false"
+								title="Technical Contact Info" columns="1">
+								<apex:inputField value="{!welcome.Technical_Contact_Name__c}" />
+								<apex:inputField value="{!welcome.Technical_Contact_Phone_Number__c}" />
+								<apex:inputField value="{!welcome.Is_this_person_a_dealership_employee__c}" />
+								<apex:inputField value="{!welcome.If_not_who_do_they_work_for__c}" />
+							</apex:pageBlockSection>
+
+							<apex:pageBlockSection collapsible="false"
+								title="Equipment Shipping Info" columns="1">
+								<apex:inputField value="{!welcome.Shipping_Address__c}" />
+								<apex:inputField value="{!welcome.Shipping_City__c}" />
+								<apex:inputField value="{!welcome.Shipping_State__c}" />
+								<apex:inputField value="{!welcome.Shipping_Zip_Code__c}" />
+								<apex:inputField value="{!welcome.Shipping_Contact_Name__c}" />
+							</apex:pageBlockSection>
+
+							<apex:pageBlockSection collapsible="false" title=""></apex:pageBlockSection>
+
+							<table border="0" width="100%" align="center">
+								<tr align="center">
+									<td align="center"><apex:commandButton action="{!start}"
+											value="Previous Step" /> <apex:commandButton action="{!step2}" value="Next Step" /> <apex:commandButton action="{!cancel}" value="Save & Quit"
+											onclick="return confirmCancel()" immediate="true" /> <apex:commandButton action="{!confirmCRM}" value="Save - To Confirmation Page"
+											rendered="{!if(welcome.Packet_Includes__c!=null&&welcome.ReachedCRMConfirm__c, true, false)}" />
+									</td>
+								</tr>
+							</table>
+
+						</apex:pageBlock>
+
+					</apex:form>
+				</div>
+			</td>
+		</tr>
+	</table>
+</apex:page>

@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apexPluginCalls>
+        <name>Submit_for_Approval</name>
+        <label>Submit for Approval</label>
+        <locationX>295</locationX>
+        <locationY>341</locationY>
+        <apexClass>submitForApproval</apexClass>
+        <connector>
+            <targetReference>Approval_Submitted</targetReference>
+        </connector>
+        <faultConnector>
+            <targetReference>error</targetReference>
+        </faultConnector>
+        <inputParameters>
+            <name>recordID</name>
+            <value>
+                <elementReference>varCaseID</elementReference>
+            </value>
+        </inputParameters>
+        <outputParameters>
+            <assignToReference>varSubmitError</assignToReference>
+            <name>Error Message</name>
+        </outputParameters>
+        <outputParameters>
+            <assignToReference>varSubmitStatus</assignToReference>
+            <name>Status</name>
+        </outputParameters>
+    </apexPluginCalls>
+    <description>Updated to go directly to Jim Nelson</description>
+    <label>Feature Request Approval v2</label>
+    <processType>Flow</processType>
+    <screens>
+        <name>Approval_Submitted</name>
+        <label>Approval Submitted</label>
+        <locationX>295</locationX>
+        <locationY>471</locationY>
+        <allowBack>true</allowBack>
+        <allowFinish>true</allowFinish>
+        <allowPause>true</allowPause>
+        <fields>
+            <name>Approvalsubmittedtext</name>
+            <fieldText>Approval submitted.</fieldText>
+            <fieldType>DisplayText</fieldType>
+        </fields>
+    </screens>
+    <screens>
+        <name>error</name>
+        <label>error</label>
+        <locationX>515</locationX>
+        <locationY>343</locationY>
+        <allowBack>true</allowBack>
+        <allowFinish>true</allowFinish>
+        <allowPause>true</allowPause>
+        <fields>
+            <name>errortext</name>
+            <fieldText>Status
+{!varSubmitStatus}
+
+Error
+{!varSubmitError}</fieldText>
+            <fieldType>DisplayText</fieldType>
+        </fields>
+    </screens>
+    <startElementReference>Submit_for_Approval</startElementReference>
+    <variables>
+        <name>varCaseID</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>true</isInput>
+        <isOutput>true</isOutput>
+    </variables>
+    <variables>
+        <name>varCaseVinProName</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>true</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+    <variables>
+        <name>varClickerID</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>true</isInput>
+        <isOutput>true</isOutput>
+    </variables>
+    <variables>
+        <name>varSubmitError</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+    <variables>
+        <name>varSubmitStatus</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+    <variables>
+        <name>varVinProID</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+    <variables>
+        <name>varVPMID</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+    <variables>
+        <name>varVPMName</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+</Flow>

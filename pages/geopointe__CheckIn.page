@@ -1,0 +1,338 @@
+<apex:page controller="geopointe.CheckIn_Controller" action="{!init}" showHeader="false" sidebar="false" title="Check In - {!SobjectName}" standardstylesheets="false" docType="html-5.0">
+	<head>
+		<title>Check In - {!SobjectName}</title>
+	</head>
+
+	<apex:stylesheet value="https://fonts.googleapis.com/css?family=Montserrat"/><!-- Custom font to match sf1 style -->
+	<apex:stylesheet value="{!URLFOR($Resource.geopointe__jquery, '/sf1/css/sf1.css')}"/><!-- Geopointe sf1 css -->
+	<apex:stylesheet value="{!URLFOR($Resource.geopointe__jquery, '/sf1/css/checkin.css')}"/><!-- Geopointe sf1 check in css -->
+	<apex:includeScript value="{!URLFOR($Resource.geopointe__jquery, '/sf1/lib/jquery-2.0.3.min.js')}"/><!-- jQuery -->
+	<apex:includeScript value="{!URLFOR($Resource.geopointe__jquery, '/sf1/js/sf1.js')}"/><!-- Geopointe sf1 functions -->
+	<apex:includeScript value="/canvas/sdk/js/publisher.js"/> <!-- Interact with sf1 wrapper -->
+
+	<apex:form >
+	<!--<div class="container" style="margin-bottom: 10px; margin-top:{!IF(AND($CurrentPage.parameters.inline == '1',mockSf1 == false),'10px', IF(mockSf1 == false,'10px','0px'))}">-->
+	<div class="container">
+
+		<div id="checkinForm">
+			<apex:outputPanel layout="block" styleClass="checkinHeader" rendered="{!$CurrentPage.parameters.inline != '1'}">
+				{!SobjectName}
+			</apex:outputPanel>
+
+			<div class="fieldLabel">{!$Label.Notes}</div>
+			<textarea id="checkinInput" class="size-full" type="text" style="display:{!IF(doQuickCheckIn,'none','block')};"></textarea>
+
+			<div style="display:{!IF(doQuickCheckIn,'none','block')}; margin-bottom: -5px;">
+				<div class="fieldLabel" for="shareOnChatter">{!$Label.Share_on_Feed}</div>
+				<apex:outputPanel rendered="{!shareCheckInOnFeed}">
+					<input type="checkbox" id="shareOnChatter" checked="checked"></input>
+				</apex:outputPanel>
+				<apex:outputPanel rendered="{!NOT(shareCheckInOnFeed)}">
+					<input type="checkbox" id="shareOnChatter"></input>
+				</apex:outputPanel>
+			</div>
+
+			<div id="taskFieldSet" style="display:{!IF(doQuickCheckIn, 'none', 'block')}">
+				<apex:outputPanel rendered="{!checkInTaskFieldSetName != ''}">
+					<apex:repeat value="{!fieldSetToUse}" var="f">
+						<apex:outputPanel styleClass="fieldLabel" layout="block" rendered="{!AND(f.fieldPath != 'RecordTypeId',$ObjectType.Task.Fields[f.fieldPath].Createable)}">{!f.label}</apex:outputPanel>
+						<apex:inputField styleClass="input" value="{!fieldBag[f.fieldPath]}" required="{!OR(f.required, f.dbrequired)}" rendered="{!AND(f.fieldPath != 'RecordTypeId',$ObjectType.Task.Fields[f.fieldPath].Createable)}"/>
+					</apex:repeat>
+				</apex:outputPanel>
+			</div>
+
+			<div id="checkinMapWrapper">
+				<div>
+					<img id="userLocationImg" class="checkinMap" width="{!IF($CurrentPage.parameters.inline == '1','320','0')}px" src=""/>
+				</div>
+				<div id="placeholderWrapper">
+					<img id="placeholder" class="checkinMap" width="{!IF($CurrentPage.parameters.inline == '1','320','0')}px" src="{!URLFOR($Resource.jquery, '/sf1/img/checkInBaseImg.png')}"/>
+					
+					<div class="spinnerWrapper">
+						<div class="spinner loading"></div>
+					</div>
+				</div>
+			</div>
+
+			<!-- SF1/Web map action -->
+			<apex:outputPanel layout="block" style="margin-bottom: 10px;" rendered="{!OR($CurrentPage.parameters.inline != '1', mockSf1)}">
+				<button id="desktopCheckInBtn" class="btn btn-primary size-full" onclick="doCheckin();return false;" disabled="disabled">{!$Label.Check_In}</button>
+			</apex:outputPanel>
+
+			<!--Desktop chatter publisher action -->
+			<apex:outputPanel layout="block" style="margin-bottom: 10px;" rendered="{!$CurrentPage.parameters.inline == '1'}">
+				<button id="desktopLocateMeBtn" class="btn btn-primary size-full" onclick="getLatLng();return false;">Locate Me</button> <!-- TODO translation -->
+				<button id="desktopCheckInBtn" class="btn btn-primary size-full" onclick="doCheckin();return false;" style="display:none;" disabled="disabled">{!$Label.Check_In}</button>
+			</apex:outputPanel>
+		</div>
+	</div>
+
+	<canvas id="mapCanvas" style="display:none;" width="640" height="300"></canvas> 
+
+		<apex:actionFunction name="doCheckinAction" reRender="checkinCompleteScript" action="{!doCheckin}">
+			<apex:param name="checkInJSON" value="" assignTo="{!checkInJSON}"/>
+		</apex:actionFunction>
+
+		<apex:actionFunction name="signGoogleURL" reRender="setUserLocationImage" action="{!signGoogleURL}">
+			<apex:param name="url" value="" assignTo="{!urlToSign}"/>
+		</apex:actionFunction>
+	</apex:form>
+
+	<apex:outputPanel id="checkinCompleteScript">
+		<script type="text/javascript">
+	 		var cirJSON = '{!JSENCODE(checkInResultJSON)}';
+
+			if (cirJSON) {
+				var checkInResult = JSON.parse(cirJSON);
+				if(checkInResult.success){
+					//Hide the modal
+					sf1.hideModalStatus();
+					sf1.disableSf1Submit(); //Make sure button stays disabled after success to prevent double checkin
+
+					//Show success message, TODO
+					sf1.addPageMessage({
+						prependTo: 'body',
+						title: gp_translations.Check_In_Successful,
+						severity: 'success'	,
+						centerInWindow: true	
+					});
+
+					//Hide the checkin form
+					jQuery("#checkinForm").hide();
+					jQuery("#taskFieldSet").hide();
+
+					//Auto close checkin page, after 2-3 seconds
+					setTimeout(function(){sf1.closeWindow()},1300);
+
+					if(retURL){
+						setTimeout(function(){
+							window.location.href = retURL;
+						},1000);
+
+					}else{
+						//Try to close the current window, this will only work for popups
+						setTimeout(function(){
+							try{
+								window.close();
+							}catch(e){}
+						},1200);
+					}
+
+				}else{
+					sf1.hideModalStatus();
+					
+					//Show error message
+					var errorMsg = checkInResult.message;
+					if(checkInResult.messageShort){
+						errorMsg = checkInResult.messageShort;
+					}
+
+					sf1.addPageMessage({
+						prependTo: '.container',
+						title: gp_translations.Unable_to_Check_In,
+						message: errorMsg,
+						severity: 'error'		
+					});
+				}
+			}
+		</script>
+	</apex:outputPanel>
+
+	<apex:outputPanel id="setUserLocationImage">
+		<script type="text/javascript">
+			var signedImageURL = '{!JSENCODE(urlToSign)}';
+			var doQuickCheckIn = {!doQuickCheckIn};
+
+			if (signedImageURL.indexOf('Error') === 0) {
+				sf1.addPageMessage({
+					prependTo: '.container',
+					title: 'An error occurred',
+					message: signedImageURL,
+					severity: 'error'	
+				});
+				jQuery('.spinner').hide();
+				jQuery('#checkinForm').hide();
+				jQuery('#taskFieldSet').hide();
+			
+			}else if(signedImageURL != ''){
+				//Hide the locate me button and show the checkin button
+				$("#desktopLocateMeBtn").hide();
+				$("#desktopCheckInBtn").show();
+
+				img = new Image();
+				img.crossOrigin = "Anonymous";
+
+				img.onload = function() {
+					if({!PostCheckInImagetoFeed}){
+						ctx.drawImage( img, 0, 0 );
+						var dataURL = cvs.toDataURL('image/jpeg',0.75);
+						base64image = dataURL.substring(23, dataURL.length);
+					}
+					//Show the image of current location, enable the checkin button
+					jQuery("#userLocationImg").attr('src',signedImageURL);
+					jQuery("#placeholderWrapper").addClass("transparent");
+					jQuery("#checkinBtn,#desktopCheckInBtn").prop("disabled",false);
+					
+					if(mockSf1 == false){
+						try{
+							Sfdc.canvas.publisher.publish({name: "publisher.setValidForSubmit", payload:"true"});
+						}catch(e){}
+					}
+
+					//If quick checkin is enabled do the check in
+					if(doQuickCheckIn){
+						doCheckin();
+					}
+				}
+				img.src = signedImageURL;
+			}
+		</script>
+	</apex:outputPanel>
+
+	<script type="text/javascript">
+		var lat, lng, userLocationImgSrc;
+
+		var gp_translations = {
+			Checking_In: "{!JSENCODE($Label.Checking_In)}",
+			Check_In_Successful: "{!JSENCODE($Label.Check_In_Successful)}", 
+			Please_ensure_GPS_functionality: "{!JSENCODE($Label.Please_ensure_GPS_functionality)}",
+			Unable_to_access_GPS: "{!JSENCODE($Label.Unable_to_access_GPS)}",
+			Unable_to_Check_In: "{!JSENCODE($Label.Unable_to_Check_In)}",
+			Unable_to_locate_position: "{!JSENCODE($Label.Unable_to_locate_position)}",
+			Unable_to_locate_position_due_to_timeout: "{!JSENCODE($Label.Unable_to_locate_position_due_to_timeout)}"
+		}
+
+		var mockSf1 = {!mockSf1};
+		var retURL = '{!JSENCODE($CurrentPage.parameters.retURL)}';
+
+		//Vars to create base64 image
+		var img = new Image;
+		img.crossOrigin = "Anonymous";
+		var cvs = document.getElementById('mapCanvas');
+		var ctx = cvs.getContext('2d');
+		var base64image;
+		var isInline = '{!JSENCODE($CurrentPage.parameters.inline)}';
+
+		jQuery(document).ready(function(){
+			
+			//Set width of images to size of screen so there is no weird horizontal scrolling, only do this if not on desktop
+			if('{!JSENCODE($CurrentPage.parameters.inline)}' != '1'){
+				var mapImgWidth = 320;
+				var pageWidth = jQuery('body').width();
+				if(pageWidth < mapImgWidth){
+					mapImgWidth = pageWidth;
+				}
+				jQuery(".checkinMap").width(mapImgWidth);
+			}
+
+			//Create event listener for sf1 submit button
+			if(mockSf1 == false){
+				try{
+					Sfdc.canvas.publisher.subscribe({name: "publisher.post", onData:function(e){
+		    			doCheckin();
+					}});
+				}catch(e){}
+			}
+
+			//Get the users position onload only if this is not inline (web version)
+			if(isInline != '1' || mockSf1 == true){
+				getLatLng();
+			}
+
+			function setHeight(){
+				var height = jQuery(window).height();
+
+				if(height == 0){
+					setTimeout(function(){ //Ensures the page conent has loaded, else height sometimes gets set to 0
+						setHeight();
+					},250);
+				}else{
+					jQuery('.container').height(jQuery(window).height()).addClass('overflowScroll');
+				}
+			}
+
+			//If inline set max height and overflow
+			if(isInline == '1'){
+				setHeight();
+			}
+			
+		});
+
+		function getLatLng(){
+			//Disable the Locate me button
+			$("#desktopLocateMeBtn").prop("disabled",true);
+			$(".spinnerWrapper").show();
+
+			if(navigator.geolocation) {
+				//Get user position
+				navigator.geolocation.getCurrentPosition(
+
+					function(position){//Sucess
+						lat = position.coords.latitude;
+						lng = position.coords.longitude;
+
+						userLocationImgSrc = 'https://maps.googleapis.com/maps/api/staticmap?center='+position.coords.latitude+','+position.coords.longitude+
+											'&markers='+position.coords.latitude+','+position.coords.longitude+'&zoom=12&size=320x150&scale=2';
+
+						//Sign the image on the server and in response set the image on the page by rerendering script
+						signGoogleURL(userLocationImgSrc);
+					},
+					function(error){//Error
+						var message = '';
+						if(error.code == 1){
+							message = gp_translations.Unable_to_access_GPS;
+						}else if(error.code == 2){
+							message = gp_translations.Unable_to_locate_position;
+						}else if(error.code == 3){
+							message = gp_translations.Unable_to_locate_position_due_to_timeout;
+						}
+
+						sf1.addPageMessage({
+							prependTo: '.container',
+							title: gp_translations.Unable_to_locate_position,
+							message: message,
+							severity: 'error'	
+						});
+						jQuery('.spinner').hide();
+					},
+					{ //Geolocation options
+						enableHighAccuracy: true, 
+						maximumAge        : 30000, 
+						timeout           : 30000
+					}
+				);
+			}else{
+				//Doesn't have geolocation capabilities
+				sf1.addPageMessage({
+					prependTo: '.container',
+					title: gp_translations.Unable_to_locate_position,
+					message: gp_translations.Please_ensure_GPS_functionality,
+					severity: 'error'	
+				});
+				jQuery('.spinner').hide();
+			} 
+		}
+
+		function doCheckin(){
+			//Show ajax status
+			sf1.showModalStatus({message:gp_translations.Checking_In});
+
+			//Create a CheckIn object (CheckIn.cls)
+			var CheckIn = {
+				whatId: '{!JSENCODE(recordId)}',
+				whatText: '{!JSENCODE(SobjectName)}',
+				whereLat: lat,
+				whereLng: lng,
+				whyText: jQuery("#checkinInput").val(),
+				chatterThis: jQuery("#shareOnChatter").is(':checked'),
+				base64image: base64image,
+			};
+
+			//Call action function to do check in
+			doCheckinAction(JSON.stringify(CheckIn));
+		}
+
+		//Workaround for input area issue https://success.salesforce.com/issues_view?id=a1p30000000T5l1AAC
+		window.onkeydown=function(){window.focus();} 
+	</script>
+</apex:page>

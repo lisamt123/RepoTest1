@@ -1,0 +1,66 @@
+<apex:page standardController="agf__QA_Test_Execution__c" extensions="agf.QA_TEDetailTCSectionController">
+<link type="text/css" rel="stylesheet" media="handheld,print,projection,screen,tty,tv" href="/sCSS/Theme2/default/elements.css" />
+<link type="text/css" rel="stylesheet" media="handheld,print,projection,screen,tty,tv" href="/sCSS/Theme2/default/common.css" />
+<link type="text/css" rel="stylesheet" media="handheld,print,projection,screen,tty,tv" href="/sCSS/Theme2/dStandard.css" />
+<link type="text/css" rel="stylesheet" media="handheld,print,projection,screen,tty,tv" href="/sCSS/Theme2/default/extended.css" />
+
+<div class="bPageBlock" style="margin-right: 0px; margin-bottom: 0px; border-top: 0px; padding-bottom: 0px;" >
+    <div class="pbBody" style="margin-right:0px;" >
+        {!findTestCase}
+        <apex:messages style="color:red;" />
+        <table class="detailList" cellspacing="0" cellpadding="0" border="0">
+            <tr>
+                <td class="labelCol">Test Case Number </td>
+                <td class="dataCol col02">{!tcNumber}</td>
+                <td class="labelCol">Owner</td>
+                <td class="dataCol col02"><apex:outputLink target="_top" value="/{!ownerId}">{!owner}</apex:outputLink></td>
+            </tr>
+            <tr>
+                <td class="labelCol">Brief Description</td>
+                <td class="dataCol col02">{!briefDescription}</td>
+                <td class="labelCol">Priority</td>
+                <td class="dataCol col02">{!priority}</td>
+            </tr>
+            <tr>
+                <td class="labelCol">Hierarchy</td>
+                <td class="dataCol col02">{!hierarchy}</td>
+                <td class="labelCol">Execution Type</td>
+                <td class="dataCol col02">{!executionType}</td>
+            </tr>
+            <tr>
+                <td class="labelCol">Order</td>
+                <td class="dataCol col02">{!tcOrder}</td>
+                <td class="labelCol">Ftest Id</td>
+                <td class="dataCol col02">{!ftestId}</td>
+            </tr>
+            <tr>
+                <td class="labelCol">Long Description</td>
+                <td class="dataCol col02">{!longDescription}</td>
+                <td class="labelCol">Expected Results</td>
+                <td class="dataCol col02">{!expectedResults}</td>
+            </tr>
+
+
+        </table>
+
+    </div>
+</div>
+
+<script lang="javascript">
+      var ie = document.all;
+      var iframes = parent.document.getElementsByTagName("IFRAME");
+      var thisiframe;
+      for(var i=0; i<iframes.length; i++)
+            if(iframes[i].title=="QA_TEDetailTCSection") thisiframe = iframes[i];
+
+      try{
+            if(ie){
+                  thisiframe.height = thisiframe.Document.body.scrollHeight;
+            }else{
+                  thisiframe.height = thisiframe.contentWindow.document.documentElement.scrollHeight;
+            }
+      }catch(e){}
+</script>
+
+
+</apex:page>

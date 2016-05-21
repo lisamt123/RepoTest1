@@ -1,0 +1,476 @@
+<apex:page cache="true" 
+		   expires="600"
+		   docType="html-5.0"
+           showHeader="false" 
+           sidebar="false"
+           standardStylesheets="false"
+           standardController="echosign_dev1__SIGN_Agreement__c"
+           extensions="echosign_dev1.AgreementMobileController">
+    <head>
+        <meta charset="utf-8"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1, 
+                                  minimum-scale=1, maximum-scale=1, user-scalable=no"/>
+        <apex:stylesheet value="{!URLFOR($Resource.Mobile_Design_Templates, 
+                'Mobile-Design-Templates-master/common/css/app.min.css')}"/>
+        <apex:includeScript value="{!URLFOR($Resource.Mobile_Design_Templates, 
+                'Mobile-Design-Templates-master/common/js/jQuery2.0.2.min.js')}"/>
+        <apex:includeScript value="{!URLFOR($Resource.Mobile_Design_Templates, 
+                'Mobile-Design-Templates-master/common/js/jquery.touchwipe.min.js')}"/>
+        <apex:includeScript value="{!URLFOR($Resource.Mobile_Design_Templates, 
+                'Mobile-Design-Templates-master/common/js/main.min.js')}"/>
+        <apex:includeScript value="{!$Resource.echosign_dev1__underscore_1_5_1}"/> 
+    <apex:includeScript value="{!$Resource.echosign_dev1__path_js}"/>
+    
+    <apex:stylesheet value="{!URLFOR($Resource.echosign_dev1__OneStarter,'icons.css')}"/>
+    <apex:stylesheet value="{!URLFOR($Resource.echosign_dev1__OneStarter,'styles.css')}"/>
+    <apex:stylesheet value="{!URLFOR($Resource.echosign_dev1__OneStarter,'OneStarter.css')}"/>   
+    <!-- <apex:includeScript value="{!URLFOR($Resource.OneStarter,'jquery.onestarter.js')}"/>  -->
+    <!-- <apex:includeScript value="/canvas/sdk/js/publisher.js"/>  -->
+    
+    <style type="text/css">
+        #overlay {
+            background-color: rgba(0, 0, 0, 0.8);
+            z-index: 998;
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 110%;
+            display: none;
+        }
+
+        .buttons-overlay {
+            display: none; 
+            /*width: 90%; margin-left: 5%;*/ 
+            z-index: 999; 
+            position: absolute; 
+            padding-left: 35%; 
+            /*padding-right: 30%;*/
+            padding-top: 130%;
+        }
+        
+        .icon--pdf {
+            /* background-color: #8b7fd5; */
+            /* background-image: url("assets/icons/doctypes/pdf_120.png"); */
+            background-image: url("{!URLFOR($Resource.s1doctype,'s1doctypes/pdf_120.png')}");
+        }
+        
+        .icon--word {
+            background-image: url("{!URLFOR($Resource.s1doctype,'s1doctypes/word_120.png')}");
+        }
+        
+        .icon--ppt {
+            background-image: url("{!URLFOR($Resource.s1doctype,'s1doctypes/ppt_120.png')}");
+        }
+        
+        .icon--excel {
+            background-image: url("{!URLFOR($Resource.s1doctype,'s1doctypes/excel_120.png')}");
+        }
+        
+        .icon--image {
+            background-image: url("{!URLFOR($Resource.s1doctype,'s1doctypes/image_120.png')}");
+        }
+        
+        .icon--template {
+            background-image: url("{!$Resource.LibraryDocumentTemplate}");
+        }
+        
+        .icon--layer {
+            background-image: url("{!$Resource.LibraryFieldsTemplate}");
+        }               
+
+        .es-agreement-header-panel {
+            padding-bottom: 30px;
+        }
+        
+        .es-loading-section {
+            padding-top: 20%;
+        }
+        
+        .es-input-value {
+            padding-top: 10px;
+        }
+        
+        .es-input-label {
+            padding-left: 0px;
+            width: 100%;
+        }
+        
+        .es-lookup-link {
+            color: rgb(150, 152, 153);
+            font-size: 15px;
+            height: 44px;
+            line-height: 48px;
+            position: absolute;
+            right: 0;
+            text-align: center;
+            width: 44px;
+            text-decoration: none;
+            
+        }
+        
+        .es-lookup-icon {
+            font-family: 'MyWebFont';
+            /* content: attr(data-icon); */
+            /* speak: none; */
+            background-image: url({!URLFOR($Resource.s1fonts,'s1fonts/fonts/icon-utility.svg')});
+            text-rendering: optimizeLegibility;
+            font-weight: normal;
+            font-variant: normal;
+            text-transform: none;
+            line-height: 1;
+            -webkit-font-smoothing: antialiased;
+            color: rgb(150, 152, 153);
+            font-size: 15px;
+            line-height: 48px;
+            text-align: center;
+        }
+        
+        .es-tab-item-title {
+            font-weight: 500;
+            font-size: 17px;
+            color: rgb(105, 110, 113);
+            -webkit-font-smoothing: antialiased;
+        }
+        
+        .es-tab-item-subtitle {  
+            padding-left: 40px;         
+            font-size: 14px;
+            color: rgb(105, 110, 113);
+            -webkit-font-smoothing: antialiased;
+        }   
+            
+        .es-tab-header-button-label {
+            font-size: 16px;
+            color: rgb(68, 89, 108);
+            text-shadow: none;
+            font-weight: bold;
+        }
+        
+        .es-tab-header-button {
+            margin-left: -40px;
+            border-top-right-radius: 5px;
+            border-bottom-right-radius: 5px;
+            border-right-width: 1px;
+            border-top-left-radius: 5px;
+            border-bottom-left-radius: 5px;
+            padding: 4px 14px;
+            height: 35px;
+            font-size: 16px;
+            font-weight: normal;
+            border: 1px solid rgb(187, 192, 196);
+            background: linear-gradient(rgb(255, 255, 255),rgb(241, 241, 241));
+            box-shadow: none;
+            text-decoration: none;
+            text-align: center;
+        }
+        
+        .es-tab-header-icon {
+            width: 30px;
+            margin-top: 15px;
+            margin-left: 15px;
+            height: 30px;
+            border-radius: 3px;
+        }
+        
+        .es-tab-header-title {
+            vertical-align: super;
+            text-align: left;
+            font-family: ProximaNova, Arial, sans-serif;
+            font-weight: 500;
+            padding-left: 5px;
+            font-size: 18px;
+            color: rgb(105, 110, 113);
+            -webkit-font-smoothing: antialiased;
+        }
+        
+        .es-tab-header {
+            background-color: rgb(255, 255, 255);
+            border-bottom: 1px solid rgb(207, 212, 217);
+            border-bottom-width: 1px;
+            border-bottom-style: solid;
+            border-bottom-color: rgb(207, 212, 217);
+        }  
+            
+        .es-subbutton-label {
+            font-size: 16px;
+            color: rgb(68, 89, 108);
+            text-shadow: none;
+            font-weight: bold;
+        }
+                
+        .es-subbutton {
+            border-top-right-radius: 5px;
+            border-bottom-right-radius: 5px;
+            border-right-width: 1px;
+            border-top-left-radius: 5px;
+            border-bottom-left-radius: 5px;
+            padding: 4px 14px;
+            height: 35px;
+            font-size: 16px;
+            font-weight: normal;
+            border: 1px solid rgb(187, 192, 196);
+            background: linear-gradient(rgb(255, 255, 255),rgb(241, 241, 241));
+            box-shadow: none;
+            text-decoration: none;
+            text-align: center;
+        }
+        
+        .es-button {
+            border-color: rgb(28, 120, 177);
+            border-width: 1px;
+            border-style: solid;
+            border-radius: 5px;
+            width: 15%;
+            font-weight: 700;
+            font-size: 16px;
+            border-radius: 5px;
+            background-color: rgb(63, 159, 217);
+            background-image: -webkit-linear-gradient(top, rgb(63, 159, 217), rgb(39, 137, 199));
+            color: rgb(255, 255, 255);
+            -webkit-appearance: button;
+            cursor: pointer;
+            text-transform: none;
+            line-height: normal;
+            align-items: flex-start;
+            text-align: center;
+            box-sizing: border-box;
+            -webkit-font-smoothing: antialiased;
+            font-family: ProximaNova, Arial, sans-serif;
+            height: 40px;
+        }
+        
+        .es-agreement-header {
+            background-color: #344A5F;
+            height: 100px;
+        }
+        
+        .es-section-header {
+            padding-bottom: 10px;
+        }
+        
+        .es-section-label {
+            /*font-family: 'ProximaNovaSoft-Regular';*/
+            font-size: 14px;
+            color: rgb(105, 110, 113);
+            -webkit-font-smoothing: antialiased;
+        }
+        
+        .detail-view-header .detail-view-action-panel > a.es-action-remind {
+            background-image: url({!URLFOR($Resource.s1custom,'s1custom/custom25_120.png')});
+            background-color: #2A94D6;
+        }
+        
+        .detail-view-header .detail-view-action-panel > a.es-action-view {
+            background-image: url({!URLFOR($Resource.s1custom,'s1custom/custom39_120.png')});
+            background-color: #4EB1CB;
+        }
+        
+        .detail-view-header .detail-view-action-panel > a.es-action-remove {
+            background-image: url({!URLFOR($Resource.s1custom,'s1custom/custom9_120.png')});
+            background-color: #F3AE4E;
+        }
+                
+        .content .status.status-orange{color:orange}
+        .detail-view-header .content .status.status-orange .status-dot{background:orange}.detail-view-header
+    </style>
+
+<!-- iOS 8 issue workaround, delete once fixed - https://success.salesforce.com/issues_view?id=a1p30000000T5hOAAS -->    
+<!-- <script> 
+(function(){try{var a=navigator.userAgent; 
+if((a.indexOf('Salesforce')!=-1)&&(a.indexOf('iPhone')!=-1||a.indexOf('iPad')!=-1)&&(a.indexOf('OS/8')!=-1||a.indexOf('OS 8')!=-1)&&(a.indexOf('Safari')==-1)){ 
+var s=document.createElement('style'); 
+s.innerHTML="html,html body{overflow: auto;-webkit-overflow-scrolling:touch;}body{position:absolute;left:0;right:0;top:0;bottom:0;}"; 
+document.getElementsByTagName('head')[0].appendChild(s);}}catch(e){}})(); 
+</script> -->
+                
+    <script type="text/html" id='tabbedListView'>
+        
+
+    <div class="app-wrapper">
+        <header class="es-tab-header">
+            <div class="main-menu-button main-menu-button-right">
+                <button class="es-tab-header-button" title="New" accesskey="" type="button" onclick="window.location.href = '#/agreement';">
+                    <span class="es-tab-header-button-label">New</span>
+                </button>
+            </div>
+            <img class="es-tab-header-icon" src="{!$Resource.AgreementLogo}"/>
+            <span class="es-tab-header-title">Agreements</span>
+        </header>
+
+        <div class="app-content">
+
+<ul class="list-view right-one-icons">
+    <% for(var i = 0; i < agreements.length; i++){ %>
+    <li>
+        <% if ( agreements[i].agreement[NAMESPACE_FULL + 'Status__c'] == "Draft" ) { %>
+        <a href="javascript:sforce.one.navigateToURL('/apex/' + NAMESPACE_FULL + 'AgreementMobile?id=<%= agreements[i].agreement.Id %>');" class="content">
+            <div class="es-tab-item-title">
+                <img height="35px" style="vertical-align: middle; background-color: #4EB1CB; border-radius: 25px;" src="{!URLFOR($Resource.s1custom,'s1custom/custom18_60.png')}"/>
+                <%= agreements[i].agreement.Name %>
+            </div>
+            <div class="es-tab-item-subtitle"><%= agreements[i].agreement[NAMESPACE_FULL + 'Status__c'] %></div>
+            <div class="list-view-icons">
+                <span class="icon-right-arrow">&nbsp;</span>
+            </div>
+        </a>
+        <% } %>
+		
+        <% if ( agreements[i].agreement[NAMESPACE_FULL + 'Status__c'] != "Draft" ) { %>
+        	<a href="javascript:sforce.one.navigateToURL('/apex/' + NAMESPACE_FULL + 'AgreementMobile?id=<%= agreements[i].agreement.Id %>');" class="content">
+                <% if ( agreements[i].agreement[NAMESPACE_FULL + 'Status__c'] == "Out for Signature" || agreements[i].agreement[NAMESPACE_FULL + 'Status__c'] == "Waiting for Counter-Signature" || agreements[i].agreement[NAMESPACE_FULL + 'Status__c'] == "Waiting for Counter-Approval" || agreements[i].agreement[NAMESPACE_FULL + 'Status__c'] == "Out for Approval" || agreements[i].agreement[NAMESPACE_FULL + 'Status__c'] == "Pre-Send" ) { %>
+                    <div class="es-tab-item-title">
+                        <img height="35px" style="vertical-align: middle; background-color: #4EB1CB; border-radius: 25px;" src="{!URLFOR($Resource.s1custom,'s1custom/custom26_60.png')}"/>
+                        <%= agreements[i].agreement.Name %>
+                    </div>  
+                    <div class="es-tab-item-subtitle"><%= agreements[i].agreement[NAMESPACE_FULL + 'Status__c'] %></div>
+                <% } %>
+                <% if ( agreements[i].agreement[NAMESPACE_FULL + 'Status__c'] == "Signed" || agreements[i].agreement[NAMESPACE_FULL + 'Status__c'] == "Approved" ) { %>
+                    <div class="es-tab-item-title">
+                        <img height="35px" style="vertical-align: middle; background-color: #4EB1CB; border-radius: 25px;" src="{!URLFOR($Resource.s1custom,'s1custom/custom14_60.png')}"/>
+                        <%= agreements[i].agreement.Name %>
+                    </div>
+                    <div class="es-tab-item-subtitle"><%= agreements[i].agreement[NAMESPACE_FULL + 'Status__c'] %> (Date Signed: <%= agreements[i].dateSigned %>)</div>
+                <% } %>
+                <% if ( agreements[i].agreement[NAMESPACE_FULL + 'Status__c'] == "Cancelled / Declined" || agreements[i].agreement[NAMESPACE_FULL + 'Status__c'] == "Aborted" || agreements[i].agreement[NAMESPACE_FULL + 'Status__c'] == "Expired" ) { %>
+                    <div class="es-tab-item-title">
+                        <img height="35px" style="vertical-align: middle; background-color: #4EB1CB; border-radius: 25px;" src="{!URLFOR($Resource.s1custom,'s1custom/custom9_60.png')}"/>
+                        <%= agreements[i].agreement.Name %>
+                    </div>
+                    <div class="es-tab-item-subtitle"><%= agreements[i].agreement[NAMESPACE_FULL + 'Status__c'] %></div>
+                <% } %>
+            <div class="list-view-icons">
+                <span class="icon-right-arrow">&nbsp;</span>
+            </div>
+        </a>
+        <% } %>
+    </li>
+    <% } %>
+</ul>
+
+
+        </div>
+
+<div id="loadMoreAgreementsButton">
+    <ul class="list-plain fw-normal bg-2 man pan">
+        <li class="active--list-1 pam text-color-1 f4 border-bottom border-top border--3">
+            <a style="text-decoration: none; color: #3c3d3e;" href="javascript:loadMoreAgreements();">
+                <div style="position: absolute; padding-left: 10px;">
+                    <label class="size-full pos-abs label--lookup icon-utility-list">
+                        <span class="dn"></span>
+                    </label>
+                </div>
+                <div style="padding-left: 25px; padding-top: 15px; padding-bottom: 8px;">
+                    Show More
+                </div>
+            </a>
+        </li>
+    </ul>
+</div>
+
+        </script>
+        <script type="text/javascript">
+            var namespace = '{!namespace}';
+            var NAMESPACE_FULL = namespace + '__';
+            var agreementRecords = new Array();
+            
+            var allAgreements = new Array();
+            var draftAgreements = new Array();
+            var inProgressAgreements = new Array();
+            var completedAgreements = new Array();
+            
+            var offset = 5;
+            var offsetIncrement = 5;
+            var allAgreementsCount = 0;
+            
+            var compiledListViewTempl = _.template($("#tabbedListView").html());
+            
+            $(document).ready(function() {
+                getAllAgreementsCount();
+                getAllAgreements();
+            });
+            
+            function getAllAgreementsCount() {
+                Visualforce.remoting.Manager.invokeAction(
+                    '{!$RemoteAction.AgreementMobileController.getAllAgreementsCount}',
+                    function(count, e) { 
+                        this.allAgreementsCount = count;
+                    }, 
+                    {escape:false}
+                ); 
+            }
+                                    
+            function getAllAgreements() {
+                Visualforce.remoting.Manager.invokeAction(
+                    '{!$RemoteAction.AgreementMobileController.getAgreements}',
+                    offset,
+                    function(records, e) {
+                        showAgreements(records);
+                    }, 
+                    {escape:false}
+                ); 
+            }
+            
+            function addAgreement(){
+                Visualforce.remoting.Manager.invokeAction(
+                	'{!$RemoteAction.AgreementMobileController.addAgreement}',
+                    function(agreementWrapper, e) { 
+                    	sforce.one.navigateToURL('/apex/' + NAMESPACE_FULL + 'AgreementMobile?id=' + agreementWrapper.agreement.Id);
+                    }, 
+                    {escape:false}
+            	); 
+            }
+            
+            function showAgreements(records) {               
+                agreementRecords.length = 0;   
+                var draftIndex = 0, inProgressIndex = 0, completedIndex = 0, allIndex = 0;                             
+                for(var i = 0; i < records.length; i++) { 
+                    agreementRecords[records[i].agreement.Id] = records[i];
+                    allAgreements[allIndex++] = records[i];
+                    
+                    var agreementStatus = records[i].agreement[namespace + '__Status__c'];
+                    if( agreementStatus == 'Draft' || agreementStatus == 'Pre-Send' || agreementStatus == 'Send in Progress' ) {
+                        draftAgreements[draftIndex++] = records[i];
+                    } else if( agreementStatus == 'Out for Signature' || agreementStatus == 'Waiting for Counter-Signature' || agreementStatus == 'Waiting for Counter-Approval' || agreementStatus == 'Out for Approval' ) {
+                        inProgressAgreements[inProgressIndex++] = records[i];
+                    } else if( agreementStatus == 'Signed' || agreementStatus == 'Approved' || agreementStatus == 'Cancelled / Declined' || agreementStatus == 'Expired' || agreementStatus == 'Aborted' ) {
+                        completedAgreements[completedIndex++] = records[i];
+                    } else {
+                        draftAgreements[draftIndex++] = records[i];
+                    }
+                }
+
+                $('#mainContainer').empty();
+                $('#mainContainer').append(compiledListViewTempl({agreements : allAgreements}));
+                $(document).trigger('onTemplateReady');
+                
+                if( offset >= allAgreementsCount ) {
+                    $('#loadMoreAgreementsButton').hide('slow', function() {});
+                }            
+            }  
+            
+            function loadMoreAgreements() {
+                offset += offsetIncrement;
+                getAllAgreements();
+            } 
+            
+          	function showAgreementAdd() {
+                addAgreement();
+            }          
+            
+            Path.map("#/agreements").to(function(){
+                getAllAgreements();
+            });
+                        
+            Path.map("#/agreement").to(function(){
+                showAgreementAdd();
+            }); 
+            
+            Path.listen();
+        </script>
+    </head>   
+    <body> 
+        <div id="mainContainer">
+        </div>
+    </body>
+</apex:page>

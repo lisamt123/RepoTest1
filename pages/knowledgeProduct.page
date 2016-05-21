@@ -1,0 +1,116 @@
+<apex:page controller="KnowledgeController" showHeader="false"
+	cache="{!cachePage}" expires="{!cacheMaxAge}"
+	language="{!currentLanguage}" standardStylesheets="false">
+
+	<apex:composition template="knowledgeLayout">
+		<apex:define name="content">
+			<apex:outputPanel styleClass="pkbLeft" layout="block">
+				<c:knowledgeCategories />
+			</apex:outputPanel>
+
+			<apex:outputPanel styleClass="pkbMain" layout="block">
+				<apex:outputPanel styleClass="pkbResultPanel" layout="block">
+					<apex:outputPanel styleClass="pkbResultTop" layout="block" />
+					<apex:outputPanel styleClass="pkbResultInner" layout="block">
+
+						<apex:outputPanel styleClass="pkbResultSelectedCategories"
+							layout="block">
+							<knowledge:categoryList categoryGroup="{!categoryGroupName}"
+								ancestorsOf="{!currentCategory}"
+								rootCategory="{!rootCategoryName}" categoryVar="parentCategory">
+								<apex:outputLink value="{!productUrl}">
+                                {!parentCategory.label}&nbsp;
+                                <apex:param name="{!categoryParameterName}" value="{!parentCategory.name}" />
+									<apex:param name="{!languageParameterName}"
+										value="{!currentLanguage}" />
+								</apex:outputLink>
+								<apex:outputText value=" &gt;&gt; "
+									rendered="{!currentCategory!=parentCategory.name}"
+									escape="false" />
+							</knowledge:categoryList>
+							<apex:outputPanel rendered="{!currentArticleType!=''}"
+								layout="none">
+                            >> {!currentArticleTypeLabel}
+                        </apex:outputPanel>
+						</apex:outputPanel>
+						<apex:outputPanel layout="block"
+							rendered="{!currentArticleType==''}">
+							<h2>{!$Label.PKB_Last_Updated}</h2>
+							<apex:variable var="anyDocument" value="false" />
+							<apex:variable var="hasMore" value="" />
+							<ul>
+								<knowledge:articleList articleVar="article" hasMoreVar="hasMore"
+									pageSize="10" pageNumber="{!currentPageNumber}"
+									categories="{!categoryGroupName}:{!currentCategory}"
+									language="{!currentLanguage}">
+									<li class="pkbArticle"><a
+										href="{!URLFOR($Action.KnowledgeArticle.View, article.id) + '&' + languageParameterName + '=' +currentLanguage}">{!article.title}</a>
+										- <apex:outputLink value="{!productUrl}">
+											<span class="pkbArticleType"
+												title="See all {!article.articleTypeLabel}">{!article.articleTypeLabel}</span>
+											<apex:param name="{!categoryParameterName}"
+												value="{!currentCategory}" />
+											<apex:param name="{!articleTypeParameterName}"
+												value="{!article.articleTypeName}" />
+											<apex:param name="{!articleTypeLabelParameterName}"
+												value="{!article.articleTypeLabel}" />
+											<apex:param name="{!languageParameterName}"
+												value="{!currentLanguage}" />
+										</apex:outputLink>
+									</li>
+									<apex:variable var="anyDocument" value="true" />
+								</knowledge:articleList>
+							</ul>
+							<apex:outputText value="{!$Label.PKB_No_Result}"
+								rendered="{!anyDocument=='false'}" />
+							<c:knowledgePagination isNextAvailable="{!hasMore}"
+								urlLink="{!productUrl}" />
+							<br />
+							<br />
+                        {!$Label.PKB_All_Article_Types}
+                        <knowledge:articleTypeList articleTypeVar="articleType">
+								<apex:outputLink value="{!productUrl}">
+									<span class="pkbArticleType"
+										title="See all {!articleType.label}">{!articleType.label}</span>
+									<apex:param name="{!categoryParameterName}"
+										value="{!currentCategory}" />
+									<apex:param name="{!articleTypeParameterName}"
+										value="{!articleType.name}" />
+									<apex:param name="{!articleTypeLabelParameterName}"
+										value="{!articleType.label}" />
+									<apex:param name="{!languageParameterName}"
+										value="{!currentLanguage}" />
+								</apex:outputLink> -
+                        </knowledge:articleTypeList>
+						</apex:outputPanel>
+
+						<apex:outputPanel layout="block"
+							rendered="{!currentArticleType!=''}">
+							<apex:variable var="anyDocument" value="false" />
+							<apex:variable var="hasMore" value="" />
+							<br />
+							<ul>
+								<knowledge:articleList articleVar="article" hasMoreVar="hasMore"
+									pageSize="10" pageNumber="{!currentPageNumber}"
+									articleTypes="{!currentArticleType}"
+									categories="{!categoryGroupName}:{!currentCategory}"
+									language="{!currentLanguage}">
+									<li class="pkbArticle"><a
+										href="{!URLFOR($Action.KnowledgeArticle.View, article.id) + '&' + languageParameterName + '=' +currentLanguage}">{!article.title}</a>
+									</li>
+									<apex:variable var="anyDocument" value="true" />
+								</knowledge:articleList>
+							</ul>
+							<apex:outputText value="{!$Label.PKB_No_Result}"
+								rendered="{!anyDocument=='false'}" />
+							<c:knowledgePagination isNextAvailable="{!hasMore}"
+								urlLink="{!productUrl}" />
+						</apex:outputPanel>
+
+					</apex:outputPanel>
+				</apex:outputPanel>
+			</apex:outputPanel>
+		</apex:define>
+	</apex:composition>
+
+</apex:page>

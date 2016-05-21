@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <actionOverrides>
+        <actionName>Accept</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>CancelEdit</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Clone</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Delete</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Edit</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Follow</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>List</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>New</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>SaveEdit</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Tab</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>View</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <allowInChatterGroups>false</allowInChatterGroups>
+    <compactLayoutAssignment>SYSTEM</compactLayoutAssignment>
+    <deploymentStatus>Deployed</deploymentStatus>
+    <enableActivities>false</enableActivities>
+    <enableBulkApi>true</enableBulkApi>
+    <enableFeeds>false</enableFeeds>
+    <enableHistory>false</enableHistory>
+    <enableReports>true</enableReports>
+    <enableSearch>true</enableSearch>
+    <enableSharing>true</enableSharing>
+    <enableStreamingApi>true</enableStreamingApi>
+    <fields>
+        <fullName>Business_Unit__c</fullName>
+        <externalId>false</externalId>
+        <formula>Project__r.Business_Unit__c</formula>
+        <inlineHelpText>Automatically pulls from the Project&apos;s Business Unit.</inlineHelpText>
+        <label>Business Unit</label>
+        <required>false</required>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Comment_Details__c</fullName>
+        <externalId>false</externalId>
+        <label>Comment Details</label>
+        <length>100</length>
+        <required>false</required>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Comments__c</fullName>
+        <externalId>false</externalId>
+        <label>Comments</label>
+        <length>5000</length>
+        <trackTrending>false</trackTrending>
+        <type>LongTextArea</type>
+        <visibleLines>20</visibleLines>
+    </fields>
+    <fields>
+        <fullName>Created_By_Role__c</fullName>
+        <externalId>false</externalId>
+        <formula>CreatedBy.UserRole.Name</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>Created By Role</label>
+        <required>false</required>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Project_Piece__c</fullName>
+        <deleteConstraint>SetNull</deleteConstraint>
+        <externalId>false</externalId>
+        <label>Project Piece</label>
+        <referenceTo>Project_Piece__c</referenceTo>
+        <relationshipLabel>Project Comments</relationshipLabel>
+        <relationshipName>Project_Comments</relationshipName>
+        <required>false</required>
+        <trackTrending>false</trackTrending>
+        <type>Lookup</type>
+    </fields>
+    <fields>
+        <fullName>Project__c</fullName>
+        <deleteConstraint>SetNull</deleteConstraint>
+        <externalId>false</externalId>
+        <label>Project</label>
+        <referenceTo>SFDC_520_Quote__c</referenceTo>
+        <relationshipLabel>Project Comments</relationshipLabel>
+        <relationshipName>Project_Comments</relationshipName>
+        <required>false</required>
+        <trackTrending>false</trackTrending>
+        <type>Lookup</type>
+    </fields>
+    <label>Project Comment</label>
+    <nameField>
+        <displayFormat>PC-{000000}</displayFormat>
+        <label>Project Comment Name</label>
+        <type>AutoNumber</type>
+    </nameField>
+    <pluralLabel>Project Comments</pluralLabel>
+    <searchLayouts/>
+    <sharingModel>ReadWrite</sharingModel>
+    <webLinks>
+        <fullName>New_Project_Comment</fullName>
+        <availability>online</availability>
+        <displayType>massActionButton</displayType>
+        <encodingKey>UTF-8</encodingKey>
+        <linkType>url</linkType>
+        <masterLabel>New Project Comment</masterLabel>
+        <openType>replace</openType>
+        <protected>false</protected>
+        <requireRowSelection>false</requireRowSelection>
+        <url>/a1D/e?CF00N70000002NZH4={!Project_Piece__c.Name}&amp;CF00N70000002NZH4_lkid={!Project_Piece__c.Id}&amp;retURL=%2F{!Project_Piece__c.Id}&amp;CF00N70000002NZGz={!Project_Piece__c.Project__c}</url>
+    </webLinks>
+    <webLinks>
+        <fullName>Request_Build</fullName>
+        <availability>online</availability>
+        <displayType>button</displayType>
+        <encodingKey>UTF-8</encodingKey>
+        <linkType>url</linkType>
+        <masterLabel>Request Build</masterLabel>
+        <openType>replace</openType>
+        <protected>false</protected>
+        <url>/a0N/e?CF00N70000002qJSF={!Project_Comment__c.Project_Piece__c}
+&amp;CF00N70000002qJSF_lkid={!Project_Comment__c.Project_PieceId__c}
+&amp;00N70000002qJSP=Request
+&amp;00N70000002qJSZ=Creative
+&amp;00N70000002qJSe=Site
+&amp;00N70000002r4Yi={!Project_Comment__c.Comments__c}
+&amp;retURL=%2F{!Project_Comment__c.Project_PieceId__c}
+&amp;saveURL=%2F{!Project_Comment__c.Project_PieceId__c}
+&amp;RecordType=01270000000Q5Pe</url>
+    </webLinks>
+    <webLinks>
+        <fullName>Request_Comp</fullName>
+        <availability>online</availability>
+        <displayType>button</displayType>
+        <encodingKey>UTF-8</encodingKey>
+        <linkType>url</linkType>
+        <masterLabel>Request Comp</masterLabel>
+        <openType>replace</openType>
+        <protected>false</protected>
+        <url>/a0N/e?CF00N70000002qJSF={!Project_Comment__c.Project_Piece__c}
+&amp;CF00N70000002qJSF_lkid={!Project_Comment__c.Project_PieceId__c}
+&amp;00N70000002qJSP=Request
+&amp;00N70000002qJSZ=Creative
+&amp;00N70000002qJSe=Comp
+&amp;00N70000002r4Yi={!Project_Comment__c.Comments__c}
+&amp;retURL=%2F{!Project_Comment__c.Project_PieceId__c}
+&amp;saveURL=%2F{!Project_Comment__c.Project_PieceId__c}
+&amp;RecordType=01270000000Q5Pe</url>
+    </webLinks>
+    <webLinks>
+        <fullName>Request_Corrections</fullName>
+        <availability>online</availability>
+        <displayType>button</displayType>
+        <encodingKey>UTF-8</encodingKey>
+        <linkType>url</linkType>
+        <masterLabel>Request Corrections</masterLabel>
+        <openType>replace</openType>
+        <protected>false</protected>
+        <url>/a0N/e?CF00N70000002qJSF={!Project_Comment__c.Project_Piece__c} 
+&amp;CF00N70000002qJSF_lkid={!Project_Comment__c.Project_PieceId__c} 
+&amp;00N70000002qJSP=Request 
+&amp;00N70000002qJSZ=Creative 
+&amp;00N70000002qJSe=Correction
+&amp;00N70000002r4Yi={!Project_Comment__c.Comments__c} 
+&amp;retURL=%2F{!Project_Comment__c.Project_PieceId__c} 
+&amp;saveURL=%2F{!Project_Comment__c.Project_PieceId__c} 
+&amp;RecordType=01270000000Q5Pe</url>
+    </webLinks>
+    <webLinks>
+        <fullName>Request_Revisions</fullName>
+        <availability>online</availability>
+        <displayType>button</displayType>
+        <encodingKey>UTF-8</encodingKey>
+        <linkType>url</linkType>
+        <masterLabel>Request Revisions</masterLabel>
+        <openType>replace</openType>
+        <protected>false</protected>
+        <url>/a0N/e?CF00N70000002qJSF={!Project_Comment__c.Project_Piece__c}
+&amp;CF00N70000002qJSF_lkid={!Project_Comment__c.Project_PieceId__c}
+&amp;00N70000002qJSP=Request
+&amp;00N70000002qJSZ=Creative
+&amp;00N70000002qJSe=Revision
+&amp;00N70000002r4Yi={!Project_Comment__c.Comments__c}
+&amp;retURL=%2F{!Project_Comment__c.Project_PieceId__c}
+&amp;saveURL=%2F{!Project_Comment__c.Project_PieceId__c}
+&amp;RecordType=01270000000Q5Pe</url>
+    </webLinks>
+</CustomObject>

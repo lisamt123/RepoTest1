@@ -1,0 +1,764 @@
+<apex:page controller="DMAPP.AccountPlanController" extensions="DMAPP.BrandOverrideController" sidebar="false"
+    docType="html-5.0"
+    tabStyle="Account_Plans__tab"
+    >
+
+    <c:jQuery jQueryUI="true" 
+    	underscore="true"
+    	dropdown="true"
+    	touchPunch="true"
+    	chosen="true"
+    	paging="true" 
+    	tooltip="true" />
+        
+  
+<style>
+    @import url("{!URLFOR($Resource.DMAPP__TAM,     'css/common.css')}");
+    
+    @import url("{! URLFOR($Resource.DMAPP__TAM,    'css/solutionTooltip.css') }");
+    
+    div#smartAM {
+        border: 1px solid #CCCCCC;
+        /**
+        border-top-color: #096;
+        border-top-left-radius: 4px;
+        border-top-right-radius: 4px;
+        border-top-width: 3px;
+        **/
+        border-radius: 8px;
+        -moz-border-radius: 8px;
+        -webkit-border-radius: 8px;
+        cursor: default;
+        padding: 49px 14px 9px;
+        position:relative;
+    }
+    
+    div#smartAM table {
+        width:100%; 
+        clear:both;
+    }
+    div#smartAMBranding {
+        clear: both;
+        background: url('{!URLFOR($Resource.DMAPP__Common, 'panel/images/bg_pad_header.png')}') left bottom repeat-x;    
+        position:absolute;
+        width:100%;
+        display:block;
+        left:0px;
+        top:0px;
+        border-radius:8px 8px 0px 0px;
+        -moz-border-radius:8px 8px 0px 0px;
+        -webkit-border-radius:8px 8px 0px 0px;
+    }
+    
+    div#smartAMBrandingLeft {
+        float: left;
+    }
+    
+    div#smartAMBrandingLeft span {
+        float: right;
+        margin-left: 10px;
+        font-size:1.4em;
+        line-height:30px;
+    }
+    div#smartAMBrandingLeft div strong {
+        display: block;
+    }
+    div#smartAMBrandingRight {
+        float: right;
+        margin-left: 30px;
+    }
+    
+    div#smartAMBrandingRight img {
+        margin-right: 10px;
+    }
+    
+    body .apexp .bPageBlock.apexDefaultPageBlock div.pbHeader {
+        display: none;
+    }
+    
+    .apexp .bPageBlock.apexDefaultPageBlock div.pbBody {
+        margin: 0 !important;
+    }
+    
+    body .individualPalette div.secondaryPalette.bPageBlock {
+        border-top-color: #EAEAEA;
+        border-top-width: 1px;
+    }
+
+    body .bPageBlock .pbBody td.data2Col {
+        padding: 5px;
+    }
+    
+    .inactiveCell, a.inactiveCell, a.inactiveCell span {
+        color: #999999;
+    }
+    
+    th.headerCell, body .pbBody table.list tr.headerRow td, body .pbBody table.list tr.headerRow th.headerCell {
+        background-image: url('{!URLFOR($Resource.DMAPP__TAM, 'images/bg_table_header.jpg')}'); 
+        color: #FFFFFF;
+        padding-right: 5px;
+    }
+    
+    .headerLeft {
+        border-radius: 4px 0px 0px 0px;
+    }
+    
+    .headerRight {
+        border-radius: 0px 4px 0px 0px;
+    }
+    
+    th.headerCell a, th.headerCell, body .pbBody table.list tr.headerRow td, body .pbBody table.list tr.headerRow th.headerCell a {
+        color: #FFFFFF;
+    }  
+      
+    .settingsCell, body .pbBody table.list tr.dataRow th, body .pbBody table.list tr.dataRow td.settingsCell {
+        padding-left: 10px;
+    }         
+
+    div.marketviewlink {
+        float: right;
+        background: url('{!URLFOR($Resource.DMAPP__SmartOM, 'tabs/btn_fwd_link.png')}') right center no-repeat;
+        padding-right: 25px;
+    }
+    
+    div.smartOMMainHelpLink {
+        float:right;    
+        margin-right: 20px;
+    }
+    
+    div.smartOMMainHelpLink a {
+        float:left;
+        display:block;
+        background: url('{!URLFOR($Resource.DMAPP__SmartOM, 'tabs/icon_help.png')}') left center no-repeat;
+        padding: 1px 0 0 20px;
+        text-decoration:none;
+        color:#405773;
+        cursor: pointer; 
+    }    
+    
+    div.smartOMHelpLink {
+        float:right;    
+        margin: 8px 4px 0 0;
+    }
+    
+    div.smartOMHelpLink a {
+        float:left;
+        display:block;
+        background: url('{!URLFOR($Resource.DMAPP__SmartOM, 'tabs/icon_help.png')}') left center no-repeat;
+        font-weight: normal;
+        padding: 0 0 0 20px;
+        text-decoration:none;
+        color:#405773;
+        cursor: pointer; 
+    }
+    
+    td.date {
+        text-align: right;
+    }
+    th.date {
+        text-align: right;
+    }
+    
+    span.link {
+        color: #4E6B8F;
+        cursor: pointer;
+        
+    }
+    
+    div.rolodex {
+        text-align: right;
+    }
+    
+    .dropdown-relative {
+        padding-left: 0;
+        margin-left: -75px !important;
+    }
+
+    .dropdown .dropdown-menu,
+    .dropdown .dropdown-panel {
+        min-width: 90px !important;
+    }
+    
+    
+    #FROMDATE{
+        -webkit-user-select: none !important;
+        -moz-user-select: none !important;
+        -ms-user-select: none !important;
+        -o-user-select: none !important;
+        user-select: none !important;  
+    }
+    
+	/* iPAD STYLES */
+	@media only screen 
+		and (min-device-width : 768px) 
+		and (max-device-width : 1024px){  
+  
+			.salesforce1 div#smartAM {
+				padding: 49px 3px 9px;
+			}
+	}
+      
+    
+	.ui-tabs .ui-state-disabled { 
+	    display: none; /* disabled tabs don't show up */ 
+	} 
+	
+	@media only screen 
+		and (min-device-width : 768px) 
+		and (max-device-width : 1024px){  
+  
+			.salesforce1 div#smartAM {
+				padding: 49px 3px 9px;
+			}
+	}
+	
+  
+</style>
+
+    	
+    <c:MobileRedirect TAM="true" />
+    	
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__prefix)}"/>
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__ftk, 'forcetk.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__ttgomjs, 'ttg/lib/ttgutils.js')}"/>
+
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__OpportunityMapConfiguration)}"/>
+    
+    <apex:include pageName="DMAPP__CRUD" />
+    <apex:include pageName="DMAPP__APIDelegate" />
+        
+        
+    <apex:form >
+    
+
+	<!-- TEMP replace of new redirect component 
+    <script>
+	     <apex:includeScript value="{! URLFOR($Resource.Common, 'js/mobile-redirect.js') }" />
+	    
+	     var redirect = {! redirect };     
+	     var redirectStylesheet = '{! URLFOR($Resource.SmartOM, 'css/salesforce1-redirect-style.css') }';
+	     var logo = '{! URLFOR($Resource.SmartOM, 'DealmakerLogo.png') }';
+	     var pageName = '{! PageName }';
+	     var stylesheet = '{! URLFOR($Resource.TAM, 'css/salesforce1-ipad-style-AM.css') }';
+	     var loader = '{! JSENCODE(URLFOR($Resource.ttgomjs, '/ttg/graph/images/loader.gif')) }';
+
+	     ttg_salesforce1_redirect('TAM',
+	            redirect,
+	            redirectStylesheet,
+	            logo,
+	            pageName,
+	            stylesheet,
+	            loader);   
+    </script>        
+    <!-- END --> 
+        
+        <apex:actionFunction name="filterPage" action="{!filter}" />
+        <apex:actionFunction name="filterMore" action="{!more}" />
+        <apex:actionFunction name="filterLess" action="{!less}" />
+        
+        <apex:actionFunction name="reloadPage" action="{!reload}" />
+        
+        <apex:inputText value="{!planStartsWith}" id="startWith" styleClass="hidden startsWith" />
+ 
+
+        <div id="smartAM">  
+        
+            <div id="AM_table_container">
+                
+                <apex:outputPanel layout="block" rendered="{!isLicensedForAccountManager}">
+                    <div class="marketviewlink">
+                    	<apex:outputLink target="{!IF(isWin8Touch, '_self', '_parent')}" value="/apex/DMAPP__MarketViews" onclick="addOverlay()">To Market Views</apex:outputLink>
+                    </div>
+                    <div id='accountPlansMainHelp' class="smartOMMainHelpLink">
+                        <a id="TASHELPLINK" onclick="javascript: ttg_accountPlan.showHelp();">Help</a>
+                    </div>  
+                                    
+                    <table>
+                        <tr>
+                            <td width="1%">Status</td>
+                            <td width="1%">
+                                <apex:selectList value="{!status}"  multiselect="false" size="1" styleClass="status">
+                                    <apex:selectOption itemValue="Open" itemLabel="Active"/>
+                                    <apex:selectOption itemValue="Closed" itemLabel="Inactive"/>
+                                    <apex:selectOption itemValue="All" itemLabel="All"/>
+                                </apex:selectList>
+                                
+                            </td>
+                            <td width="1%">Ownership</td>
+                            <td>
+                                <apex:selectList value="{!ownership}"  multiselect="false" size="1" styleClass="ownership">
+                                    <apex:selectOption itemValue="Mine" itemLabel="My plans"/>
+                                    <apex:selectOption itemValue="My Team" itemLabel="My team's plans"/>
+                                    <apex:selectOption itemValue="All" itemLabel="All plans"/>
+                                </apex:selectList>
+                                
+                            </td>
+                            <td>
+                                <div id="firstRol" class="rolodex">
+                                </div>
+                            </td>
+                        </tr>                        
+                        </table>
+                        
+                        <table  id='roloTable'>
+                        </table>
+                        
+                        <table>
+                        
+                        <tr>
+                            <td colspan="5" style="text-align: center;">
+                            	<apex:outputPanel rendered="{!planObjectCreateable}">
+                            		<input class="btn" type="button" id="NEWACCOUNTPLAN" value="New Account Plan" />
+                            	</apex:outputPanel>
+                            </td>
+                        </tr>
+                    </table>
+                </apex:outputPanel>
+        
+                <apex:outputText value="Current user has no license for Account Manager module" styleClass="noLicenseText" rendered="{!NOT(isLicensedForAccountManager)}"/>
+                <apex:pageBlock title="" rendered="{!isLicensedForAccountManager}">
+            
+
+                    <apex:pageBlockSection columns="1">
+        
+                        <apex:pageBlockTable value="{!plans}" var="plan" id="plansTable">
+                            
+                            
+                            <apex:column headerClass="headerCell headerLeft">
+                                <apex:facet name="header">
+                                    <apex:commandLink value="Plan Name" action="{!doSort}" oncomplete="ttg_accountPlan.reload()">
+                                        <apex:param name="sortField" value="Name" assignTo="{!sortField}"/>
+                                        <img title="Sorted Ascending" class="hidden tabName sortAsc" alt="Sorted Ascending" src="/s.gif" />
+                                        <img title="Sorted Descending" class="hidden tabName sortDesc" alt="Sorted Descending" src="/s.gif" />
+                                    </apex:commandLink>
+                                </apex:facet>
+                                <apex:outputLink value="#" target="_self" styleClass="{!IF(plan.Status = 'closed', 'inactiveCell','')}" onclick="ttg.linkClicked('/apex/DMAPP__am_opp_map_app?id={!plan.Id}')">
+                                    <apex:outputText value="{!plan.Name}"/>
+                                </apex:outputLink>
+                            </apex:column>  
+                            
+                            <apex:column headerClass="headerCell headerLeft">
+                                <apex:facet name="header">
+                                    <apex:commandLink value="Plan Type" action="{!doSort}" oncomplete="ttg_accountPlan.reload()">
+                                        <apex:param name="sortField" value="PlanType" assignTo="{!sortField}"/>
+                                        <img title="Sorted Ascending" class="hidden tabPlanType sortAsc" alt="Sorted Ascending" src="/s.gif" />
+                                        <img title="Sorted Descending" class="hidden tabPlanType sortDesc" alt="Sorted Descending" src="/s.gif" />
+                                    </apex:commandLink>
+                                </apex:facet>
+                                <apex:outputText value="{!plan.planType}" styleClass="{!IF(plan.Status = 'closed', 'inactiveCell','')}"/>
+                            </apex:column>                                                
+                            
+                            <apex:column headerClass="headerCell">
+                                <apex:facet name="header">
+                                    <apex:commandLink value="Status" action="{!doSort}" oncomplete="ttg_accountPlan.reload()">
+                                        <apex:param name="sortField" value="Status" assignTo="{!sortField}"/>
+                                        <img title="Sorted Ascending" class="hidden tabStatus sortAsc" alt="Sorted Ascending" src="/s.gif" />
+                                        <img title="Sorted Descending" class="hidden tabStatus sortDesc" alt="Sorted Descending" src="/s.gif" />
+                                    </apex:commandLink>
+                                </apex:facet>
+                                <apex:outputText value="Active" rendered="{!plan.Status = 'open'}"/>
+                                <apex:outputText value="Inactive" rendered="{!plan.Status = 'closed'}" styleClass="inactiveCell"/>
+                            </apex:column>                  
+                            
+        
+                            <apex:column headerClass="headerCell">
+                                <apex:facet name="header">
+                                    <apex:commandLink value="Owner" action="{!doSort}" oncomplete="ttg_accountPlan.reload()">
+                                        <apex:param name="sortField" value="Owner" assignTo="{!sortField}"/>
+                                        <img title="Sorted Ascending" class="hidden tabOwner sortAsc" alt="Sorted Ascending" src="/s.gif" />
+                                        <img title="Sorted Descending" class="hidden tabOwner sortDesc" alt="Sorted Descending" src="/s.gif" />
+                                    </apex:commandLink>
+                                </apex:facet>
+                                <apex:outputText value="{!plan.Owner}" styleClass="{!IF(plan.Status = 'closed', 'inactiveCell','')}"/>
+                            </apex:column>
+        
+                            <apex:column headerClass="headerCell">
+                                <apex:facet name="header">
+                                    <apex:outputText value="Account List"/>
+                                </apex:facet>
+                                <apex:outputText value="{!plan.accountList}" styleClass="{!IF(plan.Status = 'closed', 'inactiveCell','')}"/>
+                            </apex:column>
+        
+                            <apex:column width="180px" styleClass="date" headerClass="date headerCell">
+                                <apex:facet name="header">
+                                    <apex:commandLink value="Revenue Target" action="{!doSort}">
+                                        <apex:param name="sortField" value="RevenueTarget" assignTo="{!sortField}"/>
+                                        <img title="Sorted Ascending" class="hidden tabRevenueTarget sortAsc" alt="Sorted Ascending" src="/s.gif" />
+                                        <img title="Sorted Descending" class="hidden tabRevenueTarget sortDesc" alt="Sorted Descending" src="/s.gif" />
+                                    </apex:commandLink>
+                                </apex:facet>
+                                <apex:outputText value="{!plan.formattedRevenueTarget}" styleClass="{!IF(plan.Status = 'closed', 'inactiveCell','')}"/>
+                            </apex:column>
+        
+                            <apex:column width="80px" styleClass="date" headerClass="date headerCell" >
+                                <apex:facet name="header">
+                                    <apex:commandLink value="From" action="{!doSort}" oncomplete="ttg_accountPlan.reload()">
+                                        <apex:param name="sortField" value="From" assignTo="{!sortField}"/>
+                                        <img title="Sorted Ascending" class="hidden tabFrom sortAsc" alt="Sorted Ascending" src="/s.gif" />
+                                        <img title="Sorted Descending" class="hidden tabFrom sortDesc" alt="Sorted Descending" src="/s.gif" />
+                                    </apex:commandLink>
+                                </apex:facet>
+                                <apex:outputText value="{0, date, {!dateFormat}}" styleClass="{!IF(plan.Status = 'closed', 'inactiveCell','')}">
+                                    <apex:param value="{!plan.fromDate}"></apex:param>
+                                </apex:outputText>
+                            </apex:column>                      
+        
+                            <apex:column width="80px" styleClass="date" headerClass="date headerCell">
+                                <apex:facet name="header">
+                                    <apex:commandLink value="To" action="{!doSort}" oncomplete="ttg_accountPlan.reload()">
+                                        <apex:param name="sortField" value="To" assignTo="{!sortField}"/>
+                                        <img title="Sorted Ascending" class="hidden tabTo sortAsc" alt="Sorted Ascending" src="/s.gif" />
+                                        <img title="Sorted Descending" class="hidden tabTo sortDesc" alt="Sorted Descending" src="/s.gif" />
+                                    </apex:commandLink>
+                                </apex:facet>
+        
+                                <apex:outputText value="{0, date, {!dateFormat}}" styleClass="{!IF(plan.Status = 'closed', 'inactiveCell','')}">
+                                    <apex:param value="{!plan.toDate}"></apex:param>
+                                </apex:outputText>
+                                
+                            </apex:column>
+        
+                            <apex:column width="20px" headerClass="headerCell headerRight" styleClass="settingsCell" >
+
+                                <a href="#" data-dropdown="#dropdown-{!plan.Id}">
+                                    <img src="{!URLFOR($Resource.Common, 'images/icon_cog.png')}" alt="Options" title="Options" ttgid="AccountPlanOPTIONSLIST"/>
+                                </a>
+                            	
+                            	<apex:outputPanel rendered="{!planObjectCreateable}" layout="block">
+	                                <div id="dropdown-{!plan.Id}" class="dropdown dropdown-relative">
+	                                   <ul class="dropdown-menu">
+	                                        <li>
+	                                            <a ttgid="AccountPlanOPTIONSSETTINGS" planId="{!plan.Id}" inactive="{!IF(plan.Status = 'closed', 'true','false')}" isreadonly="{!plan.readonly}" iscandelete="{!plan.candelete}" class="SETTINGSLINK {!IF(plan.Status = 'closed', 'inactiveCell','')}">Settings</a>
+	                                        </li>
+	                                        <li>
+	                                           	<a ttgid="AccountPlanOPTIONSCLONE" planId="{!plan.Id}" planName="{!plan.Name}" inactive="{!IF(plan.Status = 'closed', 'true','false')}" isreadonly="{!plan.readonly}" class="SETTINGSCOPYLINK {!IF(plan.Status = 'closed', 'inactiveCell','')}">Clone</a>                                         	
+	                                        </li>
+	                                    </ul>
+	                                </div>                            	
+                            	</apex:outputPanel> 
+                            	<apex:outputPanel rendered="{!NOT(planObjectCreateable)}" layout="block">
+	                                <div id="dropdown-{!plan.Id}" class="dropdown dropdown-relative">
+	                                   <ul class="dropdown-menu">
+	                                        <li>
+	                                            <a ttgid="AccountPlanOPTIONSSETTINGS" planId="{!plan.Id}" inactive="{!IF(plan.Status = 'closed', 'true','false')}" isreadonly="{!plan.readonly}" iscandelete="{!plan.candelete}" class="SETTINGSLINK {!IF(plan.Status = 'closed', 'inactiveCell','')}">Settings</a>
+	                                        </li>
+	                                    </ul>
+	                                </div>                            	
+                            	</apex:outputPanel>                              	
+
+                                
+                            </apex:column>  
+                             
+                            <!--
+                            <apex:column width="120px" headerClass="headerCell headerRight" styleClass="settingsCell" rendered="{!showPPTLink}">
+                                <apex:facet name="header">Download</apex:facet>
+                                <apex:outputLink type="application/vnd.openxmlformats-officedocument.presentationml.presentation" value="/apex/PPTAMDownload?id={!plan.Id}">Download</apex:outputLink>
+                            </apex:column>  
+                            -->
+                            
+                        </apex:pageBlockTable>  
+          
+                    </apex:pageBlockSection>
+                    
+                    <div style="width:100%;text-align: center;">
+                        <div id="morefewerbar" class="hidden">Show me  <span class="link more"><img title="Show More" class="moreArrow" alt="Show More" src="/s.gif" />more</span> / <span class="link less">fewer<img title="Show Fewer" class="fewerArrow" alt="Show Fewer" src="/s.gif" /></span> records per list page</div>
+                        <div id="morebar" class="hidden">Show me  <span class="link more"><img title="Show More" class="moreArrow" alt="Show More" src="/s.gif" />more</span>  records per list page</div>
+                        <div id="fewerbar" class="hidden">Show me <span class="link less">fewer<img title="Show Fewer" class="fewerArrow" alt="Show Fewer" src="/s.gif" /></span> records per list page</div>
+                    </div>
+            
+                </apex:pageBlock>
+
+                <div id="smartAMBranding">
+                    <div id="smartAMBrandingLeft"><apex:image url="{!URLFOR($Resource.DMAPP__Common, 'panel/images/SmartOM50.png')}"/></div>
+                    <div id="smartAMBrandingRight">
+                        <apex:image url="{!URLFOR($Resource.DMAPP__Qualification, 'TASLogo50.png')}" alt="TAS Group Logo" rendered="{!NOT(hasBrandOverrideLogo)}"/>
+                        <apex:image url="{!brandOverrideLogo}" rendered="{!hasBrandOverrideLogo}"/>
+                    </div>
+                </div>
+           </div>
+        </div>
+        
+        
+
+
+    </apex:form>
+
+    <script>
+
+        /* 
+         * Copyright © The TAS Group. All rights reserved.
+         *  
+         */
+
+        $.fn.addBack = function (selector) {
+            return this.add(selector == null ? 
+            this.prevObject : this.prevObject.filter(selector));
+        }
+        
+        var spec = {};
+        
+        var ttg_accountPlan = (function(_spec) {
+            var that = {}
+        
+            function setup() {
+                var range = "AZ";
+                var i;
+                for (i = range.charCodeAt(0); i <= range.charCodeAt(1); i++) {
+                    
+                    jQuery('.rolodex').append(
+                        jQuery('<A>').addClass('listItem').append(
+                            jQuery('<span>').addClass('listItemPad').text(String.fromCharCode(i)).click(filter) 
+                        )
+                    )
+                
+                }
+                
+                jQuery('.rolodex').append(
+                    jQuery('<A>').addClass('listItem').append(
+                        jQuery('<span>').addClass('listItemPad').text('Other').click(filter)
+                    )
+                )
+                .append(
+                    jQuery('<A>').addClass('listItem').append(
+                        jQuery('<span>').addClass('listItemPad').text('All').click(filter)
+                    )
+                )
+                
+                //jQuery('.rolodex:contains("{!planStartsWith}")').css('background-color', 'red');
+                
+                jQuery('.ownership').change(ownershipChange);
+                jQuery('.status').change(statusChange);
+                jQuery('.less').click(less);
+                jQuery('.more').click(more);
+                                
+                if ({!moreRecords == true && fewerRecords == true}) {
+                    jQuery('#morefewerbar').removeClass('hidden')
+                }
+                else if ({!moreRecords == true}) { 
+                    jQuery('#morebar').removeClass('hidden')
+                }
+                else if ({!fewerRecords == true}) {
+                    jQuery('#fewerbar').removeClass('hidden')
+                }
+                
+                if ('{!sortOrder}' == 'asc') {
+                    jQuery('.sortDesc').css('display', 'none');             
+                }
+                else {
+                    jQuery('.sortAsc').css('display', 'none');              
+                }
+
+                jQuery('.tab{!sortField}').removeClass('hidden')                
+                                
+                
+            }
+            
+            function filter() {
+                
+                jQuery('.startsWith').val(jQuery(this).text());
+            
+                filterPage();
+                
+            }
+
+            function ownershipChange() {
+                
+                filterPage();
+                
+            }
+
+            function statusChange() {
+                
+                filterPage();
+                
+            }
+
+            function more() {
+                
+                filterMore();
+                
+            }
+
+            function less() {
+                
+                filterLess();
+                
+            }
+            
+            function reload() {
+                
+                reloadPage();
+                
+            }
+            
+            function showHelp() {
+                window.open('{!helpURLBase}' + '/Default.htm#Smart_AM/0.Smart_Account_Manager.htm', "TAS", "resizable=1,location=1,status=1,scrollbars=1,width=1000,height=600");
+            }
+
+            
+            that.setup = setup;
+            that.showHelp = showHelp;
+            that.reload = reload;
+        
+            return that;
+        })(spec);
+    
+        jQuery(
+        
+            function () {
+                ttg_accountPlan.setup();
+            }
+
+        );
+        
+        var ttg = ttg || {};
+        ttg.am = ttg.am || {};
+    
+        // This is referenced by OpportunityMapConfiguration, which is a staticresource, so need to ensure this is visible to it
+        ttg.am.showSettingsHelp = function() {
+            window.open('{!helpURLBase}' + "/Default.htm#Smart_AM/1.Plan_Creation/1.Plan_Creation.htm", "TAS", "resizable=1,location=1,status=1,scrollbars=1,width=1000,height=600");
+        }
+
+        ttg.linkClicked = function(url) {
+            addOverlay();
+        
+            if(ttg_salesforce1) {
+                sforce.one.navigateToURL(url);
+            } else {
+                top.location.href=url;
+            }
+        }
+    
+        jQuery(document).ready(function() {
+						        
+                var fetchapi = ttg.apiLayer.sfdcDelegate( { sessionid : '{!$Api.Session_ID}'});
+                ttg.fetch.metadata('Account', fetchapi);
+                    
+                
+
+
+			    		var spec = {
+			    			sessionid : '{!JSENCODE($Api.Session_ID)}',
+			    			userId: '{!JSENCODE($User.id)}',
+							ttgApi: ttg.apiLayer.sfdcDelegate( { sessionid : '{!JSENCODE($Api.Session_ID)}' } ),
+			                planId: '',
+			                spinnerURL: '{!JSENCODE(URLFOR($Resource.ttgomjs, '/ttg/graph/images/loader.gif'))}',
+			                calendarURL: "{!URLFOR($Resource.Common, 'images/icon_calendar.png')}",
+			                title: 'Plan Settings',			                
+			                onSave: function(info) { 
+								/* IF S1 IS PRESENT, S1 NAVIGATION OVERRIDES STANDARD NAVIGATION */
+								var thisURL = '/apex/DMAPP__am_opp_map_app?id=' + encodeURIComponent(info.planId) + "&" + (new Date()).getTime();		
+								(window.sforce.one) ? sforce.one.navigateToURL(thisURL) : top.location.href=thisURL;
+			                },
+			                onDelete: function() { filterPage(); },
+                            hideScorecard: {!NOT(showScorecard)},
+                            useAccountGrouping: {!accountGroupingEnabled}   ,
+			                fiscalYearStartMonth: {!fiscalYearStartMonth},
+			                usesStartDateAsFiscalYearName: {!usesStartDateAsFiscalYearName},
+			                showSolutionFamilies: {!showSolutionFamilies},
+			                showAutoPostOption: {!showAutoPostOption},
+							isoCode: '{!JSENCODE(CurrencyISO)}' 	
+			    		};
+
+				var amConfiguration = ttg.am.configuration(spec);
+				
+				jQuery('#NEWACCOUNTPLAN').click(function () {
+
+                        
+                        amConfiguration.configure();
+                    }
+                )
+                
+                jQuery('.SETTINGSLINK').click(
+                    function () { 
+
+                        var planId = jQuery(this).attr('planId');
+                        var inactive = (jQuery(this).attr('inactive')) == 'true';
+                        var readonly = (jQuery(this).attr('isreadonly')) == 'true';
+                        var candelete = (jQuery(this).attr('iscandelete')) == 'true';
+                        var spec = {
+                            sessionid : '{!JSENCODE($Api.Session_ID)}',
+                            userId: '{!$User.id}',
+                            ttgApi: ttg.apiLayer.sfdcDelegate( { sessionid : '{!JSENCODE($Api.Session_ID)}' } ),
+                            planId: planId,
+                            spinnerURL: '{!JSENCODE(URLFOR($Resource.ttgomjs, '/ttg/graph/images/loader.gif'))}',
+                            calendarURL: "{!URLFOR($Resource.Common, 'images/icon_calendar.png')}",
+                            title: 'Plan Settings',
+                            readonly: readonly,
+                            candelete: candelete,
+                            inactive: inactive,
+							/* IF S1 IS PRESENT, S1 NAVIGATION OVERRIDES filterPage() */
+                            onSave: function(info) { 
+								var thisURL = '/apex/DMAPP__am_opp_map_app?id=' + encodeURIComponent(info.planId) + "&" + (new Date()).getTime();	
+                            	(window.sforce.one) ? sforce.one.navigateToURL(thisURL) : filterPage();
+                            },
+                            onDelete: function() { filterPage(); },
+                            hideScorecard: {!NOT(showScorecard)},
+                            useAccountGrouping: {!accountGroupingEnabled},
+			                fiscalYearStartMonth: {!fiscalYearStartMonth},
+			                usesStartDateAsFiscalYearName: {!usesStartDateAsFiscalYearName},
+			                showSolutionFamilies: {!showSolutionFamilies},
+			                showAutoPostOption: {!showAutoPostOption},
+	                		isoCode: '{!JSENCODE(CurrencyISO)}' 			                 	     
+                        };
+
+                        var amConfiguration = ttg.am.configuration(spec);
+                        amConfiguration.configure();
+
+                    }
+                )
+                
+                jQuery('.SETTINGSCOPYLINK').click(
+                    function () { 
+                        var planId = jQuery(this).attr('planId');
+                        var planname = jQuery(this).attr('planName');
+                        var inactive = (jQuery(this).attr('inactive')) == 'true';
+                        var readonly = (jQuery(this).attr('isreadonly')) == 'true';
+                        var spec = {
+                            sessionid : '{!$Api.Session_ID}',
+                            userId: '{!$User.Id}',
+                            ttgApi: ttg.apiLayer.sfdcDelegate( { sessionid : '{!$Api.Session_ID}' } ),
+                            planId: planId,
+                            planname: planname,
+                            spinnerURL: '{!JSENCODE(URLFOR($Resource.ttgomjs, '/ttg/graph/images/loader.gif'))}',
+                            calendarURL: "{!URLFOR($Resource.Common, 'images/icon_calendar.png')}",
+                            title: 'Plan Clone',
+                            readonly: readonly,
+                            inactive: inactive,
+							/* IF S1 IS PRESENT, S1 NAVIGATION OVERRIDES filterPage() */
+                            onSave: function(info) { 
+								var thisURL = '/apex/DMAPP__am_opp_map_app?id=' + encodeURIComponent(info.planId) + "&" + (new Date()).getTime();	
+                            	(window.sforce.one) ? sforce.one.navigateToURL(thisURL) : filterPage();
+                            },
+                            clone: true,
+                            onDelete: function() { filterPage();},
+                            useAccountGrouping: {!accountGroupingEnabled},
+			                fiscalYearStartMonth: {!fiscalYearStartMonth},
+			                usesStartDateAsFiscalYearName: {!usesStartDateAsFiscalYearName},
+			                showSolutionFamilies: {!showSolutionFamilies},
+			                showAutoPostOption: {!showAutoPostOption},
+							isoCode: '{!JSENCODE(CurrencyISO)}'  
+                        };
+
+                        var amConfiguration = ttg.am.configuration(spec);
+                        amConfiguration.configure();
+
+                    }
+                    
+                )
+
+            }
+                             
+        )
+        
+        function addOverlay(){
+        	if(ttg_salesforce1){
+        		jQuery(".overlay").toggle()
+        	}
+        }
+		
+    </script>
+
+	<apex:include pageName="DMAPP__OpportunityMapConfiguration" />
+
+</apex:page>

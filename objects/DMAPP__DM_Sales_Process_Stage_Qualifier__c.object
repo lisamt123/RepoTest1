@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <actionOverrides>
+        <actionName>Accept</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>CancelEdit</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Clone</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Delete</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Edit</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Follow</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>List</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>New</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>SaveEdit</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Tab</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>View</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <allowInChatterGroups>false</allowInChatterGroups>
+    <compactLayoutAssignment>SYSTEM</compactLayoutAssignment>
+    <deploymentStatus>Deployed</deploymentStatus>
+    <deprecated>false</deprecated>
+    <description>ADMIN ONLY DATA CONFIG
+
+This object is responsible for the association of Qualifiers to a given Sales Process Stage. They are accessible from the Qualifiers page and the Sales Process Stage page.</description>
+    <enableActivities>false</enableActivities>
+    <enableBulkApi>true</enableBulkApi>
+    <enableEnhancedLookup>false</enableEnhancedLookup>
+    <enableFeeds>false</enableFeeds>
+    <enableHistory>false</enableHistory>
+    <enableReports>false</enableReports>
+    <enableSearch>true</enableSearch>
+    <enableSharing>true</enableSharing>
+    <enableStreamingApi>true</enableStreamingApi>
+    <fields>
+        <fullName>DMAPP__DM_Qualifier__c</fullName>
+        <deleteConstraint>Restrict</deleteConstraint>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <inlineHelpText>Select the global qualifier to link to this sales process stage</inlineHelpText>
+        <label>Qualifier</label>
+        <referenceTo>DMAPP__DM_Qualifier__c</referenceTo>
+        <relationshipLabel>Qualifier Process Stages</relationshipLabel>
+        <relationshipName>DM_Sales_Process_Stage_Qualifiers</relationshipName>
+        <required>false</required>
+        <trackTrending>false</trackTrending>
+        <type>Lookup</type>
+    </fields>
+    <fields>
+        <fullName>DMAPP__DM_Sales_Process_Stage__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>Sales Process Stage</label>
+        <referenceTo>DMAPP__DM_Sales_Process_Stage__c</referenceTo>
+        <relationshipName>DM_Sales_Process_Stage_Qualifiers</relationshipName>
+        <relationshipOrder>0</relationshipOrder>
+        <reparentableMasterDetail>false</reparentableMasterDetail>
+        <trackTrending>false</trackTrending>
+        <type>MasterDetail</type>
+        <writeRequiresMasterRead>false</writeRequiresMasterRead>
+    </fields>
+    <fields>
+        <fullName>DMAPP__DealmakerID__c</fullName>
+        <caseSensitive>false</caseSensitive>
+        <deprecated>false</deprecated>
+        <description>An external ID used for Dealmaker</description>
+        <externalId>true</externalId>
+        <label>DealmakerID</label>
+        <length>100</length>
+        <required>false</required>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>true</unique>
+    </fields>
+    <fields>
+        <fullName>DMAPP__Importance__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <inlineHelpText>Relative importance of this qualifier in the sales process.
+
+Note that the importance level provided will impact:
+- Closure Probability 
+- Close Date
+- Stage (highest importance qualifiers must be completed to move the opp. to the next stage)</inlineHelpText>
+        <label>Importance</label>
+        <picklist>
+            <picklistValues>
+                <fullName>Nice to have</fullName>
+                <default>true</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Important</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Very important</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Essential</fullName>
+                <default>false</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <trackTrending>false</trackTrending>
+        <type>Picklist</type>
+    </fields>
+    <fields>
+        <fullName>DMAPP__Mandatory__c</fullName>
+        <defaultValue>false</defaultValue>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <inlineHelpText>Mandatory qualifiers must be completed before the opportunity can move to a future stage in the sales process, regardless of whether or not the overall qualification threshold of the stage has been reached.</inlineHelpText>
+        <label>Mandatory</label>
+        <trackTrending>false</trackTrending>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>DMAPP__Sort_Order__c</fullName>
+        <defaultValue>10</defaultValue>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <inlineHelpText>The order in which this qualifier is displayed relative to the other qualifiers in the stage.
+
+You should make the order value unique for each qualifier in the stage, to guarantee the same order display each time.</inlineHelpText>
+        <label>Sort Order</label>
+        <precision>18</precision>
+        <required>true</required>
+        <scale>0</scale>
+        <trackTrending>false</trackTrending>
+        <type>Number</type>
+        <unique>false</unique>
+    </fields>
+    <label>Qualifier Process Stage</label>
+    <nameField>
+        <label>Sales Process Stage Qualifier Name</label>
+        <type>Text</type>
+    </nameField>
+    <pluralLabel>Qualifier Process Stages</pluralLabel>
+    <searchLayouts>
+        <customTabListAdditionalFields>DMAPP__DM_Sales_Process_Stage__c</customTabListAdditionalFields>
+        <customTabListAdditionalFields>DMAPP__DM_Qualifier__c</customTabListAdditionalFields>
+        <customTabListAdditionalFields>DMAPP__Importance__c</customTabListAdditionalFields>
+        <customTabListAdditionalFields>DMAPP__Sort_Order__c</customTabListAdditionalFields>
+        <searchResultsAdditionalFields>DMAPP__DM_Sales_Process_Stage__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields>DMAPP__DM_Qualifier__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields>DMAPP__Importance__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields>DMAPP__Sort_Order__c</searchResultsAdditionalFields>
+    </searchLayouts>
+    <sharingModel>ControlledByParent</sharingModel>
+</CustomObject>

@@ -1,0 +1,244 @@
+<apex:page standardController="DMAPP__DM_Market_View_Report__c" extensions="DMAPP.MarketViewStandardController">
+    <!-- l10n data -->
+    <apex:includeScript value="{!$Resource.DMAPP__l10njs}"/>
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__prefix)}"/>
+    <!--<apex:includeScript value="{!URLFOR($Resource.ttgomjs, 'ttg/lib/ttgutils.js')}"/>-->  
+    <style>
+    
+/*
+body, td {
+    color: #222222;
+    font-family: Arial,Helvetica,sans-serif;
+}
+
+body {
+    font-family: 'Arial','Helvetica',sans-serif;
+    font-size: 75%;
+}   
+*/      
+        .smartOMPanel {
+            top: -16px;
+            z-index: 45; /* Needed to make chatter popups display fine on IE7 */
+        }
+
+        .smartOMOpportunitySummary {
+		    margin: 10px 0 0 0;
+            font-size: 1.2em;
+            line-height: 150%;
+            float:left;
+        }
+        
+        .smartOMOpportunitySummary a {
+            text-decoration: none;
+        }
+        
+        .smartOMOpportunitySummary a:hover {
+            text-decoration: underline;
+        } 
+        
+        .chatterContainer {
+            float: right;
+        }
+        
+        .smartOMTabContainer {
+            clear: both;
+            float: left;
+            width: 100%;
+        }
+        
+        .smartOMTab {
+            background: #405773 url('{!URLFOR($Resource.DMAPP__SmartOM, 'tabs/bg_nav_off.jpg')}') left top repeat-x;
+            border: 1px solid  #374A61;
+            border-radius: 5px 5px 0px 0px;
+            -moz-border-radius: 5px 5px 0px 0px;
+            -webkit-border-radius: 5px 5px 0px 0px;
+            bottom: -1px;
+            float: left;
+            line-height: 1.5em;
+            margin-right: 5px;
+            padding: 5px 20px;
+            position: relative;
+            text-align: center;
+            color: #FFFFFF;
+            text-shadow: 0px -1px 0px rgba(0,0,0,0.8);
+            box-shadow: 0 1px 0 rgba(255, 255, 255, 0.3) inset;
+        }       
+        
+        .smartOMTabSelected {
+            background: #FFFFFF none !important;
+            border-bottom: 1px solid #FFFFFF;
+            color:  #374A61;
+            text-shadow:0px 1px 0px rgba(255,255,255,0.8);
+        }
+        .smartOMTab strong {
+            display: block;
+        }
+        .smartOMTab .smartOMTabInfo {
+            visibility: visible;
+            font-size:0.85em;
+            color:#C8D1DA;
+        }
+        .smartOMTabSelected .smartOMTabInfo {
+            visibility: hidden;
+        }       
+        
+        .smartOMLink {
+            text-decoration: none;
+            font-size: 1.2em;
+        }
+
+        .smartOMLink:hover .smartOMTab {
+            background: #4A6688 url('{!URLFOR($Resource.DMAPP__SmartOM, 'tabs/bg_nav_hover.jpg')}') left top repeat-x;
+            text-decoration: none;
+        }           
+        
+        .smartOMTabContainerBottom {
+            background-color:  #374A61;
+            clear: both;
+            height: 1px;
+            margin-bottom: 10px;
+        }
+        
+        div.smartOMBackLink {
+            float:left; 
+            margin:10px;
+        }
+
+            div.smartOMBackLink a {
+                float:left;
+                display:block;
+                text-indent: -999em;
+                width:24px;
+                height:24px;
+                background: url('{!URLFOR($Resource.DMAPP__SmartOM, 'tabs/btn_back_link.png')}') center center no-repeat;  
+            }
+            
+        div.TAMAdminLink {
+            float:right;    
+            margin:10px;
+        }
+        
+        div.TAMAdminLink a {
+            float:left;
+            display:block;
+            background: url('{!URLFOR($Resource.DMAPP__TAM, 'images/icon_admin.png')}') left center no-repeat;
+            padding:5px 0px 5px 20px;
+            text-decoration:none;
+            color:#405773;
+            cursor: pointer; 
+        }
+        
+        div.smartOMHelpLink {
+            float:right;    
+            margin:10px;
+        }
+        
+        div.smartOMHelpLink a {
+            float:left;
+            display:block;
+            background: url('{!URLFOR($Resource.DMAPP__SmartOM, 'tabs/icon_help.png')}') left center no-repeat;
+            padding:5px 0px 5px 20px;
+            text-decoration:none;
+            color:#405773;
+            cursor: pointer; 
+        }        
+        
+        div.smartOMPPTLink {
+            float:right;    
+            margin:10px;
+        }
+        
+        div.smartOMPPTLink a {
+            float:left;
+            display:block;
+            background: url('{!URLFOR($Resource.DMAPP__SmartOM, 'tabs/icon_ppt.png')}') left center no-repeat;
+            padding:5px 0;
+            text-decoration:none;
+            color:#405773;
+            cursor: pointer;
+            width: 16px;
+            height: 16px;
+        }           
+        
+        .readOnlyText {
+            color: red;
+        }       
+        
+        .smartOMLink {
+            float: left;
+        }
+
+    </style>    
+    
+    
+    <apex:variable var="reportSelected" value="{!IF(CONTAINS(selectedPage,'marketview'),true,false)}"/>
+
+    <div class="smartOMPanel">
+        <div class="smartOMTabContainer">
+
+            <div class="smartOMBackLink">
+                <apex:outputLink target="_top" value="/apex/MarketViews" styleClass="backlink">Back to Reports</apex:outputLink>
+            </div>
+
+            <div class="smartOMOpportunitySummary">
+                <strong>Dealmaker</strong> - Market View - {!report.Name}
+            </div>
+
+            <apex:outputPanel layout="block" styleClass="TAMAdminLink" rendered="{!isLicensedForAccountManager}">
+                <a id="TAMADMINLINK">Settings</a>
+            </apex:outputPanel>  
+            <div class="smartOMHelpLink">
+                <a id="TASHELPLINK" onclick="javascript: help.showHelp();">Help</a>
+            </div> 
+            <!-- 
+            <div id='smartOMPPTLink' class="smartOMPPTLink"  style='display:none'>
+                <apex:form >
+                    <a id="PPTEXPORT2" onclick="javascript: handlePPTX();"></a>
+                </apex:form> 
+            </div>                                         
+             -->
+        </div>
+        
+        <div class="smartOMTabContainerBottom"></div>
+    </div>  
+
+    <script>
+    
+		/* 
+		 * Copyright © The TAS Group. All rights reserved.
+		 *  
+		 */        
+
+        if (ttg_salesforce1) {          	
+	        jQuery('.salesforce1 div.smartOMBackLink a ').hide();
+		}
+    
+        var _HELP = function(spec) {
+        
+            var that = { }
+            
+            function showHelp() {
+            
+                var url = '{!helpURLBase}' + '/Default.htm#Smart_AM/';
+            
+                if ({!reportSelected}) {
+                    url += '11.Market_View_Report/1.Market_View_Report.htm';
+                }
+                else {
+                    alert('Sorry, help not available')
+                }
+                
+                var testwindow = window.open(url, "TAS", "resizable=1,location=1,status=1,scrollbars=1,width=600,height=600");
+
+            }
+
+            that.showHelp = showHelp;
+            
+            return that;
+        }
+        
+        var help = _HELP({});
+
+    </script>
+
+</apex:page>

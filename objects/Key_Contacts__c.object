@@ -1,0 +1,866 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <actionOverrides>
+        <actionName>Accept</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>CancelEdit</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Clone</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Delete</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Edit</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Follow</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>List</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>New</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>SaveEdit</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Tab</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>View</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <allowInChatterGroups>false</allowInChatterGroups>
+    <compactLayoutAssignment>SYSTEM</compactLayoutAssignment>
+    <deploymentStatus>Deployed</deploymentStatus>
+    <enableActivities>false</enableActivities>
+    <enableBulkApi>true</enableBulkApi>
+    <enableFeeds>false</enableFeeds>
+    <enableHistory>false</enableHistory>
+    <enableReports>false</enableReports>
+    <enableSearch>true</enableSearch>
+    <enableSharing>true</enableSharing>
+    <enableStreamingApi>true</enableStreamingApi>
+    <fields>
+        <fullName>Access__c</fullName>
+        <externalId>false</externalId>
+        <label>Access</label>
+        <picklist>
+            <picklistValues>
+                <fullName>Sales</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Manager</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Admin</fullName>
+                <default>false</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <trackTrending>false</trackTrending>
+        <type>MultiselectPicklist</type>
+        <visibleLines>3</visibleLines>
+    </fields>
+    <fields>
+        <fullName>Contact_Cell__c</fullName>
+        <externalId>false</externalId>
+        <formula>Dealer_Contact__r.MobilePhone</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>Contact Cell#</label>
+        <required>false</required>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Contact_Email__c</fullName>
+        <externalId>false</externalId>
+        <formula>Dealer_Contact__r.Email</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>Contact Email</label>
+        <required>false</required>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Contact_Phone__c</fullName>
+        <externalId>false</externalId>
+        <formula>Dealer_Contact__r.Phone</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>Contact Phone #</label>
+        <required>false</required>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Dealer_Contact__c</fullName>
+        <deleteConstraint>SetNull</deleteConstraint>
+        <externalId>false</externalId>
+        <inlineHelpText>Dealer Project Team member must be a contact in Salesforce to add them to a Project</inlineHelpText>
+        <label>Dealer Contact</label>
+        <lookupFilter>
+            <active>true</active>
+            <filterItems>
+                <field>Contact.Business_Unit__c</field>
+                <operation>equals</operation>
+                <valueField>$User.Business_Unit_for_Contact_Filter__c</valueField>
+            </filterItems>
+            <isOptional>true</isOptional>
+        </lookupFilter>
+        <referenceTo>Contact</referenceTo>
+        <relationshipLabel>Key Contacts</relationshipLabel>
+        <relationshipName>Dealer_Project_Teams_key</relationshipName>
+        <required>false</required>
+        <trackTrending>false</trackTrending>
+        <type>Lookup</type>
+    </fields>
+    <fields>
+        <fullName>Gone__c</fullName>
+        <externalId>false</externalId>
+        <formula>IF( Dealer_Contact__r.Gone__c = True, &quot;Yes&quot;, NULL)</formula>
+        <inlineHelpText>formula field that reads the Gone field from the contact and if checked, displays yes, otherwise the field is null</inlineHelpText>
+        <label>Gone?</label>
+        <required>false</required>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>ILM_CRM_Access__c</fullName>
+        <externalId>false</externalId>
+        <formula>IF( 
+INCLUDES(  Dealer_Contact__r.ILM_CRM_Access__c  , &quot;Admin&quot;) , 
+&quot;Admin&quot;, 
+IF( 
+INCLUDES(Dealer_Contact__r.ILM_CRM_Access__c, &quot;Manager&quot;) , 
+&quot;Manager&quot;, 
+IF( 
+INCLUDES(Dealer_Contact__r.ILM_CRM_Access__c, &quot;Salesperson&quot;) , 
+&quot;Salesperson&quot;, 
+&quot;&quot; 
+) 
+)
+)</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>ILM/CRM Access</label>
+        <required>false</required>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Legacy_ID__c</fullName>
+        <externalId>false</externalId>
+        <label>Legacy ID</label>
+        <length>18</length>
+        <required>false</required>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Make_s__c</fullName>
+        <externalId>false</externalId>
+        <label>Make(s)</label>
+        <picklist>
+            <picklistValues>
+                <fullName>Acura,</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Bentley</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Buick</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Bugati</fullName>
+                <default>false</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <trackTrending>false</trackTrending>
+        <type>MultiselectPicklist</type>
+        <visibleLines>4</visibleLines>
+    </fields>
+    <fields>
+        <fullName>Objective__c</fullName>
+        <externalId>false</externalId>
+        <label>Notes</label>
+        <length>32768</length>
+        <trackTrending>false</trackTrending>
+        <type>LongTextArea</type>
+        <visibleLines>3</visibleLines>
+    </fields>
+    <fields>
+        <fullName>POA_Notification_Needed__c</fullName>
+        <defaultValue>true</defaultValue>
+        <externalId>false</externalId>
+        <label>POA Notification Needed</label>
+        <trackTrending>false</trackTrending>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>Preferred_Method_of_Contact__c</fullName>
+        <externalId>false</externalId>
+        <label>Preferred Method of Contact</label>
+        <picklist>
+            <picklistValues>
+                <fullName>Cell</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Personal Email</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Work Email</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Work Phone</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Dealership # Only</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Any Number</fullName>
+                <default>false</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <trackTrending>false</trackTrending>
+        <type>Picklist</type>
+    </fields>
+    <fields>
+        <fullName>Primary_Contact__c</fullName>
+        <defaultValue>false</defaultValue>
+        <externalId>false</externalId>
+        <label>Primary Contact</label>
+        <trackTrending>false</trackTrending>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>Project_Role__c</fullName>
+        <externalId>false</externalId>
+        <label>Role</label>
+        <picklist>
+            <picklistValues>
+                <fullName>3rd Party</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>AutoTrader Affiliate</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>BDC Manager</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>CEO</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>CFO</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Controller/DMS Admin</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>COO</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Desking Coordinator</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>DP</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>GM</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Graphic Designer</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>GSM</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>ILM/CRM Coordinator</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Internet Director</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Inventory Coordinator</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Marketing Manager</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>New Car Manager</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>New Car Manager Assistant</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>OEM</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>PBX Coordinator</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Primary Contact</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Process Team</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Secondary Contact</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>SEM</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>SEO</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Service Manager</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>SMM</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Technical Contact</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Training Coordinator</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Used Car Manager</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Used Car Manager Assistant</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Website Primary Approver</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Website Secondary Approver</fullName>
+                <default>false</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <trackTrending>false</trackTrending>
+        <type>MultiselectPicklist</type>
+        <visibleLines>10</visibleLines>
+    </fields>
+    <fields>
+        <fullName>Project__c</fullName>
+        <deleteConstraint>SetNull</deleteConstraint>
+        <externalId>false</externalId>
+        <label>Project</label>
+        <referenceTo>SFDC_520_Quote__c</referenceTo>
+        <relationshipLabel>Key Contacts</relationshipLabel>
+        <relationshipName>Dealer_Project_Teams_projectkey</relationshipName>
+        <required>false</required>
+        <trackTrending>false</trackTrending>
+        <type>Lookup</type>
+    </fields>
+    <fields>
+        <fullName>Related_POA__c</fullName>
+        <deleteConstraint>SetNull</deleteConstraint>
+        <externalId>false</externalId>
+        <label>POA</label>
+        <referenceTo>POA__c</referenceTo>
+        <relationshipLabel>Key Contacts</relationshipLabel>
+        <relationshipName>Dealer_Teams_key</relationshipName>
+        <required>false</required>
+        <trackTrending>false</trackTrending>
+        <type>Lookup</type>
+    </fields>
+    <fields>
+        <fullName>Title__c</fullName>
+        <externalId>false</externalId>
+        <formula>Dealer_Contact__r.Title</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>Title</label>
+        <required>false</required>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <label>Key Contact</label>
+    <nameField>
+        <displayFormat>DPT-{000000}</displayFormat>
+        <label>Key Contact#</label>
+        <type>AutoNumber</type>
+    </nameField>
+    <pluralLabel>Key Contacts</pluralLabel>
+    <recordTypes>
+        <fullName>POA</fullName>
+        <active>true</active>
+        <description>used for Dealer Team members created related to a POA (Plan of Action)</description>
+        <label>POA</label>
+        <picklistValues>
+            <picklist>Access__c</picklist>
+            <values>
+                <fullName>Admin</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Manager</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Sales</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Make_s__c</picklist>
+            <values>
+                <fullName>Acura%2C</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Bentley</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Bugati</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Buick</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Preferred_Method_of_Contact__c</picklist>
+            <values>
+                <fullName>Any Number</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Cell</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Dealership %23 Only</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Personal Email</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Work Email</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Work Phone</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Project_Role__c</picklist>
+            <values>
+                <fullName>3rd Party</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>AutoTrader Affiliate</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>BDC Manager</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>CEO</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>CFO</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>COO</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Controller%2FDMS Admin</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>DP</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Desking Coordinator</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>GM</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>GSM</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>ILM%2FCRM Coordinator</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Internet Director</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Inventory Coordinator</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>New Car Manager</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>New Car Manager Assistant</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>OEM</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>PBX Coordinator</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Primary Contact</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Process Team</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>SEM</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>SEO</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>SMM</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Secondary Contact</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Service Manager</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Technical Contact</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Training Coordinator</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Used Car Manager</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Used Car Manager Assistant</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Website Primary Approver</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Website Secondary Approver</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+    </recordTypes>
+    <recordTypes>
+        <fullName>Project</fullName>
+        <active>true</active>
+        <description>page layout used to relate a dealer team member to a project</description>
+        <label>Project</label>
+        <picklistValues>
+            <picklist>Access__c</picklist>
+            <values>
+                <fullName>Admin</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Manager</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Sales</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Make_s__c</picklist>
+            <values>
+                <fullName>Acura%2C</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Bentley</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Bugati</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Buick</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Preferred_Method_of_Contact__c</picklist>
+            <values>
+                <fullName>Any Number</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Cell</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Dealership %23 Only</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Personal Email</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Work Email</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Work Phone</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Project_Role__c</picklist>
+            <values>
+                <fullName>3rd Party</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>AutoTrader Affiliate</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>BDC Manager</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>CEO</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>CFO</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>COO</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Controller%2FDMS Admin</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>DP</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Desking Coordinator</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>GM</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>GSM</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Graphic Designer</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>ILM%2FCRM Coordinator</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Internet Director</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Inventory Coordinator</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Marketing Manager</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>New Car Manager</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>New Car Manager Assistant</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>OEM</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>PBX Coordinator</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Primary Contact</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Process Team</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>SEM</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>SEO</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>SMM</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Secondary Contact</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Service Manager</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Technical Contact</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Training Coordinator</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Used Car Manager</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Used Car Manager Assistant</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Website Primary Approver</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Website Secondary Approver</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+    </recordTypes>
+    <searchLayouts/>
+    <sharingModel>ReadWrite</sharingModel>
+    <webLinks>
+        <fullName>Email_Team</fullName>
+        <availability>online</availability>
+        <displayType>link</displayType>
+        <linkType>javascript</linkType>
+        <masterLabel>Email Team</masterLabel>
+        <openType>onClickJavaScript</openType>
+        <protected>false</protected>
+        <url>{!REQUIRESCRIPT(&quot;/soap/ajax/19.0/connection.js&quot;)} //adds the proper code for inclusion of AJAX toolkit 
+var checked= {!GETRECORDIDS($ObjectType.Key_Contacts__c)}; //grabs the records that the user is requesting to update 
+var record = (checked.toString()); //converts record variable to text string
+
+window.open(&apos;/email/author/emailauthor.jsp?
+retURL=/{!POA__c.Id}
+&amp;p24=
+&amp;p3_lkid=&apos; + record);</url>
+    </webLinks>
+</CustomObject>

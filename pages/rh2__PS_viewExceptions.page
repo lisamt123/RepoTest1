@@ -1,0 +1,29 @@
+<apex:page controller="rh2.PS_ExceptionDisplay_Controller">
+	<apex:form >
+		<apex:pageBlock title="Rollup Helper Exceptions">
+			<apex:pageBlockSection title="Exceptions By Object" columns="1">
+				<apex:outputPanel >
+				
+				<apex:selectList value="{!selectedObject}" size="1">
+					<apex:selectOptions value="{!objectNamesWithExceptions}"/>
+				</apex:selectList>
+				
+				<apex:commandButton value="Go!" action="{!populateExceptionList}"/>
+				
+				<br/><br/>
+				
+				<apex:pageBlockTable value="{!exceptionsToDisplay}" var="exc" rendered="{!IF(numberOfExceptions != 0, true, false)}">
+				
+					<apex:column value="{!exc.rh2__Exception_Stack_Trace__c}"/>
+					
+					<apex:column value="{!exc.CreatedDate}"/>
+					
+					<apex:column value="{!exc.rh2__Number_of_Occurrences__c}"/>
+				
+				</apex:pageBlockTable>
+				
+				</apex:outputPanel>
+			</apex:pageBlockSection>
+		</apex:pageBlock>	
+	</apex:form>
+</apex:page>

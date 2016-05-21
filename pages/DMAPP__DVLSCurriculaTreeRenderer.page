@@ -1,0 +1,557 @@
+<apex:page >
+<script>
+
+	/* 
+	 * Copyright © The TAS Group. All rights reserved.
+	 *  
+	 */    
+
+    var ttg = ttg || {};
+    ttg.dvls = ttg.dvls || {};
+    
+    ttg.dvls.curriculaBrowser = (function() {
+        
+        var type = {curriculum: 'Curriculum', module: 'Module', component: 'Component'};
+        var api = null;
+
+        var _quicklinkCurricMap = {};
+        
+        function quicklinkHitSuccess() {}
+        function quicklinkHitError() {} 
+        function quicklinkHitComplete() {}
+                
+        var _quicklinks = new QUICKLINKS({});
+        _quicklinks.setProgressUpdateCallback(function(spec) {
+            if(api) {
+                api.updateDVLSQuicklinkProgress(spec.id, spec.complete,
+                function(data) {
+                    var updateData = function(dvlstype, dvlsdata) {
+                        var tmp = jQuery('span#QL_' + dvlstype  + '_' + dvlsdata.id);
+                        tmp.text(dvlsdata.status);
+
+                        switch(dvlsdata.status.toLowerCase()) {
+	                        case 'started':
+	                            tmp.addClass('active');
+	                        break;
+	                        case 'completed':
+	                            tmp.removeClass('active');
+	                            tmp.addClass('complete');
+	                        break;
+	                    }
+                    };
+
+                    updateData(type.curriculum, data.curriculum);
+                    updateData(type.module, data.module);
+                    updateData(type.component, data.component);
+                })
+            }
+        });
+
+        _quicklinks.setQuicklinkHitCallback(function(spec, quicklink) {
+
+            if(api) {
+                api.logDVLSQuicklinkUsageHitJS(quicklink.id, quicklinkHitSuccess, quicklinkHitError, quicklinkHitComplete);
+            }
+        });      
+        
+        var updatePreference = function(id, open) {
+            //console.log(id + ' is opened? ' + open);
+            var cookie = jQuery.cookies.set(id, open);
+        }
+        
+        
+        
+        var updateDescriptionPanel = function(item, itemtype) {
+            var d = jQuery('<div id="tas_dvls_description">');
+            
+            jQuery('<div class="dvls_item_type_title"/>').html( type[itemtype.toLowerCase()]).appendTo(d);
+            jQuery('<div class="dvls_item_name"/>').html( item.name || '' ).appendTo(d);
+            
+            jQuery('<div class="dvls_item_description_title"/>').html('Description').appendTo(d);            
+            jQuery('<div class="dvls_item_description"/>').html( item.description || '' ).appendTo(d);
+            
+            d.dialog({
+                    modal: true,
+                    close: function() { jQuery('div#tas_dvls_description').remove(); }
+                });
+        }
+
+        var renderComponentItem = function(componentitem, curriculumid, moduleid, expanded, parentexpanded, rowAbove) {
+            var _ul = jQuery('<tr class="componentlist"/>');
+            _ul.attr('module', moduleid);
+            _ul.attr('curriculum', curriculumid);
+            _ul.attr('component', componentitem.id);
+            
+            //if the parent is not expanded the children should also be hidden
+            if(!expanded) {
+                _ul.css('display', 'none');
+                _ul.attr('closed', 'closed');
+            }
+            
+            if(!parentexpanded) {
+                _ul.css('display', 'none');
+            }
+            
+            var li = jQuery('<td class="componentitem"/>').attr('id', componentitem.id);
+            
+            var playIcon = jQuery('<img>', {src:"{!URLFOR($Resource.dvls, 'images/icon_movie.png')}"}).css('position','absolute');
+            
+            li.append(playIcon);
+           
+            jQuery('<span>')
+                .text(componentitem.name)
+                .appendTo(li);
+			
+			/*li.append(jQuery('<div/>').append(jQuery('<span>')
+                .text(componentitem.name)));*/
+                
+            _ul.append(li);
+
+            jQuery(rowAbove).after(_ul);
+            //jQuery('div#curriculatree table').append(_ul);
+
+            if(componentitem.summary) {
+                renderQuickLinkStatusData(componentitem, _ul, type.component);
+                renderTestScoresData(componentitem, _ul, type.component);
+                renderTestLink(componentitem, _ul, curriculumid, moduleid);
+                renderInfoIcon(_ul, componentitem, type.component);
+            }
+            
+            return _ul;
+        };
+
+        var renderModuleItem = function(moduleitem, curriculumid, parentexpanded, rowabove) {
+            var expanded = false;
+            var cookie = jQuery.cookies.get('MODULE_' + moduleitem.id);
+            if(cookie == null) {
+                jQuery.cookies.set('MODULE_' + moduleitem.id, false);
+            } else {
+                expanded = cookie == true;
+            }
+
+            var _ul = jQuery('<tr class="modulelist"/>');
+            _ul.attr('id', 'MODULE_' + moduleitem.id);
+            _ul.attr('curriculum', curriculumid);
+            
+            if(!parentexpanded) {
+                _ul.css('display', 'none');
+            }
+            
+            var li = jQuery('<td class="moduleitem"/>');
+            _ul.append(li);
+            
+            jQuery(rowabove).after(_ul);
+            //jQuery('div#curriculatree table').append(_ul);
+             
+            var rowHolder = _ul;
+            
+            if(moduleitem.components != null && moduleitem.components.component != null && moduleitem.components.component.length > 0) {
+                var img = jQuery('<img/>', {src: (expanded? "{!URLFOR($Resource.ttgomjs, 'ttg/orgchart/images/icon_collapse.png')}" : "{!URLFOR($Resource.ttgomjs, 'ttg/orgchart/images/icon_expand.png')}")});
+                img.click(function() {
+                    if(expanded) {
+                        //lets hide all children
+                        jQuery('tr[module="' + moduleitem.id + '"]').toggle(false);                        
+                        jQuery('tr.componentlist[module="' + moduleitem.id + '"]').attr('closed','closed');
+                        jQuery(this).attr('src', "{!URLFOR($Resource.ttgomjs, 'ttg/orgchart/images/icon_expand.png')}");
+                    } else {
+                        //lets show all children
+                        jQuery('tr[module="' + moduleitem.id + '"]').toggle(true);
+                        jQuery('tr.componentlist[module="' + moduleitem.id + '"]').removeAttr('closed');
+                        jQuery(this).attr('src', "{!URLFOR($Resource.ttgomjs, 'ttg/orgchart/images/icon_collapse.png')}");
+                    }
+                    
+                    expanded = !expanded;
+                    updatePreference('MODULE_' + moduleitem.id, expanded);
+                    return false;
+                });
+                img.css('position','absolute');
+                img.attr('id', 'MODULE_' + moduleitem.id + '_EXPANDER');
+                li.append(img);
+
+                jQuery('<div class="parentnode">')
+                    .text(moduleitem.name)
+                    .appendTo(li);
+
+                for(var i = 0; i < moduleitem.components.component.length; i++) {
+                    rowHolder = renderComponentItem(moduleitem.components.component[i], curriculumid, moduleitem.id, expanded, parentexpanded, rowHolder);
+                }
+            } else {
+                jQuery('<div class="childlessnode">')
+                    .text(moduleitem.name)
+                    .appendTo(li);
+            }
+            
+            if(moduleitem.summary) {
+                renderQuickLinkStatusData(moduleitem, _ul, type.module);
+                renderTestScoresData(moduleitem, _ul, type.module);
+                //jQuery(_ul).append('<td/>');
+                jQuery(_ul).append(jQuery('<td/>').addClass('curricula_wide_column').append(jQuery('<span/>', {id: 'PASS_Module_' + moduleitem.id}).addClass('complete').text((moduleitem.summary && moduleitem.summary.result >= 80) ? 'Passed' : '')));
+                renderInfoIcon(_ul, moduleitem, type.module);
+            }
+            
+            return rowHolder;
+        }; 
+
+        var renderTestScoresData = function(data, _ul, _type) {
+            var score = jQuery('<span class="test_score"/>');
+
+            if(type.curriculum == _type) {
+                score.text((data.summary.mark || '-'));
+            } else {
+                if(data.summary.result) {
+	                score.text((data.summary.result) + '%');
+	                
+	                if(_type == type.component && data.summary.result > 0) {
+	                    score.addClass('review_test').click(function() {
+	                        api.getDVLSAssessment(data.id,
+	                        function(_data) {
+	                            if(_data && _data.assessment) {
+	                                ttg.dvls.assessmentplayer.takeQuizz(_data.assessment, api);
+	                            }
+	                        });
+	                    });
+                    }
+	            } else {
+	                score.text('-');
+	            }
+            }
+
+            score.attr('id', 'TS_' + _type + '_' + data.id);
+            jQuery('<td class="test_score curricula_wide_column"/>').append(score).appendTo(_ul);
+        }
+
+        var renderQuickLinkStatusData = function(data, _ul, _type) {
+            var status = null;
+            
+            if(data.summary.status) {
+                status = jQuery('<span class="quicklink_status"></span>');
+                switch(data.summary.status.toLowerCase()) {
+                    case 'started':
+                        status.addClass('active');
+                    break;
+                    case 'completed':
+                        status.addClass('complete');
+                    break;
+                }
+                status.text(data.summary.status);
+            } else {
+                status = jQuery('<span class="quicklink_status"></span>').text('Not Started').addClass('non_starter');
+            }
+            
+            status.attr('id', 'QL_' + _type + '_' + data.id);
+            jQuery('<td class="quicklink_status curricula_wide_column"/>').append(status).appendTo(_ul);
+        };
+
+        var renderTestLink = function(component, tr, curriculumid, moduleid) {
+            if(component.summary.state) {
+                switch(component.summary.state.toLowerCase()) {
+                    case 'none':
+                    
+                        jQuery('<td class="test_link curricula_wide_column"/>').text('None').appendTo(tr);
+                    
+                        break;
+                    
+                    case 'start':
+                    
+                    var start = jQuery('<a/>', {id: component.id + '_test_link'}).text(component.summary.state).click(function() {
+                        api.getDVLSAssessment(component.id,
+                            function(_data) {
+                                if(_data && _data.assessment) {
+                                    ttg.dvls.assessmentplayer.takeQuizz(_data.assessment, api);
+                                }
+                        });
+                    });
+                    
+                    jQuery('<td class="test_link curricula_wide_column"/>').append(start).appendTo(tr);
+                        
+                    break;
+                        
+                    default:
+					
+					var resetTitle = (component.summary && component.summary.result >= 80) ? 'Passed' : 'Re-test';
+                    var reset = jQuery('<a/>', {id: component.id + '_reset_link'}).text(resetTitle).click(function() {
+                        api.resetDVLSAssessmentAnswers(component.id,
+                        function(data) {
+                            jQuery('span#TS_Curriculum_' + curriculumid).text('-');
+                            jQuery('span#TS_Module_' + moduleid).text('-');
+                            jQuery('span#TS_Component_' + component.id).text('-');
+
+                            jQuery('tr.componentlist[component="' + component.id + '"] td.test_link').empty();
+                    
+                            var test = jQuery('<a/>', {id: component.id + '_test_link'}).text('Start').click(function() {
+                            api.getDVLSAssessment(component.id,
+	                                function(data) {
+	                                    if(data && data.assessment) {
+	                                        ttg.dvls.assessmentplayer.takeQuizz(data.assessment, api);
+	                                    }
+	                            });
+	                        });
+
+                            jQuery('tr.componentlist[component="' + component.id + '"] td.test_link').append(test); 
+
+                            api.getDVLSAssessment(component.id,
+                                function(data) {
+                                    if(data && data.assessment) {
+                                        ttg.dvls.assessmentplayer.takeQuizz(data.assessment, api);
+                                    }
+                            });
+                        });
+                    });
+                    
+                    jQuery('<td class="test_link curricula_wide_column"/>').append(reset).appendTo(tr);
+                    
+                    break;
+                }
+            }
+        };
+
+        var renderInfoIcon = function(tr, item, itemtype) {
+            var imgscr = "{!URLFOR($Resource.ttgomjs, 'ttg/graph/feimages/icon_info.png')}";
+            var img = jQuery('<img>', {src:imgscr, id:'info_' + item.id}).click(function() {
+                updateDescriptionPanel(item, itemtype);
+            })
+        
+            jQuery('<td class="curricula_narrow_column"/>').append(img).appendTo(tr);
+        }
+
+        var renderCurriculumItem = function(curriculumitem, tr) {
+            var expanded = false;
+            var started = !(curriculumitem.summary && curriculumitem.summary.state && 'start' == curriculumitem.summary.state.toLowerCase());
+
+            var cookie = jQuery.cookies.get('CURRICULUM_' + curriculumitem.id);
+            if(cookie == null) {
+                jQuery.cookies.set('CURRICULUM_' + curriculumitem.id, false);
+            } else {
+                expanded = cookie == true;
+            }
+
+            var _ul = tr;
+            if(! _ul) {
+                _ul = jQuery('<tr class="curriculumlist"/>');
+                _ul.attr('id', 'CURRICULUM_' + curriculumitem.id);
+                jQuery('div#curriculatree table').append(_ul);
+            } else {
+                jQuery(tr).empty();
+            }
+
+            var li = jQuery('<td class="curriculumitem"/>');
+            _ul.append(li);
+            
+            var rowHolder = _ul;
+            
+            if(!started) {
+            
+             	// [danc] add some class attributes to aid with web testing. rather than hack with 
+				// (and risk breaking) the rendering code, I thought it might be safer to add the 
+				// required attributes *after* the tree has been rendered.
+				var completedFn = function() {
+					jQuery('tr.curriculumlist').each(function(id, elt) {
+						var cr_Txt = (id+1);
+						jQuery(elt).attr('ttg_test_handler', cr_Txt);
+						
+						jQuery(elt).nextUntil('.curriculumlist', '.modulelist').each(function(m_id, m_elt) {
+							var m_Txt = cr_Txt + '.' +(m_id+1);
+							jQuery(m_elt).attr('ttg_test_handler', m_Txt);
+							
+							jQuery(m_elt).nextUntil('.modulelist', '.componentlist').each(function(cm_id, cm_elt) {
+								var cm_Txt = m_Txt + '.' +(cm_id+1);
+								jQuery(cm_elt).attr('ttg_test_handler', cm_Txt);	
+							});						
+						});
+					});
+				}
+            
+            
+               jQuery('<div class="childlessnode">')
+                   .text(curriculumitem.name)
+                   .appendTo(li);
+                   
+                _ul.append(li);
+                
+                var _td = jQuery('<td colspan="3"/>');
+                
+                var btn = jQuery('<a class="start_link" href="#">Start</a>').attr('id', 'START_CURRICULUM_' + curriculumitem.id).click(function() {
+                    api.startDVLSCurriculum(curriculumitem.id, 
+                    function() {
+                        delete curriculumitem.summary.state;
+                        renderCurriculumItem(curriculumitem, _ul);
+                        enableToggledQuicklinks(curriculumitem.id);
+                    }, function(){}, completedFn);
+                });
+                
+                btn.appendTo(_td);
+                _td.appendTo(_ul);
+                
+                renderInfoIcon(_ul, curriculumitem, type.curriculum);
+                
+            } else {
+	            if(curriculumitem.modules != null && curriculumitem.modules.module != null && curriculumitem.modules.module.length > 0) {
+	                var img = jQuery('<img/>', {src: (expanded? "{!URLFOR($Resource.ttgomjs, 'ttg/orgchart/images/icon_collapse.png')}" : "{!URLFOR($Resource.ttgomjs, 'ttg/orgchart/images/icon_expand.png')}")});
+	                img.click(function() {
+	                    if(expanded) {
+	                        //lets hide all children
+	                        jQuery('tr[curriculum="' + curriculumitem.id + '"]').toggle(false);
+	                        jQuery(this).attr('src', "{!URLFOR($Resource.ttgomjs, 'ttg/orgchart/images/icon_expand.png')}");
+	                    } else {
+	                        //lets show all children
+	                        jQuery('tr[curriculum="' + curriculumitem.id + '"]').not('[closed]').toggle(true);
+	                        jQuery(this).attr('src', "{!URLFOR($Resource.ttgomjs, 'ttg/orgchart/images/icon_collapse.png')}");
+	                    }
+	                    
+	                    expanded = !expanded;
+	                    updatePreference('CURRICULUM_' + curriculumitem.id, expanded);
+	                    return false;
+	                });
+	                img.attr('id', 'CURRICULUM_' + curriculumitem.id + '_EXPANDER');
+	                li.append(img);
+	                
+	                jQuery('<div class="parentnode">')
+	                    .text(curriculumitem.name)
+	                    .appendTo(li);
+	                
+	                for(var i = 0; i < curriculumitem.modules.module.length; i++) {
+	                    rowHolder = renderModuleItem(curriculumitem.modules.module[i], curriculumitem.id, expanded, rowHolder);
+	                }
+	            } else {
+	                jQuery('<div class="childlessnode">')
+	                    .text(curriculumitem.name)
+	                    .appendTo(li);
+	            }
+
+	            if(curriculumitem.summary) {
+	                renderQuickLinkStatusData(curriculumitem, _ul, type.curriculum);
+	                renderTestScoresData(curriculumitem, _ul, type.curriculum);
+	                jQuery(_ul).append('<td/>');
+	                renderInfoIcon(_ul, curriculumitem, type.curriculum);
+	            }
+            }
+        };
+        
+        var render = function(curricula, ttgApi) {
+            api = ttgApi;
+            if(curricula == null || curricula.curriculum == null) {
+                return;
+            }
+            
+            for(var i = 0; i < curricula.curriculum.length; i++) {
+                renderCurriculumItem(curricula.curriculum[i]);
+            }
+
+            //jQuery('div#curriculatree').append(ul);
+
+            prepareQuicklinks(curricula);
+            
+            //create listener to update scores when test submitted
+            ttg.dvls.assessmentplayer.onResult(function(assessment) {
+                var lv = assessment.scoresummary;
+                if(lv) {
+                    jQuery('span#TS_Curriculum_' + lv.curriculum.id).text(lv.curriculum.mark);
+                    jQuery('span#TS_Module_' + lv.module.id).text(lv.module.score + '%');
+                    jQuery('span#PASS_Module_' + lv.module.id).text((lv.module.score && lv.module.score >= 80) ? 'Passed' : '');
+                    
+                    
+                    jQuery('span#TS_Component_' + lv.component.id).unbind('click');
+                    jQuery('span#TS_Component_' + lv.component.id).text(lv.component.score + '%');
+                    
+                    jQuery('span#TS_Component_' + lv.component.id).addClass('review_test').click(function() {
+                        api.getDVLSAssessment(lv.component.id,
+                        function(_data) {
+                            if(_data && _data.assessment) {
+                                ttg.dvls.assessmentplayer.takeQuizz(_data.assessment, api);
+                            }
+                        });
+                    });
+                    
+                    jQuery('tr.componentlist[component="' + lv.component.id + '"] td.test_link').empty();
+                    
+                    var resetTitle = (lv.component.score && lv.component.score >= 80) ? 'Passed' : 'Re-test';
+                    var reset = jQuery('<a/>', {id: lv.component.id + '_reset_link'}).text(resetTitle).click(function() {
+                        api.resetDVLSAssessmentAnswers(lv.component.id,
+                        function(data) {
+                            jQuery('span#TS_Curriculum_' + lv.curriculum.id).text('-');
+                            jQuery('span#TS_Module_' + lv.module.id).text('-');
+                            jQuery('span#TS_Component_' + lv.component.id).text('-');
+
+                            jQuery('tr.componentlist[component="' + lv.component.id + '"] td.test_link').empty();
+                    
+                            var test = jQuery('<a/>', {id: lv.component.id + '_test_link'}).text('Start').click(function() {
+                            api.getDVLSAssessment(lv.component.id,
+                                    function(data) {
+                                        if(data && data.assessment) {
+                                            ttg.dvls.assessmentplayer.takeQuizz(data.assessment, api);
+                                        }
+                                });
+                            });
+
+                            jQuery('tr.componentlist[component="' + lv.component.id + '"] td.test_link').append(test); 
+
+                            api.getDVLSAssessment(lv.component.id,
+                                function(data) {
+                                    if(data && data.assessment) {
+                                        ttg.dvls.assessmentplayer.takeQuizz(data.assessment, api);
+                                    }
+                            });
+                        });
+                    });
+                    
+                    jQuery('tr.componentlist[component="' + lv.component.id + '"] td.test_link').append(reset);
+                }
+            });
+        };
+
+        var enableToggledQuicklinks = function(curricId) {
+            var listQL = _quicklinkCurricMap[curricId];
+            for(var i = 0; i < listQL.length; i++) {
+                enableQuickLink(listQL[i], listQL[i].index);
+            }
+        }
+
+        var enableQuickLink = function(component, index) {
+            jQuery('td#' + component.id +  '[class="componentitem"]').addClass('quicklink').click(function() {
+                _quicklinks.quicklinkDlg(index, component.name);
+                return false;
+            });
+        };
+
+        var prepareQuicklinks = function(curricula) {
+            var _quicklinksData = [];
+            var count = 0;
+            jQuery.each(curricula.curriculum, function(i, c) {
+                var _qlArr = [];
+                jQuery.each(c.modules.module, function(j, m) {
+                    jQuery.each(m.components.component, function(k, co) {
+                        var data = false;
+                        var _ql = [];
+                        
+                        jQuery.each(co.quicklinks.quicklink, function(l, ql) {
+                            data = true;
+                            _ql.push(ql);
+                        });
+                        
+                        if(data) {
+                            _quicklinksData.push(_ql);
+                            enableQuickLink(co, count);
+                            _qlArr[_qlArr.length] = {id:co.id, index: count};
+                            count++;
+                        }
+                    });
+                });
+                
+                _quicklinkCurricMap[c.id] = _qlArr;
+            });
+
+            _quicklinks.setDM_Quicklinks(_quicklinksData);
+        };
+        
+        var that = {};
+        
+        that.render = render;
+        
+        return that;
+    
+    })();
+    
+    
+
+</script>
+</apex:page>

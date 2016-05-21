@@ -1,0 +1,457 @@
+<apex:page standardController="DMAPP__DM_Account_Plan__c" extensions="DMAPP.TAMStandardController,DMAPP.StandardControllerPPTExtension,DMAPP.TAMSummaryTabDisableController">
+    <!-- l10n data -->
+    <apex:includeScript value="{!$Resource.DMAPP__l10njs}"/>
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__prefix)}"/>
+    <!--<apex:includeScript value="{!URLFOR($Resource.DMAPP__ttgomjs, 'ttg/lib/ttgutils.js')}"/>-->  
+	                
+    <apex:variable var="hasRetURL" value="{!IF(OR(ISNULL($CurrentPage.parameters.retURL), ISBLANK($CurrentPage.parameters.retURL)),false,true)}"/>
+    <apex:variable var="detailsSelected" value="{!IF(CONTAINS(selectedPage,'AccountPlanDetail'),true,false)}"/>
+    <apex:variable var="segmentationSelected" value="{!IF(CONTAINS(selectedPage,'Segmentation'),true,false)}"/>
+    <apex:variable var="oppMapSelected" value="{!IF(CONTAINS(selectedPage,'am_opp_map_app'),true,false)}"/>
+    <apex:variable var="valueMapSelected" value="{!IF(CONTAINS(selectedPage,'ValueMap'),true,false)}"/>
+    <apex:variable var="objectivesSelected" value="{!IF(CONTAINS(selectedPage,'PlanObjectives'),true,false)}"/>
+    <apex:variable var="scorecardSelected" value="{!IF(CONTAINS(selectedPage,'AM_Scorecard'),true,false)}"/>
+	<apex:variable var="completenessSelected" value="{!IF(CONTAINS(selectedPage,'PlanCompleteness'),true,false)}"/>
+
+    <apex:outputPanel layout="block" styleClass="smartOMPanel" rendered="{!NOT(isPhone) && isLicensedForAccountManager}">
+
+        <div class="smartOMOpportunitySummary">
+           <!--  <strong>Dealmaker</strong> - <a href="/{!accountPlan.Id}">{!accountPlan.Name}</a>  -->
+            <strong>Dealmaker</strong> - {!accountPlan.Name} ({!accountPlan.Plan_Type__r.Name}) : Plan Revenue {!formattedRevenueTarget}
+            <apex:outputText value=" - Read Only Access" styleClass="readOnlyText" rendered="{!NOT(editable)}"/>
+            
+           <div class="chatterContainer">           		
+            	<apex:include pageName="DMAPP__ChatterPostAM"/>
+            </div>
+             
+        </div>
+            
+        <div class="smartOMTabContainer">
+        
+            <apex:outputPanel styleClass="smartOMBackLink" layout="block" rendered="{!NOT(useStandardListPage)}">
+                <apex:outputLink target="_top" value="/apex/DMAPP__AccountPlan" styleClass="backlink" rendered="{!NOT(hasRetURL)}">Back to Plans</apex:outputLink>
+                <apex:outputLink target="_top" value="{!$CurrentPage.parameters.retURL}" styleClass="backlink" rendered="{!hasRetURL}">Back to Plans</apex:outputLink>
+            </apex:outputPanel>
+        
+            <apex:outputLink styleClass="smartOMLink" target="{!IF(isWin8Touch, '_self', '_top')}" value="/apex/AccountPlanDetail?id={!accountPlan.Id}" rendered="{! (isLicensedForAccountManager && !isPlanDetailsDisabledOnPlanType)}">
+                <div class="{!IF(detailsSelected,'smartOMTab smartOMTabSelected','smartOMTab')}">
+                    <strong>{!$Label.resource_PlanDetails}</strong>
+                    <div class="smartOMTabInfo">&nbsp;</div>
+                </div>
+            </apex:outputLink>
+            
+            <apex:outputLink styleClass="smartOMLink" target="{!IF(isWin8Touch, '_self', '_top')}" value="/apex/Segmentation?id={!accountPlan.Id}" rendered="{! (isLicensedForAccountManagerAndIsSegementationMapEnabled && !isSegmentationDisabledOnPlanType)}">
+                <div class="{!IF(segmentationSelected,'smartOMTab smartOMTabSelected','smartOMTab')}">
+                    <strong>{!$Label.resource_Segmentation}</strong>
+                    <div class="smartOMTabInfo"  id="segementation_smartomtab">&nbsp;</div>
+                </div>
+            </apex:outputLink>
+
+            <apex:outputLink styleClass="smartOMLink" target="{!IF(isWin8Touch, '_self', '_top')}" value="/apex/am_opp_map_app?id={!accountPlan.Id}" rendered="{!isLicensedForAccountManager}">
+                <div class="{!IF(oppMapSelected,'smartOMTab smartOMTabSelected','smartOMTab')}">
+                    <strong>{!$Label.resource_OpportunityMap}</strong>
+                    <div class="smartOMTabInfo">&nbsp;</div>
+                </div>
+            </apex:outputLink>
+
+            <apex:outputLink styleClass="smartOMLink" target="{!IF(isWin8Touch, '_self', '_top')}" value="/apex/ValueMap?id={!accountPlan.Id}" rendered="{! (shouldDisplayValueMap && !isValueMapDisabledOnPlanType)}">
+                <div class="{!IF(valueMapSelected,'smartOMTab smartOMTabSelected','smartOMTab')}">
+                    <strong>{!$Label.resource_ValueMap}</strong>
+                    <div class="smartOMTabInfo">&nbsp;</div>
+                </div>
+            </apex:outputLink>
+
+            <apex:outputLink styleClass="smartOMLink" target="{!IF(isWin8Touch, '_self', '_top')}" value="/apex/PlanObjectives?id={!accountPlan.Id}" rendered="{! (isLicensedForAccountManager && !isObjectivesDisabledOnPlanType)}">
+                <div class="{!IF(objectivesSelected,'smartOMTab smartOMTabSelected','smartOMTab')}">
+                    <strong>{!$Label.resource_Objectives}</strong>
+                    <div class="smartOMTabInfo">&nbsp;</div>
+                </div>
+            </apex:outputLink>
+            <apex:outputLink styleClass="smartOMLink" target="{!IF(isWin8Touch, '_self', '_top')}" value="/apex/AM_Scorecard?id={!accountPlan.Id}" rendered="{! (isLicensedForAccountManagerAndIsScorecardEnabled && !isScorecardDisabledOnPlanType && MultiTabCheck)}">
+                <div class="{!IF(scorecardSelected,'smartOMTab smartOMTabSelected','smartOMTab')}">
+                    <strong>{!$Label.resource_Scorecard}</strong>
+                    <div class="smartOMTabInfo">&nbsp;</div>
+                </div>
+            </apex:outputLink>
+            
+            <apex:outputLink styleClass="smartOMLink" target="{!IF(isWin8Touch, '_self', '_top')}" value="/apex/PlanCompleteness?id={!accountPlan.Id}" rendered="{! (isLicensedForAccountManagerAndIsCompletenessEnabled && !isCompletenessDisabledOnPlanType && MultiTabCheck)}">
+                <div class="{!IF(completenessSelected,'smartOMTab smartOMTabSelected','smartOMTab')}">
+                    <strong>{!$Label.resource_Completeness}</strong>
+                    <div class="smartOMTabInfo">&nbsp;</div>
+                </div>
+            </apex:outputLink>
+            
+            <div class="helpAndPPTContainer">
+	            <apex:outputPanel layout="block" styleClass="TAMAdminLink" rendered="{!isLicensedForAccountManager}">
+	                <a id="TAMADMINLINK">Settings</a>
+	            </apex:outputPanel>  
+	            <div class="smartOMHelpLink">
+	                <a id="TASHELPLINK" onclick="javascript: help.showHelp();">Help</a>
+	            </div> 
+	            
+	            <div id='smartOMPPTLink' class="smartOMPPTLink"  style='display:none'>
+	                <apex:form >
+	                    <a id="PPTEXPORT2" onclick="javascript: handlePPTX();" title="Click the icon to export to Powerpoint"></a>
+	                </apex:form> 
+	            </div>
+            </div>
+            
+        </div>
+        
+        <div class="smartOMTabContainerBottom"></div>
+    </apex:outputPanel>  
+
+    <script>
+    
+		/* 
+		 * Copyright © The TAS Group. All rights reserved.
+		 *  
+		 */    
+        
+        var _HELP = function(spec) {
+        
+            var that = { }
+            
+            function showHelp() {
+            
+                var url = '{!helpURLBase}' + '/Default.htm#Smart_AM/';
+            
+                if ({!detailsSelected}) {
+                    url += '2.Plan_Details.htm';
+                }
+                else if ({!segmentationSelected}) {
+                    url += '3.Segmentation.htm';
+                }
+                else if ({!oppMapSelected}) {
+                    url += '4.Opportunity_Map/1.Opportunity_Map.htm';
+                }
+                else if ({!valueMapSelected}) {
+                    url += '6.Value_Map/1.Value_Map.htm';
+                }
+                else if ({!objectivesSelected}) { 
+                    url += '7.Objectives/Objectives.htm';
+                }
+                else if ({!scorecardSelected}) { 
+                    url += '8.Scorecard/1.Scorecard.htm';
+                }
+                else if ({!completenessSelected}) { 
+                    url += '9.Completeness/1.Completeness.htm';
+                }                                                
+                else {
+                    alert('Sorry, help not available')
+                }
+                
+                var testwindow = window.open(url, "TAS", "resizable=1,location=1,status=1,scrollbars=1,width=600,height=600");
+
+            }
+	
+            that.showHelp = showHelp;
+            
+            return that;
+        }
+        
+        var help = _HELP({});
+        
+        
+        var getFile = function() {
+        
+            var api = ttg.apiLayer.sfdcDelegate( { sessionid : '{!JSENCODE($Api.Session_ID)}', opportunityid : '{!JSENCODE(accountPlan.Id)}' } );
+            api.getPPTGenerator('{!accountPlan.Id}' , function(data) {
+                var d = data;
+            }, function() {}, function() {});
+        
+        };
+        
+            
+ 
+        var ttg = ttg || {};
+
+        
+        ttg.simpleFlatPPTExporter = function(anchorOppId, isLicensedForPP) {
+        
+            var api = ttg.apiLayer.sfdcDelegate( { sessionid : '{!JSENCODE($Api.Session_ID)}', opportunityid : '{!JSENCODE(accountPlan.Id)}' } );
+            var dialogOpen = true;
+            var callCount = 0;
+            
+            var spinnerImg = 
+                jQuery('<img>')
+                    .attr('id', 'tas_ajax_spinner')
+                    .addClass('spinner')
+                    .attr('src', "{!JSENCODE(URLFOR($Resource.ttgomjs, '/ttg/graph/images/loader.gif'))}")
+                ;
+                
+
+            function createSimpleDownloadAdvice() {
+                return jQuery('<ol/>')
+                    .append(jQuery('<li/>').text('Click the link below to save the powerpoint presentation.'))
+                    .append(jQuery('<li/>').text('Open the downloaded file with powerpoint.'))
+                    .append(jQuery('<li/>').text('Close this dialog when then \'save as\' has completed.'))
+            }
+
+            function createFutureDownloadAdvice() {
+                if (isLicensedForPP) {
+                    return jQuery('<ol/>')
+                            .append(jQuery('<li/>').text('Dealmaker is preparing your powerpoint presentation.'))
+                            .append(jQuery('<li/>').text('Once complete a link will appear below.'))
+                }
+                else {
+                    return jQuery('<ol/>')
+                            .append(jQuery('<li/>').text('Dealmaker is preparing your powerpoint presentation.'))
+                            .append(jQuery('<li/>').text('Once complete a link will appear below.'))
+                            .append(jQuery('<li/>').text('Right click this link and save the file with an extention of \'.xml\'.'))
+                            .append(jQuery('<li/>').text('Open this saved file with powerpoint.'))
+                            .append(jQuery('<li/>').text('Close this dialog when then \'save as\' has completed.'))
+                }
+            }
+
+            function createPPTXDownloadAdvice() {
+                return jQuery('<ol/>')
+                    .append(jQuery('<li/>').text('Click to download powerpoint.'))
+            }
+
+            function createLinkDiv(linkref) {
+                return  jQuery('<div/>')
+                    .css({ width : '100%', 'text-align' : 'center'})
+                    .addClass('ttg_simple_ppt_exporter_linkdiv')
+                    .append(jQuery('<a/>', { href : linkref}).text('Click to save presentation'));
+                    
+            }
+
+            function createFutureLinkDiv() {
+                callCount = 0;
+                return  jQuery('<div/>')
+                    .css({ width : '100%', 'text-align' : 'center'})
+                    .addClass('ttg_future_ppt_exporter_linkdiv')
+                    .append(jQuery('<span/>').text('Preparing'));
+                    
+            }
+                
+                        
+            function createRemoteDiv() {
+                
+                return jQuery('<div/>')
+                            .css({width:'100%', 'text-align' : 'center' })
+                            .append(jQuery('<iframe/>', {src : remotePPTPageURL, height : '20px', width : '100%', frameBorder : 0, seamless : 'seamless' }))
+                        ;
+                
+            }
+
+            function deletefuturePPTX(id) {
+                api.deletePPTX(id,
+                
+                    function() { createfuturePPTX(id) },                    
+                    function() { /* error */ },                 
+                    function() { /* complete */ }               
+                )
+                
+            }           
+            
+            function createfuturePPTX(id) {
+                api.postPPTX(id,
+                    {param: { id: id } },
+                    function() { checkForFuturePPTXUrl(id) },                   
+                    function() { /* error */ },                 
+                    function() { /* complete */ }               
+                )
+                 
+            }           
+
+            function checkForFuturePPTXUrl(id) {
+                api.getPPTX(id,
+                
+                    function(responseData) { 
+                        if (responseData != null && responseData.downloadURL != null) {
+
+                            jQuery('.ttg_future_ppt_exporter_linkdiv').html('');
+
+                            if (isLicensedForPP) {
+                                jQuery('.ttg_future_ppt_exporter_linkdiv').append(
+                                    jQuery('<div/>')
+                                            .css({width:'100%', 'text-align' : 'center' })
+                                            .append(jQuery('<iframe/>', {src : 'https://' + document.domain.replace('dmapp', 'dmppt') + responseData.downloadURL, height : '40px', width : '100%', frameBorder : 0, seamless : 'seamless' }))
+                                )
+                            }
+                            else {
+                                jQuery('.ttg_future_ppt_exporter_linkdiv').append(
+                                    jQuery('<a/>', {href: responseData.downloadURL }).css('cursor', 'pointer').text('Click to save presentation')
+                                )
+                            }
+
+                        }
+                        else {
+                            if (++callCount > 40) {
+                                jQuery('.ttg_future_ppt_exporter_linkdiv').html('');
+                                jQuery('.ttg_future_ppt_exporter_linkdiv').append(
+                                    jQuery('<a/>').text('Taking too long.  Continue waiting?').css('cursor', 'pointer').click(function() { callCount = 0; checkForFuturePPTXUrl(id)} ) 
+                                )
+                            }
+                            else {
+                                jQuery('.ttg_future_ppt_exporter_linkdiv').html('');
+                                jQuery('.ttg_future_ppt_exporter_linkdiv').append(
+                                    jQuery('<span/>').css({'display': 'inline-block', width: '100px', 'text-align': 'left'}).text('Waiting' + dots(callCount, 4))
+                                )
+
+                                if (dialogOpen) {
+                                    checkForFuturePPTXUrl(id);
+                                }
+                            }
+                            
+                        } 
+                    },
+                    function() { /* error */ },                 
+                    function() { /* complete */ }               
+                )
+
+            }
+            
+            function dots(num, mnum) {
+            
+                var s = '';
+                while(s.length < (num % mnum)) {
+                    s += '.';
+                }
+
+                while(s.length < mnum) {
+                    s += ' ';
+                }
+                
+                return s;
+            }
+            
+            function futureFailure() {
+            }
+                
+            function closeDialog() {
+                dialogOpen = false;
+                jQuery('#ttg_simple_ppt_exporter_div').remove();
+            }
+            
+            function showDialog() {
+                
+                
+                jQuery('<div/>',{ id : 'ttg_simple_ppt_exporter_div'})
+                    .addClass('ttg_simple_ppt_exporter')
+                    .append(
+                        createFutureDownloadAdvice(isLicensedForPP) 
+                    )
+                    .append(
+                        createFutureLinkDiv() 
+                    )
+                    .dialog({
+                        title       :   'Export Powerpoint'
+                        , width     :   '500px',
+                        close: closeDialog
+                    });
+                
+            }
+                    
+            showDialog();
+            deletefuturePPTX(anchorOppId)
+            
+            return {
+            }
+        }
+        
+		ttg.am = ttg.am || { };
+        
+		// This is referenced by OpportunityMapConfiguration, which is a staticresource, so need to ensure this is visible to it
+		ttg.am.showSettingsHelp = function() {
+			window.open('{!helpURLBase}' + "/Default.htm#Smart_AM/1.Plan_Creation/1.Plan_Creation.htm", "TAS", "resizable=1,location=1,status=1,scrollbars=1,width=1000,height=600");
+		}
+
+        
+        jQuery(document).ready(function() {
+        
+            if(jQuery('div.smartOMTab').length == 7) {
+                jQuery("div.smartOMTab:eq(0)").addClass("planDetails");
+                jQuery("div.smartOMTab:eq(2)").addClass("longTitleTab");
+                jQuery("div.smartOMTab:eq(3)").addClass("planDetails");
+            }
+            
+            //
+            // we show the link 
+            //  if your on windows as we can download the flat XML 
+            //  if you have the PPTX extension installed
+            //
+            //
+            if ({!showPPTLink}) {
+                if (navigator.appVersion.indexOf("Win")!=-1 || {!isLicensedForPPT}) {
+                    jQuery('#smartOMPPTLink').show();
+                }
+            }
+            
+            var reportsList	= [
+            	{} 
+				<apex:repeat value="{! aMReportsList }" var="reportItem" id="contactRules">, 
+					{ name: '{! reportItem.displayas }', url: '{! reportItem.url }', folderName: '{! reportItem.folderName }' }
+				</apex:repeat>
+			];
+			
+			reportsList.shift();  
+            
+            if (reportsList && reportsList.length > 0) {
+	           
+	            reportsList.sort(function(a, b) {
+	            	return a.name.toUpperCase() < b.name.toUpperCase() ? -1 : +1;
+	            });
+	            
+	            var customReportsDropDown = jQuery('<div />').addClass('customReportsDropdown')
+	            	.append(jQuery('<a />')
+                		.append(jQuery('<img />', { alt: 'Reports', src: '{! JSENCODE(URLFOR($Resource.TAM, "/images/reportIcon.png")) }' }).addClass('customReportsDropdown')));
+	           
+	            var customReportsDropDownContainer = jQuery('<div />').addClass('reports-dropdown dropdown-relative');
+				var customReportsTitle = jQuery('<div />').addClass('dropdown-title').text('Related Salesforce Reports');	            
+	            var customReportsUnorderedList = jQuery('<ul />').addClass('dropdown-menu').append(customReportsTitle);	            
+	            
+				customReportsDropDownContainer.append(customReportsUnorderedList);            
+	            
+				jQuery.each(reportsList, function(id, reportItem) {
+            		var trimmedId = '{! accountPlan.Id }';
+            		if(trimmedId.length > 15) {
+            			trimmedId = trimmedId.substring(0, 15);
+            		}	
+            		var link = null;
+            		if(reportItem.name !== 'Dummy') {
+	            		link = jQuery('<a />', { href: '/' + reportItem.url + (reportItem.url.indexOf('?') !== -1 ? '&' : '?') + 'pv0=' + trimmedId, target: '_blank' }).text(reportItem.name);
+            		}			
+            		else {
+            			link = jQuery('<div />').text('You don\'t have access');
+            		}   		
+	            	customReportsUnorderedList.append(jQuery('<li />').append(link));
+	            });
+	            
+	            customReportsDropDown.append(customReportsDropDownContainer)
+	            	.click(function() {
+	            		customReportsDropDownContainer.toggle();
+	            });
+	            
+	            jQuery('div.smartOMTabContainer').append(customReportsDropDown);
+	            
+	            jQuery(document).click(function(e) {
+	            	var elementClicked = jQuery(e.target);
+	            	if (!customReportsDropDown.is(elementClicked) && customReportsDropDown.has(elementClicked).length === 0) {
+	            		customReportsDropDownContainer.hide();
+	            	}
+	            });          
+            }    
+        });        
+        
+        function handlePPTX() {
+            ttg.simpleFlatPPTExporter('{!accountPlan.Id}', {!isLicensedForPPT});
+        }
+
+        /* Navigation */
+        jQuery('a.smartOMLink').click(function() {        
+            jQuery('.overlay').toggle();
+        });        
+                        
+
+        if (typeof ttg_salesforce1 != 'undefined' && ttg_salesforce1) {
+
+	        jQuery('.salesforce1 div.smartOMBackLink a ').hide();
+
+		}
+            
+    </script>
+
+</apex:page>

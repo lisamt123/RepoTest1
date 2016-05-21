@@ -1,0 +1,233 @@
+<apex:page title="{!$ObjectType.CRMfusionDBR101__Setting__c.labelPlural}" controller="CRMfusionDBR101.DB_Settings_ANC_Controller" showHeader="true" sidebar="false"
+    tabStyle="DupeBlocker_Settings_VF__tab">
+    <apex:includeScript value="{!URLFOR($Resource.CRMfusionDBR101__DB_Javascript, 'jquery.min.js')}" />
+    <apex:includeScript value="{!URLFOR($Resource.CRMfusionDBR101__DB_Javascript, 'jquery-ui.min.js')}" />
+    <apex:includeScript value="{!URLFOR($Resource.CRMfusionDBR101__DB_Javascript, 'jquery.validate/jquery.validate.min.js')}" />
+    <apex:stylesheet value="{!URLFOR($Resource.CRMfusionDBR101__DB_Themes, 'jquery-ui-lightness/jquery-ui-lightness.min.css')}" />
+    <style>
+.pbHeader {
+    margin-top: 5px !important;
+}
+
+.customPbHeader {
+    margin-left: auto;
+    margin-right: auto;
+}
+</style>
+    <c:DB_Settings_Style />
+    <script>
+    $().ready( function() { initPage(); } );
+    
+    var recordId;
+    var pageNumber = {!pageNumber};
+    var newRecord = false;
+
+    // Prompt the user to confirm if they want to delete a record.
+    function confirmDelete()
+    {
+        return confirm( 'Delete this record?' ); // Allow or abort the delete.
+    }
+    
+    // Edit an existing record.
+    function editRecord( id, targetValue, replaceValue )
+    {
+        newRecord = false;
+        recordId = id;
+        $('#targetValue').val( targetValue );
+        $('#replaceValue').val( replaceValue );
+        // Display our upsert form.
+        $( "#upsertForm" ).attr( "title", "Edit Entry" );
+        $( "#upsertForm" ).dialog( "open" );
+    }
+    
+    // Create a new rcord.
+    function addNew()
+    {
+        recordId = null;
+        newRecord = true;
+        // Display our upsert form.
+        $( "#upsertForm" ).attr( "title", "New Entry" );
+        $( "#upsertForm" ).dialog( "open" );
+    }
+    
+    function updateTips( t ) {
+        var tips = $( ".validateTips" );
+        tips
+            .text( t )
+            .addClass( "ui-state-highlight" );
+        setTimeout(function() {
+            tips.removeClass( "ui-state-highlight", 1500 );
+        }, 500 );
+    }
+
+    // Set up our edit form.
+    function initPage()
+    {
+        var targetValue = $('#targetValue'), replaceValue = $('#replaceValue');
+        var allFields = $( [] ).add( targetValue ).add( replaceValue );
+        
+        $( "#upsertForm" ).dialog({
+            autoOpen: false,
+            height: 300,
+            width: 350,
+            modal: true,
+            buttons: {
+                "Save": function()
+                {
+                    var bValid = true;
+                    allFields.removeClass( "ui-state-error" );
+                    
+                    // Ensure the Existing Value field is populated.
+                    if ( targetValue.val().length == 0 )
+                    {
+                        bValid = false;
+                        targetValue.addClass( "ui-state-error" );
+                        updateTips( "The Existing Value field cannot be blank." );
+                    }
+    
+                    if ( bValid )
+                    {
+                        Visualforce.remoting.Manager.invokeAction(
+                            '{!$RemoteAction.DB_Settings_ANC_Controller.upsertRecord}',
+                            '{!filterType}',
+                            recordId,
+                            targetValue.val(),
+                            replaceValue.val(),
+                            handleUpsertResult, 
+                            {escape: false}
+                        );
+                    }
+                },
+                Cancel: function()
+                {
+                    $( this ).dialog( "close" );
+                }
+            },
+            close: function()
+            {
+                allFields.val( "" ).removeClass( "ui-state-error" );
+            }
+        });
+    }
+    
+    // Handle the result from the save.  If an error occured, display it.
+    // Otherwise, refresh the page.
+    function handleUpsertResult( result, event )
+    {
+        // Close the dialog whether or not we succeed and reset our recordId.
+        $( "#upsertForm" ).dialog( "close" );
+        recordId = null;
+        
+        // Check for errors.
+        if ( !event.status )
+        {
+            displayError( 'The record failed to save.<BR/>Error: ' + event.message, 'Record Failed to Save' );
+            newRecord = false;
+            return;
+        }
+        
+        // The save worked, reload the page.
+        reloadPage();
+    }
+    
+    function reloadPage()
+    {
+        if ( newRecord == true )
+            location.href = '{!$Page.DB_Settings_ANC_Replace}?lastPage=true';
+        else
+            location.href = '{!$Page.DB_Settings_ANC_Replace}?startPage=' + pageNumber;
+        newRecord = false;
+    }
+    
+    // Display a modal error dialog with title.
+    function displayError( errorMessage, title )
+    {
+        if ( !title )
+            title = 'Unknown Error';
+        $( '#dialog-errorMessage' ).attr( 'title', title );
+        $( '#dialog-errorMessage' ).html( errorMessage );
+        $( '#dialog-errorMessage').dialog({
+            modal: true,
+            buttons: {
+                Ok: function() {
+                    $( this ).dialog( 'close' );
+                }
+            }
+        });
+    }
+    </script>
+
+    <table class="pageTable" width="100%" cellspacing="0" cellpadding="0">
+        <tr>
+            <td class="leftCol"><c:DB_Settings_Menu page="accountnameclean_replace" /></td>
+            <td class="rightCol">
+                <div>
+                    <apex:sectionHeader title="Clean Account Name" subTitle="Replacement Values" />
+                    <apex:actionRegion id="mainOutput">
+                        <apex:form id="mainForm">
+                            <apex:pageMessages />
+                            <apex:pageBlock id="mainBlock" mode="detail">
+                                <apex:facet name="header">
+                                    <apex:outputPanel layout="block" styleClass="customPbHeader">
+                                        <table align="center">
+                                            <tr>
+                                                <td align="center"><apex:commandButton value="New Entry" onclick="addNew(); return false;" />
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </apex:outputPanel>
+                                </apex:facet>
+                                <apex:pageBlockTable id="fullTable" value="{!accountNameFilters}" var="anf">
+                                    <apex:column styleClass="actionCol">
+                                        <apex:facet name="header">Action</apex:facet>
+                                        <a href="#"
+                                            onClick="editRecord( '{!anf.Id}', '{!JSINHTMLENCODE(anf.Target_Value__c)}', '{!JSINHTMLENCODE(anf.Replace_Value__c)}' ); return false;">edit</a>
+                                        &nbsp;|&nbsp;
+                                        <apex:commandLink action="{!deleteSelectedRecord}" onComplete="reloadPage();" onClick="if ( !confirmDelete() ) return;" value="del">
+                                            <apex:param name="recordId" value="{!anf.Id}" assignTo="{!deleteRecordId}" />
+                                        </apex:commandLink>
+                                    </apex:column>
+                                    <apex:column >
+                                        <apex:facet name="header">Existing Value</apex:facet>
+                                        <apex:outputText value="{!anf.CRMfusionDBR101__Target_Value__c}" />
+                                    </apex:column>
+                                    <apex:column >
+                                        <apex:facet name="header">New Value</apex:facet>
+                                        <apex:outputText value="{!anf.CRMfusionDBR101__Replace_Value__c}" />
+                                    </apex:column>
+                                </apex:pageBlockTable>
+                                <div></div>
+                                <apex:panelGrid columns="7">
+                                    <apex:commandButton status="updatingStatus" onComplete="pageNumber = {!pageNumber};" reRender="mainBlock" value="|<" action="{!first}"
+                                        disabled="{!!hasPrevious}" title="First Page" />
+                                    <apex:commandButton status="updatingStatus" onComplete="pageNumber = {!pageNumber};" reRender="mainBlock" value="<" action="{!previous}"
+                                        disabled="{!!hasPrevious}" title="Previous Page" />
+                                    <apex:commandButton status="updatingStatus" onComplete="pageNumber = {!pageNumber};" reRender="mainBlock" value=">" action="{!next}"
+                                        disabled="{!!hasNext}" title="Next Page" />
+                                    <apex:commandButton status="updatingStatus" onComplete="pageNumber = {!pageNumber};" reRender="mainBlock" value=">|" action="{!last}"
+                                        disabled="{!!hasNext}" title="Last Page" />
+                                    <apex:outputText >{!(pageNumber * pageSize)+1-pageSize}-{!IF((pageNumber * pageSize)>recordCount, recordCount,(pageNumber * pageSize))} of {!recordCount}</apex:outputText>
+                                    <apex:commandButton status="updatingStatus" reRender="mainBlock" value="Refresh" action="{!refresh}" title="Refresh Page" />
+                                    <apex:outputPanel style="color:#4AA02C;font-weight:bold">
+                                        <apex:actionStatus id="updatingStatus" startText="Loading..." stopText="" />
+                                    </apex:outputPanel>
+                                </apex:panelGrid>
+                            </apex:pageBlock>
+                        </apex:form>
+                    </apex:actionRegion>
+                </div>
+                <div id="dialog-errorMessage"></div>
+                <div id="upsertForm" title="New Entry">
+                    <p class="validateTips">The Existing Value field is required.</p>
+
+                    <form>
+                        <fieldset>
+                            <label for="targetValue">Existing Value</label> <input type="text" name="targetValue" id="targetValue" value=""
+                                class="text ui-widget-content ui-corner-all" /> <label for="replaceValue">New Value</label> <input type="text" name="replaceValue"
+                                id="replaceValue" value="" class="text ui-widget-content ui-corner-all" />
+                        </fieldset>
+                    </form>
+                </div></td>
+        </tr>
+    </table>
+</apex:page>

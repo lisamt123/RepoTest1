@@ -1,0 +1,1263 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <actionOverrides>
+        <actionName>Accept</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>CancelEdit</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Clone</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Delete</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Edit</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Follow</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>List</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>New</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>SaveEdit</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Tab</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>View</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <allowInChatterGroups>false</allowInChatterGroups>
+    <compactLayoutAssignment>SYSTEM</compactLayoutAssignment>
+    <deploymentStatus>Deployed</deploymentStatus>
+    <description>Used to track Trainer commissions rather than logging them as expenses to the opportunity</description>
+    <enableActivities>true</enableActivities>
+    <enableBulkApi>true</enableBulkApi>
+    <enableEnhancedLookup>false</enableEnhancedLookup>
+    <enableFeeds>false</enableFeeds>
+    <enableHistory>true</enableHistory>
+    <enableReports>true</enableReports>
+    <enableSearch>true</enableSearch>
+    <enableSharing>true</enableSharing>
+    <enableStreamingApi>true</enableStreamingApi>
+    <fields>
+        <fullName>Account_Auto__c</fullName>
+        <externalId>false</externalId>
+        <formula>Project__r.Account__r.Name</formula>
+        <inlineHelpText>formula field that looks up the Account related to the project</inlineHelpText>
+        <label>Project Account</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Account_del__c</fullName>
+        <deleteConstraint>SetNull</deleteConstraint>
+        <externalId>false</externalId>
+        <label>Account</label>
+        <referenceTo>Account</referenceTo>
+        <relationshipLabel>Trainer Commissions</relationshipLabel>
+        <relationshipName>R00N70000002ClQhEAK</relationshipName>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Lookup</type>
+    </fields>
+    <fields>
+        <fullName>Daily_Commission__c</fullName>
+        <externalId>false</externalId>
+        <label>Daily Commission</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>0</scale>
+        <trackHistory>true</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Currency</type>
+    </fields>
+    <fields>
+        <fullName>Date_Approved__c</fullName>
+        <externalId>false</externalId>
+        <inlineHelpText>updated by the approval process when the manager selects &quot;Approve&quot;</inlineHelpText>
+        <label>Date Approved</label>
+        <required>false</required>
+        <trackHistory>true</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Date</type>
+    </fields>
+    <fields>
+        <fullName>Date_Paid__c</fullName>
+        <externalId>false</externalId>
+        <label>Date Paid</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>DateTime</type>
+    </fields>
+    <fields>
+        <fullName>Date_Submitted__c</fullName>
+        <externalId>false</externalId>
+        <inlineHelpText>updated by the approval process when the user clicks the submit for approval button</inlineHelpText>
+        <label>Date Submitted</label>
+        <required>false</required>
+        <trackHistory>true</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Date</type>
+    </fields>
+    <fields>
+        <fullName>Delegated_Approver__c</fullName>
+        <externalId>false</externalId>
+        <formula>Trainer_New__r.Team_Lead__r.FirstName &amp; &quot; &quot;&amp; Trainer_New__r.Team_Lead__r.LastName</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <inlineHelpText>the delegated approver is the user&apos;s assigned Team Lead, the field is auto-populated by the system.</inlineHelpText>
+        <label>Delegated Approver</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>End_Date__c</fullName>
+        <externalId>false</externalId>
+        <inlineHelpText>used for training not related to a project</inlineHelpText>
+        <label>End Date</label>
+        <required>false</required>
+        <trackHistory>true</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Date</type>
+    </fields>
+    <fields>
+        <fullName>Exlcude_from_Goal__c</fullName>
+        <defaultValue>false</defaultValue>
+        <externalId>false</externalId>
+        <inlineHelpText>updated by workflow</inlineHelpText>
+        <label>Exlcude from Goal</label>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>Instruction__c</fullName>
+        <externalId>false</externalId>
+        <formula>IMAGE(&quot;/servlet/servlet.ImageServer?id=01570000001U1qS&amp;oid=00D700000008zHZ&amp;lastMod=1309469134000&quot;, &quot;YOU MUST SUBMIT FOR APPROVAL&quot;)</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>Instruction</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Manager_Approved__c</fullName>
+        <defaultValue>false</defaultValue>
+        <externalId>false</externalId>
+        <inlineHelpText>updated by the approval process for goal metrics</inlineHelpText>
+        <label>Manager Approved</label>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>Manager_Goal_Date__c</fullName>
+        <externalId>false</externalId>
+        <formula>IF( Training_End_Date_Day__c = &quot;Monday&quot;,  Training_End_Date__c +8,
+IF( Training_End_Date_Day__c = &quot;Tuesday&quot;,  Training_End_Date__c +7,
+IF( Training_End_Date_Day__c = &quot;Wednesday&quot;,  Training_End_Date__c +6,
+IF( Training_End_Date_Day__c = &quot;Thursday&quot;,  Training_End_Date__c +5,
+IF( Training_End_Date_Day__c = &quot;Friday&quot;,  Training_End_Date__c +4,
+IF( Training_End_Date_Day__c = &quot;Saturday&quot;,  Training_End_Date__c +3,
+Training_End_Date__c +2))))))</formula>
+        <label>Manager Goal Date</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Date</type>
+    </fields>
+    <fields>
+        <fullName>Manager_Goal_Status__c</fullName>
+        <externalId>false</externalId>
+        <formula>IF(  Exlcude_from_Goal__c = False,
+IF(Date_Approved__c &lt;=  Manager_Goal_Date__c , &quot;Goal Met&quot;, &quot;Goal Missed&quot;),Null)</formula>
+        <inlineHelpText>formula field that looks at the # of days between Date Submitted and Date Approved and calculates whether the Team Lead processed the approval ontime</inlineHelpText>
+        <label>Manager Goal Status</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Manager_for_Approval__c</fullName>
+        <deleteConstraint>SetNull</deleteConstraint>
+        <externalId>false</externalId>
+        <label>Manager for Approval</label>
+        <referenceTo>User</referenceTo>
+        <relationshipName>R00N70000002ClbtEAC</relationshipName>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Lookup</type>
+    </fields>
+    <fields>
+        <fullName>Opportunity_Name__c</fullName>
+        <deleteConstraint>SetNull</deleteConstraint>
+        <externalId>false</externalId>
+        <label>Opportunity Name</label>
+        <referenceTo>Opportunity</referenceTo>
+        <relationshipLabel>Trainer Commissions</relationshipLabel>
+        <relationshipName>R00N70000002ClRVEA0</relationshipName>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Lookup</type>
+    </fields>
+    <fields>
+        <fullName>Paid__c</fullName>
+        <defaultValue>false</defaultValue>
+        <externalId>false</externalId>
+        <label>Paid</label>
+        <trackHistory>true</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>Pay_Period__c</fullName>
+        <externalId>false</externalId>
+        <inlineHelpText>the date the expense check will be cut</inlineHelpText>
+        <label>Pay Period</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Date</type>
+    </fields>
+    <fields>
+        <fullName>Project__c</fullName>
+        <deleteConstraint>SetNull</deleteConstraint>
+        <externalId>false</externalId>
+        <inlineHelpText>lookup the project this commission is related to</inlineHelpText>
+        <label>Related Project</label>
+        <referenceTo>SFDC_520_Quote__c</referenceTo>
+        <relationshipLabel>Trainer Commissions</relationshipLabel>
+        <relationshipName>Trainer_Commissions</relationshipName>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Lookup</type>
+    </fields>
+    <fields>
+        <fullName>Related_Training__c</fullName>
+        <deleteConstraint>SetNull</deleteConstraint>
+        <externalId>false</externalId>
+        <label>Related Training</label>
+        <referenceTo>Training__c</referenceTo>
+        <relationshipLabel>Trainer Commissions</relationshipLabel>
+        <relationshipName>Trainer_Commissions</relationshipName>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Lookup</type>
+    </fields>
+    <fields>
+        <fullName>Start_Date__c</fullName>
+        <externalId>false</externalId>
+        <inlineHelpText>only used for Training not related to a Project</inlineHelpText>
+        <label>Start Date</label>
+        <required>false</required>
+        <trackHistory>true</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Date</type>
+    </fields>
+    <fields>
+        <fullName>Status__c</fullName>
+        <externalId>false</externalId>
+        <inlineHelpText>updated by the system</inlineHelpText>
+        <label>Status</label>
+        <picklist>
+            <picklistValues>
+                <fullName>Approved</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Rejected</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Submitted for Approval</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>In Progress</fullName>
+                <default>true</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Cancelled</fullName>
+                <default>false</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <trackHistory>true</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Picklist</type>
+    </fields>
+    <fields>
+        <fullName>Submitted_Day__c</fullName>
+        <externalId>false</externalId>
+        <formula>CASE( MOD( Date_Submitted__c  - DATE(1900, 1, 7), 7), 
+0, &quot;Sunday&quot;, 
+1, &quot;Monday&quot;, 
+2, &quot;Tuesday&quot;, 
+3, &quot;Wednesday&quot;, 
+4, &quot;Thursday&quot;, 
+5, &quot;Friday&quot;, 
+6, &quot;Saturday&quot;, 
+&quot;Error&quot;)</formula>
+        <inlineHelpText>day of the week the commission was submitted</inlineHelpText>
+        <label>Submitted Day</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Total_Commission_Payable__c</fullName>
+        <externalId>false</externalId>
+        <formula>Total_Number_of_Days__c  *  Daily_Commission__c</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <inlineHelpText>only used for Training not related to a Project</inlineHelpText>
+        <label>Total Commission Payable</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>2</scale>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Currency</type>
+    </fields>
+    <fields>
+        <fullName>Total_Number_of_Days__c</fullName>
+        <externalId>false</externalId>
+        <inlineHelpText>only used for Training not related to a Project</inlineHelpText>
+        <label>Total Number of Days</label>
+        <precision>6</precision>
+        <required>false</required>
+        <scale>2</scale>
+        <trackHistory>true</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Number</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Total_Payable__c</fullName>
+        <externalId>false</externalId>
+        <formula>IF( RecordTypeId = &quot;01270000000Q8R4&quot;,  of_Training_Days__c * Daily_Commission__c ,  Total_Number_of_Days__c * Daily_Commission__c )</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <inlineHelpText>auto-calculated by the system - takes the # of training days by the amount entered in the Daily Commission field</inlineHelpText>
+        <label>Total Payable</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>2</scale>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Currency</type>
+    </fields>
+    <fields>
+        <fullName>Trainer_Goal_Date__c</fullName>
+        <externalId>false</externalId>
+        <formula>IF( Training_End_Date_Day__c = &quot;Monday&quot;, Training_End_Date__c +7, 
+IF( Training_End_Date_Day__c = &quot;Tuesday&quot;, Training_End_Date__c +6, 
+IF( Training_End_Date_Day__c = &quot;Wednesday&quot;, Training_End_Date__c +5, 
+IF( Training_End_Date_Day__c = &quot;Thursday&quot;, Training_End_Date__c +4, 
+IF( Training_End_Date_Day__c = &quot;Friday&quot;, Training_End_Date__c +3, 
+IF( Training_End_Date_Day__c = &quot;Saturday&quot;, Training_End_Date__c +2, 
+Training_End_Date__c +1))))))</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <inlineHelpText>formula field that looks at the training end date and calculates the date the record is supposed to be submitted by</inlineHelpText>
+        <label>Trainer Goal Date</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Date</type>
+    </fields>
+    <fields>
+        <fullName>Trainer_New__c</fullName>
+        <deleteConstraint>SetNull</deleteConstraint>
+        <externalId>false</externalId>
+        <label>Trainer</label>
+        <referenceTo>User</referenceTo>
+        <relationshipName>Trainer_Commissions</relationshipName>
+        <required>false</required>
+        <trackHistory>true</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Lookup</type>
+    </fields>
+    <fields>
+        <fullName>Trainer_Submit_Status__c</fullName>
+        <externalId>false</externalId>
+        <formula>IF(!ISBLANK(  Date_Submitted__c ) &amp;&amp;  Date_Submitted__c  &lt;=  Trainer_Goal_Date__c , &quot;Goal Met&quot;, &quot;Goal Missed&quot;)</formula>
+        <inlineHelpText>formula field that set the Trainer Submit Goal Status</inlineHelpText>
+        <label>Trainer Submit Status</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Trainer__c</fullName>
+        <externalId>false</externalId>
+        <label>Trainer_old</label>
+        <picklist>
+            <picklistValues>
+                <fullName>Al Evangelista</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Anthony Hall</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Bruce Rawitch</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Chris Hanson</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Chris Hawthorne</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Dan Chase</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Holly Kinney</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Jim Nelson</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>John Evans</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Jon Beachner</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Kate Crossley</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Kevin Broderick</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Michael Tigges</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Mike Perkins</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Mike Rauscher</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Shawn Maloney</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Shelli Clark</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Steve Finell</fullName>
+                <default>false</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Picklist</type>
+    </fields>
+    <fields>
+        <fullName>Training_End_Date_Day__c</fullName>
+        <externalId>false</externalId>
+        <formula>CASE( MOD(  Training_End_Date__c  - DATE(1900, 1, 7), 7), 
+0, &quot;Sunday&quot;, 
+1, &quot;Monday&quot;, 
+2, &quot;Tuesday&quot;, 
+3, &quot;Wednesday&quot;, 
+4, &quot;Thursday&quot;, 
+5, &quot;Friday&quot;, 
+6, &quot;Saturday&quot;, 
+&quot;Enter Training End Date&quot;)</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>Training End Date Day</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Training_End_Date__c</fullName>
+        <externalId>false</externalId>
+        <formula>Project__r.Confirmed_Training_End__c</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <inlineHelpText>formula field that reads the Confirmed Training End Date from the Project</inlineHelpText>
+        <label>Training End Date</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Date</type>
+    </fields>
+    <fields>
+        <fullName>Training_Start_Date__c</fullName>
+        <externalId>false</externalId>
+        <formula>Project__r.Confirmed_Training_Start__c</formula>
+        <inlineHelpText>formula field that reads the confirmed training start date from the Project</inlineHelpText>
+        <label>Training Start Date</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Date</type>
+    </fields>
+    <fields>
+        <fullName>of_Training_Days__c</fullName>
+        <externalId>false</externalId>
+        <formula>IF(
+   !ISBLANK(Related_Training__c),
+   (Related_Training__r.Confirmed_Training_End__c - Related_Training__r.Confirmed_Training_Start__c)+1,
+   (Project__r.Confirmed_Training_End__c - Project__r.Confirmed_Training_Start__c)+1
+)</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <inlineHelpText>Formula field that calculates the difference between the Training Start and End Dates. Looks for a Related Training first, and uses Related Project if it does not find one.</inlineHelpText>
+        <label># of Training Days</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>2</scale>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Number</type>
+        <unique>false</unique>
+    </fields>
+    <label>Trainer Commission</label>
+    <listViews>
+        <fullName>Awaiting_Payment_NONProjects</fullName>
+        <columns>NAME</columns>
+        <columns>Trainer_New__c</columns>
+        <columns>Account_del__c</columns>
+        <columns>CREATED_DATE</columns>
+        <columns>Start_Date__c</columns>
+        <columns>Total_Payable__c</columns>
+        <columns>Paid__c</columns>
+        <columns>Pay_Period__c</columns>
+        <columns>Date_Paid__c</columns>
+        <columns>RECORDTYPE</columns>
+        <filterScope>Everything</filterScope>
+        <filters>
+            <field>Status__c</field>
+            <operation>equals</operation>
+            <value>Approved</value>
+        </filters>
+        <filters>
+            <field>Paid__c</field>
+            <operation>equals</operation>
+            <value>0</value>
+        </filters>
+        <filters>
+            <field>RECORDTYPE</field>
+            <operation>equals</operation>
+            <value>Trainer_Commission__c.Non_Project</value>
+        </filters>
+        <label>Awaiting Payment - Non Project Related</label>
+        <sharedTo>
+            <role>BusinessAnalyst</role>
+            <role>ProductTrainingManager</role>
+            <role>VPofImplementationSupport</role>
+            <role>sr_Dir_Training_Imp</role>
+        </sharedTo>
+    </listViews>
+    <listViews>
+        <fullName>Awaiting_Payment_Projects</fullName>
+        <columns>NAME</columns>
+        <columns>Trainer_New__c</columns>
+        <columns>Project__c</columns>
+        <columns>CREATED_DATE</columns>
+        <columns>Training_Start_Date__c</columns>
+        <columns>Total_Payable__c</columns>
+        <columns>Paid__c</columns>
+        <columns>Pay_Period__c</columns>
+        <columns>Date_Paid__c</columns>
+        <columns>RECORDTYPE</columns>
+        <columns>Manager_Goal_Status__c</columns>
+        <columns>Related_Training__c</columns>
+        <filterScope>Everything</filterScope>
+        <filters>
+            <field>Status__c</field>
+            <operation>equals</operation>
+            <value>Approved</value>
+        </filters>
+        <filters>
+            <field>Paid__c</field>
+            <operation>equals</operation>
+            <value>0</value>
+        </filters>
+        <filters>
+            <field>RECORDTYPE</field>
+            <operation>equals</operation>
+            <value>Trainer_Commission__c.Process</value>
+        </filters>
+        <label>Awaiting Payment - Project Related</label>
+        <sharedTo>
+            <role>BusinessAnalyst</role>
+            <role>ProductTrainingManager</role>
+            <role>VPofImplementationSupport</role>
+            <role>sr_Dir_Training_Imp</role>
+        </sharedTo>
+    </listViews>
+    <listViews>
+        <fullName>Awaiting_Payment_no</fullName>
+        <columns>NAME</columns>
+        <columns>Trainer_New__c</columns>
+        <columns>Project__c</columns>
+        <columns>Account_del__c</columns>
+        <columns>Total_Commission_Payable__c</columns>
+        <columns>CREATED_DATE</columns>
+        <columns>Paid__c</columns>
+        <columns>Pay_Period__c</columns>
+        <columns>RECORDTYPE</columns>
+        <filterScope>Everything</filterScope>
+        <filters>
+            <field>Status__c</field>
+            <operation>equals</operation>
+            <value>Approved</value>
+        </filters>
+        <filters>
+            <field>Paid__c</field>
+            <operation>equals</operation>
+            <value>0</value>
+        </filters>
+        <filters>
+            <field>RECORDTYPE</field>
+            <operation>equals</operation>
+        </filters>
+        <label>Awaiting Payment - no record type</label>
+        <sharedTo>
+            <role>BusinessAnalyst</role>
+            <role>ProductTrainingManager</role>
+            <role>VPofImplementationSupport</role>
+            <role>sr_Dir_Training_Imp</role>
+        </sharedTo>
+    </listViews>
+    <listViews>
+        <fullName>Created_Last_Year_Trainers</fullName>
+        <booleanFilter>1 OR 2</booleanFilter>
+        <columns>NAME</columns>
+        <columns>Account_del__c</columns>
+        <columns>Project__c</columns>
+        <columns>Trainer_New__c</columns>
+        <columns>Date_Paid__c</columns>
+        <columns>End_Date__c</columns>
+        <columns>Training_End_Date__c</columns>
+        <columns>Daily_Commission__c</columns>
+        <columns>Paid__c</columns>
+        <columns>Start_Date__c</columns>
+        <columns>Total_Commission_Payable__c</columns>
+        <columns>of_Training_Days__c</columns>
+        <columns>Total_Number_of_Days__c</columns>
+        <columns>Delegated_Approver__c</columns>
+        <filterScope>Everything</filterScope>
+        <filters>
+            <field>End_Date__c</field>
+            <operation>equals</operation>
+            <value>LAST_YEAR</value>
+        </filters>
+        <filters>
+            <field>Training_End_Date__c</field>
+            <operation>equals</operation>
+            <value>LAST_YEAR</value>
+        </filters>
+        <label>Created Last Year_Trainers</label>
+        <sharedTo>
+            <role>BusinessAnalyst</role>
+            <role>ProductTrainingManager</role>
+        </sharedTo>
+    </listViews>
+    <listViews>
+        <fullName>Created_This_Year_Trainers</fullName>
+        <booleanFilter>1 OR 2</booleanFilter>
+        <columns>NAME</columns>
+        <columns>Account_del__c</columns>
+        <columns>Project__c</columns>
+        <columns>Trainer_New__c</columns>
+        <columns>Date_Paid__c</columns>
+        <columns>End_Date__c</columns>
+        <columns>Training_End_Date__c</columns>
+        <columns>Daily_Commission__c</columns>
+        <columns>Paid__c</columns>
+        <columns>Start_Date__c</columns>
+        <columns>Total_Commission_Payable__c</columns>
+        <columns>of_Training_Days__c</columns>
+        <columns>Total_Number_of_Days__c</columns>
+        <columns>Delegated_Approver__c</columns>
+        <filterScope>Everything</filterScope>
+        <filters>
+            <field>End_Date__c</field>
+            <operation>equals</operation>
+            <value>THIS_YEAR</value>
+        </filters>
+        <filters>
+            <field>Training_End_Date__c</field>
+            <operation>equals</operation>
+            <value>THIS_YEAR</value>
+        </filters>
+        <label>Created This Year_Trainers</label>
+    </listViews>
+    <listViews>
+        <fullName>Find_Commissions</fullName>
+        <columns>CREATED_DATE</columns>
+        <columns>NAME</columns>
+        <columns>Trainer_New__c</columns>
+        <columns>RECORDTYPE</columns>
+        <columns>Status__c</columns>
+        <columns>Exlcude_from_Goal__c</columns>
+        <columns>Date_Submitted__c</columns>
+        <columns>Trainer_Submit_Status__c</columns>
+        <columns>Trainer_Goal_Date__c</columns>
+        <columns>Manager_Goal_Date__c</columns>
+        <columns>Manager_Goal_Status__c</columns>
+        <filterScope>Everything</filterScope>
+        <filters>
+            <field>CREATED_DATE</field>
+            <operation>equals</operation>
+            <value>LAST_N_DAYS:30</value>
+        </filters>
+        <label>Find Commissions</label>
+        <sharedTo>
+            <roleAndSubordinatesInternal>SystemsAdministrator</roleAndSubordinatesInternal>
+        </sharedTo>
+    </listViews>
+    <listViews>
+        <fullName>Pending_Approval</fullName>
+        <columns>NAME</columns>
+        <columns>Trainer__c</columns>
+        <columns>Opportunity_Name__c</columns>
+        <columns>Start_Date__c</columns>
+        <columns>End_Date__c</columns>
+        <columns>Status__c</columns>
+        <columns>Paid__c</columns>
+        <columns>CREATED_DATE</columns>
+        <columns>Delegated_Approver__c</columns>
+        <filterScope>Everything</filterScope>
+        <filters>
+            <field>Status__c</field>
+            <operation>notEqual</operation>
+            <value>Rejected,Approved</value>
+        </filters>
+        <filters>
+            <field>Paid__c</field>
+            <operation>equals</operation>
+            <value>0</value>
+        </filters>
+        <filters>
+            <field>NAME</field>
+            <operation>equals</operation>
+        </filters>
+        <label>Pending Approval</label>
+        <sharedTo>
+            <role>BusinessAnalyst</role>
+            <role>VPofImplementationSupport</role>
+            <role>sr_Dir_Training_Imp</role>
+        </sharedTo>
+    </listViews>
+    <listViews>
+        <fullName>Rick_Commissions</fullName>
+        <columns>NAME</columns>
+        <columns>Account_del__c</columns>
+        <columns>Account_Auto__c</columns>
+        <columns>Manager_for_Approval__c</columns>
+        <columns>Start_Date__c</columns>
+        <columns>End_Date__c</columns>
+        <columns>Status__c</columns>
+        <columns>Paid__c</columns>
+        <columns>Daily_Commission__c</columns>
+        <columns>Total_Commission_Payable__c</columns>
+        <columns>CREATED_DATE</columns>
+        <columns>LAST_UPDATE</columns>
+        <filterScope>Everything</filterScope>
+        <filters>
+            <field>Trainer_New__c</field>
+            <operation>equals</operation>
+            <value>Rick Ebaugh</value>
+        </filters>
+        <filters>
+            <field>CREATED_DATE</field>
+            <operation>greaterThan</operation>
+            <value>10/30/2012 12:00 AM</value>
+        </filters>
+        <label>Rick Ebaugh Vintervention Commissions</label>
+        <sharedTo>
+            <role>BusinessAnalyst</role>
+            <role>ProductTrainingManager</role>
+        </sharedTo>
+    </listViews>
+    <nameField>
+        <displayFormat>TRC{0000}</displayFormat>
+        <label>Trainer Commission Name</label>
+        <trackHistory>false</trackHistory>
+        <type>AutoNumber</type>
+    </nameField>
+    <pluralLabel>Trainer Commissions</pluralLabel>
+    <recordTypeTrackHistory>false</recordTypeTrackHistory>
+    <recordTypes>
+        <fullName>Admin</fullName>
+        <active>true</active>
+        <label>Admin</label>
+        <picklistValues>
+            <picklist>Status__c</picklist>
+            <values>
+                <fullName>Approved</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Cancelled</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>In Progress</fullName>
+                <default>true</default>
+            </values>
+            <values>
+                <fullName>Rejected</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Submitted for Approval</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Trainer__c</picklist>
+            <values>
+                <fullName>Al Evangelista</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Anthony Hall</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Bruce Rawitch</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Chris Hanson</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Chris Hawthorne</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Dan Chase</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Holly Kinney</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Jim Nelson</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>John Evans</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Jon Beachner</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Kate Crossley</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Kevin Broderick</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Michael Tigges</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Mike Perkins</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Mike Rauscher</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Shawn Maloney</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Shelli Clark</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Steve Finell</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+    </recordTypes>
+    <recordTypes>
+        <fullName>Create</fullName>
+        <active>true</active>
+        <description>used when creating a new record</description>
+        <label>Create</label>
+        <picklistValues>
+            <picklist>Status__c</picklist>
+            <values>
+                <fullName>Approved</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>In Progress</fullName>
+                <default>true</default>
+            </values>
+            <values>
+                <fullName>Rejected</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Submitted for Approval</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Trainer__c</picklist>
+            <values>
+                <fullName>Al Evangelista</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Anthony Hall</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Bruce Rawitch</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Chris Hanson</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Chris Hawthorne</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Dan Chase</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Holly Kinney</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Jim Nelson</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>John Evans</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Jon Beachner</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Kate Crossley</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Kevin Broderick</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Michael Tigges</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Mike Perkins</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Mike Rauscher</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Shawn Maloney</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Shelli Clark</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Steve Finell</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+    </recordTypes>
+    <recordTypes>
+        <fullName>Non_Project</fullName>
+        <active>true</active>
+        <description>Training is not related to a Project</description>
+        <label>Non Project</label>
+        <picklistValues>
+            <picklist>Status__c</picklist>
+            <values>
+                <fullName>Approved</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Cancelled</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>In Progress</fullName>
+                <default>true</default>
+            </values>
+            <values>
+                <fullName>Rejected</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Submitted for Approval</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Trainer__c</picklist>
+            <values>
+                <fullName>Al Evangelista</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Anthony Hall</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Bruce Rawitch</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Chris Hanson</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Chris Hawthorne</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Dan Chase</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Holly Kinney</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Jim Nelson</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>John Evans</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Jon Beachner</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Kate Crossley</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Kevin Broderick</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Michael Tigges</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Mike Perkins</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Mike Rauscher</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Shawn Maloney</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Shelli Clark</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Steve Finell</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+    </recordTypes>
+    <recordTypes>
+        <fullName>Process</fullName>
+        <active>true</active>
+        <description>used after creation</description>
+        <label>Process</label>
+        <picklistValues>
+            <picklist>Status__c</picklist>
+            <values>
+                <fullName>Approved</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Cancelled</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>In Progress</fullName>
+                <default>true</default>
+            </values>
+            <values>
+                <fullName>Rejected</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Submitted for Approval</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Trainer__c</picklist>
+            <values>
+                <fullName>Al Evangelista</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Anthony Hall</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Bruce Rawitch</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Chris Hanson</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Chris Hawthorne</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Dan Chase</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Holly Kinney</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Jim Nelson</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>John Evans</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Jon Beachner</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Kate Crossley</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Kevin Broderick</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Michael Tigges</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Mike Perkins</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Mike Rauscher</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Shawn Maloney</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Shelli Clark</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Steve Finell</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+    </recordTypes>
+    <searchLayouts>
+        <customTabListAdditionalFields>Account_del__c</customTabListAdditionalFields>
+        <customTabListAdditionalFields>Trainer__c</customTabListAdditionalFields>
+        <customTabListAdditionalFields>Manager_for_Approval__c</customTabListAdditionalFields>
+        <customTabListAdditionalFields>Paid__c</customTabListAdditionalFields>
+        <lookupDialogsAdditionalFields>OBJECT_ID</lookupDialogsAdditionalFields>
+        <lookupDialogsAdditionalFields>Account_del__c</lookupDialogsAdditionalFields>
+        <lookupDialogsAdditionalFields>Total_Commission_Payable__c</lookupDialogsAdditionalFields>
+        <searchResultsAdditionalFields>OBJECT_ID</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields>Opportunity_Name__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields>Total_Commission_Payable__c</searchResultsAdditionalFields>
+    </searchLayouts>
+    <sharingModel>Private</sharingModel>
+</CustomObject>

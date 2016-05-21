@@ -1,0 +1,161 @@
+<apex:page standardController="agf__QA_Test_Plan__c" extensions="agf.QA_TPDetails" showHeader="true" sidebar="true">
+
+    <apex:detail relatedList="false"/>
+    <apex:include pageName="agf__QA_TPQuestionDetails"/>
+    <apex:include pageName="agf__QA_TPUserStoryList"/>
+
+    <apex:form rendered="{!NOT(ISNULL(USItems))}">
+    <apex:pageBlock id="TEReport" title="Test Execution Status Report">
+
+        <apex:pageBlockButtons location="top"><apex:commandButton action="{!report}" value="Refresh" rerender="out" status="status"/></apex:pageBlockButtons>
+        <apex:outputPanel id="title">
+            <apex:commandLink action="{!executionReport}" value="Test Execution Status" status="status" rerender="out,title" 
+                rendered="{!NOT(CONTAINS(reportAdj, 'Passing'))}"/>
+            <apex:outputText rendered="{!CONTAINS(reportAdj, 'Passing')}" value="Test Execution Status"/>
+            &nbsp;&nbsp;|&nbsp;&nbsp;
+            <apex:commandLink action="{!automationReport}" value="Automated Test Coverage" status="status" rerender="out,title" 
+                rendered="{!NOT(CONTAINS(reportAdj, 'Automated'))}"/>
+            <apex:outputText rendered="{!CONTAINS(reportAdj, 'Automated')}" value="Automated Test Coverage"/>
+            &nbsp;&nbsp;|&nbsp;&nbsp;
+            <apex:commandLink action="{!annotationReport}" value="Annotation Status" status="status" rerender="out,title"
+                rendered="{!NOT(CONTAINS(reportAdj, 'Annotated'))}"/>
+            <apex:outputText rendered="{!CONTAINS(reportAdj, 'Annotated')}" value="Annotation Status"/><p/>
+        </apex:outputPanel>
+            
+        <apex:selectList value="{!userStories}" multiselect="false"  size="1" onchange="rerenderGraph()">
+             <apex:selectOptions value="{!USItems}"/>
+        </apex:selectList>
+        <apex:commandButton action="{!report}" value="Refresh" rerender="out,in" status="status"/>
+        &nbsp;&nbsp;&nbsp;
+        <apex:actionFunction action="{!report}" name="rerenderGraph" rerender="out,in" status="status">
+        </apex:actionFunction>
+        <apex:outputPanel id="out">
+            <apex:actionstatus id="status" startText="Requesting...">
+                <apex:facet name="stop">
+                    <apex:outputPanel rendered="{!NOT(ISNULL(userStories))}">
+                            <table class="tableClass" width="100%" border="0" cellpadding="0" cellspacing="0">
+                                <tr>
+                                    <td>
+                                     <apex:pageBlockTable columnsWidth="33%,33%,33%" value="{!statusReportsList}" var="sr" rendered="{!NOT(ISNULL(statusReportsList))}" style="padding-left:3%;">
+                                            <apex:column value="{!sr.title}"  headerValue="Status"/>
+                                            <apex:column value="{!sr.count}"  headerValue="Test Executions"/>
+                                            <apex:column value="{!sr.percent}%" headerValue="Percent of Total"/>
+                                        </apex:pageBlockTable>
+                                    </td>
+                                    <td style="padding-left:2%;">
+                                        <apex:image value="{!userStories}" />
+                                    </td>
+                                    <td>
+                                        <apex:pageBlockTable columnsWidth="50%,50%" value="{!summaryReportsList}" var="sr" rendered="{!NOT(ISNULL(summaryReportsList))}" style="padding-left:7%;">
+                                            <apex:column headerValue="User Story">
+                                                <a href = "/{!sr.usId}"> {!sr.usTitle}</a>
+                                            </apex:column>
+                                            <apex:column value="{!sr.passPnt}" headerValue="Percent {!reportAdj}"/>
+                                        </apex:pageBlockTable>
+                                   </td>
+                                </tr>
+                            </table>
+                    </apex:outputPanel>
+                </apex:facet>
+            </apex:actionstatus>
+
+             <apex:outputPanel id="in" rendered="{!(ISNULL(userStories))}">
+                 <apex:outputPanel rendered="{!ISNULL(statusReportsList)}">
+                     <P><strong>No test executions associated with this user story</strong></P>
+                 </apex:outputPanel>
+                 <apex:outputPanel rendered="{!NOT(ISNULL(statusReportsList))}">
+                     <P><strong>No automated test executions associated with this user story</strong></P>
+                 </apex:outputPanel>
+            </apex:outputPanel>
+            <script>
+                var browserVer = navigator.appVersion;
+                if (browserVer.indexOf('MSIE 8') !=-1)
+                    document.write('<P><strong>If the chart doesn\'t load, please run IE8 in compatibility mode or turn on mixed content.</strong></P>');
+            </script>
+        </apex:outputPanel>
+    
+
+    <apex:outputPanel rendered="{!(ISNULL(USItems))}">
+       <P><strong>No User Stories associated with this Test Plan</strong></P>
+    </apex:outputPanel>
+
+    <apex:outputPanel rendered="{!dupUS}">
+       <P><apex:outputText style="font-style:italic; color: red" value="* in the UserStory picklist represents more than One User Story with same title." /></P>
+    </apex:outputPanel>
+
+    </apex:pageBlock>
+	</apex:form>
+	
+    <apex:pageBlock id="BugsDetailBlock" title="Bugs - {!statusChoice}">
+    <apex:form >
+        <apex:outputPanel >
+                        <apex:commandLink action="{!allBugs}" value="Show All" rerender="BugsDetailBlock" />&nbsp;&nbsp;|&nbsp;&nbsp;
+                        <apex:commandLink action="{!openBugs}" value="Open Bugs" rerender="BugsDetailBlock" />&nbsp;&nbsp;|&nbsp;&nbsp;
+                        <apex:commandLink action="{!closedBugs}" value="Closed Bugs" rerender="BugsDetailBlock" />&nbsp;&nbsp;|&nbsp;&nbsp;
+                        <apex:commandLink action="{!resolvedBugs}" value="Resolved Bugs" rerender="BugsDetailBlock" />
+         </apex:outputPanel>
+                <apex:outputPanel rendered="{!(ISNULL(bugs))}">
+                   <p/> <strong>No Bug Records associated to this User Story</strong>
+                </apex:outputPanel>
+
+                <apex:pageBlockTable value="{!bugs}" var="bugsl"  rows="{!rowsToReturn}" columns="7"  width="100%" rendered="{!NOT(ISNULL(bugs))}" >
+                                <apex:column width="10%">
+                                    <apex:facet name="header">
+                                    <apex:commandLink action="{!orderBugNumber}" value="Bug Number {!IF(CONTAINS(sortColumn,'BugNum'),sortDirection,'')}" rerender="BugsDetailBlock" />
+                                    </apex:facet>
+                                    <a href = "/{!bugsl.Id}"> {!bugsl.Name}</a>
+                                </apex:column>
+
+                                <apex:column width="45%">
+                                    <apex:facet name="header">
+                                    <apex:commandLink action="{!orderSubject}" value="Subject {!IF(CONTAINS(sortColumn,'Subject'),sortDirection,'')}" rerender="BugsDetailBlock" />
+                                    </apex:facet>
+                                    {!bugsl.agf__Subject__c}
+                                </apex:column>
+
+                                <apex:column width="10%">
+                                    <apex:facet name="header">
+                                    <apex:commandLink action="{!orderPriority}" value="Priority {!IF(CONTAINS(sortColumn,'Priority'),sortDirection,'')}" rerender="BugsDetailBlock"/>
+                                    </apex:facet>
+                                    {!bugsl.agf__Priority__c}
+                                </apex:column>
+
+                                <apex:column width="15%">
+                                    <apex:facet name="header">
+                                    <apex:commandLink action="{!orderStatus}" value="Status {!IF(CONTAINS(sortColumn,'Status'),sortDirection,'')}" rerender="BugsDetailBlock"/>
+                                    </apex:facet>
+                                    {!bugsl.agf__Status__c}
+                                </apex:column>
+
+                                <apex:column width="20%">
+                                    <apex:facet name="header">
+                                    <apex:commandLink action="{!orderQAEngineer}" value="QAEngineer {!IF(CONTAINS(sortColumn,'QA'),sortDirection,'')}" rerender="BugsDetailBlock"/>
+                                    </apex:facet>
+                                    {!bugsl.QA_Engineer__r.Name}
+                                </apex:column>
+
+                                <apex:column width="20%">
+                                    <apex:facet name="header">
+                                    <apex:commandLink action="{!orderAssignee}" value="Assignee {!IF(CONTAINS(sortColumn,'Assignee'),sortDirection,'')}" rerender="BugsDetailBlock"/>
+                                    </apex:facet>
+                                    {!bugsl.Assignee__r.Name}
+                                </apex:column>
+
+                                <apex:column width="5%">
+                                    <apex:facet name="header">
+                                    <apex:commandLink action="{!orderScheduledBuild}" value="Scheduled Build {!IF(CONTAINS(sortColumn,'SB'),sortDirection,'')}" rerender="BugsDetailBlock"/>
+                                    </apex:facet>
+                                    {!bugsl.Scheduled_Build__r.Name}
+                                </apex:column>
+                   </apex:pageBlockTable>
+                     <p/>
+                    <apex:outputPanel rendered="{!NOT(ISNULL(bugs))}">
+                        <apex:commandLink action="{!showAll}" value="{!showAllVariableName}" rerender="BugsDetailBlock" rendered="{!AND(count > 10,CONTAINS(showAllVariableName , "Show All")) }" />&nbsp;&nbsp;&nbsp;
+                        <apex:commandLink action="{!showAll}" value="{!showAllVariableName}" rerender="BugsDetailBlock" rendered="{!AND(count > 10,CONTAINS(showAllVariableName , "First 10"))}" />&nbsp;&nbsp;&nbsp;
+                        <apex:commandLink action="{!showMore}" value="Show 10 More" rerender="BugsDetailBlock" rendered="{!AND(count > 20,showFewMore)}" />&nbsp;&nbsp;&nbsp;
+                         Displaying <h3>{!rowsToReturn}/{!count}</h3> Bug Record(s)
+                    </apex:outputPanel>
+     </apex:form>
+    </apex:pageBlock>
+    <apex:relatedList list="NotesAndAttachments"/>
+</apex:page>

@@ -1,0 +1,125 @@
+<apex:page showHeader="true" sidebar="true" controller="geopointe.ShapeFolderMigration_Controller" title="Shape Folder Migration Page">
+	
+	<apex:stylesheet value="{!URLFOR($Resource.geopointe__jquery, 'js/lib/toastr/toastr.min.css')}"/> <!-- Toastr popup css -->
+	<script src="{!URLFOR($Resource.jquery, '/jquery-1.8.3.min.js')}"></script> <!-- core jQuery -->
+	<script src="{!URLFOR($Resource.jquery, 'js/lib/toastr/toastr.min.js')}"></script> <!-- toasr popup js-->
+	
+	<apex:sectionHeader title="Shape Folder Migration Helper"/>
+
+	<apex:form >
+		<apex:outputPanel rendered="{!NOT(hasShapeMigrationJobRun)}" id="shapeJobMsg">	
+			Before this page can be used the Shape Folder Migration Job needs to complete.<br/><br/>
+
+			<apex:outputPanel rendered="{!NOT(isShapeFolderMigrationJobRunning)}">
+				<apex:commandButton value="Run Shape Folder Migration Job" action="{!runShapeFolderMigrationJob}" reRender="shapeJobMsg"/>
+			</apex:outputPanel>
+			<apex:outputPanel rendered="{!isShapeFolderMigrationJobRunning}">
+				The Shape Folder Migration Job is currently running. Please reload this page after a few minutes.
+			</apex:outputPanel>
+		</apex:outputPanel>
+
+		<apex:outputPanel rendered="{!hasShapeMigrationJobRun}">
+			<p>
+			This page will inspect the Geopointe Shape records you have created along with the sharing records for each shape. Based on similar sharing and Shape access this page will group 
+			the Shapes into suggested folders. You can enter a name Name for a new folder to be created and then select the "Create Folder" button for each suggested grouping. This will 
+			create a Folder, add all the Shapes listed to this Folder, and provide access to the groups listed in the Sharing table for each group.
+			</p>
+
+			<apex:pageBlock title="Good News!" rendered="{!shapeGroups.size == 0}">
+				You have no shapes that need to be placed in folders!
+			</apex:pageBlock>
+
+			<strong>Ignore Owners: </strong>
+			<apex:inputCheckbox value="{!ignoreOwners}">
+				<apex:actionSupport event="onchange" reRender="shapeGroups" action="{!buildSuggestedFolderGroupings}" status="shapeGroupsChange"/>
+			</apex:inputCheckbox><br/> <br/>
+
+			If the "Ignore Owners" box is checked, the Owner of a Shape will not be taken into consideration when buiding the suggested Folder groups. 
+			This is useful when there may be multiple Shapes shared with the same Users/Roles/Groups but the owner is different.
+
+			<br/><br/>
+
+			<apex:outputPanel id="shapeGroups">
+
+				<apex:actionStatus id="shapeGroupsChange">
+					<apex:facet name="start">
+						Building Folder Groups...
+					</apex:facet>
+					<apex:facet name="stop">
+						<apex:repeat value="{!shapeGroups}" var="sg">
+							<div id="{!sg.groupId}">
+								<apex:pageBlock title="Folder Group" mode="edit">
+
+									<apex:pageBlockButtons location="top">
+										<apex:actionStatus id="createFolder">
+											<apex:facet name="start">
+												Creating Folder...
+											</apex:facet>
+											<apex:facet name="stop">
+												<apex:commandButton value="Create Folder" action="{!createFolder}" reRender="createFolderComplete" status="createFolder">
+													<apex:param value="{!sg.groupId}" name="groupIdToProcess" assignTo="{!groupIdToProcess}"/>
+												</apex:commandButton>
+											</apex:facet>
+										</apex:actionStatus>
+									</apex:pageBlockButtons>
+
+									<apex:pageBlockSection columns="1">
+										<apex:pageBlockSectionItem >
+											<apex:outputLabel value="Folder Name"/>
+											<apex:inputText value="{!sg.folderName}" style="width: 250px;"/>
+										</apex:pageBlockSectionItem>
+									</apex:pageBlockSection>
+
+									<apex:pageBlockSection showHeader="false" columns="1">
+										<strong>Sharing:</strong> These Users/Roles/Groups will have access to the Shapes listed below.
+
+										<apex:pageBlockTable value="{!sg.sharingReasons}" var="sr">
+											<apex:column value="{!sr.type}" headerValue="Type"/>
+											<apex:column value="{!sr.name}" headerValue="Name"/>
+											<apex:column value="{!sr.accessLevel}" headerValue="Access Level"/>
+											<apex:column value="{!sr.rowCause}" headerValue="Reason"/>
+										</apex:pageBlockTable>
+
+									</apex:pageBlockSection>
+
+									<apex:pageBlockSection title="Shapes" columns="1" showHeader="false">
+										
+										<strong>Shapes:</strong> These Shapes will be placed in a new Folder and the Users/Roles/Groups listed above will have access to this Folder.
+
+										<apex:pageBlockTable title="Shapes" value="{!sg.shapes}" var="s">
+											<apex:column headerValue="Name">
+												<a href="/{!s.Id}" target="_blank">{!s.Name}</a>
+											</apex:column>
+											<apex:column value="{!s.geopointe__Description__c}" headerValue="Description"/>
+										</apex:pageBlockTable>
+									</apex:pageBlockSection>
+									<br/>
+								</apex:pageBlock>
+								<br/>
+							</div>
+						</apex:repeat>
+					</apex:facet>
+				</apex:actionStatus>			
+			</apex:outputPanel>
+
+		</apex:outputPanel>
+	</apex:form>
+
+	<apex:outputPanel id="createFolderComplete">
+		<script type="text/javascript">
+			var groupId = '{!groupIdToProcess}';
+			var result = '{!createFolderResult}';
+
+			if(result == ''){
+				//page load, do nothing
+
+			}else if(result == 'success'){
+				jQuery('#' + groupId).slideUp( "slow", function(){});
+
+			}else{
+				alert(result);
+			}
+		</script>
+	</apex:outputPanel>
+
+</apex:page>

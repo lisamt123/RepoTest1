@@ -1,0 +1,36 @@
+<apex:page standardController="Opportunity" extensions="tinderbox.ext_TBNewProposal" title="New TinderBox Proposal" action="{!checkUseSubmitPage}">
+     <apex:form id="theForm">
+        <apex:pageBlock >  
+            <apex:pageMessages />
+            
+            <apex:pageBlockSection title="New Tinderbox Proposal" columns="2" >
+                <apex:pageBlockSectionItem >
+                   	<apex:outputLabel value="Template:" />
+					<apex:selectList value="{!selectedTemplate}" size="1" >
+                   		<apex:selectOptions value="{!templateSelectOptions}" />
+                   	</apex:selectList>
+                </apex:pageBlockSectionItem> 
+                
+                <apex:pageBlockSectionItem >
+                    <apex:outputLabel value="Proposal Name:" />
+                    <apex:inputText value="{!proposalName}" />
+                </apex:pageBlockSectionItem>
+                <apex:pageBlockSectionItem > 
+                    <apex:outputLabel value="Client Name:" />
+                    <apex:outputText value="{!accountName}" />
+                </apex:pageBlockSectionItem>                
+                <apex:pageBlockSectionItem >
+                    <apex:outputLabel value="Proposal Description:" />
+                    <apex:inputTextarea value="{!proposalDescription}" rows="2" cols="40" />
+                </apex:pageBlockSectionItem>                
+               
+            </apex:pageBlockSection>
+            <apex:pageBlockButtons >
+                <apex:commandButton value="Submit" action="{!submit}" reRender="theForm">
+            	</apex:commandButton>
+            </apex:pageBlockButtons>
+        </apex:pageBlock>
+    </apex:form> 
+    
+    
+</apex:page>

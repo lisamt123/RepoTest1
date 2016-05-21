@@ -1,0 +1,77 @@
+<apex:page controller="rh2.PS_ImportDataController">
+
+	<Style>
+		.pageNumber {
+			margin: 4px;
+		}
+	</Style>
+
+	<script type="text/javascript">
+        function selectAllCheckboxes(obj,receivedInputID){
+            var inputCheckBox = document.getElementsByTagName("input");                  
+            for(var i=0; i<inputCheckBox.length; i++){          
+                if(inputCheckBox[i].id.indexOf(receivedInputID)!=-1){                                     
+                    inputCheckBox[i].checked = obj.checked;
+                }
+            }
+        } 
+    </script>
+    
+    <apex:form >
+    
+        <apex:pageBlock id="rollupToExport" helpUrl="https://sites.google.com/a/thinkreid.com/summer-2014---rollup-helper/resources/user-guide/rollup-migration-guide"
+                                            helpTitle="Help for this Page">
+			<apex:pageMessages />
+            <apex:pageBlockButtons >
+                    <apex:commandButton value="Export Selected" action="{! regExport }" rerender="exportedRollups"/>
+                    <apex:commandButton style="margin-left:6px;" value="Export All" action="{! allExport }" rerender="exportedRollups, rollupToExport"/>
+            </apex:pageBlockButtons>
+            <div>
+				
+				<apex:commandLink styleClass="pageNumber" rendered="{! pT.farFromFirstPage }" value="1" action="{! goToFirstPage }" rerender="rollupToExport" />
+				<apex:outputText rendered="{! pT.hasLeftOverflow }" value=" ... " styleClass="pageNumberArea" />
+				<apex:commandLink styleClass="pageNumber" rendered="{! pT.hasTwoPagesPrevious }" value="{! pT.pageNumber - 2 }" action="{! goTwoPagesLeft }" rerender="rollupToExport" />
+				<apex:commandLink styleClass="pageNumber" rendered="{! pT.hasPreviousPage }" value="{! pT.pageNumber - 1 }" action="{! goToPreviousPage }" rerender="rollupToExport" />
+				<apex:outputText styleClass="pageNumberArea" style="color: blue;" value=" {! pT.pageNumber } "
+					rendered="{! OR( pT.hasPreviousPage, pT.hasNextPage ) }" />
+				<apex:commandLink styleClass="pageNumber" rendered="{! pT.hasNextPage }" value="{! pT.pageNumber + 1 }" action="{! goToNextPage }" rerender="rollupToExport" />
+				<apex:commandLink styleClass="pageNumber" rendered="{! pT.hasTwoPagesNext }" value="{! pT.pageNumber + 2 }" action="{! goTwoPagesRight }" rerender="rollupToExport" />
+				<apex:outputText rendered="{! pT.hasRightOverflow }" value=" ... " styleClass="pageNumberArea" />
+				<apex:commandLink styleClass="pageNumber" rendered="{! pT.farFromLastPage }" value="{! pT.maxPageNumber }" action="{! goToLastPage }" rerender="rollupToExport" />
+				<apex:commandLink styleClass="pageNumber" style="padding-left:15px;" value="Show All" action="{! showAll }" rendered="{! OR( pT.hasPreviousPage, pT.hasNextPage ) }" rerender="rollupToExport" />
+				<apex:commandLink styleClass="pageNumber" style="padding-left:15px;" value="Show Less" action="{! showLess }" rendered="{! showingAll }" rerender="rollupToExport" />
+			
+			</div>
+            <apex:pageBlockSection columns="1" title="Select Rollups For Export" id="sec">
+                <apex:pageBlockTable value="{!rollups}" var="r" id="table">
+                	<apex:column >
+	                    <apex:facet name="header">
+	                        <apex:inputCheckbox onclick="selectAllCheckboxes(this,'inputId')"/>
+	                    </apex:facet>
+	                    <apex:inputCheckbox value="{!r.selected}" id="inputId"/>
+	                </apex:column>
+                    <apex:column value="{!r.ds.rh2__targetField__c}" />
+                    <apex:column value="{!r.ds.rh2__logic__c}" />
+                    <apex:column value="{!r.ds.rh2__sourceField__c}" />
+                </apex:pageBlockTable>
+            </apex:pageBlockSection>
+        </apex:pageBlock>
+        
+        <apex:pageBlock id="exportedRollups">
+            <apex:pageBlockButtons >
+                	<apex:commandButton value="Download" action="{!downloadFile}" rerender="importTable, sec2" />                    
+                <apex:commandButton value="Clear" action="{!deleteExportRollup}" rerender="importTable, sec2" />
+            </apex:pageBlockButtons>
+            <apex:pageBlockSection columns="1" title="Export Rollup Objects" id="sec2">
+            <apex:pageBlockTable value="{!exportRollups}" var="exprol" id="importTable">
+                <apex:column value="{!exprol.er.name}" />
+                <apex:column value="{!exprol.nameField}" />
+                <apex:column value="{!exprol.targetField}" />
+                <apex:column value="{!exprol.sourceField}" />
+                <apex:column value="{!exprol.logic}" />
+            </apex:pageBlockTable>
+            </apex:pageBlockSection>
+        </apex:pageBlock>
+        
+   </apex:form>
+</apex:page>

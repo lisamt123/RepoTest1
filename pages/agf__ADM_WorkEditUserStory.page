@@ -1,0 +1,238 @@
+<apex:page standardController="agf__ADM_Work__c" extensions="agf.ADM_WorkControllerExtension" id="pageEdit"  title="{!recordType.Name}">
+    <apex:include pageName="agf__ADM_Overlay_CSS" />
+    <apex:stylesheet value="{!$Resource.agf__ADM_common_css}"/>
+    <apex:stylesheet value="{!$Resource.agf__autocompletecss}"/>
+    <apex:stylesheet value="{!URLFOR($Resource.agf__jquery_ui_1813_redmond, 'css/redmond/jquery-ui-1.8.13.custom.css')}" />
+    <apex:stylesheet value="{!$Resource.agf__productTag_css}"/>
+    <script type="text/javascript" src="{!URLFOR($Resource.jquery_1_5_2_min)}"></script>
+	<script type="text/javascript" src="{!URLFOR($Resource.jquery_ui_1813_redmond, 'js/jquery-ui-1.8.13.custom.min.js')}"></script>
+    <script type="text/javascript" src="{!URLFOR($Resource.ADM_common_js)}"></script>
+    <script type="text/javascript" src="{!URLFOR($Resource.ADM_WorkEdit_js)}"></script>
+	<script type="text/javascript" src="{!URLFOR($Resource.productTag_js)}"></script>
+    <script type="text/javascript" src="{!URLFOR($Resource.autocompletejs)}"></script>
+    <script type="text/javascript" src="{!URLFOR($Resource.ADM_autocomplete2js)}"></script>
+    <script type="text/javascript">
+		initAutoCompleteBrowserSettings();
+		
+		//this page loads components that also include a copy of jquery. save
+		//a reference to the page version that includes the ui plugin
+   		var jQueryPage = $j = $;
+    </script>
+
+    <apex:sectionHeader id="sectionHeaderWork"  title="{!recordType.Name}" subtitle="{!work.Name}" />    
+
+    <apex:form id="formEdit">        
+        <apex:inputHidden id="assignmentValue" value="{!details.fieldLabel}"/>
+        <apex:pageBlock id="pageBlockEdit" title="Edit Work">
+            <apex:pageBlockButtons >
+                <apex:commandButton action="{!saveAndView}" value="Save" alt="Save" title="Save" />
+                <apex:commandButton action="{!saveAndNew}" value="Save & New" alt="Save & New" title="Save & New"/>
+                <apex:commandButton action="{!cancel}" value="Cancel" onClick="$(this).addClass('btnDisabled');" />
+            </apex:pageBlockButtons>
+            <apex:pageBlockSection title="Errors" id="pageBlockSectionErrors" columns="1" showHeader="false">
+                <c:ADM_ErrorBlock />
+            </apex:pageBlockSection>
+            
+            <!-- PAGEBLOCKSECTION Subject -->
+            <apex:pageBlockSection id="pbsSubject" title="Subject" columns="1" showHeader="false">
+                <!-- Subject -->                           
+                <apex:pageBlockSectionItem id="pageBlockSectionItemSubject">
+                    <apex:outputLabel value="Subject" />
+                    <apex:outputPanel layout="block" styleClass="{!requiredInputSubject}">
+                        <apex:outputPanel layout="block" styleClass="requiredBlock"/>
+                        <apex:inputField id="workSubject" value="{!work.agf__Subject__c}" styleClass="adm_longInputField"  />
+                    </apex:outputPanel>
+                </apex:pageBlockSectionItem>
+                
+                <!-- Details -->
+                <apex:inputField id="workDetails" value="{!work.agf__Details__c}" styleClass="adm_longInputField" onfocus="eraseValue(this);" onblur="populateDetails(this);" style="padding:5px !important;"/>
+            </apex:pageBlockSection>
+            
+            <apex:actionRegion immediate="true" renderRegionOnly="false">            
+                <!-- PAGEBLOCKSECTION Information -->
+                <apex:pageBlockSection title="Information" id="pageBlockSectionInformation" columns="2" showHeader="false">
+                    <!-- Status and Priority -->
+                    <apex:pageBlockSectionItem id="pageBlockSectionItemStatus">
+                        <apex:outputLabel value="Status" />
+                        <apex:outputPanel layout="block" styleClass="{!requiredInputStatus}">
+                            <apex:outputPanel layout="block" styleClass="requiredBlock"/>
+                            <apex:selectList value="{!work.agf__Status__c}" styleClass="adm_inputField" size="1">
+                                <apex:selectOptions value="{!statuses}"/>
+                            </apex:selectList>
+                        </apex:outputPanel>
+                    </apex:pageBlockSectionItem>
+                    <apex:pageBlockSectionItem id="pageBlockSectionItemPriority">
+                        <apex:outputLabel value="Priority"/>
+                        <apex:outputPanel layout="block">
+                            <apex:outputPanel layout="block"/>
+                            <apex:inputField value="{!work.agf__Priority__c}" id="priorityUserStory"/>
+                        </apex:outputPanel>
+                    </apex:pageBlockSectionItem>
+                    
+                    <!-- Help Status and Customer -->
+                    <apex:inputField value="{!work.agf__Help_Status__c}" styleClass="adm_inputField"/>
+                    <apex:inputField value="{!work.agf__Customer__c}" id="workCustomer"/>
+    				
+                    <!-- Attributes and Scheduled Build -->
+                    <apex:inputField value="{!work.agf__Attributes__c}" id="Attributes__c"/>
+                    <apex:pageBlockSectionItem id="pageBlockSectionItemScheduledBuild">
+                        <c:helpHover label="Scheduled Build" id="helpHoverScheduledBuild" body="The Scheduled Build field is a lookup to the Build object.  Enter a pre-existing build where the change will be made." type="help"/>
+						<c:ADM_AutoComplete2 id="scheduledbuild" ObjectName="Build" obj="{!work}" inputFieldName="Scheduled_Build_Copy__c" id="scheduledbuild" inputStyleClass="cField scheduled-build-input" />
+                    </apex:pageBlockSectionItem>
+                    
+                    <apex:inputField value="{!work.agf__Minor_Func_Area__c}" id="Minor_Func_Area__c"/>
+                    
+					<apex:inputHidden value="{!hiddenReps}" id="theHiddenReps" />
+                </apex:pageBlockSection>
+             </apex:actionRegion> 
+        
+            <apex:actionRegion immediate="true" renderRegionOnly="false">
+            
+                <!-- ASSIGNMENTS PAGE BLOCK SECTION -->
+                <apex:pageBlockSection title="Assignments" id="productTagSection" columns="1" showHeader="true" collapsible="false">
+	                <!-- Product Tag -->
+	                <apex:pageBlockSectionItem >
+	                	<apex:outputLabel value="Product Tag" styleClass="productTagLabel" />
+	                	<apex:outputPanel layout="block" styleClass="{!requiredInputProductTag}">
+                            <apex:outputPanel layout="block" styleClass="requiredBlock"/>
+	                        <c:ADM_ProductTagInput work="{!work}" recordType="{!recordType}" missingProductTagInstructions="{!requiredInputProductTagInstructions}" onchange="tagChanged(event);" oninit="adjustProductTagLabelPadding();" />
+	                	</apex:outputPanel>
+	                </apex:pageBlockSectionItem>
+	            </apex:pageBlockSection>
+	            
+                <apex:pageBlockSection title="Assignments" id="assignments" columns="2" showHeader="false">
+                    <!-- Assigned To and Product Owner -->
+                    <apex:pageBlockSectionItem id="pageBlockSectionItemAssignee">
+                        <apex:outputLabel value="Assigned To"/>
+                        <apex:outputPanel layout="block" styleClass="{!requiredInputAssignee}">
+                            <apex:outputPanel layout="block" styleClass="requiredBlock" />
+                            <c:ADM_AutoComplete2 id="aField" ObjectName="User" obj="{!work}" inputFieldName="Assignee__c" inputStyleClass="adm_inputField cField assigneeField" />
+                        </apex:outputPanel>
+                    </apex:pageBlockSectionItem>
+					<apex:pageBlockSectionItem id="pageBlockSectionItemPO">
+						<apex:outputLabel value="Product Owner"/>                     
+						<c:ADM_AutoComplete2 id="poField" ObjectName="User" obj="{!work}" inputFieldName="Product_Owner__c" inputStyleClass="adm_inputField cField productOwnerField" />
+    				</apex:pageBlockSectionItem>
+    
+                    <!-- QA Engineer and Tech Writer -->
+                    <apex:pageBlockSectionItem id="pageBlockSectionItemQA">
+						<apex:outputLabel value="QA Engineer"/>                    
+						<c:ADM_AutoComplete2 id="qaField" ObjectName="User" obj="{!work}" inputFieldName="QA_Engineer__c" inputStyleClass="adm_inputField cField qaField" />
+					</apex:pageBlockSectionItem>
+    				<apex:pageBlockSectionItem id="pageBlockSectionItemTW">	                
+						<apex:outputLabel value="Tech Writer"/>
+						<c:ADM_AutoComplete2 id="twField" ObjectName="User" obj="{!work}" inputFieldName="Tech_Writer__c" inputStyleClass="adm_inputField cField techWriterField" />
+					</apex:pageBlockSectionItem> 
+    
+                    <!-- UE Engineer and Performance Engineer -->
+                    <apex:pageBlockSectionItem id="pageBlockSectionItemUE">
+	                    <apex:outputLabel value="UE Engineer"/>
+	                    <c:ADM_AutoComplete2 id="ueField" ObjectName="User" obj="{!work}" inputFieldName="UE_Engineer__c" inputStyleClass="adm_inputField cField ueField" />
+					</apex:pageBlockSectionItem>
+                    <apex:pageBlockSectionItem id="pageBlockSectionItemSTE">
+	                    <apex:outputLabel value="Performance Engineer"/>
+	                    <c:ADM_AutoComplete2 id="steField" ObjectName="User" obj="{!work}" inputFieldName="System_Test_Engineer__c" inputStyleClass="adm_inputField cField systemTestEngineerField" />					
+					</apex:pageBlockSectionItem>                    
+                </apex:pageBlockSection>
+            </apex:actionRegion>
+
+            <!-- SPRINT DETAILS PAGE BLOCK SECTION -->
+            <apex:pageBlockSection title="Sprint Details" columns="2" showHeader="true">
+                <!-- Sprint and Include in Prioritize View -->
+                <apex:pageBlockSectionItem id="pageBlockSectionItemSprint">
+                	<apex:outputLabel value="Sprint"/>
+                	<c:ADM_AutoComplete2 id="sField" ObjectName="sprint" obj="{!work}" inputFieldName="Sprint__c" inputStyleClass="adm_inputField cField" />
+                </apex:pageBlockSectionItem>
+                <apex:inputField value="{!work.agf__Use_Prioritizer__c}" styleClass="adm_inputField"/>
+
+                <!-- Story Points and Backlog Rank -->
+                <apex:pageBlockSectionItem id="pageBlockSectionItemStoryPoints">
+                    <apex:outputLabel value="Story Points"/>
+                    <apex:outputPanel layout="block">
+                        <apex:outputPanel layout="block" />
+                        <apex:inputField value="{!work.agf__Story_Points__c}" styleClass="adm_inputField"/>
+                    </apex:outputPanel>
+                </apex:pageBlockSectionItem>
+                <apex:pageBlockSectionItem id="pageBlockSectionItemPriorityRank">
+                    <apex:outputLabel value="Backlog Rank"/>
+                    <apex:outputPanel layout="block">
+                        <apex:outputPanel layout="block" />
+                        <apex:inputField value="{!work.agf__Priority_Rank__c}" styleClass="adm_inputField"/>
+                    </apex:outputPanel>
+                </apex:pageBlockSectionItem>
+
+            </apex:pageBlockSection>
+
+            <apex:pageBlockSection title="Other Information" columns="2" showHeader="true">
+                <!-- Perforce Status and Cases -->
+                <apex:inputField value="{!work.agf__Perforce_Status__c}"/>
+                <apex:outputField value="{!work.agf__Number_of_Cases__c}" styleClass="adm_inputField" />
+                
+                <!-- Root Cause Analysis and Age -->
+                <apex:inputField value="{!work.agf__Root_Cause_Analysis_2__c}" styleClass="adm_inputField"/>
+                <apex:outputField value="{!work.agf__Age__c}" styleClass="adm_inputField" />
+                
+                <!-- Solution Overview and Age With Scrum Team-->
+                <apex:inputField value="{!work.agf__Solution_Overview__c}"/>
+                <apex:outputField value="{!work.agf__Age_With_Scrum_Team__c}" styleClass="adm_inputField" />
+                
+                <!-- Budget ID and Age with Scrum Team When Closed -->
+                <apex:inputField value="{!work.agf__Budget_ID__c}" />
+                <apex:outputField value="{!work.agf__Age_With_Scrum_Team_When_Closed__c}" styleClass="adm_inputField" /> 
+            </apex:pageBlockSection>
+            
+            <!-- PAGEBLOCKSECTION HIDDEN HEADER -->
+            <apex:pageBlockSection id="pageBlockSectionOtherInformation2" columns="1" showHeader="false">                
+                <apex:inputField value="{!work.agf__Related_URL__c}" styleClass="adm_longInputField"/>
+                <apex:inputField value="{!work.agf__ftest__c}" styleClass="adm_longInputField"/>
+            </apex:pageBlockSection>
+
+            <apex:actionRegion immediate="true"  id="notifyActionRegion">
+				<apex:outputPanel id="theHiddenRepsPanel"> 
+					<!-- <c:ADM_Notifier workObject="{!work}" hiddenInputID="{!$Component.pageBlockSectionInformation.theHiddenReps}" id="workEditNotifier"/> -->
+				</apex:outputPanel>
+			</apex:actionRegion>	   
+
+            <!-- PAGEBLOCKSECTION COMMENTS -->            
+            <c:ADM_Comments workObject="{!work}" renderCommentsSection="true" isNewWork="{!isNewWork}" recordType="{!recordType.Name}"/>
+            
+            <apex:inputHidden id="detailsValue" value="{!details.fieldLabel}"/>
+            <c:ADM_WorkIconSet recordTypeName="{!recordType.Name}" /> 
+            <script language="javascript" type="text/javascript">
+            	populateDetails(document.getElementById('{!$Component.pageEdit.formEdit.pageBlockEdit.detailsValue}')); 
+            	populateDetails(document.getElementById('{!$Component.pageEdit.formEdit.pageBlockEdit.pbsSubject.workDetails}'));                
+            	
+            	function setRequiresTestingValue() { 
+	                var attributes =  document.getElementById('{!$Component.formEdit.pageBlockEdit.pageBlockSectionInformation.Attributes__c}');
+	                
+	                for(var i = 0; i < attributes.options.length; i++) {
+	                    var attribute = attributes.options[i];
+	                    if(attribute.text == 'Requires Testing') {
+	                        attribute.selected = "1";
+	                        MultiSelectPicklist.handleMSPSelect('{!$Component.formEdit.pageBlockEdit.pageBlockSectionInformation.Attributes__c}');
+	                    }
+	                }
+                }
+                
+                var isNewWork = '{!isNewWork}';
+                var isNewRecordType = '{!isNewRecordType}';
+                
+                if(isNewWork === 'true' || isNewRecordType === 'true') {
+                	setRequiresTestingValue();
+                }
+            </script>  
+        </apex:pageBlock>
+        <script type="text/javascript">
+            var form = new WorkEditForm({
+                recordType : {
+                    Id: '{!JSINHTMLENCODE(recordType.Id)}',
+                    Name: '{!JSINHTMLENCODE(recordType.Name)}'
+                }, 
+                getTypeValue : function() {
+                    console.log('overwriting #getTypeValue() because type is not available on a user story. returning an empty string.');
+                    return '';
+                }
+            });
+        </script>
+    </apex:form>
+</apex:page>

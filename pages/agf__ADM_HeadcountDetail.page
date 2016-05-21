@@ -1,0 +1,810 @@
+<apex:page standardController="agf__Headcount__c" extensions="agf.ADM_HeadcountDetailController" tabStyle="agf__Headcount__c">
+
+<apex:includeScript value="{!URLFOR($Resource.agf__jquery_ui_1813_redmond, 'js/jquery-1.5.1.min.js')}" />
+<apex:includeScript value="{!URLFOR($Resource.agf__jquery_ui_1813_redmond, 'js/jquery-ui-1.8.13.custom.min.js')}" /> 
+<apex:styleSheet value="{!URLFOR($Resource.agf__jquery_ui_1813_redmond, 'css/redmond/jquery-ui-1.8.13.custom.css')}" />  
+<apex:includeScript value="{!$Resource.agf__Headcount}" />
+
+
+<style>
+
+.customButton {
+    width:102px;
+    margin-right:5px;
+}
+
+.panelTitle {
+    padding:5px;
+    border-bottom:1px solid #cccccc;
+    margin-bottom:10px;
+}
+
+.requiredInput {
+    border-left:4px solid #DC143C !important;    
+    
+} 
+
+.curvedPanel {
+    
+    -moz-border-radius-topleft: 5px;
+    -moz-border-radius-topright: 5px;
+    -moz-border-radius-bottomright: 5px;
+    -moz-border-radius-bottomleft: 5px;
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+    border-bottom-right-radius: 5px;
+    border-bottom-left-radius: 5px;
+    
+    border:1px solid #dddddd;
+        
+    margin:10px; 
+    
+    
+    font-weight:bold;
+    height:70px;
+   
+    font-size:13px;
+    
+    padding:5px;
+} 
+
+.recruiterTheme {
+    background:#FFFCCC;  /*#CFEEF8; */
+    color:#006699; 
+     width:120px;
+}
+
+.managerTheme {
+    background:#E7F6FF;  /*#CFEEF8; */
+    color:#006699; 
+     width:480px;
+
+}
+
+.recruitActionsOpen {
+    background-color: #DFF0D8; /* green */
+    border-color: #D6E9C6;
+    color: #468847;
+}
+.recruitActionsOpen .panelTitle {
+    border-bottom-color: #468847;
+    color: #468847 !important;
+}
+
+.recruitActionsFilled {
+    background-color: #F2DEDE; /* red */
+    border-color: #EED3D7;
+    color: #B94A48;
+}
+.recruitActionsFilled .panelTitle {
+    border-bottom-color: #B94A48;
+    color: #B94A48 !important;
+}
+
+.recruitActionsInProgress {
+    background-color: #FCF8E3; /* yellow */
+    border-color: #FBEED5;
+    color: #C09853;
+}
+.recruitActionsInProgress .panelTitle {
+    border-bottom-color: #C09853;
+    color: #C09853 !important;
+}
+.helpText {
+    /* we override the SFDC help text class so that it will show above the 
+    jquery modal */
+    z-index: 5000 !important;
+}
+</style>
+
+
+<script>
+
+function showCustomEditPageModal() {
+    resetHeadcountError();
+    
+    $("#customEditModal").removeClass('hidden');
+    
+    $("#customEditModal").dialog({
+        modal: true,
+        width:950,
+        height:400,
+        title:'Edit Position'
+       
+    
+    });    
+}
+
+function showOfferPageModal() {
+    resetHeadcountError();
+    
+    $("#offerModal").removeClass('hidden');
+    
+    $("#offerModal").dialog({
+        modal: true,
+        width:850,
+        height:330,
+        title:'Make Offer'
+       
+    
+    });    
+}
+
+function showRequestOfferPageModal() {
+    resetHeadcountError();
+    
+    $("#requestOfferModal").removeClass('hidden');
+    
+    $("#requestOfferModal").dialog({
+        modal: true,
+        width:850,
+        height:330,
+        title:'Request Offer'
+    });    
+}
+
+function showRevokePageModal() {
+    resetHeadcountError();
+    
+    $("#revokeModal").removeClass('hidden');
+    
+    $("#revokeModal").dialog({
+        modal: true,
+        width:650,
+        height:190,
+        title:'Revoke Offer'
+    });    
+}
+
+function showBackfillModal() {
+    
+    $("#backfillModal").removeClass('hidden');
+    
+    $("#backfillModal").dialog({
+        modal: true,
+        width:710,
+        height:230,
+        title:'Open for Backfill'
+    });    
+}
+      
+function showAcceptPageModal() {
+    
+    $("#acceptModal").removeClass('hidden');
+    
+    $("#acceptModal").dialog({
+        modal: true,
+        width:650,
+        height:252,
+        title:'Accept Offer',
+        open: function(e, ui) {
+        
+            //if the start date is already entered, then we want to automatically
+            //focus the accept button
+            if($('.acceptOfferStartDate').val() != '') {
+                $('.acceptOfferStartDate').datepicker("hide");
+                $('#acceptHeadcountBtn').focus();
+            }
+            
+        }
+    });    
+}
+        
+function validateHeadcount() { 
+  
+    var cloud = $('.cloud');
+    
+    if( cloud != null && cloud.val() === '') {
+        showHeadcountError('Cloud is a required field');
+        return false;
+    } else {
+        var role = $('.role');
+        if(role != null && role.val() === '') {
+            showHeadcountError('Role is a required field');
+            return false;
+        } else {
+            var organization = $('.organization');
+            if(organization != null && organization.val() === '') {
+                showHeadcountError('Organization is a required field');
+                return false;        
+            } else {
+                return true;
+            }    
+        }
+    } 
+
+}    
+
+function validateOffer() {
+    var showErrorMessage = function(msg) {
+        $("#offerErrorMessage").html(msg);
+        $("#offerErrorMessageWrapper").show();
+    };
+    
+    
+    
+    //validate candidate name
+    var candidateName = $(".candidateName").val();
+    if(candidateName === '') {
+       showErrorMessage("Candidate Name is required");
+       return false;
+    } 
+       
+    //validate target start date
+    var targetStartDate = $(".offerStartDate").val();
+    if(targetStartDate === '') {
+       showErrorMessage("Target Start Date is required");
+       return false;
+    }
+    
+    return true;
+} 
+
+function validateAcceptOffer() {
+    var showErrorMessage = function(msg) {
+        $("#acceptErrorMessage").html(msg);
+        $("#acceptErrorMessageWrapper").show();
+    }
+    
+    //validate the target start date
+    var targetStartDate = $('#acceptOfferStartDate').val();
+    if(targetStartDate === '') {
+        showErrorMessage("Target Start Date is required");
+        return false;
+    }
+    
+    return true;
+}
+
+function validateRequestOffer() {
+    var requestOfferRecruiter = $(".requestOfferRecruiter").val().trim();
+    if(requestOfferRecruiter === '') {
+        $("#requestOfferErrorMessage").html("Your Recruiter is required");
+        $("#requestOfferErrorMessageWrapper").show();
+        return false;
+    } else {
+         var requestOfferCandidateName = $(".requestOfferCandidateName").val().trim();
+         if(requestOfferCandidateName === '') {
+            $("#requestOfferErrorMessage").html("Candidate Name is required");
+            $("#requestOfferErrorMessageWrapper").show();
+            return false;
+         } else {
+            return true;
+         }
+    }     
+    
+} 
+
+
+
+function initTargetStartDate(/*String*/ id) {
+    var input = $('#' + id);
+    if(input) {
+        var dayInMillis = 86400000;
+        var targetStartDate = $('.targetStartDateFormatted').text()
+        
+        //we need to adjust for the start date being inclusive
+        var trueStartDate = new Date('{!QuarterStartDate}');
+        var adjustedStartDate = new Date(trueStartDate.getTime() + dayInMillis);
+        
+        input.val(targetStartDate);
+        input.attr('autocomplete', 'off');
+        input.datepicker({
+            minDate: adjustedStartDate
+        });
+    }
+}
+(function($) {
+    var methods = {
+        helpBubble : function(options) {
+            return this.each(function(){
+                if(!options['message']) {
+                    $.error('helpBubble requires a message');
+                }
+                
+                //the node must have an id
+                var id = $(this).attr('id');
+                if(id) {
+                    //check to see if the code is run twice
+                    var parentId = $(this).parent().attr('id');
+                    if(!parentId || parentId.indexOf('-_help') == -1) {
+                        $(this)
+                            .wrapAll($('<span />')
+                                .attr('id', id + '-_help')
+                                .addClass('helpButton'));
+                        $(this).parent().append($('<img src="/s.gif" alt="" class="helpOrb" title="" />'));
+                        sfdcPage.setHelp(id, options.message);
+                    }
+                }
+            });
+        }
+    }
+    $.fn.sfdc = function(method) {
+        if(methods[method]) {
+            return methods[method].apply(this, Array.prototype.slice.call(arguments, 1));
+        } else {
+            $.error('Method ' + method + ' does not exist in jQuery.sfdc');
+        }
+    };
+})(jQuery);
+</script> 
+
+<!-- VisualForce dataformatting is tighly coupled with apex:outputtext component and therefore we resort to javascript to make this play nicely with
+jquery calendar component.  TODO: request Visualforce team support this sytax on its own {0,date,MM'/'dd'/'yyyy} where 0 is a reference to a date field  -->  
+<apex:outputText value="{0,date,MM'/'dd'/'yyyy}"
+    styleClass="targetStartDateFormatted" style="display:none">
+    <apex:param value="{!agf__Headcount__c.agf__Target_Start_Date__c}" />
+</apex:outputText>
+
+<div id="backfillModal" class="hidden" style="padding-left:5px;width=100%">
+      
+       <apex:pageBlock id="headcountPageBlockBackfill">
+            Please enter the date on which this Position will be open.
+            <br/><br/>
+            <div class="ui-widget" id="backfillErrorMessageWrapper" style="display:none">
+                <div class="ui-state-highlight ui-corner-all" style="padding:3px;background:#FFFCCC !important;'"> 
+                  <apex:image url="{!URLFOR($Resource.agf__silkIcons, 'icons/exclamation.png')}" style="vertical-align:middle;" />  <span style="color:red !important;" id="backfillErrorMessage">&nbsp;</span>
+                </div>
+            </div>
+           
+            <apex:pageBlockSection id="offerPageBlockSection" columns="2">
+                 <div class="requiredInput" style="height: 23px">
+                     
+                    <input type="text" id="backfillDatepicker" />
+                 </div>   
+            </apex:pageBlockSection>
+            <br/>
+            <table width="100%" border="0"><tr><td align="right">
+                  <button id="openForBackfillBtn" onCLick="openBackfill()">Open for Backfill</button>
+            </td></tr></table>
+        </apex:pageBlock>
+   
+</div>
+
+<div id="revokeModal" class="hidden" style="padding-left:5px;width=100%">
+       
+        <div class="ui-widget" id="revokeErrorMessageWrapper" style="display:none">
+            <div class="ui-state-highlight ui-corner-all" style="padding:3px;background:#FFFCCC !important;'"> 
+              <apex:image url="{!URLFOR($Resource.agf__silkIcons, 'icons/exclamation.png')}" style="vertical-align:middle;" />  <span style="color:red !important;" id="revokeErrorMessage">&nbsp;</span>
+            </div>
+        </div>
+        
+       <apex:pageBlock id="headcountPageBlock">
+            You are removing this offer because it was declined or rescinded and you wish to reset the position status to it's former value.
+            <br/><br/>
+            <table width="100%" border="0"><tr><td align="center">
+                  <button id="revokeHeadcountBtn" onCLick="revokeOffer()">Confirm</button>
+            </td></tr></table>
+                                
+        </apex:pageBlock>
+                            
+</div>
+
+<div id="acceptModal" class="hidden" style="padding-left:5px;width=100%">
+       
+        <div class="ui-widget" id="acceptErrorMessageWrapper" style="display:none">
+            <div class="ui-state-highlight ui-corner-all" style="padding:3px;background:#FFFCCC !important;'"> 
+              <apex:image url="{!URLFOR($Resource.agf__silkIcons, 'icons/exclamation.png')}" style="vertical-align:middle;" />  <span style="color:red !important;" id="acceptErrorMessage">&nbsp;</span>
+            </div>
+        </div>
+        <apex:form id="acceptOfferForm">
+            <apex:pageBlock id="headcountPageBlockAcceptOffer">
+                Please confirm that {!agf__Headcount__c.agf__Candidate_Name__c} has accepted the offer. 
+                <br/><br/>
+                <div class="ui-widget" id="headcountAcceptInfoMessageWrapper" style="margin-bottom: 2em;">
+                    <div class="ui-state-highlight ui-corner-all" style="padding:3px;background:#FFFCCC !important;'"> 
+                       
+                      <apex:image url="{!URLFOR($Resource.agf__silkIcons, 'icons/information.png')}" style="vertical-align:middle" />  <span id="headcountAcceptInfoMessage">&nbsp; Please note: when you click 'Confirm' the Hiring Manager will receive an email notification.</span>
+                    </div>
+                </div>
+                <apex:pageBlockSection >
+                    <apex:pageBlockSectionItem >
+                        <apex:outputText ><div style="width: 200px;"><span id="acceptOfferStartDateLabel">Target Start Date</span></div></apex:outputText>
+                        <apex:outputPanel >
+                            <div class="requiredInput" style="height: 23px">
+                                <div class="requiredBlock"></div>
+                                <input type="text" class="acceptOfferStartDate targetStartDateCalendar"
+                                    id="acceptOfferStartDate" />
+                                <script>
+                                  initTargetStartDate("acceptOfferStartDate");
+                                  $('#acceptOfferStartDateLabel').sfdc('helpBubble', {message:'The Target Start Date must be within or after {!JSINHTMLENCODE(Headcount__c.Effective_Date__c)}.'});
+                                </script>
+                            </div>
+                        </apex:outputPanel>
+                    </apex:pageBlockSectionItem>
+                </apex:pageBlockSection>
+                <br/>
+                <table width="100%" border="0"><tr><td align="center">
+                      <button id="acceptHeadcountBtn" type="button" onCLick="acceptOffer()">Confirm</button>
+                </td></tr></table>
+                                    
+            </apex:pageBlock>
+        </apex:form>
+                            
+</div>
+
+<div id="offerModal" class="hidden" style="padding-left:5px;width=100%">
+    <apex:form id="headcountOfferForm">   
+       <apex:pageBlock id="headcountPageBlock">
+            <div class="ui-widget" id="headcountAcceptInfoMessageWrapper" >
+                <div class="ui-state-highlight ui-corner-all" style="padding:5px;background:#FFFCCC !important;'"> 
+                   
+                  <apex:image url="{!URLFOR($Resource.agf__silkIcons, 'icons/information.png')}" style="vertical-align:middle" />  <span id="headcountAcceptInfoMessage">&nbsp; Please note: this Position is in Region: {!Headcount__c.Region__c}. Only proceed with an offer for a position in this same region. If the region does not match the location where the candidate will be hired, please notify the hiring manager that you need a position record with the correct region.</span>
+                </div>
+           </div>
+           <br/>
+            Please enter the following information for the offer you are making against this position:
+            <br/><br/>
+            <div class="ui-widget" id="offerErrorMessageWrapper" style="display:none">
+                <div class="ui-state-highlight ui-corner-all" style="padding:3px;background:#FFFCCC !important;'"> 
+                  <apex:image url="{!URLFOR($Resource.agf__silkIcons, 'icons/exclamation.png')}" style="vertical-align:middle;" />  <span style="color:red !important;" id="offerErrorMessage">&nbsp;</span>
+                </div>
+            </div>
+            <br/>
+            
+            <apex:pageBlockSection id="offerPageBlockSection" columns="2">
+                    <apex:pageBlockSectionItem >
+                        <apex:outputText >Job ID</apex:outputText>
+                        <apex:inputField styleClass="jobID" value="{!agf__Headcount__c.agf__Talentforce_Offer__c}" required="true" id="jobID"  />
+                    </apex:pageBlockSectionItem>
+                    <apex:inputField styleClass="candidateName" value="{!agf__Headcount__c.agf__Candidate_Name__c}" required="true" id="candidateName"  />
+
+                    <apex:pageBlockSectionItem >
+                        <apex:outputText >
+                            <span id="offerStartDateLabel">Target Start Date</span>
+                        </apex:outputText>
+                        <apex:outputPanel >
+                            <div class="requiredInput" style="height: 23px">
+                                <div class="requiredBlock"></div>
+                                <input type="text" class="offerStartDate"
+                                    id="offerStartDate" />
+                                <script>
+                                       initTargetStartDate('offerStartDate');
+                                       $('#offerStartDateLabel').sfdc('helpBubble', {message:'The Target Start Date must be within or after {!JSINHTMLENCODE(Headcount__c.Effective_Date__c)}.'});
+                                </script>
+                            </div>
+                        </apex:outputPanel>
+                    </apex:pageBlockSectionItem>
+                     
+            </apex:pageBlockSection>
+            <table width="100%" border="0"><tr><td align="right">
+                  <button id="revokeHeadcountBtn" type="button" onCLick="makeOffer()">Save</button>
+            </td></tr></table>
+        </apex:pageBlock>
+    </apex:form>                           
+</div>
+
+
+<div id="requestOfferModal" class="hidden" style="padding-left: 5px;">
+    <apex:form id="requestOfferForm">
+        <apex:pageBlock id="requestOfferPageBlock">
+            <div class="ui-widget" id="requestOfferInfoMessageWrapper">
+                <div class="ui-state-highlight ui-corner-all" style="padding: 5px; background: #FFFCCC !important;">
+                    <apex:image url="{!URLFOR($Resource.agf__silkIcons, 'icons/information.png')}" style="vertical-align:middle" /> <span id="requestOfferInfoMessage">&nbsp; When you click Send to Recruiting, your Recruiter will receive an email with details of your request.</span>
+                </div>
+            </div>
+            <br />
+            Let's fill this position!
+            <br /><br />
+            <div class="ui-widget" id="requestOfferErrorMessageWrapper" style="display: none">
+                <div class="ui-state-highlight ui-corner-all" style="padding: 3px; background: #FFFCCC !important;">
+                    <apex:image url="{!URLFOR($Resource.agf__silkIcons, 'icons/exclamation.png')}" style="vertical-align:middle;" /> <span style="color: red !important;" id="requestOfferErrorMessage">&nbsp;</span>
+                </div>
+            </div>
+            <br />
+
+            <apex:pageBlockSection id="requestOfferPageBlockSection" columns="2">
+                <apex:pageBlockSectionItem >
+                    <apex:outputText >Your Recruiter</apex:outputText>
+                    <apex:outputPanel >
+                        <input id="requestOfferRecruiter" class="requestOfferRecruiter requiredInput" style="width: 220px; height: 20px" value="{!Headcount__c.Recruiter__r.Name}"/>
+                    </apex:outputPanel>
+                </apex:pageBlockSectionItem>
+
+                <apex:inputField styleClass="requestOfferCandidateName" value="{!agf__Headcount__c.agf__Candidate_Name__c}" required="true" id="requestOfferCandidateName" />
+                
+                <apex:pageBlockSectionItem >
+                    <apex:outputText ><span id="requestOfferStartDateLabel">Target Start Date</span></apex:outputText>
+                    <apex:outputPanel >
+                        <input type="text" class="requestOfferStartDate requiredInput" id="requestOfferStartDate" />
+                        <script>
+                            initTargetStartDate('requestOfferStartDate');
+                            $('#requestOfferStartDateLabel').sfdc('helpBubble', {message:'The Target Start Date must be within or after {!JSINHTMLENCODE(Headcount__c.Effective_Date__c)}.'});
+                        </script>
+                    </apex:outputPanel>
+                </apex:pageBlockSectionItem>
+
+            </apex:pageBlockSection>
+
+            <table width="100%" border="0"><tr><td align="right">
+                <button id="saveRequestOfferBtn" type="button" onCLick="requestOffer()">Send to Recruiting</button>
+            </td></tr></table>
+        </apex:pageBlock>
+    </apex:form>
+</div>
+
+<div id="customEditModal" class="hidden" style="padding-left:5px;width=100%">
+   <apex:form id="headcountCustomForm">   
+       <apex:pageBlock id="headcountPageBlock">
+           
+            What information would you like to change about 
+            
+            <apex:outputText rendered="{!agf__Headcount__c.agf__Status__c == 'Filled'}"> {!agf__Headcount__c.Headcount_Name__r.Name}'s position? </apex:outputText>
+            <apex:outputText rendered="{!agf__Headcount__c.agf__Status__c == 'Open - New' || agf__Headcount__c.agf__Status__c == 'Open - Backfill'}"> this open position?  </apex:outputText>
+            <apex:outputText rendered="{!agf__Headcount__c.agf__Status__c == 'Offer In Progress' || agf__Headcount__c.agf__Status__c == 'Offer Accepted'}"> {!agf__Headcount__c.agf__Candidate_Name__c}'s position? </apex:outputText>
+            
+            <br/><br/>
+            <div class="ui-widget" id="headcountErrorMessageWrapper" style="display:none">
+                <div class="ui-state-highlight ui-corner-all" style="padding:3px;background:#FFFCCC !important;'"> 
+                   
+                  <apex:image url="{!URLFOR($Resource.agf__silkIcons, 'icons/exclamation.png')}" style="vertical-align:middle;" />  <span style="color:red !important;" id="headcountErrorMessage">&nbsp;</span>
+                </div>
+            </div>
+            
+
+           <apex:pageBlockSection id="headcountPageBlockSection">
+                    <apex:inputField value="{!agf__Headcount__c.agf__Cloud__c}" required="true" id="cloudPicklist" styleClass="cloud"  rendered="{!agf__Headcount__c.agf__Status__c != 'Filled' && agf__Headcount__c.agf__Team__c == ''}" />
+           
+                    <apex:pageBlockSectionItem >
+                        <apex:outputText >Team</apex:outputText>
+                        <apex:inputField id="team" value="{!agf__Headcount__c.agf__Team__c}" styleClass="team" />
+                    </apex:pageBlockSectionItem>
+                    
+                
+               
+                   <apex:inputField id="organization" styleClass="organization" required="true" value="{!agf__Headcount__c.agf__Organization__c} "/>
+                   
+                   <apex:inputField value="{!agf__Headcount__c.agf__Role__c}" styleClass="role" required="true" id="rolePicklist" />
+                   
+                   
+                   <apex:pageBlockSectionItem rendered="{!agf__Headcount__c.agf__Status__c == 'Offer In Progress' || agf__Headcount__c.agf__Status__c == 'Offer Accepted'}">
+                        <apex:outputText ><span id="editTargetStartDate">Target Start Date</span></apex:outputText>
+                        <apex:outputPanel >
+                            <input type="text" class="startDate" id="startDate"  />
+                            <script>
+                                initTargetStartDate('startDate');
+                                $('#editTargetStartDate').sfdc('helpBubble', {message:'The Target Start Date must be within or after {!JSINHTMLENCODE(Headcount__c.Effective_Date__c)}.'});
+                            </script>
+                        </apex:outputPanel>
+                    </apex:pageBlockSectionItem>
+                  
+                     <apex:pageBlockSectionItem rendered="{!agf__Headcount__c.agf__Status__c == 'Open - Backfill'}">
+                        <apex:outputText >Backfill Date</apex:outputText>
+                        <apex:outputPanel >
+                            <apex:outputText value="{0,date,MM'/'dd'/'yyyy}" styleClass="backfillDateFormatted" style="display:none">
+                                <apex:param value="{!agf__Headcount__c.agf__Backfill_Date__c}" /> 
+                            </apex:outputText>
+                             <input type="text" class="backfillDate" id="backfillDate"  />
+                              <script>
+                                   var bdate = $('.backfillDateFormatted').text()
+                                   $('.backfillDate').val(bdate);
+                              </script>
+                        </apex:outputPanel>
+                    </apex:pageBlockSectionItem>
+                  
+               
+                   <apex:pageBlockSectionItem >
+                        <apex:outputText >Description</apex:outputText>
+                        <apex:inputField styleClass="description" style="width:300px;height:100px;" value="{!agf__Headcount__c.agf__Description__c}" id="description"  />
+                    </apex:pageBlockSectionItem>
+                   
+           </apex:pageBlockSection>
+              <table width="100%" border="0"><tr><td align="right">
+                  <button id="revokeHeadcountBtn" type="button" onCLick="editHeadcount()">Save</button>
+            </td></tr></table>
+             
+       </apex:pageBlock>
+   
+   
+    </apex:form>      
+    </div> 
+
+<table>
+    <tr>
+        <td>
+            <apex:outputPanel rendered="{!HiringManagerPerm != ''}">
+                <div id="managerActionsWrapper" class="curvedPanel managerTheme" >
+                    <div class="panelTitle">Hiring Manager Actions</div>  
+                
+                    <button id="requestOfferBtn" class="customButton" onClick="showRequestOfferPageModal()">Request Offer</button> <button id="customEditBtn" class="customButton"  onClick="showCustomEditPageModal()">Edit</button> <button id="backfillBtn" onClick="showBackfillModal()" style="width:125px" class="customButton">Open for Backfill</button> <button id="transferBtn" class="customButton" onClick="window.location.href='/apex/ADM_TransferHeadcount?selectedIds={!Headcount__c.Id}&retURL=' + document.URL">Transfer</button>
+                
+                </div>
+            </apex:outputPanel>    
+        </td>
+        <td>
+            <apex:outputPanel rendered="{!RecPerm != ''}">
+                <div class="curvedPanel recruiterTheme {!recruitActionsCssClass}" >
+                    <div class="panelTitle">Recruiter Actions</div>  
+                
+                  <button id="makeOfferBtn" class="customButton">Make Offer</button> <button id="acceptOfferBtn" onClick="showAcceptPageModal()" class="customButton">Accept Offer</button> <button id="revokeOfferBtn" class="customButton" onClick="showRevokePageModal()">Revoke Offer</button>
+                
+                </div>
+            </apex:outputPanel>    
+        </td>
+   </tr>
+</table>
+
+<apex:detail showChatter="true" />
+
+<script>
+    //intit auto-completes
+    var recruiterUserNames = new Array();
+    recruiterUserNames = "{!JSINHTMLENCODE(recruiterUserFullNameList)}".split(',');
+    var hideRequestOfferButton = false;
+    
+    $("#requestOfferRecruiter").autocomplete({ source: recruiterUserNames }); 
+    $("#makeOfferBtn").click(showOfferPageModal);
+    
+    //disable certain buttons
+    if({!JSINHTMLENCODE(agf__Headcount__c.agf__Status__c) == 'Offer In Progress'}) {
+        $("#makeOfferBtn").hide();
+        hideRequestOfferButton = true;
+        //two buttons visible so increate the width
+          $(".recruiterTheme").css('width', '230px');
+    } else if({!JSINHTMLENCODE(agf__Headcount__c.agf__Status__c) == 'Offer Accepted'}) {
+        
+        $("#makeOfferBtn").hide();
+        $("#acceptOfferBtn").hide();
+        hideRequestOfferButton = true;
+                
+    } else if({!JSINHTMLENCODE(agf__Headcount__c.agf__Status__c) == 'Filled'}) { 
+        //hide whole section
+        $(".recruiterTheme").hide();
+        hideRequestOfferButton = true;
+    } else {
+        //disable revoke button
+        $("#revokeOfferBtn").hide();
+        $("#acceptOfferBtn").hide();
+    }
+    
+    if (!{!ShowRequestOfferButton} || hideRequestOfferButton) {
+        $("#requestOfferBtn").hide();
+        hideRequestOfferButton = true;
+    }
+    
+    if({!JSINHTMLENCODE(agf__Headcount__c.agf__Status__c) != 'Filled'}) {
+        //disable offer button
+        $("#backfillBtn").hide();
+        if (hideRequestOfferButton) {
+            $("#managerActionsWrapper").css('width', '240px');
+        } else {
+            $("#managerActionsWrapper").css('width', '350px');
+        }
+    } else if (hideRequestOfferButton) {
+            $("#managerActionsWrapper").css('width', '380px');    
+    }
+      
+    $(function() {
+        $( "#backfillDatepicker" ).datepicker();
+    });
+    
+    $(function() {
+        $( ".backfillDate" ).datepicker();
+    });
+    
+    function revokeOffer() {
+            ADM_HeadcountDetailController.confirmRevokeOffer('{!agf__Headcount__c.Id}', handleRevokeOffer);
+    }
+    
+    function handleRevokeOffer(vfResults, event) {
+        if(event.type == 'exception') {
+            $("#revokeErrorMessage").html(event.message);
+            $("#revokeErrorMessageWrapper").show();
+        } else {
+            //reload page so that page layout shows fresh data 
+            window.location.href=window.location.href;
+            
+        }
+    }
+    
+    function acceptOffer() {
+        console.debug('start date: ' + $('.acceptOfferStartDate').val());
+        if(validateAcceptOffer()) {
+            ADM_HeadcountDetailController.confirmAcceptOffer('{!agf__Headcount__c.Id}', $(".acceptOfferStartDate").val(), handleAcceptOffer);
+        }
+    }
+    
+    function handleAcceptOffer(vfResults, event) {
+        if(event.type == 'exception') {
+            $("#acceptErrorMessage").html(event.message);
+            $("#acceptErrorMessageWrapper").show();
+        } else {
+            //reload page so that page layout shows fresh data 
+            window.location.href=window.location.href;
+            
+        }
+    }
+    
+    function openBackfill() {
+        console.debug('date:' + $("#backfillDatepicker").value);    
+        ADM_HeadcountDetailController.confirmOpenBackfill('{!agf__Headcount__c.Id}', $("#backfillDatepicker").val(), handleOpenBackfill);
+    }
+    
+    function handleOpenBackfill(vfResults, event) {
+        if(event.type == 'exception') {
+            $("#backfillErrorMessage").html(event.message);
+            $("#backfillErrorMessageWrapper").show();
+        } else {
+            //reload page so that page layout shows fresh data 
+            window.location.href=window.location.href;
+            
+        }
+    }
+
+    function makeOffer() {
+
+        if(validateOffer()) {
+            ADM_HeadcountDetailController.makeOffer('{!agf__Headcount__c.Id}', $(".jobID").val(), $(".candidateName").val(), $(".offerStartDate").val(), handleMakeOffer);
+        }
+    }
+    
+    function handleMakeOffer(vfResults, event) {
+        if(event.type == 'exception') {
+            $("#offerErrorMessage").html(event.message);
+            $("#offerErrorMessageWrapper").show();
+        } else {
+            //reload page so that page layout shows fresh data 
+            window.location.href=window.location.href;
+            
+        }
+    }
+
+    function requestOffer() {
+        if(validateRequestOffer()) {
+            ADM_HeadcountDetailController.requestOffer('{!agf__Headcount__c.Id}', $(".requestOfferRecruiter").val(), $(".requestOfferCandidateName").val(), $(".requestOfferStartDate").val(), handleRequestOffer);
+        }
+    }
+    
+    function handleRequestOffer(vfResults, event) {
+        if(event.type == 'exception') {
+            $("#requestOfferErrorMessage").html(event.message);
+            $("#requestOfferErrorMessageWrapper").show();
+        } else {
+            //reload page so that page layout shows fresh data 
+            window.location.href=window.location.href;
+        }
+    }
+
+    function editHeadcount() {
+        //one web service for Filled, one for Open Backfill and one for everything else
+       if(validateHeadcount()) {
+           var status = '{!JSINHTMLENCODE(agf__Headcount__c.agf__Status__c)}';
+           
+           //new requirement: cloud only shown in some situations
+           var cloud = '{!JSINHTMLENCODE(agf__Headcount__c.agf__Cloud__c)}';
+           if({!JSINHTMLENCODE(agf__Headcount__c.agf__Status__c) != 'Filled' && agf__Headcount__c.agf__Team__c == ''}) {
+               //cloud appears on edit modal. grab user input
+               cloud = $(".cloud").val();
+           }
+           
+           if(status == 'Filled') {
+               ADM_HeadcountDetailController.editFilledHeadcount('{!agf__Headcount__c.Id}', $(".team").val(), $(".organization").val(), $(".role").val(), $(".description").val(), handleEditHeadcount);
+           } else if(status == 'Open - Backfill') {
+               ADM_HeadcountDetailController.editBackfillHeadcount('{!agf__Headcount__c.Id}', cloud, $(".team").val(), $(".organization").val(), $(".role").val(), $(".backfillDate").val(), $(".description").val(), handleEditHeadcount);
+           } else if(status == 'Open - New') {
+               ADM_HeadcountDetailController.editNewHeadcount('{!agf__Headcount__c.Id}', cloud, $(".team").val(), $(".organization").val(), $(".role").val(), $(".description").val(), handleEditHeadcount);
+           } else {
+               ADM_HeadcountDetailController.editInProgressHeadcount('{!agf__Headcount__c.Id}', cloud, $(".team").val(), $(".organization").val(), $(".role").val(), $(".startDate").val(), $(".description").val(), handleEditHeadcount);
+           }  
+        }     
+        
+    }
+    
+    function handleEditHeadcount(vfResults, event) {
+        if(event.type == 'exception') {
+            $("#headcountErrorMessage").html(event.message);
+            $("#headcountErrorMessageWrapper").show();
+        } else {
+            console.debug('success');
+            //reload page so that page layout shows fresh data 
+            window.location.href=window.location.href;
+            
+        }
+    }
+               
+               
+</script>
+
+
+
+</apex:page>

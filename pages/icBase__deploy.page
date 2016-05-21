@@ -1,0 +1,674 @@
+<apex:page controller="icBase.deployController" sidebar="false" id="definitionsPage" action="{!init}" tabStyle="Deploy_Definitions__tab">
+    <script>
+        function doReposition(componentId){
+            var top =  ($(window).height() - $(componentId).height() ) / 2+$(window).scrollTop() + 'px';
+            var left = ( $(window).width() - $(componentId).width() ) / 2+$(window).scrollLeft() + 'px';
+            if(componentId == '#statusChangePanel'){
+                $(componentId).css('top', '300px');
+            }
+            else{
+                $(componentId).css('top', top);
+            }
+            $(componentId).css('left', left);
+        }
+    </script>
+    <apex:form >
+        <apex:outputPanel id="overlay">
+            <apex:actionStatus id="maskStatus" onstart="start();setButtonStyles('btn','btnDisabled')" onstop="stop();setButtonStyles('btnDisabled','btn')">
+            </apex:actionStatus>
+            <script>
+                $("#overlay").attr('class','overlayBackgroundVisible');
+            </script>
+            <div id="statusChangePanel" class="status_content" style="z-index:101;{!if(displayStatusChangeItems == true, 'display:block;','display:none;')} width:303px;">
+                
+                <apex:actionStatus id="StatusChangeStatus" onstart="setButtonStyles('btn','btnDisabled')" onstop="setButtonStyles('btnDisabled','btn')">
+                    <apex:facet name="start">
+                        <apex:pageBlock >
+                            <div style="margin:auto; text-align:center; width:279px; height:24px;">
+                                <img src="/img/loading32.gif"/>
+                            </div>
+                        </apex:pageBlock>
+                    </apex:facet>
+                    <apex:facet name="stop">
+                        <apex:pageBlock id="pbStatusChange">
+                            <apex:actionRegion >
+                                    <apex:selectList value="{!ChangeStatusToValue}" multiselect="false" size="1">
+                                        <apex:selectOptions value="{!ItemStatus}"/>
+                                    </apex:selectList>
+                                    <apex:commandButton styleClass="btn" value="Change" action="{!massUpdateStatuses}" reRender="overlay, form, statusChangePanel, pnlDefinitions, standardBlock, customBlock, developmentBlock, standardObjectTable, customObjectTable, showGeneric" status="maskStatus"/>
+                                    <apex:commandButton styleClass="btn" value="{!$Label.site.cancel}" onclick="cancelStatus();setButtonStyles('btnDisabled','btn');" action="{!toggleStatusUpdateDisplay}" reRender="overlay"/>
+                            </apex:actionRegion>
+                        </apex:pageBlock>
+                    </apex:facet>
+                </apex:actionStatus>
+            </div>
+        </apex:outputPanel>      
+    
+        <apex:outputPanel id="form">
+            <apex:pagemessages />
+            <apex:sectionHeader title="{!$Label.icBase__Deploy_Definitions_title}" subtitle="{!$Label.icBase__Review_and_deploy_definitions} {!project.Name}" >
+                <apex:outputPanel layout="block" styleClass="ptBreadcrumb" rendered="{!pageHasProject}">
+                    &nbsp;«&nbsp;
+                    <apex:outputLink value="/{!projectId}" >{!$Label.icBase__Back_to_Project}</apex:outputLink>
+                </apex:outputPanel>
+                <br />
+            </apex:sectionHeader>                
+            <apex:outputPanel id="pnlSelectProject" rendered="{!NOT(pageHasProject)}">
+                <apex:actionRegion >
+                    <c:projectselection componentLocation="deploy" />
+                </apex:actionRegion>
+            </apex:outputPanel>
+            
+            <apex:outputPanel id="pnlDefinitions" rendered="{!pageHasProject}">
+                <apex:pageBlock mode="edit" title="{!$Label.icBase__Choose_definition_category}" helpTitle="{!$Label.icBase__Get_help}" helpUrl="http://www.implementationcloud.com/WebpageUserGuide">
+                    <apex:pageBlockSection collapsible="false" columns="2" >
+                        <apex:commandButton action="{!showCustomise}" value="{!$Label.icBase__Standard_Objects}" styleClass="btn" reRender="overlay, standardBlock" status="maskStatus"/>
+                    </apex:pageBlockSection> 
+                    <apex:pageBlockSection collapsible="false" columns="2" >   
+                        <apex:commandButton action="{!showCreate}" value="{!$Label.icBase__Custom_Objects}" styleClass="btn" reRender="overlay, customBlock" status="maskStatus"/>
+                    </apex:pageBlockSection> 
+                    <apex:pageBlockSection collapsible="false" columns="2" >
+                        <apex:commandButton action="{!showDevelop}" value="{!$Label.icBase__Force_com_Development}" styleClass="btn" reRender="overlay, developmentBlock" status="maskStatus"/>
+                    </apex:pageBlockSection>
+                    <apex:pageBlockSection collapsible="false" columns="2" >
+                        <apex:commandButton action="{!showGeneric}" value="{!$Label.icBase__Organisation_Management}" styleClass="btn" reRender="overlay, genericBlock" status="maskStatus"/>
+                    </apex:pageBlockSection>
+                </apex:pageBlock>
+                
+                <apex:pageBlock id="standardBlock" title="{!$Label.icBase__Deploy_Standard_Objects}" rendered="{!showCustomise}" helpTitle="{!$Label.icBase__Get_help}" helpUrl="http://www.implementationcloud.com/WebpageUserGuide">
+                    <apex:outputLabel value="{!$Label.icBase__Select_an_object}"></apex:outputLabel>  
+                    <apex:actionRegion >
+                        <apex:actionFunction action="{!getTableObjectItems}" name="refresh" rerender="standardObjectTable" status="objectStatus"/>
+                        <apex:selectList size="1" value="{!selectedObjectId}" onchange="refresh()" multiselect="false" >
+                            <apex:selectOptions value="{!optionsStandardObject}"></apex:selectOptions>
+                        </apex:selectList>
+                        <apex:commandButton id="statusBtuStandard" value="{!$Label.icBase__Update_status}" onclick="displayStatusChange()" action="{!toggleStatusUpdateDisplay}" rendered="{!if(selectedObjectId != '',true, false)}" styleClass="btn" reRender="pbStatusChange" status="StatusChangeStatus">
+                            <apex:param name="changeStatusFor" assignTo="{!changeStatusFor}" value="Object Items" />
+                        </apex:commandButton>
+                        <!-- <apex:inputCheckbox onclick="togglePackage_StandardObjects()" value="{!showPackageColumn}" /><apex:outputLabel id="soToggleLabel" value="{!if(showPackageColumn, $Label.Package_Column_Hide,$Label.Package_Column_Show)}" />
+                        <apex:actionFunction name="togglePackage_StandardObjects" status="objectStatus" reRender="standardObjectTable, soToggleLabel"/> -->
+                        <br/>
+                        <apex:actionstatus id="objectStatus" onstart="setButtonStyles('btn','btnDisabled')" onstop="setButtonStyles('btnDisabled','btn')">
+                            <apex:facet name="stop">
+                                <apex:pagemessages />
+                                <apex:dataTable id="standardObjectTable" value="{!objectItems}" var="o" rules="rows" styleClass="list" headerClass="headerRow">                                    
+                                    <apex:column width="50px">
+                                        <apex:facet name="header">
+                                            <apex:panelGroup >
+                                                <apex:inputCheckbox id="chkAllStandard" />
+                                                {!$Label.icBase__Select}
+                                            </apex:panelGroup>
+                                        </apex:facet>
+                                        <apex:inputCheckbox value="{!o.icBase__Selected__c}" id="chkStandard" />
+                                    </apex:column>
+                                    <apex:column >
+                                        <apex:facet name="header">{!$ObjectType.icBase__Object_Item__c.fields.icBase__Status__c.label}</apex:facet>
+                                        <apex:outputText value="{!o.icBase__Status__c}"/>
+                                    </apex:column>
+                                    <apex:column >
+                                        <apex:facet name="header">{!$ObjectType.icBase__Object_Item__c.fields.Name.label}</apex:facet>
+                                        <apex:commandLink title="{!o.Name}" reRender="pnlWrapper,pbFields" status="overlayFloaterStatus" onclick="showFloatingPanel()" action="{!viewFieldDefinition}">{!o.Name}
+                                            <apex:param name="objectItemId" assignTo="{!objectItemId}" value="{!o.Id}"/>
+                                        </apex:commandLink>
+                                    </apex:column>
+                                    <apex:column >
+                                        <apex:facet name="header">{!$ObjectType.icBase__Object_Item__c.fields.icBase__Field_Name__c.label}</apex:facet>
+                                        <apex:outputText value="{!o.icBase__Field_Name__c}"/>
+                                    </apex:column>
+                                    <apex:column width="250px">
+                                        <apex:facet name="header">{!$ObjectType.icBase__Object_Item__c.fields.icBase__Field_Type__c.label}</apex:facet>
+                                        <apex:outputText value="{!o.icBase__Field_Type__c}"/>
+                                    </apex:column>
+                                    <apex:column width="80px">
+                                        <apex:facet name="header">{!$ObjectType.icBase__Object_Item__c.fields.icBase__Standard_Item__c.label}</apex:facet>
+                                        <apex:image url="{!if(o.icBase__Standard_Item__c == true,'/img/checkbox_checked.gif','/img/checkbox_unchecked.gif')}"/>
+                                    </apex:column>
+                                    <apex:column rendered="{!showPackageColumn}">
+                                        <apex:facet name="header">{!$ObjectType.icBase__Object_Item__c.fields.icBase__Package__c.label}</apex:facet>
+                                        <apex:outputText value="{!o.icBase__Package__c}"/>
+                                    </apex:column>
+                                </apex:dataTable>
+                            </apex:facet>
+                            <apex:facet name="start">
+                                <br />
+                                {!$Label.Please_wait}
+                            </apex:facet>
+                        </apex:actionstatus>
+                    </apex:actionRegion>                      
+                </apex:pageBlock> 
+                <script type="text/javascript">
+                        $(document).ready(function() {
+                            $("input[id*=chkAllStandard]").click(function() {
+                                var checked_status = this.checked;
+                                $("input[id*=chkStandard]").each(function() {
+                                    this.checked = checked_status;
+                                });
+                            });                 
+                        });
+                        $("input[id*={!$Component.chkAllStandard}]").attr('checked', false);
+                    </script>
+                     
+                <apex:pageBlock id="customBlock" title="{!$Label.icBase__Deploy_Custom_Objects}" rendered="{!showCreate}" helpTitle="{!$Label.icBase__Get_help}" helpUrl="http://www.implementationcloud.com/WebpageUserGuide">
+                    <apex:pageBlockButtons location="top">
+                        <apex:commandButton value="{!$Label.icBase__View_object}" reRender="pnlWrapper,pbObjectDetail" status="overlayFloaterStatus" onclick="showFloatingPanel()" styleClass="btn" action="{!viewObjectDefinition}" rendered="{! if(OR(selectedObjectId == null,selectedObjectId == 'null'), false, true) }" />
+                    </apex:pageBlockButtons>
+                    <apex:outputLabel value="{!$Label.icBase__Select_Object}"></apex:outputLabel>
+                    <apex:actionRegion >
+                        <apex:actionFunction action="{!getTableObjectItems}" name="refresh" rerender="customObjectsTable" status="customStatus"/>                   
+                        <apex:selectList size="1" value="{!selectedObjectId}" onchange="refresh()" multiselect="false" >
+                            <apex:selectOptions value="{!optionsCustomObject}"></apex:selectOptions>
+                        </apex:selectList>
+                        <apex:commandButton id="statusBtuCustom" value="{!$Label.icBase__Update_status}" onclick="displayStatusChange()" action="{!toggleStatusUpdateDisplay}" rendered="{!if(selectedObjectId != '',true, false)}" styleClass="btn" reRender="pbStatusChange" status="StatusChangeStatus">
+                            <apex:param name="changeStatusFor" assignTo="{!changeStatusFor}" value="Object Items" />
+                        </apex:commandButton>
+                        <!-- <apex:inputCheckbox onclick="togglePackage_CustomObjects()" value="{!showPackageColumn}" /><apex:outputLabel id="coToggleLabel" value="{!if(showPackageColumn, $Label.Package_Column_Hide,$Label.Package_Column_Show)}" />
+                        <apex:actionFunction name="togglePackage_CustomObjects" status="customStatus" reRender="customObjectsTable, coToggleLabel"/> -->
+                        <br />                       
+                        <apex:actionstatus id="customStatus" onstart="setButtonStyles('btn','btnDisabled')" onstop="setButtonStyles('btnDisabled','btn')">
+                            <apex:facet name="stop">
+                                <apex:pagemessages />
+                                <apex:dataTable id="customObjectsTable" value="{!objectItems}" var="o" rules="rows" styleClass="list" headerClass="headerRow" rendered="{! if(objectItems == null, false,true)}">
+                                    <apex:column width="50px">
+                                        <apex:facet name="header">
+                                        <apex:panelGroup >
+                                            <apex:inputCheckbox id="chkAllCustom" />
+                                            {!$Label.icBase__Select}
+                                        </apex:panelGroup>
+                                    </apex:facet>
+                                    <apex:inputCheckbox value="{!o.icBase__Selected__c}" id="chkCustom" />
+                                    </apex:column>
+                                    <apex:column >
+                                        <apex:facet name="header">{!$ObjectType.icBase__Object_Item__c.fields.icBase__Status__c.label}</apex:facet>
+                                        <apex:outputText value="{!o.icBase__Status__c}"/>
+                                    </apex:column>                                     
+                                    <apex:column >
+                                        <apex:facet name="header">{!$ObjectType.icBase__Object_Item__c.fields.Name.label}</apex:facet>
+                                        <apex:outputLink title="{!o.Name}" target="_blank" value="/{!o.Id}" >{!o.Name}</apex:outputLink>
+                                    </apex:column>
+                                    <apex:column >
+                                        <apex:facet name="header">{!$ObjectType.icBase__Object_Item__c.fields.icBase__Field_Name__c.label}</apex:facet>
+                                        <apex:outputText value="{!o.icBase__Field_Name__c}"/>
+                                    </apex:column>
+                                    <apex:column width="250px">
+                                        <apex:facet name="header">{!$ObjectType.icBase__Object_Item__c.fields.icBase__Field_Type__c.label}</apex:facet>
+                                        <apex:outputText value="{!o.icBase__Field_Type__c}"/>
+                                    </apex:column>
+                                    <apex:column width="80px">
+                                        <apex:facet name="header">{!$ObjectType.icBase__Object_Item__c.fields.icBase__Standard_Item__c.label}</apex:facet>
+                                        <apex:image url="{!if(o.icBase__Standard_Item__c == true,'/img/checkbox_checked.gif','/img/checkbox_unchecked.gif')}"/>
+                                    </apex:column>
+                                    <!-- <apex:column rendered="{!showPackageColumn}">
+                                        <apex:facet name="header">{!$ObjectType.icBase__Object_Item__c.fields.icBase__Package__c.label}</apex:facet>
+                                        <apex:outputText value="{!o.icBase__Package__c}"/>
+                                    </apex:column> -->
+                                  </apex:dataTable>
+                              </apex:facet>
+                              <apex:facet name="start">
+                                  <br />
+                                  {!$Label.Please_wait}
+                              </apex:facet>
+                          </apex:actionstatus>
+                      </apex:actionRegion>
+                  </apex:pageBlock>
+                  <script type="text/javascript">
+                        $(document).ready(function()
+                        {
+                            $("input[id*=chkAllCustom]").click(function()             
+                            {
+                                var checked_status = this.checked;
+                                $("input[id*=chkCustom]").each(function()
+                                {
+                                    this.checked = checked_status;
+                                });
+                            });                 
+                        });
+                        $("input[id*={!$Component.chkAllCustom}]").attr('checked', false);
+                    </script>
+                  
+                  <apex:pageBlock id="developmentBlock" title="{!$Label.icBase__Deploy_Development_Requirements}"  rendered="{!showDevelopment}" helpTitle="{!$Label.icBase__Get_help}" helpUrl="http://www.implementationcloud.com/WebpageUserGuide">                    
+                        <apex:actionRegion >
+                            <apex:commandButton id="statusBtuDevelopment" value="{!$Label.icBase__Update_status}" onclick="displayStatusChange()" action="{!toggleStatusUpdateDisplay}" styleClass="btn" rendered="{!hasDevelopmentRequirements}" reRender="pbStatusChange" status="StatusChangeStatus">
+                                <apex:param name="changeStatusFor" assignTo="{!changeStatusFor}" value="Development Requirements" />
+                            </apex:commandButton>
+                            <br/> 
+                            <apex:dataTable id="developmentTable" value="{!developmentItems}" var="d" rules="rows" styleClass="list" headerClass="headerRow">
+                                <apex:column width="50px">
+                                    <apex:facet name="header">
+                                        <apex:panelGroup >
+                                            <apex:inputCheckbox id="chkAllDev" />
+                                            {!$Label.icBase__Select}
+                                        </apex:panelGroup>
+                                    </apex:facet>
+                                    <apex:inputCheckbox value="{!d.icBase__Selected__c}" id="chkDevelopment" />
+                                </apex:column>
+                                <apex:column >
+                                    <apex:facet name="header">{!$ObjectType.icBase__Development_Requirement__c.fields.Name.label}</apex:facet>
+                                    <apex:commandLink title="{!d.Name}" reRender="pnlWrapper,pbDevelopmentDetail" status="overlayFloaterStatus" onclick="showFloatingPanel()" action="{!viewDevelopmentDefinition}">{!d.Name}
+                                        <apex:param name="selectedDevelopment" assignTo="{!selectedDevelopment}" value="{!d.Id}"/>
+                                    </apex:commandLink>
+                                </apex:column>
+                                <apex:column width="150px">
+                                    <apex:facet name="header">{!$ObjectType.icBase__Development_Requirement__c.fields.icBase__Status__c.label}</apex:facet>
+                                    <apex:outputText value="{!d.icBase__Status__c}"/>
+                                </apex:column> 
+                                <apex:column width="300px">
+                                    <apex:facet name="header">{!$ObjectType.icBase__Development_Requirement__c.fields.icBase__Description__c.label}</apex:facet>
+                                    <apex:outputText value="{!d.icBase__Description__c}" escape="true" />
+                                </apex:column>
+                            </apex:dataTable>
+                        </apex:actionRegion>                                                                                    
+                    </apex:pageBlock>                          
+                    <script type="text/javascript">
+                        $(document).ready(function() {
+                            $("input[id*=chkAllDev]").click(function(){
+                                var checked_status = this.checked;
+                                $("input[id*=chkDevelopment]").each(function(){
+                                    this.checked = checked_status;
+                                });
+                            });                 
+                        });
+                        $("input[id*={!$Component.chkAllDev}]").attr('checked', false);
+                    </script>
+                    
+                    <apex:pageBlock id="genericBlock" title="{!$Label.icBase__Deploy_Org_Management}" rendered="{!showGeneric}" helpTitle="{!$Label.icBase__Get_help}" helpUrl="http://www.implementationcloud.com/WebpageUserGuide">
+                        <apex:actionRegion >
+                            <apex:commandButton id="statusBtuGeneric" value="{!$Label.icBase__Update_status}" onclick="displayStatusChange()" action="{!toggleStatusUpdateDisplay}" styleClass="btn" rendered="{!hasGenericRequirements}" reRender="pbStatusChange" status="StatusChangeStatus">
+                                <apex:param name="changeStatusFor" assignTo="{!changeStatusFor}" value="Generic Requirements" />
+                            </apex:commandButton>
+                            <br/> 
+                            <apex:dataTable id="genericRequirementsTable" value="{!genericItems}" var="g" rules="rows" styleClass="list" headerClass="headerRow" >
+                                <apex:column width="50px">
+                                    <apex:facet name="header">
+                                        <apex:panelGroup >
+                                            <apex:inputCheckbox id="chkAllGen" />
+                                            {!$Label.icBase__Select}
+                                        </apex:panelGroup>
+                                    </apex:facet>
+                                    <apex:inputCheckbox value="{!g.icBase__Selected__c}" id="chkGeneric" />
+                                </apex:column>
+                                <apex:column >
+                                    <apex:facet name="header">{!$ObjectType.icBase__Generic_Requirement__c.fields.Name.label}</apex:facet>
+                                    <apex:commandLink title="{!g.Name}" reRender="pnlWrapper,pbGenericDetail" status="overlayFloaterStatus" onclick="showFloatingPanel()" action="{!viewGenericDefinition}">{!g.Name}
+                                    <apex:param name="selectedGenericRequirement" assignTo="{!selectedGenericRequirement}" value="{!g.Id}"/>
+                                </apex:commandLink>
+                                </apex:column>
+                                <apex:column >
+                                    <apex:facet name="header">{!$ObjectType.icBase__Generic_Requirement__c.fields.icBase__Status__c.label}</apex:facet>
+                                    <apex:outputText value="{!g.icBase__Status__c}"/>
+                                </apex:column> 
+                                <apex:column width="200px">
+                                    <apex:facet name="header">{!$ObjectType.icBase__Generic_Requirement__c.fields.icBase__Type__c.label}</apex:facet>
+                                    <apex:outputText value="{!g.icBase__Type__c}"/>
+                                </apex:column>
+                            </apex:dataTable>
+                        </apex:actionRegion>
+                    </apex:pageBlock>
+                    <script type="text/javascript">
+                        $(document).ready(function(){
+                            $("input[id*=chkAllGen]").click(function(){
+                                var checked_status = this.checked;
+                                $("input[id*=chkGeneric]").each(function(){
+                                    this.checked = checked_status;
+                                });
+                            });                 
+                        });
+                        $("input[id*={!$Component.chkAllGen}]").attr('checked', false);
+                    </script>
+            </apex:outputPanel> 
+        </apex:outputPanel>
+        
+        <div id="overlayFloater">
+            <script>
+                var compName = 'overlayFloater';
+                if(compName != null || compName != ''){
+                    var top =  ($(window).height() - $("[id*=" + compName + "]").height() ) / 2+$(window).scrollTop() + 'px';
+                    var left = ( $(window).width() - $("[id*=" + compName + "]").width() ) / 2+$(window).scrollLeft() + 'px';
+                    $("[id*=" + compName + "]").css('left', left);
+                }
+            </script>
+            <apex:actionStatus id="overlayFloaterStatus" >
+                <apex:facet name="start">
+                    <apex:pageBlock >
+                        <div style="margin:auto; text-align:center; padding:141px; width:100px;">
+                            <apex:image url="/img/loading32.gif"/>
+                        </div>
+                    </apex:pageBlock>
+                </apex:facet>
+                <apex:facet name="stop">
+                    <apex:outputPanel id="pnlWrapper" layout="block">
+                        <div id="divWrapper" style="display:none;">
+                            <!-- CUSTOM FIELD OVERLAY START --> 
+                            <apex:pageBlock id="pbFields" rendered="{!showFieldDetail}" mode="edit" helpTitle="{!$Label.icBase__Get_help}" helpUrl="http://www.implementationcloud.com/WebpageUserGuide" >
+                                <apex:pageBlockButtons location="both">
+                                    <apex:commandButton value="{!$Label.site.cancel}" onclick="hideOverlay()" styleClass="btn" action="{!hideDialog}" reRender="developmentBlock, overlayFloater, pnlRunCode" immediate="true"/>
+                                </apex:pageBlockButtons>
+                                <script>
+                                    if({!showFieldDetail} == true){
+                                        $("#divWrapper").attr('style','display:block');
+                                    }
+                                </script>
+                                <apex:pagemessages />
+                                <apex:pageBlockSection columns="1" >
+                                    <apex:pageBlockSectionItem >
+                                        <apex:outputLabel value="{!$ObjectType.icBase__Object_Item__c.fields.Name.Label}" />
+                                        <apex:outputField value="{!obji.Name}" />
+                                    </apex:pageBlockSectionItem>
+                                    <apex:pageBlockSectionItem >
+                                        <apex:outputLabel value="{!$ObjectType.icBase__Object_Item__c.fields.icBase__Field_Name__c.Label}" />
+                                        <apex:outputField value="{!obji.icBase__Field_Name__c}" />
+                                    </apex:pageBlockSectionItem>
+                                </apex:pageBlockSection>
+                                <apex:pageBlockSection columns="1" rendered="{!OR(obji.icBase__Field_Type__c=='Currency', obji.icBase__Field_Type__c=='Number', obji.icBase__Field_Type__c=='Percent')}">
+                                    <apex:pageBlockSectionItem >
+                                        <apex:panelGroup >
+                                        </apex:panelGroup>
+                                        <apex:panelGroup >
+                                            {!$Label.icBase__Scale_Precision_Description}
+                                        </apex:panelGroup>
+                                    </apex:pageBlockSectionItem>
+                                </apex:pageBlockSection>
+                                <apex:pageBlockSection columns="2">
+                                    <apex:pageBlockSectionItem rendered="{!OR(obji.icBase__Field_Type__c=='Currency', obji.icBase__Field_Type__c=='Number', obji.icBase__Field_Type__c=='Percent')}">
+                                        <apex:outputLabel value="{!$ObjectType.icBase__Object_Item__c.fields.icBase__Scale__c.Label}" />
+                                        <apex:outputField value="{!obji.icBase__Scale__c}" />
+                                    </apex:pageBlockSectionItem>
+                                    <apex:pageBlockSectionItem rendered="{!OR(obji.icBase__Field_Type__c=='Currency', obji.icBase__Field_Type__c=='Number', obji.icBase__Field_Type__c=='Percent')}">
+                                        <apex:outputLabel value="{!$ObjectType.icBase__Object_Item__c.fields.icBase__Precision__c.Label}" />
+                                        <apex:outputField value="{!obji.icBase__Precision__c}" />
+                                    </apex:pageBlockSectionItem>
+                                    <apex:pageBlockSectionItem rendered="{!OR(obji.icBase__Field_Type__c=='Currency', obji.icBase__Field_Type__c=='Number', obji.icBase__Field_Type__c=='Percent')}">
+                                        <apex:panelGroup >
+                                        </apex:panelGroup>
+                                        <apex:panelGroup >
+                                            {!$Label.icBase__Digits_description}
+                                        </apex:panelGroup>
+                                    </apex:pageBlockSectionItem>
+                                    <apex:pageBlockSectionItem rendered="{!OR(obji.icBase__Field_Type__c=='Currency', obji.icBase__Field_Type__c=='Number', obji.icBase__Field_Type__c=='Percent')}">
+                                        <apex:panelGroup >
+                                        </apex:panelGroup>
+                                        <apex:panelGroup >
+                                            {!$Label.icBase__Digits_description}
+                                        </apex:panelGroup>
+                                    </apex:pageBlockSectionItem>
+                                </apex:pageBlockSection>
+                                <apex:pageBlockSection columns="1">
+                                    <apex:pageBlockSectionItem rendered="{!obji.icBase__Field_Type__c=='Formula'}">
+                                        <apex:outputLabel value="{!$ObjectType.icBase__Object_Item__c.fields.icBase__Formula_Type__c.Label}" />
+                                        <apex:outputField value="{!obji.icBase__Formula_Type__c}" />
+                                    </apex:pageBlockSectionItem>
+                                    <apex:pageBlockSectionItem rendered="{!OR(obji.icBase__Field_Type__c=='Lookup', obji.icBase__Field_Type__c=='Master-Detail' || obji.icBase__Field_Type__c == 'Master-Detail Relationship')}">
+                                        <apex:outputLabel value="{!$ObjectType.icBase__Object_Item__c.fields.icBase__Related_Object__c.Label}" />
+                                        <apex:outputField value="{!obji.icBase__Related_Object__c}" />
+                                    </apex:pageBlockSectionItem>
+                                    <apex:pageBlockSectionItem rendered="{!obji.icBase__Field_Type__c=='Master-Detail Relationship'}">
+                                        <apex:outputLabel value="{!$ObjectType.icBase__Object_Item__c.fields.icBase__Sharing_Setting__c.Label}" />
+                                        <apex:outputField value="{!obji.icBase__Sharing_Setting__c}" />
+                                    </apex:pageBlockSectionItem>
+                                    <apex:pageBlockSectionItem rendered="{!AND(OR(obji.icBase__Field_Type__c=='Lookup', obji.icBase__Field_Type__c=='Master-Detail Relationship'), obji.icBase__Standard_Item__c == false)}">
+                                        <apex:outputLabel value="{!$ObjectType.icBase__Object_Item__c.fields.icBase__Child_Relationship_Name__c.Label}" />
+                                        <apex:outputField value="{!obji.icBase__Child_Relationship_Name__c}" />
+                                    </apex:pageBlockSectionItem>
+                                    <apex:pageBlockSectionItem rendered="{!obji.icBase__Field_Type__c=='Checkbox'}">
+                                        <apex:outputLabel value="{!$ObjectType.icBase__Object_Item__c.fields.icBase__Checkbox_defaultValue__c.Label}" />
+                                        <apex:outputField value="{!obji.icBase__Checkbox_defaultValue__c}" />
+                                    </apex:pageBlockSectionItem>
+                                    <apex:pageBlockSectionItem rendered="{!obji.icBase__Field_Type__c=='Auto Number'}">
+                                        <apex:outputLabel value="{!$ObjectType.icBase__Object_Item__c.fields.icBase__Display_Format__c.Label}" />
+                                        <apex:outputField value="{!obji.icBase__Display_Format__c}" />
+                                    </apex:pageBlockSectionItem>
+                                    <apex:pageBlockSectionItem rendered="{!obji.icBase__Field_Type__c=='Auto Number'}">
+                                        <apex:outputLabel value="{!$ObjectType.icBase__Object_Item__c.fields.icBase__Starting_Number__c.Label}" />
+                                        <apex:outputField value="{!obji.icBase__Starting_Number__c}" />
+                                    </apex:pageBlockSectionItem>
+                                    <apex:pageBlockSectionItem rendered="{!obji.icBase__Field_Type__c=='Auto Number'}">
+                                        <apex:panelGroup >
+                                        </apex:panelGroup>
+                                        <apex:panelGroup >
+                                            <apex:outputField value="{!obji.icBase__AutoGenerate__c}" />
+                                        </apex:panelGroup>
+                                    </apex:pageBlockSectionItem>
+                                    <apex:pageBlockSectionItem rendered="{!OR(obji.icBase__Field_Type__c=='Text', obji.icBase__Field_Type__c=='Text Area (Long)', obji.icBase__Field_Type__c=='Text Area (Rich)')}">
+                                        <apex:outputLabel value="{!$ObjectType.icBase__Object_Item__c.fields.icBase__Length__c.Label}" />
+                                        <apex:outputField value="{!obji.icBase__Length__c}" />
+                                    </apex:pageBlockSectionItem>
+                                    <apex:pageBlockSectionItem rendered="{!OR(obji.icBase__Field_Type__c=='Text Area (Long)', obji.icBase__Field_Type__c=='Text Area (Rich)')}">
+                                        <apex:outputLabel value="{!$ObjectType.icBase__Object_Item__c.fields.icBase__Visible_Lines__c.Label}" />
+                                        <apex:outputField value="{!obji.icBase__Visible_Lines__c}" />
+                                    </apex:pageBlockSectionItem>
+                                </apex:pageBlockSection>
+                                <apex:pageBlockSection columns="1">
+                                    <apex:pageBlockSectionItem rendered="{!OR(obji.icBase__Field_Type__c=='Picklist', obji.icBase__Field_Type__c=='Picklist (Multi-Select)')}">
+                                        <apex:outputLabel value="{!$ObjectType.icBase__Object_Item__c.fields.icBase__Picklist_Values__c.Label}" />
+                                        <apex:outputField value="{!obji.icBase__Picklist_Values__c}" />
+                                    </apex:pageBlockSectionItem>
+                                    <apex:pageBlockSectionItem >
+                                        <apex:outputLabel value="{!$ObjectType.icBase__Object_Item__c.fields.icBase__Description__c.Label}" />
+                                        <apex:outputField value="{!obji.icBase__Description__c}"/>
+                                    </apex:pageBlockSectionItem>
+                                    <apex:pageBlockSectionItem >
+                                        <apex:outputLabel value="{!$ObjectType.icBase__Object_Item__c.fields.icBase__Inline_Help_Text__c.Label}" />
+                                        <apex:outputField value="{!obji.icBase__Inline_Help_Text__c}" />
+                                    </apex:pageBlockSectionItem>
+                                </apex:pageBlockSection>
+                                <apex:pageBlockSection columns="1">
+                                    <apex:pageBlockSectionItem rendered="{!OR(obji.icBase__Field_Type__c=='Currency',obji.icBase__Field_Type__c=='Date',obji.icBase__Field_Type__c=='DateTime', obji.icBase__Field_Type__c=='Number', obji.icBase__Field_Type__c=='Percent', obji.icBase__Field_Type__c=='Phone', obji.icBase__Field_Type__c=='Text', obji.icBase__Field_Type__c=='Text Area', obji.icBase__Field_Type__c=='URL')}">
+                                        <apex:outputLabel value="{!$ObjectType.icBase__Object_Item__c.fields.icBase__Required__c.Label}" />
+                                        <apex:outputField value="{!obji.icBase__Required__c}" />
+                                    </apex:pageBlockSectionItem>
+                                    <apex:pageBlockSectionItem rendered="{!OR(obji.icBase__Field_Type__c=='Email', obji.icBase__Field_Type__c=='Number', obji.icBase__Field_Type__c=='Text')}">
+                                        <apex:outputLabel value="{!$ObjectType.icBase__Object_Item__c.fields.icBase__Unique__c.Label}" />
+                                        <apex:outputField value="{!obji.icBase__Unique__c}" />
+                                    </apex:pageBlockSectionItem>
+                                    <apex:pageBlockSectionItem id="pbiSensitivity" rendered="{!AND(obji.icBase__Field_Type__c=='Text', obji.icBase__Unique__c)}">
+                                        <apex:outputLabel value="Case Sensitivity MANUAL ACTION WRONG FIELD TEMP" />
+                                        <apex:outputField value="{!obji.icBase__External_ID__c}" />
+                                    </apex:pageBlockSectionItem>
+                                    <apex:pageBlockSectionItem rendered="{!OR(obji.icBase__Field_Type__c=='Auto Number', obji.icBase__Field_Type__c=='Email', obji.icBase__Field_Type__c=='Number', obji.icBase__Field_Type__c=='Text')}">
+                                        <apex:outputLabel value="{!$ObjectType.icBase__Object_Item__c.fields.icBase__External_ID__c.Label}" />
+                                        <apex:outputField value="{!obji.icBase__External_ID__c}" />
+                                    </apex:pageBlockSectionItem>
+                                    <apex:pageBlockSectionItem rendered="{!OR(obji.icBase__Field_Type__c=='Currency',obji.icBase__Field_Type__c=='Date',obji.icBase__Field_Type__c=='DateTime', obji.icBase__Field_Type__c=='Number', obji.icBase__Field_Type__c=='Percent', obji.icBase__Field_Type__c=='Phone', obji.icBase__Field_Type__c=='Text', obji.icBase__Field_Type__c=='Text Area', obji.icBase__Field_Type__c=='Text Area (Long)', obji.icBase__Field_Type__c=='URL')}">
+                                        <apex:outputLabel value="{!$ObjectType.icBase__Object_Item__c.fields.icBase__Default_Value__c.Label}" />
+                                        <apex:outputField value="{!obji.icBase__Default_Value__c}" />
+                                    </apex:pageBlockSectionItem>
+                                </apex:pageBlockSection>
+                                <apex:pageblockSection title="{!$Label.icBase__Object_to_summarize_description}" rendered="{!obji.icBase__Field_Type__c=='Roll-Up Summary'}">
+                                    <apex:pageBlockSectionItem >
+                                        <apex:outputLabel value="{!$ObjectType.icBase__Object_Item__c.fields.icBase__Object_To_Summarize__c.Label}" />
+                                        <apex:outputField value="{!obji.icBase__Object_To_Summarize__c}" />
+                                    </apex:pageBlockSectionItem>
+                                </apex:pageblockSection>
+                                <apex:pageblockSection title="{!$Label.icBase__Select_Roll_Up_Type}" rendered="{!obji.icBase__Field_Type__c=='Roll-Up Summary'}">
+                                    <apex:pageBlockSectionItem >
+                                        <apex:outputLabel value="{!$ObjectType.icBase__Object_Item__c.fields.icBase__Roll_Up_Type__c.Label}" />
+                                        <apex:outputField value="{!obji.icBase__Roll_Up_Type__c}" />
+                                    </apex:pageBlockSectionItem>
+                                </apex:pageblockSection>
+                                <apex:pageBlockSection columns="1" rendered="{!OR(obji.icBase__Field_Type__c=='Other', obji.icBase__Field_Type__c=='Formula', obji.icBase__Field_Type__c=='Roll-Up Summary', obji.icBase__Field_Type__c=='Picklist', obji.icBase__Field_Type__c=='Picklist (Multi-Select)')}">
+                                    <apex:pageblockSectionItem >
+                                        <apex:outputLabel value="{!$ObjectType.icBase__Object_Item__c.fields.icBase__Other_notes__c.Label}" />
+                                        <apex:outputField value="{!obji.icBase__Other_notes__c}" />
+                                    </apex:pageblockSectionItem>
+                                </apex:pageBlockSection>
+                            </apex:pageBlock>
+                            
+                            <!-- CUSTOM OBJECT OVERLAY START -->
+                            <apex:pageBlock id="pbObjectDetail" rendered="{!showObjectDetail}" mode="edit" helpTitle="{!$Label.icBase__Get_help}" helpUrl="http://www.implementationcloud.com/WebpageUserGuide" >
+                                <apex:pageBlockButtons location="both">
+                                    <apex:commandButton value="{!$Label.site.cancel}" onclick="hideOverlay()" styleClass="btn" action="{!hideDialog}" reRender="developmentBlock, overlayFloater, pnlRunCode" immediate="true"/>
+                                </apex:pageBlockButtons>
+                                <script>
+                                    if({!showObjectDetail} == true){
+                                        $("#divWrapper").attr('style','display:block');
+                                    }
+                                </script>
+                                <apex:pagemessages />
+                                <apex:pageBlockSection columns="1" collapsible="false" rendered="true"> 
+                                    <apex:pageBlockSectionItem >
+                                        <apex:outputLabel value="{!$Label.icBase__Label}" />
+                                        <apex:outputLabel value="{!obj.Name}" />
+                                    </apex:pageBlockSectionItem>
+                                    <apex:pageBlockSectionItem >
+                                        <apex:outputLabel value="{!$ObjectType.icBase__Object__c.fields.icBase__Plural_Label__c.Label}" />
+                                        <apex:outputField value="{!obj.icBase__Plural_Label__c}" />
+                                    </apex:pageBlockSectionItem>
+                                    <apex:pageBlockSectionItem rendered="false" >
+                                        <apex:outputLabel value="{!$ObjectType.icBase__Object__c.fields.icBase__Starts_with_a_vowel__c.Label}" />
+                                        <apex:outputField value="{!obj.icBase__Starts_with_a_vowel__c}" />
+                                    </apex:pageBlockSectionItem>              
+                                    <apex:pageBlockSectionItem >
+                                        <apex:outputLabel value="{!$ObjectType.icBase__Object__c.fields.icBase__sObject_API_Name__c.Label}" />  
+                                        <apex:outputField value="{!obj.icBase__sObject_API_Name__c}" />
+                                    </apex:pageBlockSectionItem>
+                                </apex:pageBlockSection>
+                                <apex:pageBlockSection columns="1">   
+                                    <apex:pageBlockSectionItem >
+                                        <apex:outputLabel value="{!$ObjectType.icBase__Object__c.fields.icBase__Description__c.Label}" /> 
+                                        <apex:outputField value="{!obj.icBase__Description__c}" />
+                                    </apex:pageBlockSectionItem>
+                                </apex:pageBlockSection>
+
+                                <apex:pageBlockSection id="pbsRecordName" title="{!$Label.icBase__Enter_Record_Name}" columns="1" collapsible="false">
+                                    <apex:pageBlockSectionItem >
+                                        <apex:outputLabel value="{!$ObjectType.icBase__Object__c.fields.icBase__Record_Name__c.Label}" /> 
+                                        <apex:outputField value="{!obj.icBase__Record_Name__c}" />
+                                    </apex:pageBlockSectionItem>
+                
+                                    <apex:pageBlockSectionItem >
+                                        <apex:outputLabel value="{!$ObjectType.icBase__Object__c.fields.icBase__Data_Type__c.Label}" />
+                                        <apex:outputField value="{!obj.icBase__Data_Type__c}" />
+                                    </apex:pageBlockSectionItem>
+                                </apex:pageBlockSection>
+                
+                                <apex:pageBlockSection id="pbsAutoNumberType" columns="1" rendered="{!if(obj.icBase__Data_Type__c=='Auto Number', true, false)}">
+                                    <apex:pageBlockSectionItem >
+                                        <apex:outputLabel value="{!$ObjectType.icBase__Object__c.fields.icBase__Auto_Number_Format__c.Label}" />
+                                        <apex:outputField value="{!obj.icBase__Auto_Number_Format__c}" />
+                                    </apex:pageBlockSectionItem>
+                                    <apex:pageBlockSectionItem >
+                                        <apex:outputLabel value="{!$ObjectType.icBase__Object__c.fields.icBase__Starting_Number__c.Label}" />
+                                        <apex:outputField value="{!obj.icBase__Starting_Number__c}" />
+                                    </apex:pageBlockSectionItem>
+                                </apex:pageBlockSection>
+                
+                                <apex:pageBlockSection title="{!$Label.icBase__Settings_Label}" columns="2" collapsible="true">
+                                    <apex:pageBlockSectionItem >
+                                        <apex:outputLabel value="{!$ObjectType.icBase__Object__c.fields.icBase__Enable_Reports__c.Label}" />
+                                        <apex:outputField value="{!obj.icBase__Enable_Reports__c}" />
+                                    </apex:pageBlockSectionItem>
+                                    <apex:pageBlockSectionItem >
+                                        <apex:outputLabel value="{!$ObjectType.icBase__Object__c.fields.icBase__Enable_Activities__c.Label}" />
+                                        <apex:outputField value="{!obj.icBase__Enable_Activities__c}" />
+                                    </apex:pageBlockSectionItem>
+                                    <apex:pageBlockSectionItem >
+                                        <apex:outputLabel value="{!$ObjectType.icBase__Object__c.fields.icBase__Available_in_customer_portal__c.Label}" />
+                                        <apex:outputField value="{!obj.icBase__Available_in_customer_portal__c}" />
+                                    </apex:pageBlockSectionItem>
+                                    <apex:pageBlockSectionItem >
+                                        <apex:outputLabel value="{!$ObjectType.icBase__Object__c.fields.icBase__Track_Field_History__c.Label}" />
+                                        <apex:outputField value="{!obj.icBase__Track_Field_History__c}" />
+                                    </apex:pageBlockSectionItem>
+                                </apex:pageBlockSection>                    
+                                <apex:pageBlockSection title="{!$ObjectType.icBase__Object__c.fields.icBase__Deployment_Status__c.Label}" columns="1" collapsible="false">
+                                    <apex:pageBlockSectionItem >
+                                        <apex:outputLabel value="{!$ObjectType.icBase__Object__c.fields.icBase__Deployment_Status__c.Label}" />
+                                        <apex:outputField value="{!obj.icBase__Deployment_Status__c}" />
+                                    </apex:pageBlockSectionItem>
+                                </apex:pageBlockSection>
+                            </apex:pageBlock>
+                        
+                            <!-- DEVELOPMENT REQUIREMENT OVERLAY START -->
+                            <apex:pageBlock id="pbDevelopmentDetail" title="{!$ObjectType.icBase__Development_Requirement__c.Label}" rendered="{!showDevelopmentDetail}" mode="edit" helpTitle="{!$Label.icBase__Get_help}" helpUrl="http://www.implementationcloud.com/WebpageUserGuide">
+                                <apex:pageBlockButtons location="both">
+                                    <apex:commandButton value="{!$Label.site.cancel}" onclick="hideOverlay()" styleClass="btn" action="{!hideDialog}" reRender="developmentBlock, overlayFloater, pnlRunCode" immediate="true"/>
+                                </apex:pageBlockButtons>
+                                <script>
+                                    if({!showDevelopmentDetail} == true){
+                                        $("#divWrapper").attr('style','display:block');
+                                    }
+                                </script>
+                                <apex:pageMessages />
+                                <apex:pageBlockSection columns="1" collapsible="false"> 
+                                    <apex:pageBlockSectionItem >
+                                        <apex:outputLabel value="{!$ObjectType.icBase__Development_Requirement__c.fields.Name.label}" />
+                                        <apex:outputField value="{!dr.Name}" />
+                                    </apex:pageBlockSectionItem>
+                                </apex:pageBlockSection>
+                                <apex:pageBlockSection columns="1" collapsible="false"> 
+                                    <apex:pageBlockSectionItem >
+                                        <apex:outputLabel value="{!$ObjectType.icBase__Development_Requirement__c.fields.icBase__Description__c.label}" />
+                                        <apex:outputField value="{!dr.icBase__Description__c}" />
+                                    </apex:pageBlockSectionItem>
+                                    <apex:pageBlockSectionItem >
+                                        <apex:outputLabel value="{!$ObjectType.icBase__Development_Requirement__c.fields.icBase__Status__c.label}" />
+                                        <apex:outputField value="{!dr.icBase__Status__c}" />
+                                    </apex:pageBlockSectionItem>                        
+                                </apex:pageBlockSection>
+                            </apex:pageBlock>
+
+                            <!-- GENERIC REQUIREMENT OVERLAY START -->
+                            <apex:pageBlock id="pbGenericDetail" rendered="{!showGenericDetail}" title="{!$ObjectType.icBase__Generic_Requirement__c.Label}" mode="edit" helpTitle="{!$Label.icBase__Get_help}" helpUrl="http://www.implementationcloud.com/WebpageUserGuide" >
+                                <apex:pageBlockButtons location="both">
+                                    <apex:commandButton value="{!$Label.site.cancel}" onclick="hideOverlay()" styleClass="btn" action="{!hideDialog}" reRender="developmentBlock, overlayFloater, pnlRunCode" immediate="true"/>
+                                </apex:pageBlockButtons>
+                                <script>
+                                    if({!showGenericDetail} == true){
+                                        $("#divWrapper").attr('style','display:block');
+                                    }
+                                </script>
+                                <apex:pageMessages />
+                                <apex:pageBlockSection columns="1" collapsible="false" rendered="true">
+                                    <apex:pageBlockSectionItem >
+                                        <apex:outputLabel value="{!$ObjectType.icBase__Generic_Requirement__c.fields.Name.label}" />
+                                        <apex:outputField value="{!gr.Name}" />
+                                    </apex:pageBlockSectionItem>
+                                    <apex:pageBlockSectionItem >
+                                        <apex:outputLabel value="{!$ObjectType.icBase__Generic_Requirement__c.fields.icBase__Type__c.label}" />
+                                        <apex:outputField value="{!gr.icBase__Type__c}" />
+                                    </apex:pageBlockSectionItem>
+                                </apex:pageBlockSection>
+                                <br/>
+                                <apex:pageBlockSection columns="1" collapsible="false" rendered="true"> 
+                                    <apex:pageBlockSectionItem >
+                                        <apex:outputLabel value="{!$ObjectType.icBase__Generic_Requirement__c.fields.icBase__Description__c.label}" />
+                                        <apex:outputField value="{!gr.icBase__Description__c}" />
+                                    </apex:pageBlockSectionItem>
+                                    <apex:pageBlockSectionItem >
+                                        <apex:outputLabel value="{!$ObjectType.icBase__Generic_Requirement__c.fields.icBase__Status__c.label}" />
+                                        <apex:outputField value="{!gr.icBase__Status__c}" />
+                                    </apex:pageBlockSectionItem>
+                                </apex:pageBlockSection>
+                            </apex:pageBlock>
+                        </div>
+                    </apex:outputPanel>
+                </apex:facet>
+            </apex:actionStatus>
+        </div>
+        <apex:outputPanel id="pnlRunCode" rendered="{!OR(showGenericDetail, showDevelopmentDetail, showObjectDetail, showFieldDetail)}">
+            <script>
+                initPnlRunCode();
+                repositionFloater();
+                $("#overlay").attr('class','overlayBackgroundVisible');
+            </script>
+        </apex:outputPanel>
+        
+          
+        <script type="text/javascript">
+            $(document).ready(function(){
+                if(document.getElementById('overlay') == undefined){
+                    $('<div id="overlay" class="overlay-mask" style="display:none; position:fixed; top:0px; bottom:0px; left:0px; right:0px; z-index:100;"> </div>').appendTo($('body'));
+                }
+                if(document.getElementById('overlayPanel') == undefined){
+                    $("<div id='overlayPanel'><div id='plsWait'><br /><img src='/img/loading32.gif' /><br /><br /><h1>{!$Label.icBase__Please_wait}</h1></div></div><div id='overlay' class='' style='display:none; position:fixed; top:0px; bottom:0px; left:0px; right:0px; z-index:100;'> </div>").appendTo($('body'));
+                    $("#plsWait").attr('class','white_content');
+                    $("#plsWait").attr('style','display:none');
+                    $("#overlay").attr('class','');
+                }                
+            });
+        </script>
+    </apex:form>
+    <apex:includeScript value="{!URLFOR($Resource.icBase__Library, 'scripts/jqueryMin.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.icBase__Library, 'scripts/DeployPageJS.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.icBase__Library, 'scripts/DefinitionsPageJS.js')}"/>
+    <apex:stylesheet value="{!URLFOR($Resource.icBase__Library, 'styles/overlayCSS.css')}"/>
+</apex:page>

@@ -1,0 +1,114 @@
+<apex:page controller="WelcomePacketWizard" showHeader="false"
+	cache="false">
+	<head>
+<apex:stylesheet value="{!$Resource.styles}"></apex:stylesheet>
+	</head>
+
+	<script>
+function confirmCancel()
+{
+	var isCancel = confirm("Are you sure you wish to quit?");
+	return isCancel;
+}
+</script>
+
+	<table border="0" width="100%" height="100%" id="bg">
+		<tr valign="top">
+			<td>
+				<div class="maincontainer">
+					<apex:image id="key1" width="100%"
+						value="/resource/1265230873000/Header" />
+
+					<apex:sectionHeader title="VinSolutions Welcome Packet"
+						subtitle="{!if(
+																				!CONTAINS(welcome.Packet_Includes__c, 'CRM')
+																				&&!CONTAINS(welcome.Packet_Includes__c, 'ILM')
+																				&&CONTAINS(welcome.Packet_Includes__c, 'DIY'),'Step 6 of 7', 
+																				
+																			if(
+																				!CONTAINS(welcome.Packet_Includes__c, 'CRM')
+																				&&CONTAINS(welcome.Packet_Includes__c, 'ILM')
+																				,'Step 6 of 9', 
+																				
+																			if(
+																				CONTAINS(welcome.Packet_Includes__c, 'CRM')																				
+																				,'Step 8 of 13', 
+																				
+																				'')))}" />
+
+					<apex:form >
+						<apex:pageBlock title="MINIMUM SYSTEM REQUIRMENTS">
+
+							<table border="0" width="100%" align="center">
+								<tr align="center">
+									<td align="center"><apex:commandButton action="{!skipBackSteps}" value="Previous Step" /> <apex:commandButton action="{!skipSteps}" value="Next Step" /> <apex:commandButton action="{!cancel}" value="Save & Quit"
+											onclick="return confirmCancel()" immediate="true" /> <apex:commandButton action="{!confirmCRM}" value="Save - To Confirmation Page"
+											rendered="{!if(welcome.Packet_Includes__c!=null&&welcome.ReachedCRMConfirm__c, true, false)}" />
+									</td>
+								</tr>
+							</table>
+
+
+							<apex:pageBlockSection collapsible="false" title="Requirements"
+								columns="1"></apex:pageBlockSection>
+
+							<table>
+								<tr>
+									<td>VinSolutions™ offers state of the art technology in a
+										web based software. In order to take full advantage of our
+										software there are minimum system requirements.<br /> They
+										are as follows:<br />
+										<table>
+											<tr>
+												<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+												<td>
+													<li>.Net Framework 2.0</li>
+													<li>Microsoft XP or Vista</li>
+													<li>Internet Explorer 7</li>
+													<li>Adobe Acrobat Reader</li>
+													<li>Microsoft Silverlight</li> <br /> <br />
+												</td>
+											</tr>
+										</table> Clients using our VinCamera software will additionally
+										require:<br />
+										<table>
+											<tr>
+												<td>&nbsp&nbsp&nbsp&nbsp&nbsp</td>
+												<td><li>.Net Framework 3.5</li> <br /></td>
+											</tr>
+										</table> Clients using our scanner software will need to ensure their
+										operating system is 32-bit, not 64-bit on the machine that the
+										scanner will be installed on.<br /> <br /> If you chose to
+										operate our software without meeting the minimum system
+										requirements you may not be able to take full advantage of the
+										functions and benefits of our system.<br /> <br />
+									</td>
+								</tr>
+							</table>
+							<apex:pageblockSection columns="1">
+
+								<apex:inputField value="{!welcome.Current_Operating_System__c}" />
+								<apex:inputField value="{!welcome.Current_Web_Browser__c}" />
+
+							</apex:pageblockSection>
+
+
+							<apex:pageBlockSection collapsible="false" title=""></apex:pageBlockSection>
+
+							<table border="0" width="100%" align="center">
+								<tr align="center">
+									<td align="center"><apex:commandButton action="{!skipBackSteps}" value="Previous Step" /> <apex:commandButton action="{!skipSteps}" value="Next Step" /> <apex:commandButton action="{!cancel}" value="Save & Quit"
+											onclick="return confirmCancel()" immediate="true" /> <apex:commandButton action="{!confirmCRM}" value="Save - To Confirmation Page"
+											rendered="{!if(welcome.Packet_Includes__c!=null&&welcome.ReachedCRMConfirm__c, true, false)}" />
+									</td>
+								</tr>
+							</table>
+
+						</apex:pageBlock>
+
+					</apex:form>
+				</div>
+			</td>
+		</tr>
+	</table>
+</apex:page>

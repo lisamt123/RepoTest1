@@ -1,0 +1,42 @@
+<apex:page controller="WelcomePacketWizard" showHeader="false"
+	cache="false">
+	<head>
+<apex:stylesheet value="{!$Resource.styles}"></apex:stylesheet>
+	</head>
+
+	<table border="0" width="100%" height="100%" id="bg">
+		<tr valign="top">
+			<td>
+				<div class="maincontainer">
+					<apex:image id="key1" width="100%"
+						value="/resource/1265230873000/Header" />
+
+					<apex:sectionHeader title="Vinsolutions Welcome Packet"
+						subtitle="{!if(welcome.Jump_to__c!='','Progress Saved!','')}" />
+
+					<apex:form >
+						<apex:pageBlock title="{!if(welcome.Jump_to__c!='',
+            							'You have completed up to '+welcome.Jump_to__c+' of the Welcome Packet.',
+            							'') } ">
+
+
+							<apex:outputText value="{!if(welcome.Jump_to__c!='',
+                							'You may continue where you left off at your convenience by browsing to:',
+                							'Once your Welcome Packet is ready, you may complete it by browsing to:')}" />
+							<br />
+							<br />
+							<a href="{!welcome.Welcome_Packet_URL__c}">{!welcome.Welcome_Packet_URL__c}</a>
+							<br />
+							<br />
+
+
+
+
+						</apex:pageBlock>
+
+					</apex:form>
+				</div>
+			</td>
+		</tr>
+	</table>
+</apex:page>

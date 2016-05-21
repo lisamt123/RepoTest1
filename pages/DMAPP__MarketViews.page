@@ -1,0 +1,489 @@
+<apex:page controller="DMAPP.MarketViewController" extensions="DMAPP.BrandOverrideController" sidebar="false"
+    docType="html-5.0"
+    tabStyle="Market_Views__tab"
+    >
+       
+<style>
+	@import url("{!URLFOR($Resource.DMAPP__TAM,         'css/common.css')}");
+
+    div#smartAM {
+        border: 1px solid #CCCCCC;
+        /**
+        border-top-color: #096;
+        border-top-left-radius: 4px;
+        border-top-right-radius: 4px;
+        border-top-width: 3px;
+        **/
+        border-radius: 8px;
+        -moz-border-radius: 8px;
+        -webkit-border-radius: 8px;
+        cursor: default;
+        padding: 49px 14px 9px;
+        position:relative;
+    }
+    
+    div#smartAM table {
+        width:100%; 
+    }
+    div#smartAMBranding {
+        clear: both;
+        background: url('{!URLFOR($Resource.DMAPP__Common, 'panel/images/bg_pad_header.png')}') left bottom repeat-x;
+        position:absolute;
+        width:100%;
+        display:block;
+        left:0px;
+        top:0px;
+        border-radius:8px 8px 0px 0px;
+        -moz-border-radius:8px 8px 0px 0px;
+        -webkit-border-radius:8px 8px 0px 0px;
+    }
+    
+    div#smartAMBrandingLeft {
+        float: left;
+    }
+    
+    div#smartAMBrandingLeft span {
+        float: right;
+        margin-left: 10px;
+        font-size:1.4em;
+        line-height:30px;
+    }
+    div#smartAMBrandingLeft div strong {
+        display: block;
+    }
+    div#smartAMBrandingRight {
+        float: right;
+        margin-left: 30px;
+    }
+    
+    div#smartAMBrandingRight img {
+        margin-right: 10px;
+    }
+    
+    body .apexp .bPageBlock.apexDefaultPageBlock div.pbHeader {
+        display: none;
+    }
+    
+    .apexp .bPageBlock.apexDefaultPageBlock div.pbBody {
+        margin: 0 !important;
+    }
+    
+    body .individualPalette div.secondaryPalette.bPageBlock {
+        border-top-color: #EAEAEA;
+        border-top-width: 1px;
+    }
+
+    body .bPageBlock .pbBody td.data2Col {
+        padding: 5px;
+    }
+    
+    .inactiveCell, a.inactiveCell, a.inactiveCell span {
+        color: #999999;
+    }
+    
+    th.headerCell, body .pbBody table.list tr.headerRow td, body .pbBody table.list tr.headerRow th.headerCell {
+        background-image: url('{!URLFOR($Resource.DMAPP__TAM, 'images/bg_table_header.jpg')}'); 
+        color: #FFFFFF;
+        padding-right: 5px;
+    }
+    
+    .headerLeft {
+        border-radius: 4px 0px 0px 0px;
+    }
+    
+    .headerRight {
+        border-radius: 0px 4px 0px 0px;
+    }
+    
+    th.headerCell a, th.headerCell, body .pbBody table.list tr.headerRow td, body .pbBody table.list tr.headerRow th.headerCell a {
+        color: #FFFFFF;
+    }  
+      
+    .settingsCell, body .pbBody table.list tr.dataRow th, body .pbBody table.list tr.dataRow td.settingsCell {
+        padding-left: 10px;
+    }         
+
+     td.date {
+         text-align: right;
+     }
+     th.date {
+         text-align: right;
+     }
+     
+     span.link {
+         color: #4E6B8F;
+         cursor: pointer;
+         
+     }
+     
+     div.rolodex {
+         text-align: right;
+     }
+     
+     div.nonAccessDialogLabel {
+        padding: 5px;
+     }
+     
+    div.smartOMMainHelpLink {
+        float:right;    
+        margin-right: 5px;
+    }
+    
+    div.smartOMMainHelpLink a {
+        float:left;
+        display:block;
+        background: url('{!URLFOR($Resource.DMAPP__SmartOM, 'tabs/icon_help.png')}') left center no-repeat;
+        padding: 1px 0 0 20px;
+        text-decoration:none;
+        color:#405773;
+        cursor: pointer; 
+    } 
+
+    .LIMIT_MSG_CONTAINER {
+    	clear: both;
+    }
+    
+    #LIMIT_MSG {
+    	padding: 10px 0;
+    }
+    
+    #MARKETVIEW_CONFIGURATION_CONTAINER {
+    	min-height: 450px !important;
+    }
+    
+    
+
+
+</style>
+
+    <apex:include pageName="DMAPP__OpportunityMapConfiguration" /><!-- CSS for admin dialog ... -->
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__prefix)}"/>
+    
+    	
+    <c:jQuery jQueryUI="true"
+        underscore="true"
+        tooltip="true"
+        paging="true"
+    	touchPunch="true"
+    	chosen="true"
+    /> 
+
+    <c:MobileRedirect TAM="true" />
+    
+    <apex:include pageName="DMAPP__CRUD" />
+    <apex:include pageName="DMAPP__APIDelegate" />
+
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__prefix)}"/>
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__ftk, 'forcetk.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__MarketViewConfiguration)}"/>
+    <apex:form >
+
+    <apex:actionFunction name="filterPage" action="{!filter}" />
+    <apex:actionFunction name="filterMore" action="{!more}" />
+    <apex:actionFunction name="filterLess" action="{!less}" />
+    <apex:inputText value="{!reportStartsWith}" id="startWith" styleClass="hidden startsWith" />
+
+        <div id="smartAM">  
+        
+            <div id="AM_table_container">
+                
+                <apex:outputPanel layout="block" rendered="{!isLicensedForAccountManager}">
+                    <div style="clear:both;">
+                        <div id='accountPlansMainHelp' class="smartOMMainHelpLink">
+                            <a id="TASHELPLINK" onclick="javascript: ttg_marketView.showHelp();">Help</a>
+                        </div> 
+                    </div> 
+                    <table>
+                        <tr>
+                            <td width="1%">Ownership</td>
+                            <td>
+                                <apex:selectList value="{!ownership}"  multiselect="false" size="1" styleClass="ownership">
+                                    <apex:selectOption itemValue="Mine" itemLabel="My reports"/>
+                                    <apex:selectOption itemValue="My Team" itemLabel="My team's reports"/>
+                                    <apex:selectOption itemValue="All" itemLabel="All reports"/>
+                                </apex:selectList>
+                                
+                            </td>
+                            <td>
+                                <div id="firstRol" class="rolodex">
+                                </div>
+                            </td>
+                        </tr>
+                        
+                        </table>
+                        
+                        <table  id='roloTable'></table> 
+                        
+                        <table>
+                        
+                        <tr>
+                            <td colspan="5" style="text-align: center;"><input class="btn" type="button" id="NEWMARKETVIEW" value="New Market View" /></td>
+                        </tr>
+                    </table>
+                </apex:outputPanel>
+        
+                <apex:outputText value="Current user has no license for Account Manager module" styleClass="noLicenseText" rendered="{!NOT(isLicensedForAccountManager)}"/>
+                <apex:pageBlock title="" rendered="{!isLicensedForAccountManager}">
+            
+
+                    <apex:pageBlockSection columns="1">
+        
+                        <apex:pageBlockTable value="{!reports}" var="view" id="plansTable">
+                            
+                            
+                            <apex:column headerClass="headerCell headerLeft">
+                                <apex:facet name="header">
+                                    <apex:commandLink value="Report Name" action="{!doSort}">
+                                        <apex:param name="sortField" value="Name" assignTo="{!sortField}"/>
+                                        <img title="Sorted Ascending" class="hidden tabName sortAsc" alt="Sorted Ascending" src="/s.gif" />
+                                        <img title="Sorted Descending" class="hidden tabName sortDesc" alt="Sorted Descending" src="/s.gif" />
+                                    </apex:commandLink>
+                                </apex:facet>
+                                <div id="nonAccessDialog_{!view.report.Id}" style="display:none;">
+                                    <div class="nonAccessDialogLabel">You don't have enough privileges to access all the plans in this report.</div>
+                                    <div class="nonAccessDialogLabel">You don't have access to the following plans:</div>
+                                        <ul>
+                                            <apex:repeat value="{!view.nonViewablePlansFormatted}" var="plan">
+                                                <li>{!plan}</li>
+                                            </apex:repeat>
+                                        </ul>                                                                   
+                                    <div class="nonAccessDialogLabel">Please contact the owners of these plans.</div>
+                                </div>
+                                <apex:commandLink value="{!view.report.Name}" onclick="ttg_marketView.showNonAccessDialog('{!view.report.Id}');return false;" rendered="{!view.nonViewablePlansNumber != 0}"/>
+                                <apex:outputLink value="/apex/marketview?id={!view.report.Id}" target="{!IF(isWin8Touch, '_self', '_parent')}" rendered="{!view.nonViewablePlansNumber == 0}" onclick="addOverlay()">
+                                    <apex:outputText value="{!view.report.Name}"/>
+                                </apex:outputLink>
+                            </apex:column>                  
+                            
+                            <apex:column headerClass="headerCell">
+                                <apex:facet name="header">
+                                    <apex:commandLink value="Owner" action="{!doSort}">
+                                        <apex:param name="sortField" value="Owner" assignTo="{!sortField}"/>
+                                        <img title="Sorted Ascending" class="hidden tabOwner sortAsc" alt="Sorted Ascending" src="/s.gif" />
+                                        <img title="Sorted Descending" class="hidden tabOwner sortDesc" alt="Sorted Descending" src="/s.gif" />
+                                    </apex:commandLink>
+                                </apex:facet>
+                                <apex:outputText value="{!view.report.Owner.Name}"/>
+                            </apex:column>
+        
+                            <apex:column headerClass="headerCell">
+                                <apex:facet name="header">
+                                    <apex:outputText value="Plan List"/>
+                                </apex:facet>
+                                <apex:outputText value="{!view.planList}"/>
+                            </apex:column>
+        
+                            <apex:column width="120px" headerClass="headerCell headerRight" styleClass="settingsCell">
+                                <apex:facet name="header">Settings</apex:facet>
+                                <a reportId="{!view.report.Id}"  isreadonly="{!view.readonly}"  class="SETTINGSLINK">Settings</a>
+                            </apex:column>  
+                            
+                        </apex:pageBlockTable>  
+          
+                    </apex:pageBlockSection>
+                    
+                    <div style="width:100%;text-align: center;">
+                        <div id="morefewerbar" class="hidden">Show me  <span class="link more"><img title="Show More" class="moreArrow" alt="Show More" src="/s.gif" />more</span> / <span class="link less">fewer<img title="Show Fewer" class="fewerArrow" alt="Show Fewer" src="/s.gif" /></span> records per list page</div>
+                        <div id="morebar" class="hidden">Show me  <span class="link more"><img title="Show More" class="moreArrow" alt="Show More" src="/s.gif" />more</span>  records per list page</div>
+                        <div id="fewerbar" class="hidden">Show me <span class="link less">fewer<img title="Show Fewer" class="fewerArrow" alt="Show Fewer" src="/s.gif" /></span> records per list page</div>
+                    </div>
+            
+                </apex:pageBlock>
+
+                <div id="smartAMBranding">
+                    <div id="smartAMBrandingLeft"><apex:image url="{!URLFOR($Resource.DMAPP__Common, 'panel/images/SmartOM50.png')}"/></div>
+                    <div id="smartAMBrandingRight">
+                        <apex:image url="{!URLFOR($Resource.DMAPP__Qualification, 'TASLogo50.png')}" alt="TAS Group Logo" rendered="{!NOT(hasBrandOverrideLogo)}"/>
+                        <apex:image url="{!brandOverrideLogo}" rendered="{!hasBrandOverrideLogo}"/>
+                    </div>
+                </div>
+           </div>
+        </div>
+
+    </apex:form>
+    
+    <script>
+
+        /* 
+         * Copyright © The TAS Group. All rights reserved.
+         *  
+         */    
+
+       function addOverlay(){
+   	        if(ttg_salesforce1){
+   				jQuery(".overlay").toggle()
+   			 }
+   		}
+
+        var spec = {};
+        
+        var ttg_marketView = (function(_spec) {
+            var that = {}
+        
+            function setup() {
+                var range = "AZ";
+                var i;
+                for (i = range.charCodeAt(0); i <= range.charCodeAt(1); i++) {
+                    
+                    jQuery('.rolodex').append(
+                        jQuery('<A>').addClass('listItem').append(
+                            jQuery('<span>').addClass('listItemPad').text(String.fromCharCode(i)).click(filter) 
+                        )
+                    )
+                
+                }
+                
+                jQuery('.rolodex').append(
+                    jQuery('<A>').addClass('listItem').append(
+                        jQuery('<span>').addClass('listItemPad').text('Other').click(filter)
+                    )
+                )
+                .append(
+                    jQuery('<A>').addClass('listItem').append(
+                        jQuery('<span>').addClass('listItemPad').text('All').click(filter)
+                    )
+                )
+                
+                jQuery('.ownership').change(ownershipChange);
+                jQuery('.less').click(less);
+                jQuery('.more').click(more);
+                
+                if ({!moreRecords == true && fewerRecords == true}) {
+                    jQuery('#morefewerbar').removeClass('hidden')
+                }
+                else if ({!moreRecords == true}) { 
+                    jQuery('#morebar').removeClass('hidden')
+                }
+                else if ({!fewerRecords == true}) {
+                    jQuery('#fewerbar').removeClass('hidden')
+                }
+                
+                if ('{!sortOrder}' == 'asc') {
+                    jQuery('.sortDesc').css('display', 'none');             
+                }
+                else {
+                    jQuery('.sortAsc').css('display', 'none');              
+                }
+
+                jQuery('.tab{!sortField}').removeClass('hidden')                
+                                
+                
+            }
+            
+            function filter() {
+                
+                jQuery('.startsWith').val(jQuery(this).text());
+            
+                filterPage();
+                
+            }
+
+            function ownershipChange() {
+                
+                filterPage();
+                
+            }
+
+            function more() {
+                
+                filterMore();
+                
+            }
+
+            function less() {
+                
+                filterLess();
+                
+            }
+            
+            function showHelp() {
+                window.open('{!helpURLBase}' + "/Default.htm#Smart_AM/11.Market_View_Report/1.Market_View_Report.htm", "TAS", "resizable=1,location=1,status=1,scrollbars=1,width=1000,height=600");
+            }            
+            
+            function showNonAccessDialog(reportId) {
+                var dialogDiv = jQuery('#nonAccessDialog_' + reportId);
+                dialogDiv.dialog({
+                    title: 'Insufficient Privileges',
+                    modal: true,
+                    width: '450px',
+                    buttons: { 'Close' : {  id: 'nonAccessDialogButtonClose',
+                                            text: 'Close',
+                                            click: function() { dialogDiv.dialog('close'); }
+                                         }
+                             }  
+                });
+            }
+  
+            that.setup = setup;
+            that.showNonAccessDialog = showNonAccessDialog;
+            that.showHelp = showHelp;
+        
+            return that;
+        })(spec);
+    
+        jQuery(
+        
+            function () {
+                ttg_marketView.setup();
+            }
+
+        );
+
+        jQuery(document).ready(function() {
+
+                var spec = {
+                    sessionid : '{!JSENCODE($Api.Session_ID)}',
+                    userId: '{!$User.Id}',
+                    ttgApi: ttg.apiLayer.sfdcDelegate( { sessionid : '{!JSENCODE($Api.Session_ID)}' } ),
+                    reportId: '',
+                    spinnerURL: '{!JSENCODE(URLFOR($Resource.ttgomjs, '/ttg/graph/images/loader.gif'))}',
+                    calendarURL: "{!URLFOR($Resource.Common, 'images/icon_calendar.png')}",
+                    title: 'Market View Report Configuration',
+                    onSave: function(info) { 
+                    	var thisURL = '/apex/DMAPP__marketview?id=' + encodeURIComponent(info.reportId) + "&" + (new Date()).getTime(); 
+                    	(window.sforce.one) ? sforce.one.navigateToURL(thisURL) : top.location.href=thisURL;
+                    },
+
+                    onDelete: function() { filterPage(); }
+                };
+
+                var amConfiguration = ttg.am.reportconfiguration(spec);
+
+                jQuery('#NEWMARKETVIEW').click(function () {
+                        amConfiguration.configure();
+
+                    }
+                )
+                
+                jQuery('.SETTINGSLINK').click(
+                    function () { 
+
+                        var reportId = jQuery(this).attr('reportId');
+                        //var inactive = (jQuery(this).attr('inactive')) == 'true';
+                        var readonly = (jQuery(this).attr('isreadonly')) == 'true';
+                        var spec = {
+                            sessionid : '{!JSENCODE($Api.Session_ID)}',
+                            userId: '{!$User.Id}',
+                            ttgApi: ttg.apiLayer.sfdcDelegate( { sessionid : '{!JSENCODE($Api.Session_ID)}' } ),
+                            reportId: reportId,
+                            spinnerURL: '{!JSENCODE(URLFOR($Resource.ttgomjs, '/ttg/graph/images/loader.gif'))}',
+                            calendarURL: "{!URLFOR($Resource.Common, 'images/icon_calendar.png')}",
+                            title: 'Market View Report Configuration',
+                            readonly: readonly,
+                            //inactive: inactive,
+                            onSave: function(info) { filterPage(); },
+                            onDelete: function() { filterPage(); }
+                            
+                        };
+
+                        var amConfiguration = ttg.am.reportconfiguration(spec);
+                        amConfiguration.configure();
+
+                    }
+                )
+    
+            }
+        ) 
+    
+    </script>
+</apex:page>

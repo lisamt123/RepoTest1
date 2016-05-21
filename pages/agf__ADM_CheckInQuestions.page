@@ -1,0 +1,83 @@
+<apex:page standardController="agf__ADM_Work__c" showHeader="false" sidebar="false">
+	<apex:remoteObjects >
+		<apex:remoteObjectModel name="FeedItem" jsShorthand="Post" fields="Body, ParentId">
+		</apex:remoteObjectModel>
+	</apex:remoteObjects>
+  	<apex:includeScript value="{!$Resource.agf__jquery_1_8_3_min}" />
+	<script type="text/javascript" src="/canvas/sdk/js/publisher.js"></script>
+	<script>
+    var checkinQuestions = '';
+    var questions = [];
+    
+    if ('{!ADM_Work__c.RecordType.Name}' === 'Bug') {
+        questions.push('1. Describe the customer experience that triggered this fix.');
+        questions.push('2. Describe the fix and how it resolves the customer issue. Describe any other impact for the customer, including change in behavior.');
+        questions.push('3. What needs to be tested? Do we need additional internal tests, not currently available? Do we need testing in production post release? (Y/N) If Y, please explain.');
+        questions.push('4. Can your fix be rolled back if it causes issues in production? (Y/N) If N, please explain.');
+        questions.push('5. Explain the details filed in the ReadMe Notes field for bugs with Cases or Known Issues.');
+        
+
+        if('{!ADM_Work__c.Scheduled_Build__r.Name}'.toLowerCase().indexOf('ecelerity') > -1 || '{!ADM_Work__c.Scheduled_Build__r.Name}'.toLowerCase().indexOf('momentum') > -1) {
+            questions.push('How can this be verified in ftests?');
+            questions.push('How can this be verified in end-to-end tests?');
+            questions.push('How can this be verified in dev?');
+            questions.push('How can this be verified in blitz?');
+            questions.push('How can this be verified in TYO?');
+            questions.push('How can this be verified in TYO/CHI?');
+            questions.push('How can this be verified in TYO/CHI/ASG?');
+        }
+    } else if ('{!ADM_Work__c.RecordType.Name}' === 'Investigation') {
+            questions.push('Response Requested – \'Example: Bug with work ID, Bug with work ID to follow, explanation for working as designed.');
+            questions.push('Describe urgency from the customer\'s perspective');
+            questions.push('Number of users impacted');
+    }
+
+    for(var index = 0; index < questions.length; index++) {
+        checkinQuestions += '- ' + questions[index] + '\n\n\n';
+    }
+
+    function createPost() {
+        if ($('#checkinQuestions').val().length > 0) {
+	        $('textarea').hide();
+	        $('#boxStatus').show();
+	        $('button').prop('disabled', true).hide();
+            Sfdc.canvas.publisher.resize( {height : '50px'});
+
+	       	var post = new SObjectModel.Post();
+	        post.create({
+	          Body : $('#checkinQuestions').val(),
+	          ParentId : '{!ADM_Work__c.Id}'
+	        }, function(err) {
+			    if(err) {
+			        console.log(err);
+				} else {
+		            Sfdc.canvas.publisher.publish({name : 'publisher.refresh', payload : {feed:true}}); 
+			        $('#boxStatus').hide();
+			        $('textarea').val(checkinQuestions).show();
+			    }
+	        });
+        }
+    };
+
+    $(function() {
+        $('#checkinQuestions').html(checkinQuestions);
+
+		$("textarea").on('focusin', function() {
+	        Sfdc.canvas.publisher.resize({height:'350px'});
+	        $('button').prop('disabled', false).show();
+	        $('#boxButtons').show();
+		});
+    });
+	</script>
+	<style>
+		body{background:#F4F5F5;margin:0;padding:0;}    
+		textarea{resize:none;width:100%;height:298px;padding:10px;box-sizing:border-box;outline:none;border:0;border-bottom:1px #C0C5C8 solid;}
+		#boxStatus{display:none;padding:10px;}
+		#boxButtons{display:none;position:fixed;bottom:10px;right:10px;text-align:right;}
+	</style>
+	<textarea id="checkinQuestions"></textarea>
+	<div id="boxStatus">Posting...</div>
+	<div id="boxButtons" class="zen">
+    <button class="zen-btn zen-highlightBtn" onClick="createPost();">Submit</button>
+</div>
+</apex:page>

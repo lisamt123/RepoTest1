@@ -1,0 +1,235 @@
+<apex:page id="thePage" controller="admin_ctrl_home">
+<apex:form id="TheForm">
+	
+	<style>
+		
+		.hoverLink {  
+
+		    margin:0; 
+		    padding:0; 
+		    display:inline-block; 
+		    cursor:default; 
+		    z-index:9999;
+		}
+		
+		.hoverLink .hoverLinkContent { 
+		
+		    padding:0;  
+		    display: none; 
+		    position: absolute; 
+		    left: 0;
+		    z-index: 5000; 
+		    white-space: nowrap;
+		    margin-top: -2px;
+		}
+		
+		body .pbBody table.list tr.dataRow th.footerColStyle {
+		
+		    border-width: 0;
+		}
+		
+		body .pbBody table.list tr.dataRow th.footerStyle {
+		
+		    border-width: 0;
+		}
+		
+		.totalRow .footerColStyle {
+		
+		    color:#666;
+		    text-align:center;
+		    background-color:#F1F1F1;
+		    padding:5px 2px 5px 5px;
+		}
+		
+		.totalRow .footerStyle {
+		
+		    text-align:right;
+		    background-color:#FFF;
+		    padding:5px 2px 5px 5px;
+		}
+		
+		.headerRow .customHeaderClass th {
+		
+		    border-left-width: 0;
+		    background: #FFF;
+		    border-width: 0 0 1px 1px;
+		    color: black;
+		    font-size: .9em;
+		    font-weight: bold;
+		    padding: 5px 2px 4px 5px;
+		    border: 1px solid #D4DADC;
+		    border-bottom: 2px solid #CCC;
+		    white-space: nowrap;
+		    border-color: #ECECEC;
+		    border-right: 1px solid #D4DADC;
+		    vertical-align: inherit;
+		    border-collapse: separate;
+		    border-spacing: 2px 2px;
+		}
+		
+		th.currencyAlign {
+		
+		    text-align:right;
+		}
+		
+		body .pbBody table.list tr.dataRow th {
+		
+		    border-width: 0 0 1px 1px;
+		}
+		
+		body .pbBody table.list tr.last > th, body .pbBody table.list tr.last > td {
+		
+		    border-bottom-width:1px;
+		}
+	</style>
+	<!-- 
+	<apex:stylesheet value="{!URLFOR($Resource.modalDirectory2, 'quickPricing-hoverLink.css')}" />
+	  -->
+	<apex:pageBlock title="Admin Tools">
+	
+		<apex:pageBlockSection columns="1">
+			<apex:pageBlockSectionItem >
+				<apex:outputLink value="/apex/admin_releaseNotes2" target="_blank">Release Notes Manager</apex:outputLink>
+				<apex:outputLabel value="Description..." />
+			</apex:pageBlockSectionItem>
+			<apex:pageBlockSectionItem >
+				<apex:outputLink value="/apex/DealerFeaturesWebService" target="_blank">Moto Snap Callout Page</apex:outputLink>
+				<apex:outputLabel value="Moto Snap Dealer Features Web Service" />
+			</apex:pageBlockSectionItem>
+			<apex:pageBlockSectionItem >
+				<apex:outputLink value="/apex/admin_updateDealerGroupMRR" target="_blank">Custom APEX Jobs</apex:outputLink>
+				<apex:outputLabel value="Quick Links to manually begin Custom APEX Batch Jobs at any time." /> 
+			</apex:pageBlockSectionItem>
+			<!-- 
+			<apex:pageBlockSectionItem >
+				<apex:outputLabel value="Test" />
+				<c:hoverLink hoverButtonText="Test" hoverUniqueId="uniqueId9">
+					Test Test Test Test Test Test
+					<br />
+					Test Test Test Test Test Test
+				</c:hoverLink>
+			</apex:pageBlockSectionItem>
+			 -->
+		</apex:pageBlockSection>
+	</apex:pageBlock>
+	
+	<apex:pageBlock id="block" title="Org Summary" rendered="false">
+		<!-- 
+		<apex:actionregion id="ar">
+		<apex:pageBlockSection columns="1" title="" collapsible="true" id="CollapseDefault">
+	
+			<apex:chart data="{!summaryData}" height="450" width="750">
+				<apex:legend position="bottom" />
+			
+				<apex:axis type="Category" position="bottom" fields="objName" title="Objects and Fields">
+					<apex:chartLabel rotate="90" />
+				</apex:axis>
+				
+				<apex:axis type="Numeric" position="left" fields="totalAmount" title="Total Number" grid="true" />
+				
+				<apex:barSeries title="Total Number" orientation="vertical" axis="left" xField="objName" yField="totalAmount">
+					<apex:chartTips height="60" width="120" />
+				</apex:barSeries>
+			
+			</apex:chart>
+		
+		</apex:pageBlockSection>
+		</apex:actionregion>
+		 -->
+		<apex:chart data="{!summaryData}" height="450" width="750">
+				<apex:legend position="bottom" />
+			
+				<apex:axis type="Category" position="bottom" fields="objName" title="Objects and Fields">
+					<apex:chartLabel rotate="90" />
+				</apex:axis>
+				
+				<apex:axis type="Numeric" position="left" fields="totalAmount" title="Total Number" grid="true" />
+				
+				<apex:barSeries title="Total Number" orientation="vertical" axis="left" xField="objName" yField="totalAmount">
+					<apex:chartTips height="60" width="120" />
+				</apex:barSeries>
+			
+			</apex:chart>
+		
+	</apex:pageBlock>
+	
+	
+	<script language="javascript">
+		function addLoadEvent(func) {
+			var oldonload = window.onload;
+			if (typeof window.onload != 'function') {
+				window.onload = func;
+			} else {
+				window.onload = function() {
+								if (oldonload) {
+									oldonload();
+								}
+								func();
+								}
+			}
+		}
+		
+		function dotest() {
+		twistSection(document.getElementById('thePage:TheForm:block:CollapseDefault').childNodes[0].childNodes[0]);
+		}
+		
+		addLoadEvent(dotest);
+	</script>
+	
+	
+	
+	<apex:pageBlock title="Account Query - ({!accountSize} Matches Found)" rendered="false">
+	
+		<div style="width:20%;">
+		<apex:pageBlockTable value="{!accountList}" var="a">
+			<apex:column value="{!a.searchNumber}" rendered="false" />
+			<apex:column value="{!a.accountSearchName}" headerValue="Account Name Searched" rendered="false" />
+			<apex:column value="{!a.match}" headerValue="Match Found" rendered="false" />
+			<apex:column value="{!a.qtyMatch}" headerValue="QTY Found" rendered="false" />
+			<apex:column value="{!a.accountId}" headerValue="AccountId" />
+			<apex:column headerValue="Account">
+				<a href="/{a.accountId}" target="_blank">{!a.accountName}</a>
+			</apex:column>
+			<apex:column value="{!a.accountType}" headerValue="Type" rendered="false" /> 
+			<apex:column value="{!a.dealerGroupMrr}" headerValue="Dealer Group MRR" rendered="false" />
+		</apex:pageBlockTable>
+		</div>
+	</apex:pageBlock>
+	
+	
+	
+	
+	
+	
+	
+	 <!-- 
+	<apex:pageBlock title="Org Summary">
+		<apex:chart data="{!fieldData}" height="450" width="750">
+			<apex:legend position="bottom" />
+		
+			<apex:axis type="Category" position="bottom" fields="objName" title="Field Type">
+				<apex:chartLabel rotate="90" />
+			</apex:axis>
+			
+			<apex:axis type="Numeric" position="left" fields="totalAmount" title="Number of Fields" grid="true" />
+			
+			<apex:barSeries title="Number of Fields" orientation="vertical" axis="left" xField="objName" yField="totalAmount">
+				<apex:chartTips height="60" width="120" />
+			</apex:barSeries>
+		
+		</apex:chart>
+	</apex:pageBlock>
+	-->
+	<!-- 
+	
+	<br /><br /><br /><br />
+	<apex:repeat value="{!list1}" var="s">
+		- {!s}<br /><br />
+	</apex:repeat>
+	 
+	--> 
+	 
+	 
+
+</apex:form>
+</apex:page>

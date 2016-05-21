@@ -1,0 +1,190 @@
+<apex:page contentType="text/html" showHeader="false" sidebar="false" applyHtmlTag="false" standardStylesheets="false"> 
+    {{#if jiffystubs}} 
+        <div></div>
+    {{/if}}
+
+    {{#if goal}}
+        {{#with goal}}
+            <div class="heading-bar extra-pad">
+                <i class="icon-person-circle-white"></i> 
+                <h3 class="inline">{{name}}</h3>
+                {{#if activeFlag}}
+                    <i class="icon-on"></i>
+                {{else}}
+                    <i class="icon-off"></i>
+                {{/if}}
+                <div class="descriptor inline">
+                    {{description}}
+                </div>
+            </div>
+
+            <div class="heading-section">
+
+                <div class="graphs pull-right">
+                    <img src="https://sfdcassets.bunchball.net/{{buildVersion}}/images/filler-graph.png" />
+                </div>
+
+                <h4>Challenges for this Goal</h4>
+
+                {{#each children}}
+                    <div class="dropdown">
+                        <div class="pull-right">
+                            <i class="icon-close"></i>
+                            <i class="icon-down"></i>
+                        </div>
+                        {{name}}
+                        <div class="details">
+                            <img src="{{thumbUrl}}"/>
+                            <div class="points inline">{{award}} Points</div>
+                        </div>
+                    </div>
+                {{/each}}
+
+                <a class="add-challenge">[+] Add Another</a>
+
+            </div>
+            <div class="advanced-section">
+                <div class="advanced-heading">
+                    <a href="javascript:;" class="toggle-settings">Advanced Settings <i class="icon-down-blue"></i></a>        
+                </div>        
+            </div>
+        {{/with}}
+    {{/if}}
+
+    {{#if roleSettings}}
+        <form class="settings">
+            <div class="settings-col pull-right">
+                <h3>Advanced Details</h3>
+                <div class="dates">
+                    <div class="form-group">
+                        <label class="inline">Start Date</label>
+                        <input class="inline starttime" type="text" placeholder="m/d/yyyy" data-bind-fn="syncDate" />
+                    </div>
+                    <div class="form-group">
+                        <label class="inline">End Date</label>
+                        <input class="inline endtime" type="text" placeholder="m/d/yyyy" data-bind-fn="syncDate" />
+                    </div>
+                </div>                      
+            </div>
+            <div class="settings-col">
+                <div class="pull-right">
+                    <input type="checkbox" class="selectall" /><label for="selectall">Select All</label>
+                </div>
+                <h3>Active Roles:</h3>
+                <div class="roles" data-empty-message="No Matches">
+                    <input type="text" class="search-box" />
+                </div>
+            </div>
+
+            <a href="javascript:;" class="btn btn-simple">Save</a>
+        </form>
+    {{/if}}
+
+    {{#if roles}}
+        {{#each roles}}
+            <div class="bottom-border">
+                {{#if checked}}
+                    <label><input type="checkbox" checked="checked" value="{{id}}" data-bind-fn="syncRoles"/>  {{name}}</label>
+                {{else}}
+                    <label><input type="checkbox"  value="{{id}}" data-bind-fn="syncRoles"/>  {{name}}</label>
+                {{/if}}
+            </div>
+        {{/each}}
+    {{/if}}
+
+    {{#if createGoal}}
+        <div class="modal fade" id="goal-modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <div class="modal-title" id="myModalLabel">Create A Goal</div>
+              </div>
+              <div class="modal-body">
+                <form role="form">
+                    <div class="form-group">
+                        <label for="name">Name</label>
+                        <input type="text" class="form-control" id="name" placeholder="Name" data-bind-attr="name" />
+                    </div>
+                    <div class="form-group">
+                        <label for="description">Description</label>
+                        <input type="text" class="form-control" id="description" placeholder="Description" data-bind-attr="description" />
+                    </div>
+                    <div class="form-group">
+                        <label for="starttime">Start Date</label>
+                        <input type="text" class="form-control" id="starttime" placeholder="01/01/2014" data-bind-fn="syncDate" />
+                    </div>
+                    <div class="form-group">
+                        <label for="endtime">End Date</label>
+                        <input type="text" class="form-control" id="endtime" placeholder="01/01/2014" data-bind-fn="syncDate" />
+                    </div>
+                    <label>Points Award</label>
+                    <input type="number" data-bind-attr="pointsAward" placeholder="0" />                                 
+                    <div class="checkbox">
+                        <label>
+                            <input type="checkbox" data-bind-attr="activeFlag" /> Active
+                        </label>
+                    </div>                
+                </form>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="submit" class="btn btn-simple">Save</button>
+              </div>
+            </div>
+          </div>
+        </div> 
+    {{/if}}
+
+    {{#if modal}}
+        <div class="modal fade" id="modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <div class="modal-title" id="myModalLabel">
+                    {{title}}
+                </div>
+              </div>
+              <div class="modal-body">
+                {{{body}}}
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="submit" class="btn btn-simple">Save</button>
+              </div>
+            </div>
+          </div>
+        </div> 
+    {{/if}}
+
+    {{#if challengeAboutForm}}
+        <div class="form-group">
+            <label for="name">Name</label>
+            <input type="text" class="form-control" id="name" data-bind-attr="name" />
+        </div>    
+        <div class="form-group">
+            <label for="description">Description</label>
+            <input type="text" class="form-control" id="description" data-bind-attr="description" />
+        </div>
+    {{/if}}
+
+    {{#if challengeWhatForm}}
+        <div class="form-group">
+            <label for="what">What</label>
+        </div>  
+    {{/if}}   
+
+    {{#if challengeRewardForm}}
+        <div class="form-group">
+            <label for="what">Reward</label>
+        </div>  
+    {{/if}}    
+
+    {{#if challengeDoneForm}}
+        <div class="form-group">
+            <label for="what">Done</label>
+        </div>  
+    {{/if}}    
+
+</apex:page>

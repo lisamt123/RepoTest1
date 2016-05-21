@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <actionOverrides>
+        <actionName>Accept</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>CancelEdit</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Clone</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Delete</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Edit</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Follow</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>List</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>New</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>SaveEdit</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Tab</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>View</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <allowInChatterGroups>false</allowInChatterGroups>
+    <compactLayoutAssignment>SYSTEM</compactLayoutAssignment>
+    <deploymentStatus>Deployed</deploymentStatus>
+    <deprecated>false</deprecated>
+    <description>Keep track of which teams are part of a release.</description>
+    <enableActivities>false</enableActivities>
+    <enableBulkApi>true</enableBulkApi>
+    <enableEnhancedLookup>true</enableEnhancedLookup>
+    <enableFeeds>false</enableFeeds>
+    <enableHistory>false</enableHistory>
+    <enableReports>true</enableReports>
+    <enableSearch>true</enableSearch>
+    <enableSharing>true</enableSharing>
+    <enableStreamingApi>true</enableStreamingApi>
+    <fields>
+        <fullName>agf__Build__c</fullName>
+        <deleteConstraint>SetNull</deleteConstraint>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>Build</label>
+        <referenceTo>agf__ADM_Build__c</referenceTo>
+        <relationshipLabel>Team Builds</relationshipLabel>
+        <relationshipName>Team_Releases</relationshipName>
+        <required>false</required>
+        <trackTrending>false</trackTrending>
+        <type>Lookup</type>
+    </fields>
+    <fields>
+        <fullName>agf__External_ID__c</fullName>
+        <caseSensitive>false</caseSensitive>
+        <deprecated>false</deprecated>
+        <externalId>true</externalId>
+        <label>External ID</label>
+        <length>50</length>
+        <required>false</required>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>true</unique>
+    </fields>
+    <fields>
+        <fullName>agf__Release_Goals__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>Release Goals</label>
+        <length>2000</length>
+        <trackTrending>false</trackTrending>
+        <type>LongTextArea</type>
+        <visibleLines>6</visibleLines>
+    </fields>
+    <fields>
+        <fullName>agf__Scrum_Team__c</fullName>
+        <deleteConstraint>SetNull</deleteConstraint>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>Scrum Team</label>
+        <referenceTo>agf__ADM_Scrum_Team__c</referenceTo>
+        <relationshipName>Release_Teams</relationshipName>
+        <required>false</required>
+        <trackTrending>false</trackTrending>
+        <type>Lookup</type>
+    </fields>
+    <label>Team Release</label>
+    <listViews>
+        <fullName>agf__All1</fullName>
+        <filterScope>Everything</filterScope>
+        <label>All</label>
+    </listViews>
+    <listViews>
+        <fullName>agf__All_160_Team_Releases</fullName>
+        <columns>NAME</columns>
+        <columns>agf__Scrum_Team__c</columns>
+        <filterScope>Everything</filterScope>
+        <label>All 160 Team Releases</label>
+    </listViews>
+    <listViews>
+        <fullName>agf__All_Team_Releases</fullName>
+        <columns>NAME</columns>
+        <columns>agf__Scrum_Team__c</columns>
+        <filterScope>Everything</filterScope>
+        <label>All Team Releases</label>
+    </listViews>
+    <nameField>
+        <displayFormat>RT-{00000}</displayFormat>
+        <label>Name</label>
+        <type>AutoNumber</type>
+    </nameField>
+    <pluralLabel>Team Releases</pluralLabel>
+    <searchLayouts>
+        <customTabListAdditionalFields>agf__Scrum_Team__c</customTabListAdditionalFields>
+        <excludedStandardButtons>ChangeOwner</excludedStandardButtons>
+        <excludedStandardButtons>Accept</excludedStandardButtons>
+        <lookupDialogsAdditionalFields>agf__Scrum_Team__c</lookupDialogsAdditionalFields>
+        <searchResultsAdditionalFields>agf__Scrum_Team__c</searchResultsAdditionalFields>
+    </searchLayouts>
+    <sharingModel>ReadWrite</sharingModel>
+    <validationRules>
+        <fullName>agf__Build_cannot_be_empty</fullName>
+        <active>true</active>
+        <errorConditionFormula>LEN(  agf__Build__c  ) = 0</errorConditionFormula>
+        <errorDisplayField>agf__Build__c</errorDisplayField>
+        <errorMessage>You must select a Build.</errorMessage>
+    </validationRules>
+    <validationRules>
+        <fullName>agf__Scrum_Team_Is_Active</fullName>
+        <active>true</active>
+        <errorConditionFormula>agf__Scrum_Team__r.agf__Active__c = false</errorConditionFormula>
+        <errorMessage>The scrum team you selected is not active.</errorMessage>
+    </validationRules>
+    <validationRules>
+        <fullName>agf__Team_cannot_be_empty</fullName>
+        <active>true</active>
+        <errorConditionFormula>LEN( agf__Scrum_Team__c ) = 0</errorConditionFormula>
+        <errorDisplayField>agf__Scrum_Team__c</errorDisplayField>
+        <errorMessage>You must select a Scrum Team.</errorMessage>
+    </validationRules>
+    <webLinks>
+        <fullName>agf__Recalc_Burnup_Burndown</fullName>
+        <availability>online</availability>
+        <description>Forces a recalculation of the release burnup &amp; burndown charts</description>
+        <displayType>button</displayType>
+        <linkType>javascript</linkType>
+        <masterLabel>Recalc Burnup/Burndown</masterLabel>
+        <openType>onClickJavaScript</openType>
+        <protected>false</protected>
+        <url>{!REQUIRESCRIPT(&quot;/soap/ajax/15.0/connection.js&quot;)}
+{!REQUIRESCRIPT(&quot;/soap/ajax/15.0/apex.js&quot;)}
+
+// Now make a synchronous call to the Apex Web service method to update release burndown
+
+try {
+  var result = sforce.connection.query(&quot;select id,Name, Build__c,Scrum_Team__c from ADM_Team_Release__c where id = &apos;{!agf__ADM_Team_Release__c.Id}&apos; &quot;);
+  if (result .size &lt;= 0) {throw (&quot;Error: Unable to retrieve team release record&quot;);}
+  var teamReleaseArray  = result.getArray(&quot;records&quot;);
+
+  var result = sforce.apex.execute(
+  &quot;ADM_ReleaseBurndownUtils&quot;, // class
+  &quot;updateReleaseBurndownForTeamReleases&quot;, // method
+  {teamReleaseList: teamReleaseArray}); // method arguments
+
+  location.reload(true);
+
+} catch(error) {
+  alert(error);
+}</url>
+    </webLinks>
+</CustomObject>

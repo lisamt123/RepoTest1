@@ -1,0 +1,153 @@
+<apex:page title="{!$ObjectType.CRMfusionDBR101__Setting__c.labelPlural}" controller="CRMfusionDBR101.DB_SettingsController" showHeader="true" sidebar="false"
+    tabStyle="DupeBlocker_Settings_VF__tab">
+    <apex:includeScript value="{!URLFOR($Resource.CRMfusionDBR101__DB_Javascript, 'jquery.min.js')}" />
+    <apex:includeScript value="{!URLFOR($Resource.CRMfusionDBR101__DB_Javascript, 'jquery-ui.min.js')}" />
+    <apex:stylesheet value="{!URLFOR($Resource.CRMfusionDBR101__DB_Themes, 'jquery-ui-lightness/jquery-ui-lightness.min.css')}" />
+    <c:DB_Settings_Style />
+    <script>
+        Visualforce.remoting.timeout = 120000;
+
+        function importSettings() {
+            $('#settingsUpload')
+                    .dialog(
+                            {
+                                modal : true,
+                                width : '30em',
+                                buttons : {
+                                    Upload : function() {
+                                        var fileName = $('input[type=file]')
+                                                .val();
+
+                                        if (fileName == null
+                                                || fileName.trim() == '')
+                                            alert('Please select the settings file before clicking upload.');
+
+                                        // Disable the cancel button.
+                                        $(
+                                                ".ui-dialog-buttonpane button:contains('Cancel')")
+                                                .button("disable");
+
+                                        uploadSettingsFile();
+                                    },
+                                    Cancel : function() {
+                                        $(this).dialog('close');
+                                    }
+                                }
+                            });
+        }
+
+        // Display a modal error dialog with title.
+        function displayError(errorMessage, title) {
+            if (!title)
+                title = 'Unknown Error';
+            $('#dialog-errorMessage').attr('title', title);
+            $('#dialog-errorMessage').html(errorMessage);
+            $('#dialog-errorMessage').dialog({
+                modal : true,
+                buttons : {
+                    Ok : function() {
+                        $(this).dialog('close');
+                    }
+                }
+            });
+        }
+
+        function busyScreen() {
+            $('body').css('cursor', 'wait');
+        }
+
+        function unbusyScreen() {
+            exporting = false;
+            curExportIndex = 0;
+            $('input[type=submit]').prop('disabled', false);
+        }
+    </script>
+
+    <table class="pageTable" width="100%" cellspacing="0" cellpadding="0">
+        <tr>
+            <td class="leftCol" width="220px"><c:DB_Settings_Menu page="general" /></td>
+            <td class="rightCol">
+                <div>
+                    <apex:sectionHeader title="DupeBlocker Settings" subTitle="General Settings" />
+                    <c:DB_Disabled_Warning />
+                    <c:DB_License_Info />
+
+                    <apex:pageMessages />
+                    <apex:form >
+                        <apex:pageBlock mode="maindetail" title="General Settings">
+                            <apex:pageBlockButtons location="top">
+                                <apex:commandButton value="{!$Label.CRMfusionDBR101__DB_Export_Settings}" action="{!exportSettings}" />
+                                <apex:commandButton value="{!$Label.CRMfusionDBR101__DB_Import_Settings}" onclick="importSettings(); return false;" />
+                                <apex:commandButton action="{!editGeneralSettings}" value="{!$Label.CRMfusionDBR101__DB_Edit_Word}" />
+                            </apex:pageBlockButtons>
+                            <apex:pageBlockSection columns="2">
+                                <apex:pageBlockSectionItem helpText="All DupeBlocker exceptions will be sent to this e-mail address.  If the e-mail address is not specified, the exception will be sent to the current user">
+                                    <apex:outputLabel value="Administrator E-mail" />
+                                    <apex:outputText value="{!adminEmail}" />
+                                </apex:pageBlockSectionItem>
+                                <apex:pageBlockSectionItem helpText="Disable reminders for all warning tasks created by DupeBlocker.">
+                                    <apex:outputLabel value="Disable Warning Task Reminders" />
+                                    <c:DB_Output_Checkbox value="{!disableReminders}" />
+                                </apex:pageBlockSectionItem>
+                                <apex:pageBlockSectionItem helpText="The original key builder is the fastest method but requires the browser to stay open.  The batch 
+                                    key builder runs in the background but takes longer.">
+                                    <apex:outputLabel value="Key Builder Type" />
+                                    <apex:outputText value="{!keyBuilderTypeDisplay}" />
+                                </apex:pageBlockSectionItem>
+                                <apex:pageBlockSectionItem helpText="Leaving the batch size set to max should increase key building performance.  It may be necessary to lower the batch size if you receive governor limit exceptions while building keys.">
+                                    <apex:outputLabel value="Key Builder Batch Size" />
+                                    <apex:outputText value="{!keyBuilderBatchSize}" />
+                                </apex:pageBlockSectionItem>
+                                <apex:pageBlockSectionItem helpText="When bypassing a blocking scenario via the bypass button, create a warning for that scenario if
+                                this option is checked.">
+                                    <apex:outputLabel value="Block Bypass Creates Warnings" />
+                                    <c:DB_Output_Checkbox value="{!bypassCreatesWarnings}" />
+                                </apex:pageBlockSectionItem>
+                                <apex:pageBlockSectionItem helpText="Disable all DupeBlocker functionality.  This will mark all scenarios as needing a key rebuild.">
+                                    <apex:outputLabel value="Disable DupeBlocker" />
+                                    <c:DB_Output_Checkbox value="{!disableDupeBlocker}" />
+                                </apex:pageBlockSectionItem>
+                            </apex:pageBlockSection>
+                            <apex:pageBlockSection columns="2" title="Advanced Settings">
+                                <apex:pageBlockSectionItem helpText="Name of a field used to track what DupeBlocker action is taken during an insert.  See the documentation for full details.">
+                                    <apex:outputLabel value="Insert Action Tracking Field" />
+                                    <apex:outputText value="{!insertActionTrackingField}" />
+                                </apex:pageBlockSectionItem>
+                                <apex:pageBlockSectionItem helpText="Name of a field used to track what DupeBlocker action is taken during an update.  See the documentation for full details.">
+                                    <apex:outputLabel value="Update Action Tracking Field" />
+                                    <apex:outputText value="{!updateActionTrackingField}" />
+                                </apex:pageBlockSectionItem>
+                            </apex:pageBlockSection>
+                        </apex:pageBlock>
+                    </apex:form>
+                </div></td>
+        </tr>
+    </table>
+
+    <div id="settingsUpload" style="display: none;" title="Upload Settings File">
+        <div class="importWarning">
+            <P>
+                <STRONG>Warning, importing settings performs these potentially destructive actions:</STRONG>
+                <UL>
+                    <li>All existing scenarios, warnings, and settings will be deleted.</li>
+                    <li>Scenario statistics will be reset to zero.</li>
+                    <li>"Rebuild Needed" will be checked for all imported scenarios, rebuilding keys will be needed after the import completes.</li>
+                    <li>Any enabled objects from the source org will need to be manually re-enabled</li>
+                    <li>All fields used in scenario rules and filters will need to be confirmed, the import does not check for the existance of custom fields.</li>
+                    <li>All scenarios will be imported, even for custom objects that may not exist in this org.  Scenarios for non-existant objects or objects that are not yet enabled will be ignored.</li>
+                </UL>
+            </P>
+        </div>
+        <apex:form >
+            <apex:outputLabel value="Select Settings File:" for="file" />
+            <apex:inputFile value="{!settingsFile.body}" id="fileUploader" accept="application/json" />
+            <apex:actionFunction name="uploadSettingsFile" action="{!uploadSettingsFile}" status="uploadStatus" />
+            <apex:actionStatus id="uploadStatus">
+                <apex:facet name="Start">
+                    <div>Uploading...</div>
+                </apex:facet>
+            </apex:actionStatus>
+        </apex:form>
+    </div>
+    <div id="dialog-errorMessage"></div>
+</apex:page>

@@ -1,0 +1,290 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <choices>
+        <name>Customer_Satisfaction_Survey</name>
+        <choiceText>Review Customer Satisfaction Survey</choiceText>
+        <dataType>String</dataType>
+        <value>
+            <stringValue>Customer Satisfaction Survey</stringValue>
+        </value>
+    </choices>
+    <choices>
+        <name>Done</name>
+        <choiceText>Am done with Surveys, take me back</choiceText>
+        <dataType>String</dataType>
+    </choices>
+    <choices>
+        <name>No</name>
+        <choiceText>No</choiceText>
+        <dataType>Boolean</dataType>
+        <value>
+            <booleanValue>false</booleanValue>
+        </value>
+    </choices>
+    <choices>
+        <name>Tech_Support_Satisfaction_Survey</name>
+        <choiceText>Review Tech Support Satisfaction Survey</choiceText>
+        <dataType>String</dataType>
+        <value>
+            <stringValue>Tech Support Satisfaction Survey</stringValue>
+        </value>
+    </choices>
+    <choices>
+        <name>Yes</name>
+        <choiceText>Yes</choiceText>
+        <dataType>Boolean</dataType>
+        <value>
+            <booleanValue>true</booleanValue>
+        </value>
+    </choices>
+    <decisions>
+        <name>Run_Customer_Sat_Survey</name>
+        <label>Run Custome Sat Survey?</label>
+        <locationX>717</locationX>
+        <locationY>114</locationY>
+        <defaultConnector>
+            <targetReference>SurveysByFlow</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>No</defaultConnectorLabel>
+        <rules>
+            <name>Yes_Run_Customer_Sat_Survey</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>RunCustSatisSurvey</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Run_Customer_Satisfaction_Survey</targetReference>
+            </connector>
+            <label>Yes, Run Customer Sat  Survey</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <name>Run_Tech_Support_Survey</name>
+        <label>Run Tech Support Survey?</label>
+        <locationX>307</locationX>
+        <locationY>178</locationY>
+        <defaultConnector>
+            <targetReference>SurveysByFlow</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>No</defaultConnectorLabel>
+        <rules>
+            <name>Yes_Run_Tech_Support_Survey</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>RunTechSupportSurvey</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Run_Tech_Support_Satisfation_Survey</targetReference>
+            </connector>
+            <label>Yes, Run Tech Support Survey</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <name>Try_Surveys_Again</name>
+        <label>Try Surveys Again?</label>
+        <locationX>354</locationX>
+        <locationY>443</locationY>
+        <defaultConnectorLabel>no</defaultConnectorLabel>
+        <rules>
+            <name>Yes_Try_Surveys_Again</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>TryAgain</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>SurveysByFlow</targetReference>
+            </connector>
+            <label>Yes, Try Surveys Again</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <name>Which_Survey</name>
+        <label>Which Survey?</label>
+        <locationX>356</locationX>
+        <locationY>14</locationY>
+        <defaultConnectorLabel>None</defaultConnectorLabel>
+        <rules>
+            <name>TechSupportSatisfactionSurvey</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>Tech_Support_Satisfaction_Survey</leftValueReference>
+                <operator>WasSelected</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Tech_Support_Survey_Summary</targetReference>
+            </connector>
+            <label>Tech Support Satisfaction Survey</label>
+        </rules>
+        <rules>
+            <name>CustomerSatisfactionSurvey</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>Customer_Satisfaction_Survey</leftValueReference>
+                <operator>WasSelected</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Cust_Support_Survey_Summary</targetReference>
+            </connector>
+            <label>Customer Satisfaction Survey</label>
+        </rules>
+    </decisions>
+    <description>This flow introduces the survey samples included in the package and lets the user try them out.</description>
+    <label>Surveys By Flow</label>
+    <processType>Flow</processType>
+    <screens>
+        <name>Cust_Support_Survey_Summary</name>
+        <label>Customer Support Survey Summary</label>
+        <locationX>718</locationX>
+        <locationY>18</locationY>
+        <allowBack>true</allowBack>
+        <allowFinish>true</allowFinish>
+        <allowPause>true</allowPause>
+        <connector>
+            <targetReference>Run_Customer_Sat_Survey</targetReference>
+        </connector>
+        <fields>
+            <name>TechSupportSummary_0</name>
+            <fieldText>&lt;SPAN ALIGN=&quot;LEFT&quot;&gt;&lt;FONT FACE=&quot;Arial&quot; STYLE=&quot;font-size:14px&quot; COLOR=&quot;#000000&quot; LETTERSPACING=&quot;0&quot; KERNING=&quot;1&quot;&gt;&lt;B&gt;Customer Support Satisfaction Survey&lt;/B&gt;&lt;/FONT&gt;&lt;/SPAN&gt;&lt;DIV ALIGN=&quot;LEFT&quot;&gt;&lt;FONT FACE=&quot;Arial&quot; STYLE=&quot;font-size:12px&quot; COLOR=&quot;#000000&quot; LETTERSPACING=&quot;0&quot; KERNING=&quot;1&quot;&gt;The sample Customer Satisfaction Survey is designed to evaluate the customer satisfaction with the overall product/service.&lt;/FONT&gt;&lt;/DIV&gt;&lt;DIV ALIGN=&quot;LEFT&quot;&gt;&lt;FONT FACE=&quot;Arial&quot; STYLE=&quot;font-size:12px&quot; COLOR=&quot;#000000&quot; LETTERSPACING=&quot;0&quot; KERNING=&quot;1&quot;&gt;&lt;/FONT&gt;&lt;/DIV&gt;&lt;DIV ALIGN=&quot;LEFT&quot;&gt;&lt;FONT FACE=&quot;Arial&quot; STYLE=&quot;font-size:12px&quot; COLOR=&quot;#000000&quot; LETTERSPACING=&quot;0&quot; KERNING=&quot;1&quot;&gt;The intent is to evaluate satisfaction information related to: &lt;/FONT&gt;&lt;/DIV&gt;&lt;TEXTFORMAT LEADING=&quot;2&quot;&gt;&lt;LI&gt;&lt;FONT FACE=&quot;Arial&quot; STYLE=&quot;font-size:12px&quot; COLOR=&quot;#000000&quot; LETTERSPACING=&quot;0&quot; KERNING=&quot;1&quot;&gt;Overall Satisfaction&lt;FONT KERNING=&quot;0&quot;&gt;&lt;/FONT&gt;&lt;/FONT&gt;&lt;/LI&gt;&lt;/TEXTFORMAT&gt;&lt;TEXTFORMAT LEADING=&quot;2&quot;&gt;&lt;LI&gt;&lt;FONT FACE=&quot;Arial&quot; STYLE=&quot;font-size:12px&quot; COLOR=&quot;#000000&quot; LETTERSPACING=&quot;0&quot; KERNING=&quot;1&quot;&gt;Possible Recommendation to others&lt;FONT KERNING=&quot;0&quot;&gt;&lt;/FONT&gt;&lt;/FONT&gt;&lt;/LI&gt;&lt;/TEXTFORMAT&gt;&lt;TEXTFORMAT LEADING=&quot;2&quot;&gt;&lt;LI&gt;&lt;FONT FACE=&quot;Arial&quot; STYLE=&quot;font-size:12px&quot; COLOR=&quot;#000000&quot; LETTERSPACING=&quot;0&quot; KERNING=&quot;1&quot;&gt;Satisfacton rating with Price, First Use etc.&lt;FONT KERNING=&quot;0&quot;&gt;&lt;/FONT&gt;&lt;/FONT&gt;&lt;/LI&gt;&lt;/TEXTFORMAT&gt;&lt;DIV ALIGN=&quot;LEFT&quot;&gt;&lt;FONT FACE=&quot;Arial&quot; STYLE=&quot;font-size:12px&quot; COLOR=&quot;#000000&quot; LETTERSPACING=&quot;0&quot; KERNING=&quot;1&quot;&gt; &lt;/FONT&gt;&lt;/DIV&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
+        </fields>
+        <fields>
+            <name>RunCustSatisSurvey</name>
+            <choiceReferences>Yes</choiceReferences>
+            <choiceReferences>No</choiceReferences>
+            <dataType>Boolean</dataType>
+            <fieldText>Would you like to Try this?</fieldText>
+            <fieldType>RadioButtons</fieldType>
+            <isRequired>false</isRequired>
+        </fields>
+    </screens>
+    <screens>
+        <name>SurveysByFlow</name>
+        <label>Suveys</label>
+        <locationX>33</locationX>
+        <locationY>24</locationY>
+        <allowBack>true</allowBack>
+        <allowFinish>true</allowFinish>
+        <allowPause>true</allowPause>
+        <connector>
+            <targetReference>Which_Survey</targetReference>
+        </connector>
+        <fields>
+            <name>Welcome</name>
+            <fieldText>&lt;SPAN ALIGN=&quot;LEFT&quot;&gt;&lt;FONT FACE=&quot;Arial&quot; STYLE=&quot;font-size:14px&quot; COLOR=&quot;#000000&quot; LETTERSPACING=&quot;0&quot; KERNING=&quot;1&quot;&gt;&lt;B&gt;Surveys&lt;/B&gt;&lt;FONT STYLE=&quot;font-size:12px&quot;&gt;&lt;/FONT&gt;&lt;/FONT&gt;&lt;/SPAN&gt;&lt;DIV ALIGN=&quot;LEFT&quot;&gt;&lt;FONT FACE=&quot;Arial&quot; STYLE=&quot;font-size:12px&quot; COLOR=&quot;#000000&quot; LETTERSPACING=&quot;0&quot; KERNING=&quot;1&quot;&gt;&lt;/FONT&gt;&lt;/DIV&gt;&lt;DIV ALIGN=&quot;LEFT&quot;&gt;&lt;FONT FACE=&quot;Arial&quot; STYLE=&quot;font-size:12px&quot; COLOR=&quot;#000000&quot; LETTERSPACING=&quot;0&quot; KERNING=&quot;1&quot;&gt;With Visual Workflow, you can rapidly build surveys, whether they’re simple one-page surveys or sophisticated multi-page, dynamic surveys. The logic in your survey can be based on user input or any data queried from Salesforce.&lt;/FONT&gt;&lt;/DIV&gt;&lt;DIV ALIGN=&quot;LEFT&quot;&gt;&lt;FONT FACE=&quot;Arial&quot; STYLE=&quot;font-size:12px&quot; COLOR=&quot;#000000&quot; LETTERSPACING=&quot;0&quot; KERNING=&quot;1&quot;&gt;Once you have collected the survey data, you can instantly store them in Salesforce records without writing any code.&lt;/FONT&gt;&lt;/DIV&gt;&lt;DIV ALIGN=&quot;LEFT&quot;&gt;&lt;FONT FACE=&quot;Arial&quot; STYLE=&quot;font-size:12px&quot; COLOR=&quot;#000000&quot; LETTERSPACING=&quot;0&quot; KERNING=&quot;1&quot;&gt;&lt;/FONT&gt;&lt;/DIV&gt;&lt;DIV ALIGN=&quot;LEFT&quot;&gt;&lt;FONT FACE=&quot;Arial&quot; STYLE=&quot;font-size:12px&quot; COLOR=&quot;#000000&quot; LETTERSPACING=&quot;0&quot; KERNING=&quot;1&quot;&gt;The Visual Workflow Sample Pack includes a few common surveys to help you get started.&lt;/FONT&gt;&lt;/DIV&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
+        </fields>
+        <fields>
+            <name>selectAction</name>
+            <choiceReferences>Tech_Support_Satisfaction_Survey</choiceReferences>
+            <choiceReferences>Customer_Satisfaction_Survey</choiceReferences>
+            <choiceReferences>Done</choiceReferences>
+            <dataType>String</dataType>
+            <fieldText>Here are your choices</fieldText>
+            <fieldType>RadioButtons</fieldType>
+            <isRequired>false</isRequired>
+        </fields>
+        <fields>
+            <name>EmptySection</name>
+            <fieldText>&lt;SPAN ALIGN=&quot;LEFT&quot;&gt;&lt;FONT FACE=&quot;Arial&quot; STYLE=&quot;font-size:12px&quot; COLOR=&quot;#000000&quot; LETTERSPACING=&quot;0&quot; KERNING=&quot;0&quot;&gt;&lt;/FONT&gt;&lt;/SPAN&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
+        </fields>
+    </screens>
+    <screens>
+        <name>Tech_Support_Survey_Summary</name>
+        <label>Tech Support Survey Summary</label>
+        <locationX>468</locationX>
+        <locationY>174</locationY>
+        <allowBack>true</allowBack>
+        <allowFinish>true</allowFinish>
+        <allowPause>true</allowPause>
+        <connector>
+            <targetReference>Run_Tech_Support_Survey</targetReference>
+        </connector>
+        <fields>
+            <name>TechSupportSummary</name>
+            <fieldText>&lt;SPAN ALIGN=&quot;LEFT&quot;&gt;&lt;FONT FACE=&quot;Arial&quot; STYLE=&quot;font-size:14px&quot; COLOR=&quot;#000000&quot; LETTERSPACING=&quot;0&quot; KERNING=&quot;1&quot;&gt;&lt;B&gt;Tech Support Satisfaction Survey&lt;/B&gt;&lt;/FONT&gt;&lt;/SPAN&gt;&lt;DIV ALIGN=&quot;LEFT&quot;&gt;&lt;FONT FACE=&quot;Arial&quot; STYLE=&quot;font-size:12px&quot; COLOR=&quot;#000000&quot; LETTERSPACING=&quot;0&quot; KERNING=&quot;1&quot;&gt;The sample Tech Support Satisfaction Survey is designed to evaluate how much the customer was satisfied with a recent tech support call.&lt;/FONT&gt;&lt;/DIV&gt;&lt;DIV ALIGN=&quot;LEFT&quot;&gt;&lt;FONT FACE=&quot;Arial&quot; STYLE=&quot;font-size:12px&quot; COLOR=&quot;#000000&quot; LETTERSPACING=&quot;0&quot; KERNING=&quot;1&quot;&gt;The intent is to evaluate satisfaction related to:&lt;/FONT&gt;&lt;/DIV&gt;&lt;TEXTFORMAT LEADING=&quot;2&quot;&gt;&lt;LI&gt;&lt;FONT FACE=&quot;Arial&quot; STYLE=&quot;font-size:12px&quot; COLOR=&quot;#000000&quot; LETTERSPACING=&quot;0&quot; KERNING=&quot;1&quot;&gt;Overall Satisfaction&lt;FONT KERNING=&quot;0&quot;&gt;&lt;/FONT&gt;&lt;/FONT&gt;&lt;/LI&gt;&lt;/TEXTFORMAT&gt;&lt;TEXTFORMAT LEADING=&quot;2&quot;&gt;&lt;LI&gt;&lt;FONT FACE=&quot;Arial&quot; STYLE=&quot;font-size:12px&quot; COLOR=&quot;#000000&quot; LETTERSPACING=&quot;0&quot; KERNING=&quot;1&quot;&gt;Time to Resolution&lt;FONT KERNING=&quot;0&quot;&gt;&lt;/FONT&gt;&lt;/FONT&gt;&lt;/LI&gt;&lt;/TEXTFORMAT&gt;&lt;TEXTFORMAT LEADING=&quot;2&quot;&gt;&lt;LI&gt;&lt;FONT FACE=&quot;Arial&quot; STYLE=&quot;font-size:12px&quot; COLOR=&quot;#000000&quot; LETTERSPACING=&quot;0&quot; KERNING=&quot;1&quot;&gt;Technical Support Representative&lt;FONT KERNING=&quot;0&quot;&gt;&lt;/FONT&gt;&lt;/FONT&gt;&lt;/LI&gt;&lt;/TEXTFORMAT&gt;&lt;DIV ALIGN=&quot;LEFT&quot;&gt;&lt;FONT FACE=&quot;Arial&quot; STYLE=&quot;font-size:12px&quot; COLOR=&quot;#000000&quot; LETTERSPACING=&quot;0&quot; KERNING=&quot;1&quot;&gt; &lt;/FONT&gt;&lt;/DIV&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
+        </fields>
+        <fields>
+            <name>RunTechSupportSurvey</name>
+            <choiceReferences>Yes</choiceReferences>
+            <choiceReferences>No</choiceReferences>
+            <dataType>Boolean</dataType>
+            <fieldText>Would you like to try this?</fieldText>
+            <fieldType>RadioButtons</fieldType>
+            <isRequired>false</isRequired>
+        </fields>
+    </screens>
+    <screens>
+        <name>Thank_You</name>
+        <label>Thank You</label>
+        <locationX>603</locationX>
+        <locationY>441</locationY>
+        <allowBack>true</allowBack>
+        <allowFinish>true</allowFinish>
+        <allowPause>true</allowPause>
+        <connector>
+            <targetReference>Try_Surveys_Again</targetReference>
+        </connector>
+        <fields>
+            <name>Gracias</name>
+            <fieldText>&lt;SPAN ALIGN=&quot;LEFT&quot;&gt;&lt;FONT FACE=&quot;Arial&quot; STYLE=&quot;font-size:14px&quot; COLOR=&quot;#000000&quot; LETTERSPACING=&quot;0&quot; KERNING=&quot;0&quot;&gt;&lt;B&gt;Surveys by Flow&lt;/B&gt;&lt;/FONT&gt;&lt;/SPAN&gt;&lt;DIV ALIGN=&quot;LEFT&quot;&gt;&lt;FONT FACE=&quot;Arial&quot; STYLE=&quot;font-size:12px&quot; COLOR=&quot;#000000&quot; LETTERSPACING=&quot;0&quot; KERNING=&quot;0&quot;&gt;Thank you for trying one of the sample surveys! &lt;/FONT&gt;&lt;/DIV&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
+        </fields>
+        <fields>
+            <name>TryAgain</name>
+            <choiceReferences>Yes</choiceReferences>
+            <choiceReferences>No</choiceReferences>
+            <dataType>Boolean</dataType>
+            <fieldText>Would you like to try one of other other surveys?</fieldText>
+            <fieldType>RadioButtons</fieldType>
+            <isRequired>false</isRequired>
+        </fields>
+    </screens>
+    <startElementReference>SurveysByFlow</startElementReference>
+    <subflows>
+        <name>Run_Customer_Satisfaction_Survey</name>
+        <label>Run Customer Satisfaction Survey</label>
+        <locationX>713</locationX>
+        <locationY>331</locationY>
+        <connector>
+            <targetReference>Thank_You</targetReference>
+        </connector>
+        <flowName>Customer_Satisfaction_Survey_Sample</flowName>
+    </subflows>
+    <subflows>
+        <name>Run_Tech_Support_Satisfation_Survey</name>
+        <label>Run Tech Support Satisfation Survey</label>
+        <locationX>483</locationX>
+        <locationY>326</locationY>
+        <connector>
+            <targetReference>Thank_You</targetReference>
+        </connector>
+        <flowName>Tech_Support_Satisfaction_Survey</flowName>
+    </subflows>
+    <variables>
+        <name>varSurveyTempate</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>true</isInput>
+        <isOutput>true</isOutput>
+    </variables>
+</Flow>

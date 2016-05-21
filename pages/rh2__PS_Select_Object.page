@@ -1,0 +1,166 @@
+<apex:page controller="rh2.PS_Manage_Trigger_Controller" action="{!checkMetadataAPIConnection}">  
+    <apex:stylesheet value="{! URLFOR($Resource.PT_Resources_v1, '/css/reset.css') }"/>
+    <apex:stylesheet value="{! URLFOR($Resource.PT_Resources_v1, '/css/grid.css') }"/>
+    <apex:stylesheet value="{! URLFOR($Resource.PT_Resources_v1, '/css/general.css') }"/>
+    <apex:stylesheet value="{! URLFOR($Resource.PT_Resources_v1, '/css/css3.css') }"/>  
+    <apex:stylesheet value="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css"/>    
+    <apex:stylesheet value="{! URLFOR( $Resource.PT_Resources_v1, '/css/popup.css' ) }" />  
+      
+    <style> 
+        [id$=heading] { padding-top:25px; padding-bottom:5px;}
+        [id$=objectList] {margin-left:auto; margin-right:auto; height:425px; overflow-y:scroll;}
+                .breadcrumb {font-size:medium;}
+        .checkmark2 {
+            background-image: url({!URLFOR($Resource.PT_Resources_v1, 'images/checkmark.png')});
+            margin-left: 6px;
+            width: 12px;
+            height: 12px;
+        }
+    </style>
+    
+    <script>
+function createRemoteSite()
+{ 
+	// Disable button 
+	document.getElementById('createremotesitebtn').disabled = true;
+	// Calls the Metdata API from JavaScript to create the Remote Site Setting to permit Apex callouts
+	var binding = new XMLHttpRequest();
+	var request = 
+		'<?xml version="1.0" encoding="utf-8"?>' + 
+		'<env:Envelope xmlns:env="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">'+
+			'<env:Header>' + 
+				'<urn:SessionHeader xmlns:urn="http://soap.sforce.com/2006/04/metadata">' + 
+					'<urn:sessionId>{!$Api.Session_ID}</urn:sessionId>' + 
+				'</urn:SessionHeader>' + 
+			'</env:Header>' + 
+			'<env:Body>' +
+				'<createMetadata xmlns="http://soap.sforce.com/2006/04/metadata">' + 
+					'<metadata xsi:type="RemoteSiteSetting">' + 
+						'<fullName>{!RemoteSiteName}</fullName>' +
+						'<description>Metadata API Remote Site Setting for Rollup Helper</description>' + 
+						'<disableProtocolSecurity>false</disableProtocolSecurity>' + 
+						'<isActive>true</isActive>' + 
+						'<url>https://{!Host}</url>' +
+					'</metadata>' +
+				'</createMetadata>' +
+			'</env:Body>' + 
+		'</env:Envelope>';
+	binding.open('POST', 'https://{!Host}/services/Soap/m/31.0');
+	binding.setRequestHeader('SOAPAction','""');
+	binding.setRequestHeader('Content-Type', 'text/xml');
+	binding.onreadystatechange = 
+		function() { 
+			if(this.readyState==4) {
+				var parser = new DOMParser();
+				var doc  = parser.parseFromString(this.response, 'application/xml');
+				var errors = doc.getElementsByTagName('errors');
+				var messageText = '';
+				for(var errorIdx = 0; errorIdx < errors.length; errorIdx++)
+					messageText+= errors.item(errorIdx).getElementsByTagName('message').item(0).innerHTML + '\n';
+				displayMetadataResponse(messageText);
+			} 
+		}
+	binding.send(request);
+	
+	window.location.reload();
+}
+</script>
+    
+    <apex:form >
+                   <apex:pageMessages id="error"/>  
+    		<apex:outputPanel rendered="{!MetadataConnectionWarning}">
+			<br /><center><input id="createremotesitebtn" type="button" onclick="createRemoteSite();" value="Create Remote Site Setting"/></center>
+		<br /><br />
+		</apex:outputPanel>
+    <apex:actionFunction name="displayMetadataResponse" action="{!displayMetadataResponse}" rerender="myForm">
+			<apex:param name="metadataResponse" assignTo="{!metadataResponse}" value="{!metadataResponse}"/>
+		</apex:actionFunction>
+    <apex:outputPanel rendered="{!notPaid == true}">
+       <apex:outputPanel layout="block" styleClass="popupBackground"/> 
+        <apex:outputPanel layout="block" styleClass="popupMessage">
+            <apex:outputPanel styleClass="popupHeaderText align_center">
+                <apex:image value="{! URLFOR($Resource.PT_Resources_v1, '/images/firework-icon.png') }"
+                    width="19px" height="19px" style="vertical-align:middle;padding-right:8px;"/>
+                <apex:outputPanel styleClass="popupHeaderTitle">Paid Feature Only</apex:outputPanel>
+                <br />
+                <!-- https://appexchange.salesforce.com/listingDetail?listingId=a0N30000009i3UpEAI&tab=r -->
+                Upgrade needed to enable real-time rollups
+            </apex:outputPanel>
+            <apex:outputPanel layout="block" styleClass="popupBody">
+                Please
+                <a href="http://www.passagetechnology.com/rollup-helper-order" target="new">activate</a> 
+                Rollup Helper Enterprise Edition!
+                <br /><br />
+                Like Rollup Helper?
+                <a href="https://appexchange.salesforce.com/listingDetail?listingId=a0N30000009i3UpEAI&tab=r" target="new">
+                    Give us a review.
+                </a>
+                <br /><br />
+                <apex:outputLink style="margin-left:92px;padding-right:8px;" target="new" 
+                    value="http://www.passagetechnology.com/rollup-helper-order">
+                    <apex:image value="{!URLFOR($Resource.rh2__PT_Resources_v1, 'images/upgrade_icon_green.gif')}" 
+                        width="16" height="17" style="vertical-align:text-top;"/>
+                </apex:outputLink>
+                <apex:commandButton style="display:inline;" value="Upgrade to Enterprise Edition" 
+                    onClick="window.open('http://www.passagetechnology.com/rollup-helper-order');"/>
+                <apex:outputLink style="font-size:0.7em;padding-top:12px;" styleClass="right" value="{!$Page.rh2__PS_AllSettings}" 
+                    onClick="closeMethod();">
+                    [X] Close
+                </apex:outputLink>
+                <apex:actionFunction name="closeMethod" action="{! closePopup }" />
+            </apex:outputPanel> 
+        </apex:outputPanel>
+    </apex:outputPanel>
+    
+        <apex:outputPanel styleClass="row" layout="block" id="block">
+            <apex:pageBlock helpUrl="http://rolluphelper.passagetech.com/resources/user-guide/"
+                                            helpTitle="Help for this Page"
+                                            title="Select Source Object to Enable/Disable Real-time Updating"
+            >
+
+                <apex:outputPanel id="objectList" layout="block">
+                    <apex:pageBlockTable value="{! masterObjects }" var="item" id="table">
+                        <apex:column >
+                            <apex:facet name="header">
+                                    Action
+                           </apex:facet>  
+                            <apex:commandLink value="Select" action="{!doSelectMasterObject}" rerender="error, table">
+                                <apex:param name="masterAPI" value="{!item.rh2__Object__c}" assignTo="{!deployObjectName}"/>
+                            </apex:commandLink>
+                        </apex:column>
+                         <apex:column >
+                            <apex:facet name="header">
+                                <center><i class="fa fa-bolt"></i></center>
+                                
+                            </apex:facet>
+                        
+                            <!-- Job Active check image display-->
+                            <apex:image value="{!URLFOR($Resource.rh2__PT_Resources_v1, 'images/s.gif')}" 
+                            styleClass="checkmark2" rendered="{!item.rh2__Real_Time__c}" id="checkmark2"/>                                              
+                            
+                        </apex:column>
+                        <apex:column >
+                            <apex:facet name="header">
+                                <apex:commandLink value="Label" action="{! doMasterObjectSort }" rerender="table">
+                                    <apex:param name="sortField" value="Label__c" assignTo="{!sortField}"/>
+                                <apex:outputText value="{!IF(sortField=='Label__c', IF(sortDirection=='asc', ' ▲', ' ▼'),' ▼▲')}"/>
+                                </apex:commandLink>
+                            </apex:facet> 
+                                                    {! item.Label__c }
+                        </apex:column> 
+                        <apex:column value="{! item.Object__c }">
+                            <apex:facet name="header">
+                                <apex:commandLink value="API Name" action="{! doMasterObjectSort }" rerender="table">
+                                    <apex:param name="sortField" value="Object__c" assignTo="{!sortField}"/>
+                                <apex:outputText value="{!IF(sortField=='Object__c', IF(sortDirection=='asc', ' ▲', ' ▼'),' ▼▲')}"/>
+                                </apex:commandLink>
+                            </apex:facet>
+                        </apex:column>
+    
+                    </apex:pageBlockTable>
+                </apex:outputPanel>            
+                                           
+            </apex:pageBlock>
+        </apex:outputPanel>
+    </apex:form>
+</apex:page>

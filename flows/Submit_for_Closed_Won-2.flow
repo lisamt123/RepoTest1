@@ -1,0 +1,400 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <actionCalls>
+        <name>FAULT</name>
+        <label>FAULT</label>
+        <locationX>218</locationX>
+        <locationY>261</locationY>
+        <actionName>emailSimple</actionName>
+        <actionType>emailSimple</actionType>
+        <connector>
+            <targetReference>Error_Parsing</targetReference>
+        </connector>
+        <inputParameters>
+            <name>EmailAddresses</name>
+            <value>
+                <stringValue>mark.ross@autotradergroup.com</stringValue>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>EmailBody</name>
+            <value>
+                <elementReference>txtErrorBody</elementReference>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>EmailSubject</name>
+            <value>
+                <stringValue>Submit for Closed Won Error</stringValue>
+            </value>
+        </inputParameters>
+    </actionCalls>
+    <actionCalls>
+        <name>Submit_for_Approval</name>
+        <label>Submit for Approval</label>
+        <locationX>12</locationX>
+        <locationY>312</locationY>
+        <actionName>submit</actionName>
+        <actionType>submit</actionType>
+        <faultConnector>
+            <targetReference>FAULT</targetReference>
+        </faultConnector>
+        <inputParameters>
+            <name>objectId</name>
+            <value>
+                <elementReference>varOppID</elementReference>
+            </value>
+        </inputParameters>
+    </actionCalls>
+    <assignments>
+        <name>Deal_Contact_a</name>
+        <label>Deal Contact</label>
+        <locationX>207</locationX>
+        <locationY>469</locationY>
+        <assignmentItems>
+            <assignToReference>varErrorText</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>A Deal Contact must be provided to proceed.</stringValue>
+            </value>
+        </assignmentItems>
+    </assignments>
+    <assignments>
+        <name>Haystak_Web_URL_a</name>
+        <label>Haystak Web URL</label>
+        <locationX>332</locationX>
+        <locationY>432</locationY>
+        <assignmentItems>
+            <assignToReference>varErrorText</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>You must enter the website url for this product request before you can Pending Won this Opp.</stringValue>
+            </value>
+        </assignmentItems>
+    </assignments>
+    <assignments>
+        <name>Imp_Contact_a</name>
+        <label>Imp Contact</label>
+        <locationX>456</locationX>
+        <locationY>470</locationY>
+        <assignmentItems>
+            <assignToReference>varErrorText</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>An Implementation Contact must be provided to continue.</stringValue>
+            </value>
+        </assignmentItems>
+    </assignments>
+    <assignments>
+        <name>Product_Lines_a</name>
+        <label>Product Lines</label>
+        <locationX>650</locationX>
+        <locationY>196</locationY>
+        <assignmentItems>
+            <assignToReference>varErrorText</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>You can not save an Opportunity as Pending Won until you fill all current Product Line Vendors.</stringValue>
+            </value>
+        </assignmentItems>
+    </assignments>
+    <assignments>
+        <name>Products</name>
+        <label>Products</label>
+        <locationX>84</locationX>
+        <locationY>430</locationY>
+        <assignmentItems>
+            <assignToReference>varErrorText</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>You must have products on an opp to send it to Pending Won!</stringValue>
+            </value>
+        </assignmentItems>
+    </assignments>
+    <assignments>
+        <name>Shipping_Address_a</name>
+        <label>Shipping Address</label>
+        <locationX>577</locationX>
+        <locationY>438</locationY>
+        <assignmentItems>
+            <assignToReference>varErrorText</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>A valid Shipping Address must be provided on the Account to proceed.</stringValue>
+            </value>
+        </assignmentItems>
+    </assignments>
+    <assignments>
+        <name>Tax_Calc_a</name>
+        <label>Tax Calc</label>
+        <locationX>650</locationX>
+        <locationY>365</locationY>
+        <assignmentItems>
+            <assignToReference>varErrorText</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>The Sales Tax has not finished calculating on this opp. This must be completed before you can Close Won the opp. Please refresh this page and/or click the &quot;Calculate Sales Tax&quot; button. The address on the Account must also be correct to proceed.</stringValue>
+            </value>
+        </assignmentItems>
+    </assignments>
+    <assignments>
+        <name>Vin_Account_a</name>
+        <label>Vin Account #</label>
+        <locationX>650</locationX>
+        <locationY>277</locationY>
+        <assignmentItems>
+            <assignToReference>varErrorText</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>The Opportunity cannot be Pending or Closed Won without a Vin Account Number on the Account.</stringValue>
+            </value>
+        </assignmentItems>
+    </assignments>
+    <assignments>
+        <name>Vin_Account_a_0_0</name>
+        <label>Vin Account #</label>
+        <locationX>652</locationX>
+        <locationY>115</locationY>
+        <assignmentItems>
+            <assignToReference>varErrorText</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>The Opportunity cannot be Pending or Closed Won without a Vin Account Number on the Account.</stringValue>
+            </value>
+        </assignmentItems>
+    </assignments>
+    <assignments>
+        <name>Vin_Account_a_0_0_0</name>
+        <label>Vin Account #</label>
+        <locationX>653</locationX>
+        <locationY>24</locationY>
+        <assignmentItems>
+            <assignToReference>varErrorText</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>The Opportunity cannot be Pending or Closed Won without a Vin Account Number on the Account.</stringValue>
+            </value>
+        </assignmentItems>
+    </assignments>
+    <assignments>
+        <name>Vin_Account_a_0_0_0_0</name>
+        <label>Vin Account #</label>
+        <locationX>398</locationX>
+        <locationY>85</locationY>
+        <assignmentItems>
+            <assignToReference>varErrorText</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>The Opportunity cannot be Pending or Closed Won without a Vin Account Number on the Account.</stringValue>
+            </value>
+        </assignmentItems>
+    </assignments>
+    <decisions>
+        <name>Error_Parsing</name>
+        <label>Error Parsing</label>
+        <locationX>396</locationX>
+        <locationY>261</locationY>
+        <defaultConnector>
+            <targetReference>Vin_Account_a_0_0_0_0</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Not Defined</defaultConnectorLabel>
+        <rules>
+            <name>Needs_Products</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Flow.FaultMessage</leftValueReference>
+                <operator>Contains</operator>
+                <rightValue>
+                    <stringValue>You must have products on an opp to send it to Pending Won</stringValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Products</targetReference>
+            </connector>
+            <label>Needs Products</label>
+        </rules>
+        <rules>
+            <name>Deal_Contact</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Flow.FaultMessage</leftValueReference>
+                <operator>Contains</operator>
+                <rightValue>
+                    <stringValue>A Deal Contact must be provided to proceed</stringValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Deal_Contact_a</targetReference>
+            </connector>
+            <label>Deal Contact</label>
+        </rules>
+        <rules>
+            <name>Haystak_Web_URL</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Flow.FaultMessage</leftValueReference>
+                <operator>Contains</operator>
+                <rightValue>
+                    <stringValue>You must enter the website url for this product request before you can Pending Won this Opp</stringValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Haystak_Web_URL_a</targetReference>
+            </connector>
+            <label>Haystak Web URL</label>
+        </rules>
+        <rules>
+            <name>Imp_Contact</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Flow.FaultMessage</leftValueReference>
+                <operator>Contains</operator>
+                <rightValue>
+                    <stringValue>An Implementation Contact must be provided to continue</stringValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Imp_Contact_a</targetReference>
+            </connector>
+            <label>Imp Contact</label>
+        </rules>
+        <rules>
+            <name>Shipping_Address</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Flow.FaultMessage</leftValueReference>
+                <operator>Contains</operator>
+                <rightValue>
+                    <stringValue>A valid Shipping Address must be provided on the Account to proceed</stringValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Shipping_Address_a</targetReference>
+            </connector>
+            <label>Shipping Address</label>
+        </rules>
+        <rules>
+            <name>Vin_Account</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Flow.FaultMessage</leftValueReference>
+                <operator>Contains</operator>
+                <rightValue>
+                    <stringValue>The Opportunity cannot be Pending or Closed Won without a Vin Account Number on the Account</stringValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Vin_Account_a</targetReference>
+            </connector>
+            <label>Vin Account #</label>
+        </rules>
+        <rules>
+            <name>Tax_Calc</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Flow.FaultMessage</leftValueReference>
+                <operator>Contains</operator>
+                <rightValue>
+                    <stringValue>The Sales Tax has not finished calculating on this opp</stringValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Tax_Calc_a</targetReference>
+            </connector>
+            <label>Tax Calc</label>
+        </rules>
+        <rules>
+            <name>Product_Lines</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Flow.FaultMessage</leftValueReference>
+                <operator>Contains</operator>
+                <rightValue>
+                    <stringValue>You can not save an Opportunity as Pending Won until you fill all current Product Line Vendors</stringValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Product_Lines_a</targetReference>
+            </connector>
+            <label>Product Lines</label>
+        </rules>
+        <rules>
+            <name>With_Website</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Flow.FaultMessage</leftValueReference>
+                <operator>Contains</operator>
+                <rightValue>
+                    <stringValue>Please fill in the With Website</stringValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Vin_Account_a_0_0</targetReference>
+            </connector>
+            <label>With Website</label>
+        </rules>
+        <rules>
+            <name>Competition</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Flow.FaultMessage</leftValueReference>
+                <operator>Contains</operator>
+                <rightValue>
+                    <stringValue>You must list any competition for this Opp</stringValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Vin_Account_a_0_0_0</targetReference>
+            </connector>
+            <label>Competition</label>
+        </rules>
+    </decisions>
+    <description>Adding error parsing and approval process exception</description>
+    <label>Submit for Closed Won</label>
+    <processType>AutoLaunchedFlow</processType>
+    <recordUpdates>
+        <name>Set_Opp_to_Pending_Won</name>
+        <label>Set Opp to Pending Won</label>
+        <locationX>12</locationX>
+        <locationY>189</locationY>
+        <connector>
+            <targetReference>Submit_for_Approval</targetReference>
+        </connector>
+        <faultConnector>
+            <targetReference>FAULT</targetReference>
+        </faultConnector>
+        <filters>
+            <field>Id</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>varOppID</elementReference>
+            </value>
+        </filters>
+        <inputAssignments>
+            <field>StageName</field>
+            <value>
+                <stringValue>Pending Won</stringValue>
+            </value>
+        </inputAssignments>
+        <object>Opportunity</object>
+    </recordUpdates>
+    <startElementReference>Set_Opp_to_Pending_Won</startElementReference>
+    <textTemplates>
+        <name>txtErrorBody</name>
+        <text>{!$Flow.FaultMessage}</text>
+    </textTemplates>
+    <variables>
+        <name>varErrorText</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+    <variables>
+        <name>varOppID</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>true</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+</Flow>

@@ -1,0 +1,20 @@
+<apex:page StandardController="Welcome_Packet__c"
+	extensions="DocumentListExtension" action="{!initList}"
+	showheader="false">
+
+	<apex:pageBlock title="Dealer-Uploaded Document List">
+		<apex:pageBlockTable id="JobList" value="{!Docmnts}" var="Document"
+			rendered="{!NOT(ISNULL(Docmnts))}">
+			<apex:column >
+				<apex:facet name="header">
+					<apex:outputText value="Document List" />
+				</apex:facet>
+				<img height="50"
+					src="{!'/servlet/servlet.ImageServer?id='+Document.Id+'&oid='+$Organization.Id}" /> 
+						&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+						<apex:outputLink value="{!$Site.Prefix}/{!Document.id}"
+					target="_blank" id="theLink">{!Document.name}</apex:outputLink>
+			</apex:column>
+		</apex:pageBlockTable>
+	</apex:pageBlock>
+</apex:page>

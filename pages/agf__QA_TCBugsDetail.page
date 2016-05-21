@@ -1,0 +1,72 @@
+<apex:page standardController="agf__QA_Test_Case__c"  extensions="agf.QA_TCBugsDetailController" showHeader="true">
+    <apex:detail relatedList="true"/>
+    <apex:form >
+          <apex:pageBlock title="Bugs" id="block">
+                <apex:outputPanel rendered="{!(ISNULL(bugsList))}">
+                    <strong>No Bug Records associated to this Test Case</strong>
+                </apex:outputPanel>
+                
+                <apex:pageBlockTable value="{!bugsList}" var="bugsl" rows="{!rowsToReturn}" columns="7"  width="100%" rendered="{!NOT(ISNULL(bugsList))}" >
+                                                               
+                                <apex:column width="10%">
+                                    <apex:facet name="header">
+                                    <apex:commandLink action="{!orderBugNumber}" value="Work ID {!IF(CONTAINS(sortColumn,'BugNum'),bugNumSortDirection,'')}" rerender="block"/>
+                                    </apex:facet>
+                                    <a href = "/{!bugsl.Id}"> {!bugsl.Name}</a>
+                                </apex:column>
+                                
+                                <apex:column width="35%">
+                                    <apex:facet name="header">
+                                    <apex:commandLink action="{!orderSubject}" value="Subject {!IF(CONTAINS(sortColumn,'Subject'),subjectSortDirection,'')}" rerender="block"/>
+                                    </apex:facet>
+                                    {!bugsl.agf__Subject__c}
+                                </apex:column>
+                                
+                                <apex:column width="10%">
+                                    <apex:facet name="header">
+                                    <apex:commandLink action="{!orderPriority}" value="Priority {!IF(CONTAINS(sortColumn,'Priority'),prioritySortDirection,'')}" rerender="block"/>
+                                    </apex:facet>
+                                    {!bugsl.agf__Priority__c}
+                                </apex:column>
+                                
+                                <apex:column width="15%">
+                                    <apex:facet name="header">
+                                    <apex:commandLink action="{!orderStatus}" value="Status {!IF(CONTAINS(sortColumn,'Status'),StatusSortDirection,'')}" rerender="block"/>
+                                    </apex:facet>
+                                    {!bugsl.agf__Status__c}
+                                </apex:column>
+                                
+                                <apex:column width="20%">
+                                    <apex:facet name="header">
+                                    <apex:commandLink action="{!orderQAEngineer}" value="QA Engineer {!IF(CONTAINS(sortColumn,'QA'),qaEngineerSortDirection,'')}" rerender="block"/>
+                                    </apex:facet>
+                                    {!bugsl.QA_Engineer__r.Name}
+                                </apex:column>
+                                
+                                <apex:column width="20%">
+                                    <apex:facet name="header">
+                                    <apex:commandLink action="{!orderAssignee}" value="Assignee {!IF(CONTAINS(sortColumn,'Assignee'),assigneeSortDirection,'')}" rerender="block"/>
+                                    </apex:facet>
+                                    {!bugsl.Assignee__r.Name}
+                                </apex:column>
+                                
+                                <apex:column width="5%">
+                                    <apex:facet name="header">
+                                    <apex:commandLink action="{!orderScheduledBuild}" value="Scheduled Build {!IF(CONTAINS(sortColumn,'SB'),scheduledBuildSortDirection,'')}" rerender="block"/>
+                                    </apex:facet>
+                                    {!bugsl.Scheduled_Build__r.Name}
+                                </apex:column>
+                     </apex:pageBlockTable>
+                     <p/>
+                    <apex:outputPanel rendered="{!NOT(ISNULL(bugsList))}">
+                        <apex:commandLink action="{!showAll}" value="{!showAllVariableName}" rerender="block" rendered="{!AND(count > 10,CONTAINS(showAllVariableName , "Show All")) }" />&nbsp;&nbsp;&nbsp;
+                        <apex:commandLink action="{!showAll}" value="{!showAllVariableName}" rerender="block" rendered="{!AND(count > 10,CONTAINS(showAllVariableName , "First 10"))}" />&nbsp;&nbsp;&nbsp;
+                        <apex:commandLink action="{!showMore}" value="Show 10 More" rerender="block" rendered="{!AND(count > 20,showFewMore)}" />&nbsp;&nbsp;&nbsp;
+                         Displaying <h3>{!rowsToReturn}/{!count}</h3> Bug Record(s)
+                    </apex:outputPanel>
+         </apex:pageBlock>
+   </apex:form>
+    <style>
+.fewerMore { display: none;}
+</style>
+</apex:page>

@@ -1,0 +1,108 @@
+<apex:page controller="WelcomePacketWizard" showHeader="false"
+	cache="false">
+	<head>
+<apex:stylesheet value="{!$Resource.styles}"></apex:stylesheet>
+	</head>
+
+	<script>
+function confirmCancel()
+{
+	var isCancel = confirm("Are you sure you wish to quit?");
+	return isCancel;
+}
+</script>
+
+	<table border="0" width="100%" height="100%" id="bg">
+		<tr valign="top">
+			<td>
+				<div class="maincontainer">
+					<apex:image id="key1" width="100%"
+						value="/resource/1265230873000/Header" />
+
+					<apex:sectionHeader title="VinSolutions Welcome Packet"
+						subtitle="{!if(
+																				!CONTAINS(welcome.Packet_Includes__c, 'CRM')
+																				&&CONTAINS(welcome.Packet_Includes__c, 'ILM')
+																				,'Step 7 of 9', 
+																				
+																			if(
+																				CONTAINS(welcome.Packet_Includes__c, 'CRM')																				
+																				,'Step 9 of 13', 
+																				
+																				''))}" />
+
+					<apex:form >
+						<apex:pageBlock title="SOLD DATA">
+
+							<table border="0" width="100%" align="center">
+								<tr align="center">
+									<td align="center"><apex:commandButton action="{!step8}"
+											value="Previous Step" /> <apex:commandButton action="{!step10}" value="Next Step" /> <apex:commandButton action="{!cancel}" value="Save & Quit"
+											onclick="return confirmCancel()" immediate="true" /> <apex:commandButton action="{!confirmCRM}" value="Save - To Confirmation Page"
+											rendered="{!if(welcome.Packet_Includes__c!=null&&welcome.ReachedCRMConfirm__c, true, false)}" />
+									</td>
+								</tr>
+							</table>
+
+
+							<apex:pageBlockSection collapsible="false"
+								title="*****PLEASE READ THOUROUGHLY – EXTREMELY IMPORTANT*****"
+								columns="1">				
+					Your sales data (Historic and current deals housed in your DMS or previous CRM tool) is the most important information 
+					you will be sending us. Due to this fact, we are unable to continue with the implementation process until all sold data 
+					is imported successfully.
+				</apex:pageBlockSection>
+
+
+							<apex:pageBlockSection collapsible="false"
+								title="How will VinSolutions get my Sold Data?" columns="1">
+					Per the discussion you had with your New Accounts Coordinator prior to receiving this paperwork, 
+					enter here how sold data will be acquired:
+					<apex:inputTextArea rows="3" cols="180"
+									value="{!welcome.how_sold_data_will_be_acquired__c}" />
+					(Examples: DMS Connector (Reynolds/ADP only); Automated FTP Feed from DMS company (Arkona, AutoSoft); 
+					manual daily feed from you, the dealer, to our FTP server; one time email)
+				</apex:pageBlockSection>
+							<br />
+
+							<BIG>Most DMS sold data includes transactions that you may
+								not wish to send to MotoSnap. Examples of this include dealer
+								trades, wholesale, or house deals. We need to identify them by
+								some common criteria so they can be excluded. Please identify
+								any deal types or salesperson #’s that need to be <b><u><i>excluded</i>
+								</u> </b> from the sold data import.</BIG>
+							<br />
+							<br />
+
+							<apex:pageBlockSection columns="4">
+								<apex:inputField value="{!welcome.House_Deals__c}" />
+								<apex:inputField value="{!welcome.Dealer_Trades__c}" />
+								<apex:inputField value="{!welcome.Wholesale__c}" />
+								<apex:inputField value="{!welcome.Other__c}" />
+
+								<apex:inputField value="{!welcome.DMS_to_exclude1__c}" />
+								<apex:inputField value="{!welcome.DMS_to_exclude2__c}" />
+								<apex:inputField value="{!welcome.DMS_to_exclude3__c}" />
+								<apex:inputField value="{!welcome.DMS_to_exclude4__c}" />
+							</apex:pageBlockSection>
+
+							<apex:pageBlockSection collapsible="false" title=""></apex:pageBlockSection>
+
+							<table border="0" width="100%" align="center">
+								<tr align="center">
+									<td align="center"><apex:commandButton action="{!step8}"
+											value="Previous Step" /> <apex:commandButton action="{!step10}" value="Next Step" /> <apex:commandButton action="{!cancel}" value="Save & Quit"
+											onclick="return confirmCancel()" immediate="true" /> <apex:commandButton action="{!confirmCRM}" value="Save - To Confirmation Page"
+											rendered="{!if(welcome.Packet_Includes__c!=null&&welcome.ReachedCRMConfirm__c, true, false)}" />
+									</td>
+								</tr>
+							</table>
+
+						</apex:pageBlock>
+
+					</apex:form>
+				</div>
+			</td>
+		</tr>
+	</table>
+</apex:page>

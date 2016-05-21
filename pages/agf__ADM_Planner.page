@@ -1,0 +1,154 @@
+<apex:page standardStylesheets="false" showHeader="false" showChat="false" title="Planner">
+<meta name="viewport" content="user-scalable=no,width=device-width,initial-scale=1.0,maximum-scale=1.0" />
+<link rel="shortcut icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAsUlEQVQ4T2P08gr0YWb+N4mRkVGRgXjwd9OmDSwg5Yx+fv6PgJQs8XrBKpENCPgP0/wfCDZv3siEy7DQ0FDmnz9//4HJ//v3twPoArINKAd6owurAQ0NDUznzl34i+SSf0DFzMgu+P//b+nmzZt7yDYAHICMjPU4veDg4AAOZRAQFRX9v3r16r9ILqA4EEcNoEJKpGIg+voGPmFk/C9NdmYCZWcWln8zgelKigRD4F4AAO6G7OrOvbiIAAAAAElFTkSuQmCC" />
+<apex:stylesheet value="{!$Resource.agf__ADM_Planner_CSS}" />
+<link href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet" />
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+<script>
+$(function() {
+	// scroll on reload
+	if (window.location.hash.length > 0) {
+		$('.column1 iframe').contents().find('html,body').animate({ scrollTop: window.location.hash}, 500);
+	}
+
+
+    $('.column2 iframe').load(function() {
+        $(this).contents().find('.bPageHeader,.bPageFooter,#sidebarCell').hide();
+        //$(this).contents().find('.bPageTitle').hide();
+        $(this).contents().find('.bodyDiv').css('border-top','0').css('box-shadow','none').css('-webkit-box-shadow','none');
+        $(this).contents().find('body').css('margin','0').css('padding','0').css('background','#fff');
+        $(this).contents().find('#helpLinks,#newButton,#fullScreenOption,#fullScreenOptionLabel').hide();
+        
+        /* slight changes for Sprint */
+        $(this).contents().find('.work_desc_container,.work_columns,.ui-state-default, .ui-widget-content .ui-state-default, .ui-widget-header .ui-state-default').css('background','#F3F6F6');
+		$(this).contents().find('#subnav li.zen-active').css('background','#4F97AD');
+		$(this).contents().find('#subnavline,#headliner #headliner_buttons .ui-state-active').css('background','#4F97AD');
+        
+        
+        $('.column2 div.loader').hide();
+        $(this).show();
+        if ($('.column3').css('margin-right') == '0px') {
+	        $('.column3 iframe').attr('src', $('.column3 iframe').attr('src') );
+        }
+    });
+    
+	$(window).resize(function() {
+	    if (isFullscreen()) {
+			$('.requestFullscreen').css('display','none');
+			$('.exitFullscreen').css('display','inline-block');
+	    } else {
+			$('.requestFullscreen').css('display','inline-block');
+			$('.exitFullscreen').css('display','none');
+	    }
+	});
+
+});
+
+function isFullscreen() {
+	var fullscreenElement = document.fullscreenElement || document.mozFullScreenElement || document.webkitFullscreenElement;
+	return fullscreenElement; // || (!window.screenTop && !window.screenY)
+}
+
+function exitFullscreen() {
+	var exitFullscreen = document.cancelFullScreen || document.mozCancelFullScreen || document.webkitCancelFullScreen || function() {};
+	exitFullscreen.call(document);
+	$('.requestFullscreen').css('display','inline-block');
+	$('.exitFullscreen').css('display','none');
+}
+
+function requestFullscreen() {
+	var requestFullscreen = document.documentElement.requestFullScreen || document.documentElement.mozRequestFullScreen || document.documentElement.webkitRequestFullScreen(Element.ALLOW_KEYBOARD_INPUT) || function() {};
+	requestFullscreen.call(document.documentElement);
+	$('.requestFullscreen').css('display','none');
+	$('.exitFullscreen').css('display','inline-block');
+}
+
+function navigateFrame(url) {
+	$('.column2 iframe').attr('src',url).hide();
+	$('div.loader').show();
+	$('div.notice').hide();
+}
+
+function toggleSprintPanel(button) {
+	if ($('.column3').css('margin-right') == '0px') {
+		$(this).find('div.text').innerHTML = 'Show Sprint Panel';
+		$('.column2').addClass('column2pushed');
+		$('.column3').removeClass('column3pushed');
+	} else {
+		$(this).find('div.text').innerHTML = 'Hide Sprint Panel';
+		$('.column2').removeClass('column2pushed');
+		$('.column3').addClass('column3pushed');
+	}
+}
+
+function toggleOptionsForTouch() {
+	if ($('#optionsBar').css('margin-top') == '0px') {
+		$('#optionsBar').css('margin-top','-92px');
+		$('#optionsBar #toolBar').css('box-shadow','none');
+	} else {
+		$('#optionsBar').css('margin-top','0px');
+		$('#optionsBar #toolBar').css('box-shadow','0px 0px 10px #444');
+	}
+}
+
+function toggleWorkForTouch() {
+	if ($('.column1').css('margin-left') == '0px') {
+		$('.column1').css('margin-left','-223px');
+		$('#workRecords,#column1piece').css('box-shadow','none');
+	} else {
+		$('.column1').css('margin-left','0px');
+		$('#workRecords').css('box-shadow','box-shadow:0px 0px 16px #000');
+		$('#column1piece').css('box-shadow','box-shadow:0px 7px 14px -7px #000');
+	}
+}
+
+function changeHistory(qs) {
+	window.history.replaceState({}, '', '/apex/ADM_Planner?' + qs);
+}
+</script>
+
+<div id="optionsBar">
+	<div id="toolBar">
+		<a class="icon bug" href="/apex/adm_bugedit?RecordType=012B000000009BO" onClick="navigateFrame(this.href);return false"><div class="fa fa-bug"></div>New Bug</a>
+		<a class="icon userStory" href="/apex/adm_userstoryedit?RecordType=012B000000009BS" onClick="navigateFrame(this.href);return false"><div class="fa fa-book"></div>New<br/>User Story</a>
+		<apex:outputPanel layout="none" rendered="{!NOT(ISBLANK($CurrentPage.parameters.teamid))}"><a class="icon sprintPanel" href="#" onClick="toggleSprintPanel(this);return false"><div class="fa fa-table"></div><div class="text">Hide Sprint Panel</div></a></apex:outputPanel>
+		<a class="icon requestFullscreen" href="#" onClick="requestFullscreen();return false"><div class="fa fa-expand"></div>Enter Fullscreen</a>
+		<a class="icon exitFullscreen" href="#" onClick="exitFullscreen();return false"><div class="fa fa-compress"></div>Exit Fullscreen</a>
+		<a class="icon exitApp" href="/" onClick="return confirm('Are you sure?');"><div class="fa fa-times"></div>Exit<br/>Planner</a>
+	</div>
+	<div id="optionsBarPiece" onClick="toggleOptionsForTouch();return false">OPTIONS</div>
+</div>
+
+<div id="holder">
+	<div class="column1">
+		<div id="workRecords">
+
+			<!-- querystring "workListPage:workListView:fcf" defined -->
+			<apex:outputPanel layout="none" rendered="{!NOT(ISBLANK($CurrentPage.parameters.workListPage:workListView:fcf))}">
+				<!-- querystring "team" undefined --><apex:outputPanel layout="none" rendered="{!ISBLANK($CurrentPage.parameters.teamid)}"><apex:iframe src="/apex/ADM_Planner_Worklist?workListPage%3AworkListView%3Arowsperpage=200&workListPage:workListView:fcf={!$CurrentPage.parameters.workListPage:workListView:fcf}" height="100%" width="100%" frameborder="false" scrolling="true" /></apex:outputPanel>
+				<!-- querystring "team" defined   --><apex:outputPanel layout="none" rendered="{!NOT(ISBLANK($CurrentPage.parameters.teamid))}"><apex:iframe src="/apex/ADM_Planner_Worklist?workListPage%3AworkListView%3Arowsperpage=200&teamid={!$CurrentPage.parameters.teamid}&workListPage:workListView:fcf={!$CurrentPage.parameters.workListPage:workListView:fcf}" height="100%" width="100%" frameborder="false" scrolling="true" /></apex:outputPanel>
+			</apex:outputPanel>
+
+			<!-- querystring "workListPage:workListView:fcf" undefined -->
+			<apex:outputPanel layout="none" rendered="{!ISBLANK($CurrentPage.parameters.workListPage:workListView:fcf)}">
+				<!-- querystring "team" undefined --><apex:outputPanel layout="none" rendered="{!ISBLANK($CurrentPage.parameters.teamid)}"><apex:iframe src="/apex/ADM_Planner_Worklist?workListPage%3AworkListView%3Arowsperpage=200" height="100%" width="100%" frameborder="false" scrolling="true" /></apex:outputPanel>
+				<!-- querystring "team" defined   --><apex:outputPanel layout="none" rendered="{!NOT(ISBLANK($CurrentPage.parameters.teamid))}"><apex:iframe src="/apex/ADM_Planner_BacklogList?teamid={!$CurrentPage.parameters.teamid}" height="100%" width="100%" frameborder="false" scrolling="true" /></apex:outputPanel>
+			</apex:outputPanel>
+
+		</div>
+		<div id="column1piece" onClick="toggleWorkForTouch();return false">WORK RECORDS</div>
+	</div>
+	<div class="column2">
+    	<div class="loader">Loading...</div>
+    	<apex:iframe src="" height="100%" width="100%" frameborder="false" scrolling="true" />
+    	<div class="notice"><span>&#8592;</span> Select a work record on the left to begin</div>
+	</div>
+	<!-- querystring "team" defined -->
+	<apex:outputPanel layout="none" rendered="{!NOT(ISBLANK($CurrentPage.parameters.teamid))}">
+		<div class="column3 column3pushed">
+		    	<apex:iframe src="/apex/ADM_Planner_ReleaseVisualizer?teamid={!$CurrentPage.parameters.teamid}" height="100%" width="100%" frameborder="false" scrolling="true" />
+		</div>
+	</apex:outputPanel>
+</div>
+</apex:page>

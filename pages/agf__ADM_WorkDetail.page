@@ -1,0 +1,35 @@
+<apex:page standardController="agf__ADM_Work__c">
+<apex:includeScript value="{!URLFOR($Resource.agf__jquery_1_5_2_min)}" />
+<apex:includeScript value="{!URLFOR($Resource.agf__jqueryuicustomjs)}" />
+<apex:stylesheet value="{!URLFOR($Resource.agf__jqueryuicustom, 'jquery-ui-1.8.12.custom.css')}"/>  
+<apex:stylesheet value="{!$Resource.agf__ADM_common_css}"/>
+
+<apex:form >
+	<!-- <table style="width:100%;">
+		<tr>
+			<td style="width:30%; padding:0px; margin:0px;" cellpadding="0" cellspacing="0">
+				<chatter:follow entityId="{!agf__ADM_Work__c.Id}" id="chatterFollow" />
+			</td>
+			<td style="width:70%;">
+				<chatter:followers entityId="{!agf__ADM_Work__c.Id}" id="chatterFollowers" />
+			</td>
+		</tr>
+	</table> -->
+	
+	<apex:detail inlineEdit="True" reRender="{!$Component.chatterButton}" oncomplete="setInit(true);updateRecipientsAndComments();" />
+	
+	<c:ADM_RelatedList aworkID="{!agf__ADM_Work__c.Id}" rendered="{!agf__ADM_Work__c.RecordType.Name != 'Template'}" />   
+
+	<c:ADM_Comments workObject="{!agf__ADM_Work__c}" isEditWork="false" recordType="{!agf__ADM_Work__c.RecordType.Name}"/>            
+
+</apex:form> 
+
+<c:QA_TestExecutionReport sobjectID="{!agf__ADM_Work__c.id}" rendered="{!agf__ADM_Work__c.RecordType.Name = 'User Story'}" /> 
+
+<c:ADM_ChatterButton id="chatterButton" workID="{!agf__ADM_Work__c.id}" />  
+
+<apex:includeScript id="includeScriptADMcommonJs" value="{!URLFOR($Resource.agf__ADM_common_js)}"/>
+
+<c:ADM_WorkIconSet recordTypeName="{!agf__ADM_Work__c.RecordType.Name}" />
+ 
+</apex:page>

@@ -1,0 +1,104 @@
+<apex:page controller="DMAPP.GeniusNewProcessController" extensions="DMAPP.BrandOverrideController"
+		   docType="html-5.0"     
+		   showHeader="true" 
+		   tabStyle="Playbook_Admin__tab"		   
+		   sidebar="false">
+		   
+    <c:jQuery jQueryUI="true" /> 		   
+
+	<style>
+		@import url("{!URLFOR($Resource.Genius, 	'genius_builder.css')}");
+
+		body .bEditBlock .pbHeader, body .bLayoutBlock .pbHeader, body .apexp .bPageBlock.apexDefaultPageBlock .pbHeader {
+		    border-bottom: 1px solid #DBDBDB;
+		    padding: 0;
+		}
+	</style>
+
+    <apex:form rendered="true"> 
+        <apex:pageBlock title="Dealmaker Genius Configuration"> 
+        	<apex:facet name="header">
+				<apex:outputPanel layout="block">
+					<table cellspacing="0" cellpadding="0" border="0">
+						<tbody>
+							<tr>
+								<td class="pbTitle">
+									<!--<h2 class="mainTitle">Dealmaker Genius</h2>-->
+									<apex:image url="{!URLFOR($Resource.DMAPP__Common, 'panel/images/SmartOM50.png')}"/>
+								</td>
+								<td class="geniusLogoCell">
+			                    	<apex:image url="{!URLFOR($Resource.DMAPP__Qualification, 'TASLogo50.png')}" alt="TAS Group Logo" rendered="{!NOT(hasBrandOverrideLogo)}"/>
+			                        <apex:image url="{!brandOverrideLogo}" rendered="{!hasBrandOverrideLogo}"/>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				</apex:outputPanel> 
+			</apex:facet>
+        
+            <apex:pageBlockSection columns="1">
+				<ul class="steps">
+					<li class="passed"><span>Playbook Genius</span></li>
+					<li class="active"><span>Company Details</span></li>
+				    <li><span>Playbook Settings</span></li>
+				    <li><span>Sales Stage Mapping</span></li>
+				</ul>
+            </apex:pageBlockSection>	    
+        
+            <apex:pageMessages id="errorMessages"/>
+            <apex:pageBlockSection columns="1">
+            	<apex:pageBlockSectionItem >
+           			<apex:outputLabel value="Please, set the company name and customer reference name:"/>
+           		</apex:pageBlockSectionItem>
+	     		<apex:pageBlockSectionItem helpText="The name of your company">
+           			<apex:outputLabel value="Company Name" for="companyName"/> 
+	                <apex:outputPanel styleClass="requiredInput" layout="block">
+	                    <apex:outputPanel styleClass="requiredBlock" layout="block"/>
+	                    <apex:inputText value="{!companyName}" id="companyName" styleClass="formInput" />
+	                </apex:outputPanel>
+           		</apex:pageBlockSectionItem>
+           		<apex:pageBlockSectionItem helpText="Please select from the list how you refer to your customers to reflect the language of your company">
+           			<apex:outputLabel value="Customer reference" for="customerReference"/> 
+	                <apex:outputPanel styleClass="requiredInput" layout="block">
+	                    <apex:outputPanel styleClass="requiredBlock" layout="block"/>
+	                    <apex:selectList value="{!customerReference}" id="customerReference" size="1">
+           					<apex:selectOptions value="{!customerReferenceOptions}"/>
+           				</apex:selectList> 
+	                </apex:outputPanel> 	            		
+            	</apex:pageBlockSectionItem>
+            </apex:pageBlockSection>
+
+            <apex:pageBlockButtons location="bottom">
+                <apex:commandButton id="nextButton"  value="Next" action="{!saveGeniusConfigAndNavigateToProcessDetails}"/>
+				<apex:commandButton id="backButton" value="Back" action="{!navigateBackToWelcomeScreen}" immediate="true"/>				
+				<apex:commandButton id="cancelButton" value="Cancel" action="{!cancel}" immediate="true"/>
+            </apex:pageBlockButtons>
+			
+			<apex:actionFunction name="doNext" action="{!saveGeniusConfigAndNavigateToProcessDetails}"/>
+        
+        </apex:pageBlock>
+                 
+    </apex:form>
+    
+    <script>    		
+
+			/* 
+			 * Copyright © The TAS Group. All rights reserved.
+			 *  
+			 */    
+        
+	    	jQuery(function() {
+	    	
+	    		jQuery('[id$="cancelButton"]').attr('ttg_test', 'cancelButton');
+	    		jQuery('[id$="backButton"]').attr('ttg_test', 'backButton');
+	    		jQuery('[id$="nextButton"]').attr('ttg_test', 'nextButton');
+	
+	    		jQuery(document).keypress(function(event) {
+	    			if(event.which === 13) {
+		    			doNext();
+	    			} 
+	    		});   		    		    		    	
+	    	});	
+	</script>
+	
+</apex:page>

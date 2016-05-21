@@ -1,0 +1,46 @@
+<apex:component access="global" controller="ctrl_EmailTables" layout="none">
+
+<style type="text/css">
+.centered{
+	text-align:left;
+	cellPadding:0;
+	cellSpacing:0;
+	margin:0;
+	border:1px solid Grey;
+	background-color:lighGrey;
+	
+}
+#dt{
+	padding:0;
+	margin:0;
+}
+</style>
+
+
+	<apex:attribute name="RID" description="ID of the Related To ID"
+		type="ID" assignTo="{!RID}" />
+
+	<apex:attribute name="templateID" description="ID of the template"
+		type="ID" assignTo="{!tempID}" />
+		
+	
+	<apex:repeat value="{!tables}" var="t"> 
+		 <apex:panelGrid cellPadding="0" cellSpacing="0" columns="2" style="cellSpacing:0px;cellPadding:0px;width:768px;text-align:center;font-size:9pt;padding-top:0px;">
+		 	<apex:outputPanel layout="block" style="width:150px;height:10px;padding:0px;">
+		 	</apex:outputPanel>
+			<apex:dataTable id="dt" cellPadding="0px" cellSpacing="0px" value="{!t.objRecs}" width="768px" var="obj" style="border-spacing:0;margin:0;cellSpacing:0px;cellPadding:0px;float:center;text-align:left;font-size:9pt;border: 1px solid grey;padding:0px;" >
+				<apex:repeat value="{!t.colHeads}" var="ch">
+				<apex:column id="col"  headerValue="{!t.headerMap[ch]}" headerClass="centered" style="border:1px solid lightGrey;background-color:white">
+					<apex:outputText value="{!obj[ch]}"/>
+				<!-- 
+					<apex:outputPanel layout="block" style="height:150px;background-color:lightGrey;padding:0px;border:1px solid grey;">{!t.headerMap[ch]}</div>
+					<apex:column id="col" value="{!obj[ch]}" style="margin:0;cellPadding:0px;cellSpacing:0px;border:1px solid grey;padding:0px;">	
+						
+						<!-- <apex:facet name="header"><div style="background-color:#D1D1D1;padding:0px;border:1px solid lightgrey;">{!t.headerMap[ch]}</div></apex:facet> -->
+					</apex:column>
+					
+				</apex:repeat>		
+			</apex:dataTable>
+		</apex:panelGrid> 
+	</apex:repeat>
+</apex:component>

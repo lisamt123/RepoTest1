@@ -1,0 +1,1553 @@
+<apex:page title="{!teamName} Kanban" controller="agf.ADM_KanbanBoardController" tabStyle="ADM_Kanban_Board__tab" showHeader="{!IF($CurrentPage.parameters.isdtp == 'p1','false', 'true')}" standardstylesheets="false" sidebar="false" docType="html-5.0" applyBodyTag="false" applyHtmlTag="true">
+<html xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+
+<head>
+	<title>{!teamName} Kanban</title>
+	<meta name="viewport" content="user-scalable=no,width=device-width,initial-scale=1.0,maximum-scale=1.0" />
+	<meta http-equiv="X-UA-Compatible" content="IE=Edge"/>
+	<link href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAj1JREFUeNpivBlRyQADv9aeEwVSfkDsAsSmQCwPxCwMlIO7QHwaiPcA8Sa2YKPXMAlGmAOAljsDqVwg9megLdgIxJOBjtgL4jAhWd5GB8sZoHa0Qe1kYLzM6g4K9tl0shw9JFJZoHFOb8thIbGZCZrgBgq4sEBTOwbQ+riRgYmTnSq2/H75juGmbBQ2KVMmaFbDAIysLFTzJhM7Gy4peRZc+fz3szcMrOJCVHHAr8evcUmxgHLBf2wyzMJ8DEwcbFRxwL/vPxn+vvuM3QW4NP19+4nhLx1SIU4H8Ec4MLAI86NEyacNxxgY/v9nYNeSZ+B20GdgZGQEy/0Hin3Zforh1/0XDIwszAx8IbaYetcfJc0BsosqUEPk41eGLztOA4PzF4NgojuDSH4QivwLYI5507uagVmID0Pvv0/fGK7hcAAT7nj7hcL//wPIh/qY4R+WZMOIMBFd778fv3DnEJwy/9Es+Y9HDl0MQ+9/MhxAJzDqgFEH0MYBsOyKi09TB/wD2sfBiirGxkJ6UYzXg8DiFkOMGSL25+1HhseRrcCimA+pKH5LXQf8fvme4f+vP6hirz5Ay+x/DJ/WHaG8MmLiQm0NMXFzwOPy7aT1DB+X70eR/wN0FLm1IajToIwu8X7pXgZWSWE4/+ftJ/Ay/f/P3wy/n7ymRoq5C2qQLAcyIgYoF65ggnaXBgrsATlgE7STQG8AsnMTE7SjOBmIT9HR8lPQ/uFrcEEE7ShW0SkkQHZUwTqnjAPdPQcIMACyocM5dJtbawAAAABJRU5ErkJggg==" rel="icon" type="image/x-icon" />
+	<apex:stylesheet value="{!$Resource.agf__kanban_fontawesome}" />
+	<apex:stylesheet value="{!$Resource.agf__kanban_jqueryui_structure}" />
+
+	<apex:outputPanel layout="none" rendered="{!IF($CurrentPage.parameters.isdtp == 'p1','false', 'true')}">
+		<apex:stylesheet value="{!$Resource.agf__kanban_style}" />
+	</apex:outputPanel>
+
+	<apex:outputPanel layout="none" rendered="{!IF($CurrentPage.parameters.isdtp == 'p1','true', 'false')}">
+		<apex:stylesheet value="{!$Resource.agf__kanban_style_slds}" />
+		<apex:stylesheet value="{!URLFOR($Resource.agf__SLDS042, 'assets/styles/salesforce-lightning-design-system-vf.css')}" />
+		<apex:stylesheet value="{!$Resource.agf__extended}" />
+	</apex:outputPanel>
+
+	<apex:includeScript value="{!$Resource.agf__kanban_handlebars}" />
+	<apex:includeScript value="{!$Resource.agf__kanban_jquery}" />
+	<apex:includeScript value="{!$Resource.agf__kanban_jqueryui}" />
+	<apex:includeScript value="{!$Resource.agf__ADM_common_js}" />
+	<apex:includeScript value="{!$Resource.agf__ADM_autocomplete2js}" />
+</head>
+<body class="{!IF($CurrentPage.parameters.isdtp == 'p1','slds', '')}">
+
+<c:ADM_WorkDialog kanban="true" teamid="{!teamId}" rendered="{!IF($CurrentPage.parameters.isdtp == 'p1','false', 'true')}" />
+<c:ADM_WorkDialogSds kanban="true" teamid="{!teamId}" rendered="{!IF($CurrentPage.parameters.isdtp == 'p1','true', 'false')}" />
+
+<apex:outputPanel layout="none" rendered="{!IF($CurrentPage.parameters.isdtp == 'p1','true', 'false')}">
+	<div class="slds-anchor">
+		<div class="slds-grid">
+			<div class="slds-col slds-has-flexi-truncate">
+				<div class="slds-media media--rec-home">
+					<div class="slds-media__figure">
+						<svg aria-hidden="true" class="slds-icon slds-icon--large slds-icon-custom-45" style="padding:8px;">
+							<use xlink:href="{!URLFOR($Resource.SLDS042, '/assets/icons/utility-sprite/svg/symbols.svg#kanban')}"></use>
+						</svg>
+					</div>
+					<div class="slds-media__body">
+						<p class="slds-text-heading--label">Kanban</p>
+						<div class="slds-grid">
+							<h1 class="slds-text-heading--medium slds-media--rec-home__title slds-truncate">{!teamName} Board</h1>
+						</div>
+					</div>
+				</div>
+		    </div>
+			<div class="slds-col slds-no-flex slds-align-bottom">
+				<div class="slds-button-group" role="group">
+					<button id="buttonCreateWork" class="slds-button slds-button--neutral">
+						New
+					</button>
+					<button id="buttonBacklog" class="slds-button slds-button--icon-border-filled">
+						<svg aria-hidden="true" class="slds-button__icon"><use xlink:href="{!URLFOR($Resource.SLDS042, '/assets/icons/utility-sprite/svg/symbols.svg#open_folder')}"></use></svg>
+						<span class="slds-assistive-text">Backlog</span>
+					</button>
+				</div>
+			</div>
+			<div class="slds-col slds-no-flex slds-align-bottom slds-m-left--small">
+				<div class="slds-button-group" role="group">
+					<button id="buttonRefresh" class="slds-button slds-button--icon-border">
+						<svg aria-hidden="true" class="slds-button__icon"><use xlink:href="{!URLFOR($Resource.SLDS042, '/assets/icons/utility-sprite/svg/symbols.svg#refresh')}"></use></svg>
+						<span class="slds-assistive-text">Refresh</span>
+					</button>
+					<button id="buttonFilter" class="slds-button slds-button--icon-border">
+						<svg aria-hidden="true" class="slds-button__icon"><use xlink:href="{!URLFOR($Resource.SLDS042, '/assets/icons/utility-sprite/svg/symbols.svg#filterList')}"></use></svg>
+						<span class="slds-assistive-text">Filter</span>
+					</button>
+					<button id="buttonFullscreen" class="slds-button slds-button--icon-border">
+						<svg aria-hidden="true" class="slds-button__icon"><use xlink:href="{!URLFOR($Resource.SLDS042, '/assets/icons/utility-sprite/svg/symbols.svg#expand')}"></use></svg>
+						<span class="slds-assistive-text">Full Screen</span>
+					</button>
+					<button id="buttonSettings" class="slds-button slds-button--icon-border">
+						<svg aria-hidden="true" class="slds-button__icon"><use xlink:href="{!URLFOR($Resource.SLDS042, '/assets/icons/utility-sprite/svg/symbols.svg#settings')}"></use></svg>
+						<span class="slds-assistive-text">Settings</span>
+					</button>
+					<!--button id="buttonHelp" class="slds-button slds-button--icon-border">
+						<svg aria-hidden="true" class="slds-button__icon"><use xlink:href="{!URLFOR($Resource.SLDS042, '/assets/icons/utility-sprite/svg/symbols.svg#help')}"></use></svg>
+						<span class="slds-assistive-text">Help</span>
+					</button-->
+				</div>
+			</div>
+		</div>
+	</div>
+</apex:outputPanel>
+
+<script id="dropdown-colors-template" type="text/x-handlebars-template">
+	<li{{#if id}} data-id="{{ id }}"{{/if}}{{#if color}} data-color="{{ color }}"{{/if}} class="ui-menu-item">{{#if color}}<div style="background-color:{{ color }};"><i class="fa"></i></div>{{/if}}{{#if removeIcon}}<i class="fa fa-times"></i>{{/if}}{{ label }}</li>
+</script>
+
+<script id="filter-options-template" type="text/x-handlebars-template">
+	<div class="itemRow"{{#if hide}} style="display:none;"{{/if}}>
+		<div class="itemCheckbox"><input type="checkbox" id="item-{{ id }}" value="{{ id }}" /></div>
+		<div class="itemTitle"><label for="item-{{ id }}">{{#if color}}<div style="background-color:{{ color }};"></div>{{/if}}{{ label }}</label></div>
+	</div>
+</script>
+
+<script id="column-template" type="text/x-handlebars-template">
+    <div class="holderContents" id="{{ id }}" data-max="{{ max }}"{{#if closed}} data-closed="true"{{/if}}>
+        <div class="holderTitle">
+            <div class="titleText">
+                {{ title }}<i title="Purge all work items from column" class="fa fa-times-circle"></i>
+                <span class="progressTitle"></span>
+            </div>
+			<div class="progress">
+                <div class="progressLeft" style="{{#if progress}}width:{{ progress }}%;{{/if}}{{#if color}}background:{{ color }};{{/if}}"></div>
+                <div class="progressTitle"></div>
+            </div>
+        </div>
+    </div>
+</script>
+
+<script id="card-template" type="text/x-handlebars-template">
+	<div id="{{ id }}" data-name="{{ worktitle }}" class="card card-{{ recordtype }}{{ classmetadata }}"{{#if colorid}} data-color="{{ colorid }}"{{/if}}>
+		<div class="remove-card"><i class="fa fa-times"></i></div>
+		<div class="inner-card"{{#if color}} style="border-left:4px {{ color }} solid;"{{/if}}>
+			<div class="inner-card-subject"{{#if fontcolor}} style="color:{{ fontcolor }};"{{/if}}>
+			    
+				{{#if qePicUrl}}<div><div class="inner-card-pictureqe qepicture"><img src="{{ qePicUrl }}" /></div></div>{{/if}}
+				{{#if assigneepicurl}}<div><div class="inner-card-picture"><img src="{{ assigneepicurl }}" /></div></div>{{/if}}	
+				{{ subject }}
+			</div>
+			<div class="inner-card-toolbar">
+				<div class="inner-card-toolbar-workid"><i class="fa{{#if solo}} solo{{/if}}"></i><span>{{ worktitle }}</span></div>
+				<div class="inner-card-toolbar-dropdown-arrow"><i class="fa fa-caret-down"></i></div>
+				{{#if numberOfDays }}<div class="cardNumOfDays">{{ numberOfDays }}d</div>{{/if}}
+				{{#if priority }}<div class="cardPriority">{{ priority }}</div>{{/if}}
+				{{#if numberOfTasks }}<div class="cardNumOfTasks">{{ numberOfTasks }} <i class="fa fa-check-square-o"></i></div>{{/if}}
+				{{#if numberOfPosts }}<div class="cardNumOfPosts">{{  numberOfPosts }} <i class="fa fa-comment"></i></div>{{/if}}
+				{{#if scheduledBuild }}<div class="cardScheduledBuild">{{ scheduledBuild }}</div>{{/if}}
+				{{#if storyPoints }}<div class="cardPoints">{{  storyPoints }} pts</div>{{/if}}
+			</div>
+		</div>
+	</div>
+</script>
+
+<ul id="cardDropdown" class="dropdown">
+	<li><i class="fa fa-caret-right"></i><i class="fa fa-tint"></i>Color
+		<ul id="colorPicker"></ul>
+	</li>
+	<li id="copyWorkId"><i class="fa fa-copy"></i>Copy ID to Clipboard</li>
+	<li id="copyWorkUrl"><i class="fa fa-link"></i>Copy URL to Clipboard</li>
+	<li id="removeCard"><i class="fa fa-times"></i>Remove Card</li>
+
+</ul>
+	
+<div id="kanbanContainer">
+    <apex:outputPanel layout="none" rendered="{!IF($CurrentPage.parameters.isdtp == 'p1','false', 'true')}">
+	    <div id="containerToolbar">
+	        <div id="toolbarTitle">{!teamName}</div>
+	        <ul class="toolbarButtons" id="toolbarButtonsLeft">
+				<li><button id="buttonFilter" title="Filter"><i class="fa fa-filter"></i><span>Filter</span></button></li>
+				<li><button id="buttonRefresh" title="Refresh"><i class="fa fa-refresh"></i><span>Refresh</span></button></li>
+				<li><button id="buttonBacklog" title="Add Work from Backlog"><i class="fa fa-list-alt"></i><span>Backlog</span></button></li>
+				<li><button id="buttonCreateWork" title="Create Work"><i class="fa fa-plus-circle"></i><span>Create</span></button></li>
+			</ul>
+			<ul class="toolbarButtons" id="toolbarButtonsRight">
+				<li><button id="buttonSettings" title="Settings"><i class="fa fa-cog"></i><span>Settings</span></button></li>
+				<li><button id="buttonFullscreen" title="Full Screen"><i class="fa fa-arrows-alt"></i><span>Full Screen</span></button></li>
+				<li><button id="buttonHelp" title="Help"><i class="fa fa-question-circle"></i><span>Help</span></button></li>
+	        </ul>
+	    </div>
+    </apex:outputPanel>
+	<div id="dragDropContainment"></div>
+	<div id="kanbanContents"></div>
+	<div id="kanbanLoading">
+		<div class="fa fa-refresh fa-spin"></div>
+	</div>
+</div>
+
+<div id="errorDialog" class="ui-dialog" title="Error"></div>
+
+<div id="filterDialog">
+	<div id="filterResults"></div>
+
+	Search:
+	<input id="filterSearch" type="text" name="text" value="" autocomplete="off" onkeyup="updateFilter();" />
+
+	<div class="filterTopic" id="filterRecordTypes">
+		Record Type:
+		<div id="filterBoxRecordTypes" class="itemList"></div>
+	</div>
+	
+	<div class="filterTopic" id="filterColors">
+		Colors:
+		<div id="filterBoxColors" class="itemList"></div>
+	</div>
+	
+	<div class="filterTopic" id="filterThemes">
+		Theme:
+		<div id="filterBoxThemes" class="itemList"></div>
+	</div>
+	
+	<div class="filterTopic" id="filterEpics">
+		Epic:
+		<div id="filterBoxEpics" class="itemList"></div>
+	</div>
+
+	<div class="filterTopic" id="filterProductTags">
+		Product Tag:
+		<div id="filterBoxProductTags" class="itemList"></div>
+	</div>
+	
+	<div class="filterTopic" id="filterBuilds">
+		Scheduled Build:
+		<div id="filterBoxBuilds" class="itemList"></div>
+	</div>
+
+	<div class="filterTopic" id="filterAssignees">
+		Assignee:
+		<div id="filterBoxAssignees" class="itemList"></div>
+	</div>
+
+	<div class="filterTopic" id="filterQEs">
+		QE:
+		<div id="filterBoxQEs" class="itemList"></div>
+	</div>
+</div>
+
+<script>
+//calculate the nameSpace dynamically so the same code can work in and out of the package    
+var qualifiedName='{!$ObjectType.ADM_Work__c.Name}';
+var nameSpace = qualifiedName.substring(0,qualifiedName.indexOf('ADM_Work__c')); 
+
+var initKanban = "{!JSENCODE(columnsAndWorksAsJSON)}";
+var workStatuses = "{!JSENCODE(workStatus)}";
+var worksWithNullColumns = [];
+
+var dropdownColorTemplate = Handlebars.compile($("#dropdown-colors-template").html());
+var columnTemplate = Handlebars.compile($("#column-template").html());
+var cardTemplate = Handlebars.compile($("#card-template").html());
+var filterOptionsTemplate = Handlebars.compile($("#filter-options-template").html());
+
+function isClosedStatusColumn(columnWorkStatusMapToCheck) {
+	var foundClosedStatus = false;
+	if(columnWorkStatusMapToCheck){
+		for(key in columnWorkStatusMapToCheck) {
+			if(columnWorkStatusMapToCheck[key] == 'Closed'){
+				foundClosedStatus = true;
+				break;
+			}
+		}
+	}
+	
+	return foundClosedStatus;
+}
+
+function trimErrorMessage(errorMessage) {
+	var returnMessage = errorMessage.replace('FIELD_CUSTOM_VALIDATION_EXCEPTION, ','');
+	returnMessage = returnMessage.replace(': []','');
+	if (returnMessage.indexOf('first error:') > -1) {
+	    return returnMessage.substring(returnMessage.indexOf('first error:')+12).trim();
+	} else {
+	    return returnMessage.substring(returnMessage.indexOf(':')+1).trim();
+	}
+}
+
+//-----------------------------------------------------------------------------------------------
+// UPDATE COLUMNS
+//-----------------------------------------------------------------------------------------------
+function updateColumnCounts() {
+	//console.log('Updating column counts');
+    $('.holderContents').each(function(key, value ) {
+        var countTitle = $(this).find('span.progressTitle');
+        var percentageBackground = $(this).find('.progressLeft');
+        var newCount = $(this).find('.card').length;
+        var maxCount = 0;
+        if ($(this).find('.holderContents').length > 0) {
+            // children
+            $(this).find('.holderContents').each(function(){
+                maxCount += parseInt($(this).attr('data-max'),10);
+            });
+        } else {
+            maxCount = $(this).attr('data-max');
+        }
+        
+        if (maxCount > 0) {
+	        $(this).find('span.progressTitle').show();
+	        $(this).find('div.progress').show();
+        } else {
+	        $(this).find('span.progressTitle').hide();
+	        $(this).find('div.progress').hide();
+        }
+        
+        var percentage = Math.round(newCount/maxCount*100);
+        if (percentage >= 100) { percentage = 100; }
+        var newTitle = newCount + '/' + maxCount; //+ ' (' + percentage + '%)';
+        countTitle.html(newTitle);
+        if (percentage < 40) {
+            percentageBackground.css('background','#0BAA0B').css('width',percentage + '%');
+        } else if (percentage >= 40 && percentage < 70) {
+            percentageBackground.css('background','#B3AB00').css('width',percentage + '%');
+        } else if (percentage >= 70 && percentage < 90) {
+            percentageBackground.css('background','#DD5000').css('width',percentage + '%');
+        } else if (percentage > 90) {
+            percentageBackground.css('background','#830000').css('width',percentage + '%');
+        }
+    });
+    resizeContainer();
+}
+
+//-----------------------------------------------------------------------------------------------
+// FILTER
+//-----------------------------------------------------------------------------------------------
+var previouslyChecked = []; // For previously checked filters
+
+$(document).on('click','.itemList input[type=checkbox]', function(e) {
+	// Allow only one checkbox to be checked at a time
+	$(this).closest('.itemList').find('input[type=checkbox]:not([id=' + $(this).attr('id') + '])').prop('checked', false);
+	updateFilter();
+});
+
+function updateFilter() {
+	$('.card').hide();
+	var className = '';
+
+	$('#filterDialog input[type=checkbox]').each(function(index) {
+		if ($(this).is(':checked')) {
+			className += '.card-' + $(this).val();
+		}
+	});
+	
+	// Search:
+	if ($('#filterSearch').val().length > 0) {
+		className += '.card:icontains("' + $('#filterSearch').val() + '")'
+	}
+	
+	if (className.length === 0) {
+		var numAllCards = $('.card').length;
+		$('#filterResults').text('Showing all ' + numAllCards + ' cards');
+		$('.card').show();
+	} else {
+		var numAllCards = $('.card').length;
+		var numSelectedCards = $(className).length;
+		$('#filterResults').text('Showing ' + numSelectedCards + ' of ' + numAllCards + ' cards');
+		//console.log('Showing: ' + className);
+		$(className).show();
+	}
+	resizeColumnHeights();
+}	
+
+jQuery.expr[":"].icontains = jQuery.expr.createPseudo(function (arg) {                                                                                                                                                                
+    return function (elem) {                                                            
+        return jQuery(elem).text().toUpperCase().indexOf(arg.toUpperCase()) >= 0;        
+    };                                                                                  
+});
+
+function preFilterSettings() {
+	// remember what things are already checked off
+	previouslyChecked = [];
+	$('.itemList input[type=checkbox]:checked').each(function(index) {
+		previouslyChecked.push($(this).attr('id'));
+	});
+
+	$('#filterBoxRecordTypes,#filterBoxThemes,#filterBoxEpics,#filterBoxProductTags,#filterBoxAssignees,#filterBoxQEs,#filterBoxColors').empty();
+}
+
+function asc_sort(a, b){
+    return ($(b).find('label').text()) < ($(a).find('label').text()) ? 1 : -1;    
+}
+
+function postFilterSettings() {
+	if ($("#filterBoxRecordTypes > .itemRow").length > 0) {
+		$("#filterBoxRecordTypes > .itemRow").sort(asc_sort).appendTo('#filterBoxRecordTypes');
+		$("#filterRecordTypes").show();
+	} else {
+		$("#filterRecordTypes").hide();
+	}
+	if ($("#filterBoxThemes > .itemRow").length > 0) {
+		$("#filterBoxThemes > .itemRow").sort(asc_sort).appendTo('#filterBoxThemes');
+		$("#filterThemes").show();
+	} else {
+		$("#filterThemes").hide();
+	}
+	if ($("#filterBoxEpics > .itemRow").length > 0) {
+		$("#filterBoxEpics > .itemRow").sort(asc_sort).appendTo('#filterBoxEpics');
+		$("#filterEpics").show();
+	} else {
+		$("#filterEpics").hide();
+	}
+	if ($("#filterBoxProductTags > .itemRow").length > 0) {
+		$("#filterBoxProductTags > .itemRow").sort(asc_sort).appendTo('#filterBoxProductTags');
+		$("#filterProductTags").show();
+	} else {
+		$("#filterProductTags").hide();
+	}
+	if ($("#filterBoxBuilds > .itemRow").length > 0) {
+		$("#filterBoxBuilds > .itemRow").sort(asc_sort).appendTo('#filterBoxBuilds');
+		$("#filterBuilds").show();
+	} else {
+		$("#filterBuilds").hide();
+	}
+	if ($("#filterBoxAssignees > .itemRow").length > 0) {
+		$("#filterBoxAssignees > .itemRow").sort(asc_sort).appendTo('#filterBoxAssignees');
+		$("#filterAssignees").show();
+	} else {
+		$("#filterAssignees").hide();
+	}
+	if ($("#filterBoxQEs > .itemRow").length > 0) {
+		$("#filterBoxQEs > .itemRow").sort(asc_sort).appendTo('#filterBoxQEs');
+		$("#filterQEs").show();
+	} else {
+		$("#filterQEs").hide();
+	}
+
+	$("#filterColors").show();
+	if ($("#filterBoxColors > .itemRow:visible").length === 0) {
+		$("#filterColors").hide();
+	} else {
+		$("#filterColors").show();
+	}
+	
+	$('#filterResults').text('Showing all ' + $('.card').length + ' cards');
+	
+	if ($.isArray(previouslyChecked)) {
+		$.each(previouslyChecked, function(index, value) {
+			$('#' + value).prop('checked', true);
+		});
+	}
+	
+	updateFilter();
+}
+
+//-----------------------------------------------------------------------------------------------
+// SORTABLE
+//-----------------------------------------------------------------------------------------------
+function initSortable() {
+	$(".holderWork").sortable({
+        containment: "#dragDropContainment",
+        connectWith: ".holderWork",
+        items: "> div.card",
+        dropOnEmpty: true,
+        distance: 20,
+        cursor:"move",
+        appendTo: "#kanbanContainer",
+        cursorAt: { left:0 },
+        placeholder: {
+            element: function(clone, ui) {
+                return $('<div class="card placeholder">'+clone[0].innerHTML+'</div>');
+            },
+            update: function() {
+                return;
+            }
+        },
+        helper:"clone",
+        forcePlaceholderSize: true,
+        tolerance: "pointer",
+        //start: function(event, ui) {
+        //	clone = $(ui.item[0].outerHTML).clone();
+        //},
+        stop: function(event, ui) {
+			var previousColumn = $(this);
+			var nextColumn = $(ui.item).closest('div.holderWork');
+            var columnId = $(ui.item).closest('div.holderContents').attr('id');
+            var works = [];
+            var workIdToSave = $(ui.item).attr('id');
+            
+            if (previousColumn.find('div.card').length == 0) {
+	            previousColumn.closest('.holderContents[data-closed=true]').find('.titleText .fa').hide();
+            }
+            if (nextColumn.find('div.card').length > 0) {
+	            nextColumn.closest('.holderContents[data-closed=true]').find('.titleText .fa').show();
+            }
+
+            
+            $(ui.item).closest('div.holderWork').find('.card').each(function(index) {
+	            index += 1;
+	            //console.log('Column_Rank__c: ' + index + ', Id: ' + $(this).attr('id') + ', Column__c: ' + columnId + ', Subject__c: ' + $(this).find('.cardSubject').text().trim() );
+                works.push({ Id:$(this).attr('id'), Column__c: columnId, Column_Rank__c: index });
+            });
+
+			console.log('Saving change...');
+            Visualforce.remoting.Manager.invokeAction('{!$RemoteAction.ADM_KanbanBoardController.saveWorks}', works, false, function(result, event) {
+                if (event.status) {
+	                if (result && result.length > 0) {
+                        var displayErrorMessages = '';
+						result.forEach(function(messages){
+						if (messages.errorMessages && messages.errorMessages.length > 0) {
+							console.warn('Error during save, reverting move ');
+                            if(workIdToSave == messages.work.Id){// Checking whether ne of the Save failed work is the one which is dragged
+                            	previousColumn.sortable('cancel');
+                               }
+								updateColumnCounts();
+				            	
+				            	messages.errorMessages.forEach(function(lines){
+					            	displayErrorMessages += '<li>' +'<a target="_blank" href="/' + messages.work.Id + '">' + messages.work.Name + '</a>'  + ' : ' + lines + '</li>';
+					            });
+			            	}
+						});
+                        errorDialog.html(displayErrorMessages).dialog({ title: "Error During Save" }).dialog("open");
+	                }
+                } else if (event.type === 'exception') {
+	                console.warn('Error during save, reverting move.');
+					previousColumn.sortable('cancel');
+	                errorDialog.html(trimErrorMessage(event.message)).dialog({ title: "Error During Save" }).dialog("open");
+	                updateColumnCounts();
+				}
+			});
+			console.log('Saved!');
+            updateColumnCounts();
+        }
+    }).disableSelection();
+}
+
+//-----------------------------------------------------------------------------------------------
+// SCROLLING, FULL SCREEN, AND RESIZING
+//-----------------------------------------------------------------------------------------------
+var ScrollTimerH = "";
+var ScrollTimerV = "";
+
+// board scrolling/moving:
+$(function() {
+	$(document).on('mousemove', "#kanbanContents", function(event) {
+		if (laneScrolling === false) {
+			if ($('.ui-sortable-helper').is(':visible')) {
+				// full board scrolling
+				var canvas = $(this);
+				var containerWidth = $(window).width();
+				var containerHeight = $(window).height();
+				var scrollSpeed = 1;
+				var pixelsMoved = 4;
+				var leftMargin = 200;
+				var topMargin = 275;
+				var rightMargin = containerWidth - 200;
+				var bottomMargin = containerHeight - 200;
+				var cursorH = event.pageX;
+				var cursorV = event.pageY;
+		
+			    if (ScrollTimerH != "") {
+			        window.clearInterval(ScrollTimerH);
+			    }
+		
+			    if (ScrollTimerV != "") {
+			        window.clearInterval(ScrollTimerV);
+			    }
+		
+				if (cursorH > 0 && cursorH < leftMargin) {
+				    ScrollTimerH = window.setInterval(function() {
+				        canvas.scrollLeft(canvas.scrollLeft() - pixelsMoved);
+				    }, scrollSpeed);
+				} else if (cursorH > rightMargin && cursorH < containerWidth) {
+				    ScrollTimerH = window.setInterval(function() {
+				        canvas.scrollLeft(canvas.scrollLeft() + pixelsMoved);
+				    }, scrollSpeed);
+				} else {
+				    if (ScrollTimerH != "") {
+				        window.clearInterval(ScrollTimerH);
+				    }
+				}
+				
+				if (cursorV > 0 && cursorV < topMargin) {
+				    ScrollTimerV = window.setInterval(function() {
+				        canvas.scrollTop(canvas.scrollTop() - pixelsMoved);
+				    }, scrollSpeed);
+				} else if (cursorV > bottomMargin && cursorV < containerHeight) {
+				    ScrollTimerV = window.setInterval(function() {
+				        canvas.scrollTop(canvas.scrollTop() + pixelsMoved);
+				    }, scrollSpeed);
+				} else {
+				    if (ScrollTimerV != "") {
+				        window.clearInterval(ScrollTimerV);
+				    }
+				}
+			} else {
+			    if (ScrollTimerH != "") {
+			        window.clearInterval(ScrollTimerH);
+			    }
+		
+			    if (ScrollTimerV != "") {
+			        window.clearInterval(ScrollTimerV);
+			    }
+			}
+		}
+	});
+
+	$(document).on('mousemove', "#kanbanContents > div.containerColumns.wide", function(event) {
+		if (laneScrolling === true) {
+			if ($('.ui-sortable-helper').is(':visible')) {
+				// full board scrolling
+				var canvasH = $(this);
+				var canvasV = $('#kanbanContents');
+				var containerWidth = $(window).width();
+				var containerHeight = $(this).height();
+				var scrollSpeed = 1;
+				var pixelsMoved = 4;
+				var leftMargin = 200;
+				var topMargin = 275;
+				var rightMargin = containerWidth - 200;
+				var bottomMargin = containerHeight - 200;
+				var cursorH = event.pageX;
+				var cursorV = event.pageY;
+		
+			    if (ScrollTimerH != "") {
+			        window.clearInterval(ScrollTimerH);
+			    }
+		
+			    if (ScrollTimerV != "") {
+			        window.clearInterval(ScrollTimerV);
+			    }
+		
+				if (cursorH > 0 && cursorH < leftMargin) {
+				    ScrollTimerH = window.setInterval(function() {
+				        canvasH.scrollLeft(canvasH.scrollLeft() - pixelsMoved);
+				    }, scrollSpeed);
+				} else if (cursorH > rightMargin && cursorH < containerWidth) {
+				    ScrollTimerH = window.setInterval(function() {
+				        canvasH.scrollLeft(canvasH.scrollLeft() + pixelsMoved);
+				    }, scrollSpeed);
+				} else {
+				    if (ScrollTimerH != "") {
+				        window.clearInterval(ScrollTimerH);
+				    }
+				}
+				
+				if (cursorV > 0 && cursorV < topMargin) {
+				    ScrollTimerV = window.setInterval(function() {
+				        canvasV.scrollTop(canvasV.scrollTop() - pixelsMoved);
+				    }, scrollSpeed);
+				} else if (cursorV > bottomMargin && cursorV < containerHeight) {
+				    ScrollTimerV = window.setInterval(function() {
+				        canvasV.scrollTop(canvasV.scrollTop() + pixelsMoved);
+				    }, scrollSpeed);
+				} else {
+				    if (ScrollTimerV != "") {
+				        window.clearInterval(ScrollTimerV);
+				    }
+				}
+			} else {
+			    if (ScrollTimerH != "") {
+			        window.clearInterval(ScrollTimerH);
+			    }
+		
+			    if (ScrollTimerV != "") {
+			        window.clearInterval(ScrollTimerV);
+			    }
+			}
+		}
+	});
+});
+
+function requestFullscreen(elem) {
+    if (elem.requestFullscreen) {
+        elem.requestFullscreen();
+    } else if (elem.msRequestFullscreen) {
+        elem.msRequestFullscreen();
+    } else if (elem.mozRequestFullScreen) {
+        elem.mozRequestFullScreen();
+    } else if (elem.webkitRequestFullscreen) {
+        elem.webkitRequestFullscreen(Element.ALLOW_KEYBOARD_INPUT);
+    }
+}
+
+function exitFullscreen() {
+    if (document.exitFullscreen) {
+        document.exitFullscreen();
+    } else if (document.msExitFullscreen) {
+        document.msExitFullscreen();
+    } else if (document.mozCancelFullScreen) {
+        document.mozCancelFullScreen();
+    } else if (document.webkitExitFullscreen) {
+        document.webkitExitFullscreen();
+    }
+}
+</script>
+<apex:outputPanel layout="none" rendered="{!IF($CurrentPage.parameters.isdtp == 'p1','false', 'true')}">
+<!--- Aloha support -->
+<script>
+function resizeContainer() {
+	//console.log('resizeContainer()');
+
+    var offsetTopBottom = 247;
+    var offsetLeftRight = 44;
+    $('#kanbanContainer').height($(window).height() - offsetTopBottom);
+    if ($('html').hasClass('fullscreen')) {
+        if ($('#filterDialog').hasClass('opened')) {
+            $('#kanbanContainer').width($(window).width() - 200).css('margin-left','200px');
+        } else {
+            $('#kanbanContainer').width($(window).width());
+        }
+        $('#kanbanContainer').height($(window).height());
+        $('#kanbanContents').height($(window).height() - $('#containerToolbar').outerHeight());
+    } else {
+        if ($('#filterDialog').hasClass('opened')) {
+            $('#kanbanContainer').width($(window).width() - offsetLeftRight - 200).css('margin-left','200px');
+        } else {
+            $('#kanbanContainer').width($(window).width() - offsetLeftRight).css('margin-left','0px');
+        }
+        $('#kanbanContainer').height($(window).height() - offsetTopBottom);
+        $('#kanbanContents').height($(window).height() - offsetTopBottom);
+    }
+    $('#filterDialog').height($('#kanbanContents').height() + 24).css('top', $('#kanbanContainer').offset().top + 'px');
+
+    if (laneScrolling) {
+        // add scrolling to lanes (if needed)
+        $('#kanbanContents > div.containerColumns').each(function(index) {
+            var totalWidth = 0;
+            $(this).find('> div.holderContents').each(function(index) {
+                totalWidth += parseInt($(this).width(), 10);
+            });
+            if (totalWidth > $('#kanbanContents').width()) {
+                $(this).addClass('wide');
+            } else {
+                $(this).removeClass('wide');
+            }
+        });
+        $('#kanbanContents').css('overflow-x','hidden').css('overflow-y','auto');
+    } else {
+        // make all lanes the same width (to get rid of weird issues)
+        var widestLaneWidth = 0;        
+        $('#kanbanContents > div.containerColumns').each(function(index) {
+            var totalWidth = 0;
+            $(this).find('> div.holderContents').each(function(index) {
+                totalWidth += parseInt($(this).outerWidth(), 10);
+            });
+            
+            if (totalWidth > widestLaneWidth) {
+                widestLaneWidth = totalWidth;
+            }
+        });
+        $('#kanbanContents > div.containerColumns').width(widestLaneWidth);
+        $('#kanbanContents').css('overflow-x','auto').css('overflow-y','auto');
+    }
+
+    resizeBacklogDialog();
+    resizeColumnHeights();
+    hide_dd();
+}
+</script>
+</apex:outputPanel>
+<apex:outputPanel layout="none" rendered="{!IF($CurrentPage.parameters.isdtp == 'p1','true', 'false')}">
+<!-- SFX support -->
+<script>
+function resizeContainer() {
+	//console.log('resizeContainer()');
+	
+	var offsetTopBottom = 44; // 235;
+	var offsetLeftRight = 0; //44;
+	$('#kanbanContainer').height($(window).height() - offsetTopBottom);
+	if ($('#filterDialog').hasClass('opened')) {
+		$('#kanbanContainer').width($(window).width() - 200).css('margin-right','200px');
+	} else {
+		$('#kanbanContainer').width($(window).width());
+	}
+	$('#kanbanContainer').height($(window).height() - $('.slds-anchor').outerHeight());
+	$('#kanbanContents').height($(window).height() - $('.slds-anchor').outerHeight());
+	$('#filterDialog').height($('#kanbanContents').height() + 24).css('top', $('#kanbanContainer').offset().top + 'px');
+
+	if (laneScrolling) {
+		// add scrolling to lanes (if needed)
+		$('#kanbanContents > div.containerColumns').each(function(index) {
+			var totalWidth = 0;
+			$(this).find('> div.holderContents').each(function(index) {
+			    totalWidth += parseInt($(this).width(), 10);
+			});
+			if (totalWidth > $('#kanbanContents').width()) {
+				$(this).addClass('wide');
+			} else {
+				$(this).removeClass('wide');
+			}
+		});
+		$('#kanbanContents').css('overflow-x','hidden').css('overflow-y','auto');
+	} else {
+		// make all lanes the same width (to get rid of weird issues)
+		var widestLaneWidth = 0;		
+		$('#kanbanContents > div.containerColumns').each(function(index) {
+			var totalWidth = 0;
+			$(this).find('> div.holderContents').each(function(index) {
+			    totalWidth += parseInt($(this).outerWidth(), 10);
+			});
+			
+			if (totalWidth > widestLaneWidth) {
+				widestLaneWidth = totalWidth;
+			}
+		});
+		$('#kanbanContents > div.containerColumns').width(widestLaneWidth);
+		$('#kanbanContents').css('overflow-x','auto').css('overflow-y','auto');
+	}
+
+	resizeBacklogDialog();
+	resizeColumnHeights();
+	hide_dd();
+}
+</script>
+</apex:outputPanel>
+<script>
+function resizeColumnHeights() {
+	//console.log('resizeColumnHeights()');
+    
+    // set height on all kanban related items to AUTO. from there we have a baseline to make adjustments to equalize columns, etc.
+    $('.containerColumns,.holderContents,.holderWork').css('height','auto');
+    
+	// set max-height of closed columns to that of the tallest un-closed column
+	/*$('#kanbanContents > .containerColumns').each(function() {
+		var tallestColumnHeight = 0;
+		$(this).find('.holderContents[data-closed=true]').hide();
+		$(this).find('.holderContents:not(.holderContents[data-closed=true]) .holderWork').each(function() {
+			if ($(this).outerHeight() > tallestColumnHeight) {
+				tallestColumnHeight = $(this).outerHeight();
+			}
+		});
+		$(this).find('.holderContents[data-closed=true] .holderWork').css('max-height',tallestColumnHeight + 'px'); //.css('min-width', "+=10");
+		$(this).find('.holderContents[data-closed=true]').show();
+	});*/
+
+    // determine if all rows are higher than overall contents. if not, make last row higher to cover difference
+    var allRowsHeights = 0;
+    $('#kanbanContents > div.containerColumns').each(function() {
+	    allRowsHeights += $(this).outerHeight();
+    });
+
+	if ($('#kanbanContents').outerHeight() > allRowsHeights) {
+	    var lastRowHeightOffset = $('#kanbanContents').outerHeight() - allRowsHeights;
+	    $('#kanbanContents > .containerColumns:last-child').height($('#kanbanContents > .containerColumns:last-child').outerHeight() + lastRowHeightOffset);
+    }
+
+    // find the bottom most table in a column, that will be the table that'll need height adjustment to the end of the column to make up for the potential gap
+	$('.containerColumns > .holderContents').find('.containerColumns:last').each(function(){
+            var parent = $(this).parents('.holderContents:last');
+            if ($(parent).length > 0) {
+            
+                // add up all children elements heights within a column so they can be taken out of the equation
+                var parentDirectChildrenHeights = 0;
+                $(this).parents('.holderContents:last').find('> div').each(function() {
+                    parentDirectChildrenHeights += $(this).outerHeight();
+                });
+                
+                // make the new height of the table the height of the parent minus all the parents childrens elements
+                var newHeight = $(this).height() + (parent.outerHeight() - parentDirectChildrenHeights);
+                $(this).height(newHeight).css('border-right','0px');
+            }
+	});
+    
+    // equalize the holder to it's respective parents, which contains the work items
+    $('.holderWork').each(function(){
+		var masterColumn = $(this).closest('#kanbanContents > .containerColumns > .holderContents');
+		var bottomLine = masterColumn.offset().top + masterColumn.height();
+		var heightOffset = bottomLine - $(this).offset().top;
+		$(this).css('height', heightOffset + 'px');
+    });
+}
+
+$(function() {
+    $("#buttonFullscreen").on("click", function() {
+        var elem = document.documentElement;
+        if (!document.fullscreenElement && !document.mozFullScreenElement && !document.webkitFullscreenElement && !document.msFullscreenElement ) {
+            requestFullscreen(elem);
+        } else {
+            exitFullscreen();
+        }
+    });
+
+    $(document).on('fullscreenchange mozfullscreenchange webkitfullscreenchange MSFullscreenChange', function() {
+        if (!document.fullscreenElement && !document.mozFullScreenElement && !document.webkitFullscreenElement && !document.msFullscreenElement ) {
+            $('html').removeClass('fullscreen');
+            $('#buttonFullscreen').removeClass('slds-is-selected');
+        } else {
+            $('html').addClass('fullscreen');
+            $('#buttonFullscreen').addClass('slds-is-selected');
+        }
+    });
+});
+
+$(window).resize(resizeContainer);
+
+$('div#kanbanContents').scroll(function(){
+	hide_dd();
+});
+
+$(window).scroll(function(){
+	hide_dd();
+});
+
+//-----------------------------------------------------------------------------------------------
+// MAIN FUNCTION FOR BUILDING KANBAN BOARD + REFRESHING
+//-----------------------------------------------------------------------------------------------
+function kanban(children,parentId) {
+    if (isObject(children) && children.length > 0) {
+        for (var i = 0; i < children.length; i++) {
+            var column = children[i];
+            var columnId = column.column.Id;
+            var columnLevel = column.column[nameSpace + 'Level__c'];
+            
+            if (columnLevel != prevLevel) {
+                $('#' + parentId).append('<div class="containerColumns" id="parent-' + parentId + '-row-' + columnLevel + '"></div>');
+            }
+            var prevLevel = columnLevel;
+            
+            max = column.column[nameSpace +'Max_Number_of_Records__c'];
+            var columnContents = $('#parent-' + parentId + '-row-' + columnLevel).append(columnTemplate({
+	                max:max,
+	                title:column.columnName,
+	                progress:0,
+	                closed:column.isClosedLike,
+	                id:columnId
+                }));
+            if (!isObject(column.children)) {
+                $('#' + columnId).append('<div class="holderWork"></div>');
+            }
+            
+            if (column.isClosedLike && column.workItems.length > 0) {
+                $('#' + columnId).find('.titleText .fa').css('display','inline-block');
+            }
+
+            if (column.workItems) {
+                    // loop work
+                    column.workItems.forEach(function(workItem, index){
+                        if(workItem.needsColumnUpdate){
+                            worksWithNullColumns.push({ Id:workItem.workId, Column__c: columnId});
+                        }
+
+                        var numberOfDaysToDisplay = null;
+                        if(typeof workItem.columnIdToTimeSpent !== 'undefined' && typeof workItem.columnIdToTimeSpent[columnId]!== 'undefined'){
+                        	 numberOfDaysToDisplay = workItem.columnIdToTimeSpent[columnId].totalWorkDays;
+		                     if('No_History' == numberOfDaysToDisplay){
+		                        numberOfDaysToDisplay = null;
+		                      }
+                        }
+
+                        var classmetadata = '';
+						// Themes:
+						if (workItem.themeIdToNameMap !== null) {
+							$.each(workItem.themeIdToNameMap, function(key, value) {
+								classmetadata += ' card-theme-' + key;
+							});
+						}
+						
+						// Epics:
+						if (workItem.epicId !== null) {
+							classmetadata += ' card-epic-' + workItem.epicId;
+						}
+
+						// Product Tags:
+						if (workItem.productTag !== null) {
+							classmetadata += ' card-productTag-' + workItem.productTagId;
+						}
+
+						// Builds:
+						if (workItem.scheduledBuild !== null) {
+							classmetadata += ' card-build-' + workItem.scheduledBuildId;
+						}
+
+						// Assignees:
+						if (workItem.assigneeId !== null) {
+							classmetadata += ' card-assignee-' + workItem.assigneeId;
+						}
+
+						// QEs:
+						if (workItem.qeId !== null) {
+							classmetadata += ' card-qe-' + workItem.qeId;
+						}
+
+						// Colors:
+						if (workItem.colorId !== null) {
+							classmetadata += ' card-color-' + workItem.colorId;
+						}
+						
+						if (!kanbanData.kanbanPreferences.ShowNumberOfDaysInColumn) {
+							classmetadata += ' hideNumberOfDaysInColumn';
+						}
+
+						if (!kanbanData.kanbanPreferences.ShowNumberOfPosts) {
+							classmetadata += ' hideNumberOfPosts';
+						}
+
+						if (!kanbanData.kanbanPreferences.ShowNumberOfTasks) {
+							classmetadata += ' hideNumberOfTasks';
+						}
+
+						if (!kanbanData.kanbanPreferences.ShowPriority) {
+							classmetadata += ' hidePriority';
+						}
+
+						if (!kanbanData.kanbanPreferences.ShowQE) {
+							classmetadata += ' hideQE';
+						}
+
+						if (!kanbanData.kanbanPreferences.ShowRecordTypeIcon) {
+							classmetadata += ' hideRecordTypeIcon';
+						}
+
+						if (!kanbanData.kanbanPreferences.ShowScheduledBuild) {
+							classmetadata += ' hideScheduledBuild';
+						}
+
+						if (!kanbanData.kanbanPreferences.ShowStoryPoints) {
+							classmetadata += ' hideStoryPoints';
+						}
+
+						if (!kanbanData.kanbanPreferences.ShowWorkID) {
+							classmetadata += ' hideWorkID';
+						}
+
+						if (!kanbanData.kanbanPreferences.ShowRecordTypeIcon && !kanbanData.kanbanPreferences.ShowWorkID) {
+							classmetadata += ' hideRightSide';	
+						}
+
+						if (!kanbanData.kanbanPreferences.UseColorCoding) {
+							classmetadata += ' overrideColors';
+						}
+
+						var fontcolor = '';
+						if (kanbanData.kanbanPreferences.UseColorCoding && kanbanData.kanbanPreferences.ShowColoredSubjects) {
+							fontcolor = workItem.color;
+						}
+						
+						var solo = false;
+						if (!kanbanData.kanbanPreferences.ShowWorkID && kanbanData.kanbanPreferences.ShowRecordTypeIcon) {
+							solo = true;
+						}
+
+                        $('#' + columnId + ' .holderWork').append(cardTemplate({
+                            recordtype:workItem.recordType.replace(/\s/g, '').toLowerCase(),
+                            id:workItem.workId,
+                            worktitle:workItem.workTitle,
+                            assigneefullname:workItem.assigneeFullName,
+                            assigneeid:workItem.assigneeId,
+                            assigneepicurl:workItem.assigneePicUrl,
+                            qePicUrl:workItem.qePicUrl,
+                            subject:workItem.subject,
+                            numberOfTasks:workItem.numberOfTasks,
+                            numberOfPosts:workItem.numberOfPosts,
+                            storyPoints:workItem.storyPoints,
+                            priority:workItem.priority,
+                            scheduledBuild:workItem.scheduledBuild,
+                            numberOfDays:numberOfDaysToDisplay,
+                            classmetadata:classmetadata,
+                            color:workItem.color,
+                            colorid:workItem.colorId,
+                            fontcolor:fontcolor,
+                            solo:solo
+						}));
+						
+						// Record Types:
+						if ($('#filterBoxRecordTypes #item-' + workItem.recordType.replace(' ','').toLowerCase()).length === 0) {
+							$('#filterBoxRecordTypes').append(filterOptionsTemplate({
+								id: workItem.recordType.replace(' ','').toLowerCase(),
+								label: workItem.recordType
+							}));
+						}
+
+						// Themes:
+						if (workItem.themeIdToNameMap !== null) {
+							$.each(workItem.themeIdToNameMap, function(key, value) {
+								if ($('#filterBoxThemes #item-theme-' + key).length === 0) {
+									$('#filterBoxThemes').append(filterOptionsTemplate({
+										id: 'theme-' + key,
+										label: value
+									}));
+								}
+							});
+						}
+						
+						// Epics:
+						if (workItem.epicName !== null && $('#filterBoxEpics #item-epic-' + workItem.epicId).length === 0) {
+							$('#filterBoxEpics').append(filterOptionsTemplate({
+								id: 'epic-' + workItem.epicId,
+								label: workItem.epicName
+							}));
+						}
+
+						// Product Tags:
+						if (workItem.productTag !== null && $('#filterBoxProductTags #item-productTag-' +workItem.productTagId).length === 0) {
+							$('#filterBoxProductTags').append(filterOptionsTemplate({
+								id: 'productTag-' + workItem.productTagId,
+								label: workItem.productTag
+							}));
+						}
+
+						// Builds:
+						if (workItem.scheduledBuild !== null && $('#filterBoxBuilds #item-build-' + workItem.scheduledBuildId).length === 0) {
+							$('#filterBoxBuilds').append(filterOptionsTemplate({
+								id: 'build-' + workItem.scheduledBuildId,
+								label: workItem.scheduledBuild
+							}));
+						}
+
+						// Assignees:
+						if (workItem.assigneeId !== null && $('#filterBoxAssignees #item-assignee-' + workItem.assigneeId).length === 0) {
+							$('#filterBoxAssignees').append(filterOptionsTemplate({
+								id: 'assignee-' + workItem.assigneeId,
+								label: workItem.assigneeFullName
+							}));
+						}
+
+						// QEs:
+						if (workItem.qeId !== null && $('#filterBoxQEs #item-qe-' + workItem.qeId).length === 0) {
+							$('#filterBoxQEs').append(filterOptionsTemplate({
+								id: 'qe-' + workItem.qeId,
+								label: workItem.qeFullName
+							}));
+						}
+
+						// Colors:
+						if (workItem.colorId !== null) {
+							$('#item-color-' + workItem.colorId).closest('.itemRow').show();
+						}
+                    });
+                 
+            }
+            
+
+            kanban(column.children,columnId);
+        }
+    }
+}
+
+function refreshBoard() {
+	console.log('Refreshing board');
+	$('#kanbanContainer').addClass('boardloading');
+    Visualforce.remoting.Manager.invokeAction('{!$RemoteAction.ADM_KanbanBoardController.getColumnsAndWorksAsJSON}', '{!teamId}', function(result, event) {
+		if (event.status) {
+			kanbanData = (new Function('return ' + result))();
+		    kanbanObject = kanbanData.columns;
+			console.log(kanbanData);
+			if (kanbanObject == null || kanbanObject == '') {
+				errorDialog.html("No data returned from server. Please try your request again.").dialog({ title: "Error During Refresh" }).dialog("open");
+			} else {
+				$('#kanbanContents').html(null);
+				preFilterSettings();
+				populateColorData();
+				kanban(kanbanObject,'kanbanContents');
+				postFilterSettings();
+				initSortable();
+				resizeContainer();
+				updateColumnCounts();
+				$('#kanbanContainer').removeClass('boardloading');
+			}
+		} else if (event.type === 'exception') {
+ 			$('#kanbanContainer').removeClass('boardloading');
+			console.error(event.message);
+			if (event.message.toLowerCase().indexOf("request invalid for your session") > -1 || event.message.toLowerCase().indexOf("logged in?") > -1) {
+				errorDialog.html("It looks like your session has expired. Please refresh the page.").dialog({ title: "Error During Refresh" }).dialog( "option", "buttons", [{text: "Refresh", click: function() { location.reload(); } }]).dialog("open");
+			} else {
+				errorDialog.html("Bad data returned from server: " + event.message).dialog({ title: "Error During Refresh" }).dialog("open");
+			}
+		}
+    },{ escape:false });
+}
+
+//-----------------------------------------------------------------------------------------------
+// CARD COLORING
+//-----------------------------------------------------------------------------------------------
+function populateColorData() {
+	$('#colorPicker').empty();
+	if (kanbanData && kanbanData.teamColors) {
+		$.each(kanbanData.teamColors, function(index, item) {
+		    $('#colorPicker').append(dropdownColorTemplate({
+			    id:item.Id,
+                color:item[nameSpace+'Color__c'],
+		        label:item.Name
+		    }));			
+			$('#filterBoxColors').append(filterOptionsTemplate({
+				id: 'color-' + item.Id,
+				label: item.Name,
+                color: item[nameSpace+'Color__c'],
+				hide: true
+			}));
+		});
+	    $('#colorPicker').append(dropdownColorTemplate({
+		    removeIcon:true,
+	        label:'Remove Color'
+	    }));			
+	}
+
+	/*
+	if (workItem.colorId !== null && $('#filterBoxColors #item-color-' + workItem.colorId).length === 0) {
+		$('#filterBoxColors').append(filterOptionsTemplate({
+			id: 'color-' + workItem.colorId,
+			label: workItem.color
+		}));
+	}
+	*/
+}
+
+$(function() {
+	// Color coding of card, option clicked
+    $(document).on('click', '#colorPicker > li', function(e) {
+		var colorId = $(this).data('id');
+		var colorHex = $(this).data('color');
+		var workId = $('#cardDropdown').data('cardId');
+		var oldColorId = $('#' + workId).data('color');
+		
+		$('#' + workId).removeClass('card-color-' + oldColorId); // remove old color class (for filters)
+
+		if ($('.card-color-' + oldColorId).length === 0) { // if no other cards of the same color exist...
+			$('#item-color-' + oldColorId).closest('.itemRow').hide(); // remove old color filter option
+		}
+		
+		if (colorId === undefined) {
+			$('#' + workId).removeData('color').removeAttr('data-color');
+			$('#' + workId + ' .inner-card').css('border-left','1px #ccc solid');
+			$('#' + workId + ' .inner-card-subject').css('color','');
+			var workToColor = [{ Id:workId, Color__c: null }];
+		} else {
+			$('#' + workId).addClass('card-color-' + colorId); // add new color class (for filters)
+			$('#item-color-' + colorId).closest('.itemRow').show(); // add new color filter option
+			$('#' + workId).data('color',colorId).attr('data-color',colorId);
+			$('#' + workId + ' .inner-card').css('border-left','4px ' + colorHex + ' solid');
+			if (kanbanData.kanbanPreferences.ShowColoredSubjects) {
+				$('#' + workId + ' .inner-card-subject').css('color',colorHex)	
+			}
+			var workToColor = [{ Id:workId, Color__c: colorId }];
+		}
+
+		$("#filterColors").show(); // should color filters be shown?
+		if ($("#filterBoxColors > .itemRow:visible").length === 0) {
+			$("#filterColors").hide();
+		} else {
+			$("#filterColors").show();
+		}
+
+	    Visualforce.remoting.Manager.invokeAction('{!$RemoteAction.ADM_KanbanBoardController.saveWorks}', workToColor, false, function(result, event) {
+	            if (event.status) {
+					console.log('Color saved');
+	            } else if (event.type === 'exception') {
+	                console.error('Error removing card: ' + event.message);
+
+	            }
+	    });
+
+
+    });
+});
+
+//-----------------------------------------------------------------------------------------------
+// REMOVE CARD FUNCTIONS
+//-----------------------------------------------------------------------------------------------
+$(function() {
+	$(document).on('click', '.titleText .fa', function(){
+		var works = [];
+		var holderColumn = $(this).closest('.holderContents');
+		var hasWorkItems = ($(holderColumn).find('div.card').length > 0) ? true : false;
+		if (hasWorkItems) {
+			$('<div>This will purge all work items from this column.</div>').appendTo('body').dialog({
+	              modal: true,
+	              title: 'Are you sure?',
+	              autoOpen: true,
+	              width: 320,
+	              resizable: false,
+	              buttons: {
+	                  "Yes": function () {
+					  		$(holderColumn).find('.titleText .fa').hide();
+							$(holderColumn).find('div.card').each(function() {
+								works.push({ Id:$(this).attr('id'), Column__c: null, Column_Rank__c: null });
+								$(this).remove();
+							});
+
+							$(this).dialog("close");
+							console.log(works);
+							Visualforce.remoting.Manager.invokeAction('{!$RemoteAction.ADM_KanbanBoardController.saveWorks}', works, false, function(result, event) {
+								if (event.status) {
+									console.log('Removed work items');
+									//refreshBoard();
+					            } else if (event.type === 'exception') {
+					                console.error('Error removing Work Items from column with id: ' + columnId + ' ' +event.message);
+					            }
+					    	});
+					  },
+	                  "No": function () {
+	                      $(this).dialog("close").remove();
+	                  }
+	              },
+	              close: function (event, ui) {
+	                  $(this).remove();
+	              }
+	        });
+		}
+	});
+});
+
+function removeCard(workId){
+	var workToRemoveColumn = [];
+	workToRemoveColumn.push({ Id:workId, Column__c: null});
+    $('#' + workId).hide();
+
+    Visualforce.remoting.Manager.invokeAction('{!$RemoteAction.ADM_KanbanBoardController.saveWorks}', workToRemoveColumn, false, function(result, event) {
+            if (event.status) {
+                $('#' + workId).remove();
+            } else if (event.type === 'exception') {
+                console.error('Error removing card: ' + event.message);
+                $('#' + workId).show();
+            }
+    });
+}
+
+//-----------------------------------------------------------------------------------------------
+// MISC FUNCTIONS
+//-----------------------------------------------------------------------------------------------
+function saveWorkWithNullColumns(){
+    if(worksWithNullColumns.length >0 ){
+        Visualforce.remoting.Manager.invokeAction('{!$RemoteAction.ADM_KanbanBoardController.saveWorks}', worksWithNullColumns, false, function(result, event) {});
+    }
+}
+
+function isObject(obj) {
+  return obj === Object(obj);
+}
+
+function hide_dd() {
+	$('.card').removeClass('menuOpen');
+    $('.dropdown,.dropdown .ui-menu').hide();
+    $('.ui-menu-item').removeClass('ui-state-focus ui-state-active');
+    $(document).unbind('click', hide_dd);
+}
+
+
+
+//-----------------------------------------------------------------------------------------------
+// INIT PAGE
+//-----------------------------------------------------------------------------------------------
+var errorDialog;
+var laneScrolling = false;
+
+$(function() {
+    errorDialog = $("#errorDialog").dialog({
+        autoOpen: false,
+        resizable: false,
+        width:300,
+        modal: true,
+        buttons: {
+            "OK": function() {
+                errorDialog.dialog("close");
+            }
+        }
+    });
+
+    //-----------------------------------------------------------------------------------------------
+    // TOOLBAR BUTTONS
+    //-----------------------------------------------------------------------------------------------
+    $("#buttonRefresh").on("click", function() {
+		refreshBoard();
+    });
+    
+    // Backlog button located in ADM_KanbanBacklogDialog
+});
+</script>    
+<apex:outputPanel layout="none" rendered="{!IF($CurrentPage.parameters.isdtp == 'p1','false', 'true')}">
+	<!--- Aloha support -->
+	<script>
+	$(function() {
+	    $("#buttonFilter").on("click", function() {
+			if ($("#filterDialog").hasClass("opened")) {
+				$(this).removeClass('selected');
+				$("#kanbanContainer").css('margin-left','0px').width($("#kanbanContainer").width() + 200);
+				$("#filterDialog").removeClass('opened').css('left','-185px').css('opacity','0');
+			} else {
+				$(this).addClass('selected');
+				$("#kanbanContainer").css('margin-left','200px').width($("#kanbanContainer").width() - 200);
+				$("#filterDialog").height($("#kanbanContainer").height() + 24).addClass('opened').css('left','15px').css('opacity','1.0');
+			}
+	    });
+	});
+	</script>
+</apex:outputPanel>
+<apex:outputPanel layout="none" rendered="{!IF($CurrentPage.parameters.isdtp == 'p1','true', 'false')}">
+	<!--- SFX support -->
+	<script>
+	$(function() {
+	    $("#buttonFilter").on("click", function() {
+			if ($("#filterDialog").hasClass("opened")) {
+				$(this).removeClass('slds-is-selected');
+				$("#kanbanContainer").css('margin-right','0px').width($("#kanbanContainer").width() + 200);
+				$("#filterDialog").removeClass('opened').css('right','-220px').css('opacity','0');
+			} else {
+				$(this).addClass('slds-is-selected');
+				$("#kanbanContainer").css('margin-right','200px').width($("#kanbanContainer").width() - 200);
+				$("#filterDialog").height($("#kanbanContainer").height() + 24).addClass('opened').css('right','0px').css('opacity','1.0');
+			}
+	    });
+	});
+</script>
+</apex:outputPanel>
+<script>
+$(function() {
+	// Settings button located in ADM_KanbanSettings
+    // Full Screen button located with resize code above
+
+    $("#buttonHelp").on("click", function() {
+	   window.open("https://sites.google.com/a/salesforce.com/agile-help/what-is-kanban"); 
+    });
+    
+    // Favicon and title hacking
+    $('link[rel="shortcut icon"]').remove();
+    $('link[rel="icon"]').appendTo($('head'));
+    $('title').text('{!teamName} Kanban');
+    
+    //-----------------------------------------------------------------------------------------------
+    // WORK CARD FUNCTIONS
+    //-----------------------------------------------------------------------------------------------
+	// Double click card
+	$(document).on('dblclick','.card', function(e) {
+	    selectedWork = $(this).attr('id');
+	    if (e.shiftKey) {
+			window.open('/' + selectedWork)
+		} else {
+			if ({!IF($CurrentPage.parameters.isdtp == 'p1','true', 'false')} === true) {
+				workModalOpen();
+			} else {
+				workDialog.dialog("open");
+			}
+		}
+    });
+    
+	// Highlight card
+	$(document).on('click', function(e) {
+		if ($(e.target).closest('.card').hasClass('highlight')) {
+			$('.card').removeClass('highlight');
+		} else {
+			$('.card').removeClass('highlight');
+			$(e.target).closest('.card').addClass('highlight');
+		}
+    });
+
+	// Card context dropdown menu
+	var cardDropdown = $('#cardDropdown').appendTo(document.body);
+	$(document).on('click', '.inner-card-toolbar-dropdown-arrow', function(e) {
+		var card = $(this).closest('.card');
+		var cardId = card.attr('id');
+		var cardWorkTitle = card.attr('data-name');
+		var cardColorId = card.data('color');
+        hide_dd();
+        
+        $('#colorPicker i.fa-check').removeClass('fa-check');
+        
+		var buttonOffset = $(this).offset();
+		var buttonOffsetTop = buttonOffset.top + $(this).outerHeight();
+		card.addClass('menuOpen');
+		cardDropdown.data('cardId',cardId).data('cardWorkTitle',cardWorkTitle).menu().show().css('top',buttonOffsetTop).css('left',buttonOffset.left);
+		cardDropdown.find('li[data-id=' + cardColorId + '] i.fa').addClass('fa-check');
+		$(document).click(hide_dd);
+	});
+	
+	// Remove card from menu
+    $(document).on('click', '#removeCard', function(e) {
+	    var cardId = $(this).closest('.dropdown').data('cardId');
+		removeCard(cardId);
+    });
+
+    $(document).on('click', '#copyWorkId', function(e) {
+	    var cardWorkTitle = $(this).closest('.dropdown').data('cardWorkTitle');
+	    copyWorkIdToClipBoard(cardWorkTitle)
+    });
+
+
+    $(document).on('click', '#copyWorkUrl', function(e) {
+	    var cardId = $(this).closest('.dropdown').data('cardId');
+		var str = '{!baseUrl}' + '/' +cardId;
+		copyWorkIdToClipBoard(str)
+    });
+
+    function copyWorkIdToClipBoard(str){
+		var textArea = document.createElement("textarea");
+		textArea.style.position = 'fixed';
+		textArea.style.top = 0;
+		textArea.style.left = 0;
+		textArea.style.width = '2em';
+		textArea.style.height = '2em';
+		textArea.style.padding = 0;
+		textArea.style.border = 'none';
+		textArea.style.outline = 'none';
+		textArea.style.boxShadow = 'none';
+		textArea.style.background = 'transparent';
+		textArea.value = str;
+
+		document.body.appendChild(textArea);
+		textArea.select();
+
+		try {
+	    	var successful = document.execCommand('copy');
+	    	var msg = successful ? 'successful' : 'unsuccessful';
+	    	console.log('Copying text was ' + msg);
+  		} catch (err) {
+    		console.log('Oops, unable to copy');
+  		}
+
+  		document.body.removeChild(textArea);
+	}
+
+
+	/*$(document).bind("contextmenu", function(e) {
+		var closestCard = $(e.target).closest('.card');
+		$('.card').removeClass('highlight');
+		if (closestCard.length === 1) {
+			closestCard.addClass('highlight');
+			cardDropdown.data('cardId',closestCard.attr('id')).menu().show().css('top',event.pageY).css('left',event.pageX);
+			$(document).click(hide_dd);
+	        e.preventDefault();
+		}
+	});*/
+
+	// Remove card
+	/*$(document).on('click', '.remove-card', function(e) {
+		cardId = $(this).closest('.card').attr('id');
+		if (confirm('Are you sure you want to remove this Work card from the board?')) {
+			removeCard(cardId);
+		}
+    });*/
+
+	$('#containerToolbar button').tooltip({
+		position: {
+			my: "center bottom-10",
+			at: "center top",
+			using: function(position, feedback) {
+				$(this).css(position);
+				$("<div>")
+				.addClass("arrow")
+				.addClass(feedback.vertical)
+				.addClass(feedback.horizontal)
+				.appendTo(this);
+			}
+		},
+		show: {
+			delay:1000
+		}
+    }).off("focusin focusout");
+    
+    //-----------------------------------------------------------------------------------------------
+    // INIT KANBAN
+    //-----------------------------------------------------------------------------------------------
+    kanbanData = (new Function('return ' + initKanban))();
+    kanbanObject = kanbanData.columns;
+    workStatusesObject = (new Function('return ' + workStatuses))()
+    console.log(kanbanData);
+    
+	if (kanbanObject == null || kanbanObject == '') {
+		errorDialog.html("No data returned from server. Please try your request again.").dialog({ title: "Error During Initiation" }).dialog("open");	
+	} else {
+		laneScrolling = kanbanData.kanbanPreferences.laneScrolling; // Set lane scrolling preference
+		preFilterSettings();
+		populateColorData();
+		kanban(kanbanObject,'kanbanContents');
+		postFilterSettings();
+		kanbanSettings(kanbanObject,'kanbanSettingsContents');
+	}
+	saveWorkWithNullColumns();
+    initSortable(); // setup drag-and-drop
+	resizeContainer(); // needed to make board take up all available real estate
+    updateColumnCounts(); // needed to set column limits visually
+});
+
+$(window).load(function() {
+	resizeColumnHeights();
+});
+</script>
+<apex:include pageName="agf__ADM_KanbanSettings" />
+<apex:include pageName="agf__ADM_KanbanBacklogDialog" />
+
+</body>
+</html>
+</apex:page>

@@ -1,0 +1,177 @@
+<apex:page >
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-12"/>
+
+
+<head>
+<p class="MsoNormal" align="center" style='text-align:center'><b><span
+style='font-size:14.0pt; line-height:100%; font-family:&quot;Arial&quot;, &quot;sans-serif&quot;'>Process Overview by Department</span></b></p>
+</head>
+<head>
+<p class="MsoNormal" align="center" style='text-align:center'><b><span
+style='font-size:12.0pt; line-height:100%; font-family:&quot;Arial&quot;, &quot;sans-serif&quot;'>SALES</span></b></p>
+</head>
+<body>
+  
+  <h1>Leads</h1><br />
+  The Leads object is intended to be a temporary placeholder for leads pending qualification. Leads may come from the following paths:
+ </br>
+  <ul>
+  <li>Other Salesforce Orgs: Media, VGL</li>
+  <li>BU Websites</li>
+  <li>Trade Shows</li>
+  <li>Marketing Campaigns</li>
+</ul> <br/>
+   
+  Leads are reviewed and immediately updated and either converted to an Account, Contact and Opportunity or updated to Unqualified with a reason: duplicate, already in process. etc. 
+  <br/>
+  <br/>
+  <img src="/servlet/servlet.ImageServer?id=01570000002FeiK&oid=00D700000008zHZ&lastMod=1449672915000" alt="Lead Qualification" style="width:500px;height:300px;">
+  <br/>
+  <br/>
+  
+    
+  <h1>Dashboards</h1><br />
+  <a href = "/01Z70000000mvLE">AutoTrader Lead Status Dashboard</a><br /><br />
+  
+   <h2>Accounts</h2><br />
+   <ul>
+   <li>Accounts contain records for Dealers, OEM's, Third Party Export Partners and Vendors.</li>
+   <li>Record types are assigned to each category so that fields specific to that record are displayed for user input.</li>
+   <li>Account Name, Phone Number and Billing Address are required to complete setup of a new account.</li>
+   <li>Dealer Accounts do not become active until the first "Closed Won" Opportunity is Paid.</li>
+   <li>The system will automatically update the "Customer Created Date" field and Account Status field to Active upon the first payment.</li>
+   <li>Deactivation of Dealer Accounts is managed by the Accounting Team.  When an account is deemed inactive, Accounting<br />
+   will update the "Date Deactivated" field with the date the deactivation is effective.  Additionally, during the process<br />
+   an account alert will be placed on the account indicating there is a cancellation in process. <a href = "/servlet/servlet.FileDownload?file=01570000001TutA">Cancellation Process</a><br /><br /></li>
+   </ul>
+   
+   <h2>Contacts</h2><br />
+   <ul>
+   <li>Contacts are individuals associated with Accounts</li>
+  <li>Contacts related to Active Dealer Accounts are sync'd nightly with MotoSnap User Records</li>
+   <li>Contacts that have influence at multiple accounts will be listed as a single Contact on only 1 Account<br />
+  and a Contact Role on additional Accounts the contact is related to</li>
+   <li>New MotoSnap users sync'd as new contacts will be emailed automatically from Salesforce introducing them to our Virtual Training Offerings.</li>
+   </ul><br /><br />
+   
+    <h2>Opportunities, Proposals, Installments, Invoices</h2><br />
+   <ul>
+   <li>When a new Opportunity is created against an Account, logic determines whether it’s new or existing business.</li>
+<li>The Opportunity object summarizes information from the account, WebEx presentation, revenues, quote packets, activities,<br />
+products, contact roles, projects, installments, campaign influence, expenses, sales team and all field history.</li>
+<li>After demo, Sales determines what products or package to propose.</li>
+<li>Packages and compounding products auto populate all components referred to as “child” products.</li>
+<li>Child products zero out cost fields and AIS Rebates is a hard coded add.</li>
+<li>Opportunity Line Item (OLI) is determined by the discount given to the opportunity multiplied by the discount <br />
+associated with the package multiplied by the retail amount of the child product if purchased ala carte’.</li>  
+<li>Opportunity must have all onetime fees and applicable data integration fees or it will error.</li>
+<li>A click prepares an orderly PDF proposal, logic determines if discount fields are visible.</li>
+<li>Sales email proposal with auto populating templates.</li>
+<li>Lost Won creates an installment and locks the opportunity for management to approve the creation of the initial invoice.</li>
+<li>When marked paid the project and associated project pieces fire and numerous validation rules apply</li>
+   </ul>
+ <h1>Process Maps</h1><br />
+   <a href = "/servlet/servlet.FileDownload?file=01570000001U6lb">Sales Lifecycle</a><br />
+   <a href = "/servlet/servlet.FileDownload?file=01570000001U6lg">Opportunity Invoice Process</a><br />
+  <h1>Dashboards</h1><br />
+  Each region and super region has their own Dashboard to track sales performance, the following are main Dashboards<br />
+  used by the Executive Sales Team to monitor key performance metrics.<br />
+  <a href = "/01Z700000003Xcp">Sales Performance</a><br />
+  <a href = "/01Z70000000mOLv">Regional Performance</a><br />
+ 
+ <head>
+<p class="MsoNormal" align="center" style='text-align:center'><b><span
+style='font-size:12.0pt; line-height:100%; font-family:&quot;Arial&quot;, &quot;sans-serif&quot;'>IMPLEMENTATION</span></b></p>
+</head> 
+<h2>Project,Project Pieces and Processes</h2><br />
+Projects have a direct relationship to an opportunity, there will always be a project for a Closed Won Paid Opportunity and multiple<br />
+project pieces for products that need to be implemented.  Additionally product processes get assign to the project piece based on the<br />
+product name.
+   <ul>
+   <li>Every time a Closed Won Opportunity is marked Paid, the project and project pieces are automatically created and <br />
+   the Implementation Manager is notified via email of the new Project</li>
+   <li>The new Project will show in the New Projects View and Projects in Process Dashboard</li>
+   <li>Implementation Manager will make assignment to the application team</li>
+   <li>New Project will immediately show in the Team's view and populate to their Dashboard</li>
+   <li>Project/Project Pieces stages are kept up to date and fresh by team members updating milestones</li>
+   <li>Implementation Specialists, Implementation Managers, Data Integration, Creative Project Manages, Designers,<br />
+   Launch Coordinators, Dealer Advocates, Trainers and Travel Coordinators all interface with Projects/Project pieces during</li> 
+   the process.
+   <li>A Project will not be updated to "GO Live" until all project pieces are completed</li>
+      </ul>    
+      
+   <h1>Process Maps</h1><br />
+   <a href = "/servlet/servlet.FileDownload?file=01570000001U6mK">Project Lifecycle</a><br />
+    
+  <h1>Dashboards</h1><br />  
+  Each team has their own Dashboard to manage the project and project pieces through the process.<br />
+  <a href = "/01Z70000000moQt">My Projects</a><br />
+  <a href = "/01Z70000000mwbw">My Team's Projects</a><br />
+ 
+ <head>
+<p class="MsoNormal" align="center" style='text-align:center'><b><span
+style='font-size:12.0pt; line-height:100%; font-family:&quot;Arial&quot;, &quot;sans-serif&quot;'>SUPPORT</span></b></p>
+</head> 
+<h2>Tickets and Solutions</h2><br />
+Tickets are support issues created by our customers/third parties to request assistance with our products. Customers can reach support<br />
+by phone, email and via the new Customer Portal. Roles include: Level 1, Level 2-DMS, Website Support, Hardware, Exports, Level 3-<br />
+Development Support. Solutions is the VinSolutions knowledgebase that is accessible by customers and agents to assist in resolving issues.
+   <ul>
+   <li>Issues submitted via email/Customer Portal automatically create a ticket and assignment rules move it to the correct queues</li>
+   <li>Issues via phone are logged by Level 1 Support Agents and resolved on the phone or escalated to Level 2 for assistance</li>
+   <li>Team Leads monitor all queue volumes via Dashboards and adjust resources accordingly</li>
+   </ul> 
+      
+   <h1>Process Maps</h1><br />
+   <a href = "/servlet/servlet.FileDownload?file=01570000001U6nI">Ticket Lifecycle</a><br />
+   <a href = "/servlet/servlet.FileDownload?file=01570000001U6nN">Ticket Assignment Rules</a><br />
+   <a href = "/servlet/servlet.FileDownload?file=01570000001U6nS">Ticket Escalation</a><br />
+    
+  <h1>Dashboards</h1><br />  
+  Each team has their own Dashboard to manage the project and project pieces through the process.<br />
+  <a href = "/01Z70000000UQpY">Support Manager</a><br />
+  <a href = "/01Z70000000mqv7">My Working Tickets</a><br />
+  
+ <h2>Customer Portal and Ideas</h2><br />
+ The Customer Portal was recently released to our customer to allow them functionality to create a support issue and have visibility <br />
+ to the process of resolving the issue. Customer can request updates to their ticket and see real-time interaction with the support team.<br />
+ Additionally the customer can search our extensive solution library to find answers to their questions without having to call or create a ticket.<br />
+ 
+ Ideas allow our customers to post ideas regarding new products or enhancement to existing products and reach out to the Dealer community to<br />
+ vote and promote their ideas into action. 
+ 
+ <h2>Training Timecards</h2><br />
+Training Timecards are created whenever a customer accesses our Virtual Training Center and completes a training session.<br />We<br />
+recently completed an integration between Webex and Salesforce to automatically create the training timecards as the sessions are completed<br />
+and freed up considerable time that was previously used for data entry to add more training sessions for our customers.
+<head>
+<p class="MsoNormal" align="center" style='text-align:center'><b><span
+style='font-size:12.0pt; line-height:100%; font-family:&quot;Arial&quot;, &quot;sans-serif&quot;'>RECENT RELEASES</span></b></p>
+</head>
+<h2>VinCares</h2><br />
+New 1st Quarter 2011-Survey links embedded into emails to our customer on ticket resolves, upon completion<br />
+of onsite training, project process that allowed us to have instant feedback into our people and process and react quickly<br />
+to correct customer dis-satifaction.<br />
+<h2>Time Logs</h2><br />
+New 1st Quarter 2011-Users log in for the day, breaks and lunch to give visibility to our Management Team<br />
+<h2>Expense Reports</h2><br />
+Allows our users to create a expense report for reimbursement<br />
+<h2>Time Off Balance/Requests</h2><br /> 
+New 2nd Quarter 2011-Users can view their Time Off Balance and request time off<br />
+<h2>Personnel Action Request</h2><br /> 
+New 3rd Quarter 2011-Used by Managers for new hires, modifications/separation of existing employees<br />
+<h2>Launch Coordinator Integration into Projects</h2><br />
+This new functionality will integrate the new role "Launch Coordinator into the Project process.<br />
+<head>
+<p class="MsoNormal" align="center" style='text-align:center'><b><span
+style='font-size:12.0pt; line-height:100%; font-family:&quot;Arial&quot;, &quot;sans-serif&quot;'>FUTURE ENHANCEMENTS</span></b></p>
+</head>
+<h2>PBX Integration</h2><br />
+Integration of the phone system agent statistics to create adherence measurements for call logging, talk times, etc.<br />
+<h2>Service Console, Call Scripting and Knowledgebase</h2><br />
+Implementation of the new service console with call scripting and delivery of knowledge articles as agent answers questions,<br />
+which will allow agents to accurately resolve customer issues quickly and confidentally.
+</body>
+</html>
+</apex:page>

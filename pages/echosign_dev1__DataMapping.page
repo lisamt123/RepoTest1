@@ -1,0 +1,553 @@
+<apex:page standardController="echosign_dev1__SIGN_Data_Mapping__c" 
+	extensions="echosign_dev1.DataMappingController" 
+	title="{!$Label.echosign_dev1__Data_Mapping_Page_Title} {!mapping.Name}" 
+	sidebar="{!IF(NOT ISNULL($CurrentPage.parameters.showheadersidebar),$CurrentPage.parameters.showheadersidebar,'true')}" 
+	showHeader="{!IF(NOT ISNULL($CurrentPage.parameters.showheadersidebar),$CurrentPage.parameters.showheadersidebar,'true')}">
+	
+	<apex:includeScript value="{!URLFOR($Resource.echosign_dev1__jquery1103, 'jquery-ui-1.10.3.custom/js/jquery-1.9.1.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.echosign_dev1__jquery1103, 'jquery-ui-1.10.3.custom/js/jquery-ui-1.10.3.custom.min.js')}"/>
+    <apex:stylesheet value="{!URLFOR($Resource.echosign_dev1__jquery1103, 'jquery-ui-1.10.3.custom/css/ui-lightness/jquery-ui-1.10.3.custom.css')}"/>
+    
+    <style type="text/css">
+    	.invalid-blink {
+    		background-color: #E3F3FF;
+		}
+    	.ui-widget-overlay {
+			background: #666666 50% 50% repeat;
+			opacity: .5;
+			filter: Alpha(Opacity=50);
+		}
+		.esDialogClass .ui-widget-header {
+  			background: rgb(124, 197, 234);
+  			border: 1px solid rgb(124, 197, 234);
+		}
+    	.actionImage {
+    		margin-right: 2px;
+    		background: transparent;
+    		background-color: transparent;
+    		border-width: 0px;
+    	}
+    	.actionFileImage {
+    		margin-right: 5px;
+    		background: transparent;
+    		background-color: transparent;
+    		border-width: 0px;
+    	}    	
+    	.targetMappingCell {
+    		background-color: #DCE6F2;
+    	}
+    	.sourceMappingCell {
+    		background-color: #DDD9C4;
+    	}
+    	.actionMappingCell {
+    		background-color: #EEEEEE;
+    	}
+    	.disableMappingCell {
+    		background-color: #EEEEEE;
+    	}
+    	.eventMappingCell {
+    		background-color: #DCE6F2;
+    	}
+    	.formSwitchImage {
+    		vertical-align: middle;
+    	}
+    </style>
+    
+    <script>
+    	$jquery = jQuery.noConflict();
+		
+    	$jquery(document).ready( function() {
+    	    if( !{!isApiKeySet} ) {
+				window.location = '/apex/EchoSignSetupWizard?showheadersidebar=true';
+			} else {
+				document.getElementById('{!$Component.mappingPanel}').style.display = 'block';
+			}
+			
+    		$jquery("#fieldMappingSettingsDialog").dialog(
+			{
+				autoOpen:false,
+				position:"center",
+				modal:true,
+				closeable:false,
+				resizable:false,
+				draggable:true,
+				overlay:{opacity:5.0,background:"red"},
+				dialogClass:"esDialogClass",
+				title:"{!$Label.Field_Mapping_Value_Settings_Label}"
+			});
+			
+			$jquery("#objectSelectorDialog").dialog(
+			{
+				width:"auto",
+				height:"auto",
+				autoOpen:false,
+				position:"center",
+				modal:true,
+				closeable:false,
+				resizable:false,
+				draggable:true,
+				overlay:{opacity:5.0,background:"red"},
+				dialogClass:"esDialogClass",
+				title:"{!$Label.Object_Selector_Dialog_Title}"
+			});
+				
+			setStyleAttributes();
+		});
+		
+		function flashFieldMappingRow(index) {
+			var color = '#E3F3FF';
+			
+			document.getElementById('j_id0:ProcessTemplateId:fieldMappingsPageBlock:fieldMappingsSection:fieldMappingsTable:' + index + ':actionColumn').style.backgroundColor = color;
+            document.getElementById('j_id0:ProcessTemplateId:fieldMappingsPageBlock:fieldMappingsSection:fieldMappingsTable:' + index + ':disableColumn').style.backgroundColor = color;
+            document.getElementById('j_id0:ProcessTemplateId:fieldMappingsPageBlock:fieldMappingsSection:fieldMappingsTable:' + index + ':targetObjectColumn').style.backgroundColor = color;
+            document.getElementById('j_id0:ProcessTemplateId:fieldMappingsPageBlock:fieldMappingsSection:fieldMappingsTable:' + index + ':targetFieldColumn').style.backgroundColor = color;
+            document.getElementById('j_id0:ProcessTemplateId:fieldMappingsPageBlock:fieldMappingsSection:fieldMappingsTable:' + index + ':sourceTypeColumn').style.backgroundColor = color;
+            document.getElementById('j_id0:ProcessTemplateId:fieldMappingsPageBlock:fieldMappingsSection:fieldMappingsTable:' + index + ':sourceValueColumn').style.backgroundColor = color;
+            document.getElementById('j_id0:ProcessTemplateId:fieldMappingsPageBlock:fieldMappingsSection:fieldMappingsTable:' + index + ':eventColumn').style.backgroundColor = color;
+    	
+    		var on = true;
+    	   	window.setInterval(function() {
+    			if( !on ) {
+    				return;
+    			}
+            	
+            	on = false;
+            	
+            	document.getElementById('j_id0:ProcessTemplateId:fieldMappingsPageBlock:fieldMappingsSection:fieldMappingsTable:' + index + ':actionColumn').style.backgroundColor = '';
+            	document.getElementById('j_id0:ProcessTemplateId:fieldMappingsPageBlock:fieldMappingsSection:fieldMappingsTable:' + index + ':disableColumn').style.backgroundColor = '';
+            	document.getElementById('j_id0:ProcessTemplateId:fieldMappingsPageBlock:fieldMappingsSection:fieldMappingsTable:' + index + ':targetObjectColumn').style.backgroundColor = '';
+            	document.getElementById('j_id0:ProcessTemplateId:fieldMappingsPageBlock:fieldMappingsSection:fieldMappingsTable:' + index + ':targetFieldColumn').style.backgroundColor = '';
+            	document.getElementById('j_id0:ProcessTemplateId:fieldMappingsPageBlock:fieldMappingsSection:fieldMappingsTable:' + index + ':sourceTypeColumn').style.backgroundColor = '';
+            	document.getElementById('j_id0:ProcessTemplateId:fieldMappingsPageBlock:fieldMappingsSection:fieldMappingsTable:' + index + ':sourceValueColumn').style.backgroundColor = '';
+            	document.getElementById('j_id0:ProcessTemplateId:fieldMappingsPageBlock:fieldMappingsSection:fieldMappingsTable:' + index + ':eventColumn').style.backgroundColor = '';
+    		}, 4000);
+		}
+		
+		function flashFileMappingRow(index) {
+			var color = '#E3F3FF';
+			
+			document.getElementById('j_id0:ProcessTemplateId:fileMappingsPageBlock:fileMappingsSection:fileMappingsTable:' + index + ':actionColumn').style.backgroundColor = color;
+           	document.getElementById('j_id0:ProcessTemplateId:fileMappingsPageBlock:fileMappingsSection:fileMappingsTable:' + index + ':disableColumn').style.backgroundColor = color;
+            document.getElementById('j_id0:ProcessTemplateId:fileMappingsPageBlock:fileMappingsSection:fileMappingsTable:' + index + ':targetObjectColumn').style.backgroundColor = color;
+            document.getElementById('j_id0:ProcessTemplateId:fileMappingsPageBlock:fileMappingsSection:fileMappingsTable:' + index + ':targetTypeColumn').style.backgroundColor = color;
+            document.getElementById('j_id0:ProcessTemplateId:fileMappingsPageBlock:fileMappingsSection:fileMappingsTable:' + index + ':targetFieldColumn').style.backgroundColor = color;
+            document.getElementById('j_id0:ProcessTemplateId:fileMappingsPageBlock:fileMappingsSection:fileMappingsTable:' + index + ':sourceValueColumn').style.backgroundColor = color;
+            document.getElementById('j_id0:ProcessTemplateId:fileMappingsPageBlock:fileMappingsSection:fileMappingsTable:' + index + ':eventColumn').style.backgroundColor = color;
+			
+			var on = true;
+    	   	window.setInterval(function() {
+    			if( !on ) {
+    				return;
+    			}
+            	
+            	on = false;
+            	
+            	document.getElementById('j_id0:ProcessTemplateId:fileMappingsPageBlock:fileMappingsSection:fileMappingsTable:' + index + ':actionColumn').style.backgroundColor = '';
+            	document.getElementById('j_id0:ProcessTemplateId:fileMappingsPageBlock:fileMappingsSection:fileMappingsTable:' + index + ':disableColumn').style.backgroundColor = '';
+            	document.getElementById('j_id0:ProcessTemplateId:fileMappingsPageBlock:fileMappingsSection:fileMappingsTable:' + index + ':targetObjectColumn').style.backgroundColor = '';
+            	document.getElementById('j_id0:ProcessTemplateId:fileMappingsPageBlock:fileMappingsSection:fileMappingsTable:' + index + ':targetTypeColumn').style.backgroundColor = '';
+            	document.getElementById('j_id0:ProcessTemplateId:fileMappingsPageBlock:fileMappingsSection:fileMappingsTable:' + index + ':targetFieldColumn').style.backgroundColor = '';
+            	document.getElementById('j_id0:ProcessTemplateId:fileMappingsPageBlock:fileMappingsSection:fileMappingsTable:' + index + ':sourceValueColumn').style.backgroundColor = '';
+            	document.getElementById('j_id0:ProcessTemplateId:fileMappingsPageBlock:fileMappingsSection:fileMappingsTable:' + index + ':eventColumn').style.backgroundColor = '';
+            	
+    		}, 4000);
+		}
+			
+		function setStyleAttributes() {
+			try {		
+				//Work around because headerClass for column did not work
+				document.getElementById('j_id0:ProcessTemplateId:fieldMappingsPageBlock:fieldMappingsSection:fieldMappingsTable:actionColumnheader').style.backgroundColor = '#DDDDDD';
+				document.getElementById('j_id0:ProcessTemplateId:fieldMappingsPageBlock:fieldMappingsSection:fieldMappingsTable:disableColumnheader').style.backgroundColor = '#DDDDDD';
+			
+				document.getElementById('j_id0:ProcessTemplateId:fileMappingsPageBlock:fileMappingsSection:fileMappingsTable:actionColumnheader').style.backgroundColor = '#DDDDDD';
+				document.getElementById('j_id0:ProcessTemplateId:fileMappingsPageBlock:fileMappingsSection:fileMappingsTable:disableColumnheader').style.backgroundColor = '#DDDDDD';
+			
+				document.getElementById('j_id0:ProcessTemplateId:fieldMappingsPageBlock:fieldMappingsSection:fieldMappingsTable:targetObjectColumnheader').style.backgroundColor = '#B8CCE4';
+				document.getElementById('j_id0:ProcessTemplateId:fieldMappingsPageBlock:fieldMappingsSection:fieldMappingsTable:targetFieldColumnheader').style.backgroundColor = '#B8CCE4';
+			
+				document.getElementById('j_id0:ProcessTemplateId:fileMappingsPageBlock:fileMappingsSection:fileMappingsTable:targetObjectColumnheader').style.backgroundColor = '#B8CCE4';
+				document.getElementById('j_id0:ProcessTemplateId:fileMappingsPageBlock:fileMappingsSection:fileMappingsTable:targetTypeColumnheader').style.backgroundColor = '#C4BC97';
+				document.getElementById('j_id0:ProcessTemplateId:fileMappingsPageBlock:fileMappingsSection:fileMappingsTable:targetFieldColumnheader').style.backgroundColor = '#C4BC97';
+
+				document.getElementById('j_id0:ProcessTemplateId:fieldMappingsPageBlock:fieldMappingsSection:fieldMappingsTable:sourceTypeColumnheader').style.backgroundColor = '#C4BC97';
+				document.getElementById('j_id0:ProcessTemplateId:fieldMappingsPageBlock:fieldMappingsSection:fieldMappingsTable:sourceValueColumnheader').style.backgroundColor = '#C4BC97';
+			
+				document.getElementById('j_id0:ProcessTemplateId:fileMappingsPageBlock:fileMappingsSection:fileMappingsTable:sourceValueColumnheader').style.backgroundColor = '#B8CCE4';
+			
+				document.getElementById('j_id0:ProcessTemplateId:fieldMappingsPageBlock:fieldMappingsSection:fieldMappingsTable:eventColumnheader').style.backgroundColor = '#B8CCE4';
+			
+				document.getElementById('j_id0:ProcessTemplateId:fileMappingsPageBlock:fileMappingsSection:fileMappingsTable:eventColumnheader').style.backgroundColor = '#C4BC97';
+			} catch(e) {
+			}
+		}
+		
+		function showSettingsDialog() {
+      		$jquery("#fieldMappingSettingsDialog").dialog("open");
+		}
+		
+		function showObjectSelectorDialog() {
+      		$jquery("#objectSelectorDialog").dialog("open");
+		}
+		
+		function hideObjectSelectorDialog() {
+			$jquery('#objectSelectorDialog').dialog('close');
+		}
+	</script>
+	
+	<apex:outputpanel id="mappingPanel" style="display: none;">
+		<apex:form id="ProcessTemplateId">
+			<apex:sectionHeader title="{!$Label.echosign_dev1__Data_Mapping_Section_Header}" subtitle="{!mappingName}"/> 
+        	<apex:pagemessages id="theMessages"/>
+        	<apex:pageBlock title="{!$Label.echosign_dev1__Data_Mapping_Title}" helpTitle="{!$Label.echosign_dev1__Data_Mapping_Help_Title}" helpUrl="{!$Page.echosign_dev1__EchosignHelp}" id="summaryPageBlock">
+				<apex:pageBlockButtons location="top">
+                	<apex:commandbutton action="{!save}" value="{!$Label.echosign_dev1__Save_Button_Label}"/>
+                	<apex:commandbutton action="{!cancel}" value="{!$Label.echosign_dev1__Cancel_Button_Label}" onclick="if(!confirm('{!$Label.echosign_dev1__Confirm_Prompt}')){return false;}" />
+                	<apex:commandbutton action="{!delete}" value="{!$Label.echosign_dev1__Delete_Button_Label}" onclick="if(!confirm('{!$Label.echosign_dev1__Confirm_Prompt}')){return false;}" />   
+                	<apex:commandbutton action="{!cloneMapping}" value="{!$Label.echosign_dev1__Clone_Button_Label}"/>                    
+            	</apex:pageBlockButtons>
+                <apex:pageBlockSection collapsible="false" columns="1">
+                	<apex:pageBlockSectionItem >
+           				<apex:outputpanel >
+           					{!$Label.Data_Mapping_Description}
+           					<p>{!$Label.Data_Mapping_Guide_Prefix} <a style="color: blue;" href="http://www.adobe.com/go/echosign_salesforce_installguide" target="pdf">{!$Label.Data_Mapping_Link_Text}</a> {!$Label.Data_Mapping_Installation_Prefix}</p><br/>
+           				</apex:outputPanel>
+           			</apex:pageBlockSectionItem>
+                	<apex:pageBlockSectionItem labelStyle="text-align: left;">
+                		<apex:outputLabel value="{!$Label.echosign_dev1__EchoSign_Data_Mapping_Name_Label}" for="mappingNameField"/>
+                		<apex:inputText value="{!mapping.Name}" required="true" id="mappingNameField" size="60">
+                			<apex:actionSupport event="onchange" 
+                                rerender="formFieldsImportPanel,fieldMappingsPanel,fileMappingsPanel" />
+                		</apex:inputText>
+                	</apex:pageBlockSectionItem>
+                	<apex:pageBlockSectionItem labelStyle="text-align: left;">
+                		<apex:outputPanel title="{!$ObjectType.echosign_dev1__SIGN_Data_Mapping__c.fields.echosign_dev1__Default_Data_Mapping__c.inlineHelpText}">
+                			<apex:outputLabel value="{!$ObjectType.echosign_dev1__SIGN_Data_Mapping__c.fields.echosign_dev1__Default_Data_Mapping__c.label}" for="mappingDefaultField"/>
+                		</apex:outputPanel>
+                		<apex:inputfield value="{!mapping.echosign_dev1__Default_Data_Mapping__c}" id="mappingDefaultField"/>	
+                	</apex:pageBlockSectionItem>
+                </apex:pageBlockSection>
+    		</apex:pageBlock>
+        	<apex:pageBlock title="{!$Label.echosign_dev1__Data_Mapping_Field_Mapping_Section_Header}" id="fieldMappingsPageBlock">
+        		<apex:pageBlockSection collapsible="false" columns="1">
+        			<apex:pageBlockSectionItem >
+        				<apex:outputPanel id="formFieldsImportPanel" style="opacity: {! IF(mapping.Name <> NULL, 1.0, 0.3) };">
+        					<b><apex:outputlabel value="{!$Label.echosign_dev1__Data_Mapping_Import_Label}"/></b>&nbsp;
+        					<apex:inputfield value="{!importAgreement.echosign_dev1__Agreement__c}" rendered="{! mapping.Name <> NULL }">
+                         		<apex:actionSupport event="onchange"  action="{!onAgreementLookupChange}"  rerender="formButton,theMessages"/>
+                    		</apex:inputfield>
+                    		<apex:inputText rendered="{! mapping.Name = NULL }" disabled="true" />
+                    		<apex:commandbutton action="{!retrieveFormFields}" value="{!$Label.echosign_dev1__Data_Mapping_Import_Button_Label}" status="FormLoadingStatus" id="formButton" disabled="{! OR(isRetrieveFormDataButtonDisabled, mapping.Name = NULL) }" rerender="theMessages,totalImportFormFieldNamesPanel,fieldMappingsPageBlock"/>
+        					<apex:actionStatus id="FormLoadingStatus">
+                    			<apex:facet name="start">
+                        			<div class="waitingSearchDiv" style="width: 100%; height: 100%; display: ; opacity:.5;" />
+                        			<img src="{!$Resource.loading}" style="width:20px;height:20px" />
+                        		</apex:facet>
+                    		</apex:actionStatus>
+        					<apex:outputpanel id="totalImportFormFieldNamesPanel" style="padding-left: 10px;" rendered="{! formFieldsOptions.size <> 0 }"><font color="red">{!totalImportedFormFieldNames}</font> {!$Label.echosign_dev1__Data_Mapping_Import_Count_Postfix}</apex:outputPanel>
+                    	</apex:outputPanel>
+        			</apex:pageBlockSectionItem>
+        		</apex:pageBlockSection>
+        		<apex:pageBlockSection id="fieldMappingsSection" columns="1">
+        			<apex:outputPanel id="fieldMappingsPanel">
+        				<script>
+							setStyleAttributes();
+						</script>
+						<apex:outputPanel >
+							{!$Label.echosign_dev1__Data_Mapping_Field_Mappings_Description}
+                   		</apex:outputPanel>
+                   		<br/><br/>
+                   		<apex:pageBlockTable id="fieldMappingsTable" value="{!fieldMappingWrappers}" var="fieldMappingWrapper" columns="7" style="opacity: {! IF(mapping.Name <> NULL, 1.0, 0.3) }; width: 1300px;">
+                       		<apex:column id="actionColumn" styleClass="actionMappingCell" style="border-bottom-style: solid; border-bottom-width: 1px; border-bottom-color: white; border-right-style: solid; border-right-width: 1px; border-right-color: white;">
+                       			<apex:facet name="header"><apex:outputpanel style="font-size: 10px;">{!$Label.echosign_dev1__Actions_Column_Header}</apex:outputpanel></apex:facet>
+                        		<apex:outputpanel id="fieldMappingActionPanel">
+                            		<apex:image title="{!$Label.echosign_dev1__Data_Mapping_Action_Copy_Row_Label}" value="{!$Resource.echosign_dev1__AddEntry}" styleClass="actionImage">
+                                		<apex:actionSupport event="onclick" action="{!onFieldMappingAdd}" rerender="fieldMappingsPanel,theMessages">
+                            				<apex:param value="{!fieldMappingWrapper.row}" name="selectedMapping" assignTo="{!selectedMapping}" />
+                                    	</apex:actionSupport>
+                                 	</apex:image>
+                                 	<apex:image title="{!$Label.echosign_dev1__Data_Mapping_Action_Delete_Label}" value="{!$Resource.echosign_dev1__TrashDelete}" styleClass="actionImage">
+                                 		<apex:actionSupport event="onclick" action="{!onFieldMappingDelete}" rerender="fieldMappingsPanel,theMessages">
+                            				<apex:param value="{!fieldMappingWrapper.row}" name="selectedMapping" assignTo="{!selectedMapping}" />
+                                    	</apex:actionSupport>
+                                 	</apex:image>
+                                 	<apex:image title="{!$Label.echosign_dev1__Data_Mapping_Settings_Action_Label}" value="{!$Resource.echosign_dev1__GearSettings}" styleClass="actionImage">
+                                 		<apex:actionSupport event="onclick" action="{!onFieldMappingSettings}" rerender="fieldMappingSettingsPanel,theMessages" oncomplete="showSettingsDialog();">
+                            				<apex:param value="{!fieldMappingWrapper.row}" name="selectedMapping" assignTo="{!selectedMapping}" />
+                                    	</apex:actionSupport>
+                                 	</apex:image>
+                        		</apex:outputpanel>
+                        	</apex:column>
+                        	<apex:column id="disableColumn" styleClass="disableMappingCell" style="border-bottom-style: solid; border-bottom-width: 1px; border-bottom-color: white; border-right-style: solid; border-right-width: 1px; border-right-color: white;">
+                        		<apex:facet name="header"><apex:outputpanel style="font-size: 10px;">{!$ObjectType.echosign_dev1__SIGN_Field_Mapping__c.fields.echosign_dev1__Disable__c.label}</apex:outputpanel></apex:facet>
+                           		<apex:inputfield id="fieldMappingDisableInput" value="{!fieldMappingWrapper.mapping.echosign_dev1__Disable__c}"/>  
+                        	</apex:column>
+                        	<apex:column id="targetObjectColumn" styleClass="targetMappingCell" style="border-bottom-style: solid; border-bottom-width: 1px; border-bottom-color: white; border-right-style: solid; border-right-width: 1px; border-right-color: white;">
+                       			<apex:facet name="header"><apex:outputpanel style="font-size: 10px;">{!$Label.echosign_dev1__Data_Mapping_Field_Target_Object}</apex:outputpanel></apex:facet>
+                        		<apex:outputpanel id="fieldMappingObjectPanel" title="{!fieldMappingWrapper.fullPathLabel}">
+                        			<apex:commandlink value="{!fieldMappingWrapper.objectLabel}" 
+                                		action="{!onFieldMappingObjectSelect}" 
+                                		oncomplete="showObjectSelectorDialog();" 
+                                		rerender="objectSelectorPanel,objectSelectorOutputPanel,theMessages">
+										<apex:param value="{!fieldMappingWrapper.row}" name="selectedMapping" assignTo="{!selectedMapping}" />
+                                	</apex:commandlink>
+                        		</apex:outputpanel>
+                        	</apex:column>
+                        	<apex:column id="targetFieldColumn" styleClass="targetMappingCell" style="border-bottom-style: solid; border-bottom-width: 1px; border-bottom-color: white; border-right-style: solid; border-right-width: 1px; border-right-color: white;">
+                       			<apex:facet name="header"><apex:outputpanel style="font-size: 10px;">{!$Label.echosign_dev1__Data_Mapping_Field_Target_Field}</apex:outputpanel></apex:facet>
+                       			<apex:outputpanel id="fieldMappingFieldPanel" rendered="{! fieldMappingWrapper.objectFieldOptions.size <> 0 }">
+                        			<apex:selectList value="{!fieldMappingWrapper.mapping.Name}" size="1" required="true"> 
+                                		<apex:selectOptions value="{!fieldMappingWrapper.objectFieldOptions}"/>    
+                               		</apex:selectList>
+                        		</apex:outputpanel>
+                        	</apex:column>
+                        	<apex:column id="sourceTypeColumn" styleClass="sourceMappingCell" style="border-bottom-style: solid; border-bottom-width: 1px; border-bottom-color: white; border-right-style: solid; border-right-width: 1px; border-right-color: white;">
+                       			<apex:facet name="header"><apex:outputpanel style="font-size: 10px;">{!$Label.echosign_dev1__Data_Mapping_Input_Type}</apex:outputpanel></apex:facet>
+                        		<apex:outputpanel id="fieldMappingTypePanel">
+                        			<apex:inputfield value="{!fieldMappingWrapper.mapping.echosign_dev1__Type__c}" required="true">
+                                    	<apex:actionSupport event="onchange" action="{!onFieldMappingType}" rerender="fieldMappingValueParentPanel,theMessages">
+                                        	<apex:param value="{!fieldMappingWrapper.row}" name="selectedMapping" assignTo="{!selectedMapping}" />
+                                    	</apex:actionSupport>
+                                	</apex:inputfield>  
+                        		</apex:outputpanel>
+                        	</apex:column>
+                        	<apex:column id="sourceValueColumn" styleClass="sourceMappingCell" style="border-bottom-style: solid; border-bottom-width: 1px; border-bottom-color: white; border-right-style: solid; border-right-width: 1px; border-right-color: white;">
+                       			<apex:facet name="header"><apex:outputpanel style="font-size: 10px;">{!$Label.echosign_dev1__Data_Mapping_Value}</apex:outputpanel></apex:facet>
+                       			<apex:outputpanel id="fieldMappingValueParentPanel">
+                       				<apex:outputpanel id="fieldMappingValueInputPanel" rendered="{! fieldMappingWrapper.mapping.Type__c = 'EchoSign Form Field' }">
+                                		<apex:image styleClass="formSwitchImage" title="{!$Label.echosign_dev1__Data_Mapping_List_Type_Title}" value="{!$Resource.echosign_dev1__ListFormFieldName}" rendered="{! fieldMappingWrapper.mapping.Input_Type__c <> 'List' }">
+                                    		<apex:actionSupport event="onclick" action="{!onFieldMappingFormInputType}" rerender="fieldMappingValuePanel,fieldMappingValueInputPanel,theMessages">
+                                        		<apex:param value="{!fieldMappingWrapper.row}" name="selectedMapping" assignTo="{!selectedMapping}" />
+                                    		</apex:actionSupport>
+                                   		</apex:image>
+                                    	<apex:image styleClass="formSwitchImage" title="{!$Label.echosign_dev1__Data_Mapping_Text_Type_Title}" value="{!$Resource.echosign_dev1__TextFormFieldName}" rendered="{! fieldMappingWrapper.mapping.Input_Type__c <> 'Text' }">
+                                    		<apex:actionSupport event="onclick" action="{!onFieldMappingFormInputType}" rerender="fieldMappingValuePanel,fieldMappingValueInputPanel,theMessages">
+                                        		<apex:param value="{!fieldMappingWrapper.row}" name="selectedMapping" assignTo="{!selectedMapping}" />
+                                       		</apex:actionSupport>
+                                		</apex:image>
+                                	</apex:outputpanel>
+                        			<apex:outputpanel id="fieldMappingValuePanel">
+                                		<apex:outputpanel rendered="{! fieldMappingWrapper.mapping.Type__c = 'Agreement Field' }">
+                                    		<apex:selectList value="{! fieldMappingWrapper.mapping.Source__c }" size="1"> 
+                                        		<apex:selectOptions value="{! agreementFieldOptions }"/>   
+                                        	</apex:selectList>
+                                 		</apex:outputpanel>   
+                                    	<apex:outputpanel rendered="{! fieldMappingWrapper.mapping.Type__c = 'Constant' }">                                                               
+                                    		<apex:inputfield value="{! fieldMappingWrapper.mapping.Source__c }">
+                                        		<apex:actionSupport event="onchange" rerender="theMessages"/>
+                                       		</apex:inputfield>
+                                    	</apex:outputpanel>                
+                                    	<apex:outputpanel rendered="{! fieldMappingWrapper.mapping.Type__c = 'EchoSign Form Field' }">
+                                    		<apex:selectList value="{! fieldMappingWrapper.mapping.Source__c }" size="1" rendered="{! fieldMappingWrapper.mapping.Input_Type__c = 'List' }"> 
+                                        		<apex:selectOptions value="{! formFieldsOptions }"/>
+                                            	<apex:actionSupport event="onchange" rerender="theMessages"/> 
+                                        	</apex:selectList>
+                                    		<apex:inputfield value="{! fieldMappingWrapper.mapping.Source__c }" rendered="{! fieldMappingWrapper.mapping.Input_Type__c = 'Text' }"/>
+                               			</apex:outputpanel>   
+                            		</apex:outputpanel>
+                            	</apex:outputpanel>
+                        	</apex:column>
+                        	<apex:column id="eventColumn" styleClass="eventMappingCell" style="border-bottom-style: solid; border-bottom-width: 1px; border-bottom-color: white; border-right-style: solid; border-right-width: 1px; border-right-color: white;">
+                       			<apex:facet name="header"><apex:outputpanel style="font-size: 10px;">{!$Label.echosign_dev1__Data_Mapping_Event_Type}</apex:outputpanel></apex:facet>
+                        		<apex:outputpanel id="fieldMappingStatusPanel">
+                        			<apex:selectList value="{! fieldMappingWrapper.event }" size="1"> 
+                                    	<apex:selectOptions value="{! mappingEventOptions }"/>
+                                	</apex:selectList>
+                        		</apex:outputpanel>
+                        	</apex:column>
+                        </apex:pageBlockTable>
+                        <apex:outputpanel id="addFirstPanel" rendered="{! mapping.Name <> NULL }">
+                        	<br/>
+                        	<apex:image style="vertical-align: middle;" title="{!$Label.echosign_dev1__Add_Button_Label}" value="{!$Resource.echosign_dev1__PlusGreenCircle}">
+                            	<apex:actionSupport event="onclick" action="{!onFieldMappingAdd}" rerender="fieldMappingsPanel,theMessages"/>
+                            </apex:image>&nbsp;
+                            <apex:commandlink value="{!$Label.echosign_dev1__Add_Mapping_Button_Label}" 
+                            	action="{!onFieldMappingAdd}" 
+                                rerender="fieldMappingsPanel,theMessages"
+                                />
+                        </apex:outputPanel>
+                	</apex:outputPanel>
+            	</apex:pageBlockSection>
+        	</apex:pageBlock>
+        	<apex:pageBlock title="{!$Label.echosign_dev1__Data_Mapping_File_Mapping_Section_Header}" id="fileMappingsPageBlock">
+        		<apex:pageBlockSection id="fileMappingsSection" columns="1">
+        			<apex:outputPanel id="fileMappingsPanel">
+        				<script>
+							setStyleAttributes();
+						</script>
+						<apex:outputPanel >
+							{!$Label.echosign_dev1__Data_Mapping_File_Mappings_Description}
+                   		</apex:outputPanel>
+                   		<br/><br/>
+                   		<apex:pageBlockTable id="fileMappingsTable" value="{!fileMappingWrappers}" var="fileMappingWrapper" columns="7" style="opacity: {! IF(mapping.Name <> NULL, 1.0, 0.3) }; width: 1300px;">
+                       		<apex:column id="actionColumn" styleClass="actionMappingCell" style="border-bottom-style: solid; border-bottom-width: 1px; border-bottom-color: white; border-right-style: solid; border-right-width: 1px; border-right-color: white;">
+                       			<apex:facet name="header"><apex:outputpanel style="font-size: 10px;">{!$Label.echosign_dev1__Actions_Column_Header}</apex:outputpanel></apex:facet>
+                        		<apex:outputpanel id="fileMappingActionPanel">
+                            		<apex:image title="{!$Label.echosign_dev1__Data_Mapping_Action_Copy_Row_Label}" value="{!$Resource.echosign_dev1__AddEntry}" styleClass="actionFileImage">
+                                		<apex:actionSupport event="onclick" action="{!onFileMappingAdd}" rerender="fileMappingsPanel,theMessages">
+                            				<apex:param value="{!fileMappingWrapper.row}" name="selectedMapping" assignTo="{!selectedMapping}" />
+                                    	</apex:actionSupport>
+                                 	</apex:image>
+                                 	<apex:image title="{!$Label.echosign_dev1__Data_Mapping_Action_Delete_Label}" value="{!$Resource.echosign_dev1__TrashDelete}" styleClass="actionFileImage">
+                                 		<apex:actionSupport event="onclick" action="{!onFileMappingDelete}" rerender="fileMappingsPanel,theMessages">
+                            				<apex:param value="{!fileMappingWrapper.row}" name="selectedMapping" assignTo="{!selectedMapping}" />
+                                    	</apex:actionSupport>
+                                 	</apex:image>
+                        		</apex:outputpanel>
+                        	</apex:column>
+                        	<apex:column id="disableColumn" styleClass="disableMappingCell" style="border-bottom-style: solid; border-bottom-width: 1px; border-bottom-color: white; border-right-style: solid; border-right-width: 1px; border-right-color: white;">
+                        		<apex:facet name="header"><apex:outputpanel style="font-size: 10px;">{!$ObjectType.echosign_dev1__SIGN_File_Mapping__c.fields.echosign_dev1__Disable__c.label}</apex:outputpanel></apex:facet>
+                           		<apex:inputfield id="fileMappingDisableInput" value="{!fileMappingWrapper.mapping.echosign_dev1__Disable__c}"/>  
+                        	</apex:column>
+                        	<apex:column id="targetObjectColumn" styleClass="targetMappingCell" style="border-bottom-style: solid; border-bottom-width: 1px; border-bottom-color: white; border-right-style: solid; border-right-width: 1px; border-right-color: white;">
+                       			<apex:facet name="header"><apex:outputpanel style="font-size: 10px;">{!$Label.echosign_dev1__Data_Mapping_Field_Target_Object}</apex:outputpanel></apex:facet>
+                        		<apex:outputpanel id="fileMappingObjectPanel" title="{!fileMappingWrapper.fullPathLabel}">
+                        			<apex:commandlink value="{!fileMappingWrapper.objectLabel}" 
+                                		action="{!onFileMappingObjectSelect}" 
+                                		oncomplete="showObjectSelectorDialog();" 
+                                		rerender="objectSelectorPanel,objectSelectorOutputPanel,theMessages">
+										<apex:param value="{!fileMappingWrapper.row}" name="selectedMapping" assignTo="{!selectedMapping}" />
+                                	</apex:commandlink>
+                        		</apex:outputpanel>
+                        	</apex:column>
+                        	<apex:column id="targetTypeColumn" styleClass="sourceMappingCell" style="border-bottom-style: solid; border-bottom-width: 1px; border-bottom-color: white; border-right-style: solid; border-right-width: 1px; border-right-color: white;">
+                       			<apex:facet name="header"><apex:outputpanel style="font-size: 10px;">{!$Label.echosign_dev1__Data_Mapping_File_Target_Type}</apex:outputpanel></apex:facet>
+                        		<apex:outputpanel id="fileMappingTargetTypePanel">
+                        			<apex:selectList value="{!fileMappingWrapper.mapping.echosign_dev1__Target_Type__c}" size="1" required="true"> 
+                                    	<apex:selectOptions value="{!fileMappingWrapper.targetTypeOptions}"/>    
+                                        <apex:actionSupport event="onchange" rerender="fileMappingsPanel,theMessages"/>  
+                                	</apex:selectList> 
+                        		</apex:outputpanel>
+                        	</apex:column>
+                        	<apex:column id="targetFieldColumn" styleClass="sourceMappingCell" style="border-bottom-style: solid; border-bottom-width: 1px; border-bottom-color: white; border-right-style: solid; border-right-width: 1px; border-right-color: white;">
+                       			<apex:facet name="header"><apex:outputpanel style="font-size: 10px;">{!$Label.echosign_dev1__Data_Mapping_File_Target_Field}</apex:outputpanel></apex:facet>
+                       			<apex:outputpanel id="fileMappingFieldPanel" rendered="{! fileMappingWrapper.mapping.Target_Type__c="Add a reference link to the file" && fileMappingWrapper.objectFieldOptions.size <> 0 }">
+                               		<apex:selectList value="{!fileMappingWrapper.mapping.echosign_dev1__Target_Field_Name__c}" size="1"> 
+                                    	<apex:selectOptions value="{!fileMappingWrapper.objectFieldOptions}"/>
+                                    </apex:selectList> 
+                        		</apex:outputpanel>
+                        	</apex:column>
+                        	<apex:column id="sourceValueColumn" styleClass="targetMappingCell" style="border-bottom-style: solid; border-bottom-width: 1px; border-bottom-color: white; border-right-style: solid; border-right-width: 1px; border-right-color: white;">
+                       			<apex:facet name="header"><apex:outputpanel style="font-size: 10px;">{!$Label.echosign_dev1__Data_Mapping_File_Source_Type}</apex:outputpanel></apex:facet>
+                       			<apex:outputpanel id="fileMappingValuePanel">
+                                	<apex:inputfield value="{!fileMappingWrapper.mapping.echosign_dev1__Source_Type__c}" required="true">
+                                    	<apex:actionSupport event="onchange" action="{!onFileMappingSourceType}" rerender="fileMappingsPanel,theMessages">
+                                        	<apex:param value="{!fileMappingWrapper.row}" name="selectedMapping" assignTo="{!selectedMapping}" />
+                                    	</apex:actionSupport>
+                                	</apex:inputfield> 
+                            	</apex:outputpanel>
+                        	</apex:column>
+                        	<apex:column id="eventColumn" styleClass="sourceMappingCell" style="border-bottom-style: solid; border-bottom-width: 1px; border-bottom-color: white; border-right-style: solid; border-right-width: 1px; border-right-color: white;">
+                       			<apex:facet name="header"><apex:outputpanel style="font-size: 10px;">{!$Label.echosign_dev1__Data_Mapping_File_Event_Type}</apex:outputpanel></apex:facet>
+                        		<apex:outputpanel id="fileMappingStatusPanel">
+                        			<apex:selectList value="{! fileMappingWrapper.event }" size="1"> 
+                                    	<apex:selectOptions value="{! mappingEventOptions }"/>
+                                	</apex:selectList>
+                        		</apex:outputpanel>
+                        	</apex:column>
+                        </apex:pageBlockTable>
+                        <apex:outputpanel id="addFirstFilePanel" rendered="{! mapping.Name <> NULL }">
+                        	<br/>
+                        	<apex:image style="vertical-align: middle;" title="{!$Label.echosign_dev1__Add_Button_Label}" value="{!$Resource.echosign_dev1__PlusGreenCircle}">
+                            	<apex:actionSupport event="onclick" action="{!onFileMappingAdd}" rerender="fileMappingsPanel,theMessages"/>
+                            </apex:image>&nbsp;
+                            <apex:commandlink value="{!$Label.echosign_dev1__Add_Mapping_Button_Label}" 
+                            	action="{!onFileMappingAdd}" 
+                                rerender="fileMappingsPanel,theMessages"/>
+                        </apex:outputPanel>
+                	</apex:outputPanel>
+            	</apex:pageBlockSection>
+        	</apex:pageBlock>
+        	<apex:pageBlock id="bottomPageBlock">
+				<apex:pageBlockButtons location="bottom">
+                	<apex:commandbutton action="{!save}" value="{!$Label.echosign_dev1__Save_Button_Label}"/>
+                	<apex:commandbutton action="{!cancel}" value="{!$Label.echosign_dev1__Cancel_Button_Label}" onclick="if(!confirm('{!$Label.echosign_dev1__Confirm_Prompt}')){return false;}" />
+                	<apex:commandbutton action="{!delete}" value="{!$Label.echosign_dev1__Delete_Button_Label}" onclick="if(!confirm('{!$Label.echosign_dev1__Confirm_Prompt}')){return false;}" />   
+                	<apex:commandbutton action="{!cloneMapping}" value="{!$Label.echosign_dev1__Clone_Button_Label}"/>                   
+            	</apex:pageBlockButtons>
+            </apex:pageBlock>
+   		</apex:form>
+	</apex:outputpanel>
+		
+   <div id="fieldMappingSettingsDialog" style="display: none;">
+   		<apex:outputPanel id="fieldMappingSettingsOutputPanel">
+			<apex:form >
+				<apex:outputPanel id="fieldMappingSettingsPanel">
+					<div>
+            			<apex:inputCheckbox value="{! selectedFieldMappingWrapper.mapping.Do_No_Overwrite_Existing__c }" id="objectFieldMappingOverwrite" title="{!$Label.echosign_dev1__Data_Mapping_Overwrite_Title}">
+            				<apex:actionSupport event="onchange" rerender="fieldMappingSettingsOutputPanel"/> 
+            			</apex:inputCheckbox>
+						<apex:outputLabel style="font-weight: bold;" value="{!$ObjectType.echosign_dev1__SIGN_Field_Mapping__c.fields.echosign_dev1__Do_No_Overwrite_Existing__c.label}" for="objectFieldMappingOverwrite" title="{!$Label.echosign_dev1__Data_Mapping_Overwrite_Title}"/>
+            		</div>
+            		<div>
+            			<apex:inputCheckbox value="{! selectedFieldMappingWrapper.mapping.Do_Not_Write_Empty__c }" id="objectFieldMappingWriteEmpty" title="{!$Label.echosign_dev1__Data_Mapping_Empty_Title}">
+            				<apex:actionSupport event="onchange" rerender="fieldMappingSettingsOutputPanel"/> 
+            			</apex:inputCheckbox>
+            			<apex:outputLabel style="font-weight: bold;" value="{!$ObjectType.echosign_dev1__SIGN_Field_Mapping__c.fields.echosign_dev1__Do_Not_Write_Empty__c.label}" for="objectFieldMappingWriteEmpty" title="{!$Label.echosign_dev1__Data_Mapping_Empty_Title}"/>    	
+					</div>
+				</apex:outputPanel>
+			</apex:form>
+		</apex:outputPanel>
+	</div>
+	
+	<div id="objectSelectorDialog" style="display: none;">
+		<apex:outputPanel id="objectSelectorOutputPanel">
+			<apex:form id="objectSelectorForm">
+            	<apex:outputPanel id="selectorSectionContent" style="width: 400px;">
+                	<table width="100%">                         
+                    	<tr>
+                        	<td align="left" width="400px">                                                                
+                            	<b>{!$Label.Data_Mapping_Select_Object_Label}: &nbsp;</b>{! objectNodes[ objectNodes.size - 1 ].objectLabel }<br/><br/>                                                           
+                            	<b>{!$Label.Data_Mapping_Select_Object_Description} &nbsp;</b>
+                           	</td>
+                       	</tr>
+                        <apex:actionregion >                            
+                        	<apex:repeat value="{!objectNodes}" var="objectNode" id="selectorObjectNodes">  
+                            	<tr>       
+                                	<td align="left" width="100px">                                       
+                                    	<apex:selectList id="agreementRelationshipFields" value="{!objectNode.fieldName}" size="1" disabled="{!objectNode.disabled}"> 
+                                        	<apex:actionSupport onsubmit="document.getElementById('{!$Component.objectSelectorForm.selectMappingSourceField}').disabled = true;" oncomplete="document.getElementById('{!$Component.objectSelectorForm.selectMappingSourceField}').disabled = false" event="onchange" action="{!onAddSelectorObject}" rerender="objectSelectorOutputPanel,sourceField" status="AddingStatus"/>
+                                        	<apex:selectOptions value="{!objectNode.fieldOptions}"/>
+                                      	</apex:selectList>
+                             		</td>
+                                    <td align="left" width="5px">                                                                
+                                    	<b>&nbsp; &nbsp;</b>
+                                   	</td>  
+                               	</tr>
+                          	</apex:repeat>  
+                            <tr>    
+                            	<td align="left" width="5px">                                             
+                                	<apex:commandButton id="backObjectButton" 
+                                    	image="{!$Resource.echosign_dev1__MappingBackButton}" 
+                                    	action="{!onBackSelectorObject}"  
+                                    	rendered="{!isBackObjectButtonRendered}"
+                                    	rerender="objectSelectorOutputPanel,sourceField"
+                                    	title="{!$Label.echosign_dev1__Back_Button_Label}"
+                                    	style="vertical align: center; width: 20px; height: 20px; background: transparent; border-width: 0px;"/>
+                              	</td>
+                                <td>
+                                	<apex:actionStatus id="AddingStatus">
+                                    	<apex:facet name="start">
+                                        	<div class="waitingSearchDiv" style="width: 100%; height: 100%; display: ; opacity:.5;"></div>
+                                       		<img src="{!$Resource.Loading}" style="width:20px;height:20px" />
+                                    	</apex:facet>
+                                    </apex:actionStatus>
+                               	</td>                                                                                                                                                  
+                            </tr>                       
+                       	</apex:actionregion>  
+                  	</table>
+                </apex:outputPanel>
+                
+                <apex:commandbutton id="selectMappingSourceField" 
+                	value="{!$Label.echosign_dev1__Select_Button_Label}"
+                    action="{!onSelectMappingSourceField}"
+                    oncomplete="hideObjectSelectorDialog(); if( '{!selectedFieldMappingWrapper.row}' ) { flashFieldMappingRow('{!selectedFieldMappingWrapper.row}'); } else if( '{!selectedFileMappingWrapper.row}' ) { flashFileMappingRow('{!selectedFileMappingWrapper.row}'); } return false;" 
+                    rerender="fieldMappingsPanel,fileMappingsPanel,theMessages" />
+                    	
+               	<apex:commandbutton id="cancelMappingSourceField" 
+                    value="{!$Label.echosign_dev1__Cancel_Button_Label}"
+                    onclick="hideObjectSelectorDialog(); return false;"
+                    rerender="theMessages" /> 
+        	</apex:form>
+        </apex:outputPanel>
+	</div>
+</apex:page>

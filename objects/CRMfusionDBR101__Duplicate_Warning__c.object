@@ -1,0 +1,293 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <actionOverrides>
+        <actionName>Accept</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>CancelEdit</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Clone</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Delete</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Edit</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Follow</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>List</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>New</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>SaveEdit</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Tab</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>View</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <allowInChatterGroups>false</allowInChatterGroups>
+    <compactLayoutAssignment>SYSTEM</compactLayoutAssignment>
+    <customHelpPage>CRMfusionDBR101__DB_Help</customHelpPage>
+    <deploymentStatus>Deployed</deploymentStatus>
+    <deprecated>false</deprecated>
+    <enableActivities>true</enableActivities>
+    <enableBulkApi>true</enableBulkApi>
+    <enableEnhancedLookup>false</enableEnhancedLookup>
+    <enableFeeds>false</enableFeeds>
+    <enableHistory>false</enableHistory>
+    <enableReports>true</enableReports>
+    <enableSearch>true</enableSearch>
+    <enableSharing>true</enableSharing>
+    <enableStreamingApi>true</enableStreamingApi>
+    <fields>
+        <fullName>CRMfusionDBR101__Action__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <inlineHelpText>The action that triggered this duplicate warning.</inlineHelpText>
+        <label>Triggering Action</label>
+        <length>40</length>
+        <required>false</required>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>CRMfusionDBR101__Key__c</fullName>
+        <caseSensitive>false</caseSensitive>
+        <deprecated>false</deprecated>
+        <externalId>true</externalId>
+        <label>Key</label>
+        <length>255</length>
+        <required>false</required>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>true</unique>
+    </fields>
+    <fields>
+        <fullName>CRMfusionDBR101__Scenario_Type__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>Scenario Type</label>
+        <picklist>
+            <picklistValues>
+                <fullName>Account</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Contact</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Lead</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Lead to Contact</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Lead to Account</fullName>
+                <default>false</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <trackTrending>false</trackTrending>
+        <type>Picklist</type>
+    </fields>
+    <fields>
+        <fullName>CRMfusionDBR101__Scenario__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>Scenario</label>
+        <referenceTo>CRMfusionDBR101__Scenario__c</referenceTo>
+        <relationshipName>Duplicate_Warnings</relationshipName>
+        <relationshipOrder>0</relationshipOrder>
+        <reparentableMasterDetail>false</reparentableMasterDetail>
+        <trackTrending>false</trackTrending>
+        <type>MasterDetail</type>
+        <writeRequiresMasterRead>false</writeRequiresMasterRead>
+    </fields>
+    <fields>
+        <fullName>CRMfusionDBR101__Unused_Datetime__c</fullName>
+        <deprecated>false</deprecated>
+        <description>This field is used internally by DupeBlocker, ignore it.</description>
+        <externalId>false</externalId>
+        <label>Ignore - Internal Use Only</label>
+        <required>false</required>
+        <trackTrending>false</trackTrending>
+        <type>DateTime</type>
+    </fields>
+    <label>DupeBlocker Duplicate Warning</label>
+    <listViews>
+        <fullName>CRMfusionDBR101__AccountDuplicateWarnings</fullName>
+        <columns>NAME</columns>
+        <columns>CRMfusionDBR101__Scenario__c</columns>
+        <columns>CRMfusionDBR101__Scenario_Type__c</columns>
+        <columns>CRMfusionDBR101__Action__c</columns>
+        <columns>CREATEDBY_USER</columns>
+        <filterScope>Everything</filterScope>
+        <filters>
+            <field>CRMfusionDBR101__Scenario_Type__c</field>
+            <operation>equals</operation>
+            <value>Account</value>
+        </filters>
+        <label>Account Duplicate Warnings</label>
+    </listViews>
+    <listViews>
+        <fullName>CRMfusionDBR101__All</fullName>
+        <columns>NAME</columns>
+        <columns>CRMfusionDBR101__Scenario__c</columns>
+        <columns>CRMfusionDBR101__Scenario_Type__c</columns>
+        <columns>CRMfusionDBR101__Action__c</columns>
+        <columns>CREATEDBY_USER</columns>
+        <filterScope>Everything</filterScope>
+        <label>* All *</label>
+    </listViews>
+    <listViews>
+        <fullName>CRMfusionDBR101__ContactDuplicateWarnings</fullName>
+        <columns>NAME</columns>
+        <columns>CRMfusionDBR101__Scenario__c</columns>
+        <columns>CRMfusionDBR101__Scenario_Type__c</columns>
+        <columns>CRMfusionDBR101__Action__c</columns>
+        <columns>CREATEDBY_USER</columns>
+        <filterScope>Everything</filterScope>
+        <filters>
+            <field>CRMfusionDBR101__Scenario_Type__c</field>
+            <operation>equals</operation>
+            <value>Contact</value>
+        </filters>
+        <label>Contact Duplicate Warnings</label>
+    </listViews>
+    <listViews>
+        <fullName>CRMfusionDBR101__LeadDuplicateWarnings</fullName>
+        <columns>NAME</columns>
+        <columns>CRMfusionDBR101__Scenario__c</columns>
+        <columns>CRMfusionDBR101__Scenario_Type__c</columns>
+        <columns>CRMfusionDBR101__Action__c</columns>
+        <columns>CREATEDBY_USER</columns>
+        <filterScope>Everything</filterScope>
+        <filters>
+            <field>CRMfusionDBR101__Scenario_Type__c</field>
+            <operation>equals</operation>
+            <value>Lead</value>
+        </filters>
+        <label>Lead Duplicate Warnings</label>
+    </listViews>
+    <listViews>
+        <fullName>CRMfusionDBR101__LeadtoAccountDuplicateWarnings</fullName>
+        <columns>NAME</columns>
+        <columns>CRMfusionDBR101__Scenario__c</columns>
+        <columns>CRMfusionDBR101__Scenario_Type__c</columns>
+        <columns>CRMfusionDBR101__Action__c</columns>
+        <columns>CREATEDBY_USER</columns>
+        <filterScope>Everything</filterScope>
+        <filters>
+            <field>CRMfusionDBR101__Scenario_Type__c</field>
+            <operation>equals</operation>
+            <value>Lead to Account</value>
+        </filters>
+        <label>Lead to Account Duplicate Warnings</label>
+    </listViews>
+    <listViews>
+        <fullName>CRMfusionDBR101__LeadtoContactDuplicateWarnings</fullName>
+        <columns>NAME</columns>
+        <columns>CRMfusionDBR101__Scenario__c</columns>
+        <columns>CRMfusionDBR101__Scenario_Type__c</columns>
+        <columns>CRMfusionDBR101__Action__c</columns>
+        <columns>CREATEDBY_USER</columns>
+        <filterScope>Everything</filterScope>
+        <filters>
+            <field>CRMfusionDBR101__Scenario_Type__c</field>
+            <operation>equals</operation>
+            <value>Lead to Contact</value>
+        </filters>
+        <label>Lead to Contact Duplicate Warnings</label>
+    </listViews>
+    <nameField>
+        <displayFormat>Warning: {0}</displayFormat>
+        <label>Warning Number</label>
+        <type>AutoNumber</type>
+    </nameField>
+    <pluralLabel>DupeBlocker Duplicate Warnings</pluralLabel>
+    <searchLayouts>
+        <customTabListAdditionalFields>CRMfusionDBR101__Scenario__c</customTabListAdditionalFields>
+        <customTabListAdditionalFields>CRMfusionDBR101__Scenario_Type__c</customTabListAdditionalFields>
+        <customTabListAdditionalFields>CRMfusionDBR101__Action__c</customTabListAdditionalFields>
+        <customTabListAdditionalFields>CREATEDBY_USER</customTabListAdditionalFields>
+        <excludedStandardButtons>New</excludedStandardButtons>
+        <lookupDialogsAdditionalFields>CRMfusionDBR101__Scenario__c</lookupDialogsAdditionalFields>
+        <lookupDialogsAdditionalFields>CRMfusionDBR101__Scenario_Type__c</lookupDialogsAdditionalFields>
+        <lookupDialogsAdditionalFields>CRMfusionDBR101__Action__c</lookupDialogsAdditionalFields>
+        <lookupDialogsAdditionalFields>CREATEDBY_USER</lookupDialogsAdditionalFields>
+        <lookupPhoneDialogsAdditionalFields>CRMfusionDBR101__Scenario__c</lookupPhoneDialogsAdditionalFields>
+        <lookupPhoneDialogsAdditionalFields>CRMfusionDBR101__Scenario_Type__c</lookupPhoneDialogsAdditionalFields>
+        <lookupPhoneDialogsAdditionalFields>CRMfusionDBR101__Action__c</lookupPhoneDialogsAdditionalFields>
+        <lookupPhoneDialogsAdditionalFields>CREATEDBY_USER</lookupPhoneDialogsAdditionalFields>
+        <searchFilterFields>NAME</searchFilterFields>
+        <searchFilterFields>CRMfusionDBR101__Scenario__c</searchFilterFields>
+        <searchFilterFields>CRMfusionDBR101__Scenario_Type__c</searchFilterFields>
+        <searchFilterFields>CRMfusionDBR101__Action__c</searchFilterFields>
+        <searchFilterFields>CREATEDBY_USER</searchFilterFields>
+        <searchResultsAdditionalFields>CRMfusionDBR101__Scenario__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields>CRMfusionDBR101__Scenario_Type__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields>CRMfusionDBR101__Action__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields>CREATEDBY_USER</searchResultsAdditionalFields>
+    </searchLayouts>
+    <sharingModel>ControlledByParent</sharingModel>
+    <webLinks>
+        <fullName>CRMfusionDBR101__Convert_Leads</fullName>
+        <availability>online</availability>
+        <displayType>button</displayType>
+        <linkType>page</linkType>
+        <masterLabel>Convert Leads (Deprecated)</masterLabel>
+        <openType>replace</openType>
+        <page>CRMfusionDBR101__DB_Warning_Convert</page>
+        <protected>false</protected>
+    </webLinks>
+    <webLinks>
+        <fullName>CRMfusionDBR101__Merge_Duplicates</fullName>
+        <availability>online</availability>
+        <displayType>button</displayType>
+        <linkType>page</linkType>
+        <masterLabel>Merge Duplicates (Deprecated)</masterLabel>
+        <openType>replace</openType>
+        <page>CRMfusionDBR101__DB_Warning_Merge</page>
+        <protected>false</protected>
+    </webLinks>
+    <webLinks>
+        <fullName>CRMfusionDBR101__Merge_or_Convert_Duplicates</fullName>
+        <availability>online</availability>
+        <displayType>button</displayType>
+        <linkType>javascript</linkType>
+        <masterLabel>Merge/Convert Duplicates</masterLabel>
+        <openType>onClickJavaScript</openType>
+        <protected>false</protected>
+        <url>var warningId = &apos;{!CRMfusionDBR101__Duplicate_Warning__c.Id}&apos;;
+var baseUrl = &apos;/apex/CRMfusionDBR101__DB_Warning_{!IF( OR( ISPICKVAL( CRMfusionDBR101__Duplicate_Warning__c.CRMfusionDBR101__Scenario_Type__c , &apos;Lead to Account&apos;  ), ISPICKVAL( CRMfusionDBR101__Duplicate_Warning__c.CRMfusionDBR101__Scenario_Type__c , &apos;Lead to Contact&apos;  ) ), &apos;Convert&apos;, &apos;Merge&apos; )}&apos;;
+var urlParameters = &apos;?id=&apos; + warningId;
+
+if ( location.href.toLowerCase().indexOf( &apos;isdtp=vw&apos; ) &gt;= 0 )
+   window.open( baseUrl + urlParameters, &apos;_blank&apos; );
+else
+    location.href = baseUrl + urlParameters;</url>
+    </webLinks>
+</CustomObject>

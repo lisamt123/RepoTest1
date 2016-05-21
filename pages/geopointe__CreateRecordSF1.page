@@ -1,0 +1,141 @@
+<apex:page controller="geopointe.CreateRecord_Controller" extensions="geopointe.RemoteAction" standardStylesheets="false" showHeader="false" sidebar="true" docType="html-5.0" action="{!initSF1}">
+	
+   	<link rel="stylesheet" href="{!URLFOR($Resource.jquery, 'sf1/css/mapMobile.css')}"/> <!-- Page / app styles -->
+   	<link rel="stylesheet" href="{!URLFOR($Resource.jquery, 'sf1/lib/jquery/css/jquery-ui.min.css')}"/> <!-- Page / app styles -->
+   	<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat"/><!-- Custom font to match sf1 style -->
+   	<link rel="stylesheet" href="{!URLFOR($Resource.jquery, 'sf1/css/sf1.css')}"/> <!-- SF1 Styling -->
+
+   	<script src="{!URLFOR($Resource.jquery, 'sf1/lib/jquery/jquery-2.1.0.min.js')}"></script> <!-- jQuery -->
+   	<script src="{!URLFOR($Resource.jquery, 'sf1/lib/jquery/jquery-ui-1.11.4.custom.min.js')}"></script> <!-- jQuery UI -->
+   	<script src="{!URLFOR($Resource.jquery, 'sf1/js/sf1.js')}"></script> <!-- Arrowpointe sf1 functions -->
+
+   	<!-- localize.js -->
+	<script src="https://cdn.localizejs.com/localize.js"></script>
+	<script>!function(a){if(!a.Localize){a.Localize={};for(var e=["translate","untranslate","phrase","initialize","translatePage","setLanguage","getLanguage","detectLanguage","untranslatePage","bootstrap","prefetch","on","off"],t=0;t<e.length;t++)a.Localize[e[t]]=function(){}}}(window);</script>
+
+	<script>
+		Localize.initialize({
+			key: '1SeX6sYAXWLng', 
+			rememberLanguage: true,
+			saveNewPhrases: false,
+			translateBody: true
+		});
+
+		sf1.remoteAction = '{!$RemoteAction.RemoteAction.doRemoteAction}';
+
+		//Set scrollable height and assume a header height of 44px
+		var windowHeight = jQuery(window).height();
+
+		//Set this var right away before anything else loads, very important
+		jQuery(document).ready(function(){
+			var headerHeight = jQuery('.header').height();
+			jQuery('.scrollableContent').height(windowHeight - headerHeight);
+
+			//Create lookup field functionality
+			sf1.createAutoCompleteLookupFields();
+		});
+
+		function selectRecordTypeJS(recordTypeId,event){
+			//Prevent button from submit apex:form
+			event.preventDefault();
+			
+			//Call the action function
+			selectRecordType(recordTypeId);
+			return false;
+		}
+
+		function selectRecordTypeComplete(){
+			sf1.createAutoCompleteLookupFields();
+			setScrollableContentHeight();
+		}
+	</script>
+
+
+   	<style type="text/css">
+   		.fieldList{
+   			margin: 50px 20px 10px 20px;
+   		}
+   		.main input{
+   			width: 300px;
+   		}
+   		.main{
+   			margin: 14px 14px 14px 14px;
+   		}
+   		.scrollableContent{
+   			-webkit-overflow-scrolling: touch;
+   		}
+   	</style>
+
+
+   	<apex:outputPanel layout="block" id="header" styleClass="header light">
+	    <div class="headerTitle">
+	        <apex:outputPanel rendered="{!renderSection == 'recordType'}">Select Record Type</apex:outputPanel>
+	    </div>
+	    <button class="btn btn-primary" onclick="save();" style="float: right; display: {!IF(renderSection == 'fields','block','none')}">{!$Label.Site.Save}</button>
+
+		<div class="clear"/>
+	</apex:outputPanel>
+
+   	<div class="scrollableContent" style="height: 0px;"> <!-- this height will be reset on load with script above -->
+	   	<apex:form >	
+			<apex:outputPanel id="pageBlocksWrapper">
+				<!-- Step 1, select record type if necessary -->
+				<apex:outputPanel rendered="{!renderSection == 'recordType'}">
+					<div class="main">
+						<div class="recordDetailActions" notranslate="notranslate">
+							<apex:repeat value="{!availableRecordTypes}" var="rt">
+								<button class="btn btn-secondary" onclick="selectRecordTypeJS('{!rt.id}',event)">{!rt.name}</button>
+							</apex:repeat>
+						</div>
+					</div>
+				</apex:outputPanel>
+
+				<!-- Step 2, enter fields -->
+				<apex:outputPanel rendered="{!renderSection == 'fields'}">
+					<div class="main">
+						<apex:outputPanel layout="block" rendered="{!showPageMessages}">
+							<apex:pageMessages />
+						</apex:outputPanel>
+
+						<apex:repeat value="{!fieldSetToUse}" var="f">
+							<apex:outputPanel layout="block" styleClass="recordDetailField" rendered="{!AND(f.fieldPath != 'RecordTypeId',$ObjectType[action.geopointe__Create_Record_SObject__c].Fields[f.fieldPath].Createable)}">
+								<div class="recordDetailFieldLabel" notranslate="notranslate">
+									{!f.label}<apex:outputPanel rendered="{!OR(f.required, f.dbrequired)}">*</apex:outputPanel>
+								</div>
+								<div class="recordDetailFieldValue" notranslate="notranslate">
+								    <apex:inputField value="{!obj[f.fieldPath]}" required="{!OR(f.required, f.dbrequired)}" rendered="{!f.type != 'reference'}"/>
+								    <apex:inputField value="{!obj[f.fieldPath]}" styleClass="sf1LookupField" html-objectName="{!action.geopointe__Create_Record_SObject__c}" html-fieldName="{!f.fieldPath}" required="{!OR(f.required, f.dbrequired)}" rendered="{!f.type == 'reference'}"/>
+								</div>
+							</apex:outputPanel>
+						</apex:repeat>
+					</div>
+				</apex:outputPanel>
+
+				<!-- Step 3: Save complete -->
+				<apex:outputPanel rendered="{!renderSection == 'complete'}">
+					<div class="infoBox" style="margin-top: 30px;">
+						<div class="infoBoxHeader">
+							<div class="infoBoxHeaderIconWrapper">
+								<span class="infoBoxHeaderIcon success">!</span>
+							</div>
+							<div class="infoBoxHeaderMessage">Record Created Successfully!</div>
+						</div>
+						<div class="infoBoxMessage">
+							{!obj['name']}
+
+							<!--<TODO make this work. a href="/{!obj['id']}" style="font-size: 14px" onclick="parent.sf1.navigateToSObject({!obj['id']});" notranslate="notranslate">{!obj['name']}</a>-->
+						</div>
+					</div>	
+				</apex:outputPanel>
+
+			</apex:outputPanel>
+
+			<apex:actionFunction name="selectRecordType" action="{!selectRecordType}" reRender="pageBlocksWrapper,header" oncomplete="selectRecordTypeComplete();">
+				<apex:param name="selectedRecordTypId" value="test" assignTo="{!selectedRecordTypId}"/>	
+			</apex:actionFunction>	
+			<apex:actionFunction name="save" action="{!save}" reRender="pageBlocksWrapper,header"/>
+
+		</apex:form>
+	</div>
+
+</apex:page>

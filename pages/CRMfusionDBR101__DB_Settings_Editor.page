@@ -1,0 +1,78 @@
+<apex:page title="{!$ObjectType.CRMfusionDBR101__Setting__c.labelPlural}" controller="CRMfusionDBR101.DB_SettingsController" showHeader="true" sidebar="false"
+    tabStyle="DupeBlocker_Settings_VF__tab">
+    <apex:includeScript value="{!URLFOR($Resource.CRMfusionDBR101__DB_Javascript, 'jquery.min.js')}" />
+    <c:DB_Settings_Style />
+    <script>
+        function disableObject(apiName, label) {
+            alert('Disabling apiName: ' + apiName + ' Label: ' + label);
+        }
+        
+        function resetBatchSize(newVal) {
+            var batchSizeInput = $('[id="{!$Component.mainForm.mainBlock.mainSection.batchSizeSectionItem.batchSizeInput}"]'); 
+            if ( newVal.toLowerCase() == '{!KEY_BUILDER_TYPE_ORIGINAL_VALUE}'.toLowerCase() )
+                batchSizeInput.val( {!KEY_BUILDER_DEFAULT_BATCH_SIZE_ORIGINAL} );
+            else
+                batchSizeInput.val( {!KEY_BUILDER_DEFAULT_BATCH_SIZE_BATCH_APEX} );
+        }
+    </script>
+
+    <table class="pageTable" width="100%" cellspacing="0" cellpadding="0">
+        <tr>
+            <td class="leftCol" width="220px"><c:DB_Settings_Menu page="general" /></td>
+            <td class="rightCol">
+                <div>
+                    <apex:sectionHeader title="DupeBlocker Settings" subTitle="Edit General Settings" />
+                    <apex:pageMessages />
+                    <c:DB_Disabled_Warning />
+                    <apex:form id="mainForm">
+                        <apex:pageBlock id="mainBlock" mode="edit" title="General Settings">
+                            <apex:pageBlockButtons >
+                                <apex:commandButton action="{!save}" value="{!$Label.CRMfusionDBR101__DB_Save_Word}" />
+                                <apex:commandButton action="{!cancel}" value="{!$Label.CRMfusionDBR101__DB_Cancel_Word}" />
+                            </apex:pageBlockButtons>
+                            <apex:pageBlockSection id="mainSection" columns="2">
+                                <apex:pageBlockSectionItem helpText="All DupeBlocker exceptions will be sent to this e-mail address.  If the e-mail address is not specified, the exception will be sent to the current user">
+                                    <apex:outputLabel value="Administrator E-mail" />
+                                    <apex:inputText value="{!adminEmail}" />
+                                </apex:pageBlockSectionItem>
+                                <apex:pageBlockSectionItem helpText="Disable reminders for all warning tasks created by DupeBlocker.">
+                                    <apex:outputLabel value="Disable Warning Task Reminders" />
+                                    <apex:inputCheckbox value="{!disableReminders}" />
+                                </apex:pageBlockSectionItem>
+                                <apex:pageBlockSectionItem helpText="The original key builder is the fastest method but requires the browser to stay open.  The batch 
+                                    key builder runs in the background but takes longer.">
+                                    <apex:outputLabel value="Key Builder Type" />
+                                    <apex:selectList id="keyBuilderType" size="1" required="true" value="{!keyBuilderType}" multiselect="false" onchange="resetBatchSize(this.value)">
+                                        <apex:selectOptions value="{!keyBuilderTypes}" />
+                                    </apex:selectList>
+                                </apex:pageBlockSectionItem>
+                                <apex:pageBlockSectionItem id="batchSizeSectionItem" helpText="Leaving the batch size set to max should increase key building performance.  It may be necessary to lower the batch size if you receive governor limit exceptions while building keys.">
+                                    <apex:outputLabel value="Key Builder Batch Size" />
+                                    <apex:inputText id="batchSizeInput" value="{!keyBuilderBatchSize}" />
+                                </apex:pageBlockSectionItem>
+                                <apex:pageBlockSectionItem helpText="When bypassing a blocking scenario via the bypass button, create a warning for that scenario if
+                                this option is checked.">
+                                    <apex:outputLabel value="Block Bypass Creates Warnings" />
+                                    <apex:inputCheckbox value="{!bypassCreatesWarnings}" />
+                                </apex:pageBlockSectionItem>
+                                <apex:pageBlockSectionItem helpText="Disable all DupeBlocker functionality.  This will mark all scenarios as needing a key rebuild.">
+                                    <apex:outputLabel value="Disable DupeBlocker" />
+                                    <apex:inputCheckbox value="{!disableDupeBlocker}" />
+                                </apex:pageBlockSectionItem>
+                            </apex:pageBlockSection>
+                            <apex:pageBlockSection columns="2" title="Advanced Settings">
+                                <apex:pageBlockSectionItem helpText="Name of a field used to track what DupeBlocker action is taken during an insert.  See the documentation for full details.">
+                                    <apex:outputLabel value="Insert Action Tracking Field" />
+                                    <apex:inputText value="{!insertActionTrackingField}" />
+                                </apex:pageBlockSectionItem>
+                                <apex:pageBlockSectionItem helpText="Name of a field used to track what DupeBlocker action is taken during an update.  See the documentation for full details.">
+                                    <apex:outputLabel value="Update Action Tracking Field" />
+                                    <apex:inputText value="{!updateActionTrackingField}" />
+                                </apex:pageBlockSectionItem>
+                            </apex:pageBlockSection>
+                        </apex:pageBlock>
+                    </apex:form>
+                </div></td>
+        </tr>
+    </table>
+</apex:page>

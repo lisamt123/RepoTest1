@@ -1,0 +1,298 @@
+<apex:page standardController="opportunity" sidebar="false" extensions="DMAPP.OMStandardController" 
+    action="{!logCoachMeUsage}" 
+    docType="html-5.0"
+    >
+    
+    <!-- l10n data -->
+    <apex:includeScript value="{!$Resource.DMAPP__l10njs}"/>
+
+    <style>
+    
+        /* @import url("{! URLFOR($Resource.jQueryUI, 'css/custom-theme/jquery-ui-1.8.21.custom.css') }"); */
+
+        TABLE.CoachMeTable 
+        {
+            margin: 0px;
+            padding: 0px;
+            border-collapse: collapse;
+            border-spacing: 0px;
+            width:100%;
+        }
+        
+        TABLE.CoachMeTable TD 
+        {
+            padding: 0px;
+            border-collapse: collapse;
+            border-spacing: 0px;
+            text-align: left;
+            font-size: 12px;
+        }
+        
+        TABLE.CoachMeTable H1 
+        {
+            margin-top: 8px;
+            font-size: 24px;
+            text-align: left;
+            font-weight: normal;
+        }
+        
+        TABLE.CoachMeTable TR.banner 
+        {
+            background-color: #7788BC;
+            color: white;
+        }
+        
+        TABLE.CoachMeTable TR.subheading 
+        {
+            background-color: #D5DBE9;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        
+        TABLE.CoachMeTable TR.subheading TD 
+        {
+            padding: 2px;
+            padding-left: 20px;
+        }
+        
+        TABLE.adviceList {
+            margin-top: 20px;
+            margin-right: 40px;
+            font-size: 12px;
+        }
+        
+        TABLE.adviceList TD
+        {
+            font-size: 12px;
+        }
+        
+        TABLE.adviceList TD.numbering {
+            font-weight: bold;
+            width: 50px;
+            text-align: right;
+            padding-right: 10px;
+            vertical-align: top;
+            font-size:15px;
+            color: navy;
+        }       
+    
+        div#coachMeDialog {
+            clear: both;
+        }
+    
+        div#coach_advice_header {
+            font-size: 12px;
+            font-weight: bolder;
+            margin-bottom: 10px;
+    	}
+    	
+		/* DMPS-1042 - MIN-HEIGHT FOR CHATTER WINDOW */
+		<!--  iPAD PORTRAIT STYLES -->	
+		@media only screen 
+			and (min-device-width : 768px) 
+			and (max-device-width : 1024px) {	        	
+		    	.salesforce1 div#TAS { 
+		    		overflow: visible !important;
+		    	}  
+		 }
+    			
+    </style>
+
+    <style>
+        @import url("{!URLFOR($Resource.SmartOM,         'css/summarytab.css')}");
+        @import url("{!URLFOR($Resource.SmartOM,         'css/chatterpost.css')}");
+        
+        /* start of additions for Chatter */
+    
+        @import url("{!URLFOR($Resource.ttgomjs,         'ttg/chatter/css/chatter_side_panel.css')}");
+        @import url("{!URLFOR($Resource.ttgomjs,         'ttg/chatter/css/chatter_post.css')}");
+        @import url("{!URLFOR($Resource.ttgomjs,         'ttg/graph/css/glyphs/style.css')}");
+        @import url("{!URLFOR($Resource.ttgomjs,         'ttg/chatter/css/chatter_summary.css')}");
+        
+        /* end of additions for Chatter */
+        
+        /* Restores AJAX spinner size to normal (AMOF-813) */
+        .spinner {
+            height: auto;
+            width: auto;
+        }
+                
+    </style>
+    <apex:include pageName="DMAPP__APIDelegate"/>
+    <div id="TAS">
+        <apex:include pageName="DMAPP__SummaryTab2"/>
+        <div class="all">
+            <div id="ttgCanvasDiv" class="canvasDiv" style="overflow:hidden; position:relative;">       
+                <canvas id="ttgCanvas" class="canvas" height="1" width="1">
+                </canvas>
+            </div>
+        </div>
+    </div>
+        
+    <c:jQuery jQueryUI="true" 
+        paging="true"
+        underscore="true"
+        chosen="true"/>
+    
+    <c:MobileRedirect smartOM="true" />
+    
+    <!-- <apex:includeScript value="{! URLFOR($Resource.jQueryUI, 'js/jquery-1.7.2.min.js') }" />
+    <apex:includeScript value="{! URLFOR($Resource.jQueryUI, 'js/jquery-ui-1.8.21.custom.min.js') }" /> -->
+        
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__rulesprocessorjs)}"/> 
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__CoachMe, 'old_coach/rules_advice_processor.js')}"/>       
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__ttgomjs, 'ttg/lib/ttgservice.js')}"/> 
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__ftk, 'forcetk.js')}"/>
+    
+    <script type="text/javascript" src="{!URLFOR($Resource.dvls, 'js/flowplayer-3.2.6.js')}"></script>
+    
+    <apex:include pageName="DMAPP__Quicklinks"/>
+        
+    <script>
+
+		_rulesAdviceProcessor.movie_icon_url = "{!URLFOR($Resource.Assessment, 'icon_movie.png')}";
+
+        /* 
+         * Copyright © The TAS Group. All rights reserved.
+         *  
+         */    
+    
+        jQuery(document).ready(function() {
+        
+            var spec = {
+                ttgApi: ttg.apiLayer.sfdcDelegate( { sessionid : '{!JSENCODE($Api.Session_ID)}', opportunityid : '{!opportunity.id}' } )
+            };
+    
+            var _quicklinks = new QUICKLINKS({});
+            
+            function quicklinkHitSuccess() {}
+            function quicklinkHitError() {} 
+            function quicklinkHitComplete() {}
+            
+            var ttg_coachMe = (function(_spec) {
+            
+                var ttgApi = _spec.ttgApi;
+                
+                _quicklinks.setQuicklinkHitCallback(function(spec, quicklink) {
+                    
+                    if(ttgApi) {
+                        if ( quicklink ) {
+                            ttgApi.logQuicklinkUsageHitJS(quicklink.id, quicklinkHitSuccess, quicklinkHitError, quicklinkHitComplete);
+                        }
+                    }
+                });
+                
+                //var imgscr = "{!URLFOR($Resource.CoachMe, 'coach_me_dude.gif')}";
+                //var loadingscr = "{!URLFOR($Resource.CoachMe, 'loading-bar.gif')}";
+                
+                //jQuery('div#coachMeDialog').attr('title', _ttg_l10n.lookup('coach_title_coach_me'));
+                jQuery('div#coachMeDialog').append(
+                    '<table class="CoachMeTable" cellpadding="0">' +
+                    '   <tr>' +
+                    '       <td colspan="2" align="center">' +
+                    '           <table width="100%" id="coachMeHeader">' +
+                    '               <tr><td id="centerHeaderCol"></td></tr>' +
+                    '           </table>' +
+                    '       </td>' +
+                    '   </tr>' +
+                    '   <tr>' +
+                    '       <td colspan="2">' +
+                    '           <div id="coachMeAnalyzing">' +
+                    '               <center style="font-size: 24px">' +
+                    '                   <div>' + _ttg_l10n.lookup('coach_me_analyzing') + '</div><br/>' +
+                    //'                   <img src="' + loadingscr + '"/>' +
+                    '               </center>' +
+                    '           </div>' +
+                    '       </td>' +
+                    '   </tr>' +
+                    '</table>'
+                );
+
+                var open = function()
+                {
+                    var divHolder = jQuery('div#coachMeDialog');
+                    jQuery(divHolder).append('<table class="adviceList" style="display: none;" cellpadding="10"></table>');
+                    
+                    var oprid = '{!opportunity.id}';
+                    
+                    var createQuickLink = function(crid, index, rulename) {
+                        jQuery('table.adviceList tr td a[id=cr_'+ crid +']').click(function() {
+                            _quicklinks.quicklinkDlg(index, rulename);
+                        });
+                    };
+                    
+                    ttgApi.getCoachMeOpportunitiesView(oprid, 
+                        function(oppViewData) {
+                             
+                            ttgApi.getCoachMeRules(
+                                function(ruleData) 
+                                {
+                                    //jQuery( "#coachMeDialog" ).html(JSON.stringify(ruleData, null, '\t'));
+                                    //console.log(JSON.stringify(oppViewData, null, '\t'));
+                                    
+                                    //TODO Localisation text to supply .... 
+                                    //jQuery("table#coachMeHeader tr td#centerHeaderCol" ).append('<localisation:localiser tag="coach.analyzed.opportunity" encoding="html"/>');
+                                    jQuery("table#coachMeHeader tr td#centerHeaderCol" ).
+                                        append("<div id='coach_advice_header'>" + _ttg_l10n.lookup('coach_analyzed_header') + "</div>").
+                                        append("<div>" + _ttg_l10n.lookup('coach_analyzed_opportunity') + "</div>");
+
+                                     var advicelist = _rulesProcessor.processRules(oppViewData, ruleData);
+                                     _rulesAdviceProcessor.processAdvice(advicelist, 'class=adviceList');                    
+                                    
+                                    jQuery('table[class=\'CoachMeTable\']').find('tr td div#coachMeAnalyzing').closest("tr").remove();
+                                    jQuery('table[class=\'adviceList\']').show();
+                  
+                                    
+                                    //_quickLinksHelper.setupQuickLinksUrl(urlPrefix, orgId, sessionId, userId, swfCommon, appName);
+                                    //_quickLinksHelper.setupCoachRules();
+                                    var _quicklinksData = [];
+                                    var count = 0;
+                                    jQuery.each(ruleData.coachrules.coachrule, function(_idx, cr) {
+                                        var data = false;
+                                        var _ql = [];
+                                        jQuery.each(cr.quicklinks.quicklink, function(__idx, n) {
+                                            data = true;
+                                            _ql.push(n);                        
+                                        });                                 
+                                    
+                                        if(data) {
+                                            _quicklinksData.push(_ql);
+                                            jQuery('table.adviceList tr td a[id=cr_'+ cr.id +']').show();
+                                            createQuickLink(cr.id, count, cr.rulename);
+                                            count++;
+                                        }
+                                    });
+                                    
+                                    _quicklinks.setDM_Quicklinks(_quicklinksData); 
+                                },
+                                function() {},
+                                function() {}
+                            );              
+                        },
+                        function() {},
+                        function() {}
+                    );
+                };
+
+                var that = {};
+                that.open = open;
+                return that;
+            }(spec));       
+
+            ttg_coachMe.open();
+        });
+    
+    </script>       
+
+<div id="coachMeDialog"></div>
+
+<style>
+
+   	/* Salesforce1-specific styles */    	
+   	.salesforce1 div#TAS { 
+   		height: auto;
+   	} 
+
+</style>
+
+</apex:page>

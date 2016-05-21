@@ -1,0 +1,87 @@
+<apex:page standardController="SFDC_520_Quote__c"
+	extensions="salesQuotes" sidebar="false" tabStyle="SFDC_520_Quote__c"
+	action="{!CopyOperation}">
+	<style>
+.dataCell input {
+	width: 100px;
+}
+</style>
+	<apex:form >
+		<apex:actionFunction status="outStatus" name="sayHello"
+			action="{!recalc}" rerender="table" />
+
+		<apex:pageBlock title="Edit Quote Lines" mode="edit" id="table">
+			<apex:pageBlockButtons >
+				<apex:commandButton action="{!save}" value=" Save " />
+				&nbsp;<apex:commandButton action="{!reset}" value=" Reset "
+					rerender="table" />
+				&nbsp;<apex:commandButton action="{!add}" value=" Add "
+					rerender="table" /> 
+				&nbsp;<apex:commandButton action="{!cancel}" value=" Cancel " /> 
+				&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+				Quote Total Amount : <h3>{!total.amount}</h3>
+			</apex:pageBlockButtons>
+
+			<apex:pageMessages />		
+Opportunity : {!SFDC_520_Quote__c.Opportunity__r.name}  -- {!SFDC_520_Quote__c.Opportunity__r.StageName}<p />
+			<apex:pageBlockSection rendered="false">
+				<apex:inputField value="{!SFDC_520_Quote__c.Presented_Date__c}" />
+				<apex:inputField value="{!SFDC_520_Quote__c.Valid_Until__c}" />
+			</apex:pageBlockSection>
+
+			<apex:pageBlockSection title="Quote Number : {!SFDC_520_Quote__c.name} Valid Until {!SFDC_520_Quote__c.Valid_Until__c}"
+				columns="1">
+
+				<!-- <apex:actionStatus startText="Recalculate current total..." id="outStatus">
+					<apex:facet name="stop">
+	 -->
+				<apex:pageBlockTable value="{!quoteLineItems}" var="item">
+
+					<apex:column headerValue="Action">
+						<apex:commandLink value="Del" action="{!del}" rerender="table">
+							<apex:param name="delname" value="{!item.name}" />
+						</apex:commandLink>
+					</apex:column>
+
+					<apex:column headerValue="Line Number">{!item.name}</apex:column>
+
+					<apex:column headerValue="Product ">
+						<a href="/{!item.Product2__c}">{!item.Product2__r.Name}</a>
+						<apex:outputPanel rendered="{!isnull(item.Product2__c)}">
+							<apex:inputField required="true" value="{!item.Product2__c}"
+								onchange="sayHello();" />
+						</apex:outputPanel>
+					</apex:column>
+
+					<apex:column headerValue="Unit Price">
+						<apex:inputField required="true" value="{!item.Unit_Price__c}"
+							onchange="sayHello();" />
+					</apex:column>
+
+					<apex:column headerValue="Quantity">
+						<apex:inputField required="true" value="{!item.Qty_Ordered__c}"
+							onchange="sayHello();" />
+					</apex:column>
+
+					<apex:column headerValue="Discount">
+						<apex:inputField value="{!item.Sales_Discount__c}"
+							onchange="sayHello();" />
+					</apex:column>
+
+					<apex:column headerValue="Ext Net Price">
+						<apex:outputfield value="{!item.Ext_Price_tmp__c}" />
+					</apex:column>
+
+					<apex:column headerValue="Service Date">
+						<apex:inputField value="{!item.ServiceDate__c}" required="false" />
+					</apex:column>
+				</apex:pageBlockTable>
+
+				<!--  		</apex:facet>
+			</apex:actionStatus>
+			 -->
+			</apex:pageBlockSection>
+
+		</apex:pageBlock>
+	</apex:form>
+</apex:page>

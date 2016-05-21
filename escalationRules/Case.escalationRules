@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<EscalationRules xmlns="http://soap.sforce.com/2006/04/metadata">
+    <escalationRule>
+        <fullName>Urgent VinCare</fullName>
+        <active>true</active>
+        <ruleEntry>
+            <businessHoursSource>None</businessHoursSource>
+            <criteriaItems>
+                <field>Case.Origin</field>
+                <operation>equals</operation>
+                <value>UrgentVinCare,OEM,AutoTrader</value>
+            </criteriaItems>
+            <criteriaItems>
+                <field>Case.Status</field>
+                <operation>equals</operation>
+                <value>New</value>
+            </criteriaItems>
+            <escalationAction>
+                <minutesToEscalation>240</minutesToEscalation>
+                <notifyCaseOwner>false</notifyCaseOwner>
+                <notifyEmail>ron.bennett@vinsolutions.com</notifyEmail>
+                <notifyEmail>michael.whittlesey@vinsolutions.com</notifyEmail>
+                <notifyEmail>ronny.davis@vinsolutions.com</notifyEmail>
+                <notifyEmail>amanda.cahill@vinsolutions.com</notifyEmail>
+                <notifyTo>karen.kuzanek@vinsolutions.com</notifyTo>
+                <notifyToTemplate>Support_Auto_Responses/Escalation_Notification_Internal</notifyToTemplate>
+            </escalationAction>
+            <escalationStartTime>CaseCreation</escalationStartTime>
+        </ruleEntry>
+    </escalationRule>
+</EscalationRules>

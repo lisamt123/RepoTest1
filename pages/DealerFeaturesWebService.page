@@ -1,0 +1,100 @@
+<apex:page controller="DealerFeaturesWebService">
+<apex:form >
+
+	<script>
+    	function setFocusOnLoad() {}
+    </script>
+	
+	<!-- 
+	<br /><br /><br /><br /><br /><br />
+	<apex:inputField value="{!theOpp.AccountId}" /> 
+	<br /><br /><br />
+	
+	
+	<br /><br /><br />
+	 -->
+ 	
+	
+	
+	
+	<br /><br /><br />
+	<b>Enter Account Number</b>
+	<br />
+	<apex:inputText value="{!accountNum}" size="30" />
+	<apex:commandLink action="{!call}" value="Make Call" reRender="mainOP,theDetail" status="status2" />
+	<br />
+	<apex:outputPanel id="mainOP">
+	<apex:outputText value="{!debugString}" style="color:#6B6B6B;" />
+	
+	<br />
+	<br />
+	
+	<div style="width:70%;">
+		<div style="position:relative; overflow:auto;"> 
+		    <apex:outputPanel >
+		        <apex:actionStatus id="status2">
+		            <apex:facet name="start">
+		                <div style="width: 100%; height: 100%; background-color:#fbfbfb; opacity:0.65;" class="waitingSearchDiv" id="el_loading">
+		                    <div class="waitingHolder" style="top: 30px; ">
+		                        <img src="/img/loading.gif" class="waitingImage" title="Please Wait..." />
+		                        <span class="waitingDescription">Waiting for results...</span>
+		                    </div>
+		                </div>
+		            </apex:facet>
+		        </apex:actionStatus>
+		    </apex:outputPanel>
+			<apex:pageBlock title="Account Number {!dealerId} - ({!listSize} items)">
+				<apex:pageBlockTable value="{!theWrapper}" var="wrap">
+					<apex:column value="{!wrap.rowCount}" />
+					<apex:column value="{!wrap.invoiceItemId}" headerValue="InvoiceItemId (Product Code)" />
+					<apex:column headerValue="Product Sold">
+						{!wrap.productSold} 
+					</apex:column>
+					<apex:column headerValue="Billing Item Total Price">
+						$ {!wrap.price}
+					</apex:column>
+					<apex:column headerValue="SalesforceId (Billing Item Id)">
+						<apex:outputLink value="/{!wrap.salesforceId}" style="text-decoration:none;" target="_blank">{!wrap.salesforceId}</apex:outputLink>
+					</apex:column>
+					<apex:column headerValue="OrderNumber (Contract Id)">
+						<apex:outputLink value="/{!wrap.orderNumber}" style="text-decoration:none;" target="_blank">{!wrap.orderNumber}</apex:outputLink>
+					</apex:column>
+				</apex:pageBlockTable>
+			</apex:pageBlock>
+		</div>
+	</div>
+	<apex:detail id="theDetail" subject="{!accountId}" relatedList="false" title="false"/> 
+	<br /><br /><br /><br /><br />
+	
+	<!-- 
+		<b>Call made to:</b>
+		<br />
+		{!urlCalled}
+		<br /><br /><br />
+		<b>Output in JSON:</b>
+		<br /><br />
+		{!jsonOutput}
+		<br /><br /><br /> 
+		<b>DebugString:</b>
+		<br /><br />
+		{!debugString}
+		
+	 -->
+	</apex:outputPanel>
+	
+	<!-- 
+	<br /><br /><br /><br /><br /><br /><br /><br /><br />
+	
+	
+	<apex:outputPanel id="randomOP">
+		Random: {!random}
+		<br /><br />
+		<apex:commandLink action="{!rando}" value="Random" reRender="randomOP" />
+	</apex:outputPanel>
+	
+	 -->
+	
+	
+
+</apex:form>
+</apex:page>

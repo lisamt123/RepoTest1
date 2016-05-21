@@ -1,0 +1,11 @@
+<apex:page controller="geopointe.MapMaster_Controller" extensions="geopointe.FieldSelector" showHeader="{!showHeader}" sidebar="{!userSettings.geopointe__Hide_Sidebar__c = false}" 
+action="{!init}" cache="false" title="Geopointe - Map" id="page" docType="html-5.0" tabStyle="map__tab" standardStylesheets="false">
+
+    <c:map rendered="{!NOT(isSF1)}"/>
+    <c:mapMobile rendered="{!AND(isSF1,hasMobilePerm)}"/>
+
+    <apex:outputPanel rendered="{!AND(isSF1,NOT(hasMobilePerm))}">
+    	You don't have permission to access Geopointe for Salesforce1. Please contact <a href="mailto:help@geopointe.com">help@geopointe.com</a>.
+    </apex:outputPanel>
+    
+</apex:page>

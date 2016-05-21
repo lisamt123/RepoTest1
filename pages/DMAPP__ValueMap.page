@@ -1,0 +1,2042 @@
+<apex:page controller="DMAPP.ValueMapController"  showHeader="true" sidebar="false" action="{! logValueMapUsage }" docType="html-5.0" tabStyle="Account_Plans__tab">
+
+    <apex:includeScript value="{! URLFOR($Resource.prefix) }" />
+	<script type="text/javascript" src="{! $Resource.l10njs }"></script>
+	
+    <c:jQuery jQueryUI="true"
+    	cookies="true"
+    	underscore="true"
+    	tooltip="true"
+    	tools="true"
+    	validate="true"
+    	paging="true"
+    	jqGrid="true"
+    	textareaMaxlength="true"
+    	chosen="true"
+    	dropdown="true"/>
+    
+    <c:MobileRedirect TAM="true" />
+    
+	<apex:include pageName="DMAPP__tmpCommoncss" />
+
+
+	<script type="text/javascript" src="{! URLFOR($Resource.ttgomjs, 'ttg/lib/ttgservice.js') }"></script>
+	<script type="text/javascript" src="{! URLFOR($Resource.ValueMap, 'highcharts.js') }"></script>
+	<script type="text/javascript" src="{!URLFOR($Resource.OpportunityMapConfiguration) }"></script>
+    <apex:includeScript value="{! URLFOR($Resource.ttgomjs, 'ttg/lib/modernizr.js') }" />	
+    <apex:includeScript value="{! URLFOR($Resource.ttgomjs, 'ttg/lib/ttgutils.js') }" />		
+	<script type="text/javascript" src="{! URLFOR($Resource.ttgomjs, 'ttg/lib/jquery-ui-touch-patch.js') }"></script>
+
+	<apex:include pageName="DMAPP__Debug" />
+	<script type="text/javascript" src="{! URLFOR($Resource.ftk, 'forcetk.js') }"></script>
+	<apex:include pageName="DMAPP__CRUD" />
+	<apex:include pageName="DMAPP__TAMSummaryTab"/>
+
+	<script>
+		
+		var ttg = ttg || {};		
+		ttg.pre_fetch = ttg.pre_fetch || {};		
+		ttg.pre_fetch['DMAPP.ValueMapController.getValueMap'] = '{!JSENCODE(preFetchValueMap)}';
+				
+	</script>
+
+	<apex:include pageName="DMAPP__JSRemoting" />
+
+	<style>
+	
+		@import url("{! URLFOR($Resource.ttgomjs,	'ttg/graph/css/political_map.css') }");		
+		@import url("{!URLFOR($Resource.ttgomjs,    'ttg/chatter/css/chatter_side_panel.css')}");
+		@import url("{!URLFOR($Resource.ttgomjs,    'ttg/chatter/css/chatter_post.css')}");
+		@import url("{!URLFOR($Resource.ttgomjs,    'ttg/graph/css/glyphs/style.css')}");
+		@import url("{!URLFOR($Resource.ttgomjs,    'ttg/chatter/css/chatter_summary.css')}");
+		@import url("{! URLFOR($Resource.TAM,		'css/common.css') }");
+		@import url("{! URLFOR($Resource.TAM,       'css/solutionTooltip.css') }");
+				
+		div#TAS { width: 950px; }
+			
+		DIV#TAS DIV#ValueMapContainer {
+		    background-color: #CBD5E2;
+		    border: 1px solid #A0B5CA;
+		    border-radius: 7px;
+		    box-shadow: 0 1px 0 rgba(255, 255, 255, .7) inset;
+		    height: 540px;
+		    position: relative;
+		}	
+		
+		DIV#TAS  DIV#ValueMapContainer DIV#Map {
+			background-color: #FFF;
+			border: 1px solid #A0B5CA;
+		    border-radius: 7px 7px 7px 7px;
+			display: inline-block;
+			float: left;
+			height: 498px;
+			margin: 4px;			
+			vertical-align: top;
+			width: 575px;		
+		}
+		
+		DIV#TAS  DIV#ValueMapContainer DIV#Data {
+			background-color: #FFF;
+			border: 1px solid #A0B5CA;
+			border-radius: 7px;
+			display: inline-block;
+			float: right;
+			height: 498px;
+			margin: 4px;			
+			overflow-y: auto;
+			position: absolute;
+			z-index: 10;			
+		}
+		
+		DIV#TAS DIV.UNIT {
+			padding-top: 10px;
+			white-space: nowrap;
+		}
+	
+		DIV#TAS DIV.UNIT SPAN.spanToggle {
+		    display: inline-block;
+    		float: none;
+    		vertical-align: middle;
+    	}
+
+		DIV#TAS SPAN.spanToggle {								
+		    background-image: url('{! URLFOR($Resource.Assessment, 'drawer_expand.png') }');
+		    background-repeat: no-repeat;
+		    clear: left;
+		    float: left;
+		    height: 12px;
+		    margin: 6px 6px 6px 14px;
+		    width: 12px;
+		}
+    	
+    	DIV#TAS .HIDDEN { display: none; }
+    	
+		DIV#TAS DIV.OPPORTUNITIES DIV.OPPORTUNITY {		
+			padding-top: 4px;
+			padding-bottom: 4px;
+		}
+
+		DIV#TAS DIV.OPPORTUNITIES DIV.HEADER {		
+            background: #405773 url('{! URLFOR($Resource.SmartOM, 'tabs/bg_nav_off.jpg') }') left top repeat-x;
+			margin-bottom: 4px;
+    		padding-bottom: 3px;
+    	}
+
+		DIV#TAS DIV.OPPORTUNITIES DIV.OPPORTUNITY SPAN {
+			display: inline-block;
+			padding: 4px;
+		}
+				
+		DIV#TAS DIV.OPPORTUNITIES DIV.OPPORTUNITY SPAN.NAME {
+			overflow: hidden;
+			text-overflow: ellipsis;			
+			white-space: nowrap;
+			width: 275px;			
+		}
+		
+		DIV#TAS DIV.OPPORTUNITIES DIV.OPPORTUNITY SPAN.TARGET {			
+			overflow: hidden;
+			text-align: center;
+			width: 25px;
+		}
+
+		DIV#TAS DIV.OPPORTUNITIES DIV.OPPORTUNITY SPAN.AMOUNT {
+		    overflow: hidden;
+		    text-align: right;
+		    text-overflow: ellipsis;
+		    white-space: nowrap;
+		    width: 100px;
+		}
+
+		DIV#TAS DIV.OPPORTUNITIES DIV.OPPORTUNITY SPAN.SOLUTION {
+			width: 100px;
+			overflow: hidden;
+			text-align: left;
+			text-overflow: ellipsis;
+			white-space: nowrap;
+    	}
+
+		DIV#TAS DIV.OPPORTUNITIES DIV.OPPORTUNITY SPAN.VALUETYPE {
+			width: 30px;
+			overflow: hidden;
+			text-align: center;
+			text-overflow: ellipsis;
+			white-space: nowrap;
+    	}
+
+		DIV#TAS DIV.OPPORTUNITIES DIV.OPPORTUNITY SPAN.VALUETOUS {			
+			overflow: hidden;
+			text-align: right;
+  			text-overflow: ellipsis;
+    		white-space: nowrap;
+    		width: 60px;
+    	}
+
+		DIV#TAS DIV.OPPORTUNITIES DIV.OPPORTUNITY SPAN.VALUETOTHEM {			
+			overflow: hidden;
+			text-align: right;
+  			text-overflow: ellipsis;
+    		white-space: nowrap;
+    		width: 60px;
+		}
+		
+		DIV#TAS DIV#TOGGLEMAP {
+		    background-color: #506E94;
+		    border: 1px solid #506E94;
+		    border-radius: 7px 0 0 7px;
+		    color: #FFF;
+		    cursor: pointer;
+		    font-size: 14px;
+		    height: 30px;
+		    line-height: 30px;
+		    margin-left: -2px;
+		    position: absolute;
+		    text-align: center;
+		    top: 40px;
+		    vertical-align: bottom;
+		    width: 20px;
+		    z-index: 20;
+		}
+
+    	DIV#TAS DIV.TOGGLEMAP_RIGHT { left: 560px; }
+    	
+    	DIV#TAS DIV.TOGGLEMAP_LEFT { left: 301px; }
+		
+		DIV#TAS  DIV#ValueMapContainer .COMPRESSED {			
+		    left: 575px;
+		    width: 363px;
+		}
+		
+		DIV#TAS DIV#ValueMapContainer .EXPANDED {
+		    box-shadow: 0 0 3px rgba(0, 0, 0, .4);
+		    left: 317px;
+		    width: 621px;
+		}
+		
+		SPAN.HEADER {
+            background: #405773 url('{! URLFOR($Resource.SmartOM, 'tabs/bg_nav_off.jpg') }') left top repeat-x;
+   			color: #FFF;
+   			font-weight: bold;
+   			text-align: left;   			
+		}
+		
+		SPAN#SHADOWMAP {
+			background-color: #FFFFE0;
+			display: inline-block;
+			float: right;
+			height: 100px;		
+			width: 100px;
+		}
+
+		SPAN#TARGET {
+			background-color: #FFFFE0;			
+			display: inline-block;
+			float: right;
+			height: 100px;			
+			width: 100px;
+		}
+		
+		IMG.TARGET, SPAN.TARGET {
+			height: 16px;
+			width: 16px;			
+		}
+		
+		IMG.TARGETED, SPAN.TARGETED { background-image: url('{! URLFOR($Resource.ValueMap, 'icon_targeted.png') }') }
+
+		IMG.UNTARGETED { background-image: url('{! URLFOR($Resource.ValueMap, 'icon_untargeted.png') }') }
+
+		DIV#LEGEND {
+			height: 0;
+		    left: 9px;
+		    position: relative;
+		    top: -34px;		    
+		}
+		
+		DIV.LEGEND_POPUP {
+			background-color: #FFF;
+			border: 2px solid #9C9C9C;			
+		    border-radius: 7px;
+		    display: none;			
+			left: 30px;
+			padding: 5px 2px 5px 5px;
+			position: absolute;			
+		    top: -160px;
+		    width: 330px;
+		    z-index: 20;			
+		}
+		
+			div.LEGEND_POPUP .ttg_org_chart_legend_box_panel div { padding-left: 10px; }        	
+	        
+		        div#LEGEND div#legendDiv {
+		        	cursor: default;
+		            height: auto;
+		            min-width: 358px;
+		            width: auto;
+		        }		        
+		        			
+					#legendDiv .ttg_org_chart_legend_box_panel { width: 175px; }
+						
+						#legendDiv img#LEGENDCLOSER {	
+	    					right: 10px;
+	    					top: 10px;
+	    				}	
+        
+        #legendDiv .ttg_org_chart_legend_box_panel .ttg_org_chart_legend_box_panel_title { height: 28px; }
+        
+        #legendDiv .ttg_org_chart_legend_box_panel ul {
+        	list-style: disc; 
+        	min-height: 125px;
+        }
+        
+        	#legendDiv .ttg_org_chart_legend_box_panel ul li {
+        		display: list-item;
+        		margin-left: 33px;
+        		padding: 0 5px 0 0; 
+        	}
+		
+		SPAN.NODETITLE {
+		    display: inline-block;
+		    font-weight: bolder;
+		    overflow: hidden;
+		    text-overflow: ellipsis;
+		    transform: rotate(0deg);
+		    white-space: nowrap;
+   		}
+   		
+   		SPAN.NODETITLECOMPRESSED { width: 270px; }
+   		
+   		SPAN.NODETITLEEXPANDED { width: 500px; }
+   		
+		SPAN.TOOLTIPQUESTION { font-weight: bolder; }
+		
+		SPAN.TOOLTIPANSWERS { font-weight: bolder; }
+		
+		TABLE.TOOLTIPWRAPPERTABLE TH {		
+			color: maroon;
+			padding: 5px;
+		}
+		
+		TABLE.TOOLTIPWRAPPERTABLE TD { vertical-align: top; }		
+
+		DIV.DLGTARGET {
+		    display: inline-block;
+		    float: right;
+		    text-align: right;
+		    width: 100%;
+            padding: 5px 0;
+		}
+		
+		DIV.DLGINFO {
+		    display: inline-block;
+		    float: right;
+		    text-align: right;
+		    width: 100%;
+		}
+		
+		DIV.OPPORTUNITYSELECTED {
+			background-color: #609060;
+			border-radius: 16px;
+			box-shadow: 3px 2px 3px 2px #C0C0C0;
+		    color: #FFF;
+		}
+		
+		TABLE#QUESTIONS TD { padding-right: 4px; }		
+		
+        DIV.DLGLASTMODIFIED {
+            display: inline-block;
+            float: right;
+            text-align: right;
+            width: 100%;
+            padding: 5px 0;
+        }
+		
+        /* Restores AJAX spinner size to normal (AMOF-813) */
+        .spinner {
+        	height: auto;
+        	width: auto;
+        }
+        
+		/* Settings dropdown fix jQueryMigration  */
+		.TAMAdminLink{
+			position: relative;
+		}
+
+		.dropdown .dropdown-menu, .dropdown .dropdown-panel {
+			min-width: 80px;
+		}
+		
+		.dropdown {
+			left: -39px !important;
+		}
+		
+        /* TABLET LANDSCAPE*/ 	
+		@media only screen 
+			and (min-device-width : 768px) 
+			and (max-device-width : 1024px) 
+			and (orientation : landscape){
+	
+				.salesforce1 .COMPRESSED{
+					min-width: 419px !important;
+					width: 419px !important;
+					max-width: 419px !important;
+				}
+				
+				.salesforce1 .EXPANDED{
+					width: 678px !important;
+				}
+
+				.salesforce1 #ValueMapContainer{
+					width: 98%;
+					position: relative;
+					margin: 0 auto;
+				}
+
+				.salesforce1 DIV#LEGEND {
+					height: 0;
+					left: 15px;
+					position: relative;
+					top: -34px;
+				}	 		
+		}
+
+				
+		@media only screen 
+			and (min-device-width : 768px) 
+			and (max-device-width : 1024px) 
+			and (orientation : portrait) {
+				
+				.salesforce1 .COMPRESSED{
+					max-width: 180px;
+				}
+			
+				.salesforce1 .EXPANDED{
+					width: 435px !important;
+				}
+				
+				.salesforce1 .EXPANDED .OPPORTUNITIES{
+					width: 600px;
+				}
+				
+				.salesforce1 .EXPANDED SPAN.NAME {
+					width: 42px !important;
+				}
+	
+				.salesforce1 .EXPANDED SPAN.AMOUNT {
+					width: 70px !important;
+				}				
+				
+		}
+		
+	</style>
+	<apex:outputText value="Current user has no license for Account Manager module" styleClass="noLicenseText" rendered="{! NOT(isLicensedForAccountManager) }" />
+	<apex:outputText rendered="{! isLicensedForAccountManager }">
+		<div id="TAS">
+			<div id="SPINNER"></div>
+			<div id="ValueMapContainer">
+				<div id="Map"></div>
+				<div id="TOGGLEMAP" class="TOGGLEMAP_RIGHT">&lt;</div>
+				<div id="Data" class="COMPRESSED"></div>
+			</div>
+			<div id='LEGEND'>
+				<img src="{! URLFOR($Resource.ttgomjs, '/ttg/graph/feimages/icon_legend.png') }" />
+			</div>
+			<div id="QUESTIONAIRE"></div>
+		</div>
+	</apex:outputText>	
+	<script>
+
+		/* 
+		 * Copyright © The TAS Group. All rights reserved.
+		 *  
+		 */    
+	
+		var spec = {
+		
+			ttgApi: ttg.apiLayer.sfdcDelegate( { sessionid : '{!JSENCODE($Api.Session_ID)}' } ),
+			valueMapId: '{!JSENCODE(valueMapId)}',
+            dateformat: '{!JSENCODE(dateFormat)}',
+			readonly: {!false == editable}
+					   
+		};
+
+
+		var ttg_valuemap = (function(_spec) {
+
+			var iPad = ttg.isTouchScreen(); //navigator.userAgent.match(/iPad/i) != null;			
+			var valueMapId = _spec.valueMapId;
+			var ttgApi = _spec.ttgApi;
+			var data;
+			var putPostDataReturn;
+			var chart;
+			var readonly = _spec.readonly;
+
+			var dialogChart;
+			var dialogOpportunities;
+						
+			var that = {};
+			var valueToUsRange = { min: 0, max: 0}
+			var valueToThemRange = { min: 0, max: 0}
+			var CAT_VALUETOUS;
+			var CAT_VALUETOTHEM;
+			var TYPE_FIELD = 'Related Field Value';
+			var TYPE_SELECT = 'Multi Value';
+			var dataOffset;
+			
+			var opportunityId;
+
+	        var dateFormat = 'yy-mm-dd';
+	        if(spec.dateformat) {
+	            dateFormat = spec.dateformat.replace('yy', 'y').replace('yy', 'y');
+	        }
+	        
+	        var lastUpdatedMap = {};
+	
+			var localization = {
+				dlg_save: 'Save',
+				dlg_cancel: 'Cancel',
+				targeted: 'Currently targeted.\n',
+				untargeted: 'Currently un-targeted.\n',
+				click_to_target: 'Click to target',
+				click_to_untarget: 'Click to un-target',
+				potential: 'Potential',
+				current: 'Current',
+				target_opportunity: 'Target Opportunity',
+				opportunity: 'Opportunity',
+				amount:	'Amount',
+				solution: 'Solution',
+				type:	'Type',
+				last_modified: 			'Last Modified: '
+			}
+
+			function setup() {
+				wrapGet(handleGet);
+			}
+			
+			function handleGet(data) {
+				this.data = data;
+				var divData = jQuery('#Data');
+				divData.html(''); // Reset
+		    	dataOffset = divData.offset();
+
+				workOutAxes();
+				workOutMinMax();
+				renderUnits(jQuery('#Data'), null, 0, 0);
+				chart = createChart({ id: 'Map', width: 575, height: 495, opportunities: data.opportunities, dot: {min: 10, max :30 }, axes: true, selection: true });
+				jQuery('#TOGGLEMAP').click(expandContractMapDetails);
+				jQuery('#TOGGLEMAP').addClass('TOGGLEMAP_RIGHT');
+				initQuestionaire();
+
+				jQuery('DIV.OPPORTUNITY.CLICKABLE SPAN.SOLUTION').click(opportunityClicked).addClass('tasPointer');
+				jQuery('DIV.OPPORTUNITY.CLICKABLE SPAN.VALUETYPE').click(opportunityClicked).addClass('tasPointer');
+				jQuery('DIV.OPPORTUNITY.CLICKABLE SPAN.VALUETOUS').click(opportunityClicked).addClass('tasPointer');
+				jQuery('DIV.OPPORTUNITY.CLICKABLE SPAN.VALUETOTHEM').click(opportunityClicked).addClass('tasPointer');
+				jQuery('DIV.OPPORTUNITY.CLICKABLE SPAN.NAME').click(opportunityClicked).addClass('tasPointer');
+				jQuery('DIV.OPPORTUNITY.CLICKABLE SPAN.AMOUNT').click(opportunityClicked).addClass('tasPointer');
+				if(!readonly) {
+					jQuery('IMG.TARGET').click(target);
+				}
+				jQuery('#LEGEND')
+					.append(legend())
+					.addClass('tasPointer')
+					.click(toggleLegend);
+				
+				if (!iPad) {
+
+					jQuery('IMG.TARGET').tooltip({ 
+							delay: 0, 
+							showURL: false, 
+							bodyHandler: function() { 
+								var hover_targeted = localization.targeted + (!readonly ? localization.click_to_untarget : '');
+								var hover_untargeted = localization.untargeted + (!readonly ? localization.click_to_target : '');
+								return jQuery('<span>').text(jQuery(this).hasClass('TARGETED') ? hover_targeted : hover_untargeted).html(); 
+							} 
+						}
+					);
+				}
+			}
+
+			function renderUnits(parentCtrl, parentId, padding, paddingTotal) {
+
+				var ret = false;
+				var paddingDelta = 20;
+			
+				jQuery.each(data.units,
+					function (key, value) {
+						if (value.parentId == parentId) {
+
+							var children = jQuery('<div>').addClass('CHILDBLOCK').addClass('HIDDEN');							
+							var fndOpportunityBlockInChildren = renderUnits(children, value.id, paddingDelta, paddingTotal + paddingDelta);
+
+							var ourOppBlock = getOpportunityBlock(value, paddingTotal);
+
+							ret = ret || (ourOppBlock != undefined) || fndOpportunityBlockInChildren;
+							if (((ourOppBlock != undefined) || fndOpportunityBlockInChildren) != false) {
+								parentCtrl.append(
+									jQuery('<div>').attr('unit', value.id).addClass('UNIT').css('padding-left', padding + 'px').append(
+									  	jQuery('<span>').addClass('spanToggle').addClass('tasPointer').click(toggle)
+									).append(
+										jQuery('<span>').text(value.name).addClass('NODETITLE NODETITLECOMPRESSED').addClass('tasPointer').click(toggle)
+									).append(
+										ourOppBlock != undefined ? ourOppBlock : jQuery('<div>')
+									).append(
+										children
+									)
+								)
+							}
+							
+						}
+					}
+				);
+				
+				return ret;
+			}
+
+
+			function initQuestionaire() {
+
+				var buttons = {};
+				
+				if (!readonly) buttons[localization.dlg_save] = calcScore;
+
+				buttons[localization.dlg_cancel] = function() { jQuery(this).dialog("close"); };
+
+		    	var table = jQuery('<table>').attr('id', 'QUESTIONS');
+		    	
+				addQuestions(table, CAT_VALUETOTHEM);
+				table.append(
+					jQuery('<tr>').append(
+						jQuery('<td>').attr('colspan', 2).html('&nbsp;')
+					)
+				)
+				addQuestions(table, CAT_VALUETOUS);
+
+		    	jQuery("#QUESTIONAIRE").append(jQuery('<span>').attr('id', 'SHADOWMAP'));
+
+		    	jQuery("#QUESTIONAIRE").append(table);
+		    	
+		    	var targetCheckbox = jQuery('<INPUT>').attr('id', 'TARGET').attr('type', 'hidden');
+		    	if(readonly) {
+		    		targetCheckbox.attr('disabled','disabled');
+		    	}
+
+                var targetImg = jQuery('<IMG id="TARGETIMG"/>').addClass('UNTARGETED').css({'width': '16px', 'margin': '-4px 1px'}).attr('src', '{!JSENCODE(URLFOR($Resource.Assessment, '/common/images/transparent_dot.gif'))}');
+
+		    	jQuery("#QUESTIONAIRE").append(jQuery('<div id="DLGINFO"/>'));
+
+		    	jQuery("#DLGINFO").append(
+		    		jQuery('<div>').addClass('DLGTARGET').append(
+                        targetImg
+                    ).append(
+                        targetCheckbox
+                    ).append(
+		    			jQuery('<SPAN>').text(localization.target_opportunity)
+		    		)
+		    	);
+		    	
+		    	if(!readonly) {
+		    		targetImg.click(toggleTargeted);
+		    	}
+
+				var width = jQuery('#QUESTIONS').width()
+
+				jQuery("#QUESTIONAIRE").dialog( { modal: true, autoOpen: false, width: width + 450, buttons: buttons });
+		    	
+			}
+			
+			function toggleTargeted() {
+				if ( jQuery('#TARGET').attr('checked') == 'checked' ) {
+					jQuery('#TARGET').removeAttr('checked');
+					jQuery('#TARGETIMG').removeClass('TARGETED');
+					jQuery('#TARGETIMG').addClass('UNTARGETED');
+				} else {
+					jQuery('#TARGET').attr('checked', 'checked');
+					jQuery('#TARGETIMG').removeClass('UNTARGETED');
+					jQuery('#TARGETIMG').addClass('TARGETED');
+				}
+			}
+
+			function addQuestions(table, category) {
+			
+				table.append(
+					jQuery('<tr>').append(
+						jQuery('<th>').attr('colspan', 2).text(category + ' (' + abbreviate(category) + ')')
+					)
+				)
+
+				jQuery.each(data.questions, function (key, value) {
+						if (value.category == category) {
+							table.append(
+								jQuery('<tr>').append(
+									jQuery('<td>').text(value.name)
+								).append(
+									jQuery('<td>').append(
+										getAnswerOptions(value)
+									)
+								)
+							)
+						}
+					}
+				)
+			
+			}
+
+			function drawSelectionInformation() {
+				var item = jQuery('DIV[opportunityid="' + opportunityId + '"]');
+
+				var point = pointFromOpportunityId(chart, opportunityId, data.opportunities);
+					
+				clearSelection();
+				item.addClass('OPPORTUNITYSELECTED')
+
+				point.update(
+						{ 
+							marker:{ radius: point.marker.radius},
+							events:{
+		                		click: pointSelected
+							}
+					}
+				);
+				point.select(true, false);
+			}
+			
+			function clearSelection() {
+				jQuery('.OPPORTUNITYSELECTED').removeClass('OPPORTUNITYSELECTED')
+				
+				jQuery.each(chart.series, function(key, series) {
+
+						jQuery.each(series.data, function (key, point) {
+								
+								point.select(false, false);
+	
+							}
+						)
+					}
+				)
+			}
+			
+			function pointSelected(event) {
+
+				opportunityId = this.value.id;
+
+				var point = pointFromOpportunityId(chart, opportunityId, data.opportunities);
+
+				if (point.selected) {
+
+		            openQuestionaire()
+
+				}
+				else {
+
+					selectOpportunity(opportunityId);
+
+				}
+				
+				return false;
+
+			}
+
+			function opportunityClicked() {
+
+				opportunityId = jQuery(this).parent().attr('opportunityId');
+				
+				if (jQuery(this).parent().hasClass('OPPORTUNITYSELECTED')) {
+					openQuestionaire();
+				}
+				else {
+					selectOpportunity(opportunityId);
+				}
+			}
+
+			function selectOpportunity(opportunityId) {
+				this.opportunityId = opportunityId;
+				showOpportunityInList(opportunityId);
+				var point = pointFromOpportunityId(chart, opportunityId, data.opportunities);
+				pointSelect(point);
+			}
+
+			function pointSelect(point) {
+
+				if (point.series.options.allowPointSelect) {
+
+					point.select(true, false);
+
+				}
+				else {
+
+					point.select(false, false);
+
+				}
+
+			}
+
+
+			function showOpportunityInList(opportunityId) {
+			
+				var item = jQuery('DIV[opportunityid="' + opportunityId + '"]');
+				var parent = item.parent();
+				var depth=10;
+				while (depth > 0 && parent.attr('id') != 'Data') {
+				
+					depth--;
+					
+					if (parent.hasClass('HIDDEN')) {
+					
+						parent.removeClass('HIDDEN');
+						
+					}
+					
+					if (parent.hasClass('OPPORTUNITIES')) {
+					
+						parent.siblings('.spanToggle').addClass('spanToggleExpanded');
+					}
+					if (parent.hasClass('CHILDBLOCK')) {
+					
+						parent.siblings('.spanToggle').addClass('spanToggleExpanded');
+					}
+					
+					parent = parent.parent();
+				
+				}
+				
+				// Bring the opportunity into view				
+				var scrolled = jQuery('#Data').scrollTop();
+		    	var offset = item.offset().top - dataOffset.top;
+		    	var height = jQuery('#Data').height();
+		    	var itemHeight = item.height();
+		    	
+				// Currently this doesn't scroll if the element if already shown however that means it doesn't scroll the element
+				// into the center.  When Canice asks for that change then it should just be a case of removing this if block
+				// around the code. 
+		    	if (offset < 0 || (offset + itemHeight) > height) {
+		    	
+		    		// Need to scroll into position
+		    		if (offset < 0) {
+				    	jQuery('#Data').scrollTop((offset + scrolled) - (height / 2) + (itemHeight * 2));
+		    		}
+		    		else {
+				    	jQuery('#Data').scrollTop(((offset + itemHeight / 2) - height) + scrolled + (height / 2) + itemHeight);
+		    		} 
+		    	} 
+			
+				drawSelectionInformation();
+			}
+
+			function openQuestionaire() {
+
+				dialogOpportunities = [];
+				var opportunity;
+				
+				jQuery.each(data.opportunities, function (key, value) {
+				
+						if (value.id == opportunityId) {
+							opportunity = value;						
+					    	jQuery("#QUESTIONAIRE").dialog('option', 'title', value.name);
+							dialogOpportunities.push(value);
+						}
+					}
+				)
+
+				jQuery.each(data.questions, function (key, value) {
+						
+						if (value.type == TYPE_FIELD) {
+							
+							jQuery('#Q' + value.id).text(getFieldValue(opportunity, value.field, true));
+
+						} 
+						else {
+						
+							jQuery('#Q' + value.id).val('');
+							
+						}
+						
+					}
+				)
+				
+				jQuery.each(opportunity.answers, function (key, value) {
+						
+						jQuery('#Q' + value.Id).val(value.answerId);
+						
+					}
+				)
+
+				jQuery("#TARGET").prop("checked", opportunity.targeted);
+               	if ( opportunity.targeted ) {
+					jQuery('#TARGET').attr('checked', 'checked');
+					jQuery('#TARGETIMG').removeClass('UNTARGETED');
+					jQuery('#TARGETIMG').addClass('TARGETED');
+               	} else {
+					jQuery('#TARGET').removeAttr('checked');
+					jQuery('#TARGETIMG').removeClass('TARGETED');
+					jQuery('#TARGETIMG').addClass('UNTARGETED');
+               	}
+
+				jQuery('#QUESTIONAIRE').find('TABLE#QUESTIONS').css('visibility', 'hidden');
+				jQuery('#QUESTIONAIRE').dialog('open');
+
+				
+				var height = jQuery('#QUESTIONS').height();
+				var width = jQuery('#QUESTIONS').width();
+
+				jQuery('#SHADOWMAP').height(300);
+				jQuery('#SHADOWMAP').width(300);
+
+				dialogChart = createChart({ id: 'SHADOWMAP', width: 310, height: 300, opportunities: dialogOpportunities, dot: {min: 10, max :10 }, axes: false, selection: false});
+
+				jQuery(".ui-widget-overlay").click(function(){ jQuery(".ui-dialog-titlebar-close").trigger('click');});
+				
+				var lastUpdated = lastUpdatedMap[opportunityId] ? lastUpdatedMap[opportunityId] : opportunity.maxLastModifiedDate;
+				jQuery('.DLGLASTMODIFIED').remove();
+				
+				if ( lastUpdated ) {
+					jQuery('#DLGINFO').append(
+						jQuery('<div class="DLGLASTMODIFIED"/>').text(localization.last_modified + jQuery.datepicker.formatDate(dateFormat,new Date(lastUpdated)))
+					);
+				}
+
+				jQuery('#QUESTIONAIRE').find('TABLE#QUESTIONS').css('visibility', '');
+
+				// Force recalc
+				 updateDlgScore();
+
+				// Otherwise it focuses on the target and it feels wrong
+				jQuery('button.ui-button').first().focus();
+			}
+
+			function getFieldValue(opportunity, field, formatted) {
+				switch (field) {
+					case 'Amount':
+						return formatted ? opportunity.formattedAmount : opportunity.baseamount;
+
+					case 'Level of Relationship':
+						return opportunity.lor;
+						
+					default:
+						return '';	
+				}
+			}
+
+			function getFieldType(field) {
+				switch (field) {
+					case 'Amount':
+						return 'number';
+
+					case 'Level of Relationship':
+						return 'string';
+						
+					default:
+						return 'string';	
+				}
+			}
+
+
+			function getOpportunityFromId(id) {
+
+				var ret;
+				
+				jQuery.each(data.opportunities, function (key, value) {
+				
+						if (value.id == id) {
+						
+					    	ret = value;
+						}
+					}
+				)
+				
+				return ret;
+			}
+
+			function calcScore () {
+				updateScore(chart, data.questions, data.opportunities, false);
+				
+				var opportunityBlock = getOpportunityFromId(opportunityId);
+
+				wrapPutPost ({
+						cmd: 'updateScore', 
+						opportunityid: opportunityId, 
+						valueType : opportunityBlock.valueType, 
+						valueToUs : opportunityBlock.valueToUs, 
+						valueToThem : opportunityBlock.valueToThem,
+						targeted:  opportunityBlock.targeted,
+						answers: getOpportunityAnswersBlock (data.questions)
+					}, 
+					function() { } 
+				);
+
+				lastUpdatedMap[opportunityId] = new Date();
+				
+				jQuery("#QUESTIONAIRE").dialog("close")
+			}
+
+			function updateTargeted(id, targeted) {
+
+				var opportunityBlock = getOpportunityFromId(id);
+
+				opportunityBlock.targeted = targeted;
+
+				var point = pointFromOpportunityId(chart, id, data.opportunities);
+				var newpoint = {
+
+					x :point.x, 
+					y: point.y, 
+					value: point.value, 
+					marker:{ radius: point.marker.radius, symbol: point.marker.symbol },
+					states: point.states, 
+					dealmakerKey: point.dealmakerKey, 
+		            events:{
+		                click: pointSelected
+					}
+				}
+			
+				if (targeted) {
+
+					newpoint.marker.symbol = 'diamond'
+
+				} 
+				else {
+
+					newpoint.marker.symbol = 'circle'
+
+				}
+				
+				var series = point.series;
+
+				series.addPoint(newpoint);
+				
+				point.remove();
+
+				wrapPutPost ({
+						cmd: 'updateTarget', 
+						opportunityid: id, 
+						targeted:  opportunityBlock.targeted
+					}, 
+					function() { 
+					} 
+				);
+
+				selectOpportunity(id)
+			}
+
+			function updateDlgScore () {
+			
+				updateScore(dialogChart, data.questions, dialogOpportunities, true);
+
+			}
+
+			function getOpportunityAnswersBlock (questions) {
+				var answerBlock = [];
+				
+				jQuery.each(questions, function (key, value) {
+
+						if (value.type == TYPE_SELECT) {
+							answerBlock.push( { id: value.id, answerId: jQuery('#Q' + value.id).val()})
+						}
+					
+					}
+				)
+				
+				return answerBlock;
+			}
+
+			
+			function updateScore (chartCtrl, questions, opportunities, tempOnly) {
+				
+				var opportunityBlock = getOpportunityFromId(opportunityId);
+				
+				var valueToUsScore = 0;
+				var valueToThemScore = 0;
+				var answers = [];			
+			
+				jQuery.each(questions, function (key, value) {
+
+						var answerId = jQuery('#Q' + value.id).val();
+				
+						if (value.type == TYPE_FIELD) {
+							// Score calculated on a field in the opportunity
+							var valueFromOpportunity = getFieldValue(opportunityBlock, value.field, false)
+							var fieldType = getFieldType(value.field);
+							var fnd = false;
+
+							jQuery.each(value.fieldOptions || [], function(optionKey, optionValue) {
+
+									if (!fnd && compare(fieldType, optionValue.expression, optionValue.value, valueFromOpportunity)) {
+										
+										fnd = true;
+										
+										valueToUsScore += optionValue.score || 0;
+										
+									}
+									
+								} 
+							)
+						}
+						else {
+							// Score calculated on an answer from the user
+							answers.push({Id: value.id, answerId: answerId });
+							jQuery.each(value.options || [], function(optionKey, optionValue) {
+									if (optionValue.id == answerId) {
+										if (value.category == CAT_VALUETOUS) {
+												
+											valueToUsScore += optionValue.score || 0;
+											
+										}
+										else {
+										
+											valueToThemScore += optionValue.score || 0;
+											
+										}
+									}
+							
+								}
+							)
+						}
+						
+					}
+				)
+	
+	
+				if (tempOnly == false) {
+					opportunityBlock.valueToUs = valueToUsScore;
+					opportunityBlock.valueToThem = valueToThemScore;
+					opportunityBlock.answers = answers;
+					opportunityBlock.targeted = jQuery("#TARGET").prop("checked");
+
+					var oppDisplayBlockCtrl = jQuery(".OPPORTUNITY[opportunityid='" + opportunityId + "']");
+					oppDisplayBlockCtrl.find('.VALUETOUS').text(valueToUsScore + ' / ' + valueToUsRange.max)
+					oppDisplayBlockCtrl.find('.VALUETOTHEM').text(valueToThemScore + ' / ' + valueToThemRange.max)
+					if (valueToUsScore < (valueToUsRange.max - valueToUsRange.min) / 2 + valueToUsRange.min) {
+						// D C
+						if (valueToThemScore < (valueToThemRange.max - valueToThemRange.min) / 2 + valueToThemRange.min) {
+							valueType = 'D'
+						}
+						else {
+							valueType = 'C'
+						}
+					}
+					else {
+						// B A
+						if (valueToThemScore < (valueToThemRange.max - valueToThemRange.min) / 2 + valueToThemRange.min) {
+							valueType = 'B'
+						}
+						else {
+							valueType = 'A'
+						}
+					}
+					opportunityBlock.valueType = valueType;
+					oppDisplayBlockCtrl.find('.VALUETYPE ').text(valueType);
+
+					changeTargetState(opportunityId, opportunityBlock.targeted);
+
+//					oppDisplayBlockCtrl.find('.TARGET').removeClass('UNTARGETED TARGETED ').addClass(opportunityBlock.targeted ? 'TARGETED' : 'UNTARGETED');
+				}
+				
+				var point = pointFromOpportunityId(chartCtrl, opportunityId, opportunities);
+
+
+				var newpoint = point;
+
+				if (opportunityBlock.targeted) {
+					newpoint.marker.symbol = 'diamond'
+				} 
+				else {
+					newpoint.marker.symbol = 'circle'
+				}
+
+				newpoint.y = valueToUsScore;
+				newpoint.x = valueToThemScore;
+
+				point.update(newpoint);
+
+				selectOpportunity(opportunityId);
+
+			}
+			
+			function compare(type, expression, testValue, value) {
+				var _testValue = testValue;
+				var _value = value;
+				if (type == 'number') {
+					_testValue = parseInt(_testValue, 10)
+					_value = parseInt(_value, 10)
+				}				
+				switch(expression) {
+					case '=':
+						return _value == _testValue;
+
+					case '\u2260': // This symbol is a = with a / thru it : not equal)
+						return _value != _testValue;
+
+					case '<':
+						return _value < _testValue;
+
+					case '<=':
+						return _value <= _testValue;
+
+					case '>':
+						return _value > _testValue;
+
+					case '>=':
+						return _value >= _testValue;
+						
+					default:
+						return false;
+				}
+
+			}
+			function pointFromOpportunityId(chartCtrl, opportunityId, opportunities) {
+				var opportunity;
+
+				jQuery.each(opportunities, function (key, value) {
+						if (value.id == opportunityId) {
+
+							opportunity = value;
+
+						}
+					}
+				)
+				var seriesIndex = 0;
+				switch (opportunity.type) {
+					case 'Potential':
+						seriesIndex = 0;
+						break;
+
+					case 'Current':
+						seriesIndex = 1;
+						break;
+
+					case 'Won':
+						seriesIndex = 2;
+						break;
+				}
+
+				var point;
+				
+				jQuery.each(chartCtrl.series[seriesIndex].data, function (key, value) {
+
+						if (opportunities[value.dealmakerKey].id == opportunity.id) {
+
+							point = value;
+
+						}
+
+					}
+				)
+				
+				return point;
+			}
+
+			function workOutAxes() {
+
+				jQuery.each(data.axes, function (key, value) {
+
+						switch (value.type) {
+							case 1: CAT_VALUETOUS = value.name; break;
+							case 2: CAT_VALUETOTHEM = value.name; break;
+							default: // surpress
+								break;
+						} 				
+					}
+				)
+			}
+			
+			function abbreviate(str) {
+				var ret = '';
+				var space = true;
+				var i;
+				for (i = 0; i < str.length; i++) {
+					var c = str.substring(i, i + 1);
+					if (c == ' ') {
+						space = true;
+					}
+					else if(space == true) {
+						ret += c;
+						space = false;
+					}
+				}
+				
+				return ret.toUpperCase();
+				
+			}
+			
+			function workOutMinMax() {
+
+		    	jQuery.each(data.questions, function (key, value) {
+		    	
+			    		var min = 0; 
+			    		var max = 0;
+			    		
+			    		if (value.type == TYPE_FIELD) {
+				    		jQuery.each(value.fieldOptions, function (optionkey, optionValue) {
+					    			if (optionValue.score >= 0) {
+					    				max = Math.max(max, optionValue.score)
+					    			}
+					    			else {
+					    				min = Math.min(min, optionValue.score)
+					    			}
+					    		}
+					    	)
+			    		} 
+			    		else {
+				    		jQuery.each(value.options, function (optionkey, optionValue) {
+					    			if (optionValue.score >= 0) {
+					    				max = Math.max(max, optionValue.score)
+					    			}
+					    			else {
+					    				min = Math.min(min, optionValue.score)
+					    			}
+					    		}
+					    	)
+					    }
+			    		
+			    		if (value.category == CAT_VALUETOUS) {
+			    			valueToUsRange.min += min; 
+			    			valueToUsRange.max += max; 
+			    		}
+			    		else {
+			    			valueToThemRange.min += min; 
+			    			valueToThemRange.max += max; 
+			    		}
+			    	}
+		    	)
+			}
+
+
+			function getAnswerOptions(question) {
+
+				if (question.type == TYPE_FIELD) {
+					return jQuery('<span>').attr('id', 'Q' + question.id).text('Undefined');
+				}
+				else {
+					var select = jQuery('<select>').attr('id', 'Q' + question.id).change(updateDlgScore);
+					if (readonly) {
+						select.attr('disabled', 'true');
+					}
+					select.append(jQuery('<option>').val(''));
+					
+					jQuery.each(question.options, function (key, value) {
+							select.append(
+							
+								jQuery('<option>').val(value.id).text(value.name)
+								
+							)
+						}
+					)
+					
+					return select;
+				}
+			}
+
+			function createChart(options) {
+
+				var maxRadius = options.dot.max;
+				var minRadius = options.dot.min;
+				var maxAmount = 1;
+				var axes = options.axes;
+				jQuery.each(options.opportunities, function (key, value) {
+
+						if (isOpportunityTypeSupported(value.type)) {
+							maxAmount = Math.max(value.baseamount, maxAmount);
+						}
+						
+					}
+				)
+
+				var potential = [];
+				var current = [];
+
+				var deltaX =  (valueToUsRange.max - valueToUsRange.min) / 10; 
+				var deltaY =  (valueToThemRange.max - valueToThemRange.min) /10 ; 
+				var selectionAllowed = options.selection;
+				var outOfRange = false;
+
+				jQuery.each(options.opportunities, function (key, value) {
+
+						var x, y;
+						y = value.valueToUs || 0;
+						x = value.valueToThem || 0;
+						if (y < valueToUsRange.min || y > valueToUsRange.max) {
+							outOfRange = true;
+							y = Math.max(valueToUsRange.min, y);
+							y = Math.min(valueToUsRange.max, y);
+						}
+						if (x < valueToThemRange.min || x > valueToThemRange.max) {
+							outOfRange = true;
+							x = Math.max(valueToThemRange.min, x);
+							x = Math.min(valueToThemRange.max, x);
+						}
+
+
+
+						var opportunity = { 
+							y: y, 
+							x: x, 
+							value: value, 
+							marker:{ 
+								radius: ((value.baseamount / maxAmount) * (maxRadius - minRadius)) + minRadius, 
+								symbol: (value.targeted || false) ? 'diamond' : 'circle',
+								states: {
+									enabled: true,
+									radius: ((value.baseamount / maxAmount) * (maxRadius - minRadius)) + minRadius
+								}
+							}, 
+							dealmakerKey: key 
+							
+						};
+						
+						if (selectionAllowed) {
+							opportunity.events = {
+				                click: pointSelected
+				            } 
+						}
+						
+						switch (value.type) {
+							case 'Potential':
+								potential.push( opportunity );
+								break;
+
+							case 'Current':
+								current.push( opportunity );
+								break;
+
+							default:
+								break;
+						}
+				
+					}
+				)
+
+				if (selectionAllowed && outOfRange) {
+				
+					alertDialog(
+							'Warning', 
+							'Some scores appear to be outside the expected range.  It is likely that the questions have been changed.  Please review and resave the answers.',
+							{
+								'Ok': function() { 
+									jQuery(this).dialog('close'); 
+								}
+							}
+					)
+
+				}
+				
+				var chartParams = {
+				    chart:{
+
+				        renderTo: options.id,
+				        defaultSeriesType:'scatter',
+				        marginLeft:60,
+				        marginBottom:50,
+				        marginRight: 20,
+				        marginTop: 20,
+				        borderWidth: axes ? 0:1,
+				        borderColor:'#999',
+				        width: options.width || 600,
+				        height: options.height || 600,
+				        ignoreHiddenSeries: true,
+				        spacingLeft: 0,
+				        spacingBottom: 0,
+					    resetZoomButton: {
+					    	theme: {
+							    fill: '#506E94',
+	                            style: { color: 'white' }
+						    }
+						},
+						plotBackgroundImage: '{!URLFOR($Resource.ValueMap, 'abcd.png')}'
+				    },
+				    credits:{enabled:false},
+				    title:{text:''},
+				    tooltip:{ useHTML: true, borderWidth:1, formatter:function() { return jQuery('<span>').text(this.point.value.name).html() + '<br><b>' + jQuery('<span>').text(getFullUnitPath(this.point.value.accountId)).html();} },
+				    plotOptions:{
+					    series: {
+				            events: {
+				                legendItemClick: function(event) {
+									clearSelection();
+				                }
+				            }
+				        },
+  				        scatter:{
+				        	marker:{
+				        		//radius:20, 
+				        		states:{ 
+				        			hover:{
+				        				enabled:false
+				        			} 
+				        		} 
+				        	},
+				            states:{ hover:{enabled: false} },
+				            cursor:'pointer'
+				        },
+				        line:{
+				            shadow:false,
+				            visible:false,
+				            enableMouseTracking:false,
+				            lineWidth:1,
+				            marker:{enabled:false},
+				            states:{
+				                hover:{
+				                    lineWidth:0
+				                }
+				                
+				            }
+				        },
+				        borderWidth:1,
+				        borderColor:'#ccc'
+				    },
+				
+				
+				    yAxis: {
+				        title:{text: CAT_VALUETOUS + ' (' + abbreviate(CAT_VALUETOUS) + ')'},
+				        plotLines:[ {value:(valueToUsRange.min + valueToUsRange.max)/2,width:2,color:'#999'} ],
+				        min: valueToUsRange.min - deltaX,
+				        max: valueToUsRange.max + deltaX,
+				        tickInterval: Math.round((-valueToUsRange.min + valueToUsRange.max) / (axes ? 10 : 5)),
+				        lineColor:'#ccc',
+				        tickColor:'#ccc',
+				        gridLineColor:'#f0f0f0',
+				        lineWidth: 1,
+				        endOnTick:false
+				    },
+
+				    xAxis: {
+				        title:{text: CAT_VALUETOTHEM + ' (' + abbreviate(CAT_VALUETOTHEM) + ')'},
+				        plotLines:[ {value:(valueToThemRange.min + valueToThemRange.max)/2,width:2,color:'#999'} ],
+				        min: valueToThemRange.min - deltaY,
+				        max: valueToThemRange.max + deltaY,
+				        tickInterval: Math.round((-valueToThemRange.min + valueToThemRange.max)/ (axes ? 10 : 5)),
+				        lineColor:'#ccc',
+				        tickColor:'#ccc',
+				        gridLineWidth: 1,
+				        gridLineColor:'#f0f0f0',
+				        lineWidth: 1,
+				        endOnTick:false
+				    },
+
+				    series:[
+				    {
+					        color:'rgba(69, 114, 167, 1)',
+					        marker:{
+				        		radius:6, 
+					            symbol:'circle',
+					            fillColor:'rgba(69, 114, 167, .25)',
+					            lineColor:'rgba(69, 114, 167, .5)',
+					            lineWidth:1
+					        },
+					        allowPointSelect : selectionAllowed,
+					        name:'<strong>' + jQuery('<span>').text(localization.potential).html() + '</strong>',
+					        data: potential
+						         
+				        },
+				        
+				        {
+				            color:'rgba(137, 165, 78, 1)',
+					        marker:{
+				        		radius:6, 
+					            symbol:'circle',
+					            fillColor:'rgba(137, 165, 78, .25)',
+					            lineColor:'rgba(137, 165, 78, .5)',
+					            lineWidth:1
+					        },
+					        allowPointSelect : selectionAllowed,
+					        name:'<strong>' + jQuery('<span>').text(localization.current).html() + '</strong>',
+					        data:current
+				        }
+				       ]
+					};
+
+					if (selectionAllowed) {
+
+						chartParams.chart.zoomType = 'xy';
+
+						chartParams.chart.events = {
+							click: function(e) {
+								clearSelection();
+								if (jQuery('#TOGGLEMAP').hasClass('TOGGLEMAP_LEFT')) {
+									expandContractMapDetails();
+								}
+							},
+							selection: function(event) {
+								
+								if (event.xAxis) {
+
+									jQuery('image').css('visibility', 'hidden');
+
+								} 
+								else{
+
+									jQuery('image').css('visibility', 'visible');
+									
+								}
+								
+								if (jQuery('#TOGGLEMAP').hasClass('TOGGLEMAP_LEFT')) {
+									expandContractMapDetails();
+								}
+							}
+						}
+						
+					}
+
+
+
+
+
+
+
+					if (potential.length > 0 && current.length > 0) {
+						chartParams.legend = { layout:'horizontal', floating: true, align:'right', verticalAlign:'bottom', x:-20, y:-51, backgroundColor:'#ffffff', borderWidth:1, borderColor:'#c0c0c0' }
+					}
+					else {
+						chartParams.legend = { enabled: false }
+					}
+
+					var chart = new Highcharts.Chart(chartParams);
+
+					jQuery.each(chart.series[0].data, function(key, point) {
+							
+							Highcharts.addEvent(point, 'dblclick', pointSelected);
+							
+						}
+					)
+
+					return chart;
+
+			}
+
+			
+			function target() {
+
+				opportunityId = jQuery(this).parent().parent().attr('opportunityId');
+
+				var targeted=!jQuery(this).hasClass('TARGETED');
+
+				changeTargetState(opportunityId, targeted);
+
+			}
+
+			function changeTargetState(opportunityId, targeted) {
+
+				this.opportunityId = opportunityId;
+
+				var ctrl = jQuery('DIV[opportunityid="' + opportunityId + '"]');
+				ctrl = ctrl.find('IMG.TARGET')
+
+				selectOpportunity(opportunityId);
+				
+				if (targeted) {
+					ctrl.addClass('TARGETED');
+					ctrl.removeClass('UNTARGETED');
+				}
+				else {
+					ctrl.addClass('UNTARGETED');
+					ctrl.removeClass('TARGETED');
+				}
+
+				var opportunityBlock = getOpportunityFromId(opportunityId);
+				opportunityBlock.target = targeted;
+
+				updateTargeted(opportunityId, targeted)
+			}
+
+			function expandContractMapDetails() {
+				if (jQuery('#TOGGLEMAP').hasClass('TOGGLEMAP_LEFT')) {
+
+					jQuery('#TOGGLEMAP').addClass('TOGGLEMAP_RIGHT');
+					jQuery('#TOGGLEMAP').removeClass('TOGGLEMAP_LEFT');
+					jQuery('#TOGGLEMAP').text('<');
+					jQuery('#Data').removeClass('EXPANDED');
+					jQuery('#Data').addClass('COMPRESSED');
+					jQuery('#Data').find('.NODETITLE').removeClass('NODETITLEEXPANDED')
+					jQuery('#Data').find('.NODETITLE').addClass('NODETITLECOMPRESSED')
+					jQuery('.SOLUTION').css('display', 'none')
+//					jQuery('.VALUETYPE').css('display', 'none')
+					jQuery('.VALUETOUS').css('display', 'none')
+					jQuery('.VALUETOTHEM').css('display', 'none')
+					
+
+				}
+				else {
+
+					jQuery('#TOGGLEMAP').addClass('TOGGLEMAP_LEFT');
+					jQuery('#TOGGLEMAP').removeClass('TOGGLEMAP_RIGHT');
+					jQuery('#TOGGLEMAP').text('>');
+					jQuery('#Data').addClass('EXPANDED');
+					jQuery('#Data').removeClass('COMPRESSED');
+					jQuery('#Data').find('.NODETITLE').addClass('NODETITLEEXPANDED')
+					jQuery('#Data').find('.NODETITLE').removeClass('NODETITLECOMPRESSED')
+					jQuery('.SOLUTION').css('display', 'inline-block')
+//					jQuery('.VALUETYPE').css('display', 'inline-block')
+					jQuery('.VALUETOUS').css('display', 'inline-block')
+					jQuery('.VALUETOTHEM').css('display', 'inline-block')
+
+				}
+			}
+
+			function toggle() {
+
+				var id = jQuery(this).parent().attr('unit');
+				var ctrl = jQuery(this).parent().children('.spanToggle');
+
+				if (ctrl.hasClass('spanToggleExpanded')) {
+
+					ctrl.removeClass('spanToggleExpanded');
+					jQuery(this).siblings('.OPPORTUNITIES').addClass('HIDDEN');
+					jQuery(this).siblings('.CHILDBLOCK').addClass('HIDDEN');
+					
+				}
+				else {
+
+					ctrl.addClass('spanToggleExpanded');
+					jQuery(this).siblings('.OPPORTUNITIES').removeClass('HIDDEN');
+					jQuery(this).siblings('.CHILDBLOCK').removeClass('HIDDEN');
+
+				}
+			}
+			
+			function getOpportunityBlock(unit, paddingTotal){
+				var fnd = false;
+				var div = jQuery('<div>').addClass('OPPORTUNITIES').addClass('HIDDEN');
+				var defaultNameSize = 148;
+				
+				div.append(
+					jQuery('<div>').addClass('HEADER OPPORTUNITY').append(
+						jQuery('<span>').addClass('TARGET HEADER').html('&nbsp;').css('width', '25px')
+					).append(
+						jQuery('<span>').addClass('NAME HEADER').text(localization.opportunity).css('width', defaultNameSize-paddingTotal)
+					).append(
+						jQuery('<span>').addClass('AMOUNT HEADER').text(localization.amount)
+					).append(
+						jQuery('<span>').addClass('SOLUTION HEADER').css('display', 'none').text(localization.solution)
+					).append(
+						jQuery('<span>').addClass('VALUETYPE HEADER').text(localization.type)
+//						jQuery('<span>').addClass('VALUETYPE HEADER').css('display', 'none').text(localization.type)
+					).append(
+						jQuery('<span>').addClass('VALUETOUS HEADER').css('display', 'none').text(abbreviate(CAT_VALUETOUS))
+					).append(
+						jQuery('<span>').addClass('VALUETOTHEM HEADER').css('display', 'none').text(abbreviate(CAT_VALUETOTHEM))
+					)
+				)
+
+				jQuery.each(data.opportunities, function(key, value) {
+				
+						if (value.accountId == unit.id && isOpportunityTypeSupported(value.type)) {
+							value.lor = unit.lor || '';
+							fnd = true;
+							div.append(
+								jQuery('<div>').addClass('OPPORTUNITY CLICKABLE').attr('opportunityId', value.id).append(
+									jQuery('<span>').addClass('TARGET CLICKABLE').append(
+										jQuery('<img>').attr('src', '{!JSENCODE(URLFOR($Resource.Assessment, '/common/images/transparent_dot.gif'))}').addClass(value.targeted ? 'TARGETED' : 'UNTARGETED').addClass('TARGET')
+									)
+								).append(
+									jQuery('<span>').addClass('NAME CLICKABLE').text(value.name).css('width', defaultNameSize-paddingTotal)
+								).append(
+									jQuery('<span>').addClass('AMOUNT CLICKABLE').text(value.formattedAmount)
+								).append(
+									jQuery('<span>').addClass('SOLUTION CLICKABLE').css('display', 'none').text((lookupSolution(value.solutionId) != null) ? lookupSolution(value.solutionId).name : '')
+								).append(
+									jQuery('<span>').addClass('VALUETYPE CLICKABLE').text(value.valueType)
+								).append(
+									jQuery('<span>').addClass('VALUETOUS CLICKABLE').css('display', 'none').text('' + value.valueToUs + ' / ' + valueToUsRange.max)
+								).append(
+									jQuery('<span>').addClass('VALUETOTHEM CLICKABLE').css('display', 'none').text(value.valueToThem + ' / ' + valueToThemRange.max)
+								)
+							)
+						}
+					}
+				)
+
+				return fnd ? div : undefined;
+			}
+			
+			function lookupSolution(id) {
+				var solution = null; 
+				
+				jQuery.each(data.solutions, function (key, value) {
+						if (value.id == id) {
+							solution = value;
+						}
+					}
+				)
+				
+				return solution;
+			}
+			function isOpportunityTypeSupported(type) {
+			
+				return type == 'Potential' || type == 'Current';
+			}
+			
+			function getFullUnitPath(unitId) {
+			
+				var name = '';
+				
+				jQuery.each(data.units, function (key, value) {
+						if (value.id == unitId) {
+							
+							name = value.name;
+							if (value.parentId != null) {
+							
+								name = getFullUnitPath(value.parentId) + ' \\ ' + name;
+
+							}
+						
+						}
+					}
+				)
+				return name;
+				
+			}
+			
+			function toggleLegend(event) {			
+				jQuery('.LEGEND_POPUP')
+					.css('position', '')
+					.toggle();
+				if(event) {
+                	event.stopPropagation();
+            	}		
+			}
+			
+			// Creates a new legend popup consistent with that of the Opportunity Map (AMOF-714)			
+			function legend() {			
+				var vtu = jQuery('<ul />');
+				var vtt = jQuery('<ul />');
+				    
+	            return jQuery('<div />')
+                	.addClass('ttg_org_chart_legend_box_panel')
+                	.append(createLegendDiv(CAT_VALUETOUS, vtu))
+                	.append(createLegendDiv(CAT_VALUETOTHEM, vtt))
+                	.append(jQuery('<img />', { id: 'LEGENDCLOSER', src: '{! URLFOR($Resource.ttgomjs, '/ttg/graph/feimages/icon_delete.png') }' })
+						.click(toggleLegend))
+	                .addClass('LEGEND_POPUP')
+	                .addClass('HIDDEN')
+	                .attr('id', 'legendDiv')
+	                .draggable();
+			}
+			
+			// Creates a container to hold the category name and list (AMOF-714)			
+			function createLegendDiv(category, list) {
+				jQuery.each(data.questions, function (key, value) {
+				
+					if (value.category == category) {	            					
+						list.append(createBoxLegend(value.name));
+					}					
+				});
+					    
+				var parent = jQuery('<div />')
+			    	.addClass('ttg_org_chart_legend_box_panel tool_tip_opp_type')
+					.append(list);
+								
+				var title = jQuery('<div />')
+					.addClass('ttg_org_chart_legend_box_panel_title')
+	            	.text(category);
+				    
+				return parent.prepend(title);	
+			}
+			
+			// Creates a list item holding the legend details (AMOF-714)
+			function createBoxLegend(legenddetails) {
+	            return jQuery('<li />')
+					.append(jQuery('<span />')
+	            		.text(legenddetails)
+	            	);
+        	}
+			
+			function alertDialog(title, text, actions) {
+				
+				
+				jQuery('<div/>', {title: title}).text(text).dialog({
+	                    resizable: false,
+	                    modal: true,
+	                    buttons: actions,
+						close: function() { jQuery(this).remove() }
+	                });
+				
+			}
+
+			var ajaxSpinnerCnt = 0;
+			
+			function showAjaxSpinner(show) {
+				
+				if (show) { 
+					ajaxSpinnerCnt++;
+					if (ajaxSpinnerCnt == 1) {
+
+						jQuery('#SPINNER').append(jQuery('<img>').attr('id', 'tas_ajax_spinner').addClass('spinner').attr('src', '{!JSENCODE(URLFOR($Resource.ttgomjs, '/ttg/graph/images/loader.gif'))}'));
+						jQuery('#SPINNER').css("top", ( jQuery(window).height() - jQuery('#SPINNER').height() ) / 2+jQuery(window).scrollTop() + "px");
+						jQuery('#SPINNER').css("left", ( jQuery(window).width() - jQuery('#SPINNER').width() ) / 2+jQuery(window).scrollLeft() + "px");
+
+					}				  
+				}
+				else {
+
+					ajaxSpinnerCnt--;
+					if (ajaxSpinnerCnt <= 0) {				
+						jQuery('#SPINNER').html('');
+						ajaxSpinnerCnt = 0;
+					}
+
+				}
+			}
+
+
+			function wrapPutPost (params, callback) {
+
+				addSerialiseCalls('put', params, callback);
+
+			}
+
+			function wrapGet (callback) {
+
+				addSerialiseCalls('get', valueMapId, callback);
+
+			}
+
+			function _wrapPutPost (params, callback) {
+
+				showAjaxSpinner(true);
+
+				var ret = function (result) { showAjaxSpinner(false); callback(data); }
+
+				ttgApi.putValueMap(valueMapId, { params: params }, updatePutPostRawData, undefined, ret);
+
+			}
+
+			function _wrapGet (opportunityId, callback) {
+
+				showAjaxSpinner(true);
+				
+				var ret = function (result) { showAjaxSpinner(false); callback(data); }
+
+				ttgApi.getValueMap(valueMapId, updateRawData, undefined, ret);
+
+			}
+
+			function updateRawData(d) {
+				
+				data = d;
+
+			}
+
+			function updatePutPostRawData(d) {
+				
+				putPostDataReturn = d;
+
+			}
+
+			var stack = [];
+			function addSerialiseCalls(method, params, callback) {
+
+				stack.push({ method: method, params: params, callback: callback });
+				if (processing == 0) {
+					processSerialiseCalls();
+				}
+			}
+
+			var processing = 0;
+			
+			function processSerialiseCalls() {
+
+				
+				var obj = stack.shift();
+
+				if (obj == undefined) {
+					// Finished
+				}
+				else if (obj.method == 'get') {
+
+					processing++;
+					_wrapGet(obj.params, function (result) { try {obj.callback(result);}finally{ processedSerialiseCalls();} });
+
+				}
+				else if (obj.method == 'put') {
+
+					processing++;
+					_wrapPutPost(obj.params, function (result) { try {obj.callback(result);}finally{ processedSerialiseCalls();} });
+
+				}
+				
+			}
+
+			function processedSerialiseCalls() {
+				processing--;
+				processSerialiseCalls();
+			}				
+
+
+
+			that.setup = setup;
+			
+			return that;
+		})(spec);
+	
+
+		jQuery(
+		
+			function () {
+				ttg_valuemap.setup();
+			}
+
+		);
+	
+	
+	
+
+	
+	
+	    jQuery(document).ready(function() {
+				    
+	    		var spec = {
+	    			sessionid : '{!JSENCODE($Api.Session_ID)}',
+	    			userId: '{!$User.id}',
+					ttgApi: ttg.apiLayer.sfdcDelegate( { sessionid : '{!JSENCODE($Api.Session_ID)}' } ),
+	                planId: '{!JSENCODE(valueMapId)}',
+	                planname: '{!JSENCODE(valueMapName)}',
+	                spinnerURL: '{!JSENCODE(URLFOR($Resource.ttgomjs, '/ttg/graph/images/loader.gif'))}',
+	                calendarURL: "{!URLFOR($Resource.Common, 'images/icon_calendar.png')}",
+					title: 'Plan Settings',
+	                readonly: {!PlanRecordEditable == false},
+	                candelete: {!Candelete},
+	                inactive: {!inactive},
+	                onDelete: function() { top.location.href = '/apex/AccountPlan'; },
+					hideScorecard: {!NOT(showScorecard)},
+	                useAccountGrouping: {!accountGroupingEnabled},
+	                fiscalYearStartMonth: {!fiscalYearStartMonth},
+	                usesStartDateAsFiscalYearName: {!usesStartDateAsFiscalYearName},
+					isoCode: '{!JSENCODE(CurrencyISO)}',
+					showAutoPostOption: {!showAutoPostOption}     
+	    		};
+	
+	    		var amConfiguration = ttg.am.configuration(spec);
+	
+				var hasCreateAccess = {!planObjectCreateable};
+	
+	            var specClone = spec;
+	            specClone['clone'] = true;
+	            var amConfigurationClone = ttg.am.configuration(specClone);
+	
+	            var ctrl = jQuery('#TAMADMINLINK').parent();
+	            jQuery('#TAMADMINLINK').remove();
+	            
+				var a = jQuery('<a href="#" data-dropdown="#dropdown-{!valueMapId}"/>').append(
+									jQuery('<img src="{!URLFOR($Resource.Common, 'images/icon_cog.png')}" alt="Options" title="Options" ttgid="AccountPlanOPTIONSLIST"/>')
+								);
+	            
+	            var div = jQuery('<div id="dropdown-{!valueMapId}" class="dropdown dropdown-relative"/>').append(
+	            					jQuery('<ul class="dropdown-menu"/>').append(
+	            						jQuery('<li/>').append(
+	            							jQuery('<a href="#"/>').click(amConfiguration.configure).text('Settings')
+	            							    .attr('ttgid', "AccountPlanOPTIONSSETTINGS")
+	            						)
+	            					).append(hasCreateAccess ?
+		            						jQuery('<li/>').append(
+		            							jQuery('<a href="#"/>').click(amConfigurationClone.configure).text('Clone')
+		            							    .attr('ttgid', "AccountPlanOPTIONSCLONE")
+		            						)
+		            						:
+		            						null
+	            					)
+	            				);
+	
+	            ctrl.append(a);
+	            ctrl.append(div);
+	    	}
+	    ) 
+	
+	</script>
+	<apex:include pageName="DMAPP__OpportunityMapConfiguration" />
+</apex:page>

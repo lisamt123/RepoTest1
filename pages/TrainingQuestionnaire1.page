@@ -1,0 +1,103 @@
+<apex:page controller="TrainingQuestionnaire" showHeader="false">
+
+	<head>
+<apex:stylesheet value="{!$Resource.styles}"></apex:stylesheet>
+<apex:includeScript value="{!$Resource.jQuery}"></apex:includeScript>
+	</head>
+
+	<script type="text/javascript">
+function confirmCancel()
+{
+    var isCancel = confirm("Are you sure you wish to quit?");
+    return isCancel;
+}
+
+</script>
+
+	<table border="0" width="100%" height="100%" id="bg">
+		<tr valign="top">
+			<td>
+				<div class="maincontainer">
+					<apex:image id="key1" width="100%"
+						value="/resource/1265230873000/Header" />
+
+					<apex:sectionHeader title="VinSolutions Training Questionnaire"
+						subtitle="Step 1 of 2" />
+
+					<apex:form >
+						<apex:pageBlock id="pb1" title="Training Questionnaire">
+
+							<table border="0" width="100%" align="center">
+								<tr align="center">
+									<td align="center"><apex:commandButton action="{!back}"
+											value="Previous Step" /> <apex:commandButton action="{!next}" value="Next Step" />
+									</td>
+								</tr>
+							</table>
+
+							<apex:pageBlockSection collapsible="false"
+								title="DEALERSHIP FACILITY INFORMATION - {!project.Account__r.Name}"
+								columns="1">
+
+								<BIG><BIG><B><U>Does your training room
+												have…</U> </B> </BIG> </BIG>
+								<small><br />(Please check all that apply)</small>
+
+								<apex:outputLabel >
+									<apex:inputCheckbox value="{!project.Room_for_10_students_plus_trainer__c}" />
+									<b>1. Room for 10 students plus trainer?</b>
+								</apex:outputLabel>
+
+								<apex:outputLabel >
+									<apex:inputCheckbox value="{!project.Projection_screen_or_large_empty_wall__c}" />
+									<b>2. Projection screen, or large empty wall suitable for
+										projection?</b>
+								</apex:outputLabel>
+
+								<apex:outputLabel >
+									<apex:inputCheckbox value="{!project.Projector_that_can_display_PC_screen__c}" />
+									<b>3. Projector that can display PC screen?</b>
+								</apex:outputLabel>
+
+								<apex:outputLabel >
+									<apex:inputCheckbox value="{!project.Available_exclusively_for_training__c}" />
+									<b>4. Available exclusively throughout training period?</b>
+								</apex:outputLabel>
+
+								<apex:outputLabel >
+									<apex:inputCheckbox value="{!project.Internet_Access__c}" />
+									<b>5. Internet Access?</b>
+								</apex:outputLabel>
+								<br />
+                    If required, please be prepared to make available any IP Addresses, WEP Keys, passwords, 
+                    or any other required elements to access the internet from the training room.  If you are 
+                    so inclined, these instructions may be listed here:<br />
+								<br />
+
+								<B><I><U>Your IT Manager will need to do this! If we
+											cannot get access to the internet, the effectiveness of this
+											training will be compromised.</U> </I> </B>
+
+								<apex:inputTextarea cols="180" rows="5"
+									value="{!project.Internet_Access_Keys_Passwords_IP_add__c}" />
+
+							</apex:pageBlockSection>
+
+							<apex:pageBlockSection collapsible="false" title=""></apex:pageBlockSection>
+
+							<table border="0" width="100%" align="center">
+								<tr align="center">
+									<td align="center"><apex:commandButton action="{!back}"
+											value="Previous Step" /> <apex:commandButton action="{!next}" value="Next Step" />
+									</td>
+								</tr>
+							</table>
+
+						</apex:pageBlock>
+
+					</apex:form>
+				</div>
+			</td>
+		</tr>
+	</table>
+</apex:page>

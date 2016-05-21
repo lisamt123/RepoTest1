@@ -1,0 +1,2294 @@
+<apex:page standardController="DMAPP__DM_Account_Plan__c" extensions="DMAPP.TAMStandardController" >
+
+<script>
+
+    /* 
+     * Copyright © The TAS Group. All rights reserved.
+     *  
+     */    
+
+   /* var ttg = ttg || {};
+    ttg.am = ttg.am || {};
+
+    ttg.am.oppmapdialog = function(spec) {
+    
+        var config;
+    
+    	var disableQualify = {!disableQualify};
+    
+        var api = spec.api,
+            planid = spec.planid,
+            userid = spec.userid,
+            user = spec.user,
+            readonly = spec.readonly,
+            amountField = spec.amountField;
+        
+        var working = false,
+            planFromDate,
+            planToDate;
+        
+        var refreshBlockCell, refreshAddOpportunities, refreshWallet,
+            ajaxSpinnerCnt = 0;
+        
+        var setPlanDates = function(fromDate, toDate) {
+            planFromDate = fromDate;
+            planToDate = toDate;
+        };
+        
+        var onBlockCell = function(callback) {
+            refreshBlockCell = callback;
+        };
+        
+        var onAddOpportunities = function(callback) {
+            refreshAddOpportunities = callback;
+        };
+        
+        var onModifyWallet = function(callback) {
+            refreshWallet = callback;
+        }; 
+        
+        var currencys = null;
+        var corporateCurrency = null;
+
+        var data;
+        
+        var getCurrencys = function() {         
+            apilayer.searchCurrencys(function(data) {
+                if(data) {
+                    currencys = jQuery.makeArray(data.currencys.currency);
+                    jQuery.each(currencys, function(idx, c) {
+                        if ( c.iscorporate ) {
+                            corporateCurrency = c.name;
+                        }
+                    });
+                }
+                else {
+                    currencys = [];
+                }                        
+                
+            }, function() {}, function() {});   
+        };
+        
+        var opps = null;
+        
+        var searchAccountPlanTeamMembersFunction = apilayer.searchAccountPlanTeamMembers;
+        
+        var planTeamMembers = {!planMembers};
+        var defaultIsoCode = '{!JSENCODE(userDefaultCurrencyISOCode)}' || planTeamMembers[0].DefaultCurrencyIsoCode;
+        planTeamMembers = _.sortBy(planTeamMembers, 'Name');
+        planTeamMembers = _.uniq(planTeamMembers, true, function(user) { return user.Id;});
+        
+        var planCompetitors = null;
+        var getPlanCompetitors = function() {           
+            apilayer.getPlanCompetitor('', function(data) {
+                if(data) {
+                    planCompetitors = {};
+                    for(var i = 0; i < data.length; i++) {
+                        planCompetitors[data[i].id] = data[i];
+                    }
+                }                           
+            }, function() {}, function() {});           
+        };
+        
+        var ourCompanyLogoId = null;
+
+        getPlanCompetitors();
+        //getOurCompanyLogo();
+        
+        var openIntersectionPopup = function(unit, solution, opptype, config, targeted) {
+            if(working) {
+                return;//ensure only one dialog can appear
+            }
+            
+            opps = {potential: [], current: [], won: [], hiddenOpps: false};
+            if(! ourCompanyLogoId) {
+                ourCompanyLogoId = ttg.am.settings.getOurCompanyLogoId();
+            }
+            
+            var acctOrPlanReadOnly = readonly || (!unit.accountName && (!unit.memberAccounts || unit.memberAccounts.length === 0));
+            
+            
+            this.config = config;
+            
+            if ( config.multiCurrency ) {
+                searchAccountPlanTeamMembersFunction = apilayer.searchAccountPlanTeamMembersWithCurrency;
+            }
+
+            if ( config.multiCurrency ) {
+                getCurrencys();
+            }
+                        
+                        
+            var unitSolution,
+                unitSolutionCompetitors,
+                tabs, potentialDiv, currentDiv, wonDiv, marketLandscapeDiv, blockDiv,
+                renderer = ttg.am.renderer,
+                dateFormat =  '{!dateFormat}' || 'yy-mm-dd', 
+                jsonDateFormat = 'yy-mm-dd',
+                
+                stageOptions = [],                    
+                stageProbabilities = {};                              
+
+              
+            dateFormat = dateFormat.replace(/yyyy/gi, 'yy');
+            deletingCompetitors = false;
+            working = true;
+  
+            function stopWorking() {
+                working = false;
+            }
+  
+            function getUnitSolution(successCallback, initCall) {
+                showAjaxSpinner(true);
+                apilayer.getOpportunityMapUnitSolution(planid, solution.id, unit.id, function(data) {
+                    if(data && data.length > 0) {
+                        setUnitSolution(data[0]);
+
+                        apilayer.getOpportunityMapUnitSolutionOpp(planid, solution.id, unit.id, 'all', function(data2) {
+                            if(data2) {
+                                //need to split into diff opp types ...
+                                opps.hiddenOpps = data2.hiddenOpps;
+                            
+                                if(data2.details) {
+                                    for(var i = 0; i < data2.details.length; i++) {
+                                        var lv_opptype = data2.details[i].oppType || '';
+                                        lv_opptype = lv_opptype.toLowerCase();
+                                        
+                                        switch(lv_opptype) {
+                                        
+                                        case 'potential':
+                                            opps.potential.push(data2.details[i]);
+                                            break;
+                                        case 'current' :
+                                            opps.current.push(data2.details[i]);
+                                            break;
+                                        case 'won':
+                                            opps.won.push(data2.details[i]);   
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
+
+                            getUnitSolutionCompetitors(
+                                data[0], 
+                                function() {                   
+                                    successCallback();
+                                    if(marketLandscapeDiv) {
+                                        marketLandscapeDiv.refreshLandscape(false);
+                                    } 
+                                }
+                            ); 
+                            
+                            showAjaxSpinner(false);
+                            },
+                            function() {},
+                            function() {}
+                         );
+                        
+                    } else {
+                       if(initCall === true) {
+                           successCallback();
+                       }
+                    }
+                    
+                    
+                }, function() { if(initCall === true) { stopWorking(); } }, function() {});
+            }
+        
+            function getUnitSolutionCompetitors(unitSolution, successCallback) {
+                showAjaxSpinner(true);
+                apilayer.getOpportunityMapUnitSolutionCompetitor(unitSolution.id, function(data) {
+                        setUnitSolution(unitSolution, data);
+                        if(successCallback) {
+                            successCallback();
+                        }
+                }, function() { if(initCall === true) { stopWorking(); } }, function() {showAjaxSpinner(false);});
+                
+            }
+
+            // It won't open the dialog until the unitsolution and the unitsolution competitors are loaded
+            getUnitSolution(function() {
+                if(! unitSolution) {
+                   stopWorking();
+                   return;
+                }
+
+                openActualDialog();
+                if(marketLandscapeDiv) {
+                    marketLandscapeDiv.refreshLandscape(false);
+                } 
+            }, true);
+
+
+            function createTabs() {
+                var tabs = jQuery('<div/>', {id: 'intersectionDialog'}).append(jQuery('<ul/>')
+                                .append(jQuery('<li/>').append(jQuery('<a/>', {href: '#potentialDiv'}).text('Potential')))
+                                .append(jQuery('<li/>').append(jQuery('<a/>', {href: '#currentDiv'}).text('Current')))
+                                .append(jQuery('<li/>').append(jQuery('<a/>', {href: '#closedWonDiv'}).text('Won')))
+                                .append(jQuery('<li/>').append(jQuery('<a/>', {href: '#landscapeDiv'}).text('Market Landscape')))
+                                .append(jQuery('<li/>').append(jQuery('<a/>', {href: '#blockDiv'}).text('Block')))              
+                );
+                jQuery('#intersectionDialog').parent().addClass('intersectionDialogParent');
+
+                potentialDiv = createPotentialDiv();
+                currentDiv = createCurrentDiv('current');
+                wonDiv = createCurrentDiv('won');
+                marketLandscapeDiv = createMarketLandscapeDiv();
+                blockDiv = createBlockDiv();
+                
+                tabs.append(jQuery('<div/>', {id: 'potentialDiv'}).append(potentialDiv.getContainer()))
+                    .append(jQuery('<div/>', {id: 'currentDiv'}).append(currentDiv.getContainer()))
+                    .append(jQuery('<div/>', {id: 'closedWonDiv'}).append(wonDiv.getContainer()))                 
+                    .append(jQuery('<div/>', {id: 'landscapeDiv'}).append(marketLandscapeDiv.getContainer()))
+                    .append(jQuery('<div/>', {id: 'blockDiv'}).append(blockDiv.getContainer()));
+                
+                var selectedTab = 0;
+                if(unitSolution.blocked) {
+                    selectedTab = 4;                
+                }
+                else if(ttg.am.oppmap.getCurrentView().toLowerCase() !== 'value') {
+                    selectedTab = 3;
+                }
+                else if(opptype === 'current') {
+                    selectedTab = 1;
+                }
+                else if(opptype === 'won') {
+                    selectedTab = 2;
+                }
+                tabs.tabs({active: selectedTab});
+
+                return tabs;
+            }
+            
+            function enableTabs() {
+                if(tabs && unitSolution) {
+                    if(unitSolution.blocked === true) {
+                        tabs.tabs('option', 'disabled', []);
+                        tabs.tabs('option', 'disabled', [0, 1, 2]);                     
+                    }
+                    else if(unitSolution.numberOfOpportunities > 0) {
+                        tabs.tabs('option', 'disabled', []);
+                        tabs.tabs('option', 'disabled', [4]);
+                    }
+                    else {
+                        tabs.tabs('option', 'disabled', []);
+                    } 
+                }
+            }
+            
+            function createPotentialDiv() {
+            
+                var potentialDiv = jQuery('<div/>').addClass('tabMainContainer'),
+                    errorMsg = jQuery('<span/>').addClass('potentialOppErrorMsg'),
+                    potentialTable = jQuery('<table/>', { id: 'potentialTable'}).addClass('opportunities'),
+                    metadata;
+                    
+                potentialTable.append(jQuery('<tr/>').append(jQuery('<th/>').text('Owner'))
+                                                     .append(jQuery('<th/>').text('Opportunity Name'))
+                                                     .append(jQuery('<th/>').text('Description'))
+                                                     .append(jQuery('<th/>').text('Amount').addClass('col_amount'))
+                                                     //.append(config.multiCurrency ? jQuery('<th/>').text('Amount (' + corporateCurrency + ')').addClass('col_amount') : null )
+                                                     .append(config.multiCurrency ? jQuery('<th/>').text('Currency').addClass('col_currency') : null )
+                                                     .append(acctOrPlanReadOnly || disableQualify ? null : jQuery('<th/>').text('').addClass('col_qualify'))
+                                                     .append(readonly ? null : jQuery('<th/>').text('').addClass('col_edit'))
+                                                     .append(readonly ? null : jQuery('<th/>').text('').addClass('col_delete'))
+                                     );
+                
+                potentialDiv.append(jQuery('<div/>').addClass('tabMainContainerInner').append(potentialTable));
+                potentialDiv.on('ttg_disable_all', function() {
+                    jQuery(this).find('button').attr('disabled', 'disabled');
+                });
+                potentialDiv.on('ttg_enable_all', function() {
+                    jQuery(this).find('button').removeAttr('disabled');
+                }); 
+
+                for(var i = 0; i < opps.potential.length; i++) {
+                    var opportunityRow = jQuery('<tr/>');
+                    potentialTable.append(createOpportunityRow(opps.potential[i]));
+                }
+                
+                function createOpportunityRow(opp) {
+                        var opportunityRow = jQuery('<tr/>');
+                        var targettedSpan = jQuery('<span/>').css({'display': 'inline-block', 'width': '16px'});
+                        
+                        if(opp.target) {
+                            targettedSpan.append(jQuery('<span/>')
+                                //.addClass('icon-svg_app_key');
+                                .addClass('icon-svg_app_target'));
+                        }                               
+
+                        opportunityRow.append(jQuery('<td/>').text(opp.owner))
+                                      .append(jQuery('<td/>')
+                                        .append(
+                                            targettedSpan
+                                        ).append(
+                                            jQuery('<span/>').css('margin-left', '5px').text(opp.name).addClass('col_opp_name')
+                                        )
+                                      )
+                                      .append(jQuery('<td/>')
+                                          .append(jQuery('<div/>')
+                                      	      .addClass('col_desc')
+                                      		  .text(opp.description)
+                                      	   )
+                                      )
+                                      .append(config.multiCurrency ? ttg.formatMultiCurrencyAmount(opp.amountFormattedBase, opp.amountFormatted, opp.currencyIsoCode, corporateCurrency)
+                                                                   : jQuery('<td/>').text(opp.amountFormatted).addClass('col_amount'))
+                                      //.append(config.multiCurrency ? jQuery('<td/>').text(opp.amountFormattedBase).addClass('col_amount') : null )
+                                      .append(config.multiCurrency ? jQuery('<td/>').text(opp.currencyIsoCode).addClass('col_currency') : null )	                                      
+                                      .append(acctOrPlanReadOnly || disableQualify ? null : jQuery('<td/>').append(createEditLink(opp, opportunityRow, 'qualify', 'link_qualify')))                                                                            
+                                      .append(readonly ? null : jQuery('<td/>').append(createEditLink(opp, opportunityRow, 'edit', 'link_edit_blue')))
+                                      .append(readonly ? null : jQuery('<td/>').append(createDeleteLink(opp, opportunityRow, 'link_delete')));
+                        return opportunityRow;
+                                      
+                }
+
+                // http://shahinalborz.se/2010/11/disable-double-click-to-prevent-multiple-execution/
+        
+                isNotDoubleClick = function () {
+                    if (typeof (_linkEnabled) == "undefined") _linkEnabled = true;
+                    setTimeout("blockClick()", 100);
+                    return _linkEnabled;
+                }
+                
+                blockClick = function () {
+                    _linkEnabled = false;
+                    setTimeout("_linkEnabled=true", 1000);
+                }
+                
+                
+                function createEditLink(potentialOpp, opportunityRow, dialogType, clazz) {
+                
+                    var editLink = jQuery('<a/>').addClass(clazz).text(dialogType === 'qualify' ? 'Qualify' : 'Edit').on('click', function() {
+                        if (isNotDoubleClick()) {
+                            if(dialogType === 'qualify') {
+                                showAjaxSpinner(true);
+                                createQualifyPopup(potentialOpp, opportunityRow, dialogType);
+                            }
+                            else {
+                                createEditPopup(potentialOpp, opportunityRow, dialogType);
+                            }
+                        }                           
+                        return false;
+                    });
+                    
+                    return editLink;
+                
+                }                           
+                
+                
+                function createNewButton() {
+                    var newButton = jQuery('<button/>').text('New').on('click', function() {
+                                           
+                        var newPotentialOpp = {
+                            name: '',
+                            amount: null,
+                            owner: user,
+                            ownerId: userid,
+                            solution: unitSolution.solution,
+                            unit: unitSolution.unit,
+                            account: unitSolution.account,
+                            unitSolutionId: unitSolution.id
+                        }; 
+                        createNewPotentialDialog(newPotentialOpp, jQuery('<tr/>'), 'new');
+                    })
+                    .addClass('ui-button ui-state-default ui-corner-all ui-button-text-only');
+                    return newButton;
+                    
+                }
+                
+                function createNewPotentialDialog(potentialOpp, opportunityRow, dialogType) {
+                    
+                    var selectedOpps = {};                         
+                    var potentialOppDialog = jQuery('<div/>', {id: 'potentialOppDialog'});
+                    potentialOppDialog.dialog({
+                        modal: true,
+                        resizable: false,
+                        width: '600px',
+						dialogClass: ttg_salesforce1 ? 'intersectionDialogContainer' : 'potentialOppDialog',
+                        height: 'auto',
+                        autoOpen: false,
+                        title: 'Add Potential Opportunity',
+                        close: function() {
+                            potentialOppDialog.remove();
+                        },
+                        open: function() {
+                            jQuery('.dummyInput').remove();
+                        }
+                    }); 
+    
+                    potentialOppDialog.dialog('option', 'buttons', {
+                                                                    'Add': function() {
+                                                                            save(potentialOpp);
+                                                                            //potentialOppDialog.dialog('close'); 
+                                                                    },
+                                                                    'Cancel': function() {
+                                                                            potentialOppDialog.dialog('close');
+                                                                    }
+                                                                    
+                                                                }); 
+
+                    var potErrorMsg = jQuery('<span/>').addClass('potentialOppErrorMsg');
+                    potErrorMsg.hide();
+
+                    var fieldSet = jQuery('<fieldset/>').addClass('editFieldset')
+                        .append(createField('Name', potentialOpp, 'name', {fieldId: 'potentialOppNameField'}))
+                        .append(createField('Amount', potentialOpp, 'amount', {fieldId: 'potentialAmountField'}))
+                        .append(createOwnerCombo('Owner', potentialOpp, 'owner', {fieldId: 'potentialOwnerEditField', comboOptions: planTeamMembers}))
+                        .append(createField('Description', potentialOpp, 'description', {fieldId: 'potentialDescriptoField'}))
+                        .append(potErrorMsg);
+                        
+                    potentialOppDialog.append(fieldSet);
+                    ttg.setUpMaxLimitCheck(jQuery('#potentialOppNameField'), 60);
+                    potentialOppDialog.dialog('open'); 
+
+
+                    function save(potentialOpp) {
+                    
+                        potErrorMsg.text('').hide();
+                        
+                        if(!potentialOpp.name || (jQuery.trim(potentialOpp.name) === '')){           
+                            potErrorMsg.text('Opportunity name is a mandatory field').show();                           
+                            return false; 
+                        }
+                        
+                        if(potentialOpp.name.length > 50) {
+                            potErrorMsg.text('Opportunity name cannot exceed 60 characters').show();
+                            return false;
+                        }
+ 
+                         if(potentialOpp.description.length > 255) {
+                            potErrorMsg.text('Opportunity description cannot exceed 255 characters').show();
+                            return false;
+                        }
+                        
+                        if(potentialOpp.amount && !jQuery.isNumeric(potentialOpp.amount) && (jQuery.trim(potentialOpp.amount) !== '')) {
+                            potErrorMsg.text('Opportunity amount must be a numeric value').show();
+                            return false;
+                        }
+                        
+                        if(potentialOpp.amount && (parseInt(potentialOpp.amount, 10) > 1000000000000 || parseInt(potentialOpp.amount, 10) < 0)) {
+                            potErrorMsg.text('Opportunity amount must be a positive value below 1,000,000,000,000').show();
+                            return false;
+                        }
+
+                                                      
+                        var unitSolutionOppChanges = [];
+                                unitSolutionOppChanges.push({
+                                    name: potentialOpp.name,
+                                    description: potentialOpp.description, 
+                                    oppType: "potential",  
+                                    amount: potentialOpp.amount || 0,
+                                    currencyIsoCode: potentialOpp.currencyIsoCode,
+                                    ownerId: potentialOpp.ownerId,
+                                    unitSolutionId: potentialOpp.unitSolutionId,
+                                    oppId: null                                   
+                                });         
+
+
+                        showAjaxSpinner(true);
+                        apilayer.postOpportunityMapUnitSolutionOpp(potentialOpp.unitSolutionId, {unitSolutionOppChanges : {unitSolutionOppChanges : unitSolutionOppChanges}} , function(data) {
+                                if(data && data.length > 0) {
+                                    var newAmountSum = 0;
+                                    var actualAddedOpps = 0;
+                                    var actualAddedLines = 0;
+                                    var addedLineItems = {};
+                                    var hasLineItem = false;
+                                    var allmapped = {added:[]};
+                                    var addedOpps = {};
+                                    var actualCount = 0;
+                                  
+                                    for(var count = 0; count < data.length; count++) {
+                                        if(data[count].unitSolutionId == solution.id) {
+                                            potentialTable.append(createOpportunityRow(data[count]));
+
+
+		                                    if(!targeted || data[count].target) {
+		                                        newAmountSum += data[count].amountBase;
+		                                        actualCount++;
+		                                    }                                            
+                                            
+                                            
+                                        }
+                                    }
+                                    
+                                    unitSolution.numberOfOpportunities++;
+                                    enableTabs();
+
+	                                refreshAddOpportunities([ { solutionid :solution.id,
+	                                                            unitid : unit.id,
+	                                                            opportunitytype : 'potential',
+	                                                            oppcount : actualCount,
+	                                                            oppamountsum :  newAmountSum || 0
+	                                                        }]);  
+
+
+                                    potentialOppDialog.dialog('close');       
+
+                                }
+                        }, function() {}, function() {showAjaxSpinner(false) }); 
+                     
+                     }                 
+	            }
+                
+                function createEditPopup(potentialOpp, opportunityRow, dialogType) {
+                
+                    var editDialog = jQuery('<div/>', {id: 'intersectioneditDialog'});
+                    var newPotentialOpp = jQuery.extend({}, potentialOpp);
+                    editDialog.dialog({
+                        modal: true,
+                        resizable: false,
+                        width: '600px',
+                        height: 'auto',
+                        autoOpen: false,
+                        title: 'Edit Potential Opportunity',
+                        close: function() {
+                            editDialog.remove();
+                        }
+                    }); 
+                    
+                    editDialog.dialog('option', 'buttons', {'Save': function() {
+                                                                        save('potential');
+                                                                    },
+                                                            'Cancel': function() {
+                                                                        editDialog.dialog('close');
+                                                                      }                                                                    
+                                                            });                 
+                    
+                    var potErrorMsg = jQuery('<span/>').addClass('potentialOppErrorMsg');
+                    potErrorMsg.hide();
+                    
+                    var fieldSet = jQuery('<fieldset/>').addClass('editFieldset')
+                        .append(createField('Name', newPotentialOpp, 'name', {fieldId: 'potentialOppNameEditField'}))
+                        .append(createField('Amount', newPotentialOpp, 'amount', {fieldId: 'potentialAmountEditField'}))
+                        .append(config.multiCurrency ? createCurrencyCombo('Currency', newPotentialOpp, 'currency', {fieldId: 'potentialCurrencyEditField', comboOptions: currencys}, false) : null)
+                        .append(createOwnerCombo('Owner', newPotentialOpp, 'owner', {fieldId: 'potentialOwnerEditField', comboOptions: planTeamMembers}))
+                        .append(createField('Solution', newPotentialOpp, 'name', {fieldId: 'potentialSolutionEditField', readOnlyValue: unitSolution.solution }))
+                        .append(createField('Unit', newPotentialOpp, 'name', {fieldId: 'potentialUnitEditField', readOnlyValue: unitSolution.unit }))
+                        .append(createField('Account', newPotentialOpp, 'account', {fieldId: 'potentialAccountEditField', readOnlyValue: (potentialOpp.account || 'No Access Permission') }))
+                        .append(createField('Description', newPotentialOpp, 'description', {fieldId: 'potentialDescriptoField'}))
+                        .append(potErrorMsg);
+                         
+                    editDialog.append(fieldSet);
+                    ttg.setUpMaxLimitCheck(jQuery('#potentialOppNameEditField'), 60);
+                    editDialog.dialog('open');       
+                                        
+                    function save(oppType) {
+                        
+                        potErrorMsg.text('').hide();
+                        
+                        if(!newPotentialOpp.name || (jQuery.trim(newPotentialOpp.name) === '')) {
+                            potErrorMsg.text('Opportunity name is a mandatory field').show();
+                            return false;
+                        }
+                        
+                        if(newPotentialOpp.name.length > 60) {
+                            potErrorMsg.text('Opportunity name cannot exceed 60 characters').show();
+                            return false;
+                        }
+ 
+         				if(newPotentialOpp.description.length > 255) {
+                            potErrorMsg.text('Opportunity description cannot exceed 255 characters').show();
+                            return false;
+                        }
+                        
+                        if(newPotentialOpp.amount && !jQuery.isNumeric(newPotentialOpp.amount) && (jQuery.trim(newPotentialOpp.amount) !== '')) {
+                            potErrorMsg.text('Opportunity amount must be a numeric value').show();
+                            return false;
+                        }
+                        
+                        if(newPotentialOpp.amount && (parseInt(newPotentialOpp.amount, 10) > 1000000000000 || parseInt(newPotentialOpp.amount, 10) < 0)) {
+                            potErrorMsg.text('Opportunity amount must be a positive value below 1,000,000,000,000').show();
+                            return false;
+                        }
+                    
+                        var unitSolutionOppChange = {
+                            name: newPotentialOpp.name, 
+                            oppType: oppType, 
+                            amount: newPotentialOpp.amount || 0,
+                            description: newPotentialOpp.description,
+                            currencyIsoCode: newPotentialOpp.currencyIsoCode,
+                            ownerId: newPotentialOpp.ownerId,
+                            unitSolutionId: newPotentialOpp.unitSolutionId,
+                            oppId: null
+                        };
+
+                        showAjaxSpinner(true);
+                        apilayer.putOpportunityMapUnitSolutionOpp(newPotentialOpp.id, {unitSolutionOppChange : unitSolutionOppChange} , function(data) {
+                            if(data) {
+                                opportunityRow.before(createOpportunityRow(data)).remove();  
+                                
+                                if(!targeted || newPotentialOpp.target) {
+                                    refreshAddOpportunities([ { solutionid :solution.id,
+                                                                unitid : unit.id,
+                                                                opportunitytype : 'potential',
+                                                                oppcount : 0,
+                                                                oppamountsum :  (data.amountBase - potentialOpp.amountBase)  || 0
+                                                            }]);
+                                }
+                                
+                            }
+                        }, function() {}, function() {showAjaxSpinner(false);editDialog.dialog('close');});
+                    
+                    }                   
+                
+                }                
+                
+                function createQualifyPopup(potentialOpp, opportunityRow, dialogType) {
+                
+                    var createSpec = {
+                    
+                        dateFormat: '{!jQueryUIDateFormat}',                
+                        ttgApi: ttg.apiLayer.sfdcDelegate( { sessionid : '{!JSENCODE($Api.Session_ID)}' } ),
+                        postProcessMetadata: function(data) {
+                            jQuery.each(data.metadata.fields, function(key, value) {
+                                    if (value.type=='REFERENCE' && value.relationshipName=='Owner' ) {
+                                        value.dmEditDisplay = false;
+                                        value.dmDisplay = true;
+                                        value.type = 'PICKLIST';
+                                        value.picklistValues = []
+                                        jQuery.each(planTeamMembers, function(key, member) {
+                                                value.picklistValues.push({value: member.Id, label: member.FirstName + ' ' + member.LastName , isDefaultValue:'{!$User.Id}' == member.Id, isActive:true})
+                                            }
+                                        )
+                                    } 
+                                    if (config.multiCurrency && value.name=='CurrencyIsoCode' ) {
+                                        value.dmEditDisplay = true;
+                                        value.type = 'PICKLIST';
+                                        value.picklistValues = []
+                                        jQuery.each(currencys, function(key, member) {
+                                                value.picklistValues.push({value: member.name, label: member.name, isDefaultValue:potentialOpp.currencyIsoCode == member.name, isActive:true})
+                                            }
+                                        )
+                                    } 
+                                    if (value.name=='RecordTypeId' ) {
+                                        value.dmEditDisplay = true;
+                                        value.dmDisplay = false;
+                                    }
+                                    if (value.type=='REFERENCE' && value.relationshipName=='Account' ) {
+                                        if(unit.memberAccounts && unit.memberAccounts.length > 0) {
+                                            value.dmEditDisplay = true;
+                                            value.type = 'PICKLIST';
+                                            value.isNillable = false;
+                                            value.picklistValues = [];
+                                            //value.picklistValues.push({value: potentialOpp.accountId, label: potentialOpp.account, isDefaultValue: true, isActive:true})
+                                            jQuery.each(unit.memberAccounts, function(key, member) {
+                                                value.picklistValues.push({value: member.id, label: member.name, isDefaultValue: false, isActive:true});
+                                            });                                         
+                                        }
+                                        else {
+                                            value.dmEditDisplay = false;
+                                            value.dmDisplay = true;
+                                        }           
+                                    }
+                                    if (value.type=='CURRENCY' && value.name==amountField && value.isUpdateable ) {
+                                        value.dmEditDisplay = true;
+                                        value.dmValidation = function(amt) {
+                                            var errMsg = null;
+                                        
+                                            if(amt && !jQuery.isNumeric(amt) && (jQuery.trim(amt) !== '')) {
+                                                errMsg = 'Opportunity amount must be a numeric value';
+                                            }
+                        
+                                            if(amt && (parseInt(amt, 10) > 1000000000000 || parseInt(amt, 10) < 0)) {
+                                                errMsg = 'Opportunity amount must be a positive value below 1,000,000,000,000';
+                                            }
+                                            
+                                            return errMsg;
+                                        }
+                                    }
+                                }
+                            )
+                            showAjaxSpinner(false); 
+                        },
+                        preDisplay: function(dlg, data) {
+                            dlg.find('#Name').val(potentialOpp.name)
+                            dlg.find('#Amount').val(potentialOpp.amount)
+                            jQuery.each(data.metadata.fields, function(key, value) {
+                                    if (value.type=='CURRENCY' && value.name==amountField && value.isUpdateable) {
+                                        dlg.find('#' + value.name).val(potentialOpp.amount)
+                                    }
+                                    else if (value.type=='REFERENCE' && value.relationshipName=='Owner' ) {
+                                        var ctrl = dlg.find('#' + value.name);
+                                        ctrl.find('INPUT[type=\'hidden\']').val(potentialOpp.ownerId);
+                                        ctrl.find('INPUT[type=\'text\']').val(potentialOpp.owner);
+                                    }
+                                    else if (value.type=='REFERENCE' && value.relationshipName=='Account' ) {
+                                        var ctrl = dlg.find('#' + value.name);
+                                        ctrl.find('INPUT[type=\'hidden\']').val(potentialOpp.accountId);
+                                        ctrl.find('INPUT[type=\'text\']').val((potentialOpp.account || ''));
+                                        ctrl.find('SPAN.DISPLAYONLY').text((potentialOpp.account || ''));
+                                    }
+                                }
+                            ) 
+                        },
+                        postDisplay: function(dlg, data) {
+                            dlg.parent().find('button').blur();
+                        },
+                        preSave: function(that, spec) {
+                            var dlg = that.getDialog();
+                            var fields = spec.fields;
+                            if (fields['AccountId'] == undefined) {
+                                var ctrl = dlg.find('#AccountId');
+                                fields['AccountId'] = ctrl.find('INPUT[type=\'hidden\']').val();
+                            }
+                            showAjaxSpinner(true);
+                        },
+                        postSave: function(a, b, c) {
+                            showAjaxSpinner(false);
+                            var newCurrentOpp = jQuery.extend({}, potentialOpp);
+                            // In JS Remoting world it is a.Id.  But put in a.id as well as very hard to test every single case.
+                            var id = (a.Id ? a.Id : a.id);
+                            qualifyById(newCurrentOpp, id);
+                        },
+                        postError: function(a, b, c) {
+                            showAjaxSpinner(false);
+                        },
+                        title: 'Qualify Potential Opportunity',
+                        createButtonTitle: 'Qualify'                                  
+                    };
+                  
+                    
+                    metadata = ttg.metadata(createSpec);             
+                    metadata.create('Opportunity');
+                    
+                    
+                    function qualifyById(newCurrentOpp, id) {
+                        
+                        var accountPlanOpportunityChange = {
+                            id : id
+                        };                        
+                        showAjaxSpinner(true);
+                        apilayer.postAccountPlanOpportunity(newCurrentOpp.id, {accountPlanOpportunityChange : accountPlanOpportunityChange} , function(data) {
+                        
+                            var opportunityId, adaptedOpp, refreshData = [];
+                            if(data) {
+                                opportunityRow.remove();
+                                opportunityId = data.id;
+                                newCurrentOpp.oppType = data.stageName === 'Closed Won' ? 'won' : (data.stageName === 'Closed Lost' ? 'lost' : 'current');
+                                adaptedOpp = jQuery.extend(newCurrentOpp, data);
+                                adaptedOpp.opportunityId = opportunityId;
+                                adaptedOpp.id = data.unitSolId;
+                                
+                                if(newCurrentOpp.oppType === 'current') {
+                                    tabs.tabs({active: 1});
+                                    currentDiv.refresh(adaptedOpp);
+                                }
+                                else if(newCurrentOpp.oppType === 'won') {
+                                    tabs.tabs({active: 2});
+                                    wonDiv.refresh(adaptedOpp);
+                                }
+                                
+                                if(!targeted || potentialOpp.target) {
+                                    refreshData.push({  solutionid :solution.id,
+                                                        unitid : unit.id,
+                                                        opportunitytype : 'potential',
+                                                        oppcount : -1,
+                                                        oppamountsum :  -potentialOpp.amountBase || 0
+                                                    });
+                                                    
+                                    if(newCurrentOpp.oppType !== 'lost') {
+                                        refreshData.push({  solutionid :solution.id,
+                                                            unitid : unit.id,
+                                                            opportunitytype : newCurrentOpp.oppType,
+                                                            oppcount : 1,
+                                                            oppamountsum :  newCurrentOpp.amountBase || 0
+                                                        });
+                                    }
+                                }
+                                refreshAddOpportunities(refreshData);                                
+                            }                               
+                        }, function() {}, function() {showAjaxSpinner(false);}); 
+                    }                   
+                }
+                
+                
+                var potentialDivButtonBar = jQuery('<div/>').addClass('opportunitiesButtonBarBottom');
+                if(!readonly) {
+                    potentialDivButtonBar.append(createNewButton());
+                }
+                potentialDiv.append(potentialDivButtonBar);
+                return { 
+                    getContainer : function() { return potentialDiv; }
+                };
+            }
+
+
+            function createCurrentDiv(oppType) {
+            
+                var currentDiv = jQuery('<div/>').addClass('tabMainContainer');
+                var currentTable = jQuery('<table/>', {id: oppType + 'Table'}).addClass('opportunities');
+                currentTable.append(jQuery('<tr/>').append(jQuery('<th/>').text('Owner'))
+                                                   .append(jQuery('<th/>').text('Opportunity Name'))
+                                                   .append(jQuery('<th/>').text('Solution').addClass('col_amount'))
+                                                   .append(jQuery('<th/>').text('Amount').addClass('col_amount'))
+                                                   .append(jQuery('<th/>').text('Stage'))
+                                                   .append(jQuery('<th/>').text('Close'))
+                                                   .append(jQuery('<th/>').text('%'))
+                                                   .append(readonly ? null : jQuery('<th/>').text('').addClass('col_delete'))
+                                     );
+                
+                currentDiv.append(jQuery('<div/>').addClass('tabMainContainerInner').append(currentTable));
+                
+                for(var i = 0; i < opps[oppType].length; i++) {
+                    var opportunityRow = jQuery('<tr/>');
+                    currentTable.append(createOpportunityRow(opps[oppType][i]));
+                }
+               
+                if(opps.hiddenOpps) {
+                    jQuery('#hiddenOppsErrorMsg').show();
+                    // jQuery('#hiddenOppsErrorMsg').css("display", "inline-block");
+                }
+                else {
+                    jQuery('#hiddenOppsErrorMsg').hide();
+                }
+                
+                function getUnitSolutionId() {
+                    return unitSolution.id;
+                }
+                
+                function createOpportunityRow(opp) {
+
+                        var linkid = opp.lineItemId ? opp.lineItemId : opp.opportunityId; 
+                
+                        var amountFormattedHtml = jQuery('<td/>').text(opp.amountFormatted).addClass('col_amount');
+                        var solutionAmountFormattedHtml = jQuery('<td/>').text((opp.solutionAmountFormatted || '')).addClass('col_amount');
+
+                        if ( config.multiCurrency ) {
+                        
+                            amountFormattedHtml = ttg.formatMultiCurrencyAmount(opp.amountFormattedBase, opp.amountFormatted, opp.currencyIsoCode, corporateCurrency);
+                            solutionAmountFormattedHtml = ttg.formatMultiCurrencyAmount(opp.solutionAmountFormattedBase, opp.solutionAmountFormatted, opp.currencyIsoCode, corporateCurrency);
+                        }
+                        
+                        var ammendedCloseDate = new Date(opp.closeDate + (new Date(opp.closeDate).getTimezoneOffset() * 60 * 1000));
+
+                        var opportunityRow = jQuery('<tr/>');
+
+                        var targettedSpan = jQuery('<span/>').css({'display': 'inline-block', 'width': '16px'});
+                        
+                        if(opp.target) {
+                            targettedSpan.append(jQuery('<span/>')
+                                //.addClass('icon-svg_app_key');
+                                .addClass('icon-svg_app_target'));
+                        }                               
+
+                        var link = ttg_salesforce1 ? "javascript:sforce.one.navigateToSObject('" + linkid + "')" : '/' + linkid;
+                        var target = ttg_salesforce1 ? '' : '_blank';
+                        
+                        opportunityRow.append(jQuery('<td/>').text(opp.owner))
+                                      .append(jQuery('<td/>')
+                                        .append(
+                                            targettedSpan
+                                        ).append(
+                                            jQuery('<span/>').css('margin-left', '5px').append(jQuery('<a/>', { href: link, target: target }).text(opp.name)).addClass('col_opp_name')
+                                        )
+                                      )
+                                      .append(solutionAmountFormattedHtml)
+                                      .append(amountFormattedHtml)
+                                      .append(jQuery('<td/>').text((opp.stageName || '')))
+                                      .append(jQuery('<td/>').text(jQuery.datepicker.formatDate(dateFormat, ammendedCloseDate)))                                      
+                                      .append(jQuery('<td/>').text(opp.probability))
+                                      .append(readonly ? null : jQuery('<td/>').append(createDeleteLink(opp, opportunityRow, 'link_delete'))); 
+
+                        return opportunityRow;              
+                }
+                
+                               
+                function createAddCurrentButton() {
+                    var addButton = jQuery('<button/>').text('Add ' + (oppType === 'current' ? 'Current' : 'Won') + ' Opportunity').on('click', function() {
+                        createAddCurrentPopup(this);
+                    })
+                    .addClass('ui-button ui-state-default ui-corner-all ui-button-text-only');
+                    return addButton;
+                    
+                }
+                          
+                
+                function createAddCurrentPopup(buttonElement) {
+                
+                
+					var oppSearchSpec = jQuery.extend({}, spec);
+					oppSearchSpec.ttgApi = spec.api;
+					oppSearchSpec.title = 'Add ' + (oppType === 'current' ? 'Current' : 'Won') + ' Opportunity';
+					oppSearchSpec.autosearch = true;
+					oppSearchSpec.multiSelect = true;
+					oppSearchSpec.dateFormat = dateFormat;
+					oppSearchSpec.lookup = { callback: function() { } }
+					oppSearchSpec.lookupPostDisplay = function(evt, dlg) { };
+					oppSearchSpec.lookup = { 
+						overallCallback: function(selected) {
+							_.each(selected, function(opp) {
+								selectedOpps[opp.Id] = opp;
+							});
+							addCurrentOpp();
+						}
+				   };				
+				   oppSearchSpec.customQuery = function(customParams, handleSearch, error, complete) {
+				   	   var fieldsToSelectList =  _.pluck(customParams.fields, 'key');
+				   	   config.fieldsToSelect = _.pluck(customParams.fields, 'key').join(',');
+	                   config.whereClause = customParams.term;
+				   	   apilayer.getAccountPlanOpportunity(planid,  unit.id, oppType === 'current' ? false : true ,'', config, function(data) {
+	                       
+	                       if(data) {
+	                       
+	                       		var adaptedData = {
+	                       			records: _.each(data.opportunities, function(opp) {
+	                       				opp.Id = opp.id;
+	                       				opp.Name = opp.name;
+	                       				opp.Amount = opp.amount;
+	                       				opp.Account = { Name: opp.account};
+	                       				opp.Owner = { Name: opp.owner};
+	                       				opp.CloseDate = opp.closeDate;
+	                       				opp.StageName = opp.stageName;
+										_.each(customParams.fields, function(customField) {
+											var customFieldName = customField.key;
+											if(opp.customValues[customFieldName] != null) {
+		                       					opp[customFieldName] = opp.customValues[customFieldName];
+		                       					if(customField.type == 'DATE') {
+		                       						opp[customFieldName] = jQuery.datepicker.parseDate('yy-mm-dd', opp[customFieldName]);
+		                       					}
+		                       				}
+	                       				});                      				
+	                       			})
+	                       		};
+	                       		
+								handleSearch(adaptedData);
+	                       
+	                       } 
+	                       
+	                   }, error, complete);				   
+				   
+				   };
+				   oppSearchSpec.enableShowIncluded = true;
+				   		
+					var filterResultCallback = function(account) {
+	                    return false;
+	                }					
+	                
+					oppSearchSpec.orderedFields = ['Name', 'Account.Name', 'Amount', 'CloseDate', 'StageName', 'Owner.Name'];
+ 					
+					var oppMetadataControl = ttg.metadata(oppSearchSpec);
+					oppMetadataControl.lookup.call(buttonElement, filterResultCallback, null, true);
+                
+                    var selectedOpps = {};
+                    
+                    function addCurrentOpp() {
+                    
+                        var unitSolutionOppChanges = [];
+                        for(var oppId in selectedOpps) {
+                            if(selectedOpps.hasOwnProperty(oppId)) {
+                                unitSolutionOppChanges.push({
+                                    name: selectedOpps[oppId].Name, 
+                                    oppType: oppType,
+                                    amount: selectedOpps[oppId].Amount,
+                                    currencyIsoCode: selectedOpps[oppId].currencyIsoCode,
+                                    ownerId: selectedOpps[oppId].OwnerId,
+                                    unitSolutionId: unitSolution.id,
+                                    oppId: oppId                                    
+                                });         
+                            
+                            }
+                        }
+                        showAjaxSpinner(true);
+                        apilayer.postOpportunityMapUnitSolutionOpp(solution.id, {unitSolutionOppChanges : {unitSolutionOppChanges : unitSolutionOppChanges}} , function(data) {
+                                if(data && data.length > 0) {
+                                    var newAmountSum = 0;
+                                    var actualAddedOpps = 0;
+                                    var actualAddedLines = 0;
+                                    var addedLineItems = {};
+                                    var hasLineItem = false;
+                                    var allmapped = {added:[]};
+                                    var addedOpps = {};
+                                    
+                                    for(var count = 0; count < data.length; count++) {
+                                        if(data[count].unitSolutionId == solution.id) {
+                                            currentTable.append(createOpportunityRow(data[count]));
+                                        }
+                                        
+                                        if(!targeted || data[count].target) {
+                                            if(data[count].lineItems && data[count].lineItems.length > 0) {
+                                                for(var i = 0; i < data[count].lineItems.length; i++) {
+                                                    var lv_lineItem = data[count].lineItems[i];
+                                                    if(lv_lineItem.unitSolutionId != solution.id) {
+                                                    
+                                                        if(!lv_lineItem.unitSolutionId) {
+                                                            allmapped.added[allmapped.added.length] = lv_lineItem;
+                                                            continue;
+                                                        }
+                                                        
+                                                        var _lineItemAgg = addedLineItems[lv_lineItem.unitSolutionId];
+                                                        if(_lineItemAgg == null) {
+                                                            _lineItemAgg = {
+                                                                solutionid      : lv_lineItem.unitSolutionId,
+                                                                unitid          : unit.id,
+                                                                opportunitytype : oppType,
+                                                                oppcount        : 0,
+                                                                summarycount    : 0,
+                                                                oppamountsum    : lv_lineItem.amountBase || 0
+                                                            };
+                                                            addedLineItems[lv_lineItem.unitSolutionId] = _lineItemAgg;
+                                                        } else {
+                                                            _lineItemAgg.oppamountsum += (lv_lineItem.amountBase || 0);
+                                                        }
+                                                        
+                                                        if(! addedOpps[
+                                                                data[count].opportunityId + '#' + lv_lineItem.unitSolutionId]
+                                                        ){
+                                                            _lineItemAgg.summarycount++;
+                                                        }
+                                                        if(!addedOpps[data[count].opportunityId]) {
+                                                            _lineItemAgg.oppcount++;
+                                                        }
+                                                    } else {
+                                                        newAmountSum += lv_lineItem.amountBase;
+                                                        hasLineItem = true;
+                                                        
+                                                        if(! addedOpps[
+                                                                data[count].opportunityId + '#' + lv_lineItem.unitSolutionId]
+                                                        ){
+                                                            actualAddedLines++;
+                                                        }
+                                                        
+                                                        if(! addedOpps[data[count].opportunityId]) {
+                                                            actualAddedOpps++;
+                                                        }
+                                                    }
+                                                    
+                                                    addedOpps[
+                                                        data[count].opportunityId + '#' + lv_lineItem.unitSolutionId
+                                                    ] = true;
+                                                    addedOpps[data[count].opportunityId] = true;
+                                                }
+                                                
+                                                if(hasLineItem === true) {
+                                                    currentTable.append(createOpportunityRow(data[count]));
+                                                }
+                                                
+                                            } else {
+                                                newAmountSum += data[count].amountBase;
+                                                actualAddedOpps++;
+                                                actualAddedLines++;
+                                            }
+                                            
+                                            addedOpps[data[count].opportunityId] = true;
+                                        } else {
+                                            if(data[count].lineItems && data[count].lineItems.length > 0) {
+                                                jQuery.each(data[count].lineItems, function(index, value) {
+                                                    if(value.unitSolutionId == solution.id) {
+                                                        currentTable.append(createOpportunityRow(data[count]));
+                                                    }
+                                                });
+                                            }
+                                        }
+                                    }
+                                    unitSolution.numberOfOpportunities++;
+                                    enableTabs();
+                                    
+                                    var addedLineItemsArray = [];
+                                    for (var prop in addedLineItems) {
+                                        if (addedLineItems.hasOwnProperty(prop)) {
+                                            addedLineItemsArray[addedLineItemsArray.length] = addedLineItems[prop];
+                                        }
+                                    }
+                                    
+                                    if(addedLineItemsArray.length > 0) {
+                                        refreshAddOpportunities(addedLineItemsArray, allmapped);
+                                        
+                                        //not worth sending allmapped twice
+                                        allmapped = null;
+                                    }
+                                    if(actualAddedOpps != 0 || hasLineItem) {
+                                        refreshAddOpportunities([ { solutionid      : solution.id,
+                                                                    unitid          : unit.id,
+                                                                    opportunitytype : oppType,
+                                                                    oppcount        : actualAddedOpps,
+                                                                    oppamountsum    : newAmountSum || 0,
+                                                                    summarycount    : actualAddedLines
+                                                                }],
+                                                                allmapped);  
+                                    }
+                                }
+                        }, function() {}, function() { showAjaxSpinner(false); });                       
+                        
+                    }
+                
+                }
+                
+                
+                function refresh(opp) {
+                    currentTable.append(createOpportunityRow(opp));
+                }
+        
+                
+                currentDiv.append(jQuery('<div/>').addClass('opportunitiesButtonBarBottom').attr('layout', 'opportunity')
+                    .append(!readonly ? createAddCurrentButton() : null));
+
+                return { 
+                            getContainer : function() { return currentDiv; },
+                            refresh      : refresh
+                       };
+
+            }     
+            
+            
+            function createBlockDiv() {
+            
+                var blockDiv = jQuery('<div/>').addClass('blockMainDiv'),
+                    blockReasonText = jQuery('<textarea/>', {id: 'blockReasonTextArea'}).attr('rows', '3'),
+                    blockButton = jQuery('<button/>', {id: 'blockButton'}).addClass('ui-button ui-state-default ui-corner-all ui-button-text-only');
+                
+                ttg.setUpMaxLimitCheck(blockReasonText, 100);
+                
+                blockButton.on('click', function() {
+
+                   var unitSolutionChanges = { 
+                            name: solution.name + ' ' + unit.name,
+                            blocked: !unitSolution.blocked,
+                            blockReason: blockReasonText.val(),
+                            walletSize: unitSolution.walletSize,
+                            ourWalletSize: unitSolution.ourWalletSize
+                    };
+                    showAjaxSpinner(true);
+                    apilayer.putOpportunityMapUnitSolution(unitSolution.id, { unitSolutionChanges : unitSolutionChanges}, function(data) {
+                        if(data) {
+                            setUnitSolution(data);
+                            refresh(unitSolution.blocked, unitSolution.blockReason);
+                            refreshBlockCell(unit.id, solution.id, unitSolution.blocked, unitSolution.blockReason);
+                        } 
+                    }, function() {}, function() {showAjaxSpinner(false);});
+                    
+                });
+                
+                blockDiv.append(blockReasonText);
+                if(!readonly) { 
+                    blockDiv.append(blockButton); 
+                }
+                else {
+                    blockReasonText.attr('disabled', 'disabled');
+                }
+                blockDiv.append(jQuery('<div/>').css('clear','both'));
+
+                refresh(unitSolution.blocked, unitSolution.blockReason);
+    
+                function refresh(blocked, blockReason) {
+                    blockButton.text(blocked ? 'Unblock' : 'Block');
+                    blockReasonText.val(blockReason);
+
+                }
+                
+                return { 
+                            getContainer : function() { return blockDiv; },
+                            refresh : refresh
+                       };
+            
+            } 
+
+            function createMarketLandscapeDiv() {
+            
+                var marketLandscapeDiv = jQuery('<div/>').addClass('tabMainContainer'),
+                    totalItem = createLandscapeItem('Total Wallet', 'walletSize', 'total', 'totalWallet'),
+                    ourCompanyItem = createLandscapeItem('Our company', 'ourWalletSize', 'ours', 'ourCompanyWallet'),
+                    competitorsContainer = jQuery('<div/>').addClass('competitorContainer'),
+                    othersItem = createLandscapeItem('Unknown', null, 'others', 'othersWallet'),
+                    competitorItems = {},
+                    newCompetitorItems = [],
+                    editButton = jQuery('<button/>', {id: 'marketLandscapeEditButton'}).text('Edit').addClass('ui-button ui-state-default ui-corner-all ui-button-text-only'),
+                    saveButton = jQuery('<button/>', {id: 'marketLandscapeSaveButton'}).text('Save').addClass('ui-button ui-state-default ui-corner-all ui-button-text-only'),
+                    cancelButton = jQuery('<button/>', {id: 'marketLandscapeCancelButton'}).text('Cancel').addClass('ui-button ui-state-default ui-corner-all ui-button-text-only'),
+                    errorMsg = jQuery('<span/>').addClass('walletErrorMsg'),
+                    saveButtonBar = jQuery('<div/>').addClass('opportunitiesButtonBarBottom').append(errorMsg),
+                    searchCompetitorRow = createSearchCompetitorRow(),
+                    addCompetitorButtonBar = jQuery('<div/>').addClass('landscapeItem').append(jQuery('<div/>').addClass('landscapeItemAddComp').append(searchCompetitorRow.hide()));
+                
+                if(!readonly) {
+                    saveButtonBar.append(editButton).append(saveButton).append(cancelButton);
+                }
+                
+                othersItem.getContainer().addClass('OthersItem');
+                 
+                errorMsg.hide();
+                saveButton.hide();
+                cancelButton.hide();
+                addCompetitorButtonBar.append(jQuery('<br/>').addClass('clear'));
+                competitorsContainer.append(addCompetitorButtonBar);
+                
+                saveButton.on('click', function() {
+                    var msg = getWalletSizeValidationMsg();
+                    if(!msg) {
+                        save();
+                    }
+                    else {
+                        //saveButton.attr('disabled', 'disabled');
+                        errorMsg.text(msg).show();
+                    }
+                });
+                cancelButton.on('click', cancel);               
+                editButton.on('click', edit);           
+
+                function addNewCompetitor(planCompetitor) {
+                    var newComp = {},
+                        newCompetitorItem = createLandscapeCompetitorItem(newComp, true);
+                
+                    newCompetitorItem.setCompetitor(newComp);   
+                    newCompetitorItem.refreshCompetitorLabel(planCompetitor);
+                    newCompetitorItem.edit();                   
+                    addCompetitorButtonBar.before(newCompetitorItem.getContainer());      
+                    newCompetitorItems.push(newCompetitorItem);             
+                    searchCompetitorRow.trigger('ttg_added_new_competitor');
+                                    
+                }
+
+                function displayButtonBar(activateEdition) {
+                    if(!activateEdition) {
+                        cancelButton.hide();
+                        saveButton.hide();
+                        editButton.show();
+                        searchCompetitorRow.hide();     
+                        searchCompetitorRow.trigger('ttg_added_new_competitor');                
+                    }
+                    else {
+                        cancelButton.show();
+                        saveButton.show();
+                        editButton.hide();
+                        searchCompetitorRow.show();                     
+                    }                       
+                }
+                
+                function getWalletSizeValidationMsg() {
+                    var total = parseInt(totalItem.getValue(), 10) || 0,
+                        ourWalletSize = parseInt(ourCompanyItem.getValue(), 10) || 0,
+                        competitorsWalletSize = 0,
+                        existingCompetitorWalletSizesBeforeParsing,
+                        existingCompetitorWalletSizes,
+                        areCompetitorWalletSizesValid = true,
+                        areCompetitorWalletNumeric = true,
+                        areAllCompetitorsNoWallet = true,
+                        newCompetitorWalletSizesBeforeParsing,
+                        newCompetitorWalletSizes,
+                        thousandBillion = 1000000000000,
+                        sum = function(accumulatedWallet, wallet) { return accumulatedWallet + wallet; },
+                        isNumeric = function(accumulatedIsNumeric, wallet) { 
+                            wallet = wallet + '';
+                            return accumulatedIsNumeric && ((jQuery.isNumeric(wallet) && wallet.indexOf(config.decimalSeparator) === -1 
+                                                                                      && wallet.indexOf('e') === -1 && wallet.indexOf('E') === -1 
+                                                                                      && wallet.indexOf('x') === -1 && wallet.indexOf('X') === -1
+                                                                                      && wallet.indexOf(config.decimalSeparator) === -1) || jQuery.trim(wallet) === ''); 
+                        },
+                        isBelow1000B = function(accumulatedValid, wallet) { return accumulatedValid && (wallet < thousandBillion) && (wallet >= 0); },
+                        parse = function(wallet) { return parseInt(wallet, 10); },
+
+                        allEmpty = function(accEmptyWallet, wallet) {
+                              return accEmptyWallet && (wallet == 0 || !jQuery.trim(wallet).length);
+                        };
+                        
+                    existingCompetitorWalletSizesBeforeParsing = _.pluck(_.invoke(_.values(competitorItems), 'getCompetitorChanges'),'walletSize');
+                    newCompetitorWalletSizesBeforeParsing = _.pluck(_.invoke(newCompetitorItems, 'getCompetitorChanges'),'walletSize');
+                    existingCompetitorWalletSizes = _.map(existingCompetitorWalletSizesBeforeParsing, parse);
+                    newCompetitorWalletSizes = _.map(newCompetitorWalletSizesBeforeParsing, parse);
+                    competitorsWalletSize += _.reduce(existingCompetitorWalletSizes, sum, 0);
+                    competitorsWalletSize += _.reduce(newCompetitorWalletSizes, sum, 0);
+
+                    //need to allow competitors to be added without any wallet data ...
+                    var isTotalEmpty = !jQuery.trim(totalItem.getValue()).length;
+                    var isOurWalletEmpty = !jQuery.trim(ourCompanyItem.getValue()).length;
+                    areAllCompetitorsNoWallet = _.reduce(existingCompetitorWalletSizesBeforeParsing, allEmpty, true);
+                    areAllCompetitorsNoWallet = _.reduce(newCompetitorWalletSizesBeforeParsing, allEmpty, true);
+
+                    if(isTotalEmpty && isOurWalletEmpty && areAllCompetitorsNoWallet) {
+                       return '';
+                    }
+                    areCompetitorWalletSizesValid = _.reduce(existingCompetitorWalletSizes, isBelow1000B, true);
+                    areCompetitorWalletSizesValid = _.reduce(newCompetitorWalletSizes, isBelow1000B, areCompetitorWalletSizesValid);
+                    
+                    areCompetitorWalletNumeric = _.reduce(existingCompetitorWalletSizesBeforeParsing, isNumeric, true);
+                    areCompetitorWalletNumeric = _.reduce(newCompetitorWalletSizesBeforeParsing, isNumeric, areCompetitorWalletNumeric);                    
+
+                    if(!areCompetitorWalletNumeric || !isNumeric(true, totalItem.getValue()) || !isNumeric(true, ourCompanyItem.getValue())) {
+                        return 'Wallet sizes must be non-decimal numeric values';
+                    }
+
+                    if(!areCompetitorWalletSizesValid) {
+                        return 'Wallet values must be positive numbers and cannot exceed ' + config.ccy + '999,999,999,999';
+                    }
+                    
+                    if((total >= thousandBillion) || (total < 0)) { //<=
+                        return 'Wallet values must be positive numbers and cannot exceed ' + config.ccy + '999,999,999,999';
+                    }
+                    
+                    if((ourWalletSize >= thousandBillion) || (ourWalletSize < 0)) {
+                        return 'Wallet values must be positive numbers and cannot exceed ' + config.ccy + '999,999,999,999';
+                    }
+
+                    if(total < ourWalletSize + competitorsWalletSize) {
+                        return 'Sum of wallet shares cannot be more than Total Wallet Share';
+                    }
+                    
+                    return '';
+                }
+                
+                function displayWalletErrorMessage() {
+                    var msg = getWalletSizeValidationMsg();
+                    if(!msg) {
+                        //saveButton.removeAttr('disabled');
+                        errorMsg.hide();
+                    }
+                    else {
+                        //saveButton.attr('disabled', 'disabled');
+                        errorMsg.text(msg).show();
+                    }
+                }
+
+                function save() {
+                    var unitSolutionChanges = { 
+                            blocked: unitSolution.blocked,
+                            blockReason: unitSolution.blockReason || '',
+                            walletSize: totalItem.getValue() || 0,
+                            ourWalletSize: ourCompanyItem.getValue() || 0
+                    };
+                    var unitSolutionUpdated = false,
+                        competitorsUpdated = false,
+                        competitorsCreated = false;                 
+                    showAjaxSpinner(true);
+                    apilayer.putOpportunityMapUnitSolution(unitSolution.id, { unitSolutionChanges : unitSolutionChanges}, function(data) {
+                        if(data) {
+                            getUnitSolution(function() {
+                                unitSolutionUpdated = true;
+                                refreshLandscape(competitorsUpdated && competitorsCreated);
+                            });
+                        }
+                        else {
+                            unitSolutionUpdated = true;
+                        }                        
+                    }, function() {}, function() {showAjaxSpinner(false);});
+                    
+                    
+                    var unitSolutionCompetitorChanges = { unitSolutionCompetitorChanges : _.invoke(_.values(competitorItems), 'getCompetitorChanges')};
+                    
+                    showAjaxSpinner(true);
+                    apilayer.putOpportunityMapUnitSolutionCompetitor({ unitSolutionCompetitorChanges : unitSolutionCompetitorChanges}, function(data) {
+                           getUnitSolution(function() {
+                                competitorsUpdated = true;
+                                refreshLandscape(unitSolutionUpdated && competitorsCreated);
+                           });
+                    }, function() {}, function() {showAjaxSpinner(false);});                    
+                    
+
+                    unitSolutionCompetitorChanges = { unitSolutionCompetitorChanges : _.invoke(_.values(newCompetitorItems), 'getCompetitorChanges')};
+                    
+                    showAjaxSpinner(true);
+                    apilayer.postOpportunityMapUnitSolutionCompetitor(unitSolution.id, { unitSolutionCompetitorChanges : unitSolutionCompetitorChanges}, function(data) {
+                           getUnitSolution(function() {
+                                competitorsCreated = true;    
+                                refreshLandscape(unitSolutionUpdated && competitorsUpdated);
+                           });
+                    }, function() {}, function() {showAjaxSpinner(false);});
+                  
+                    totalItem.cancel();
+                    ourCompanyItem.cancel();   
+                    _.invoke(_.values(competitorItems), 'cancel');
+                    _.each(_.invoke(newCompetitorItems, 'getContainer'), function(container) { container.remove(); });  
+                    newCompetitorItems = [];                    
+                    displayButtonBar(false);                                                                    
+                }
+                
+                function cancel() {
+                    totalItem.cancel();
+                    ourCompanyItem.cancel();   
+                    _.invoke(_.values(competitorItems), 'cancel');
+                    _.each(_.invoke(newCompetitorItems, 'getContainer'), function(container) { container.remove(); });
+                    newCompetitorItems = [];   
+                    displayButtonBar(false);
+                    errorMsg.hide();                                                            
+                }
+                
+                function edit() {
+                    totalItem.edit();
+                    ourCompanyItem.edit(); 
+                    _.invoke(_.values(competitorItems), 'edit');                
+                    displayButtonBar(true);                 
+                }                   
+                    
+                function createLandscapeItem(label, field, itemType, fieldId) {
+                
+                    var item = jQuery('<div/>').addClass('landscapeItem'),
+                        itemValue = jQuery('<span/>', {id: fieldId + 'ValueLabel'}).addClass('landscapeItemValue'),
+                        itemShare = jQuery('<span/>', {id: fieldId + 'ShareLabel'}).addClass('landscapeItemShare').html('&nbsp;'),
+                        editItemValue = jQuery('<input>', {id: fieldId + 'ValueInput', type: 'text'}).on('blur', displayWalletErrorMessage),
+                        itemLabel = jQuery('<span/>').addClass('landscapeItemLabel').append(jQuery('<span/>').text(label));
+                        
+                    if(itemType === 'others') {
+                        itemLabel.addClass('comp_name comp_OTHER').prepend(jQuery('<span/>').addClass('comp_icon'));
+                    }
+                    else if(itemType === 'total') {
+                        itemLabel.addClass('wallet_total').prepend(jQuery('<span/>').addClass('wallet_purse'));
+                    }
+                    else {
+                        var spanLogo = jQuery('<span/>').addClass('our_logo');
+                        renderer.setOurIcon(spanLogo, ourCompanyLogoId); 
+                        itemLabel.addClass('our_wallet').prepend(spanLogo);                     
+                    }
+                    item.append(itemLabel).append(itemShare).append(itemValue); 
+                    item.append(jQuery('<br/>').addClass('clear'));
+                    
+                    function setValue(value) {
+                        if(value) {
+                            itemValue.text(value);
+                        }
+                    }
+                    
+                    function getValue() {
+                        return editItemValue.val();
+                    }                   
+                    
+                    function setShare(share) {
+                        itemShare.text((share || 0) + '%'); 
+                    }  
+                    
+                    function edit() {
+                        editItemValue.val(unitSolution[field]).show();
+                        itemValue.after(editItemValue).hide();
+                    }
+                                        
+                    function cancel() {
+                        editItemValue.hide();                           
+                        itemValue.show(); 
+                    }
+                    
+                    return {
+                            setValue: setValue,
+                            getValue: getValue,
+                            setShare: setShare,
+                            edit: edit,
+                            cancel: cancel,
+                            getContainer: function() { return item;}
+                           }
+                
+                }
+                
+                
+                
+                
+                function createSearchCompetitorRow() {
+                    var searchCompetitorDiv = jQuery('<div/>').addClass('searchCompetitorRow'),
+                        searchCompetitorField = createSearchCompetitorField().addClass('searchCompetitorInput'),
+                        addPlanCompetitorLink = jQuery('<a/>', {id: 'addCompetitorButton'}).addClass('addPlanCompetitorIcon'),
+                        addPlanCompetitorDisabledLink = jQuery('<span/>', {id: 'addCompetitorButtonDisabled'}).addClass('addPlanCompetitorIconDisabled'),
+                        planCompetitor, lastSelectedPlanCompetitor;
+                        
+    
+                    addPlanCompetitorLink.on('click', function() {
+                        var _lv_val = searchCompetitorField.val();
+                        if(!_lv_val || jQuery.trim(_lv_val).length == 0) {
+                            return;
+                        }
+                        
+                        if(planCompetitor == null) {
+                            var planCompetitorChanges = {
+                                name: searchCompetitorField.val(),
+                                ticker: searchCompetitorField.val().substring(0,4).toUpperCase()
+                            };
+                            showAjaxSpinner(true);
+                            addPlanCompetitorLink.hide();
+                            addPlanCompetitorDisabledLink.show();                           
+                            apilayer.postPlanCompetitor({planCompetitorChanges : planCompetitorChanges}, function(data) {
+                                if(data) {
+                                    if(data.existingCompetitor) {
+                                        var existitingCompetitorDialog = jQuery('<div/>', {id: 'existingCompetitorAlert'})
+                                                                            .append(jQuery('<div/>').text('There is already a competitor with that ticker:'))
+                                                                            .append(jQuery('<div/>').text(data.name + ' (' + data.ticker + ')'))
+                                                                            .append(jQuery('<div/>').text('Do you want to add this competitor instead?'));
+                                        
+                                        existitingCompetitorDialog.dialog({
+                                            title: 'Duplicated competitor ticker',
+                                            buttons: {  'No': function() { existitingCompetitorDialog.dialog('close'); },
+                                                        'Yes': function() {
+                                                                    planCompetitors[data.id] = data;
+                                                                    addNewCompetitor(data);
+                                                                    existitingCompetitorDialog.dialog('close'); 
+                                                                }
+                                                     }
+                                        });
+                                    }
+                                    else {
+                                        planCompetitors[data.id] = data;
+                                        addNewCompetitor(data);
+                                    }
+                                }
+                            }, function() {}, function() {
+                                showAjaxSpinner(false);
+                                addPlanCompetitorLink.show();
+                                addPlanCompetitorDisabledLink.hide();
+                            });                     
+                        
+                        }
+                        else {
+                            addNewCompetitor(planCompetitor);
+                        }               
+                    
+                    });
+    
+                    searchCompetitorDiv.append(searchCompetitorField).append(addPlanCompetitorLink.hide()).append(addPlanCompetitorDisabledLink);
+                    return searchCompetitorDiv;
+                    
+                    
+                    function printCompetitorDescription(comp) {
+                        return (comp.ticker ? '('+comp.ticker+')' : '') + (comp.name ? ' ' + comp.name : '');
+                    }
+                                                
+                    function createSearchCompetitorField() {
+                           
+                        function createSearchString(srch) {
+                            return encodeURIComponent(srch);
+                        }
+                           
+                        function findCompetitor(term, callback) {
+                        
+                            apilayer.getPlanCompetitor(createSearchString(term.term), function(data) {
+                                if(data) {
+                                    var competitors = jQuery.makeArray(data);
+                                    var existingCompetitors = getExistingCompetitorIds();
+                                    competitors = _.filter(competitors, function(comp) {
+                                        return !_.contains(existingCompetitors, comp.id);
+                                    }); 
+                                    jQuery.each(competitors, function(idx, comp) {
+                                        comp.label = printCompetitorDescription(comp);
+                                        if(term.term.toLowerCase() === comp.name.toLowerCase()) {
+                                            newCompetitorSelected(null, {item: comp});
+                                        }
+                                    });
+
+                                    if(! competitors || ! competitors.length) {
+                                        var noResultBlurb = jQuery('<pre/>').text('No results match "' + term.term + '"').html();
+                                        competitors = [{id: 0, label: noResultBlurb, value: '0'}];
+                                    }
+                                    
+                                    callback(competitors);                      
+                                
+                                }                           
+                            }, function() {}, function() {});      
+        
+                        }
+                        
+                        function clear() {
+                            input.val('');
+                            planCompetitor = null;
+                            addPlanCompetitorLink.hide();
+                            addPlanCompetitorDisabledLink.show();                           
+                        }
+    
+                               
+                        function newCompetitorSelected(event, ui) {
+                            var item = ui.item ,
+                                compLabel = printCompetitorDescription(item);
+
+                            if(ui.item.id == 0) {
+                                return false;
+                            }                           
+                                
+                            input.val(compLabel ? compLabel : '');
+                            planCompetitor = item;
+                            lastSelectedPlanCompetitor = item;
+                        }
+    
+                        var input = jQuery('<input/>', {id: 'searchCompetitorsAutocompleteInput', type : 'text'})
+                                                .attr('placeholder','Search Competitors')
+                                                .attr('maxlength', 80)
+                                                .autocomplete({ source : findCompetitor,
+                                                                select : newCompetitorSelected,
+                                                                minLength   : 3
+                                                });
+                        searchCompetitorDiv.on('ttg_added_new_competitor', clear);
+                        input.on('change keyup keydown', function() {
+                            var inputVal = jQuery(this).val();
+                            if(inputVal === null || inputVal === '') {
+                                addPlanCompetitorLink.hide();
+                                addPlanCompetitorDisabledLink.show();   
+                            }
+                            else {
+                                addPlanCompetitorLink.show();
+                                addPlanCompetitorDisabledLink.hide();   
+                                if(lastSelectedPlanCompetitor) {
+                                    if(printCompetitorDescription(lastSelectedPlanCompetitor) !== inputVal) {
+                                        planCompetitor = null;
+                                    }
+                                    else {
+                                        planCompetitor = lastSelectedPlanCompetitor;
+                                    }
+                                }                               
+                            }
+                        });                         
+                        return input;      
+                    }   
+                    
+                                        
+                }               
+                
+                
+                function createLandscapeCompetitorItem(comp, isNewCompetitor) {
+                
+                    var item = jQuery('<div/>').addClass('landscapeItem'),
+                        selectedId = !isNewCompetitor ? comp.competitorId : null,
+                        fieldId = !isNewCompetitor ? comp.competitorName : 'NEW',
+                        itemLabel = jQuery('<div/>').append(createLabel(comp)),
+                        itemValue = jQuery('<span/>', {id: 'competitorValueLabel' + fieldId}).addClass('landscapeItemValue'),
+                        itemShare = jQuery('<span/>', {id: 'competitorShareLabel' + fieldId}).addClass('landscapeItemShare'),
+                        editItemValue = jQuery('<input/>', {type: 'text', id: 'competitorValueInput' + fieldId}).on('blur', displayWalletErrorMessage), 
+                        deleteButton = jQuery('<a/>', {id: 'competitorDeleteButton' + fieldId}).addClass('landscapeItemDeleteLink').text('');
+
+
+
+                    
+                    deleteButton.on('click', function() {
+
+                        //deletingCompetitors = true;
+                        //showAjaxSpinner(true);              
+
+                        var confirmDialog = jQuery('<div/>', {id: 'deleteKeyPlayerDialog'}).
+                                            append(jQuery('<span/>').text('Are you sure?'));
+                        confirmDialog.dialog({
+                            modal: true,
+                            title: 'Delete Competitor',
+                            buttons: {
+                                'Yes' : function()  {   
+                                
+                                    if(deletingCompetitors) {
+                                        return;
+                                    }
+                                    
+                                    deletingCompetitors = true;
+                                    jQuery('a[id^=competitorDeleteButton]').hide().after(jQuery('<span/>').addClass('landscapeItemDeleteLinkDisabled'));
+                                    showAjaxSpinner(true);              
+            
+                                    delete competitorItems[comp.id];
+                                    if(unitSolutionCompetitors) {
+                                        unitSolutionCompetitors = unitSolutionCompetitors.ttg_remove(function(e) {
+                                              e.id == comp.id;
+                                        });
+                                    }
+                                    
+                                    item.remove();
+                                    
+                                    apilayer.deleteOpportunityMapUnitSolutionCompetitor(comp.id, function(data) {
+                                        getUnitSolution(function() {
+                                            refreshLandscape(true);
+                                            deletingCompetitors = false;
+                                            jQuery('a[id^=competitorDeleteButton]').show();
+                                            jQuery('.landscapeItemDeleteLinkDisabled').remove();
+                                        });
+                                    }, 
+                                    function() {}, 
+                                    function() {
+                                       showAjaxSpinner(false);
+                                    });
+                                        confirmDialog.dialog('close');
+                                },
+                                'No' : function() { 
+                                    confirmDialog.dialog('close'); 
+                                }
+                            }
+                        });
+
+                    });
+
+                
+                    function edit() {
+                        editItemValue.val(comp.walletSize);
+                        itemValue.after(editItemValue.show()).hide();
+                        if(!isNewCompetitor) {
+                            deleteButton.hide();
+                        }
+                    } 
+                    
+                    
+                    function getCompetitorChanges() {
+                        var unitSolutionCompetitorChanges = { 
+                                competitorId : comp.id,
+                                walletSize: editItemValue.val() || 0,
+                                planCompetitorId: selectedId
+                        };
+                        return unitSolutionCompetitorChanges;                   
+                         
+                    }
+                    
+                    function cancel() {
+                        if(!isNewCompetitor) {
+                            deleteButton.show();
+                        }
+                    
+                        editItemValue.hide();
+                        if(isNewCompetitor) {                       
+                            itemLabel.show();                   
+                        }
+                        itemValue.show();                   
+                    }               
+                                                    
+                    if(!isNewCompetitor) {
+                        item.append(itemLabel).append(itemShare).append(itemValue);
+                        if(!readonly) {
+                            item.append(deleteButton);
+                        }
+                    }
+                    else {
+                        item.append(itemLabel).append(itemShare).append(itemValue);
+                    }
+                    item.append(jQuery('<br/>').addClass('clear'));
+                    
+                    function createLabel(competitor) {
+                        var itemLabel;
+                        if(competitor.competitorTicker) {
+                            itemLabel = jQuery('<span/>').addClass('landscapeItemLabel comp_name').
+                                        append(jQuery('<span/>').addClass('comp_icon')).
+                                        append(jQuery('<span/>', {id: 'competitorNameLabel' + fieldId}).text(competitor.competitorTicker));
+                            renderer.setCompetitorIcon(itemLabel, planCompetitors[competitor.competitorId].attachedIconId, competitor.competitorLogo);                  
+                        }
+                        else {
+                            itemLabel = jQuery('<span/>').addClass('landscapeItemLabel').
+                                        append(jQuery('<span/>', {id: 'competitorNameLabel' + fieldId}).text(competitor.competitorName));
+                        }
+                        return itemLabel;
+                    }                   
+                    
+                    function setCompetitor(competitor) {
+                        comp = competitor;
+                        itemLabel.empty().append(createLabel(competitor));
+                        if(competitor.walletSizeFormatted) {
+                            itemValue.text(competitor.walletSizeFormatted);
+                        }
+                        itemShare.text(((competitor.walletShare == null) || (competitor.walletShare == undefined) || (competitor.walletShare == 0)) ? '' :  (competitor.walletShare + '%'));
+                    }
+                         
+                         
+                    function refreshCompetitorLabel(competitor) {
+                        selectedId = competitor.id;
+            
+                        // Check this, you are faking a unitsolutioncompetitor using a plancompetitor
+                        itemLabel.empty().append(createLabel({  competitorName: competitor.name,
+                                                                competitorTicker:competitor.ticker,
+                                                                competitorLogo: competitor.logo,
+                                                                competitorId : competitor.id                                                                                    
+                                                                     }));
+            
+                    }                                           
+                    
+                    return {
+                            setCompetitor: setCompetitor,         
+                            edit: edit,
+                            cancel: cancel,
+                            refreshCompetitorLabel: refreshCompetitorLabel,
+                            getCompetitorChanges: getCompetitorChanges,
+                            getSelectedId : function() { return selectedId; },
+                            getContainer: function() { return item;}
+                           }
+                
+                }
+                
+                totalItem.getContainer().addClass('totalItem');
+                
+                marketLandscapeDiv.append(totalItem.getContainer())
+                                .append(ourCompanyItem.getContainer())
+                                .append(competitorsContainer)
+                                .append(othersItem.getContainer())
+                                .append(saveButtonBar);
+                
+                function refreshLandscape(updateOppMap) {
+                    totalItem.setValue(unitSolution.walletSize ? unitSolution.walletSizeFormatted : ' ');
+                    ourCompanyItem.setValue(unitSolution.ourWalletSizeFormatted);
+                    ourCompanyItem.setShare(unitSolution.ourWalletShare);
+ 
+                    var competitorsRefreshData = [],
+                        currentCompetitor,
+                        competitorItem,
+                        i;
+                        
+                    if(unitSolutionCompetitors) {
+                        for(i = 0; i < unitSolutionCompetitors.length; i++) {
+                            currentCompetitor = unitSolutionCompetitors[i]; 
+                            competitorItem = competitorItems[currentCompetitor.id] ||
+                                                 createLandscapeCompetitorItem(currentCompetitor);
+                        
+                            competitorItem.setCompetitor(currentCompetitor);
+                            competitorItems[currentCompetitor.id] = competitorItem;
+                            competitorsRefreshData.push({wallet: currentCompetitor.walletSize , ticker: currentCompetitor.competitorTicker, competitorId: currentCompetitor.competitorId, walletshare: currentCompetitor.walletShare, logo: currentCompetitor.competitorLogo, attachedIconId: planCompetitors[currentCompetitor.competitorId].attachedIconId });
+                            competitorsContainer.children().last().before(competitorItem.getContainer());
+                        }
+                        
+                        
+                    }
+                    
+                    othersItem.setValue(unitSolution.othersWalletSizeFormatted, unitSolution, 'othersWalletSize');
+                    othersItem.setShare(unitSolution.otherShare, unitSolution, 'otherShare'); 
+                    
+                    if(updateOppMap) {
+                        refreshWallet(unit.id, solution.id, unitSolution.walletSize || 0, unitSolution.ourWalletSize || 0, competitorsRefreshData);
+                    }               
+                                    
+                }
+                
+                function getExistingCompetitorIds() {
+                    var existingCompetitorIds = _.invoke(_.values(competitorItems), 'getSelectedId');
+                    existingCompetitorIds = _.compact(existingCompetitorIds.concat(_.invoke(newCompetitorItems, 'getSelectedId')));
+                    return existingCompetitorIds;
+                }
+
+                return { 
+                            getContainer        : function() { return marketLandscapeDiv; },
+                            refreshLandscape    : refreshLandscape
+                       };
+            
+            }      
+
+
+            function createDeleteLink(opp, opportunityRow, clazz) {
+            
+                var deleteLink = jQuery('<a/>').addClass(clazz).text('Del').on('click', function(e) {
+                    jQuery('<div/>', {
+                        title: (opp.oppType.toLowerCase() === 'current' ?  
+                                    'Remove Current': 
+                                    (opp.oppType.toLowerCase() === 'won' ? 
+                                        'Remove Won' : 
+                                        'Delete Potential')) + ' Opportunity'}).text('Are you sure?').dialog({
+                        resizable: false,
+                        modal: true,
+                        buttons: {
+                            'Yes': function() {
+                                jQuery(this).dialog('close');
+                                showAjaxSpinner(true);
+                                apilayer.deleteOpportunityMapUnitSolutionOpp(opp.id, function(data) {
+                                    opportunityRow.remove();
+                                    unitSolution.numberOfOpportunities--;
+                                    enableTabs();
+                                    
+                                    if(!targeted || opp.target) {
+                                        if(data && data.length > 0) {
+                                           var removedLineItems = {};
+                                           var removedOpps = {};
+                                           var unmapped = {removed:[]};
+                                           for(var count = 0; count < data.length; count++) {
+                                                var lv_opp = data[count];
+                                                
+                                                if(lv_opp.lineItems && lv_opp.lineItems.length > 0) {
+                                                    for(var innercount = 0; innercount < lv_opp.lineItems.length; innercount++) {
+                                                        var lv_lineItem = lv_opp.lineItems[innercount];
+                                                        //deleted items have been sent back
+                                                        if(! lv_lineItem.unitSolutionId) {
+                                                          unmapped.removed[unmapped.removed.length] = lv_lineItem;
+                                                          continue;
+                                                        }
+                                                        
+                                                        var _lineItemAgg = removedLineItems[lv_lineItem.unitSolutionId];
+                                                        if(_lineItemAgg == null) {
+                                                            _lineItemAgg = {
+                                                                solutionid      : lv_lineItem.unitSolutionId,
+                                                                unitid          : unit.id,
+                                                                opportunitytype : opp.oppType,
+                                                                oppcount        : 0,
+                                                                summarycount    : 0,
+                                                                oppamountsum    : -lv_lineItem.amountBase
+                                                            };
+                                                            removedLineItems[lv_lineItem.unitSolutionId] = _lineItemAgg;
+                                                        } else {
+                                                            _lineItemAgg.oppamountsum -= lv_lineItem.amountBase;
+                                                        }
+                                                        
+                                                        if(! removedOpps[
+                                                            lv_opp.opportunityId + '#' + lv_lineItem.unitSolutionId
+                                                        ]) {
+                                                            _lineItemAgg.summarycount--;
+                                                        }
+                                                        if(! removedOpps[lv_opp.opportunityId]) {
+                                                            _lineItemAgg.oppcount--;
+                                                        }
+                                                        
+                                                        removedOpps[
+                                                            lv_opp.opportunityId + '#' + lv_lineItem.unitSolutionId
+                                                        ] = true;
+                                                        removedOpps[lv_opp.opportunityId] = true;
+                                                    }
+                                                } else {
+                                                    var _lineItemAgg = removedLineItems[lv_opp.unitSolutionId];
+                                                    if(_lineItemAgg == null) {
+                                                        removedLineItems[lv_opp.unitSolutionId] = {
+                                                            solutionid :lv_opp.unitSolutionId,
+                                                            unitid : unit.id,
+                                                            opportunitytype : lv_opp.oppType,
+                                                            oppcount : -1,
+                                                            oppamountsum :  -lv_opp.amountBase
+                                                        }
+                                                    } else {
+                                                        _lineItemAgg.oppamountsum -= lv_opp.amountBase;
+                                                        _lineItemAgg.oppcount--;
+                                                    }
+                                                }
+                                            }
+                                            
+                                            var removedLineItemsArray = [];
+                                            for (var prop in removedLineItems) {
+                                                if (removedLineItems.hasOwnProperty(prop)) {
+                                                    removedLineItemsArray[removedLineItemsArray.length] = removedLineItems[prop];
+                                                }
+                                            }
+                                            
+                                            if(removedLineItemsArray.length > 0) {
+                                                refreshAddOpportunities(removedLineItemsArray, unmapped);
+                                                unmapped = null;
+                                            }
+                                        } else {
+                                            refreshAddOpportunities([ { solutionid :solution.id,
+                                                                        unitid : unit.id,
+                                                                        opportunitytype : opp.oppType,
+                                                                        oppcount : -1,
+                                                                        oppamountsum :  -opp.amountBase
+                                                                    }],
+                                                                    unmapped);                                                                    
+                                        }
+                                    }
+                                    
+                                }, function() {}, function() {showAjaxSpinner(false);});
+                                return true;
+                            },
+                            'No': function() {
+                                jQuery(this).dialog('close');
+                                return false;
+                            }
+                        }
+                    });
+                    return false;
+                });
+                
+                return deleteLink;
+            
+            }    
+            
+            function setUnitSolution(newUnitSolution, competitors) {
+                unitSolution = newUnitSolution;
+                unitSolutionCompetitors = competitors;
+                if(unitSolutionCompetitors) {
+                    unitSolutionCompetitors.sort(function(a, b) {
+                        return  parseFloat(b.walletSize) - parseFloat(a.walletSize);
+                    });
+                } 
+                enableTabs();
+                if(blockDiv) {
+                    blockDiv.refresh(unitSolution.blocked, unitSolution.blockReason);
+                }
+            }
+            
+            function createCurrencyCombo(label, object, fieldName, fieldOptions, isNew) {
+           
+                var options = fieldOptions || {},
+                    fieldType = options.fieldType || 'text',
+                    readOnlyValue = options.readOnlyValue || null,
+                    inline = options.inline || false,
+                    comboOptions = options.comboOptions || [],
+                    fieldId = options.fieldId,                  
+                    input;
+                    
+                     
+                if(readOnlyValue) {
+                    input = jQuery('<span/>').addClass('editFieldReadOnly').text(readOnlyValue);
+                }
+                else {
+                    input = jQuery('<select/>').on('change', function() {
+                        object.currencyIsoCode = jQuery(this).find(':selected').text();  
+                    });
+                    
+                    jQuery.each(comboOptions, function(idx, option) {
+                        
+                        var myOption = jQuery('<option/>');
+                        if(option.name == object.currencyIsoCode) {
+                            myOption.attr('selected', 'selected');
+                        }
+                        
+                        input.append(myOption.text(option.name).val(option.name));
+                        
+                        if ( (true == isNew) && (true == option.iscorporate) ) {
+                            input.val(option.name);
+                        }
+                    });
+
+                    if ( (true == isNew) && defaultIsoCode ) {
+                        input.val(defaultIsoCode);
+                        object.currencyIsoCode = defaultIsoCode;
+                    }
+                }
+                if(fieldId) { 
+                    input.attr('id', fieldId); 
+                }                 
+                
+                if(inline) {
+                    return input.addClass('inlineEditField');
+                }
+                else {
+                    return jQuery('<div/>').addClass('editFieldDiv')
+                        .append(jQuery('<span/>').addClass('editLabel').text(label+': '))
+                        .append(input.addClass('editField'));
+                }
+                       
+            }            
+            
+            function createOwnerCombo(label, object, fieldName, fieldOptions) {
+           
+                var options = fieldOptions || {},
+                    fieldType = options.fieldType || 'text',
+                    readOnlyValue = options.readOnlyValue || null,
+                    inline = options.inline || false,
+                    comboOptions = options.comboOptions || [],
+                    fieldId = options.fieldId,                  
+                    input;
+                    
+                     
+                if(readOnlyValue) {
+                    input = jQuery('<span/>').addClass('editFieldReadOnly').text(readOnlyValue);
+                }
+                else {
+                    input = jQuery('<select/>').on('change', function() {
+                        object.ownerId = jQuery(this).val();  
+                        object.owner = jQuery(this).find(':selected').text();  
+                    });
+                    jQuery.each(comboOptions, function(idx, option) {
+                        input.append(jQuery('<option/>').text((option.Name || option.FirstName + ' ' + option.LastName)).val(option.Id));
+                    });
+                    if(object.ownerId && _.pluck(comboOptions, 'Id').indexOf(object.ownerId) > -1) {
+                        input.val(object.ownerId);
+                    }
+                    else {
+                        //if(comboOptions.length > 0 && _.pluck(comboOptions, 'Id').indexOf(object.ownerId) < 0) {
+                        if(comboOptions.length > 0) {
+                            input.val(comboOptions[0].Id);
+                            object.ownerId = comboOptions[0].Id;  
+                            object.owner = comboOptions[0].Name;                            
+                        }
+                    }
+                }
+                if(fieldId) { 
+                    input.attr('id', fieldId); 
+                }                 
+                
+                if(inline) {
+                    return input.addClass('inlineEditField');
+                }
+                else {
+                    return jQuery('<div/>').addClass('editFieldDiv')
+                        .append(jQuery('<span/>').addClass('editLabel').text(label+': '))
+                        .append(input.addClass('editField'));
+                }
+            }
+            
+            function createOwnerField(label, object, fieldName, fieldOptions) {
+                   
+                function createSearchString(srch) {
+                    return 'name like ' + "'%" + srch + "%'";
+                }
+                   
+                function findOwner(term, callback) {
+                           
+                    searchAccountPlanTeamMembersFunction(
+                            planid,
+                            createSearchString(term.term), 
+                            function(data,status,xhr) {
+                                var users = jQuery.makeArray(data.users.user);
+                                jQuery.each(users, function(idx, user) {
+                                    user.label = (user.firstname ? user.firstname : '') + (user.lastname ? ' ' + user.lastname : '');
+                                });
+                                callback(users);
+                            }, 
+                            function() {}, 
+                            function() {}
+                    );
+                }
+                       
+                function newOwnerSelected(event, ui) {
+                    var item = ui.item ,
+                        ownerName = (ui.item.firstname ? ui.item.firstname + ' ': '') + (ui.item.lastname ? ui.item.lastname : '');
+                    
+                    object.ownerId = item.id;
+                    object.owner = ownerName;
+                    input.val(ownerName);
+                }
+                       
+                       
+                var options = fieldOptions || {},
+                    fieldType = options.fieldType || 'text',
+                    readOnlyValue = options.readOnlyValue || null,
+                    inline = options.inline || false,
+                    comboOptions = options.comboOptions || [],
+                    fieldId = options.fieldId,
+                    input;
+                    
+                     
+                if(readOnlyValue) {
+                    input = jQuery('<span/>').addClass('editFieldReadOnly').text(readOnlyValue);
+                }
+                else {
+                    input = jQuery('<input/>', {type : 'text'})
+                                        .val(object[fieldName])
+                                        .autocomplete({ source : findOwner,
+                                                        select : newOwnerSelected
+                                        });
+                }
+                if(fieldId) { 
+                    input.attr('id', fieldId); 
+                }                
+                
+                if(inline) {
+                    return input.addClass('inlineEditField');
+                }
+                else {
+                    return jQuery('<div/>').addClass('editFieldDiv')
+                        .append(jQuery('<span/>').addClass('editLabel').text(label+': '))
+                        .append(input.addClass('editField'));
+                }
+            }                   
+
+            function createField(label, object, fieldName, fieldOptions) {
+                var options = fieldOptions || {},
+                    fieldType = options.fieldType || 'text',
+                    readOnlyValue = options.readOnlyValue || null,
+                    inline = options.inline || false,
+                    comboOptions = options.comboOptions || [],
+                    changeCallback = options.changeCallback,
+                    fieldId = options.fieldId,
+                    input;
+                
+                if(readOnlyValue) {
+                      input = jQuery('<span/>').addClass('editFieldReadOnly').text(readOnlyValue);
+                }
+                else {
+                    if(fieldType === 'picklist') {
+                        input = jQuery('<select/>');
+                        jQuery.each(comboOptions, function(idx, option) {
+                            input.append(jQuery('<option/>').text(option).val(option));
+                        });
+                           input.val(object[fieldName]);
+                           input.on('change', function(event) {
+                               object[fieldName] = jQuery(this).val();
+                               if(changeCallback) {
+                                    changeCallback(event);
+                               } 
+                           });
+                        }
+
+                    if(label === 'Description'){
+                         input = jQuery('<textarea/>', {type: 'text'}).val(object[fieldName]);
+                         input.on('change', function() {
+                            object[fieldName] = jQuery(this).val();    
+                         });
+                            input.val(object[fieldName]);
+                     }
+
+                     else {
+                          input = jQuery('<input/>', {type: 'text'}).val(object[fieldName]);
+                          input.on('change', function() {
+                             object[fieldName] = jQuery(this).val();    
+                          });
+                          if(fieldType === 'date') {
+                              if(object[fieldName]) {
+                                  input.val(jQuery.datepicker.formatDate(dateFormat, new Date(object[fieldName])));
+                              }
+                              input.datepicker({dateFormat: dateFormat});
+                          }
+                          else {
+                              input.val(object[fieldName]);
+                          }
+                      }
+                        
+                }                    
+                
+                if(fieldId) { 
+                    input.attr('id', fieldId); 
+                }
+       
+                if(inline) {
+                    return input.addClass('inlineEditField');
+                }
+                else {                
+                	var ret;               	
+	                if(fieldId === 'potentialOppNameEditField' || fieldId === 'potentialOppNameField'){	                
+		             ret =  jQuery('<div/>').addClass('editFieldDiv')
+		                        .append(jQuery('<span/>').addClass('editLabel').text(label+': '))
+		                        .append(jQuery('<span/>').addClass('isMandatory'))
+		                        .append(input.addClass('editField'));
+		                        
+		            }
+	                else{
+		               ret =  jQuery('<div/>').addClass('editFieldDiv')
+		                        .append(jQuery('<span/>').addClass('editLabel').text(label+': '))
+		                        .append(input.addClass('editField'));          
+		            }
+		            return ret;  
+               }
+  
+            }
+            
+            
+            function showAjaxSpinner(show) {
+                var spinner = jQuery('#dialogSpinner').css({ position: 'absolute', 'z-index': 10000});
+                if (show) { 
+                    ajaxSpinnerCnt++;
+                    if (ajaxSpinnerCnt == 1) {
+                        spinner.append(jQuery('<img>').attr('id', 'tas_ajax_spinner').addClass('spinner').attr('src', '{!JSENCODE(URLFOR($Resource.ttgomjs, '/ttg/graph/images/loader.gif'))}'));
+                        spinner.css("top", ( jQuery(window).height() - jQuery('#dialogSpinner').height() ) / 2+jQuery(window).scrollTop() + "px");
+                        spinner.css("left", ( jQuery(window).width() - jQuery('#dialogSpinner').width() ) / 2+jQuery(window).scrollLeft() + "px");
+                    }                   
+                }
+                else {
+                    ajaxSpinnerCnt--;
+                    if (ajaxSpinnerCnt <= 0) {                  
+                        jQuery('#dialogSpinner').html('');
+                        ajaxSpinnerCnt = 0;
+                    }
+                }
+            }               
+        
+            
+            function openActualDialog() {
+                stopWorking();
+            
+                var dialog = jQuery('<div/>', {id: 'intersectionDialog'});
+                dialog.dialog({
+                    modal: true,
+                    resizable: false,
+                    width: 720,
+                    height: 'auto',
+                    autoOpen: false,
+                    title: jQuery('<pre/>')
+                               .text('Smart Intersection - Solution: ' + solution.name + ' ~ Unit: ' + unit.name)
+                               .html() ,
+                    close: function() {
+                        dialog.remove();
+                    },
+                    open: function() {
+                       jQuery('span.ui-dialog-title').focus();
+                    }
+                });
+                tabs = createTabs();
+                enableTabs();
+                dialog.append(tabs);
+                //console.log('adding message');
+                var hiddenOppsMsg = jQuery('<span/>', {id: 'hiddenOppsErrorMsg'}).addClass('potentialOppErrorMsg').text('You do not have access to all the opportunities for this unit/solution');
+                dialog.prepend(hiddenOppsMsg);
+                if(opps.hiddenOpps) {
+                    hiddenOppsMsg.show();      
+                } else {
+                    hiddenOppsMsg.hide();      
+                }
+                dialog.dialog('open');  
+                
+                dialog.find('#searchCompetitorsAutocompleteInput').autocomplete('option', 'appendTo', dialog.parent());
+                                       
+            }
+
+        };
+         
+    
+        return { openIntersectionPopup: openIntersectionPopup,
+                 onBlockCell: onBlockCell,
+                 onModifyWallet : onModifyWallet,
+                 onAddOpportunities: onAddOpportunities,
+                 setPlanDates: setPlanDates };
+   
+    }*/
+
+</script>
+
+</apex:page>

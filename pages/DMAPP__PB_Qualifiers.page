@@ -1,0 +1,2084 @@
+<apex:page standardController="Opportunity" extensions="DMAPP.PB_QualifierController"  action="{!logQualificationUsage}" 
+    showHeader="true" 
+    sidebar="false"
+    docType="html-5.0"
+    >
+	
+	<c:jQuery cookies="true"
+	jQueryUI="true"
+	textareaMaxlength="true" 
+	tooltip="true"
+	underscore="true"
+	paging="true"
+	chosen="true"/>
+    
+    <c:MobileRedirect smartOM="true" />
+
+	<script type="text/javascript" src="{!$Resource.DMAPP__l10njs}"></script>
+
+	<apex:include pageName="DMAPP__tmpCommoncss" />
+	
+	<script type="text/javascript" src="{!URLFOR($Resource.ttgomjs, 'ttg/lib/ttgservice.js')}"></script>
+	<apex:include pageName="DMAPP__Debug" />
+	<script type="text/javascript" src="{!URLFOR($Resource.ftk, 'forcetk.js')}"></script>
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__ttgomjs, 'ttg/lib/modernizr.js')}"/>	
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__ttgomjs, 'ttg/lib/ttgutils.js')}"/>		
+	<script type="text/javascript" src="{!URLFOR($Resource.dvls, 'js/flowplayer-3.2.6.js')}"></script>
+	<apex:include pageName="DMAPP__Quicklinks" />
+	<apex:include pageName="DMAPP__Note" />	
+	
+	<script>
+		
+		var ttg = ttg || {};		
+		ttg.pre_fetch = ttg.pre_fetch || {};		
+		ttg.pre_fetch['DMAPP.OMStandardController.getQualification'] = '{!JSENCODE(prefetchQualification)}';				
+	</script>
+	
+	<apex:include pageName="DMAPP__JSRemoting" />
+	
+	<div id="TAS">
+	
+		<apex:include pageName="DMAPP__SummaryTab2" />
+	
+		<br />
+		<div id="SPINNER"></div>
+		<div class="PAGEWIDTH">
+			<div id="INFORMATION" class="divBlock" style="display:none;">
+				<div class="divQuery">
+					<div id="SUMMARYPANEL"></div>
+				</div>
+			</div>
+			<div id="NOSALESPROCESS" class="divError" style="display:none;"/>
+			<div id="QUALIFIERS"></div>
+		</div>
+		<div id="SELECTSALESPROCESS"></div>
+	</div>
+	<script>
+		
+		/* 
+		 * Copyright © The TAS Group. All rights reserved.
+		 *  
+		 */    
+		
+		var spec = {
+			ttgApi: ttg.apiLayer.sfdcDelegate( { sessionid : '{!JSENCODE($Api.Session_ID)}', opportunityid : '{!JSENCODE(Opportunity.id)}' } ),
+			readonly: {!Editable == false},
+			editable: {!Editable},
+			opportunityid : '{!JSENCODE(Opportunity.id)}',
+			dateformat: '{!dateFormat}'
+					   
+		};
+
+		var ttg_qualification = (function(_spec) {
+
+			var that = {}
+
+			var PREFIX_QUESTIONID = 'QUESTION_';
+			var PREFIX_NOTEDIALOGID = 'NOTEDIALOG_';
+
+			var localization = {
+				title_process: 						'Sales Process',
+				title_stage: 						'Dealmaker Stage',
+				title_closedate: 					'Projected Close Date',
+				title_closure_probability:			'Closing Confidence',
+				title_pause: 						'Pause Date',
+				title_add_pause:					'Add Pause Date',
+				title_no_sales_process_selected:	'No sales process selected.',
+				title_updated:						'Updated',
+				title_tooltip_required:				'Mandatory',
+				title_quicklink:					'Quicklink',
+				title_tooltip_creation:				'Start Date',
+				title_tooltip_today:				'Today',
+				title_tooltip_closed:				'Closed',
+				title_please_select:				'Please select a sales process for this opportunity',
+				no_sales_processes_defined:			'There are no sales processes defined. Please contact your System Administrator.',
+				title_process_superseeded:			'Process superseded',
+				dlg_cancel:							'Cancel',
+				dlg_ok:								'OK',
+				title_projected_this_quarter:		'Projected to Close:',
+				title_mix:							'Deal Size:',
+				title_speed:						'Sales Cycle:',
+				title_close_date:					'CRM Close Date',
+				title_projected_close_date:			'Projected Close Date',
+				title_opportunity_value:			'Opportunity Value'
+			}
+
+			var ttgApi = _spec.ttgApi;
+			var opportunityid = _spec.opportunityid;
+			var dateformat = _spec.dateformat;
+			var quicklinks = [];
+			var data = {};
+			var readonly = _spec.readonly;
+			var enableSalesProcessChange;
+			var iPad = ttg.isTouchScreen(); //navigator.userAgent.match(/iPad/i) != null;			
+			
+			function render(result) {
+				try {
+
+					// Reset screen
+					jQuery('#NOSALESPROCESS').css('display', 'none');
+					jQuery('#INFORMATION').css('display', 'block');
+
+					jQuery('#QUALIFIERS').html(''); 
+
+					createSummaryPanel(result);
+					
+					var block = '';
+					var index = 0;
+					jQuery.each(result.qualifiers, 
+	
+						function (key, value) {
+							if (block != value.stage) {
+	
+								jQuery('#QUALIFIERS').append(
+								
+									generateStage(index++, value, result.qualifiers)
+									
+								)
+								
+								block = value.stage;
+							}
+	
+						}
+					)
+	
+					jQuery.each(result.answers, 
+	
+						function (key, value) {
+	
+							setLine(value.qualifierId, value.comment, value.completion, value.status, value.unformatedCompletion);
+	
+						}
+					)
+				
+					jQuery('TEXTAREA.HIDDENCOMMENT').limitMaxlength( { });
+	
+					if (readonly == false) {
+						jQuery('SELECT.STATUS').change( lineChanged );
+						jQuery('TEXTAREA.HIDDENCOMMENT').blur( lineChanged );
+	               		jQuery('.SCOREBLOCK_SCORE').click( handleScoreBlockClick );
+					}
+					else {
+						jQuery('SELECT.STATUS').attr('disabled', 'true' );
+					}
+
+
+					jQuery('.NOTEEDITBUTTON').each( function (index, element) { jQuery(this).click(noteClicked)	} )
+
+					jQuery('.COMMENT').each( function (index, element) {  
+					
+							jQuery(this).click(noteClicked)			  
+	
+						}
+					)
+
+
+					if (!iPad) {
+               			jQuery('.SCOREBLOCK_SCORE').tooltip({ delay: 0, showURL: false, bodyHandler: function() { return handleScoreBlockToolTip(jQuery(this).attr('qindex')) } });
+						jQuery('.NOTEINFOICON').tooltip({ delay: 0, showURL: false, bodyHandler: function() { return helpHover(jQuery(this).parent().attr('ID')) } });
+						jQuery('.QUICKLINK ').tooltip({ delay: 0, showURL: false, bodyHandler: function() { return localization.title_quicklink }})
+					}
+ 
+
+					resizeScoreBlocks();
+					setStageHightlight(result.stage);
+					
+					updateSummaryPerformanceIcon(result);
+
+				}
+				finally {
+					showAjaxSpinner(false);
+				}
+			}
+
+			function handleScoreBlockToolTip(id) {
+
+				var q = qualifiers[id];
+
+				var line = _qualifierline(q.id);
+				var comment = line.getComment().val();			 
+				var util = ttg_note_editor({ })
+				if (comment != undefined && comment != '') {
+
+					return '<b>' + util.htmlescape(q.qualifier) + '</b><br>' + util.htmlescape(comment);
+				}
+				else {
+
+					return util.htmlescape(q.qualifier);
+
+				}
+			}
+
+			function handleScoreBlockClick() {
+				var id = jQuery(this).attr('qindex');
+				var q = qualifiers[id];
+				var line = _qualifierline(q.id);
+				var v = line.getStatus().val();
+				
+				//console.log('>>> in handleScoreBlockClick(), v:' + v + ', availableAnswers.length:' + availableAnswers.length);
+
+				if(q.readonly) {
+					return;
+				}
+				
+				var offset = 0;
+				jQuery.each(availableAnswers, 
+					function(key, item) {
+						if (item.label.startsWith('--')) {
+							offset++;
+						}
+					} 
+				) 
+
+				if (v == '') v = 0;
+				
+				v = v - 1;
+				v = v - offset;
+				if (v < 0) {
+					v = availableAnswers.length - 1;
+				}
+				
+				//console.log('>>> in handleScoreBlockClick(), v:' + v);
+				
+				line.getStatus().val(v);				
+				//console.log('>>> in handleScoreBlockClick(), line.getStatus().val():' + line.getStatus().val());
+				line.getStatus().trigger('change');				
+			}
+
+			function resizeScoreBlocks() {
+				var scoreBlockWidth=0;
+				var padding = 0;
+				
+				jQuery('.STATUS').each( function (index, element) {
+					var ctrl = jQuery(this);
+					var width = ctrl.width();
+					if (width > scoreBlockWidth) scoreBlockWidth = width;			  
+				})
+
+				jQuery('.SCOREBLOCK').each( function (index, element) {  
+				
+						var ctrl = jQuery(this);
+						var width = ctrl.width();
+						if (width > scoreBlockWidth) scoreBlockWidth = width;			  
+						
+						if (padding == 0) {	
+							padding += parseInt(ctrl.css("padding-left"), 10) + parseInt(ctrl.css("padding-right"), 10); //Total Padding Width
+							padding += parseInt(ctrl.css("margin-left"), 10) + parseInt(ctrl.css("margin-right"), 10); //Total Margin Width
+							padding += parseInt(ctrl.css("borderLeftWidth"), 10) + parseInt(ctrl.css("borderRightWidth"), 10); //Total Border Width
+						}
+
+
+					}
+				)
+
+				scoreBlockWidth+=10;
+
+				// Resize width of page block if required			
+				pageWidth = 818 + (Math.max(0, scoreBlockWidth - 100));
+				
+				jQuery('.PAGEWIDTH').width(pageWidth);
+
+				jQuery('.SCOREBLOCK').each( function (index, element) {  
+				
+						jQuery(this).width(scoreBlockWidth);
+
+					}
+				)
+
+				jQuery('.QUALIFIERTEXT').each( function (index, element) {  
+				
+						jQuery(this).width(400 + Math.max(scoreBlockWidth-80, 0));
+
+					});				
+				jQuery('.STAGE_DONE').css('left', pageWidth + 10);
+			}
+
+			function updateSummaryPanel(result) {
+				createSummaryPanel(result);
+			}
+
+			function createSummaryPanel(result) {
+
+				jQuery('#SUMMARYPANEL').html('');
+
+				jQuery('#SUMMARYPANEL').append(	
+
+					jQuery('<span>').addClass('TIMELINE')
+
+				)
+
+				jQuery('SPAN.TIMELINE').html('');
+				jQuery(jQuery('SPAN.TIMELINE').append(
+						jQuery('<div>').attr('id', 'TIMELINE_PAST')
+					).append(
+						jQuery('<div>').attr('id', 'TIMELINE_EXTRA')
+					).append(
+						jQuery('<div>').attr('id', 'TIMELINE_FUTURE')
+					).append(
+						jQuery('<div>').attr('id', 'TIMELINE_START').addClass('CIRCLEDOT')
+					).append(
+						jQuery('<div>').attr('id', 'TIMELINE_CURRENT').addClass('POINTERDOT')
+					).append(
+						jQuery('<div>').attr('id', 'TIMELINE_END').addClass('CIRCLEDOT')
+					).append(
+						jQuery('<div>').attr('id', 'TIMELINE_DATESTART').text(createdDate)
+					).append(
+						jQuery('<div>').attr('id', 'TIMELINE_DATECURRENT').text(isClosed ? '' : localization.title_tooltip_today)
+					).append(
+						jQuery('<div>').attr('id', 'TIMELINE_DATEEND').text(result.projectedCloseDate)
+					)/*.append(
+						jQuery('<div>').attr('id', 'TIMELINE_CONFIDENCE_LABEL').text(localization.title_closure_probability)
+					)*/.append(
+						jQuery('<div>').attr('id', 'TIMELINE_CONFIDENCE').text((result.probability || '0') + '%')
+					).append(
+						jQuery('<div>').attr('id', 'TIMELINE_STAGE').text(result.stage || '')
+					)
+				).append(
+					jQuery('<span>').addClass('playbook_info_details').append(
+						jQuery('<ul>').addClass('playbook_info').append(
+							jQuery('<li style="width:160px;">').append(									
+								jQuery('<span>').addClass('info_label').text(localization.title_projected_this_quarter)
+							).append(
+								jQuery('<span>').addClass('info_value').attr('id', 'PROJECTED_THIS_QUARTER')
+							)
+						).append(
+							jQuery('<li style="width:130px;">').append(									
+								jQuery('<span>').addClass('info_label').text(localization.title_mix)
+							).append(
+								jQuery('<span>').addClass('info_value').attr('id', 'SUMMARY_MIX')
+							)	
+						).append(
+							jQuery('<li style="width:130px;">').append(									
+								jQuery('<span>').addClass('info_label').text(localization.title_speed)
+							).append(
+								jQuery('<span>').addClass('info_value').attr('id', 'SUMMARY_SPEED')
+							)
+						)
+					)	
+				)
+
+
+				var daystoclose = Math.max(0, result.daystoclose);
+				var barwidth = 400;
+				var totaldays = daystoclose + pastdays;
+				var pastpercent = (totaldays != 0) ? (pastdays / totaldays) : 1;
+				var futurepercent = (totaldays != 0) ? (daystoclose / totaldays) : 0;
+				var midway = barwidth * pastpercent;
+				
+				var extraPercent = (totaldays != 0) ? (Math.max(0, result.daysBetween) / totaldays) : 0;
+				var extraWidth = Math.min(barwidth, extraPercent * barwidth);
+				var extraOffset = Math.max(0, barwidth - extraWidth);
+				
+				jQuery('#TIMELINE_PAST').width(midway);				
+				jQuery('#TIMELINE_FUTURE').width(barwidth * futurepercent);				
+				jQuery('#TIMELINE_FUTURE').css('left', midway + 'px');				
+				jQuery('#TIMELINE_CURRENT').css('left', (midway - 15) + 'px');				
+				jQuery('#TIMELINE_DATECURRENT').css('left', (midway - 30) + 'px');				
+				jQuery('#TIMELINE_STAGE').css('left', Math.max(-50, (midway - (jQuery('#TIMELINE_STAGE').width() / 2))) + 'px');
+				jQuery('#TIMELINE_EXTRA').width(extraWidth);				
+				jQuery('#TIMELINE_EXTRA').css('left', extraOffset + 'px');				
+
+				jQuery('#SUMMARYPANEL').append(
+					jQuery('<span>').addClass('SUMMARY_DETAILS').append(
+						jQuery('<table>').addClass('SUMMARY1').append(
+							jQuery('<tr>').append(
+								jQuery('<td>').addClass('PROMPT').text(localization.title_process +':')
+							).append(
+								enableSalesProcessChange && !readonly && !(isClosed && isWon) ? 
+								jQuery('<td>').append(
+									jQuery('<a>').append(
+										jQuery('<span>').text(salesprocess.name)
+
+// Put these lines back for allow graphic
+//									).append(
+//										jQuery('<img>').addClass('SALESPROCESSEDIT').attr('src', '{!URLFOR($Resource.Common, 'images/icon_edit_pencil.png')}')
+									).addClass('tasPointer').click(selectSalesProcess)) 
+								: jQuery('<td>').text(salesprocess.name)
+							)
+						).append(jQuery('<tr>').attr('id', 'PAUSE_EDIT').addClass('HIDDEN_PAWS').append(
+								jQuery('<td>').addClass('PROMPT').text(localization.title_pause)
+							).append(
+								jQuery('<td>').append(
+									jQuery('<input>').attr('type', 'text').attr('id', 'PAUSEDATE')
+								)
+							)
+						).append(jQuery('<tr>').attr('id', 'PAUSE_CANCEL').addClass('HIDDEN_PAWS').append(
+								jQuery('<td>').addClass('PROMPT').text(localization.title_pause)
+							).append(
+								jQuery('<td>').append(
+									jQuery('<span>').attr('id', 'PAUSEDATE_DISPLAY')
+								).append(
+									jQuery('<img>').attr('id', 'PAUSE_REMOVE').attr('src', '{!URLFOR($Resource.Qualification, 'pb_icon_remove.png')}')
+								)
+							)
+						).append(jQuery('<tr>').attr('id', 'PAUSE_NOPAWS').addClass('HIDDEN_PAWS').append(
+								jQuery('<td>').addClass('PROMPT').text(localization.title_pause + ':')
+							).append(
+								jQuery('<td>').append(
+									jQuery('<img>').attr('src', '{!URLFOR($Resource.Qualification, 'pb_icon_pause.png')}')
+								).append(
+									jQuery('<span>').attr('id', 'PAUSEDATE_ADD').text(localization.title_add_pause)
+								)
+							)
+						).append(jQuery('<tr>').append(
+								jQuery('<td>').addClass('PROMPT').text(localization.title_close_date +':')
+							).append( 
+								jQuery('<td>').append(
+										jQuery('<span>').attr('id', 'CLOSE_DATE').text(result.closeDateFormatted)
+								)
+							)
+						).append(jQuery('<tr>').append(
+								jQuery('<td>').addClass('PROMPT').text(localization.title_projected_close_date +':')
+							).append( 
+								jQuery('<td>').append(
+										jQuery('<span>').attr('id', 'PROJECTED_CLOSE_DATE').text(result.projectedCloseDateFormatted)
+								)
+							)
+						).append(jQuery('<tr>').append(
+								jQuery('<td>').addClass('PROMPT').text(localization.title_opportunity_value +':')
+							).append( 
+								jQuery('<td>').append(
+										jQuery('<span>').attr('id', 'OPPORTUNITY_VALUE').text(result.opportunityValueFormatted)
+								)
+							)
+						)
+					)
+				)
+				
+				if(result.daysBetween && (result.daysBetween > 0)) {
+					var myIndex = result.projectedCloseDateFormatted.indexOf('(');
+					if((myIndex > 0) && (myIndex < result.projectedCloseDateFormatted.length)) {
+						var myProjectedCloseDateNoDescription = result.projectedCloseDateFormatted.substring(0, myIndex);
+						jQuery('#PROJECTED_CLOSE_DATE').text(myProjectedCloseDateNoDescription).append(
+							jQuery('<span>').css('color', 'red').text(result.projectedCloseDateFormatted.substring(myIndex, result.projectedCloseDateFormatted.length))
+						);
+					} else {
+						jQuery('#PROJECTED_CLOSE_DATE').css('color', 'red');
+					}
+					jQuery('#TIMELINE_DATEEND').css('color', 'red');
+				}			
+							
+
+				if (isDirty) {
+					jQuery('.SUMMARY1').append(
+						jQuery('<tr>').append(
+
+							jQuery('<td>').addClass('PROMPT').text(localization.title_process_superseeded)
+
+						).append(
+							jQuery('<td>').append(
+
+								readonly ? jQuery('<img>').attr('src', '{!URLFOR($Resource.Qualification, 'icon-reload.gif')}') : jQuery('<img>').attr('src', '{!URLFOR($Resource.Qualification, 'icon-reload.gif')}').click(refresh)
+
+							)
+						)
+					)
+				}						
+
+
+				var textwidth = 0;
+				jQuery('.STAGE_PERCENTBARNAME').each( function (index, element) {  
+				
+						var ctrl = jQuery(this);
+						var width = ctrl.width();
+						if (width > textwidth) textwidth = width;			  
+						
+					}
+				)
+				jQuery('.STAGE_PERCENTBARNAME').each( function (index, element) {  
+				
+						jQuery(this).width(textwidth);
+						
+					}
+				)
+
+				if (readonly == false) {
+					var df = dateformat.replace('yy', 'y').replace('yy', 'y');
+					jQuery('INPUT#PAUSEDATE').attr('size', '11').datepicker( { 
+						dateFormat: df, 
+						showOn: 'both',
+						buttonImage: "{!URLFOR($Resource.Common, 'images/icon_calendar.png')}",
+						buttonImageOnly: true,
+						onClose: pauseChanged
+					});
+					
+					jQuery('INPUT#PAUSEDATE').change( pauseChanged );
+				}
+				else {
+					jQuery('#PAUSEDATE').attr('disabled', 'true');
+				}
+				
+				jQuery('#PAUSEDATE').val(result.pauseDate || '' );
+				jQuery('#PAUSEDATE_DISPLAY').text(result.pauseDate || '' );
+
+				hideAllPaws();
+				if (! isClosed) {
+					if ((result.pauseDate || '') != '') {
+						jQuery('#PAUSE_CANCEL').removeClass('HIDDEN_PAWS');
+					}
+					else {
+						jQuery('#PAUSE_NOPAWS').removeClass('HIDDEN_PAWS');
+					}
+	
+					if (readonly == false) {
+						jQuery('#PAUSEDATE_DISPLAY').addClass('tasPointer').click(setPause);
+						jQuery('#PAUSE_NOPAWS').addClass('tasPointer').click(setPause);
+						jQuery('#PAUSE_REMOVE').addClass('tasPointer').click(removePause);
+					}
+				}
+
+
+				setStageHightlight(result.stage);
+
+				if (!iPad) {
+					jQuery('#TIMELINE_START').tooltip({ delay: 0, showURL: false, bodyHandler: function() { return localization.title_tooltip_creation } });
+
+					if (isClosed) {
+						jQuery('#TIMELINE_CURRENT').hide();
+						jQuery('#TIMELINE_DATECURRENT').hide();
+						
+						jQuery('#TIMELINE_END').tooltip({ delay: 0, showURL: false, bodyHandler: function() { return localization.title_closedate } });
+					}
+					else {
+						jQuery('#TIMELINE_END').tooltip({ delay: 0, showURL: false, bodyHandler: function() { return localization.title_closedate } });
+					}
+				}
+				
+				setSummaryGamification(result);
+
+			}
+			
+			function setSummaryGamification(result) {
+				projectedThisQuarterFormatter(result);
+				mixFormatter(result);
+				//healthFormatter(result); // FIXME - remove
+				updateSummaryPerformanceIcon(result);
+			}
+			
+			function projectedThisQuarterFormatter(result) {
+				if (result.projectedthisquarter == undefined) return;
+				
+				var projectedthisquarterDiv = jQuery('#PROJECTED_THIS_QUARTER');
+				
+				if (result.projectedthisquarter) {
+					projectedthisquarterDiv.append(jQuery('<img>').attr('src', '{!URLFOR($Resource.Qualification, 'on_target_this_quarter.png')}'));
+				} else {
+					projectedthisquarterDiv.append(jQuery('<img>').attr('src', '{!URLFOR($Resource.Qualification, 'not_on_target_this_quarter.png')}'));
+				}			
+			}
+			
+						
+			function mixFormatter(result) {
+				
+				if (result.mix == undefined) return;
+				
+				var mixDiv = jQuery('#SUMMARY_MIX');
+				
+				switch (result.mix) {
+				
+					case -1: // Used in total if there is no records
+						break;
+						
+					case 3: // Pebbles
+						mixDiv.append(jQuery('<img>').attr('src', '{!URLFOR($Resource.Qualification, 'icon_mix_pebbles.png')}'));
+						break;
+
+					case 1: // Rocks
+						mixDiv.append(jQuery('<img>').attr('src', '{!URLFOR($Resource.Qualification, 'icon_mix_stone.png')}'));
+						break;
+
+					default: // Stones
+						mixDiv.append(jQuery('<img>').attr('src', '{!URLFOR($Resource.Qualification, 'icon_mix_just_right.png')}'));
+						break;
+				}
+			
+			}
+
+			function updateSummaryPerformanceIcon(result) {
+				
+				if (result.stageduration == undefined) return;
+				
+				var speedDiv = jQuery('#SUMMARY_SPEED');
+				
+				speedDiv.html('');
+				
+				switch (result.stageduration) {
+				
+					case -1: // Used in total if there is no records
+						speedDiv.append(jQuery('<img>').attr('src', '{!URLFOR($Resource.Qualification, 'stage_completion_grey.png')}'));
+						break;
+						
+					case 3: // Fast
+						speedDiv.append(jQuery('<img>').attr('src', '{!URLFOR($Resource.Qualification, 'stage_completion_fast.png')}'));
+						break;
+
+					case 1: // Slow
+						speedDiv.append(jQuery('<img>').attr('src', '{!URLFOR($Resource.Qualification, 'stage_completion_slow.png')}'));
+						break;
+
+					default: // Medium
+						speedDiv.append(jQuery('<img>').attr('src', '{!URLFOR($Resource.Qualification, 'middle_of_the_road.png')}'));
+						break;
+				}
+			
+			}
+			
+			
+			function removePause() {
+
+				jQuery('#PAUSEDATE').val('');
+				jQuery('#PAUSEDATE').trigger('change');				
+				
+			}
+			function setPause() {
+				hideAllPaws();
+				
+				jQuery('#PAUSE_EDIT').removeClass('HIDDEN_PAWS');
+				jQuery('INPUT#PAUSEDATE').focus();
+			}
+
+			function hideAllPaws() {
+				jQuery('#PAUSE_EDIT').addClass('HIDDEN_PAWS');
+				jQuery('#PAUSE_CANCEL').addClass('HIDDEN_PAWS');
+				jQuery('#PAUSE_NOPAWS').addClass('HIDDEN_PAWS');
+			}
+
+			function setStageHightlight(s) {
+				jQuery.each(stages, 
+					function (key, stage) {
+
+						jQuery('#STAGE_' + key).removeClass('SELECTED');
+						if (stage.name == s) {
+
+							jQuery('#STAGE_' + key).addClass('SELECTED');
+
+						}
+					}
+				);
+			}
+
+			function setLine(id, comment, completion, status, unformatedCompletion) {
+				var line = _qualifierline(id);
+				
+				line.getComment().val(comment);			 
+				line.getCompletion().text(completion);			   
+				line.getStatus().val(line.getAnswerSelectFromText(status));
+				line.getStatusSpan().text(status ? status : '');
+				line.commentChanged();			 
+				line.updateScoreIcon(); 
+				line.updateStageUpdated(id, completion, unformatedCompletion); 
+			}
+
+			function updateStageUpdated(id, completion, unformatedCompletion) {
+				var line = _qualifierline(id);
+				var q = line.getQualifier();
+				jQuery.each(stages, 
+					function (key, stage) {
+						if (stage.name == q.stage) {
+							if (unformatedCompletion > (stage.unformatedCompletion || '')) {
+								stage.unformatedCompletion = unformatedCompletion;
+								stage.completion = completion;
+								
+								line.getStageUpdated().text(stage.completion);
+							}							
+						}
+					}
+				)
+			}
+
+
+			function generateStage(index, value, qualifiers) {
+				var id = 'STAGE_' + index;
+				var opportunityId = '{!JSENCODE(Opportunity.id)}';
+				var expanded = jQuery.cookies.get(opportunityId + id) || false;
+				var summary = jQuery('<span>').attr('id', 'QUESTION_SUMMARY_' + index).addClass('SCOREBLOCK SCOREBLOCK_SCORE_FLOAT').attr('qindex', index);
+				var questions = generateQuestions(value.stage, qualifiers, summary, expanded, index)
+
+				var toggleClass = 'spanToggle';
+				if (expanded) toggleClass += ' spanToggleExpanded'
+
+				return jQuery('<div>').attr('ID', id).addClass('divBlock').attr('sindex', index).append(
+						jQuery('<img>').addClass('STAGE_DONE').attr('src', '{!URLFOR($Resource.Qualification, 'indicator_complete.png')}' )
+					).append(
+					  	jQuery('<span>').addClass(toggleClass).addClass('tasPointer').click(toggle)
+					).append(
+						jQuery('<span>').addClass('STAGE_TITLE').addClass('tasPointer').text(value.stage).click(toggle)
+					).append(
+						summary
+					).append(
+						jQuery('<span>').addClass('STAGE_UPDATED')
+					).append(
+						jQuery('<span>').addClass('STAGE_PERCENTBAR')
+					).append(
+						jQuery('<span>').addClass('STAGE_PERCENT').text('0%')
+					).append(
+						questions
+					)
+
+
+
+			}
+			
+			function generateQuestions(stage, qualifiers, summary, expanded, index) {
+
+				var div = jQuery('<div>').addClass('QUESTIONBLOCK');
+				if (!expanded) div.css('display', 'none');
+				
+				jQuery.each(qualifiers, 
+					function (key, value) {
+						if (value.stage == stage) {
+							div.append(generateQuestion(key, value));
+							summary.append(jQuery('<div>').addClass('SCOREBLOCK_SCORE SCOREBLOCK_SCORE_FLOAT').addClass('tasPointer').addClass('ScoreUnscored').attr('ID', 'QUALIFIER_SCORE_' + qualifiers[key].id).attr('qindex', key));
+						}
+					}
+				)
+				
+				return div;
+			}
+			
+			function generateQuestion(key, value) {
+			
+				var line = _qualifierline(value.id);
+				
+				return line.generateQuestion(key, value);
+			}
+
+			function lineChanged() {
+				
+				var qualifierId = jQuery(this).parent().attr('ID');
+				qualifierId = qualifierId.substring(PREFIX_QUESTIONID.length);
+
+				var line = _qualifierline(qualifierId);
+				
+				var note = line.getComment().val();			 
+				var status = line.getStatus().val();			
+
+				line.commentChanged();			 
+				line.updateScoreIcon();
+				wrapPutPost({ opportunityId: opportunityid, cmd: 'linechanged', qualifierid: qualifierId, status: lookupStatus(status), note: note }, saved);
+			}
+
+			function refresh() {
+
+				wrapPutPost({ opportunityId: opportunityid, cmd: 'refresh' }, refreshed);
+
+			}
+
+			function lookupStatus(status) {
+
+				if (status == '') return '';			
+				var sf = '';
+				jQuery.each(availableAnswers, 
+					function(key, item) {
+						if (item.value == status) {
+
+							sf = item.label;
+
+						}
+					} 
+				)   
+				
+				return sf;
+			}
+
+			function pauseChanged() {
+
+				var pause = jQuery('#PAUSEDATE').val();
+
+				wrapPutPost({ opportunityId: opportunityid, cmd: 'pause', pause: pause }, pauseUpdated);
+			}
+
+
+			function wrapPutPost (params, callback) {
+
+				addSerialiseCalls('put', params, callback);
+
+			}
+
+			function wrapGet (opportunityId, callback) {
+
+				addSerialiseCalls('get', opportunityId, callback);
+
+			}
+
+			function _wrapPutPost (params, callback) {
+
+				showAjaxSpinner(true);
+
+				var ret = function (result) { showAjaxSpinner(false); callback(data); }
+				
+				var myErrorFunc = function (result) { setup(); }
+
+				ttgApi.putQualification(opportunityid, { params: params }, updateRawData, myErrorFunc, ret);
+
+			}
+
+			function _wrapGet (opportunityId, callback) {
+
+				showAjaxSpinner(true);
+				
+				var ret = function (result) { showAjaxSpinner(false); callback(data); }
+
+				//console.log('Getting Qualifier');
+				ttgApi.getQualification(opportunityId, updateRawData, undefined, ret);
+
+			}
+
+			var stack = [];
+			function addSerialiseCalls(method, params, callback) {
+
+				stack.push({ method: method, params: params, callback: callback });
+				if (processing == 0) {
+					processSerialiseCalls();
+				}
+			}
+
+			var processing = 0;
+			
+			function processSerialiseCalls() {
+
+				
+				var obj = stack.shift();
+
+				if (obj == undefined) {
+					// Finished
+				}
+				else if (obj.method == 'get') {
+
+					processing++;
+					_wrapGet(obj.params, function (result) { try {obj.callback(result);}finally{ processedSerialiseCalls();} });
+
+				}
+				else if (obj.method == 'put') {
+
+					processing++;
+					_wrapPutPost(obj.params, function (result) { try {obj.callback(result);}finally{ processedSerialiseCalls();} });
+
+				}
+				
+			}
+
+			function processedSerialiseCalls() {
+				processing--;
+				processSerialiseCalls();
+			}				
+
+
+
+			function updateRawData(d) {
+				
+				data = d;
+
+			}
+
+
+			function getQualifierLine(id) {
+				var line = jQuery('#' + PREFIX_QUESTIONID + id);
+				
+				return line;
+			}
+
+			function saved(result) {
+
+				handleResponse(result);
+
+				updateSummaryPanel(result);
+				
+				var line = _qualifierline(result.qualifierId);
+
+				line.getCompletion().text(result.updated);
+				line.updateStageUpdated(result.qualifierId, result.updated, result.updated);
+
+			}
+
+			function refreshed(result) {
+
+				handleResponse(result);
+
+				isDirty = result.dirty; 
+
+				updateSummaryPanel(result);
+			}
+
+			function pauseUpdated(result) {
+				handleResponse(result);
+
+				updateSummaryPanel(result);
+
+				if (!result.dateValid) {
+					jQuery('#PAUSEDATE').addClass('ERROR');
+				}
+				else {
+					jQuery('#PAUSEDATE').removeClass('ERROR');
+				}
+			}
+
+
+			function setup() {
+
+				wrapGet(opportunityid,handleGetResponse ) 
+
+			}
+
+			function handleGetResponse(result) {
+			
+				handleResponse(result);
+				
+				salesprocess = result.salesprocess;
+				salesprocesses = result.salesprocesses;
+				quicklinks = result.quicklinks;
+				qualifiers = result.qualifiers;
+				answers = result.answers;
+				stages = result.stages;
+				availableAnswers = sortOutAvailableAnswers(result.availableAnswers);
+				enableSalesProcessChange = result.enableSalesProcessChange
+				createdDate = result.createdDate; 
+				todayDateFormated = result.todayDateFormated;
+				pastdays = result.pastdays;
+				isClosed = result.isClosed; 
+				isWon = result.isWon;
+				isDirty = result.dirty; 
+
+				if (result.salesprocess == undefined || result.salesprocess == null) {
+
+					noSalesProcessSelected();
+					
+					if(!readonly && !(isClosed && isWon)) {
+					   selectSalesProcess(false);
+					}
+				}
+				else {
+
+					render(result);
+
+				}
+			}
+
+			function sortOutAvailableAnswers(aa) {
+				var sorted = [];
+				var index = 0;
+				var fnd = true;
+
+				while (fnd) {
+
+					fnd = false;
+					jQuery.each(aa, 
+	
+						function (key, value) {
+							//if(!(key.startsWith('--'))) {
+								if (value == index) {
+									sorted.push({ label : key, value : value })
+									fnd = true;
+								}
+							//}
+						}
+					)
+					
+					index++;
+				}
+				
+				return sorted.reverse();
+			}
+
+			function handleResponse(result) {
+
+				if (result != undefined) {
+					
+					if (result.debug != undefined && result.debug != null) {
+	
+						jQuery.each(result.debug, 
+							function (key, value) {
+								_debug.log(value);
+							}
+						)
+	
+					}
+				}
+				
+				return false;
+				
+			}
+
+			function toggle() {
+
+				var id = jQuery(this).parent().attr('id');
+				var index = id.substring(id.indexOf('_') + 1);
+				var expanding = false;
+				var ctrl = jQuery(this).parent().find('.spanToggle');
+									
+				if (ctrl.hasClass('spanToggleExpanded')) {
+					expanding = false;
+					ctrl.removeClass('spanToggleExpanded');
+				}
+				else {
+					expanding = true;
+					ctrl.addClass('spanToggleExpanded');
+				}
+				
+				jQuery(this).parent().find('.QUESTIONBLOCK').toggle();
+				
+				var opportunityId = '{!JSENCODE(Opportunity.id)}';
+				jQuery.cookies.set(opportunityId + id, expanding);
+			}
+
+
+
+			var ajaxSpinnerCnt = 0;
+			
+			function showAjaxSpinner(show) {
+				
+				if (show) { 
+					ajaxSpinnerCnt++;
+					if (ajaxSpinnerCnt == 1) {
+
+						jQuery('#SPINNER').append(jQuery('<img>').attr('id', 'tas_ajax_spinner').addClass('spinner').attr('src', '{!JSENCODE(URLFOR($Resource.ttgomjs, '/ttg/graph/images/loader.gif'))}'));
+						jQuery('#SPINNER').css("top", ( jQuery(window).height() - jQuery('#SPINNER').height() ) / 2+jQuery(window).scrollTop() + "px");
+						jQuery('#SPINNER').css("left", ( jQuery(window).width() - jQuery('#SPINNER').width() ) / 2+jQuery(window).scrollLeft() + "px");
+
+					}				  
+				}
+				else {
+
+					ajaxSpinnerCnt--;
+					if (ajaxSpinnerCnt <= 0) {				
+						jQuery('#SPINNER').html('');
+						ajaxSpinnerCnt = 0;
+					}
+
+				}
+			}
+
+
+			function noSalesProcessSelected() {
+				
+				jQuery('#NOSALESPROCESS').css('display', 'block');
+				jQuery('#NOSALESPROCESS').text(localization.title_no_sales_process_selected);
+			
+			}
+			function selectSalesProcess(allowCancel) {
+			
+				var page = jQuery('<div>').addClass('PROCESS_DESCRIPTION');
+
+				var select = jQuery('<SELECT>').attr('id', 'PROCESS_SELECTION').attr('size', 12);
+
+				var cnt = 0;				
+				var selectedValue = 0;			
+				if (salesprocesses != undefined) {	
+					jQuery.each(salesprocesses, 
+						function(key, value) {
+	
+							cnt++;
+							if (salesprocess != undefined && value.id == salesprocess.id) {
+								selectedValue = key;
+								select.append(jQuery('<option>').text(value.name).val(key).attr('selected', true));
+							}
+							else {
+								select.append(jQuery('<option>').text(value.name).val(key));
+							}
+						}
+					);
+				}
+				
+				if (cnt == 0) {
+	
+					jQuery('#NOSALESPROCESS').text(localization.no_sales_processes_defined);
+					return;
+	
+				}				
+
+				if (salesprocess == undefined) {
+
+					page.append(jQuery('<span>').attr('id', 'PROCESS_PLEASE_SELECT').text(localization.title_please_select));
+
+				}
+
+				var util = ttg_note_editor({ }); 
+				page.append(select)
+				page.append(
+					jQuery('<span>').attr('id', 'PROCESS_DESCRIPTION_TITLE')
+				).append(
+					jQuery('<span>').attr('id', 'PROCESS_DESCRIPTION_HELP')
+				)
+				
+				jQuery("#SELECTSALESPROCESS").html('');
+				jQuery("#SELECTSALESPROCESS").append(page);
+				jQuery('#PROCESS_SELECTION').change(dlgSalesProcessChange);								
+
+				var buttons = {};
+				buttons[localization.dlg_ok] = function() { salesProcessSelected(); };
+				if (allowCancel) {
+					buttons[localization.dlg_cancel] = function() { jQuery(this).dialog("close"); };
+				}
+				
+				jQuery("#SELECTSALESPROCESS").dialog({
+				
+					autoOpen: false,
+					buttons: buttons,
+					modal: true,
+					position: ttg_salesforce1 ? ['top', 75] : 'center',
+					width: 650
+				});
+				
+		    	jQuery("#SELECTSALESPROCESS").dialog('option', 'title', localization.title_process);
+				jQuery('#SELECTSALESPROCESS').dialog('open');
+				jQuery(".ui-widget-overlay").click(function(){ jQuery(".ui-dialog-titlebar-close").trigger('click');});
+
+				if (cnt > 0) {
+	
+					jQuery('#PROCESS_SELECTION').val(selectedValue);
+					jQuery('#PROCESS_SELECTION').trigger('change');
+					if (cnt == 1) {
+						salesProcessSelected();
+					}				
+
+				}
+
+
+			}
+
+			function dlgSalesProcessChange() {
+			
+				jQuery('#NOSALESPROCESS').css('display', 'none');
+				var sp = jQuery('#PROCESS_SELECTION').val();								
+
+				var util = ttg_note_editor({})
+
+				jQuery('#PROCESS_DESCRIPTION_TITLE').html(util.htmlescape(salesprocesses[sp].name) || '');
+				jQuery('#PROCESS_DESCRIPTION_HELP').html(util.htmlescape(salesprocesses[sp].description) || '');
+			}
+
+			function salesProcessSelected(ctrl) {
+				
+				var index = jQuery('#PROCESS_SELECTION').val();
+				
+				wrapPutPost({ opportunityId: opportunityid, cmd: 'salesprocess', salesprocessid: salesprocesses[index].id }, reload);
+				
+				jQuery('#SELECTSALESPROCESS').dialog('close');
+			}
+
+
+			function reload(result) {
+				if (handleResponse(result) == true) return;
+				
+				setup();
+			}
+
+			function helpHover(qualifierId) {
+
+				qualifierId = qualifierId.substring(PREFIX_QUESTIONID.length);
+
+ 				var line = _qualifierline(qualifierId);
+				var q = line.getQualifier();
+
+				var util = ttg_note_editor({ })
+
+				return jQuery('<div class="HOVERHELP">').append(util.htmlescape(q.help || ''));
+			}
+
+			function noteClicked() {
+
+				var qualifierId = jQuery(this).parent().attr('ID');
+				qualifierId = qualifierId.substring(PREFIX_QUESTIONID.length);
+
+				var line = _qualifierline(qualifierId);
+				var q = line.getQualifier();
+				
+				var editor = ttg_note_editor( { 
+				
+					id: PREFIX_NOTEDIALOGID + qualifierId, 
+					changed: noteSaved,
+					noteText: line.getComment().val(),
+					title: q.stage,
+					subtitle: q.qualifier, 
+					tip: q.help,
+					readonly: readonly
+				})
+				
+				editor.setupNoteDialog();
+				editor.openNoteDialog();
+			}
+		
+			function noteSaved(id, value) {
+
+				id = id.substring(PREFIX_NOTEDIALOGID.length);
+
+				var line = _qualifierline(id);
+				
+				line.getComment().val(value);
+				
+				line.changed();
+			}
+			   
+
+			var _qualifierline = function(id) {
+				var that = {}
+				var line = undefined;
+				
+				function generateQuestion(key, value) {
+
+					var html = jQuery('<div>').addClass('divQuery').attr('ID', PREFIX_QUESTIONID + id)
+					
+					// IE7 will drop this down if it's not first in the list of appends
+					if (quicklinks[value.id] != undefined ) {
+
+						html.append(
+						
+							jQuery('<span>').addClass('QUICKLINK').addClass('tasPointer').click(callQuicklink).attr('id', value.id)
+							
+						);
+
+					}
+					
+					html.append(
+						value.required ? 
+							jQuery('<img>').addClass('REQUIRED').attr('src', '{!URLFOR($Resource.Qualification, 'indicator_mandatory.png')}' ).tooltip({ delay: 0, showURL: false, bodyHandler: function() { return localization.title_tooltip_required; } })
+							: 
+							jQuery('<img>').addClass('REQUIRED').attr('src', '{!URLFOR($Resource.Assessment, 'common/images/transparent_dot.gif')}' ) 
+					).append(
+						jQuery('<input>').attr('type', 'hidden').attr('id', 'KEY').val(key)
+					).append(
+						jQuery('<span>').addClass('QUALIFIERTEXT').text(value.qualifier)
+					).append(
+						jQuery('<span>').addClass('NOTEINFOICON').addClass('tasPointer').attr('id', 'NOTEINFOICON_' + id).css('visibility', (!iPad && ((value.help || '') != '')) ? 'visible' : 'hidden')
+					).append(
+						jQuery('<span>').addClass('NOTEEDITBUTTON').addClass('tasPointer').attr('id', 'NOTEEDITBUTTON_' + id)
+					).append(
+						generateAnswerSpan(value)
+					).append(
+						generateAnswerSelect(value)
+					).append(
+						jQuery('<span>').addClass('SCOREBLOCK_SCORE').addClass(value.readonly ? null : 'tasPointer').addClass('ScoreUnscored').attr('ID', 'SHADOW_SCOREBLOCK').attr('qindex', key)
+					).append(
+						jQuery('<span>').addClass('COMPLETION')
+					)
+					
+
+
+					html.append(
+						jQuery('<textarea>').addClass('HIDDENCOMMENT').attr('maxlength', 32768)
+					);
+
+					html.append(
+//						jQuery('<span>').addClass('NOTEEDITBUTTON').addClass('tasPointer').attr('id', 'NOTEEDITBUTTON_' + id)
+//					).append(
+						jQuery('<span>').addClass('COMMENT').addClass('NOTE').css('display', 'none')
+					);
+
+					
+					return html;
+				}
+				
+				function generateAnswerSpan(value) {
+				
+					var answerSpan = jQuery('<span/>').addClass('STATUSSPAN');
+					
+					if(!value.readonly) {
+						answerSpan.hide();
+					}
+					
+					return answerSpan;
+				}				
+				
+				function generateAnswerSelect(value) {
+					var select = jQuery('<select>').addClass('STATUS').append(
+									jQuery('<option>').text('').attr('value', ''));
+					
+					var colors = ['optionYesAnswer', 'optionUnknownAnswer', 'optionNoAnswer'];
+
+					if(value.readonly) {
+						select.hide();
+						select.attr('disabled', 'disabled');
+					}
+
+					jQuery.each(availableAnswers,
+					
+						function(key, value) {
+							if(!(value.label.startsWith('--'))) {
+								select.append(jQuery('<option>').text(value.label).attr('value', value.value).addClass(colors[key]));
+							}
+						}
+					
+					)
+					
+					return select;
+				}
+				
+				function getAnswerSelectFromText(txt) {
+
+					var v;
+										
+					jQuery.each(availableAnswers, 
+					
+						function(key, value) {
+							if (value.label == txt) v = value.value;
+						}
+					
+					)
+					
+					return v;
+				}
+								
+				function callQuicklink() {
+	
+					var qls = [];
+					var collection = [];
+					var id = jQuery(this).attr('id');
+					var records = quicklinks[id];
+
+					jQuery.each(records, 
+						function (key, record) {
+						
+							collection.push({ id: record.id, name: record.name, type: record.type, description: record.description, link: record.link, icon: record.icon });
+							
+						}
+					)
+					
+					qls.push(collection);
+					var _tasQuicklinks = new QUICKLINKS({});
+					
+					function quicklinkHitSuccess() {}
+            		function quicklinkHitError() {} 
+            		function quicklinkHitComplete() {}
+					
+					_tasQuicklinks.setDM_Quicklinks(qls);
+					
+	                _tasQuicklinks.setQuicklinkHitCallback(function(spec, quicklink) {
+	                    if(ttgApi) {
+	                        ttgApi.logQuicklinkUsageHitJS(quicklink.id, quicklinkHitSuccess, quicklinkHitError, quicklinkHitComplete);
+	                    }
+	                });
+
+                    _tasQuicklinks.quicklinkDlg(0, getQualifier().qualifierShortName);
+				}
+				
+				function getQualifier() {
+					var key = getLine().find('INPUT#KEY').val();
+					
+					return qualifiers[key];
+				}
+				
+				function getLine() {
+
+					if (line == undefined) {
+						line = jQuery('#' + PREFIX_QUESTIONID + id);
+					}
+					
+					return line;
+				}
+				
+				function getComment() {
+					return getLine().find('.HIDDENCOMMENT');			  
+				}
+								
+				function getDisplayComment() {
+					return getLine().find('.COMMENT');			  
+				}
+
+				function getShadowScoreIcon() {
+					return getLine().find('.SCOREBLOCK_SCORE');			  
+				}
+
+				function getCompletion() {
+					return getLine().find('.COMPLETION');			   
+				}
+
+				function getStatus() {
+					return getLine().find('.STATUS');			   
+				}
+				
+				function getStatusSpan() {
+					return getLine().find('.STATUSSPAN');			   
+				}				
+				
+				function getStagePercent() {
+
+					var ctrl = getStageBar().find('.STAGE_PERCENT');
+					
+					return ctrl;
+
+				}
+
+				function getStagePercentBar() {
+
+					var ctrl = getStageBar().find('.STAGE_PERCENTBAR');
+					
+					return ctrl;
+
+				}
+
+				function getStageDone() {
+
+					var ctrl = getStageBar().find('.STAGE_DONE');
+					
+					return ctrl;
+
+				}
+
+				function getStageUpdated() {
+
+					var ctrl = getStageBar().find('.STAGE_UPDATED');
+					
+					return ctrl;
+
+				}
+				
+				function getStagePercentBar() {
+
+					var ctrl = getStageBar().find('.STAGE_PERCENTBAR');
+					
+					return ctrl;
+
+				}
+
+				function getStageBar() {
+					var ctrl = jQuery('#QUALIFIER_SCORE_' + id);
+
+					ctrl = ctrl.parent();
+					ctrl = ctrl.parent();
+					
+					return ctrl;
+				}
+
+				function commentChanged() {
+
+					var editor = ttg_note_editor( { } );
+
+					var v;
+					v = getComment().val()
+					
+					editor.setNoteText(getDisplayComment(), v) 
+				}
+
+				function updateScoreIcon() {
+
+					_updateScoreIcon(jQuery('#QUALIFIER_SCORE_' + id));
+					_updateScoreIcon(getShadowScoreIcon());
+
+					var us = getQualifier();
+					var score = 0;
+					var maxscore = 0;
+					var areMandatoryQualifiersCompleted = true;
+					var started = false;
+					jQuery.each(qualifiers, 
+						function (key, qualifier) {
+						
+							if (qualifier.stage == us.stage) {
+								
+								var line = _qualifierline(qualifier.id);
+								score += line.getScore();
+								maxscore += line.getMaxScore();
+								started = started || line.getStarted();
+
+								if(qualifier.required && line.getStatus().val() !== '2') {
+									areMandatoryQualifiersCompleted = false;
+								}
+
+							}
+						}
+					)
+					
+					setPercent(Math.round(score / maxscore * 100), started, areMandatoryQualifiersCompleted);
+				}
+
+				function _updateScoreIcon(ctrl) {
+					removeScoreClases(ctrl)
+					var status = getStatus().val();
+
+					if (status == '') status = -1;
+
+					if (status == -1){ ctrl.addClass('ScoreUnscored'); ctrl.html(' '); };
+					if (status == 0) { ctrl.addClass('ScoreNo'); ctrl.html(jQuery('<img>').attr('src', '{!URLFOR($Resource.Qualification, 'icon_negative.png')}')) };
+					if (status == 1) { ctrl.addClass('ScoreUnknown'); ctrl.html(jQuery('<img>').attr('src', '{!URLFOR($Resource.Qualification, 'icon_inprogress.png')}')) };
+					if (status == 2) { ctrl.addClass('ScoreYes'); ctrl.html(jQuery('<img>').attr('src', '{!URLFOR($Resource.Qualification, 'icon_positive.png')}')) };
+
+				}
+
+				function getScore() {
+
+					var q = getQualifier();
+
+					var status = Math.max(getStatus().val(), 0);			
+
+					return status * q.importance;
+
+				}
+				
+				function getStarted() {
+					
+					var q = getQualifier();
+
+					return getStatus().val() != '';
+					
+				}
+				
+				function getMaxScore() {
+					var q = getQualifier();
+				
+					var aa = Math.max(availableAnswers.length - 1, 0);			
+
+					return q.importance * aa;
+				}
+
+				function setPercent(percent, started, areMandatoryQualifiersCompleted) {
+					var clss;
+
+					var stage = getStageInformation();
+					
+					if (!started) { clss = 'ScoreUnscored' }
+					else if (percent < stage.amber) { clss = 'ScoreNo' }
+					else if (percent < stage.green) { clss = 'ScoreUnknown' }
+					else { clss = 'ScoreYes' }
+
+					getStagePercent().text('' + percent + '%');
+					getStagePercentBar().html('')
+					var img = jQuery('<img>').attr('src', '{!URLFOR($Resource.Assessment, 'common/images/transparent_dot.gif')}').width(percent * 2).height(16).addClass(clss);
+					getStagePercentBar().append(
+						img
+					);
+
+					var ctrl = jQuery('#QUALIFIER_SCORE_' + id).parent();
+					ctrl.css('border-color', img.css('background-color'));
+					
+					if (clss == 'ScoreYes' && areMandatoryQualifiersCompleted) {
+						getStageDone().show();
+					}
+					else {
+						getStageDone().hide();
+					}
+					
+					
+								
+				}
+
+				function removeScoreClases(ctrl) {
+
+					ctrl.removeClass('ScoreUnscored')
+					ctrl.removeClass('ScoreNo')
+					ctrl.removeClass('ScoreUnknown')
+					ctrl.removeClass('ScoreYes')
+
+				}
+				
+				function getStageInformation() {
+
+					var ret;
+					var q = getQualifier();
+
+					jQuery.each(stages, 
+						function (key, stage) {
+							if (stage.name == q.stage) {
+							
+								ret = stage;
+							}
+						}
+					)
+				
+					return ret;
+				
+				}
+				
+				function changed() {
+				
+					getStatus().trigger('change');
+					
+				}
+				
+				that.id = id;		   
+				that.generateQuestion = generateQuestion;
+				that.getComment = getComment;
+				that.getCompletion = getCompletion;
+				that.getStatus = getStatus;
+				that.getStatusSpan = getStatusSpan;
+				that.updateScoreIcon = updateScoreIcon;
+				that.getAnswerSelectFromText = getAnswerSelectFromText;
+				that.getShadowScoreIcon = getShadowScoreIcon;
+				that.noteClicked = noteClicked;
+				that.changed = changed;
+				that.getDisplayComment = getDisplayComment;
+				that.commentChanged = commentChanged;			  
+				that.getScore = getScore;			  
+				that.getMaxScore = getMaxScore;			  
+				that.getStagePercent = getStagePercent;
+				that.getStagePercentBar = getStagePercentBar;
+				that.getStageUpdated = getStageUpdated;
+				that.getQualifier = getQualifier;
+				that.updateStageUpdated = updateStageUpdated;
+				that.getStarted = getStarted;
+
+				return that;
+			}
+
+			that.setup = setup;
+			
+			return that;
+		})(spec);
+	
+		jQuery(
+		
+			function () {
+				ttg_qualification.setup();
+			}
+
+		);
+		
+		
+	</script>
+	
+	<style>
+		@import url("{!URLFOR($Resource.SmartOM,         'css/summarytab.css')}");
+		@import url("{!URLFOR($Resource.SmartOM,         'css/chatterpost.css')}");
+				
+		/* start of additions for Chatter */
+	
+		@import url("{!URLFOR($Resource.ttgomjs,         'ttg/chatter/css/chatter_side_panel.css')}");
+		@import url("{!URLFOR($Resource.ttgomjs,         'ttg/chatter/css/chatter_post.css')}");
+		@import url("{!URLFOR($Resource.ttgomjs,         'ttg/graph/css/glyphs/style.css')}");
+		@import url("{!URLFOR($Resource.ttgomjs,         'ttg/chatter/css/chatter_summary.css')}");
+        
+        /* end of additions for Chatter */
+        
+        /* Restores AJAX spinner size to normal (AMOF-813) */
+        .spinner {
+        	height: auto;
+        	width: auto;
+        }
+        
+        #tooltip {
+        	max-width: 320px;
+        }    
+
+		DIV#TAS DIV.PAGEWIDTH {
+		    width: 900px;
+		}
+		DIV#TAS .REQUIRED {
+		    display: inline-block;
+		    height: 24px;
+		    padding: 8px;
+		    vertical-align: top;
+		    width: 24px;
+		}
+		DIV#TAS SPAN.QUALIFIERTEXT {
+		    display: inline-block;
+		    vertical-align: middle;
+		    width: 400px;
+		    word-wrap: break-word;
+		    padding-right: 15px;
+		}
+		
+		SELECT#PROCESS_SELECTION {
+		    float: left;
+		    vertical-align: top;
+		    width: 200px;
+		}
+		DIV.PROCESS_DESCRIPTION {
+		    float: right;
+		    height: 200px;
+		    vertical-align: top;
+		}
+		DIV.PROCESS_DESCRIPTION SPAN#PROCESS_DESCRIPTION_HELP {
+		    color: #555555;
+		    float: right;
+		    font-size: 12px;
+		    width: 400px;
+		}
+		DIV.PROCESS_DESCRIPTION SPAN#PROCESS_DESCRIPTION_TITLE {
+		    float: right;
+		    font-weight: bolder;
+		    width: 400px;
+		}
+		DIV.PROCESS_DESCRIPTION SPAN#PROCESS_PLEASE_SELECT {
+		    background-color: #A0B5CA;
+		    border-radius: 4px 4px 4px 4px;
+		    color: #FFFFFF;
+		    float: right;
+		    font-weight: bolder;
+		    margin-bottom: 10px;
+		    padding: 10px;
+		    text-align: center;
+		    width: 400px;
+		}
+		IMG.ui-datepicker-trigger {
+		    position: relative;
+		    top: 6px;
+			left:5px;
+		}
+		DIV#TAS SPAN.COMPLETION {
+		    display: inline-block;
+		    margin-top: -2px;
+		    text-align: center;
+		    vertical-align: middle;
+		    width: 100px;
+		}
+		DIV#TAS SPAN.COMMENT {
+		    display: block;
+		    padding-left: 4px;
+		    vertical-align: top;
+		    margin-left: 40px;
+		}
+		TEXTAREA.HIDDENCOMMENT {
+		    display: none;
+		}
+		DIV#TAS SPAN.STAGE_TITLE {
+		    display: inline-block;
+		    padding-top: 1px;
+		    vertical-align: top;
+		    width: 204px;
+		    word-wrap: break-word;
+		    color: #2C3B51;
+		    font-size: 16px;
+		}
+		
+		DIV#TAS SPAN.STAGE_PERCENT {
+		    display: inline-block;
+		    padding-left: 4px;
+		    padding-top: 2px;
+		    text-align: right;
+		    vertical-align: top;
+		    width: 32px;
+		}
+		DIV#TAS SPAN.STAGE_PERCENTBAR {
+		    background-color: #FFFFFF;
+		    border: 1px solid white;
+		    border-radius: 5px 5px 5px 5px;
+		    display: inline-block;
+		    height: 16px;
+		    vertical-align: top;
+		    width: 200px;
+		    margin: 2px;
+		    margin-left: 20px;
+		}
+		DIV#TAS SPAN.STAGE_UPDATED {
+		    display: inline-block;
+		    margin-top: -2px;
+		    text-align: center;
+		    vertical-align: top;
+		    visibility: hidden;
+		    width: 100px;
+		    display: none;
+		}
+		DIV#TAS TABLE.SUMMARY1 {
+		    width: 100%;
+			border-collapse:collapse;
+		}
+		
+		DIV#TAS TABLE.SUMMARY1 tr td {
+			padding:5px;	
+		}
+		
+		DIV#TAS SPAN.SUMMARY_DETAILS_GAMIFICATION {
+		    display: inline-block;
+		    padding-left: 100px;
+		    padding-top: 1px;
+		    width: 330px;
+		    padding-bottom: 1px;
+		}
+		
+		DIV#TAS TABLE.SUMMARY_GAMIFICATION {
+		    width: 100%;
+			border-collapse:collapse;
+		}
+		
+		DIV#TAS TABLE.SUMMARY_GAMIFICATION tr td {
+			width: 33%;
+			padding: 2px;	
+		}
+		
+		DIV#TAS TABLE.SUMMARY_GAMIFICATION img {
+			height: 35px;	
+		}
+			
+		DIV#TAS TABLE.SUMMARY2 {
+		    width: 50%;
+		}
+		DIV#TAS TD.PROMPT {
+		    font-weight: bolder;
+		}
+		DIV#TAS .TITLE {
+		    font-weight: bolder;
+		}
+		DIV#TAS .QUESTIONBLOCK {
+		    clear: both;
+		}
+		DIV#TAS DIV.SELECTED {
+		    background-color: #A0B5CA;
+		}
+		DIV#TAS IMG.STAGE_DONE {
+		    display: none;
+		    position:absolute;
+		}
+		DIV#TAS DIV#NOSALESPROCESS {
+		    background-color: #A0B5CA;
+		    border-radius: 4px 4px 4px 4px;
+		    color: #FFFFFF;
+		    float: right;
+		    font-weight: bolder;
+		    margin-bottom: 10px;
+		    padding: 10px;
+		    text-align: center;
+		    width: 400px;
+		}
+		DIV#TAS IMG.ui-datepicker-trigger {
+		    top: 4px;
+		}
+		DIV#TAS IMG.SALESPROCESSEDIT {
+		    margin: 0;
+		    padding-left: 10px;
+			vertical-align:text-bottom;
+		}
+		DIV#TAS SPAN.STAGE_PERCENTBARNAME {
+		    display: inline-block;
+		}
+		DIV#TAS SPAN.STAGE_PERCENT {
+		    display: inline-block;
+		    width: 40px;
+		}
+		DIV#TAS SPAN.SUMMARY_PERCENT_BARS {
+		    display: inline-block;
+		    padding-left: 100px;
+		    padding-top: 10px;
+		}
+		DIV#TAS SPAN.SUMMARY_DETAILS {
+		    display: inline-block;
+		    padding-left: 470px;   /* FIXME was 530 px */
+		    padding-top: 50px;     /* FIXME was 60 px */
+		}
+		DIV#TAS DIV.TIMELINE_DATE {
+		    font-size: 20px;
+		    position: relative;
+		    text-align: center;
+		    top: 100px;
+		}
+		DIV#TAS DIV.TIMELINE_STAGE {
+		    color: steelblue;
+		    font-size: 30px;
+		    left: 116px;
+		    position: relative;
+		    text-align: center;
+		    top: 20px;
+		}
+		DIV#TAS DIV.TIMELINE_CONFIDENCE {
+		    font-size: 24px;
+		    left: -84px;
+		    position: relative;
+		    text-align: center;
+		    top: -10px;
+		}
+		DIV#TAS DIV.TIMELINE_OVERALLCONFIDENCE {
+		    height: 16px;
+		    position: relative;
+		    top: -13px;
+		    width: 50%;
+		}
+		DIV#TAS SPAN.TIMELINE {
+			margin-left:20px;
+			margin-top: 0px;
+		    display: inline-block;
+		    height: 120px;
+		    position: absolute;
+		    width: 500px;
+		}
+		DIV#TAS DIV#TIMELINE_PAST {
+		    background-color: #5979A0;
+		    background-image: url('{!URLFOR($Resource.Assessment, 'common/images/transparent_dot.gif')}');
+		    height: 5px;
+		    position: absolute;
+		    top: 69px;
+		    width: 400px;
+			z-index:4;
+			border-top:1px solid #374A61;
+		}
+		DIV#TAS DIV#TIMELINE_FUTURE {
+		    background-color: #CBD5E2;
+		    background-image: url('{!URLFOR($Resource.Assessment, 'common/images/transparent_dot.gif')}');
+		    height: 5px;
+		    position: absolute;
+		    top: 69px;
+			border-top:1px solid #ADB5C0;
+		    width: 400px;
+		}
+		DIV#TAS DIV.CIRCLEDOT {
+		    background-image: url('{!URLFOR($Resource.Qualification, 'pb_circle.png')}');
+		    height: 30px;
+		    left: -15px;
+		    position: absolute;
+		    top: 57px;
+		    width: 30px;
+			z-index:5;
+		}
+		
+		DIV#TAS DIV.POINTERDOT {
+		    background-image: url('{!URLFOR($Resource.Qualification, 'pb_pointer.png')}');
+		    height: 30px;
+		    left: -15px;
+		    position: absolute;
+		    top: 50px;
+		    width: 30px;
+		}
+		
+		DIV#TAS DIV#TIMELINE_START {
+		}
+		DIV#TAS DIV#TIMELINE_CURRENT {
+		    left: 150px;
+		}
+		DIV#TAS DIV#TIMELINE_END {
+		    left: 385px;
+		}
+		DIV#TAS DIV#TIMELINE_DATESTART {
+		    left: -5px; /* FIXME - was -30px */
+		    position: absolute;
+		    top: 90px;
+		    width: 60px;
+		    font-size: 13px; /* FIXME - was undefined */
+		}
+		DIV#TAS DIV#TIMELINE_DATECURRENT {
+		    left: 150px;
+		    position: relative;
+		    text-align: center;
+		    top: 40px;
+		    width: 60px;
+			color:#5979A0;
+		}
+		DIV#TAS DIV#TIMELINE_DATEEND {
+		    color: #454545;
+		    font-size: 13px; /* FIXME - was 16px */
+		    left: 345px; /* FIXME - was 360px */
+		    position: absolute;
+		    text-align: center;
+		    top: 90px;
+		    width: 60px;
+		}
+		DIV#TAS DIV#TIMELINE_STAGE {
+		    color: black;
+		    font-size: 20px;
+		    position: absolute;
+		    text-align: left;
+		    top: 0px; /* FIXME - was 10px */
+		    white-space: nowrap;
+			left:455px !important; /* FIXME was 485 */
+		    overflow: hidden;
+		    text-overflow: ellipsis;
+		    width: 236px;
+		}
+		DIV#TAS DIV#SUMMARYPANEL {
+			position:relative;
+			padding-bottom: 10px;
+		}
+		DIV#TAS DIV#TIMELINE_CONFIDENCE {
+		    color: #5979A0;
+		    font-size: 30px;
+		    left: 350px;      /* FIXME was 380px */
+		    position: absolute;
+		    text-align: left;
+		    top: 10px;
+		    width: 60px;
+		}
+		
+		DIV#TAS TR#PAUSE_EDIT {
+		}
+
+		DIV#TAS TR#PAUSE_CANCEL {
+		}
+
+		DIV#TAS TR#PAUSE_NOPAWS {
+		}
+
+		DIV#TAS SPAN#PAUSEDATE_ADD {
+		    color: #5979A0;
+		    vertical-align: bottom;
+		    padding-left: 4px;
+		}
+		
+		DIV#TAS SPAN#PAUSEDATE_DISPLAY {
+		    color: #5979A0;
+		    vertical-align: bottom;
+		}
+
+		DIV#TAS TR.HIDDEN_PAWS {
+			display: none;
+			vertical-align: bottom;
+		}
+
+		DIV#TAS DIV#QUALIFIERS {
+			padding-top: 20px;
+		}
+
+		DIV#TAS SPAN.NOTEINFOICON {
+		    display: inline-block;
+			background-image: url('{!URLFOR($Resource.ttgomjs, 'ttg/graph/feimages/icon_info.png')}');
+			width: 12px;
+			height: 12px;
+			margin: 2px;
+			margin-right: 10px;			
+		}
+
+		DIV#TAS SPAN.NOTEEDITBUTTON {
+			margin-right: 10px;
+		}
+
+		SPAN.STATUSSPAN {
+			display: inline-block;
+			vertical-align: middle;
+			padding: 5px;
+			width: 84px;
+			min-width: 84px;
+		}
+		
+		/* Clayton's CSS for 'Projected To Close' etc. */
+		ul.playbook_info {
+			width:600px;
+			float:left;
+			margin:0px 0px 0px -15px;
+			padding:0px;
+			list-style:none;
+		}
+	
+		ul.playbook_info li {
+			float:left;
+			display:block;
+			margin:5px;
+			border:1px solid #CBD5E2;
+			border-radius:4px;
+			-webkit-border-radius:4px;
+			-moz-border-radius:4px;
+			padding:0px 0px;
+			text-align:center;
+			font-size:0.9em;
+		}
+		
+		ul.playbook_info li .info_label {
+			line-height:40px;
+		}
+		
+		ul.playbook_info li .info_value {
+			line-height:40px;
+			margin-left:5px;	
+		}
+		
+		ul.playbook_info li .info_value img {
+			vertical-align:middle;	
+		}
+		
+		DIV#TAS SPAN.playbook_info_details {
+		    display: inline-block;
+		    margin-left: 0px;
+		    margin-top: 110px;
+		}
+		
+		
+		DIV#TAS DIV#TIMELINE_EXTRA {
+            background-color: #CC0000;
+            background-image: url('{!URLFOR($Resource.Assessment, 'common/images/transparent_dot.gif')}');
+            height: 5px;
+            position: absolute;
+            top: 69px;
+            width: 400px;
+            z-index:4;
+            right:100;
+            border-top:1px solid #990000;
+        }		
+		
+		DIV.HOVERHELP {
+			width:320px;
+		}
+	</style>
+</apex:page>

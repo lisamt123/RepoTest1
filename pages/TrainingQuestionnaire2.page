@@ -1,0 +1,109 @@
+<apex:page controller="TrainingQuestionnaire" showHeader="false">
+
+	<head>
+<apex:stylesheet value="{!$Resource.styles}"></apex:stylesheet>
+<apex:includeScript value="{!$Resource.jQuery}"></apex:includeScript>
+	</head>
+
+	<script type="text/javascript">
+function confirmCancel()
+{
+    var isCancel = confirm("Are you sure you wish to quit?");
+    return isCancel;
+}
+
+</script>
+
+	<table border="0" width="100%" height="100%" id="bg">
+		<tr valign="top">
+			<td>
+				<div class="maincontainer">
+					<apex:image id="key1" width="100%"
+						value="/resource/1265230873000/Header" />
+
+					<apex:sectionHeader title="VinSolutions Training Questionnaire"
+						subtitle="Step 2 of 2" />
+
+					<apex:form >
+						<apex:pageBlock id="pb1" title="Training Questionnaire">
+
+							<table border="0" width="100%" align="center">
+								<tr align="center">
+									<td align="center"><apex:commandButton action="{!back}"
+											value="Previous Step" /> <apex:commandButton action="{!next}" value="Next Step" />
+									</td>
+								</tr>
+							</table>
+
+							<apex:pageBlockSection collapsible="false"
+								title="TRAVEL AND ACCOMMODATION INFORMATION - {!project.Account__r.Name}"
+								columns="1">
+							</apex:pageBlockSection>
+
+							<table>
+								<tr>
+									<td align="left"><apex:outputLabel >
+											<b>What is the nearest airport to your dealership? </b>
+										</apex:outputLabel>
+									</td>
+									<td align="right"><apex:inputField value="{!project.What_is_the_nearest_airport__c}" />
+										&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+									</td>
+								</tr>
+								<tr>
+									<td align="left"><apex:outputLabel >
+											<b>Approximately how far is it from your dealership?</b>
+										</apex:outputLabel>
+									</td>
+									<td align="right"><apex:inputField value="{!project.Airport_Distance__c}" /> miles.</td>
+								</tr>
+								<tr>
+									<td align="left"><apex:outputLabel >
+											<b>What local hotel do you recommend?</b>
+										</apex:outputLabel>
+									</td>
+									<td><apex:inputField value="{!project.What_local_hotel_do_you_recommend__c}" />
+									</td>
+								</tr>
+								<tr>
+									<td align="left"><apex:outputLabel >
+											<b>Approximately how far is it from your dealership? </b>
+										</apex:outputLabel>
+									</td>
+									<td><apex:inputField value="{!project.Hotel_Distance__c}" />
+										miles.</td>
+								</tr>
+							</table>
+							<br />
+                    I have completed this questionnaire and reviewed the user list.  
+                    I attest that the user list accounts for all salespeople, regardless of their expected use.  
+                    <br />
+							<br />
+							<apex:outputLabel >
+								<b>Please enter your first and last name if you agree to the
+									above statement.</b>
+								<br />
+								<apex:inputText value="{!project.Training_Questionnaire_Completed_By__c}" />
+							</apex:outputLabel>
+							<br />
+
+
+
+							<apex:pageBlockSection collapsible="false" title=""></apex:pageBlockSection>
+
+							<table border="0" width="100%" align="center">
+								<tr align="center">
+									<td align="center"><apex:commandButton action="{!back}"
+											value="Previous Step" /> <apex:commandButton action="{!next}" value="Next Step" />
+									</td>
+								</tr>
+							</table>
+
+						</apex:pageBlock>
+
+					</apex:form>
+				</div>
+			</td>
+		</tr>
+	</table>
+</apex:page>

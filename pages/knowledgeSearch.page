@@ -1,0 +1,46 @@
+<apex:page controller="KnowledgeController" showHeader="false"
+	cache="{!cachePage}" expires="{!cacheMaxAge}"
+	language="{!currentLanguage}" standardStylesheets="false">
+
+	<apex:composition template="knowledgeLayout">
+		<apex:define name="content">
+			<apex:outputPanel styleClass="pkbLeft" layout="block">
+				<c:knowledgeCategories />
+			</apex:outputPanel>
+
+			<apex:outputPanel styleClass="pkbMain" layout="block">
+				<apex:outputPanel styleClass="pkbResultPanel" layout="block">
+					<apex:outputPanel styleClass="pkbResultTop" layout="block" />
+					<apex:outputPanel styleClass="pkbResultInner" layout="block">
+						<apex:outputPanel styleClass="pkbResultSummary" layout="block">
+                        {!$Label.PKB_Search_Result}&nbsp;<i>{!currentKeyword}</i>
+						</apex:outputPanel>
+						<ul>
+							<apex:variable var="anyDocument" value="false" />
+							<apex:variable var="hasMore" value="" />
+
+							<knowledge:articleList articleVar="article" hasMoreVar="hasMore"
+								pageSize="10" pageNumber="{!currentPageNumber}"
+								keyword="{!currentKeyword}"
+								categories="{!categoryGroupName}:{!currentCategory}"
+								language="{!currentLanguage}">
+								<li class="pkbSearchResult"><a
+									href="{!URLFOR($Action.KnowledgeArticle.View, article.id) + '&' + languageParameterName + '=' +currentLanguage}">{!article.title}</a>
+								</li>
+								<div class="pkbResultArticleAbstract">{!article.abstract}</div>
+								<apex:variable var="anyDocument" value="true" />
+							</knowledge:articleList>
+						</ul>
+
+						<c:knowledgePagination isNextAvailable="{!hasMore}"
+							urlLink="{!searchUrl}" rendered="{!anyDocument!='false'}" />
+
+						<apex:outputText value="{!$Label.PKB_Search_No_Result} '{!currentKeyword}'"
+							rendered="{!anyDocument=='false'}" />&nbsp;
+                </apex:outputPanel>
+				</apex:outputPanel>
+			</apex:outputPanel>
+
+		</apex:define>
+	</apex:composition>
+</apex:page>

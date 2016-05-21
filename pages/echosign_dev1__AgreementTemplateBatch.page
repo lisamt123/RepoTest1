@@ -1,0 +1,101 @@
+<apex:page controller="echosign_dev1.AgreementTemplateBatchController" 
+    title="{!$Label.echosign_dev1__Agreement_Template_Batch_Page_Title}" 
+    sidebar="{!IF(NOT ISNULL($CurrentPage.parameters.showheadersidebar),$CurrentPage.parameters.showheadersidebar,'true')}" 
+    showHeader="{!IF(NOT ISNULL($CurrentPage.parameters.showheadersidebar),$CurrentPage.parameters.showheadersidebar,'true')}"
+    action="{!init}">
+    
+    <style type="text/css">
+    	.adobePrimaryText {
+			font-size: 14px;
+            font-family: AdobeCleanRegular;
+            color: #4B4B4B;
+            -moz-opacity: 1.0;
+			-khtml-opacity: 1.0;
+			 opacity: 1.0;
+		}
+		
+		.adobePrimaryBoldText {
+			font-size: 14px;
+            font-family: AdobeCleanBold;
+            color: #4B4B4B;
+            -moz-opacity: 1.0;
+			-khtml-opacity: 1.0;
+			 opacity: 1.0;
+		}
+	</style>
+		
+    <apex:form >
+    	<apex:sectionHeader title="{!$Label.echosign_dev1__Agreement_Template_Batch_Header}" subtitle="{!$Label.echosign_dev1__Agreement_Template_Batch_Subheader}"/>
+
+		<apex:outputPanel >
+			<apex:pageMessages />
+		</apex:outputPanel>
+		
+		<apex:outputPanel id="resultPanel">
+			<apex:outputPanel rendered="{!isResultStep}">
+				<div class="message infoM3" role="alert">
+			        <table border="0" cellpadding="0" cellspacing="0" class="messageTable" style="padding:0px; margin:0px;">
+			            <tbody><tr valign="top">
+			                <td>
+			                    <img alt="INFO" class="msgIcon" src="/s.gif" title="INFO"/>
+			                </td>
+			                <td class="messageCell">
+			                	<div class="messageText">
+			                		<span style="font-size: small;">{!$Label.Bulk_Action_Result_Label} <a style="font-size: 100%; margin-top: 0px; margin-right: 0px; margin-bottom: 0px; margin-left: 0px;" href="/apexpages/setup/listAsyncApexJobs.apexp">{!syncProcessId}</a>. {!$Label.Agreement_Bulk_Action_Result_Label_Two} <a style="font-size: 100%; margin-top: 0px; margin-right: 0px; margin-bottom: 0px; margin-left: 0px;" href="{!URLFOR($Action.SIGN_Agreement__c.Tab,$ObjectType.SIGN_Agreement__c)}">{!$Label.Bulk_Action_Result_Label_Three}</a> {!$Label.Bulk_Action_Result_Label_Four}</span>
+			                		<br/>
+			                	</div>
+			                </td>
+			            </tr>
+			            <tr>
+			                <td></td>
+			                <td></td>
+			            </tr>
+			        </tbody></table>
+			    </div>
+			</apex:outputPanel>
+		</apex:outputPanel>
+        
+        <apex:outputPanel id="executePanel">
+	        <apex:pageBlock helpTitle="" helpUrl="{!$Page.echosign_dev1__EchosignHelp}" id="topActionPageBlock" rendered="{!isExecuteStep}">
+	            <apex:pageBlockSection id="aboutSection" collapsible="false" columns="1">
+	            	<apex:outputPanel >
+	            		<h2>{!$Label.echosign_dev1__Agreement_Template_Batch_Block_Title}</h2>
+	            	</apex:outputPanel>
+	            	<apex:outputPanel styleClass="adobePrimaryText">
+	            		<p>{!$Label.echosign_dev1__Agreement_Template_Batch_Description_One}</p>
+	            		<p>{!$Label.echosign_dev1__Agreement_Template_Batch_Description_Two}</p>
+	            		<p>{!$Label.echosign_dev1__Agreement_Template_Batch_Description_Three}</p>
+					</apex:outputPanel>
+	            </apex:pageBlockSection>
+	            <apex:pageBlockSection id="settingsSection" collapsible="false" columns="1">
+	            	<apex:pageBlockSectionItem >
+	            		<apex:outputPanel styleClass="adobePrimaryBoldText">{!$Label.echosign_dev1__Agreement_Template_Batch_Select_Template_Label}</apex:outputPanel>
+	            		<apex:selectList value="{!agreementTemplateId}" size="1">
+	                    	<apex:selectOptions value="{!agreementTemplateOptions}"/>
+	                    	<apex:actionSupport event="onchange" action="{!onAgreementTemplateChange}" rerender="agreementTemplateMasterObjectPanel"/>
+	                	</apex:selectList>
+	            	</apex:pageBlockSectionItem>
+	            	<apex:pageBlockSectionItem >
+	            		<apex:outputPanel styleClass="adobePrimaryBoldText">{!$Label.echosign_dev1__Agreement_Template_Batch_Master_Object_Label}</apex:outputPanel>
+	            		<apex:outputPanel id="agreementTemplateMasterObjectPanel">
+	            			<apex:outputText value="{!agreementTemplateMasterObject}"/>
+	            		</apex:outputPanel>
+	            	</apex:pageBlockSectionItem>
+	            	<apex:pageBlockSectionItem >
+	            		<apex:outputPanel styleClass="adobePrimaryBoldText">{!$Label.echosign_dev1__Agreement_Template_Batch_Enter_Query_Label}</apex:outputPanel>
+	            		<apex:inputTextArea rows="5" cols="100" value="{!query}"/>
+	            	</apex:pageBlockSectionItem>
+	            </apex:pageBlockSection>	            
+	            <apex:pageBlockButtons location="bottom" id="blockBottomButtons"> 
+	            	<apex:outputPanel id="topButtons">
+	                	<apex:commandbutton id="topSyncButton" 
+	                		value="{!$Label.echosign_dev1__Agreement_Templates_Batch_Submit_Button_Label}" 
+	                    	action="{!onSubmit}"
+	                    	rerender="executePanel,resultPanel" />
+	                </apex:outputPanel>                  
+	            </apex:pageBlockButtons>
+	            
+			</apex:pageBlock>
+		</apex:outputPanel>
+    </apex:form>
+</apex:page>

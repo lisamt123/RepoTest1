@@ -1,0 +1,35 @@
+<apex:component access="global" controller="SortedLineItemsController">
+	<apex:attribute name="value" type="Opportunity"
+		assignTo="{!opportunity}" description="TODO: Describe me" />
+
+	<apex:repeat var="li4" value="{!sorted4}">
+		<tr>
+			<td style="font-size: 9pt;">{!li4.PricebookEntry.Product2.Name}</td>
+			<td style="font-size: 9pt;">{!li4.PricebookEntry.Product2.Description}</td>
+			<td align="center" style="font-size: 9pt;">{!li4.Quantity}</td>
+
+			<td align="right" style="font-size: 9pt;"><apex:OutputField value="{!li4.List_Price_Formula__c}"
+					rendered="{!if(AND(Opportunity.Pricebook2.Name != 'Tier 1/Tier 2', li4.List_Price_Formula__c != 0), True, False)}" />
+			</td>
+			<td align="center" style="font-size: 9pt;"><apex:OutputField value="{!li4.TotalPrice}" rendered="{!li4.TotalPrice != 0}" /></td>
+			<td align="center" style="font-size: 9pt;"><apex:OutputField value="{!li4.TNOPPST__LineTax__c}"
+					rendered="{!li4.TNOPPST__LineTax__c != 0}" /></td>
+
+
+
+		</tr>
+	</apex:repeat>
+
+	<!-- Needed to work around limitation that the standard controller cannot "see" 
+         the linkage between the value attribute and the opportunity property -->
+	<apex:variable var="oli4" value="{!value.OpportunityLineItems}"
+		rendered="false">
+        {!oli4.PricebookEntry.Product2.Name}        
+        {!oli4.PricebookEntry.Product2.Description}
+        {!oli4.Quantity}
+        {!oli4.List_Price_Formula__c}
+        {!oli4.TotalPrice}
+        
+    </apex:variable>
+
+</apex:component>

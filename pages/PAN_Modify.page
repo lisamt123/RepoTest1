@@ -1,0 +1,226 @@
+<apex:page standardController="PAN__c" extensions="PanCustomController" renderas="pdf">
+    <html>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        
+        <title>PAN Form Modify</title>
+
+        <head>
+        
+            <p class="MsoNormal" align="center" style='text-align: center'>
+                <apex:image url="{!$Resource.autotraderlogo}" width="356" height="44" />
+            </p>
+            <p class="MsoNormal" align="center" style='text-align: center'>
+                <b><span style='font-size: 14.0pt; line-height: 100%; font-family: &amp; amp;'>Personnel Action Form</span> </b>
+            </p>
+        
+        </head>
+        
+        <body>
+            <div>
+                <table cellspacing="0" cellpadding="0" width="100%" id="table333">
+                    <tr>
+                        <td width="25%">
+                            <apex:outputLabel style="font-size:11pt; font-weight:bold;" value="Effective Date: " />
+                            <apex:outputText value="{!MONTH(DATEVALUE(PAN__c.Effective_Date__c))}" />/<apex:outputText value="{!DAY(DATEVALUE(PAN__c.Effective_Date__c))}" />/<apex:outputText value="{!YEAR(DATEVALUE(PAN__c.Effective_Date__c))}" />
+                        </td>
+                        <td align="right">
+                            <apex:outputLabel style="font-size:11pt; font-weight:bold;" value="EE ID# "/>
+                            <apex:outputText style="font-size:11pt;" value="{!PAN__c.Vin_Employee__r.EmployeeNumber}"/>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            <br /><br />
+            <div>
+            <table cellspacing="0" cellpadding="0" width="100%" id="table3">
+                <tr>
+                    <td width="33%" align="left">
+                        <apex:outputLabel style="font-size:11pt; font-weight:bold;" value="First Name: " />
+                        <apex:outputText style="font-size:11pt;  " value="{!PAN__c.Vin_Employee__r.FirstName}" />
+                    </td>
+                    <td width="33%" align="left">
+                        <apex:outputLabel style="font-size:11pt; font-weight:bold;" value="MI: " />
+                        <apex:outputText style="font-size:11pt; " value="{!PAN__c.Vin_Employee__r.MI__c}" />
+                    </td>
+                    <td width="33%" align="left">
+                        <apex:outputLabel style="font-size:11pt; font-weight:bold;" value="Last Name: " />
+                        <apex:outputLabel style="font-size:11pt; " value="{!PAN__c.Vin_Employee__r.LastName}" />
+                    </td>
+                </tr>
+                <tr>
+                    <td width="25%">
+                        <apex:outputLabel style="font-size:11pt; font-weight:bold;" value="Home Address: " />
+                    </td>
+                    <td align="left">
+                        <apex:outputLabel style="font-size:11pt; " value="{!PAN__c.Vin_Employee__r.Home_Address__c}" />
+                    </td>
+                </tr>
+                <tr>
+                    <td width="25%"><apex:outputLabel style="font_size:11pt; font-weight:bold;"
+                            value="State Worked In: " />
+                    </td>
+                    <td align="left"><apex:outputLabel style="font-size:11pt; "
+                            value="{!PAN__c.State_Worked_In__c}" />
+                    </td>
+                </tr>
+                <tr>
+                    <td width="25%"><apex:outputLabel style="font-size:11pt; font-weight:bold;"
+                            value="Phone Number: " />
+                    </td>
+                    <td align="left"><apex:outputText style="font-size:11pt; "
+                            value="{!PAN__c.Vin_Employee__r.Phone}" />
+                    </td>
+                </tr>
+                <tr>
+                    <td width="25%"><apex:outputLabel style="font-size:11pt; font-weight:bold;"
+                            value="Email Address: " />
+                    </td>
+                    <td align="left"><apex:outputLabel style="font-size:11pt; "
+                            value="{!PAN__c.Name_As_It_Appears_In_Email__c}" />
+                    </td>
+                </tr>
+                <tr>
+                    <td width="25%"><apex:outputLabel style="font-size:11pt; font-weight:bold;"
+                            value="Job Title: " />
+                    </td>
+                    <td align="left"><apex:outputLabel style="font-size:11pt; "
+                            value="{!PAN__c.New_Job_Title__c}" />
+                    </td>
+                </tr>
+                <tr>
+                    <td width="25%"><apex:outputLabel style="font-size:11pt; font-weight:bold;"
+                            value="Supervisor & Title: " />
+                    </td>
+                    <td align="left">
+                        <!-- <apex:outputLabel style="font-size:11pt; font-weight:bold;" value="{!PAN__c.Reports_To__r.FirstName}" /> <apex:outputLabel style="font-size:11pt; font-weight:bold;" value="{!PAN__c.Reports_To__r.LastName}" /> -<apex:outputLabel style="font-size:11pt; font-weight:bold;" value="{!PAN__c.Reports_To__r.Title}" /> -->
+                        <apex:outputLabel style="font-size:11pt; " value="{!PAN__c.Vin_Employee__r.Manager.Name} - {!PAN__c.Vin_Employee__r.Manager.Title}"/>
+                    </td>
+                </tr>
+                <tr>
+                    <td width="25%"><apex:outputLabel style="font-size:11pt; font-weight:bold;"
+                            value="Department Number: " />
+                    </td>
+                    <td align="left"><apex:outputLabel style="font-size:11pt; "
+                            value="{!PAN__c.Vin_Employee__r.HR_Department__c}" />
+                    </td>
+                </tr>
+                <!-- <tr>
+                    <td width="25%"><apex:outputLabel style="font-size:11pt; font-weight:bold;"
+                            value="Location Code: " />
+                    </td>
+                    <td align="left"><apex:outputLabel style="font-size:11pt; font-weight:bold;"
+                            value=" " />
+                    </td>
+                </tr> -->
+                <tr>
+                    <td width="25%"><apex:outputLabel style="font-size:11pt; font-weight:bold;"
+                            value="Status: " />
+                    </td>
+                    <td align="left"><apex:outputLabel style="font-size:11pt; "
+                            value="{!PAN__c.Status__c}" />
+                    </td>
+                </tr>
+                <!-- <tr>
+                    <td width="25%"><apex:outputLabel style="font-size:11pt; font-weight:bold;"
+                            value="Salary:  " />
+                    </td>
+                    <td align="left"><apex:outputField style="font-size:11pt; "
+                            value="{!PAN__c.Salary_Amount_Encrypted__c}" />
+                    </td>
+                </tr>
+                <tr>
+                    <td width="25%"><apex:outputLabel style="font-size:11pt; font-weight:bold;"
+                            value="Decrypted Salary:  " />
+                    </td>
+                    <td align="left"><apex:outputLabel style="font-size:11pt; "
+                            value="{!EmpSalary}" />
+                    </td>
+                </tr> -->
+                <tr>
+                    <td width="25%"><apex:outputLabel style="font-size:11pt; font-weight:bold;"
+                            value="Bonus Percentage:  " />
+                    </td>
+                    <td align="left">
+                        <!-- <apex:outputLabel style="font-size:11pt; font-weight:bold;" value="{!if(PAN__c.Bonus__c = true, 'YES', 'NO')}" />  -->
+                        <apex:outputLabel style="font-size:11pt; " value="{!PAN__c.Bonus_Percentage__c}" />
+                    </td>
+                </tr>
+                <tr>
+                    <td width="25%"><apex:outputLabel style="font-size:11pt; font-weight:bold;"
+                            value="Commission Eligible: " />
+                    </td>
+                    <td align="left">
+                        <apex:outputLabel style="font-size:11pt; " value="{!if(PAN__c.Commission_Eligible2__c = 'Yes', 'YES', 'NO')}" />
+                    </td>
+                </tr>
+                <tr>
+                    <td width="25%">
+                        <apex:outputLabel style="font-size:11pt; font-weight:bold;" value="KRONOS Editing Rights: " />
+                    </td>
+                    <td align="left">
+                        <apex:outputLabel style="font-size:11pt; " value="{!if(PAN__c.KRONOS_Editing_Rights2__c = 'Yes', 'YES', 'NO')}" />
+                    </td>
+                </tr>
+                <tr>
+                    <td width="25%"><apex:outputLabel style="font-size:11pt; font-weight:bold;"
+                            value="Notes:  " />
+                    </td>
+                    <td align="left"><apex:outputLabel style="font-size:11pt; "
+                            value="{!PAN__c.Notes__c}" />
+                    </td>
+                </tr>
+                <tr>
+                    <td width="25%"><apex:outputLabel style="font-size:11pt; font-weight:bold;"
+                            value="Additional Comments:  " />
+                    </td>
+                    <td align="left"><apex:outputLabel style="font-size:11pt; "
+                            value="{!PAN__c.Other_Negotiables_Additional_Comments__c}" />
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <br/><br/>
+        <div>
+            <table width="100%">
+                <tr>
+                    <td width="25%">
+                        <apex:outputLabel style="font-size:11pt; font-weight:bold;" value="Personnel Changes:"/>
+                    </td>
+                </tr>
+            </table>
+            <table border="1" cellspacing="0" cellpadding="0" width="600">
+                <tr style="height: 22pt;">
+                    <td width="230pt" height="25pt" valign="top" style="border:1px solid black;">
+                        <p align="center" style="text_align:center; line-height:normal;">
+                            <b><span style="font-size: 11pt;">Action Required</span></b>
+                        </p>
+                    </td>
+                    <td width="230pt" height="25pt" valign="top" style="border:1px solid black;">
+                        <p align="center" style="text_align:center; line-height:normal;">
+                            <b><span style="font-size: 11pt;">Current Information</span></b>
+                        </p>
+                    </td>
+                    <td width="230pt" height="25pt" valign="top" style="border:1px solid black;">
+                        <p align="center" style="text_align:center; line-height:normal;">
+                            <b><span style="font-size: 11pt;">New Information</span></b>
+                        </p>
+                    </td>
+                </tr>
+                <apex:repeat value="{!personnelChangesList}" var="perssonelChanges">
+                <tr style="height:22pt;">
+                    <td width="226pt" valign="top" style="border:1px solid black">
+                        <apex:outputText value="{!perssonelChanges.ActionRequired}"/>
+                    </td>
+                    <td width="226pt" valign="top" style="border:1px solid black">
+                        <apex:outputText value="{!perssonelChanges.CurrentInformation}"/>
+                    </td>
+                    <td width="226pt" valign="top" style="border:1px solid black">
+                        <apex:outputText value="{!perssonelChanges.NewInformation}"/>
+                    </td>
+                </tr>
+                </apex:repeat>
+            </table>    
+        </div>
+        </body>
+    </html>
+</apex:page>

@@ -1,0 +1,55 @@
+<apex:page extensions="agf.ADM_AdditionalFieldsController" standardController="agf__ADM_Product_Tag__c">
+<apex:stylesheet value="{!URLFOR($Resource.agf__jquery_ui_1_9_2_redmond, 'css/redmond/jquery-ui-1.9.2.custom.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.agf__ADM_common_css)}" />
+
+<apex:includeScript value="{!$Resource.agf__jquery_1_8_3_min}" />
+    <script type="text/javascript">
+    function setVisibleCheckBox(className){
+    	var visibleCheckBox =  $('.'+className+'visibleClass');
+        visibleCheckBox.attr('checked',true);  
+    }
+    function changeRequiredCheckBoxBasedOnVisible(className){
+      var requiredCheckBox =  $('.'+className+'requiredClass');
+      var visibleCheckBox =  $('.'+className+'visibleClass');
+      if(visibleCheckBox.attr('checked') == null){
+        requiredCheckBox.attr('checked',null);  
+      }
+    }
+    </script>
+
+    <style>
+    .requiredBlock{display: none}
+    </style>
+   <div class="gusFieldset"> 
+	   <div class="gusLegend">Additional Fields for {!productTagName}</div>
+   <apex:form >
+
+          <div style="border-bottom:1px #CFD4D9 solid;margin-bottom:15px;padding-bottom:15px;">Please select which additional fields you would like to be displayed when users pick this product tag</div>
+
+          <table width="100%" cellpadding="3">
+              <tr> 
+                <th>Field</th>
+                <th>Type</th>  
+                <th>Bug Setting</th>
+                <th>User Story Setting</th>
+                <th>Investigation Setting</th>
+              </tr>
+               <apex:repeat value="{!FieldList}" var="field">
+                    <tr>
+                        <td>{!field.Name}</td>
+                        <td>{!field.agf__Type__c}</td>
+                        <td> <apex:inputField style="min-width:0;width:auto;padding-right:15px;" styleClass="gusStyle" value="{!field.agf__Bug_Setting__c}" required="true" /></td>
+                        <td> <apex:inputField style="min-width:0;width:auto;padding-right:15px;" styleClass="gusStyle" value="{!field.agf__User_Story_Setting__c}"  required="true" /></td>
+                        <td> <apex:inputField style="min-width:0;width:auto;padding-right:15px;" styleClass="gusStyle" value="{!field.agf__Investigation_Setting__c}"  required="true" /></td>
+                    </tr>   
+               </apex:repeat>
+               
+          </table>
+          <br/>
+          <div style="text-align:center;border-top:1px #CFD4D9 solid;margin-top:15px;padding-top:15px;">
+           <apex:commandButton action="{!save}" value="Save" id="theButton"/>
+          </div>
+
+    </apex:form>  
+   </div>
+</apex:page>

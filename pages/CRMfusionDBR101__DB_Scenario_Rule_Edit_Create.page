@@ -1,0 +1,102 @@
+<apex:page standardController="CRMfusionDBR101__Scenario_Rule__c" extensions="CRMfusionDBR101.DB_Scenario_Rule_Controller" showHeader="true" tabStyle="CRMfusionDBR101__Scenario__c"
+    standardStylesheets="true">
+    <apex:sectionHeader title="{!$Label.CRMfusionDBR101__DB_SR_Edit_Section_Title}" subTitle="{!CRMfusionDBR101__Scenario_Rule__c.Name}" />
+    <apex:messages />
+    <apex:form >
+        <apex:inputHidden value="{!CRMfusionDBR101__Scenario_Rule__c.CRMfusionDBR101__Field_Name__c}" />
+        <apex:inputHidden value="{!CRMfusionDBR101__Scenario_Rule__c.CRMfusionDBR101__Related_Field_Name__c}" />
+        <apex:inputHidden value="{!CRMfusionDBR101__Scenario_Rule__c.CRMfusionDBR101__Scenario_Type__c}" />
+        <apex:inputHidden value="{!CRMfusionDBR101__Scenario_Rule__c.Scenario__r.CRMfusionDBR101__Scenario_Type__c}" />
+        <apex:pageBlock id="mainBlock" title="{!$Label.CRMfusionDBR101__DB_SR_Edit_Block_Title}" mode="edit" tabStyle="Scenario__c">
+            <apex:pageBlockButtons >
+                <apex:commandButton value="{!$Label.CRMfusionDBR101__DB_Save_Word}" action="{!Save}" />
+                <apex:commandButton value="{!$Label.CRMfusionDBR101__DB_Cancel_Word}" action="{!Cancel}" />
+            </apex:pageBlockButtons>
+            <apex:pageBlockSection columns="2" collapsible="false" title="{!$Label.CRMfusionDBR101__DB_SR_Information_Block_Title}" showHeader="true">
+                <apex:pageBlockSectionItem rendered="{!NOT( BEGINS( LOWER( CRMfusionDBR101__Scenario_Rule__c.CRMfusionDBR101__Scenario_Type__c ), 'lead to ' ) )}"
+                    helpText="{!$ObjectType.CRMfusionDBR101__Scenario_Rule__c.Fields.CRMfusionDBR101__Scenario_Type__c.inlineHelpText}">
+                    <apex:outputLabel for="scenarioType" value="{!$ObjectType.CRMfusionDBR101__Scenario_Rule__c.Fields.CRMfusionDBR101__Scenario_Type__c.Label}" />
+                    <apex:outputText id="scenarioType" value="{!$ObjectType[CRMfusionDBR101__Scenario_Rule__c.CRMfusionDBR101__Scenario_Type__c].Label}" />
+                </apex:pageBlockSectionItem>
+                <apex:outputField value="{!CRMfusionDBR101__Scenario_Rule__c.CRMfusionDBR101__Scenario_Type__c}" rendered="{!BEGINS( LOWER( CRMfusionDBR101__Scenario_Rule__c.CRMfusionDBR101__Scenario_Type__c ), 'lead to ' )}" />
+                <apex:outputField value="{!CRMfusionDBR101__Scenario_Rule__c.CRMfusionDBR101__Scenario__c}" />
+                <apex:pageBlockSectionItem helpText="{!$ObjectType.CRMfusionDBR101__Scenario_Rule__c.Fields.CRMfusionDBR101__Field_Display_Value__c.inlineHelpText}"
+                    rendered="{!NOT( BEGINS( LOWER( CRMfusionDBR101__Scenario_Rule__c.CRMfusionDBR101__Scenario_Type__c ), 'lead to ' ) )}">
+                    <apex:outputLabel for="field" value="{!$ObjectType[CRMfusionDBR101__Scenario_Rule__c.CRMfusionDBR101__Scenario_Type__c].Label} {!$Label.CRMfusionDBR101__DB_SR_Match_Field_Label_Suffix}" />
+                    <apex:outputPanel styleClass="requiredInput" layout="block">
+                        <apex:outputPanel styleClass="requiredBlock" layout="block" />
+                        <apex:selectList id="field" size="1" required="true" value="{!field}" multiselect="false">
+                            <apex:selectOptions value="{!fields}" />
+                        </apex:selectList>
+                    </apex:outputPanel>
+                </apex:pageBlockSectionItem>
+                <apex:pageBlockSectionItem helpText="{!$ObjectType.CRMfusionDBR101__Scenario_Rule__c.Fields.CRMfusionDBR101__Field_Display_Value__c.inlineHelpText}"
+                    rendered="{!BEGINS( LOWER( CRMfusionDBR101__Scenario_Rule__c.CRMfusionDBR101__Scenario_Type__c ), 'lead to ' )}">
+                    <apex:outputLabel for="field" value="{!$ObjectType.Lead.Label} {!$Label.CRMfusionDBR101__DB_SR_Match_Field_Label_Suffix}" />
+                    <apex:outputPanel styleClass="requiredInput" layout="block">
+                        <apex:outputPanel styleClass="requiredBlock" layout="block" />
+                        <apex:selectList id="field" size="1" required="true" value="{!field}" multiselect="false">
+                            <apex:selectOptions value="{!fields}" />
+                        </apex:selectList>
+                    </apex:outputPanel>
+                </apex:pageBlockSectionItem>
+                <apex:inputField id="eFuzzy" value="{!CRMfusionDBR101__Scenario_Rule__c.CRMfusionDBR101__English_Fuzzy__c}" rendered="{!eFuzzyEnabled}" />
+                <apex:outputField id="eFuzzyRO" value="{!CRMfusionDBR101__Scenario_Rule__c.CRMfusionDBR101__English_Fuzzy__c}" rendered="{!NOT(eFuzzyEnabled)}" />
+                <apex:pageBlockSectionItem helpText="{!$ObjectType.CRMfusionDBR101__Scenario_Rule__c.Fields.CRMfusionDBR101__Mapping_Type__c.inlineHelpText}">
+                    <apex:outputLabel for="mappingType" value="{!$ObjectType.CRMfusionDBR101__Scenario_Rule__c.Fields.CRMfusionDBR101__Mapping_Type__c.label}" />
+                    <apex:outputPanel styleClass="requiredInput" layout="block">
+                        <apex:outputPanel styleClass="requiredBlock" layout="block" />
+                        <apex:selectList id="mappingType" size="1" required="true" value="{!CRMfusionDBR101__Scenario_Rule__c.CRMfusionDBR101__Mapping_Type__c}" multiselect="false">
+                            <apex:selectOption itemValue="Acronym" itemLabel="Acronym" />
+                            <apex:selectOption itemValue="Acronym (Cleaned Name)" itemLabel="Acronym (Cleaned Name)" />
+                            <apex:selectOption itemValue="Clean Account Name" itemLabel="Clean Account Name" />
+                            <apex:selectOption itemValue="Country Match" itemLabel="Country Match" />
+                            <apex:selectOption itemValue="Domain" itemLabel="Domain" />
+                            <apex:selectOption itemValue="Exact" itemLabel="Exact" />
+                            <apex:selectOption itemValue="First Name" itemLabel="First Name" />
+                            <apex:selectOption itemValue="First XX Letters" itemLabel="First XX Letters" />
+                            <apex:selectOption itemValue="First XX Words" itemLabel="First XX Words" />
+                            <apex:selectOption itemValue="Numeric" itemLabel="Numeric" />
+                            <apex:selectOption itemValue="Regular Expression" itemLabel="Regular Expression" />
+                            <apex:selectOption itemValue="Regular Expression Y/N" itemLabel="Regular Expression Y/N" />
+                            <apex:selectOption itemValue="Relaxed Domain" itemLabel="Relaxed Domain" />
+                            <apex:selectOption itemValue="Relaxed NA Phone Match" itemLabel="Relaxed NA Phone Match" />
+                            <apex:selectOption itemValue="Relaxed Street Address Match" itemLabel="Relaxed Street Address Match" />
+                            <apex:selectOption itemValue="Salesforce.com ID Match" itemLabel="Salesforce.com ID Match" />
+                            <apex:selectOption itemValue="State Match" itemLabel="State Match" />
+                            <apex:selectOption itemValue="Street Address Match" itemLabel="Street Address Match" />
+                            <apex:selectOption itemValue="Zip 5 and 9" itemLabel="Zip 5 and 9" />
+                            <apex:actionStatus layout="block" id="recalcOptionalFieldsStatus" startText="{!$Label.CRMfusionDBR101__DB_Updating_Available_Options}" />
+                            <apex:actionSupport event="onchange" action="{!recalcOptionalFields}" rerender="mainBlock" status="recalcOptionalFieldsStatus" />
+                        </apex:selectList>
+                    </apex:outputPanel>
+                </apex:pageBlockSectionItem>
+                <apex:inputField id="alphaClean" value="{!CRMfusionDBR101__Scenario_Rule__c.CRMfusionDBR101__AlphaClean__c}" rendered="{!alphaCleanEnabled}" />
+                <apex:outputField id="alphaCleanRO" value="{!CRMfusionDBR101__Scenario_Rule__c.CRMfusionDBR101__AlphaClean__c}" rendered="{!NOT(alphaCleanEnabled)}" />
+                <apex:inputField id="firstXxLetters" value="{!CRMfusionDBR101__Scenario_Rule__c.CRMfusionDBR101__First_XX_Letters__c}"
+                    rendered="{!LOWER(CRMfusionDBR101__Scenario_Rule__c.CRMfusionDBR101__Mapping_Type__c)=='first xx letters'}" />
+                <apex:inputField id="firstXxWords" value="{!CRMfusionDBR101__Scenario_Rule__c.CRMfusionDBR101__First_XX_Words__c}"
+                    rendered="{!LOWER(CRMfusionDBR101__Scenario_Rule__c.CRMfusionDBR101__Mapping_Type__c)=='first xx words'}" />
+                <apex:inputField id="regex" value="{!CRMfusionDBR101__Scenario_Rule__c.CRMfusionDBR101__Regex__c}"
+                    rendered="{!OR( LOWER(CRMfusionDBR101__Scenario_Rule__c.CRMfusionDBR101__Mapping_Type__c)=='regular expression', LOWER(CRMfusionDBR101__Scenario_Rule__c.CRMfusionDBR101__Mapping_Type__c)=='regular expression y/n' )}" />
+                <apex:pageBlockSectionItem rendered="{!NOT(showParameter)}">
+                </apex:pageBlockSectionItem>
+                <apex:inputField id="transpose" value="{!CRMfusionDBR101__Scenario_Rule__c.CRMfusionDBR101__Transpose__c}" rendered="{!transposeEnabled}" />
+                <apex:outputField id="transposeRO" value="{!CRMfusionDBR101__Scenario_Rule__c.CRMfusionDBR101__Transpose__c}" rendered="{!NOT(transposeEnabled)}" />
+                <apex:pageBlockSectionItem helpText="{!$ObjectType.CRMfusionDBR101__Scenario_Rule__c.Fields.CRMfusionDBR101__Related_Field_Display_Value__c.inlineHelpText}"
+                    rendered="{!isLeadToScenario}">
+                    <apex:outputLabel for="altField" value="{!relatedObjectName} {!$Label.CRMfusionDBR101__DB_SR_Match_Field_Label_Suffix}" />
+                    <apex:outputPanel styleClass="requiredInput" layout="block">
+                        <apex:outputPanel styleClass="requiredBlock" layout="block" />
+                        <apex:selectList id="altField" size="1" required="true" value="{!altField}" multiselect="false">
+                            <apex:selectOptions value="{!altFields}" />
+                        </apex:selectList>
+                    </apex:outputPanel>
+                </apex:pageBlockSectionItem>
+                <apex:pageBlockSectionItem rendered="{!NOT(isLeadToScenario)}">
+                </apex:pageBlockSectionItem>
+                <apex:inputField id="matchBlank" value="{!CRMfusionDBR101__Scenario_Rule__c.CRMfusionDBR101__Match_Blank__c}" />
+            </apex:pageBlockSection>
+        </apex:pageBlock>
+    </apex:form>
+</apex:page>

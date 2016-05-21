@@ -1,0 +1,453 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <actionOverrides>
+        <actionName>Accept</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>CancelEdit</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Clone</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Delete</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Edit</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Follow</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>List</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>New</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>SaveEdit</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Tab</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>View</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <allowInChatterGroups>false</allowInChatterGroups>
+    <compactLayoutAssignment>SYSTEM</compactLayoutAssignment>
+    <deploymentStatus>Deployed</deploymentStatus>
+    <deprecated>false</deprecated>
+    <description>QAForce2 Test Case Object</description>
+    <enableActivities>true</enableActivities>
+    <enableBulkApi>true</enableBulkApi>
+    <enableEnhancedLookup>false</enableEnhancedLookup>
+    <enableFeeds>false</enableFeeds>
+    <enableHistory>true</enableHistory>
+    <enableReports>true</enableReports>
+    <enableSearch>true</enableSearch>
+    <enableSharing>true</enableSharing>
+    <enableStreamingApi>true</enableStreamingApi>
+    <fields>
+        <fullName>agf__Brief_Description__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>Brief Description</label>
+        <length>255</length>
+        <required>true</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>agf__Count_Automated_Executions__c</fullName>
+        <deprecated>false</deprecated>
+        <description>Count the number of completed automated executions</description>
+        <externalId>false</externalId>
+        <inlineHelpText>Count the number of completed automated executions</inlineHelpText>
+        <label>Count Automated Executions</label>
+        <summaryFilterItems>
+            <field>agf__QA_Test_Execution__c.agf__Type__c</field>
+            <operation>equals</operation>
+            <value>Ftest, Silktest, Utest, .Net, Client Automation, Selenium, ProdTest - Extended, ProdTest - API, ProdTest - Selenium</value>
+        </summaryFilterItems>
+        <summaryFilterItems>
+            <field>agf__QA_Test_Execution__c.agf__Status__c</field>
+            <operation>equals</operation>
+            <value>Passed, Failed</value>
+        </summaryFilterItems>
+        <summaryForeignKey>agf__QA_Test_Execution__c.agf__Test_Case__c</summaryForeignKey>
+        <summaryOperation>count</summaryOperation>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Summary</type>
+    </fields>
+    <fields>
+        <fullName>agf__Count_Automation_To_Complete__c</fullName>
+        <deprecated>false</deprecated>
+        <description>Counts the number of automated executions that are not done</description>
+        <externalId>false</externalId>
+        <inlineHelpText>Counts the number of automated executions that are not done</inlineHelpText>
+        <label>Count Automation To Complete</label>
+        <summaryFilterItems>
+            <field>agf__QA_Test_Execution__c.agf__Type__c</field>
+            <operation>equals</operation>
+            <value>Ftest, Silktest, Utest, .Net, Client Automation, Selenium, ProdTest - Extended, ProdTest - API, ProdTest - Selenium</value>
+        </summaryFilterItems>
+        <summaryFilterItems>
+            <field>agf__QA_Test_Execution__c.agf__Status__c</field>
+            <operation>notEqual</operation>
+            <value>Passed, Failed</value>
+        </summaryFilterItems>
+        <summaryForeignKey>agf__QA_Test_Execution__c.agf__Test_Case__c</summaryForeignKey>
+        <summaryOperation>count</summaryOperation>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Summary</type>
+    </fields>
+    <fields>
+        <fullName>agf__Execution_Type__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>Execution Type</label>
+        <picklist>
+            <picklistValues>
+                <fullName>Manual</fullName>
+                <default>true</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Automated</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>End To End</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Boundary</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Upgrade Script</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Sanity</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Silktest</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Utest</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>.Net</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>CTI - script</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Client Automation</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Systest</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>ProdTest - Selenium</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>ProdTest - API</fullName>
+                <default>false</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>MultiselectPicklist</type>
+        <visibleLines>3</visibleLines>
+    </fields>
+    <fields>
+        <fullName>agf__Expected_Results__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>Expected Results</label>
+        <length>32000</length>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>LongTextArea</type>
+        <visibleLines>3</visibleLines>
+    </fields>
+    <fields>
+        <fullName>agf__External_ID__c</fullName>
+        <caseSensitive>true</caseSensitive>
+        <deprecated>false</deprecated>
+        <externalId>true</externalId>
+        <label>External ID</label>
+        <length>18</length>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>true</unique>
+    </fields>
+    <fields>
+        <fullName>agf__Ftest_Id__c</fullName>
+        <caseSensitive>true</caseSensitive>
+        <deprecated>false</deprecated>
+        <externalId>true</externalId>
+        <label>Ftest Id</label>
+        <length>255</length>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>true</unique>
+    </fields>
+    <fields>
+        <fullName>agf__Hierarchy__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>Hierarchy</label>
+        <length>255</length>
+        <required>true</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>agf__Is_Automated__c</fullName>
+        <deprecated>false</deprecated>
+        <description>Value is 1 if there is at least one completed execution of types ftest/prodtest/silk/selenium, or if the test case ftest ID is non-null (workaround for an old bug in the annotation uploader) Value is 0 otherwise</description>
+        <externalId>false</externalId>
+        <formula>if( agf__Count_Automated_Executions__c &gt; 0, 1, if( LEN(agf__Ftest_Id__c)&gt;0, 1, 0))</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <inlineHelpText>A test case is automated when the ftest ID field of any of its children if non-null OR when there is a child execution with type=ftest/prodtest/silk/selenium and its status is Passed</inlineHelpText>
+        <label>Automation Completed?</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>0</scale>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Number</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>agf__Is_Obsolete__c</fullName>
+        <defaultValue>false</defaultValue>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>Is Obsolete</label>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>agf__Manual_Auto_Annotation__c</fullName>
+        <deprecated>false</deprecated>
+        <description>Formula that states if a test case has any executions of an automation type.</description>
+        <externalId>false</externalId>
+        <formula>if (and(agf__Count_Automated_Executions__c &lt;= 0,0=LEN(agf__Ftest_Id__c)),&quot;Manual&quot;, if (OR(ISNULL(agf__Ftest_Id__c), LEN(agf__Ftest_Id__c) == 0), &quot;Automated w/o Annotation&quot;, &quot;Automated and Annotated&quot;))</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <inlineHelpText>Can be in one of three values:
+Manual, Automated, and Incomplete Automation.
+Incomplete Automation = invalid annotation or Execution not Marked as Passed or Failed</inlineHelpText>
+        <label>Is Automated and Annotated?</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>agf__Order__c</fullName>
+        <defaultValue>0</defaultValue>
+        <deprecated>false</deprecated>
+        <description>Order of this test case in the hierarchy.</description>
+        <externalId>false</externalId>
+        <inlineHelpText>Order of this test case in the hierarchy</inlineHelpText>
+        <label>Order</label>
+        <precision>9</precision>
+        <required>false</required>
+        <scale>0</scale>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Number</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>agf__Owner__c</fullName>
+        <deleteConstraint>SetNull</deleteConstraint>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>Owner</label>
+        <referenceTo>User</referenceTo>
+        <relationshipName>R00ND0000001rflAMAQ</relationshipName>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Lookup</type>
+    </fields>
+    <fields>
+        <fullName>agf__Priority__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>Priority</label>
+        <picklist>
+            <picklistValues>
+                <fullName>High</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Medium</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Low</fullName>
+                <default>true</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Picklist</type>
+    </fields>
+    <fields>
+        <fullName>agf__Steps_to_Reproduce__c</fullName>
+        <defaultValue>&quot;No description&quot;</defaultValue>
+        <deprecated>false</deprecated>
+        <description>Details of the test case. Setup info, steps to follow, etc.
+Leave the expected results out. There is field for that</description>
+        <externalId>false</externalId>
+        <inlineHelpText>Details of the test case. Setup info, steps to follow, etc.</inlineHelpText>
+        <label>Long Description</label>
+        <length>32000</length>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>LongTextArea</type>
+        <visibleLines>8</visibleLines>
+    </fields>
+    <fields>
+        <fullName>agf__Team__c</fullName>
+        <deleteConstraint>SetNull</deleteConstraint>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <inlineHelpText>This field will be automatically populated if the test case has a test execution, otherwise it can be manually populated.</inlineHelpText>
+        <label>Team</label>
+        <referenceTo>agf__ADM_Scrum_Team__c</referenceTo>
+        <relationshipLabel>Test Cases</relationshipLabel>
+        <relationshipName>Test_Cases</relationshipName>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Lookup</type>
+    </fields>
+    <label>Test Case</label>
+    <listViews>
+        <fullName>agf__All</fullName>
+        <columns>NAME</columns>
+        <columns>agf__Brief_Description__c</columns>
+        <columns>agf__Hierarchy__c</columns>
+        <columns>agf__Priority__c</columns>
+        <columns>agf__Manual_Auto_Annotation__c</columns>
+        <columns>agf__Is_Obsolete__c</columns>
+        <filterScope>Everything</filterScope>
+        <label>All</label>
+    </listViews>
+    <nameField>
+        <displayFormat>TC-{00000000}</displayFormat>
+        <label>Test Case Number</label>
+        <trackHistory>false</trackHistory>
+        <type>AutoNumber</type>
+    </nameField>
+    <pluralLabel>Test Cases</pluralLabel>
+    <searchLayouts>
+        <customTabListAdditionalFields>agf__Brief_Description__c</customTabListAdditionalFields>
+        <customTabListAdditionalFields>agf__Hierarchy__c</customTabListAdditionalFields>
+        <customTabListAdditionalFields>agf__Priority__c</customTabListAdditionalFields>
+        <customTabListAdditionalFields>agf__Manual_Auto_Annotation__c</customTabListAdditionalFields>
+        <customTabListAdditionalFields>agf__Is_Obsolete__c</customTabListAdditionalFields>
+        <lookupDialogsAdditionalFields>agf__Hierarchy__c</lookupDialogsAdditionalFields>
+        <lookupDialogsAdditionalFields>agf__Brief_Description__c</lookupDialogsAdditionalFields>
+        <searchFilterFields>agf__Is_Automated__c</searchFilterFields>
+        <searchFilterFields>agf__Hierarchy__c</searchFilterFields>
+        <searchFilterFields>agf__Ftest_Id__c</searchFilterFields>
+        <searchFilterFields>agf__Manual_Auto_Annotation__c</searchFilterFields>
+        <searchFilterFields>agf__Is_Obsolete__c</searchFilterFields>
+        <searchResultsAdditionalFields>agf__Hierarchy__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields>agf__Brief_Description__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields>agf__Execution_Type__c</searchResultsAdditionalFields>
+    </searchLayouts>
+    <sharingModel>ReadWrite</sharingModel>
+    <validationRules>
+        <fullName>agf__Invalid_Priority_Value</fullName>
+        <active>false</active>
+        <description>Users should use a valid picklist value</description>
+        <errorConditionFormula>CASE(  agf__Priority__c  ,
+
+&quot;High&quot;, 1,
+
+&quot;Medium&quot;, 1,
+
+&quot;Low&quot;, 1,
+
+&quot;&quot;,1,
+
+0) = 0</errorConditionFormula>
+        <errorDisplayField>agf__Priority__c</errorDisplayField>
+        <errorMessage>Incorrect Priority Value. Must be: High, Medium, or Low</errorMessage>
+    </validationRules>
+    <validationRules>
+        <fullName>agf__Order</fullName>
+        <active>false</active>
+        <description>Throw error message when Order is negative</description>
+        <errorConditionFormula>agf__Order__c  &lt; 0</errorConditionFormula>
+        <errorDisplayField>agf__Order__c</errorDisplayField>
+        <errorMessage>Order cannot be Negative</errorMessage>
+    </validationRules>
+    <webLinks>
+        <fullName>agf__GenerateAnnotations</fullName>
+        <availability>online</availability>
+        <description>Button will link to the generated annotations page</description>
+        <displayType>massActionButton</displayType>
+        <linkType>javascript</linkType>
+        <masterLabel>Generate Annotations</masterLabel>
+        <openType>onClickJavaScript</openType>
+        <protected>false</protected>
+        <requireRowSelection>true</requireRowSelection>
+        <url>var selectedIds= getRecordIds();
+var queryString = &quot;&quot;;
+var pageDestination = &quot;/apex/GenerateAnnotations?cases=&quot;;
+
+if (selectedIds.length == 0){
+  alert(&quot;Please select at least one test case to generate annotations for&quot;);
+} else {
+  for (var i in selectedIds){
+    var tcID = selectedIds[i];
+    if (typeof(tcID) != &quot;string&quot;)continue;
+    queryString += tcID + &quot;;&quot;;
+  }
+  queryString = queryString.substring(0, queryString.length-1);
+  window.location.href=pageDestination+queryString;
+}</url>
+    </webLinks>
+</CustomObject>

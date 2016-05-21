@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ApprovalProcess xmlns="http://soap.sforce.com/2006/04/metadata">
+    <active>true</active>
+    <allowRecall>true</allowRecall>
+    <allowedSubmitters>
+        <submitter>AllVinSolutions</submitter>
+        <type>group</type>
+    </allowedSubmitters>
+    <approvalPageFields>
+        <field>Name</field>
+        <field>Owner</field>
+        <field>Opportunity_Names__c</field>
+        <field>Discount_One_Time__c</field>
+        <field>Discount_Subscription__c</field>
+        <field>Monthly_Recurring_Fees__c</field>
+        <field>Floor_Target_Monthly__c</field>
+        <field>Total_Non_Monthly__c</field>
+        <field>Floor_Target_Non_Monthly__c</field>
+    </approvalPageFields>
+    <approvalStep>
+        <allowDelegate>false</allowDelegate>
+        <approvalActions>
+            <action>
+                <name>Set_Approval_Status_to_Financial_Lead</name>
+                <type>FieldUpdate</type>
+            </action>
+        </approvalActions>
+        <assignedApprover>
+            <approver>
+                <name>chase.abbott@vinsolutions.com</name>
+                <type>user</type>
+            </approver>
+            <approver>
+                <name>stephen.keen@vinsolutions.com</name>
+                <type>user</type>
+            </approver>
+            <whenMultipleApprovers>FirstResponse</whenMultipleApprovers>
+        </assignedApprover>
+        <entryCriteria>
+            <formula>Price_Book_Used__c != &quot;Fulfillment&quot; &amp;&amp;
+            
+Price_Book_Used__c != &quot;Zeroes 2014&quot; &amp;&amp;
+
+$User.Username != &apos;paul.duryee@vinsolutions.com&apos; &amp;&amp;
+
+OR( 
+
+(Monthly_Recurring_Fees__c &lt; Floor_Target_Monthly__c), 
+
+(Total_Non_Monthly__c &lt; Floor_Target_Non_Monthly__c) 
+
+)</formula>
+        </entryCriteria>
+        <ifCriteriaNotMet>GotoNextStep</ifCriteriaNotMet>
+        <label>Sales Leadership</label>
+        <name>Sales_Leadership</name>
+        <rejectionActions>
+            <action>
+                <name>Discount_Request_Denied</name>
+                <type>Alert</type>
+            </action>
+        </rejectionActions>
+    </approvalStep>
+    <approvalStep>
+        <allowDelegate>false</allowDelegate>
+        <approvalActions>
+            <action>
+                <name>Discount_Request_Approved</name>
+                <type>Alert</type>
+            </action>
+            <action>
+                <name>Set_Approval_Status_to_Accounting</name>
+                <type>FieldUpdate</type>
+            </action>
+        </approvalActions>
+        <assignedApprover>
+            <approver>
+                <name>chris.hicks@vinsolutions.com</name>
+                <type>user</type>
+            </approver>
+            <approver>
+                <name>sean.garrett@vinsolutions.com</name>
+                <type>user</type>
+            </approver>
+            <whenMultipleApprovers>FirstResponse</whenMultipleApprovers>
+        </assignedApprover>
+        <entryCriteria>
+            <formula>Price_Book_Used__c != &quot;Zeroes 2014&quot; &amp;&amp;
+
+$User.Username != &apos;paul.duryee@vinsolutions.com&apos; &amp;&amp; 
+            
+            OR( 
+
+(Monthly_Recurring_Fees__c &lt; Floor_Target_Monthly__c), 
+
+(Total_Non_Monthly__c &lt; Floor_Target_Non_Monthly__c) 
+
+)</formula>
+        </entryCriteria>
+        <ifCriteriaNotMet>GotoNextStep</ifCriteriaNotMet>
+        <label>Financial Leadership</label>
+        <name>Financial_Leadership</name>
+        <rejectBehavior>
+            <type>RejectRequest</type>
+        </rejectBehavior>
+        <rejectionActions>
+            <action>
+                <name>Discount_Request_Denied</name>
+                <type>Alert</type>
+            </action>
+        </rejectionActions>
+    </approvalStep>
+    <approvalStep>
+        <allowDelegate>false</allowDelegate>
+        <assignedApprover>
+            <approver>
+                <name>danielle.dennis@vinsolutions.com</name>
+                <type>user</type>
+            </approver>
+            <approver>
+                <name>keri.carl@vinsolutions.com</name>
+                <type>user</type>
+            </approver>
+            <approver>
+                <name>shelly.turner@vinsolutions.com</name>
+                <type>user</type>
+            </approver>
+            <whenMultipleApprovers>FirstResponse</whenMultipleApprovers>
+        </assignedApprover>
+        <label>Accounting</label>
+        <name>Accounting</name>
+        <rejectBehavior>
+            <type>RejectRequest</type>
+        </rejectBehavior>
+        <rejectionActions>
+            <action>
+                <name>Opportunity_Rejected_by_Accounting</name>
+                <type>Alert</type>
+            </action>
+        </rejectionActions>
+    </approvalStep>
+    <description>Also calls workflow rule Vin Approval Started, Price Book Used is Fulfillment</description>
+    <enableMobileDeviceAccess>false</enableMobileDeviceAccess>
+    <entryCriteria>
+        <criteriaItems>
+            <field>Opportunity.Business_Unit__c</field>
+            <operation>equals</operation>
+            <value>VinSolutions</value>
+        </criteriaItems>
+        <criteriaItems>
+            <field>Opportunity.StageName</field>
+            <operation>equals</operation>
+            <value>Pending Won</value>
+        </criteriaItems>
+    </entryCriteria>
+    <finalApprovalActions>
+        <action>
+            <name>Discount_Request_Approved</name>
+            <type>FieldUpdate</type>
+        </action>
+        <action>
+            <name>Email_Owner_Notice_of_Closed_Won</name>
+            <type>Alert</type>
+        </action>
+        <action>
+            <name>Set_Stage_to_Closed_Won</name>
+            <type>FieldUpdate</type>
+        </action>
+        <action>
+            <name>Update_Approved_Date</name>
+            <type>FieldUpdate</type>
+        </action>
+    </finalApprovalActions>
+    <finalApprovalRecordLock>true</finalApprovalRecordLock>
+    <finalRejectionActions>
+        <action>
+            <name>Discount_Request_Denied</name>
+            <type>FieldUpdate</type>
+        </action>
+        <action>
+            <name>remove_date_submitted</name>
+            <type>FieldUpdate</type>
+        </action>
+    </finalRejectionActions>
+    <finalRejectionRecordLock>false</finalRejectionRecordLock>
+    <initialSubmissionActions>
+        <action>
+            <name>date_submitted_for_approval</name>
+            <type>FieldUpdate</type>
+        </action>
+        <action>
+            <name>Set_Approval_Status_to_Sales_Leadership</name>
+            <type>FieldUpdate</type>
+        </action>
+        <action>
+            <name>UpdateOppCloseDate</name>
+            <type>FieldUpdate</type>
+        </action>
+    </initialSubmissionActions>
+    <label>Vin Approval 2014</label>
+    <recordEditability>AdminOrCurrentApprover</recordEditability>
+    <showApprovalHistory>true</showApprovalHistory>
+</ApprovalProcess>

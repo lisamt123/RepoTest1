@@ -1,0 +1,930 @@
+<apex:page >
+    <style>
+    
+/*********************** From TAMSummaryTab ************************/
+        /* FIX - PLAN SETTINGS DIALOG smartOMHelplink STYLES WERE BEING OVERWRITTEN BY smartOMTabContainer smartOMHelplink STYLES. */
+        .AMCONFIGURATION div.smartOMHelpLink{
+        	padding: 0px !important;
+        	margin: 0px !important;
+        }
+	
+        .smartOMPanel {
+            top: -16px;
+            z-index: 45; /* Needed to make chatter popups display fine on IE7 */
+        }
+
+        .smartOMOpportunitySummary {
+            font-size: 1.2em;
+            margin: 10px 0 15px 15px;
+        }
+        
+        .smartOMOpportunitySummary a {
+            text-decoration: none;
+        }
+        
+        .smartOMOpportunitySummary a:hover {
+            text-decoration: underline;
+        } 
+        
+        .chatterContainer {
+            float: right;
+        }
+        
+        .smartOMTabContainer {
+            clear: both;
+            float: left;
+            width: 100%;
+        }
+        
+		.smartOMLink div.planDetails {
+		    padding-left: 20px;
+		    padding-right: 20px;
+		    width: 40px;
+		}
+        
+        .smartOMLink div.longTitleTab {
+            width: 80px;
+            padding: 5px 15px;
+        }
+        
+        div.planDetails .smartOMTabInfo, div.longTitleTab .smartOMTabInfo {
+            display: none !important;
+        }   
+        
+        .smartOMTab {
+            background: #405773 url('{!URLFOR($Resource.DMAPP__SmartOM, 'tabs/bg_nav_off.jpg')}') left top repeat-x;
+            border: 1px solid  #374A61;
+            border-radius: 5px 5px 0px 0px;
+            -moz-border-radius: 5px 5px 0px 0px;
+            -webkit-border-radius: 5px 5px 0px 0px;
+            bottom: -1px;
+            float: left;
+            line-height: 1.5em;
+            margin-right: 5px;
+            padding: 5px 15px;
+            position: relative;
+            text-align: center;
+            color: #FFFFFF;
+            text-shadow: 0px -1px 0px rgba(0,0,0,0.8);
+            box-shadow: 0 1px 0 rgba(255, 255, 255, 0.3) inset;
+        }       
+        
+        .smartOMTabSelected {
+            background: #FFFFFF none !important;
+            border-bottom: 1px solid #FFFFFF;
+            color:  #374A61;
+            text-shadow:0px 1px 0px rgba(255,255,255,0.8);
+        }
+        .smartOMTab strong {
+            display: block;
+        }
+        .smartOMTab .smartOMTabInfo {
+            visibility: visible;
+            font-size:0.85em;
+            color:#C8D1DA;
+        }
+        .smartOMTabSelected .smartOMTabInfo {
+            visibility: hidden;
+        }       
+        
+        .smartOMLink {
+            text-decoration: none;
+        }
+
+        .smartOMLink:hover .smartOMTab {
+            background: #4A6688 url('{!URLFOR($Resource.DMAPP__SmartOM, 'tabs/bg_nav_hover.jpg')}') left top repeat-x;
+            text-decoration: none;
+        }           
+        
+        .smartOMTabContainerBottom {
+            background-color:  #374A61;
+            clear: both;
+            height: 1px;
+            margin-bottom: 10px;
+        }
+        
+        div.smartOMBackLink {
+            float:left; 
+            margin:10px;
+        }
+
+            div.smartOMBackLink a {
+                float:left;
+                display:block;
+                text-indent: -999em;
+                width:24px;
+                height:24px;
+                background: url('{!URLFOR($Resource.DMAPP__SmartOM, 'tabs/btn_back_link.png')}') center center no-repeat;  
+            }
+            
+        div.TAMAdminLink {
+            float:right;    
+            margin: 10px 10px 0 0;
+        }
+        
+        div.TAMAdminLink a {
+/*            float:left; */
+            display:block;
+/*            background: url('{!URLFOR($Resource.DMAPP__TAM, 'images/icon_admin.png')}') left center no-repeat; */
+            padding:5px 0px 5px 20px;
+            text-decoration:none;
+            color:#405773;
+            cursor: pointer; 
+        }
+        
+        div.smartOMHelpLink {
+            float:right;    
+            margin:10px;
+        }
+        
+        div.smartOMHelpLink a {
+            float:left;
+            display:block;
+            background: url('{!URLFOR($Resource.DMAPP__SmartOM, 'tabs/icon_help.png')}') left center no-repeat;
+            padding:5px 0px 5px 20px;
+            text-decoration:none;
+            color:#405773;
+            cursor: pointer; 
+        }        
+        
+        div.smartOMPPTLink {
+            float:right;    
+            margin:10px;
+        }
+        
+        div.smartOMPPTLink a {
+            float:left;
+            display:block;
+            background: url('{!URLFOR($Resource.DMAPP__SmartOM, 'tabs/icon_ppt.png')}') left center no-repeat;
+            padding:5px 0;
+            text-decoration:none;
+            color:#405773;
+            cursor: pointer;
+            width: 16px;
+            height: 16px;
+        }
+        
+        
+        @media all and (min-device-width: 768px) and (max-device-width : 1024px) {
+	        div.TAMAdminLink {
+	            float:right;    
+	            margin:0px;
+	        }        
+	        
+			div.smartOMHelpLink {
+	            float:right;    
+	            margin:0;
+	        }        
+        }                   
+        
+        .readOnlyText {
+            color: red;
+        }       
+        
+        
+/*********************** OpportunityMapConfiguration ************************/
+		
+		div.AMCONFIGURATION { // height: auto !important; }
+		
+		DIV.AMCONFIGURATION.ui-tabs .ui-tabs-nav {
+		    background: url("") repeat scroll 0 0 transparent;
+		    border-bottom: 1px solid #364861;
+		    border-radius: 0 0 0 0;
+		    margin: 0;
+		    padding: 0.2em 0.2em 0;
+		}
+		DIV.AMCONFIGURATION .LABEL {
+		    font-weight: bolder;
+		}
+		DIV.AMCONFIGURATION .ITEM {
+		    cursor: pointer;
+		    font-weight: normal;
+		    padding: 2px;
+		    text-overflow: ellipsis;
+		}
+		DIV.AMCONFIGURATION .ROOTSORTABLE .ITEM {
+		    border-radius: 4px 4px 4px 4px;
+		    margin-bottom: 0;
+		    padding: 4px;
+		    width: 200px;
+		    padding-left: 20px;
+		}
+
+		DIV.AMCONFIGURATION DIV#AVAILABLESOLUTIONS {
+		    border: 1px solid #C0C0C0;
+		    float: left;
+		    height: 300px;
+		    overflow: auto;
+		    overflow-x: hidden; /* Removes horizontal scrollbar for Solutions in Plan Settings (AMOF-812) */
+		    width: 255px;
+		}
+		DIV.AMCONFIGURATION DIV#SELECTEDSOLUTIONS {
+		    border: 1px solid #C0C0C0;
+		    float: right;
+		    height: 300px;
+		    overflow: auto;
+		    overflow-x: hidden;
+		    width: 255px;
+		}
+
+        DIV.AMCONFIGURATION DIV.solution_info {
+            background-image: url('{!URLFOR($Resource.DMAPP__ttgomjs, 'ttg/graph/feimages/icon_info.png')}');
+            width: 12px;
+            height: 12px;
+			float: right;
+			display: block;
+        }
+		
+		DIV.AMCONFIGURATION DIV#ADDUNITS,
+		DIV.AMCONFIGURATION DIV#ADDPLANS {
+		    border: 0 none;
+		    display: none;
+		    height: 40px;
+		    overflow: auto;
+		    text-align: center;
+		    width: 100%;
+		}
+		DIV.AMCONFIGURATION DIV#SELECTEDUNITS,
+		DIV.AMCONFIGURATION DIV#SELECTEDPLANS {
+		    border: 1px solid #C0C0C0;
+		    height: 300px;
+		    overflow: auto;
+		    width: 100%;
+		    overflow-x:hidden;
+		}
+		.ROOTSORTABLE {
+		    min-width: 160px;
+		}
+		.SORTABLE {
+		    list-style-type: none;
+		    margin: 0;
+		    padding: 0;
+		}
+		.SORTABLE li {
+		    margin: 4px;
+		    padding: 3px;
+		}
+		.AMCONFIGURATION .AVAILABLE {
+		    background-color: #FCEFA1;
+		    border: 1px solid #FFCC00;
+		    display: inline-block;
+		}
+		
+		.AMCONFIGURATION .SELECTED.TARGETED {
+            background-color: #AABD68;
+            border: 1px solid #8CA23E;
+        }
+         
+		.AMCONFIGURATION .SELECTED {
+		    background-color: #A0B5CA;
+		    border: 1px solid #5C7AA4;
+		    color: #363636;
+		    display: inline-block;
+		}
+
+		.AMCONFIGURATION .UNITSELECTED,
+		.AMCONFIGURATION .PLANSELECTED {
+		    border: 0px solid #5C7AA4;
+		    color: #60758A;
+		    display: inline-block;
+		    font-weight: bolder;
+		}
+
+
+		.AMCONFIGURATION .UNITAVAILABLE,
+		.AMCONFIGURATION .PLANAVAILABLE {
+		    border: 0px solid #FFCC00;
+		    display: inline-block;
+		    font-weight: bolder;
+		    color: orange;
+		}
+
+		DIV#SELECTEDUNITS ul,
+		DIV#SELECTEDPLANS ul {
+		    list-style: none outside none;
+		    margin: 0 !important;
+		    padding: 0 !important;
+		}
+		DIV#SELECTEDUNITS li,
+		DIV#SELECTEDPLANS li {
+		    border-bottom: 1px solid #CCCCCC;
+		    margin: 0;
+		    padding: 5px 0;
+		    position: relative;
+		}
+		DIV#SELECTEDUNITS li ul,
+		DIV#SELECTEDPLANS li ul {
+		    margin: 0 !important;
+		    padding: 0 !important;
+		}
+		DIV#SELECTEDUNITS li li,
+		DIV#SELECTEDPLANS li li {
+		    border-bottom: 0 solid #CCCCCC;
+		    border-top: 1px dashed #CCCCCC;
+		    margin: 10px 0 0;
+		    padding-left: 20px;
+		}
+		UL#ROOTUNITSORTING,
+		UL#ROOTPLANSORTING {
+		    padding-left: 2px;
+		}
+		UL#ROOTUNITSORTING UL,
+		UL#ROOTPLANSORTING UL {
+		    padding-left: 2px;
+		}
+		UL#ROOTUNITSORTING LI.ui-state-highlight,
+		UL#ROOTPLANSORTING LI.ui-state-highlight {
+		    height: 20px;
+		}
+		UL#ROOTUNITSORTING .SELECTED,
+		UL#ROOTPLANSORTING .SELECTED {
+		    background-color: transparent;
+		    border: 0 solid white;
+		    color: #60758A;
+		    font-weight: bolder;
+		}
+		UL#ROOTUNITSORTING .AVAILABLE,
+		UL#ROOTPLANSORTING .AVAILABLE {
+		    background-color: transparent;
+		    border: 0 solid white;
+		    color: orange;
+		    font-weight: bolder;
+		}
+		UL#ROOTUNITSORTING A,
+		UL#ROOTPLANSORTING A {
+		    padding-left: 4px;
+		    padding-right: 4px;
+		}
+		UL#ROOTUNITSORTING .ACCOUNTNAME {
+		    clear: both;
+		    color: #C0C0C0;
+		    display: block;
+		    font-size: 10px;
+		    font-style: italic;
+		    padding-right: 10px;
+		    vertical-align: text-top;
+		}
+		UL#ROOTUNITSORTING SPAN.TOPLEVEL,
+		UL#ROOTPLANSORTING SPAN.TOPLEVEL {
+		    color: #364861;
+		}
+		SPAN.EDITUNITLABEL {
+		    display: inline-block;
+		    font-weight: bolder;
+		    width: 60px;
+		}
+		A#ADDUNITLINK,
+		A#ADDPLANLINK {
+		    cursor: pointer;
+		}
+		DIV.AMCONFIGURATION DIV#ADDUSER,
+        DIV.AMCONFIGURATION DIV#ADDPLAN {
+		    display: none;
+		}
+		DIV.AMCONFIGURATION .del_link {
+		    background: url('{!URLFOR($Resource.DMAPP__TAM, 'images/icon_delete.png')}') no-repeat scroll left top transparent;
+		    cursor: pointer;
+		    display: block;
+		    float: left;
+		    height: 16px;
+		    margin: 0;
+		    text-decoration: none;
+		    text-indent: -999em;
+		    width: 16px;
+		}
+		DIV.AMCONFIGURATION .OPPORTUNITYCOUNT {
+		    background: url("{!URLFOR($Resource.DMAPP__ttgomjs, 'ttg/orgchart/images/icon_selected.png')}") no-repeat scroll center center transparent;
+		    background-color: #FFFFFF;
+		    border-radius: 3px 3px 3px 3px;
+		    color: transparent;
+		    display: block;
+		    float: right;
+		    height: 16px;
+		    line-height: 16px;
+		    margin-left: 5px;
+		    margin-top: 0;
+		    position: relative;
+		    text-align: center;
+		    width: 16px;
+		}
+		DIV.AMCONFIGURATION .UNITOPPORTUNITYCOUNT {
+		    background: url("{!URLFOR($Resource.DMAPP__ttgomjs, 'ttg/orgchart/images/icon_selected.png')}") no-repeat scroll center center transparent;
+		    background-color: #CBD5E2;
+		    border-radius: 3px 3px 3px 3px;
+		    color: transparent;
+		    display: block;
+		    float: left;
+		    height: 16px;
+		    line-height: 16px;
+		    margin-left: 5px;
+		    margin-top: 2px;
+		    position: relative;
+		    text-align: center;
+		    width: 16px;
+		}
+		DIV.AMCONFIGURATION .UNITOPPORTUNITYCOUNT.UNITACCOUNTTYPE {
+		    background: none;
+		    background-color: #CBD5E2;
+            color: black;
+		}
+		SPAN.LOCK {
+		    float: right;
+		    position: fixed;
+		}
+		SPAN.UNLOCK {
+		    float: right;
+		    position: fixed;
+		}
+		.UNITSORTABLE a.EDIT,
+		.PLANSORTABLE a.EDIT {
+		    background: url('{!URLFOR($Resource.DMAPP__DecisionCriteria, 'icon_edit_criteria.png')}') left top no-repeat;
+		    height: 16px;
+		    position: absolute;
+		    right: 31px;
+		    text-indent: -999em;
+		    top: 5px;
+		    width: 16px;
+		}
+		.UNITSORTABLE a.DELETE {
+		    background: url('{!URLFOR($Resource.DMAPP__TAM, 'images/icon_delete.png')}') left top no-repeat;
+		    height: 16px;
+		    position: absolute;
+		    right: 5px;
+		    text-indent: -999em;
+		    top: 5px;
+		    width: 16px;
+		}
+		.UNITSORTABLE a.ADD {
+		   	background: url('{!URLFOR($Resource.DMAPP__TAM, 'images/icon_add_task.png')}') left top no-repeat;
+		    height: 16px;
+		    position: absolute;
+		    right: 57px;
+		    text-indent: -999em;
+		    top: 5px;
+		    width: 16px;
+		}
+		span.UNITNAME {
+            float: left;
+            line-height: 20px;
+            margin-right: 10px;
+            padding-left: 5px;
+            max-width: 400px;
+            display: inline-block;
+            text-overflow: ellipsis;
+            overflow: hidden;
+            background-color: white;
+            margin-right: 35px;
+        }
+
+        #SELECTEDUNITS span.UNITNAME {
+            margin-left: 35px;
+            margin-right: 0px;
+        }
+
+        #SELECTEDUNITS span.UNITNAME.PARENT {
+            margin-left: 0px;
+        }
+
+        SPAN.LINE SPAN.PARENTUNITNAME {
+            margin-left: 0px;
+        }
+
+		span.PLANNAME {
+		    line-height: 20px;
+		    margin-right: 10px;
+		    padding-left: 5px;
+			max-width: 400px;
+			display: inline-block;
+			text-overflow: ellipsis;
+			overflow: hidden;
+			background-color: white;
+			margin-left: 5px;
+			white-space: nowrap;
+		}
+
+		UL#ROOTUNITSORTING .ACCOUNTNAME,
+        UL#ROOTPLANSORTING .PLANOWNERNAME {
+		    margin-left: 40px;
+		}
+		table.DATERANGE {
+		    margin-bottom: 15px;
+		}
+		table.DATERANGE tr td {
+		    padding-right: 5px;
+		}
+		table.DATERANGE tr td img.ui-datepicker-trigger {
+		    margin: 0 20px 0 3px;
+		    vertical-align: text-bottom;
+		}
+		DIV.GENERALTAB SPAN {
+		    padding-right: 5px;
+		}
+		DIV.GENERALTAB INPUT {
+		    margin-right: 5px;
+		}
+		
+		.MAGNIFY {
+		    background: url('{!URLFOR($Resource.DMAPP__Common, 'images/icon_magnify_glass.png')}') no-repeat;
+		    width:16px;
+		    height:16px;
+		    display: inline-block;
+		}
+		
+		a.MAGNIFY {
+		    margin-left: 0;
+		}
+		
+		.DRAGABLE {		
+			background: url('{!URLFOR($Resource.DMAPP__TAM, 'images/icon_drag.png')}') left center no-repeat;			
+		    cursor: move;
+		}
+		
+		.UNITDRAGABLE {
+		    float: left;
+			display: inline-block;
+		}
+
+		DIV.AMCONFIGURATION LI .del_link {
+			float: right;
+			margin-top: 4px;
+		}
+		
+		LI SPAN.SOLUTIONNAME {
+			width: 140px;
+			display: inline-block;
+			text-overflow: ellipsis;
+			overflow: hidden;
+		}
+		
+		BUTTON.DELETE {		
+			background-color: maroon;
+		}
+		
+		DIV.DRAGGINGFORDUMMIES {
+			margin-bottom: 10px;
+		
+		}
+		DIV.UNITINFO.DRAGGINGFORDUMMIES {
+		    white-space: pre-line;
+		}
+
+		DIV#USERS {
+
+			overflow-y: auto;
+			width: 540px; 			
+		
+		}
+
+		DIV#USERS TABLE {
+
+			width: 520px;
+
+		}
+		
+		.omcDisableClicks {
+			float: right;
+			position: absolute;
+			
+			/* Required for IE 5, 6, 7 */
+			zoom: 1; 
+				
+			/* Theoretically for IE 8 and 9 (more valid) */	
+			/* ...but not required as filter works too */
+			/* should come BEFORE filter */
+			-ms-filter:"progid:DXImageTransform.Microsoft.Alpha(Opacity=0)";
+			
+			/* This works in IE 8 and 9 too */
+			/* ... but also 5, 6, 7 */
+			filter: alpha(opacity=0);
+			
+			/* Older than Firefox 0.9 */
+			-moz-opacity:0;
+			
+			/* Safari 1.x (pre WebKit!) */
+			-khtml-opacity: 0;
+		    
+			/* Modern!
+			/* Firefox 0.9+, Safari 2?, Chrome any?
+			/* Opera 9+, IE 9+ */
+			opacity: 0;
+
+			background-color: white;
+		}
+		
+		div#unitMemberAccountsTableScroll {
+			overflow-y: auto;
+			height: 190px;
+			max-height: 190px;
+			margin-bottom: 10px;
+		}
+		
+		table#unitMemberAccountsTable td a.DELETE {
+		    background: url('{!URLFOR($Resource.DMAPP__TAM, 'images/icon_delete.png')}') center center no-repeat;
+		    height: 16px;
+		    cursor: pointer;
+		    padding: 8px;
+		    text-indent: -999em;
+		    width: 16px;
+		}
+		
+		#unitMemberAccountsSlideContainer {
+			margin-top: 15px;
+		}
+		
+		#unitMemberAccountsSlideButton {
+			background: url("{!URLFOR($Resource.DMAPP__TAM, '/images/icon_arrow_up.png')}") left center no-repeat;
+			text-align: left;
+			cursor: pointer;
+		    margin: 15px 0 10px;
+		    padding-left: 15px;
+		    text-align: left;			
+		}
+		
+		#unitMemberAccountsSlideButton:hover {
+			text-decoration: underline;
+		}
+		
+		#unitMemberAccountsSlideButton.collapsed {
+			background: url("{!URLFOR($Resource.DMAPP__TAM, '/images/icon_arrow_down.png')}") left center no-repeat !important;
+		}
+		
+		#unitMemberAccountsTable {
+			border-collapse: collapse;
+			border: 1px solid #405773;
+			min-width: 320px;
+		    width: 100%;
+		}
+		
+		#unitMemberAccountsTable th, #unitMemberAccountsTable td {
+			padding: 5px;
+		}
+		
+		#unitMemberAccountsTable th {
+			background: url('{!URLFOR($Resource.DMAPP__SmartOM, 'tabs/bg_nav_off.jpg')}') repeat-x scroll left top #405773;
+			color: white;
+		}
+		
+		#unitMemberAccountsTable tr td a {
+		    color: #015BA7;
+		    cursor: pointer;
+		    text-decoration: underline;
+		}
+		
+		#unitMemberAccountsButtonBar {
+			margin: 5px 0px;
+		}		
+			
+/*********************** From SegmentationJS ************************/
+		SPAN#SHADOWMAP {
+			background-color: #FFFFE0;
+			width: 100px;
+			height: 100px;
+			float: right;
+			display: inline-block;
+		}
+
+		DIV.UNIT {
+		    color: #000000;
+    	}
+		
+		SPAN.UNITSELECTED {
+			background-color: #609060;
+			border-radius: 16px;
+			box-shadow: 3px 2px 3px 2px #C0C0C0;
+		    color: #FFFFFF;
+    	}
+
+		DIV.CHILDBLOCK {
+			background-color: #ffffff;
+		}
+
+		SPAN.TOGGLENAME {
+			overflow: hidden;
+			width:4px;
+		}
+		
+		DIV.HEADERBAR {
+		    background: url('{!URLFOR($Resource.DMAPP__SmartOM, 'tabs/bg_nav_off.jpg')}') repeat-x scroll left top #405773;
+		}
+		
+		div.revenueTargetsTitle {
+			padding: 2px 5px 5px 5px;
+			font-weight: bold;
+			font-size: 1.1em;
+		}
+		
+		#TARGETSTABLE {
+			margin-bottom: 5px;
+		}
+		
+		#TARGETSTABLE td {
+			padding: 2px 5px 2px 5px;
+		}
+		
+		#TARGETSTABLE tr.totalRevenueTargetRow, #EDITTARGETSTABLE tr.totalRevenueTargetRow {
+			font-weight: bold;
+		}
+		
+		#EDITTARGETSTABLE {
+			margin-bottom: 5px;
+		}
+		
+		#revenueTargetValidationErrorDiv, #editTargetsDialogErrorMsg, #metricsValidationErrorMsg {
+			border: 1px solid #E57F7F;
+			color: #CC0000;
+			background-color: #F3CBCB;
+			border-radius: 4px;
+			display: inline;
+		    margin-left: 10px;
+    		padding: 3px 5px;
+		    text-align: center;
+		    width: 350px;			
+		}
+		
+		#metricsValidationErrorMsg {
+		    display: block;
+		    margin: 20px auto auto;
+		    width: 480px;
+		}
+		
+		/*SPAN#TARGET {
+			background-color: #FFFFE0;
+			width: 100px;
+			height: 100px;
+			float: right;
+			*display: inline-block;
+		}*/
+		
+		SPAN.TARGET {
+			width: 16px;
+			height: 16px;
+		}
+		
+		SPAN.TARGET_UNIT {
+    		display: block;
+    		float: left;
+		    position: absolute;		
+		}
+		
+		li.FAMILYMEMBER > span {
+		    vertical-align: middle;
+		}
+		
+		SPAN.TARGETED {
+            background-image: url('{!URLFOR($Resource.DMAPP__ValueMap, 'icon_targeted.png')}');
+    		background-position: center 7px;
+    		background-repeat: no-repeat;
+		    margin: 0 3px;
+    		padding: 8px;            
+		}
+
+		SPAN.UNTARGETED {
+            background-image: url('{!URLFOR($Resource.DMAPP__ValueMap, 'icon_untargeted.png')}');
+    		background-position: center 7px;
+    		background-repeat: no-repeat;
+		    margin: 0 3px;
+    		padding: 8px;               
+		}		
+		
+        span#planCopyNameLabel {
+            font-weight: bold;
+            margin-right: 5px;
+        }
+        
+        input#planCopyNameInput { width: 65%; }
+        
+		#AMReportsList {
+		    float: right;
+		    margin: 13px;
+		    width: 300px;
+		}     
+		
+        @media only screen 
+        and (min-device-width : 768px) 
+        and (max-device-width : 1024px)  {
+            div.customReportsDropdown {
+                margin: 4px 10px 10px 14px !important;
+            }                                    
+            div#smartOMPPTLink {
+                margin: 1px 20px 0 0;
+            }
+        }
+		
+		div.customReportsDropdown {
+		    float: right;
+		    margin: 14px 10px 10px 14px;
+		    padding: 1px;	
+		    cursor: pointer;
+            position: relative;
+		}   
+		
+		div.customReportsDropdownContainer {
+		    background-color: white;
+		    border: 1px solid #646464;
+		    padding: 1px;
+		    position: absolute;
+			margin-left: -2px;
+			width: 300px;
+		    bottom: -75px;
+		    z-index: 50;
+		    right: 0;
+		}	
+        
+		a.customReportsDropdownOptionLink {
+			color: black !important;
+    		text-decoration: none !important;
+    		cursor: default !important;
+		}
+		
+		a.customReportsDropdownOptionLink:visited {
+			color: black !important;
+		}		
+		
+		a.customReportsDropdownOptionLink:hover {
+			background-color: #3399ff !important;
+			text-decoration: none !important;
+			color: white !important;
+		}		
+		
+		div.customReportsDropdownOption {
+			color: black;
+    		width: 100%;
+    		text-decoration: none;
+    		cursor: default;    		
+		}
+		
+		div.customReportsDropdownOption:hover {
+			background-color: #3399ff;
+			text-decoration: none;
+			color: white;
+		}
+		
+		#unitMemberAccountsNumberLabel {
+			padding: 0px 4px;
+		}
+		
+		.scrolledAutocomplete {
+		    max-height: 225px;
+		    overflow-y: auto;		
+		}
+
+		.ITEM.DRAGABLE.NOFAMILY {
+		    margin-left: 8px;
+		}
+		
+		DIV.AMCONFIGURATION .ROOTSORTABLE .ITEM {
+		    border-radius: 4px 4px 4px 4px;
+		    margin-bottom: 0;
+		    padding: 4px;
+		    width: 200px;
+		    padding-left: 20px;
+		}
+		
+		.AMCONFIGURATION .ROOTSORTABLE li.FAMILY {
+		    background:transparent url('{!URLFOR($Resource.DMAPP__TAM, 'images/icon_arrow_down.png')}') left top no-repeat;
+		}
+		
+		.AMCONFIGURATION .ROOTSORTABLE li.FAMILY.active {
+		    background:transparent url('{!URLFOR($Resource.DMAPP__TAM, 'images/icon_arrow_up.png')}') left top no-repeat;
+		}
+		
+		.AMCONFIGURATION .ROOTSORTABLE li.FAMILY, 
+		.AMCONFIGURATION .ROOTSORTABLE li.FAMILY.SELECTED.TARGETED {
+		    border: medium none;
+		    padding: 0 0 7px 0;
+		}
+		
+		LI.FAMILY > SPAN.TARGET {
+		    background-position: center center;
+		    float: right;
+		    padding: 0;
+		}
+		
+		LI.FAMILY > SPAN.SOLUTIONNAME {
+		    padding-left: 20px;
+		    margin-left: 20px;
+		    cursor: pointer;
+		}
+		
+		ul.ROOTSORTABLE {
+		    padding-left: 0;
+		}
+
+        /* DMPS-1483 */
+        .AUTO_POST_CHATTER_CONTAINER {
+		    display: inline-block; 
+		    padding: 3px 0px 0px 0px;
+		}
+			
+			/* DMPS-1483 */
+	        .AUTO_POST_CHATTER_CONTAINER input[type='checkbox'] {
+	        	float: right;
+			}		
+		
+		/* DMPS-1483 */
+		#CHATTERGROUP{
+			margin-right:10px;
+		}
+
+	</style>
+</apex:page>

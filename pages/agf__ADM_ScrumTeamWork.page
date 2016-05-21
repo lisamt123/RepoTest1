@@ -1,0 +1,117 @@
+<apex:page standardController="agf__ADM_Scrum_Team__c" extensions="agf.ADM_ScrumTeamWorkExtension" recordSetVar="{!works}">
+    <apex:include pageName="agf__ADM_common_css"/>
+    <apex:include pageName="agf__ADM_Overlay_CSS"/>
+    <apex:includeScript value="/js/functions.js"/>
+    <style>
+        td { 
+            vertical-align:top !important;
+            text-align:left;
+        }
+    </style>
+    <apex:pageMessages ></apex:pageMessages>
+    <!--Start div overlay container, this box specifies the width of the overlay-->
+    <apex:outputPanel id="pageWrapper">
+    <div id="overlay">
+        <apex:outputPanel id="overlaycontainer" layout="block" styleClass="overlaycontainer">
+            <!--TOOL BAR-->
+            <apex:outputPanel layout="block" styleClass="overlaylefttopcrn">                
+                <apex:outputPanel layout="block" styleClass="overlaytoolbar">
+                    <apex:outputPanel style="color:#ffffff; font-weight:bold; font-size:1.2em;">
+                        &nbsp;
+                    </apex:outputPanel>
+                </apex:outputPanel>
+            </apex:outputPanel>
+            <!--CONTENT DIV TOOL BAR-->
+            <apex:outputPanel layout="block" styleClass="overlaycontentbox" style="text-align:center;font-size:150%;">
+                <apex:image url="{!$Resource.agf__ajaxloaderlarge}" alt="Loading" style="padding:0 5px;"/> <span id="loadingMessage">Loading...</span>
+            </apex:outputPanel>
+            <!--BOTTOM CORNERS AND BOTTOM BORDER-->
+            <apex:outputPanel layout="block" styleClass="overlayleftbtmcrn"><apex:outputPanel layout="block" styleClass="overlaybtm"></apex:outputPanel></apex:outputPanel>
+            <!-- overlay container div-->
+        </apex:outputPanel>
+    </div>  
+    <apex:pagemessages ></apex:pagemessages>  
+    <apex:form id="scrumteamWorkForm" styleClass="work_ids">   
+        <apex:pageBlock tabStyle="ADM_Scrum_Team__c" title="Work">     
+            <apex:pageBlockButtons location="top">
+                <apex:commandButton action="{!create}" value="New Work" onclick="overlay();"/>                
+                <apex:commandButton action="{!prioritize}" value="Prioritize" onclick="overlay();"/>                
+                <apex:commandButton action="{!showNotecards}" value="Show/Print Notecards" onclick="overlay();"/>
+            </apex:pageBlockButtons>
+            <apex:outputPanel rendered="{!setController.resultSize = 0}">{!message}</apex:outputPanel>
+            <apex:pageBlockTable title="Work" width="100%" border="0" cellpadding="0" cellspacing="0" styleClass="list tableSize" headerClass="headerRow" value="{!works}" var="wrapper" rowClasses="odd,even,center" rendered="{!works.size > 0}">
+                <apex:column width="25px">
+                    <apex:facet name="header">
+                        <apex:outputPanel >
+                            <input type="checkbox" id="checkAllAuto" onclick="javascript:SelectAllOrNoneByCheckbox('work_ids', this);" /> 
+                        </apex:outputPanel>
+                    </apex:facet>
+                    <apex:inputCheckbox id="ids" value="{!wrapper.checked}" styleClass="work_ids"/>
+                </apex:column>
+                <apex:column >
+                    <apex:facet name="header">Action</apex:facet>
+                    <apex:outputLink value="/{!wrapper.work.id}/e?retUrl=/{!wrapper.work.agf__Scrum_Team__c}" target="_parent">Edit</apex:outputLink>
+                </apex:column>
+                <apex:column >
+                    <apex:facet name="header">Work</apex:facet>        
+                    <apex:outputLink value="/{!wrapper.work.id}" target="_parent" >
+                        <apex:outputField value="{!wrapper.work.Name}" />
+                    </apex:outputLink>
+                </apex:column>
+                <apex:column headerValue="Subject" value="{!wrapper.work.agf__Subject__c}"/>
+                <apex:column headerValue="Description" value="{!wrapper.work.agf__Details__c}"/>            
+                <apex:column headerValue="Priority" value="{!wrapper.work.agf__Priority__c}"/>
+                <apex:column headervalue="Record Type" value="{!wrapper.work.RecordType.Name}"/>
+                <apex:column headerValue="Theme" value="{!wrapper.work.agf__Theme__c}"/>
+                <apex:column headerValue="Last Modified Date" value="{!wrapper.work.LastModifiedDate}"/>
+            </apex:pageBlockTable>
+               
+            <apex:panelGrid columns="2" styleClass="adm_table total_row" rendered="{!setController.resultSize > 0}">
+                <apex:outputPanel styleclass="">{!rowStart} - {!rowEnd} of {!setController.resultSize}</apex:outputPanel>
+                <apex:outputPanel style="width:100%;">
+                    <apex:image url="{!URLFOR($Resource.agf__silkIcons, 'icons/resultset_first.png')}" rendered="{!NOT(setController.hasPrevious)}" style="opacity:0.4;filter:alpha(opacity=40)"/>
+                    <apex:image url="{!URLFOR($Resource.agf__silkIcons, 'icons/resultset_previous.png')}" rendered="{!NOT(setController.hasPrevious)}" style="opacity:0.4;filter:alpha(opacity=40)"/>              
+                    <apex:commandLink action="{!setController.first}" onclick="overlay()" rerender="pageWrapper" rendered="{!setController.hasPrevious}" styleclass="">            
+                        <apex:image url="{!URLFOR($Resource.agf__silkIcons, 'icons/resultset_first.png')}"/>
+                    </apex:commandlink>  
+                    <apex:commandLink action="{!setController.previous}" onclick="overlay()" rerender="pageWrapper" rendered="{!setController.hasPrevious}" styleclass="">
+                        <apex:image url="{!URLFOR($Resource.agf__silkIcons, 'icons/resultset_previous.png')}"/>
+                    </apex:commandlink>
+                    <apex:image url="{!URLFOR($Resource.agf__silkIcons, 'icons/resultset_next.png')}" rendered="{!NOT(setController.hasNext)}" style="opacity:0.4;filter:alpha(opacity=40)"/>
+                    <apex:image url="{!URLFOR($Resource.agf__silkIcons, 'icons/resultset_last.png')}" rendered="{!NOT(setController.hasNext)}" style="opacity:0.4;filter:alpha(opacity=40)"/>              
+                    <apex:commandLink action="{!setController.next}" onclick="overlay()" rerender="pageWrapper" rendered="{!setController.hasNext}" styleclass="">
+                        <apex:image url="{!URLFOR($Resource.agf__silkIcons, 'icons/resultset_next.png')}"/>
+                    </apex:commandlink>  
+                    <apex:commandLink action="{!setController.last}" onclick="overlay()" rerender="pageWrapper" rendered="{!setController.hasNext}" styleclass="">
+                        <apex:image url="{!URLFOR($Resource.agf__silkIcons, 'icons/resultset_last.png')}"/>
+                    </apex:commandlink>  
+                </apex:outputPanel>        
+            </apex:panelGrid>        
+        </apex:pageBlock>
+    </apex:form>
+    <script type="text/javascript">     
+        function overlay() {
+            el = document.getElementById("overlay");
+            el.style.visibility = (el.style.visibility == "visible") ? "hidden" : "visible";            
+        }
+
+        function SelectChecked(form, className, value) {            
+            for (var i = 0; i < form.elements.length; i++) {
+                if (form.elements[i].className == className && form.elements[i].disabled == false) {
+                    form.elements[i].checked = value;
+                }
+            }
+        }
+           
+        function SelectAllOrNoneByCheckbox(className, control) {
+            forms = document.getElementsByTagName('form');
+            
+            for(var i = 0; i < forms.length; i++) {
+                if(className == forms[i].className) {
+                    SelectChecked(forms[i], className, control.checked);
+                }
+            }            
+        }
+    </script>
+    </apex:outputPanel>
+</apex:page>

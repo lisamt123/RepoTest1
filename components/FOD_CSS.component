@@ -1,0 +1,498 @@
+<apex:component >
+
+<style>
+html, body { 
+    height: 100%;
+    padding: 5px; 
+    margin: 0;  
+    background: black;
+    color: #02feff; 
+    background-image: url("{!$Resource.jarvisimg}");
+    background-size: cover;
+    font-family: "nimbus-sans-extended", arial, sans-serif;
+}
+.container {
+    width: 100% !important;
+}
+.first.row, .second.row {
+    margin-left: 0;
+    margin-right: 0;
+}
+h2 {
+    font-size: 14px;
+    font-family: "nimbus-sans-extended", arial, sans-serif;
+    text-transform: uppercase;
+    color: white;
+    margin: 0 0 10px 0;
+}
+.provHead a, .conqHead a, .trainingDetail a, .newuserDetail a, .stickersDetail a, .listingsDetail a, .stockwave a {
+    color: white !important;
+}
+.moduleBorder {
+    background-image: url('{!URLFOR($Resource.vAutoDashboardAssets, 'images/moduleBkgd.png')}');
+    background-repeat: no-repeat;
+    background-position: top left;
+    background-size: contain;
+    width: initial;
+    height: 115px;
+    float: left;
+    max-width: 380px;
+    min-width: 360px;
+}
+
+.col-lg-6.metrics {
+    padding-top: 27px;
+    min-width: 390px;
+    max-width: 390px;
+}
+
+/* -------------- SALES PIPELINE QUADRANT -------------- */
+
+.spHead {
+    background-image: url('{!URLFOR($Resource.vAutoDashboardAssets, 'images/SPheader.png')}');
+    background-repeat: no-repeat;
+    padding-top: 90px;
+    font-family: "nimbus-sans-extended", arial, sans-serif;
+    min-height: 300px;
+    background-position: 10px 0;
+}
+.chartBtn {
+    position: relative;
+    top: -80px;
+}
+.chartBtn input {
+    background-image: url('{!URLFOR($Resource.vAutoDashboardAssets, 'images/chartToggleBtn.png')}');
+    background-size: cover;
+    background-color: transparent;
+    border: none;
+    width: 177px;
+    height: 53px;
+    color: #000819;
+    text-transform: uppercase;
+    padding-left: 17px;
+    font-family: "stenciletta-solid", Arial, sans-serif;
+    font-size: 15px;
+    letter-spacing: .04em;
+}
+#chart_div p, #chrtQuad p, #chrtQuadConq p {
+    margin: 60px 0 0 20px;
+}
+div#chart_div, div#chrtQuad, div#chrtQuadConq {
+    min-height: 255px;
+}
+
+/* -- Pie chart -- */
+
+#chart_div g text[text-anchor="start"], #chrtQuad g text[text-anchor="start"], #chrtQuadConq g text[text-anchor="start"] {
+    font-family: "stenciletta-solid", arial, sans-serif;
+    text-transform: uppercase;
+    font-size: 15px !important;
+    letter-spacing: .06em;
+}
+
+/* -------------- PROVISION QUADRANT -------------- */
+
+.provHead {
+    background-image: url('{!URLFOR($Resource.vAutoDashboardAssets, 'images/Provheader.png')}');
+    background-repeat: no-repeat;
+    background-position: 96% 0;
+    padding-top: 100px;
+    padding-bottom: 50px;
+    min-height: 480px;
+    max-height: 480px;
+}
+
+.provHead .col-lg-12 {
+    padding-left: 0;
+}
+.chartBtn.provision input {
+    float: left;
+    clear: both;
+    margin-bottom: 10px;
+}
+.chartBtn.provision {
+    top: -148px;
+}
+
+
+/* -------------- CONQUEST QUADRANT -------------- */
+
+.conqHead {
+    background-image: url('{!URLFOR($Resource.vAutoDashboardAssets, 'images/conqheader.png')}');
+    background-repeat: no-repeat;
+    background-position: 17px 0;
+    padding-top: 120px;
+}
+.conqHead .moduleBorder {
+    margin-right: 18px;
+}
+.conqHead .row {
+    margin-bottom: 10px;
+}
+
+/* -------------- UPSELL QUADRANT -------------- */
+
+.upsellHead {
+    background-image: url('{!URLFOR($Resource.vAutoDashboardAssets, 'images/upsellheader.png')}');
+    background-repeat: no-repeat;
+    background-position: 94% 0;
+    padding-top: 130px;
+}
+
+/* -- Links Panel -- */
+
+.upsellPanel {
+    background-image: url('{!URLFOR($Resource.vAutoDashboardAssets, 'images/upsellBkgd.png')}');
+    background-repeat: no-repeat;
+    background-position: center;
+    height: 250px;
+}
+.upsellPanel .row.one {
+    margin-top: 45px;
+}
+.upsellPanel .row.two {
+    margin-top: 90px;
+}
+.upsellLink {
+    text-align: left;
+    font-family: "nimbus-sans-extended", arial, sans-serif;
+    font-size: 16px;
+    padding: 0;
+}
+.upsellLink a {
+    color: #94ffff;
+}
+
+/* -- Detail Panels -- */
+
+.upsellHead h2 {
+    margin-bottom: 15px;
+    font-size: 16px;
+}
+
+.backBtn {
+    margin: 20px 0 0;
+    text-align: right;
+}
+.upsellHead .backBtn a {
+    background-image: url('{!URLFOR($Resource.vAutoDashboardAssets, 'images/chartToggleBtn.png')}');
+    background-size: cover;
+    background-color: transparent;
+    border: none;
+    width: 217px;
+    height: 63px;
+    color: #000819;
+    text-transform: uppercase;
+    padding: 12px 50px;
+    font-family: "stenciletta-solid", Arial, sans-serif;
+    font-size: 17px;
+    letter-spacing: .04em;
+}
+.backBtn a.provDBanchor {
+    color: #000819!important;
+}
+.upsellHead .active, .upsellHead .backtosales, .upsellHead .deferred, .upsellHead .escalated, .upsellHead .compMo, .upsellHead .compYr {
+    margin: 0 10px;
+}
+.upsellHead .compQTD.col-lg-2, .upsellHead .compYTD.col-lg-2 {
+    margin-top: 0;
+}
+
+.stockwave .col-lg-6 .col-lg-12, .stockwave, .stockwave .col-lg-6 {
+    padding: 0 !important;
+}
+.col-lg-6.metrics {
+    margin-top: 20px;
+}
+
+/* -------------- PROJECT LIST STYLES -------------- */
+
+.red, tr.danger1 {
+    background-color: #961a1a;
+}
+.yellow, tr.warning1 {
+    background-color: #e2c033;
+}
+.green, tr.success1 {
+    background-color: #7ac943;
+}
+
+.detailBackBtn {
+    background-image: url('{!URLFOR($Resource.vAutoDashboardAssets, 'images/DetailBackBtn.png')}');
+    border: none;
+    background-color: transparent;
+    width: 233px;
+    height: 62px;
+    margin-bottom: 50px;
+}
+
+h2.detailHeader {
+    font-family: "nimbus-sans-extended", Arial, sans-serif;
+    color: white;
+    font-size: 28px;
+}
+.row.title {
+    padding: 20px;
+}
+
+/* -- Legend -- */
+
+.detailLegend {
+    background-image: url('{!URLFOR($Resource.vAutoDashboardAssets, 'images/DetailLegendBkgd.png')}');
+    background-size: contain;
+    width: 100%;
+    background-repeat: no-repeat;
+    height: 500px;
+    color: #94FFFF;
+    font-family: "stenciletta-solid", arial, sans-serif;
+    font-size: 18px;
+    text-align: center;
+}
+.detailLegend .row {
+    margin-right: 0;
+    margin-left: 0;
+    padding: 20px 15px 0 20px;
+}
+.detailLegend h4 {
+    display: block;
+    color: white;
+    font-family: "nimbus-sans-extended", Arial, sans-serif;
+    text-align: left;
+}
+.circle {
+    width: 30px;
+    height: 30px;
+    -moz-border-radius: 15px;
+    -webkit-border-radius: 15px;
+    border-radius: 15px;
+}
+
+
+/* -------------- ICON STYLES -------------- */
+
+.active, .backtosales, .deferred, .escalated, .compMo, .compQTD, .budgetMTD, .budgetQTD {
+    background-repeat: no-repeat;
+    /*padding: 60px 0 5px 0;*/
+    min-height: 50px;
+    text-align: center;
+    margin: 10px 15px;
+    font-family: "stenciletta-solid", arial, sans-serif;
+    font-size: 22px;
+    color: #94ffff;
+    font-weight: bold;
+    width: 60px;
+    background-image: url('{!URLFOR($Resource.vAutoDashboardAssets, 'images/metricIcons.png')}');
+}
+.active {
+    background-position: 5px 0;
+}
+.backtosales {
+    background-position: -55px 0;
+}
+.deferred {
+    background-position: -120px 0;
+}
+.escalated {
+    background-position: -180px 0;
+}
+.compMo {
+    background-position: -420px 0;
+}
+.compQTD {
+    background-position: -360px 0;
+}
+.budgetQTD {
+    background-position: -300px 0;
+}
+.budgetMTD {
+    background-position: -240px 0;
+}
+
+.active a, .backtosales a, .deferred a, .escalated a, .compMo a, .compQTD a, .budgetQTD, .budgetMTD {
+    display: block;
+    padding: 60px 0 5px 0px;
+    text-align: center;
+    min-width: 45px;
+    letter-spacing: .1em;
+    color: white;
+}
+.upsellHead .compQTD, .upsellHead .budgetMTD, .upsellHead .budgetQTD {
+    margin-top: 0;
+}
+.stockwave .moduleBorder div {
+    margin-top: 5px;
+}
+.stockwave .backBtn {
+    margin-top: 50px;
+}
+
+/* -------------- SIDEBAR STYLES -------------- */
+
+.sidebar{
+      z-index: 999999;
+      position: absolute;
+      top: 115px;
+      bottom: -1px;
+      padding:0px;
+      width: 40%;
+      height: 300px;
+      background-color: #000819;
+      border: 3px solid #94ffff;
+
+}
+
+.sidebar > .row > .col-lg-12 {
+    padding: 15px;         
+}
+.sidebar .col-lg-2 {
+    margin-bottom: 15px;
+    height: 70px;
+}
+.sidebar >.row{
+      margin:0px;
+}
+.sidebar p {
+    margin: 33% -20px;
+    color: white;
+}
+.sidebar p.twolines {
+    margin: 20% -20px;
+}
+.sidebar.sidebar-left{
+      left:0px;
+      right:20px;
+}
+.toggler {
+      width: 50px;
+      height: 178px;
+      position: absolute;
+      top: 48px;
+      cursor: pointer;
+      background-image: url('{!URLFOR($Resource.vAutoDashboardAssets, 'images/legendToggle.png')}');
+      background-repeat: no-repeat;
+}
+.sidebar-left > .toggler{
+      right: -50px;
+} 
+
+.sidebar-left > .toggler > span{
+      margin: 8px 17px;
+      color: white;
+      top: 31px;
+}
+
+.sidebar-left > .toggler > .glyphicon-chevron-right{
+      display:none;
+}
+
+/*
+
+.sidebar.sidebar-right{
+      right:0px;
+      left:20px;
+}
+.sidebar-right > .toggler{
+      -webkit-border-top-left-radius: 4px;
+      -webkit-border-bottom-left-radius: 4px;
+      -moz-border-radius-topleft: 4px;
+      -moz-border-radius-bottomleft: 4px;
+      border-top-left-radius: 4px;
+      border-bottom-left-radius: 4px;
+      border-right: 1px solid #fff;
+      -webkit-box-shadow: -1px 0px 8px rgba(0, 0, 0, .175);
+      box-shadow: -1px 0px 8px rgba(0, 0, 0, .175);             
+      left: -20px;
+} 
+
+.sidebar-right > .toggler > span{
+      margin:15px 2px;
+}
+
+.sidebar-right > .toggler > .glyphicon-chevron-left{
+      display:none;
+}*/
+
+
+/* -------------- LOADER STYLES -------------- */
+
+#loading-img {
+    background: url("{!$Resource.processingImg}") center center no-repeat;    
+    z-index: 20;
+    display:block;
+    margin:auto;
+    margin-top: 175px;
+}
+
+.overlay {
+    background: #e9e9e9;
+    display: none;
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    opacity: 0.5;
+}
+
+
+/* -------------- OLD -------------- */
+#moduleUpsellDiv {
+    border: 2px solid #a1a1a1;
+    padding: 45px 15px; 
+    background: green;
+   /* width: 190px; */
+    border-radius: 20px;    
+    border-left-width: 2px;
+    margin-left: 60px;
+    margin-top: 10px;
+
+}
+
+#filterDiv {
+    border: 2px solid #a1a1a1;
+    padding: 0px 50px; 
+    background: green;
+    width: 60px;
+    border-radius: 20px;    
+    border-left-width: 2px;    
+    margin-top: 20px;
+
+}
+
+
+#nav {
+    line-height:30px;
+    background-color:#eeeeee;
+    height:300px;
+    width:100px;
+    float:left;
+    padding:5px;          
+}
+#tlsection {
+    width:50%;
+    float:left;
+    padding:10px;
+    height:50%;      
+}
+#trsection {
+    width:50%;
+    float:right;
+    padding:10px;
+    height:50%;      
+}
+#blsection {
+    width:50%;
+    float:left;
+    padding:10px;
+    height:50%;      
+}
+#footer {
+    background-color:black;
+    color:white;
+    clear:both;
+    text-align:center;
+   padding:5px;      
+}
+
+</style>
+</apex:component>

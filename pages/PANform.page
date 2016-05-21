@@ -1,0 +1,479 @@
+<apex:page standardController="PAN__c" extensions="PanCustomController" renderas="pdf" standardStylesheets="false">
+
+    <style type="text/css">
+		.output {
+		    font-size: 11pt;
+		    font-family: Arial Unicode MS;
+		    font-weight: bold;
+		}
+	</style>
+    
+    <html>
+
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<title>PAN Form</title>
+		
+		<head>
+		
+			<p class="MsoNormal" align="center" style='text-align: center'>
+			    <apex:image url="{!$Resource.autotraderlogo}" width="356" height="44" />
+			</p>
+			<p class="MsoNormal" align="center" style='text-align: center'>
+			    <b><span style='font-size: 14.0pt; line-height: 100%; font-family: &amp; amp;'>Personnel Action Form</span> </b>
+			</p>
+		
+		</head> 
+		<body>
+			<div>
+				<table cellspacing="0" cellpadding="0" width="100%" id="table333">
+					<tr>
+						<td width="25%">
+							<apex:outputLabel style="font-size:11pt; font-weight:bold;" value="Effective Date: " />
+							<apex:outputText value="{!MONTH(DATEVALUE(PAN__c.Effective_Date__c))}" />/<apex:outputText value="{!DAY(DATEVALUE(PAN__c.Effective_Date__c))}" />/<apex:outputText value="{!YEAR(DATEVALUE(PAN__c.Effective_Date__c))}" />
+						</td>
+					</tr>
+				</table>
+			</div>
+			<br /><br />
+			<div>
+				<table cellspacing="0" cellpadding="0" width="100%" id="table3">
+					<tr>
+						<td width="33%" align="left">
+							<apex:outputLabel style="font-size:11pt; font-weight:bold;" value="First Name: " />
+							<apex:outputText style="font-size:11pt; font-family:Arial Unicode MS; font-weight:bold;" value="{!PAN__c.First_Name__c}" />
+						</td>
+						<td width="33%" align="left">
+							<apex:outputLabel style="font-size:11pt; font-weight:bold;" value="MI: " />
+							<apex:outputText style="font-size:11pt; font-family:Arial Unicode MS; font-weight:bold;" value="{!PAN__c.MI__c}" />
+						</td>
+						<td width="33%" align="left">
+							<apex:outputLabel style="font-size:11pt; font-weight:bold;" value="Last Name: " />
+							<apex:outputLabel style="font-size:11pt; font-family:Arial Unicode MS; font-weight:bold;" value="{!PAN__c.Last_Name__c}" />
+						</td>
+					</tr>
+					<tr>
+						<td width="25%">
+							<apex:outputLabel style="font-size:11pt; font-weight:bold;" value="Home Address: " />
+						</td>
+						<td align="left">
+							<apex:outputLabel style="font-size:11pt; font-family:Arial Unicode MS;" value="{!PAN__c.Home_Address__c}" />
+						</td>
+					</tr>
+					<tr>
+						<td width="25%"><apex:outputLabel style="font_size:11pt; font-weight:bold;"
+								value="Home City, State:" />
+						</td>
+						<td align="left">
+							<apex:outputLabel style="font-size:11pt; font-family:Arial Unicode MS; font-weight:bold;" value="{!PAN__c.Home_City_State__c}" />
+						</td>
+					</tr>
+					<tr>
+						<td width="25%"><apex:outputLabel style="font_size:11pt; font-weight:bold;"
+								value="State Worked In: " />
+						</td>
+						<td align="left"><apex:outputLabel style="font-size:11pt; font-family:Arial Unicode MS; font-weight:bold;"
+								value="{!PAN__c.State_Worked_In__c}" />
+						</td>
+					</tr>
+					<tr>
+						<td width="25%"><apex:outputLabel style="font-size:11pt; font-weight:bold;"
+								value="Phone Number: " />
+						</td>
+						<td align="left"><apex:outputText style="font-size:11pt; font-family:Arial Unicode MS; font-weight:bold;"
+								value="{!PAN__c.Home_Phone__c}" />
+						</td>
+					</tr>
+					<tr>
+						<td width="25%"><apex:outputLabel style="font-size:11pt; font-weight:bold;"
+								value="Email Address: " />
+						</td>
+						<td align="left"><apex:outputLabel style="font-size:11pt; font-family:Arial Unicode MS; font-weight:bold;"
+								value="{!PAN__c.Name_As_It_Appears_In_Email__c}" />
+						</td>
+					</tr>
+					<tr>
+						<td width="25%"><apex:outputLabel style="font-size:11pt; font-weight:bold;"
+								value="Job Title: " />
+						</td>
+						<td align="left"><apex:outputLabel style="font-size:11pt; font-family:Arial Unicode MS; font-weight:bold;"
+								value="{!PAN__c.New_Job_Title__c}" />
+						</td>
+					</tr>
+					<tr>
+						<td width="25%"><apex:outputLabel style="font-size:11pt; font-weight:bold;"
+								value="Supervisor & Title: " />
+						</td>
+						<td align="left">
+							<apex:outputLabel style="font-size:11pt; font-family:Arial Unicode MS; font-weight:bold;" value="{!PAN__c.Reports_To__r.FirstName}" /> <apex:outputLabel style="font-size:11pt; font-family:Arial Unicode MS; font-weight:bold;" value="{!PAN__c.Reports_To__r.LastName}" /> -<apex:outputLabel style="font-size:11pt; font-family:Arial Unicode MS; font-weight:bold;" value="{!PAN__c.Reports_To__r.Title}" />
+						</td>
+					</tr>
+					<tr>
+						<td width="25%"><apex:outputLabel style="font-size:11pt; font-weight:bold;"
+								value="Department Number: " />
+						</td>
+						<td align="left"><apex:outputLabel style="font-size:11pt; font-family:Arial Unicode MS; font-weight:bold;"
+								value="{!PAN__c.Department__c}" />
+						</td>
+					</tr>
+					<tr>
+						<td width="25%"><apex:outputLabel style="font-size:11pt; font-weight:bold;"
+								value="Location Code: " />
+						</td>
+						<td align="left"><apex:outputLabel style="font-size:11pt; font-family:Arial Unicode MS; font-weight:bold;"
+								value="{!PAN__c.Location__c}" />
+						</td>
+					</tr>
+				</table>
+			</div>
+			<!--
+			<br /><br /><br /><br /><br /><br />
+			 
+		    <div>
+		        <table cellspacing="0" cellpadding="0" width="100%" id="table3">
+		            <tr>
+		                <td width="25%"><apex:outputLabel style="font-size:11pt"
+		                        value="First Name: " />
+		                </td>
+		                <td align="left"><apex:outputText style="font-size:11pt; font-family:Arial Unicode MS; font-weight:bold;"
+		                        value="{!PAN__c.First_Name__c}" />
+		                </td>
+		            </tr>
+		            <tr>
+		                <td width="25%"><apex:outputLabel style="font-size:11pt"
+		                        value="Middle Name: " />
+		                </td>
+		                <td align="left"></td>
+		            </tr>
+		            <tr>
+		                <td width="25%"><apex:outputLabel style="font-size:11pt"
+		                        value="Last Name: " />
+		                </td>
+		                <td align="left"><apex:outputLabel style="font-size:11pt; font-family:Arial Unicode MS; font-weight:bold;"
+		                        value="{!PAN__c.Last_Name__c}" />
+		                </td>
+		            </tr>
+		            <tr>
+		                <td width="25%"><apex:outputLabel style="font-size:11pt;"
+		                        value="Address: " />
+		                </td>
+		                <td align="left"><apex:outputLabel style="font-size:11pt; font-family:Arial Unicode MS; font-weight:bold;"
+		                        value="{!PAN__c.Home_Address__c}" />
+		                </td>
+		            </tr>
+		            <tr>
+		                <td width="25%"><apex:outputLabel style="font_size:11pt;"
+		                        value="State Worked In: " />
+		                </td>
+		                <td align="left"><apex:outputLabel style="font-size:11pt; font-family:Arial Unicode MS; font-weight:bold;"
+		                        value="{!PAN__c.State_Worked_In__c}" />
+		                </td>
+		            </tr>
+		            <tr>
+		                <td width="25%"><apex:outputLabel style="font-size:11pt"
+		                        value="Effective Date: " />
+		                </td>
+		                <td align="left"><apex:outputText value="{!MONTH(DATEVALUE(PAN__c.Effective_Date__c))}" />/<apex:outputText value="{!DAY(DATEVALUE(PAN__c.Effective_Date__c))}" />/<apex:outputText value="{!YEAR(DATEVALUE(PAN__c.Effective_Date__c))}" />
+		                </td>
+		            </tr>
+		            <tr>
+		                <td width="25%"><apex:outputLabel style="font-size:11pt"
+		                        value="Phone Number: " />
+		                </td>
+		                <td align="left"><apex:outputText style="font-size:11pt; font-family:Arial Unicode MS; font-weight:bold;"
+		                        value="{!PAN__c.Home_Phone__c}" />
+		                </td>
+		            </tr>
+		            <tr>
+		                <td width="25%"><apex:outputLabel style="font-size:11pt"
+		                        value="Email Address: " />
+		                </td>
+		                <td align="left"><apex:outputLabel style="font-size:11pt; font-family:Arial Unicode MS; font-weight:bold;"
+		                        value="{!PAN__c.Name_As_It_Appears_In_Email__c}" />
+		                </td>
+		            </tr>
+		            <tr>
+		                <td width="25%"><apex:outputLabel style="font-size:11pt"
+		                        value="Job Title: " />
+		                </td>
+		                <td align="left"><apex:outputLabel style="font-size:11pt; font-family:Arial Unicode MS; font-weight:bold;"
+		                        value="{!PAN__c.New_Job_Title__c}" /> 
+		                </td>
+		            </tr>
+		            <tr>
+		                <td width="25%"><apex:outputLabel style="font-size:11pt"
+		                        value="Supervisor & Title: " />
+		                </td>
+		                <td align="left"><apex:outputLabel style="font-size:11pt; font-family:Arial Unicode MS; font-weight:bold;"
+		                        value="{!PAN__c.Reports_To__r.FirstName}" /> <apex:outputLabel style="font-size:11pt; font-family:Arial Unicode MS; font-weight:bold;"
+		                        value="{!PAN__c.Reports_To__r.LastName}" /> -<apex:outputLabel style="font-size:11pt; font-family:Arial Unicode MS; font-weight:bold;"
+		                        value="{!PAN__c.Reports_To__r.Title}" />
+		                </td>
+		            </tr>
+		            <tr>
+		                <td width="25%"><apex:outputLabel style="font-size:11pt"
+		                        value="Department Number: " />
+		                </td>
+		                <td align="left"><apex:outputLabel style="font-size:11pt; font-family:Arial Unicode MS; font-weight:bold;"
+		                        value="{!PAN__c.Department__c}" />
+		                </td>
+		            </tr>
+		            <tr>
+		                <td width="25%"><apex:outputLabel style="font-size:11pt"
+		                        value="Location Code: " />
+		                </td>
+		                <td align="left"><apex:outputLabel style="font-size:11pt; font-family:Arial Unicode MS; font-weight:bold;"
+		                        value="{!PAN__c.Location__c}" />
+		                </td>
+		            </tr>
+		        </table>
+		    </div>
+		     -->
+		    <br />
+		    <div>
+		        <table cellspacing="0" cellpadding="0" width="100%" id="table1">
+		            <tr>
+		                <td width="25%"><apex:outputLabel style="font-size:11pt; font-weight:bold;"
+		                        value="Salary:  " />
+		                </td>
+		                <td align="left"><apex:outputField style="font-size:11pt; font-family:Arial Unicode MS; font-weight:bold;"
+		                        value="{!PAN__c.Salary_Amount_Encrypted__c}" />
+		                </td>
+		            </tr>
+		            <tr>
+		                <td width="25%"><apex:outputLabel style="font-size:11pt; font-weight:bold;"
+		                        value="Decrypted Salary:  " />
+		                </td>
+		                <td align="left"><apex:outputLabel style="font-size:11pt; font-family:Arial Unicode MS; font-weight:bold;"
+		                        value="{!EmpSalary}" />
+		                </td>
+		            </tr>
+		            <tr>
+		                <td width="25%"><apex:outputLabel style="font-size:11pt; font-weight:bold;"
+		                        value="Bonus Percentage:  " />
+		                </td>
+		                <td align="left">
+		                	<!-- <apex:outputLabel style="font-size:11pt; font-family:Arial Unicode MS; font-weight:bold;" value="{!if(PAN__c.Bonus__c = true, 'YES', 'NO')}" />  -->
+		                	<apex:outputLabel style="font-size:11pt; font-family:Arial Unicode MS; font-weight:bold;" value="{!PAN__c.Bonus_Percentage__c}" />
+		                </td>
+		            </tr>
+		            <tr>
+		                <td width="25%"><apex:outputLabel style="font-size:11pt; font-weight:bold;"
+		                        value="Commission Eligible: " />
+		                </td>
+		                <td align="left">
+		                	<apex:outputLabel style="font-size:11pt; font-family:Arial Unicode MS; font-weight:bold;" value="{!if(PAN__c.Commission_Eligible__c = true, 'YES', 'NO')}" />
+		                </td>
+		            </tr>
+		            <tr>
+		                <td width="25%">
+		                	<apex:outputLabel style="font-size:11pt; font-weight:bold;" value="KRONOS Editing Rights: " />
+		                </td>
+		                <td align="left">
+		                	<apex:outputLabel style="font-size:11pt; font-family:Arial Unicode MS; font-weight:bold;" value="{!if(PAN__c.KRONOS_Editing_Rights__c = true, 'YES', 'NO')}" />
+		                </td>
+		            </tr>
+		        </table>
+		    </div>
+		    <!-- &nbsp;
+		    <div>
+		        <table cellspacing="0" cellpadding="0" width="100%" id="table5">
+		            <tr>
+		                <td width="25%"><apex:outputLabel style="font-size:11pt"
+		                        value="Commission Eligible: " />&nbsp;&nbsp;&nbsp;<apex:outputLabel style="font-size:11pt; font-family:Arial Unicode MS; font-weight:bold;"
+		                        value="{!if(PAN__c.Commission_Eligible__c = true, 'YES', 'NO')}" />
+		                </td>
+		                <td width="25%"><apex:outputLabel style="font-size:11pt"
+		                        value="KRONOS Editing Rights: " />&nbsp;&nbsp;&nbsp;<apex:outputLabel style="font-size:11pt; font-family:Arial Unicode MS; font-weight:bold;"
+		                        value="{!if(PAN__c.KRONOS_Editing_Rights__c = true, 'YES', 'NO')}" />
+		                </td>
+		            </tr>
+		        </table>
+		    </div>
+		     -->
+		    <br />
+		    <div>
+		        <table cellspacing="0" cellpadding="0" width="100%" id="table4">
+		            <tr>
+		                <td width="25%"><apex:outputLabel style="font-size:11pt; font-weight:bold;"
+		                        value="New Hire Only: " />
+		                </td>
+		                <td align="left"><apex:outputLabel style="font-size:11pt; font-family:Arial Unicode MS; font-weight:bold;"
+		                        value="{!PAN__c.New_Hire_Only__c}" />
+		                </td>
+		            </tr>
+		            <tr>
+		                <td width="25%">
+		                	<apex:outputLabel style="font-size:11pt; font-weight:bold;" value="Status: " />
+		                </td>
+		                <td align="left">
+		                	<apex:outputLabel style="font-size:11pt; font-family:Arial Unicode MS; font-weight:bold;" value="{!PAN__c.Status__c}" />
+		                </td>
+		            </tr>
+		            <tr>
+		                <td width="25%"><apex:outputLabel style="font-size:11pt; font-weight:bold;"
+		                        value="Other Negotiables: " />
+		                </td>
+		                <td align="left"><apex:outputLabel style="font-size:11pt; font-family:Arial Unicode MS; font-weight:bold;"
+		                        value="{!PAN__c.Other_Negotiables__c}" />
+		                </td>
+		            </tr>
+		            <tr>
+		                <td width="25%"><apex:outputLabel style="font-size:11pt; font-weight:bold;"
+		                        value="Additional Comments: " />
+		                </td>
+		                <td align="left"><apex:outputLabel style="font-size:11pt; font-family:Arial Unicode MS; font-weight:bold;"
+		                        value="{!PAN__c.Other_Negotiables_Additional_Comments__c}" />
+		                </td>
+		            </tr>
+		            <tr>
+		                <td width="25%">
+		                	<apex:outputLabel style="font-size:11pt; font-weight:bold;" value="TRAX Eligible: " />
+		                </td>
+		                <td align="left">
+							<apex:outputLabel style="font-size:11pt; font-family:Arial Unicode MS; font-weight:bold;" value="{!PAN__c.TRAX_Eligible__c}" />
+		                </td>
+		            </tr>
+		        </table>
+		    </div>
+		    <!-- 
+		    <br />
+		    <div>
+		        <table width="600" align="left" cellpadding="0" cellspacing="0">
+		            <tr>
+		                <td width="65"></td>
+		                <td width="190"></td>
+		            </tr>
+		            <tr>
+		                <td height="30"><b><span
+		                        style="font-size: 12.0pt; line-height: 100%; font-family: &amp; amp;">Personnel
+		                            Changes</span> </b></td>
+		                <td>&nbsp;</td>
+		            </tr>
+		        </table>
+		
+		
+		        <p class="MsoNormal">&nbsp;</p>
+		
+		        <table width="600" align="left" cellpadding="0" cellspacing="0">
+		            <tr>
+		                <td width="130"></td>
+		                <td width="727"></td>
+		            </tr>
+		        </table>
+		
+		
+		        <table class="MsoTableGrid" border="1" cellspacing="0" cellpadding="0"
+		            width="380"
+		            style='width: 7.5in; border-collapse: collapse; border: none'>
+		            <tr style='height: .3in'>
+		                <td width="200" height="25" valign="top"
+		                    style='width: 159.6pt; border: solid windowtext 1.0pt; padding: 0in 5.4pt 0in 5.4pt; height: .3in'>
+		                    <p class="MsoNormal" align="center"
+		                        style='margin-bottom: 0in; margin-bottom: .0001pt; text-align: center; line-height: normal'>
+		                        <b><span
+		                            style='font-size: 10.0pt; font-family: "Arial", "sans-serif"'>Action
+		                                Required</span> </b>
+		                    </p>
+		                </td>
+		                <td width="200" valign="top"
+		                    style='width: 159.6pt; border: solid windowtext 1.0pt; border-left: none; padding: 0in 5.4pt 0in 5.4pt; height: .3in'>
+		                    <p class="MsoNormal" align="center"
+		                        style='margin-bottom: 0in; margin-bottom: .0001pt; text-align: center; line-height: normal'>
+		                        <b><span
+		                            style='font-size: 10.0pt; font-family: "Arial", "sans-serif"'>Current
+		                                Information</span> </b>
+		                    </p>
+		                </td>
+		                <td width="200" valign="top"
+		                    style='width: 159.6pt; border: solid windowtext 1.0pt; border-left: none; padding: 0in 5.4pt 0in 5.4pt; height: .3in'>
+		                    <p class="MsoNormal" align="center"
+		                        style='margin-bottom: 0in; margin-bottom: .0001pt; text-align: center; line-height: normal'>
+		                        <b><span
+		                            style='font-size: 10.0pt; font-family: "Arial", "sans-serif"'>New
+		                                Information</span> </b>
+		                    </p>
+		                </td>
+		            </tr>
+		
+		            <apex:repeat value="{!personnelChangesList}" var="perssonelChanges">
+		
+		
+		                <tr style='height: .3in'>
+		                    <td width="200" valign="top"
+		                        style='width: 159.6pt; border: solid windowtext 1.0pt; border-top: none; padding: 0in 5.4pt 0in 5.4pt; height: .3in'>
+		                        <apex:outputText value="{!perssonelChanges.ActionRequired}" />
+		                    </td>
+		                    <td width="200" valign="top"
+		                        style='width: 159.6pt; border: solid windowtext 1.0pt; none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; padding: 0in 5.4pt 0in 5.4pt; height: .3in'>
+		                        <apex:outputText value="{!perssonelChanges.CurrentInformation}" />
+		                    </td>
+		                    <td width="200" valign="top"
+		                        style='width: 159.6pt; border: solid windowtext 1.0pt; none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; padding: 0in 5.4pt 0in 5.4pt; height: .3in'>
+		                        <apex:outputText value="{!perssonelChanges.NewInformation}" />
+		                    </td>
+		                </tr>
+		            </apex:repeat>
+		        </table>
+		    </div>
+		    <br />
+		    <div>
+		        <table cellspacing="0" cellpadding="0" width="100%" id="table6">
+		            <tr>
+		                <td width="25%"><apex:outputLabel style="font-size:11pt"
+		                        value="Termination: " />
+		                </td>
+		                <td align="left"><apex:outputLabel style="font-size:11pt; font-family:Arial Unicode MS; font-weight:bold;"
+		                        value="{!PAN__c.Seperation_Reason__c}" />
+		                </td>
+		            </tr>
+		            <tr>
+		                <td width="25%"><apex:outputLabel style="font-size:11pt"
+		                        value="Last Day Worked: " />
+		                </td>
+		                <td align="left"><apex:outputText value="{!MONTH(DATEVALUE(PAN__c.Separation_Date_Time__c))}/" /> <apex:outputText value="{!DAY(DATEVALUE(PAN__c.Separation_Date_Time__c))}/" /> <apex:outputText value="{!YEAR(DATEVALUE(PAN__c.Separation_Date_Time__c))}" />
+		                </td>
+		            </tr>
+		            <tr>
+		                <td width="25%"><apex:outputLabel style="font-size:11pt"
+		                        value="PTO Hours Taken YTD: " />
+		                </td>
+		                <td align="left"><apex:outputLabel style="font-size:11pt; font-family:Arial Unicode MS; font-weight:bold;"
+		                        value="{!PAN__c.Time_Off_Balance__c}" />
+		                </td>
+		            </tr>
+		            <tr>
+		                <td width="25%"><apex:outputLabel style="font-size:11pt"
+		                        value="Eligible for Rehire: " />
+		                </td>
+		                <td align="left"><apex:outputLabel style="font-size:11pt; font-family:Arial Unicode MS; font-weight:bold;"
+		                        value="{!PAN__c.Eligible_for_Rehire__c}" />
+		                </td>
+		            </tr>
+		            <tr>
+		                <td width="25%"><apex:outputLabel style="font-size:11pt"
+		                        value="Final Car Allowance: " />
+		                </td>
+		                <td align="left">
+		                </td>
+		            </tr>
+		            <tr>
+		                <td width="25%"><apex:outputLabel style="font-size:11pt"
+		                        value="Final Commission: " />
+		                </td>
+		                <td align="left">
+		                </td>
+		            </tr>
+		            <tr>
+		                <td width="25%"><apex:outputLabel style="font-size:11pt"
+		                        value="Justification if Applicable: " />
+		                </td>
+		                <td align="left"><apex:outputLabel style="font-size:11pt; font-family:Arial Unicode MS; font-weight:bold;"
+		                        value="{!PAN__c.Separation_Notes__c}" />
+		                </td>
+		            </tr>
+		        </table>
+		    </div>
+		     -->
+		</body>
+    </html>
+</apex:page>

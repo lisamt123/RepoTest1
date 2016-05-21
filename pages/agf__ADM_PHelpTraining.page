@@ -1,0 +1,427 @@
+<apex:page showHeader="false" sidebar="false">
+
+<style>
+
+body {
+    font-family: verdana;
+    color: #555555;
+    font-size:11px;
+ 
+}
+
+.curvedHighlight {
+            
+            -moz-border-radius-topleft: 20px;
+            -moz-border-radius-topright: 20px;
+            -moz-border-radius-bottomright: 20px;
+            -moz-border-radius-bottomleft: 20px;
+            border-top-left-radius: 20px;
+            border-top-right-radius: 20px;
+            border-bottom-right-radius: 20px;
+            border-bottom-left-radius: 20px;
+            margin-right:3px;
+            margin-bottom:2px; 
+             margin-left:10px
+            margin-top:10px;
+            
+            
+        
+        } 
+        
+        .phelpTitle {
+           
+            height:20px;
+            margin-right:5px;
+            
+            padding:6px;
+            background:#00335b;
+            font-size:15px;
+            font-weight:bold;
+            color:#fff;
+            
+        }
+        
+        h1 {
+            font-size:14px;
+            font-weight:bold;
+           
+        } 
+        
+        h2 {
+            font-size:14px;
+            
+        }  
+        
+         h3 {
+            font-size:13px;
+            
+        }    
+        
+        img.floatLeft { 
+            float: left; 
+            margin: 7px; 
+        }
+        img.floatRight { 
+            float: right; 
+            margin: 7px; 
+        }
+
+.toc {
+	background: #F1F3F6;
+	border: 1px solid #C8C9CA;
+	margin-bottom: 5px;
+	overflow: hidden;
+	width: 500px;
+	line-height: 1.5em;
+}
+
+.ol-display {
+	list-style: none;
+	margin-left: 1px;
+	padding-left: 0;
+}
+
+</style>
+
+<div style="margin:8px">
+<div class="curvedHighlight phelpTitle">
+    &nbsp;&nbsp;Your New Prioritizer
+</div>
+
+<p>
+<i>
+Welcome to a new era of managing your backlog in GUS. The Prioritizer remains at heart a simple ranked list of all that your team plans to do. Now alongside this core functionality, GUS adds tools to plan and organize your backlog faster and smarter than ever before. Future improvements will continue to focus on the Prioritizer as a planning tool. All this with fewer clicks, less scrolling, and improved speed.
+<br/><br/>
+<b>
+This document helps users of the old Prioritizer transition to the new one. If you're a new Prioritizer user, please see our <a href="/apex/ADM_PHelp">tutorial</a> as well!
+</b>
+</i>
+</p>
+
+<br/>
+<div class="toc">
+	<h3>
+	<p style="padding-left:2px;"> Contents</p>
+	</h3>
+	<ol class="ol-display">
+		<li>
+			<strong>1 </strong>
+			<a href="#TOC-New-capabilities">New Capabilities:</a>
+			<ol class="ol-display">
+				<li>
+					<strong>1.1 </strong>
+					<a href="#TOC-See-More-Do-More">See More, Do More</a>
+				</li>
+				<li>
+					<strong>1.2 </strong>
+					<a href="#TOC-What-s-on-Top">What's on Top</a>
+				</li>
+				<li>
+					<strong>1.3 </strong>
+					<a href="#TOC-Rank-in-Real-Time">Rank in Real-Time</a>
+				</li>
+				<li>
+					<strong>1.4 </strong>
+					<a href="#TOC-Check-Your-Velocity">Check Your Velocity</a>
+				</li>
+				<li>
+					<strong>1.5 </strong>
+					<a href="#TOC-Story-Point-in-No-Time">Story Point in No Time</a>
+				</li>
+				<li>
+					<strong>1.6 </strong>
+					<a href="#TOC-Focus-on-What-Matters">Focus on What Matters</a>
+				</li>
+				<li>
+					<strong>1.7 </strong>
+					<a href="#TOC-Have-Edits-Will-Not-Travel">Have Edits, Will Not Travel</a>
+				</li>
+				<li>
+					<strong>1.8 </strong>
+					<a href="#TOC-Trim-Your-Backlog">Trim Your Backlog</a>
+				</li>
+				<li>
+					<strong>1.9 </strong>
+					<a href="#TOC-And-oh-yeah-it-s-faster">And oh yeah it's faster!</a>
+				</li>
+			</ol>
+		</li>
+		<li>
+			<strong>2 </strong>
+			<a href="#TOC-What-stayed-the-same">What stayed the same:</a>
+			<ol class="ol-display">
+				<li>
+					<strong>2.1 </strong>
+					<a href="#TOC-Mass-assign-Scheduled-Build-Sprint">Mass-assign Scheduled Build, Sprint, and Theme</a>
+				</li>
+				<li>
+					<strong>2.2 </strong>
+					<a href="#TOC-Full-Column-View">Full Column View</a>
+				</li>
+				<li>
+					<strong>2.3 </strong>
+					<a href="#TOC-How-to-Make-It-on-the-Prioritizer">How to Make It on the Prioritizer</a>
+				</li>
+			</ol>
+		</li>
+		<li>
+			<strong>3 </strong>
+			<a href="#TOC-What-went-away">What went away:</a>
+			<ol class="ol-display">
+				<li>
+					<strong>3.1 </strong>
+					<a href="#TOC-The-Old_Prioritizer">The Old Prioritizer</a>
+				</li>
+				<li>
+					<strong>3.2 </strong>
+					<a href="#TOC-The-New-Work-Button">The "New Work" Button</a>
+				</li>
+				<li>
+					<strong>3.3 </strong>
+					<a href="#TOC-Mass-Drag-and-Drop-Re-Ranking">Mass Drag-and-Drop Re-Ranking</a>
+				</li>
+				<li>
+					<strong>3.4 </strong>
+					<a href="#TOC-The-Story-Pointing-Button">The Story Pointing Button</a>
+				</li>
+				<li>
+					<strong>3.5 </strong>
+					<a href="#TOC-The-Save-Reset-Buttons">The Save/Reset Buttons</a>
+				</li>
+				<li>
+					<strong>3.6 </strong>
+					<a href="#TOC-Some-Scrolling">Some Scrolling</a>
+				</li>
+				<li>
+					<strong>3.7 </strong>
+					<a href="#TOC-The-Priority-Column">The Priority Column</a>
+				</li>
+			</ol>
+		</li>
+		<li>
+			<strong>4 </strong>
+			<a href="#TOC-You-Should-also-know-how-to">You should also know how to ...</a>
+			<ol class="ol-display">
+				<li>
+					<strong>4.1 </strong>
+					<a href="#TOC-Make-Edits-to-Work-Items-Elsewhere">Make Edits to Work Items Elsewhere Show Up on the Prioritizer</a>
+				</li>
+				<li>
+					<strong>4.2 </strong>
+					<a href="#TOC-Remove-an-Item-from-the-Filter-Tile">Remove an Item from the Filter Tile after You've Edited It Out</a>
+				</li>
+			</ol>
+		</li>
+	</ol>
+</div>
+<br/>
+
+<h2 style="color:blue">
+<a name="TOC-New-capabilities"></a>
+New capabilities:
+</h2>
+<br/><br/>
+
+<apex:image url="{!$Resource.agf__PRIOtopbuttons}" styleClass="floatRight" />
+<h3>
+<a name="TOC-See-More-Do-More"></a>
+See More, Do More
+</h3>
+
+<p>
+The new Prioritizer features a tiled UI: your prioritized backlog on the left, with an unranked list of items in the right-hand Backburner tile, plus a filter tile in the middle. You can choose which tiles to show/hide with just one click of the tile selector buttons at the top of the page. You don't have to look at your unranked items if you don't want to, just close the tile anytime with one click.
+</p>
+
+<br/><br/>
+<apex:image url="{!$Resource.agf__PRIOtopofbackburner}" styleClass="floatLeft" />
+<a name="TOC-What-s-on-Top"></a>
+<h3>What's on Top</h3>
+
+<p>
+The new Prioritizer keeps your top-ranked work at the top of your Backlog tile, where it belongs. Meanwhile, new Work items for your team-- maybe things you haven't sized, reviewed, or even decided for sure to do-- go straight to the new Backburner tile of unranked items. There's no need to drag-and-drop them out of your way anymore, now you can choose to drag them into the backlog whenever you're ready.
+</p>
+
+<br/><br/>
+<a name="TOC-Rank-in-Real-Time"></a>
+<h3>Rank in Real-Time</h3>
+
+<p>
+ Drag-and-drop items up and down the backlog, and into and out of the Backlog and Backburner tile-- your changes will be saved in real-time, no need for an extra "Save" click!
+</p>
+
+<a name="TOC-Check-Your-Velocity"></a>
+<h3>Check Your Velocity</h3>
+<apex:image url="{!$Resource.agf__PRIOtopofbackburner}" styleClass="floatRight" />
+<p>
+At a glance, the new Prioritizer gives you an idea of what you can fit in each sprint: The new Prioritizer knows your velocity, and places a light blue line within your backlog where one sprint's worth of work might fall, based on the story points you've assigned to your work. It's just a guide-- you're still free to place items in any sprint you want. And you can change the number of sprints-worth of data GUS uses to make its calculations, by clicking on the wrench icon in the upper right of the page. In the future, we'll enable a complete manual override of your known velocity. 
+</p>
+
+<a name="TOC-Story-Point-in-No-Time"></a>
+<h3>
+Story Point in No Time
+</h3>
+
+<p>
+One-click story-pointing: every row in the Prioritizer now includes a picklist of your team's story point values, and saves your selections in real-time. The amount of clicks needed to story-point an item from the Prioritizer has dropped from four (+ a bonus drag), to one!
+</p>
+
+<a name="TOC-Focus-on-What-Matters"></a>
+<h3>
+Focus On What Matters
+</h3>
+<apex:image url="{!$Resource.agf__PRIOfilterbybuild2}" styleClass="floatLeft" />
+<p>
+As part of the new tiled interface, the new Prioritizer includes a Filter tile that lets you select items from within your backlog, as well as from within your unranked backburner items, and focus on them exclusively, using criteria of Build, Sprint, or Theme. You can change filter criteria any time by clicking the wrench at the top of the tile. In the future, you'll also be able to re-rank items within this Filter tile, plus have other filter criteria options. The filter tile will never offer complete parity with an enhanced list view-- still the GUS Team's recommended tool for mass editing and filtering of any object-- but having some of these capabilities right on the Prioritizer can save a lot of clicks.
+</p>
+
+<br/><br/>
+<a name="TOC-Have-Edits-Will-Not-Travel"></a>
+<h3>
+Have Edits, Will Not Travel
+</h3>
+<apex:image url="{!$Resource.agf__PRIOrowdropdown}" styleClass="floatRight" />
+<p>
+Now you can edit the Subject, Status and Description of Work records straight from the Prioritizer-- no more clicking out to the full record detail. The number of clicks needed to edit a subject drops from 4-and-ouch-a-browser-refresh, to 3.
+</p>
+
+<a name="TOC-Trim-Your-Backlog"></a>
+<h3>
+Trim Your Backlog
+</h3>
+
+<p>
+In the old Prioritizer, if you saw something there you wanted to close out, or "Never," you had to click through to the item, make your edits, then come back to the Prioritizer and refresh via the browser. Now, with a real-time editable Status picklist, when you select any closed status values, the item is removed instantly.
+</p>
+
+<a name="TOC-And-oh-yeah-it-s-faster"></a>
+<h3>
+And oh yeah it's faster!
+</h3>
+
+<p>
+We like faster.
+</p>
+
+<a name="TOC-What-stayed-the-same"></a>
+<h2 style="color:blue">
+What stayed the same:
+</h2>
+<br/><br/>
+<a name="TOC-Mass-assign-Scheduled-Build-Sprint"></a>
+<h3>
+Mass-assign Scheduled Build, Sprint, and Theme
+</h3>
+<apex:image url="{!$Resource.agf__PRIOmassedits}" styleClass="floatRight" />
+
+The familiar functionality from the old Prioritizer, where you select as many items as you like (now via checkbox), and then apply a new Build, Sprint, or Theme value via lookup links at the top of the page, works almost exactly the same in the new Prioritizer, with the added enhancement that the autocomplete lookup now works from anywhere in a string, not just the beginning: So if you type "72.6," 172.6 will appear as an option just as if you'd typed the whole thing.
+
+<br/><br/>
+
+<a name="TOC-Full-Column-View">Full Column View"></a>
+<h3>
+Full Column View
+</h3>
+
+<p>
+The old Prioritizer showed you the Build, Sprint, and Theme values as columns on the right-side of the page. In any multi-tile view on the new Prioritizer, these are hidden. But go down to 1 tile, and they re-appear, for a sort of Prioritizer-classic view.
+</p>
+
+<a name="TOC-How-to-Make-It-on-the-Prioritizer"></a>
+<h3>
+How to Make It on the Prioritizer
+</h3>
+
+<p>
+Any GUS Work of record types Bug, User Story, and ToDo can be included in the Prioritizer, as long as its "Include in Prioritize View" box is checked. This is also mass-editable via an enhanced list view, if you want to move many items on/off the Prioritizer at once.
+</p>
+
+<a name="TOC-What-went-away"></a>
+<h2 style="color:red">
+What went away:
+</h2>
+<br/><br/>
+<a name="TOC-The-Old_Prioritizer"></a>
+<h3>
+The Old Prioritizer
+</h3>
+<p>
+It's passed on! The old Prioritizer is no more! It has ceased to be! It's expired and gone to meet its maker! It's a stiff! Bereft of life, it rests in peace! If we didn't nail it to the perch it'd be pushing up the daisies! Its metabolic processes are now history! It's off the twig! It's kicked the bucket, it's shuffled off its mortal coil, run down the curtain and joined the choir invisibile! THIS IS AN EX-PRIORITIZER!
+</p>
+
+<a name="TOC-The-New-Work-Button"></a>
+<h3>
+The "New Work" Button
+</h3>
+<p>
+But it'll come back someday!
+</p>
+
+<a name="TOC-Mass-Drag-and-Drop-Re-Ranking"></a>
+<h3>
+Mass Drag-and-Drop Re-Ranking
+</h3>
+
+<p>
+Also on a list of future enhancements for the new Prioritizer, the former ability to select multiple items at a time, and rank them in the same new spot, is no longer available. As a temporary workaround, an enhanced list view can set multiple ranks at a time. Generally, the new Prioritizer will continue to favor enhancements aimed at planning capabilities, with some more purely mass-edit functions left to list views, though this is one piece of functionality that will be brought back.
+</p>
+
+<a name="TOC-The-Story-Pointing-Button"></a>
+<h3>
+The Story Pointing Button
+</h3>
+
+<p>
+And its nifty little screen to assign story points. Who needs its clicky goodness, when every record can have its points set with just one click? Even if you need to point three items at once, the number of clicks required has dropped from six (+ three bonus drags) to three!
+</p>
+
+<a name="TOC-The-Save-Reset-Buttons"></a>
+<h3>
+The Save/Reset Buttons
+</h3>
+
+<p>
+Drag-and-Drop re-ranking is now saved in real-time, and individual rows are saved locally, so no global Save/Reset is needed anymore!
+</p>
+
+<a name="TOC-Some-Scrolling"></a>
+<h3>
+Some Scrolling
+</h3>
+
+<p>
+By default the new Prioritizer loads 50 records per tile, instead of 200 as before. You can always click "Show More" if you need to see more, but you may find that you're able to use the multi-tile interface to view things side-by-side, and reduce scrolling dramatically.
+</p>
+
+<a name="TOC-The-Priority-Column"></a>
+<h3>
+The Priority Column
+</h3>
+<p>
+No, not that one! The P1, P2, etc. column. Used more for bugs, the GUS Team can consider adding it back depending on usage patterns.
+</p>
+
+<a name="TOC-You-Should-also-know-how-to"></a>
+<h2 style="color:green">
+You should also know how to ... 
+</h2>
+<br/><br/>
+<a name="TOC-Make-Edits-to-Work-Items-Elsewhere"></a>
+<h3>
+Make Edits to Work Items Elsewhere Show Up on the Prioritizer
+</h3>
+
+<p>
+At this time, the Prioritizer doesn't update automatically for any updates made to Work items while you're away from the Prioritizer. So if you have the Prioritizer open in your browser, and want it to include changes you made to a Work record open in another browser tab, please use the browser refresh function.
+</p>
+
+<a name="TOC-Remove-an-Item-from-the-Filter-Tile"></a>
+<h3>
+Remove an Item from the Filter Tile after You've Edited It Out
+</h3>
+
+<p>
+When you have an open Filter tile, if you edit the filtered value of any records on the Prioritizer, they won't automatically remove themselves from the Filter tile. So if you have a tile filtering by theme "GUS - Trust," then use the Mass Edit tool to remove that theme from a record, it will not automatically disappear from your filter tile-- at this time, you'd need to close and re-open the Filter tile to remove it from the filtered view, or refresh via the browser (which will also clear your filter selection).
+</p>
+
+</div>
+</apex:page>

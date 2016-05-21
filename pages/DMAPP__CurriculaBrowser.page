@@ -1,0 +1,155 @@
+<apex:page sidebar="false" controller="DMAPP.DVLSStandardController" action="{!logDVLSUsage}" docType="html-5.0">
+
+	<style>
+		@import url("{!URLFOR($Resource.jQueryUI, 'css/custom-theme/jquery-ui-1.8.21.custom.css')}");
+		@import url("{!URLFOR($Resource.dvls,    'css/dvls.css')}");
+	
+		#tooltip {
+			position: absolute;
+			z-index: 3000;
+			border: 1px solid #111;
+			background-color: #eee;
+			padding: 5px;
+			max-width: 250px;
+			opacity: 0.85;
+			border-radius: 4px;
+			-moz-border-radius: 4px;
+			-webkit-border-radius: 4px;
+		}
+		
+		span.grey_asterisk {
+			font-weight:bold;
+			font-size: 110%;
+			color: #b0b0b0;
+		}
+		
+		span.gold_asterisk {
+			font-weight:bold;
+			font-size: 110%;
+			color: #FFBE00;
+		}
+		
+		div.clearer {
+		    clear   :   left;
+		}
+		
+		div#curriculatree {
+		    width: 650px;
+			margin-top:10px;
+			display: block;
+			
+		}
+		
+		/* TEMP SOLUTION TO MISALIGNED DIALOGUE CLOSE ICON */
+		.ui-button-icon-primary{
+			margin-top: -8px !important;
+			margin-left: -8px !important;
+		}
+	</style>
+
+    <div id="TAS">
+        <div class="all">
+            <div id="curriculatree">
+                <table>
+                    <tr>
+                    <th class="curriculum_header">Curriculum</th>
+                    <th id="column_header_status" class="status_header curricula_wide_column">View Status</th>
+                    <th id="column_header_result" class="result_header curricula_wide_column">Score</th>
+                    <th id="column_header_test" class="test_header curricula_wide_column">Test Status</th>
+                    <th id="column_header_info" class="info_header curricula_narrow_column"></th>
+                    </tr>
+                </table>
+            </div>
+            <div id="dvls_description_panel"></div>
+        </div>
+    </div>
+
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__prefix)}"/>
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__jQueryUI, 'js/jquery-1.10.2.min.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__jQueryUI, 'js/jquery-ui-1.10.3.custom.min.js')}"/>
+    <script type="text/javascript" src="{!URLFOR($Resource.jQueryUI, 'js/jquery.cookies.2.2.0.min.js')}"></script>
+	<script type="text/javascript" src="{!URLFOR($Resource.tooltipjs)}"></script>
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__ttgomjs, 'ttg/lib/ttgservice.js')}"/> 
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__ftk, 'forcetk.js')}"/>
+    
+    <script type="text/javascript" src="{!URLFOR($Resource.dvls, 'js/flowplayer-3.2.6.js')}"></script>
+    
+    <script>
+		
+		var ttg = ttg || {};		
+		ttg.pre_fetch = ttg.pre_fetch || {};		
+		ttg.pre_fetch['DMAPP.APIDelegateController.getDVLSCurricula'] = '{!JSENCODE(prefetchDVLSCurricula)}';
+				
+	</script>
+    
+    <apex:include pageName="DMAPP__APIDelegate"/>
+    <apex:include pageName="DMAPP__Quicklinks"/>
+    <apex:include pageName="DMAPP__DVLSAssessmentPlayer"/>
+	<apex:include pageName="DMAPP__DVLSCurriculaTreeRenderer"/>
+
+    <script>
+
+		/* 
+		 * Copyright � The TAS Group. All rights reserved.
+		 *  
+		 */    
+    
+        jQuery(document).ready(function() {
+       
+      		// add hover tooltips to table headers 
+     		jQuery("#column_header_status").tooltip({ delay: 0, showURL: false, bodyHandler: function() { 
+     			return jQuery("<span/>").html("Displays as 'Not Started' / 'Started' / 'Completed' depending on whether "
+     										+"you have started to review the curriculum content, or whether you have "
+     										+"reviewed all of the content.");
+     			} 
+     		});
+        
+     		jQuery("#column_header_result").tooltip({ delay: 0, showURL: false, bodyHandler: function() { 
+     			return jQuery("<span/>").html("Summarizes your test results to date.");
+     			} 
+     		});
+     		
+     		jQuery("#column_header_test").tooltip({ delay: 0, showURL: false, bodyHandler: function() { 
+     			return jQuery("<span/>").html("Provides a link to the associated tests. 'Start' is displayed if you have "
+     										+"not started the tests, <span class=\"grey_asterisk\">*</span> is displayed if "
+     										+"you have started but not completed/passed all the tests, <span class=\"gold_asterisk\">*</span> "
+     										+"is displayed if you have completed all the associated tests.");
+     			} 
+     		});
+     		
+            var spec = {
+                ttgApi: ttg.apiLayer.sfdcDelegate( { sessionid : '{!JSENCODE($Api.Session_ID)}' } )
+            };
+		
+			
+			// [danc] add some class attributes to aid with web testing. rather than hack with 
+			// (and risk breaking) the rendering code, I thought it might be safer to add the 
+			// required attributes *after* the tree has been rendered.
+			var completedFn = function() {
+			
+				jQuery('tr.curriculumlist').each(function(id, elt) {
+					var cr_Txt = (id+1);
+					jQuery(elt).attr('ttg_test_handler', cr_Txt);
+					jQuery(elt).nextUntil('.curriculumlist', '.modulelist').each(function(m_id, m_elt) {
+						var m_Txt = cr_Txt + '.' +(m_id+1);
+						jQuery(m_elt).attr('ttg_test_handler', m_Txt);
+						jQuery(m_elt).nextUntil('.modulelist', '.componentlist').each(function(cm_id, cm_elt) {
+							var cm_Txt = m_Txt + '.' +(cm_id+1);
+							jQuery(cm_elt).attr('ttg_test_handler', cm_Txt);	
+						});
+				
+					});
+
+				});
+			}
+			
+			spec.ttgApi.getDVLSCurricula(function(data) {
+				//console.dir(data);
+				ttg.dvls.curriculaBrowser.render(data.curricula, spec.ttgApi);
+			}, function(){}, completedFn);
+			
+			
+    	});
+    </script>  
+
+</apex:page>

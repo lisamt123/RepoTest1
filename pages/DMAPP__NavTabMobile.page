@@ -1,0 +1,106 @@
+<apex:page standardController="Opportunity" extensions="DMAPP.SummaryTabController,DMAPP.SummaryController" 
+    cache="false" 
+    >
+
+    <head>
+        <meta charset="utf-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <title></title>
+        <meta name="description" content="" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+
+        
+    <style>
+        
+
+        
+    </style>
+
+        <script type="text/javascript">
+            jQuery(document).ready(function(){
+           
+                /* remove border-bottom from last child in list*/
+                /*jQuery("ul li:last-child").addClass("last_child");*/
+
+                /*initiate sticky headers*/
+                /*jQuery(".listContainer").ioslist();*/
+
+                /*toggel for hidden score*/
+                /*
+                jQuery(".drag a").click(function(){
+                    jQuery(".hideHead").slideToggle();
+                    jQuery(this).toggleClass('selected');
+                });
+                */
+                
+                /*toggle menu */
+                /*
+                var menuDisplayed = false;
+                jQuery("SPAN.img_contain").click(function(){
+                    if(!(menuDisplayed)) {
+                        menuDisplayed = true;
+                        jQuery(".launch_list").fadeIn();
+                    } else {
+                        menuDisplayed = false;
+                        jQuery(".launch_list").fadeOut();
+                    }
+                });
+                */
+
+                /*toggle filters & nav list*/
+                jQuery(".filters a").click(function(){
+                    jQuery(".filter_list").fadeIn();
+                });
+
+                //var menuDisplayed = false;
+                jQuery(".nav a").click(function(){
+                        jQuery('body').css({ overflow: 'hidden' });                    
+                        jQuery(".nav_list").fadeIn();
+                        jQuery(".launch_list").fadeIn();                
+                });
+
+                jQuery(".close").click(function(){
+                    jQuery(".darken").fadeOut();
+                    jQuery('body').css({ overflow: 'auto' });                    
+                });
+
+                var dt_index = jQuery("dt").position();
+                if (jQuery(dt_index).hasClass("yellow")) {
+                    jQuery(".fakeHeader").addClass("yellow");
+                };
+            });
+        </script>
+
+    </head>
+    
+    <apex:variable var="playbookSelected" value="{!IF(CONTAINS(selectedPage,'om_playbook_app') || CONTAINS(selectedPage,'PB_Qualifiers_Summary'),true,false)}"/>
+    <apex:variable var="assessmentSelected" value="{!IF(CONTAINS(selectedPage,'om_assessment_app'),true,false)}"/>
+    <apex:variable var="milestonesSelected" value="{!IF(CONTAINS(selectedPage,'MilestonesMobile'),true,false)}"/>
+    <apex:variable var="politicalSelected" value="{!IF(CONTAINS(selectedPage,'om_political_app') || CONTAINS(selectedPage,'SummaryPoliticalMapExpress'),true,false)}"/>
+    <apex:variable var="decisionSelected" value="{!IF(CONTAINS(selectedPage,'om_decision_criteria_app'),true,false)}"/>
+    <apex:variable var="collabSelected" value="{!IF(OR(CONTAINS(selectedPage,'om_insight_app'), CONTAINS(selectedPage,'om_new_insight_app')),true,false)}"/>
+    <apex:variable var="competitiveSelected" value="{!IF(CONTAINS(LOWER(selectedPage),'om_competitive_strategy_app'),true,false)}"/>
+    <apex:variable var="primeSelected" value="{!IF(CONTAINS(LOWER(selectedPage),'primeactionsmobile'),true,false)}"/>
+    <apex:variable var="coachSelected" value="{!IF(CONTAINS(selectedPage,'om_coach_app'),true,false)}"/>
+    <apex:variable var="printSelected" value="{!IF(CONTAINS(selectedPage,'PrintXXX'),true,false)}"/>   
+    <apex:variable var="qualificationSelected" value="{!IF(CONTAINS(selectedPage,'PB_QualifiersXXX'),true,false)}"/> 
+    <apex:variable var="callPlannerSelected" value="{! IF(CONTAINS(selectedPage,'om_callplanner_app'), true, false) }" />       
+    
+    <c:NavTabMobile id="NavTabMobile"
+        isRender="true" 
+        isLaunch="false"  
+        isMob="true" 
+        opportunityId="{!opportunity.id}" 
+        isPlaybookEnabled="{!isPlaybookEnabled}" playbookSelected="{!playbookSelected}" playbookConfidence="{!playbookConfidence}" 
+        isAssessmentEnabled="{!isAssessmentEnabled}" assessmentSelected="{!assessmentSelected}" shadowOpportunityAnsweredYesCount="{!shadowOpportunityAnsweredYesCount}" criteriaCount="{!criteriaCount}"  
+        isMilestonesEnabled="{!isMilestonesEnabled}" isMilestonesSelected="{!milestonesSelected}" milestonesMaxValue="{!milestonesMaxValue}" milestonesValue="{!milestonesValue}"  
+        isPoliticalMapEnabled="{!isPoliticalMapEnabled}" politicalSelected="{!politicalSelected}" politicalContacts="{!orgChartContactCount}" 
+        isDecisionCriteriaEnabled="{!isDecisionCriteriaEnabled}" decisionSelected="{!decisionSelected}" decisionCriteriaCount="{!decisionCriteriaCount}" 
+        isCollabMapEnabled="{!isCollabMapEnabled}" collabSelected="{!collabSelected}" mapCount="{!mapCount}" 
+        isCompetitiveStrategyEnabled="{!isCompetitiveStrategyEnabled}" competitiveSelected="{!competitiveSelected}" selectedStrategy="{!selectedStrategy}" 
+        isPRIMEActionsEnabled="{!isPRIMEActionsEnabled}" primeSelected="{!primeSelected}" openPRIMEActionCount="{!openPRIMEActionCount}" 
+        isCallPlannerEnabled="{! isCallPlannerEnabled }" callPlannerSelected="{! callPlannerSelected }" callPlanCount="{! callPlanCount }"
+        isCoachMeEnabled="{!isCoachMeEnabled}" coachSelected="{!coachSelected}"
+    />
+
+</apex:page>

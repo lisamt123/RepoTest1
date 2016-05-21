@@ -1,0 +1,1005 @@
+<apex:page controller="PanayaIA.ImpactAnalysis" title="Panaya ChangeGuru" sidebar="false" readOnly="true" tabStyle="Panaya_Impact_Analysis__tab" action="{!init}">
+    
+    <script type="text/javascript" >
+        var UserInfo = {
+            Id      :   "{!$User.id}",
+            Name    :   "{!$User.firstName} {!$User.lastName}",
+            OrgName :   "{!$Organization.Name}",
+            OrgId   :   "{!$Organization.Id}"
+        }
+        var totangoModule = "{!ps.analyzeType}";
+        
+    </script>   
+    
+    <script type="text/javascript" src="{!URLFOR($Resource.Panaya,'js/jquery-1.11.0.min.js')}"></script>
+    <script type="text/javascript" src="{!URLFOR($Resource.Panaya,'js/jquery-ui-1.10.4.custom.min.js')}"></script>
+    <script> var j$ = jQuery.noConflict();</script>
+    <script type="text/javascript" src="{!URLFOR($Resource.Panaya,'js/jsapi.js')}"></script>
+    <script type="text/javascript" src="{!URLFOR($Resource.Panaya,'js/prettify.js')}"></script>
+    <script type="text/javascript" src="{!URLFOR($Resource.Panaya,'js/impactAnalysis.js')}"></script>
+<!--     <script type="text/javascript" src="https://dl.dropboxusercontent.com/u/82342093/Panaya/PanayaIA__ZIP/js/impactAnalysis.js"></script>  -->
+
+    <script type="text/javascript" src="{!URLFOR($Resource.Panaya,'js/totango.js')}"></script>
+<!--     <script type="text/javascript" src="https://dl.dropboxusercontent.com/u/82342093/Panaya/totango.js"></script>  -->
+    
+    <link href="{!URLFOR($Resource.Panaya,'css/prettify.css')}" rel="stylesheet" type="text/css" /> 
+    
+    
+<!--     Pagination -->
+<!--    <script type="text/javascript" src="{!URLFOR($Resource.Panaya,'js/jquery.paginate.js')}"></script> -->
+<!--     <script type="text/javascript" src="https://dl.dropboxusercontent.com/u/82342093/Panaya/jquery.paginate.js"></script>  -->
+    <link href="{!URLFOR($Resource.Panaya,'css/style.css')}" rel="stylesheet" type="text/css" />
+<!--     <link href="https://dl.dropboxusercontent.com/u/82342093/Panaya/style.css" rel="stylesheet" type="text/css" />   -->
+
+    
+    <style>
+    	#Highlighted pre {white-space: normal;} 
+    	.operative { font-weight: bold; background-color:yellow }
+    	.ui-dialog-buttonpane .footer {line-height: 41px;}
+		.ui-dialog .ui-dialog-buttonpane .ui-dialog-buttonset {float: left !important;}
+		.rightButton {bottom: 10px;position: absolute;right: 5px;}
+    </style>
+    <div id="Highlighted" title="Impact Analysis">
+        <div class="content">
+			<div id="code" ></div>
+		</div>
+   		<div class="footer"></div>
+        
+    </div>
+
+    <script type="text/javascript">
+        function handleSaveAnalysRes2(result,event){
+            //window.open('/'+result.Id);
+            j$("div[id*='mainSection']").append( '<div class="message confirmM2" role="alert" id="myMessage"> <table border="0" cellpadding="0" cellspacing="0" class="messageTable" style="padding:0px;margin:0px;"> <tbody><tr valign="top"> <td> <img alt="confirm" class="msgIcon" src="/s.gif" title="confirm"/> </td> <td class="messageCell"><div id="j_id0:theForm:saveConfirm:j_id31:j_id33" class="messageText"><span id="j_id0:theForm:saveConfirm:j_id31:j_id34"> <h4></h4></span>Your analysis save is in process. It will be ready in a few moments in the ChangeGuru Results tab. <a style="display:none" href="/'+result.Id+'" target="_blank" >Here</a>.<br/></div> </td> </tr> <tr> <td></td> <td> </td> </tr> </tbody></table> </div>' );
+            j$('.confirmM2').delay(40000).fadeOut('slow');
+        }
+        function saveAnalysis(ps,summary,date){
+            
+            totangoTrack('Saved Results', 'Save Analysis');   
+            Visualforce.remoting.Manager.invokeAction(
+                '{!$RemoteAction.ImpactAnalysis.saveAnalys}',JSON.stringify(ps),summary,date,handleSaveAnalysRes2
+            );
+        }
+        
+        function searchUser(response){
+             Visualforce.remoting.Manager.invokeAction(
+                                        '{!$RemoteAction.ImpactAnalysis.searchUser}',j$('.objectText').val(),function  (data){response(data);}
+                                    );
+        }
+        function searchGlobal(query,response){
+             Visualforce.remoting.Manager.invokeAction(
+                                        '{!$RemoteAction.ImpactAnalysis.searchGlobal}',query,j$('.objectText').val(),function  (data){response(data);}
+                                    );
+        }
+        
+        
+        function getHighlightedText(type,name,obj,field,value){
+            totangoTrack(totangoModule, 'View Source');
+            showWaitingStatus();
+            var MyArray = {componentType: type, componentName: name, selectedObj: obj, selectedField: field, selectedValue: value}; 
+            Visualforce.remoting.Manager.invokeAction(
+                '{!$RemoteAction.ImpactAnalysis.getHighlightedText}',JSON.stringify(MyArray),handleHighlightedText
+            );
+        }
+       
+    </script>
+    <style type="text/css">
+        ul.ui-autocomplete.ui-menu{
+            width:500px;
+            list-style-type: none;
+            margin:0; padding: 0;
+            text-align:left;
+            margin-left:0px;
+            background-color: white;
+        }:
+        .ui-autocomplete {
+            cursor: pointer;
+        }
+        a.ui-corner-all{
+            cursor: pointer;
+        }
+        div.AnalysisRunningDetails{
+            display: none;
+            opacity: 0.8;
+            z-index: 1;
+            position: absolute;
+            padding: 5px 20px;
+        }
+        span.AnalysisRunningDetails{
+            vertical-align: middle;
+            display: table-cell;
+        }
+        .tabsDiv{
+            display: none !important;
+        }
+    </style>
+    <apex:pagemessages />
+
+    <apex:stylesheet value="{!URLFOR($Resource.PanayaIA__Panaya, 'css/jquery-ui.css')}"/>
+    <apex:stylesheet value="{!URLFOR($Resource.PanayaIA__Panaya, 'css/default.css')}"/>
+    
+    <apex:form id="theForm" >
+        <apex:messages />
+       <apex:actionFunction name="back" action="{!back}" reRender="theForm" status="WaitingStatus">
+            <apex:param name="analyzeType" value="" assignTo="{!ps.analyzeType}"/>
+            <apex:param name="analyzeObj" value="" assignTo="{!ps.analyzeObj}"/>
+            <apex:param name="analyzeField" value="" assignTo="{!ps.analyzeField}"/>
+            <apex:param name="analyzeValue" value="" assignTo="{!ps.analyzeValue}"/>   
+        </apex:actionFunction>
+        <apex:actionFunction name="search" reRender="theForm" status="WaitingStatus">
+            <apex:param name="searchTextFilter" value="" assignTo="{!searchTextFilter}"/>   
+            <apex:param name="isSearch" value="true" assignTo="{!isSearch}"/>   
+        </apex:actionFunction>
+        <apex:actionFunction name="choiceMade" action="{!choiceMade}" reRender="theForm" status="WaitingStatus"> 
+            <apex:param name="choice" value="" assignTo="{!ps.analyzeType}"/>
+        </apex:actionFunction>
+        <apex:actionFunction name="objSelected" action="{!rerenderPage}" reRender="theForm" status="WaitingStatus">
+            <apex:param name="analyzeObjLabel" value="" assignTo="{!ps.analyzeObjLabel}"/>
+            <apex:param name="analyzeObj" value="" assignTo="{!ps.analyzeObj}"/> 
+        </apex:actionFunction>
+        <apex:actionFunction name="fieldSelected" action="{!rerenderPage}" reRender="theForm" status="WaitingStatus">
+            <apex:param name="analyzeFieldLabel" value="" assignTo="{!ps.analyzeFieldLabel}"/>
+            <apex:param name="analyzeField" value="" assignTo="{!ps.analyzeField}"/>
+            <apex:param name="analyzeFieldType" value="" assignTo="{!ps.analyzeFieldType}"/> 
+        </apex:actionFunction>
+        <apex:actionFunction name="newAnalyze" action="{!newAnalyze}" reRender="theForm" status="WaitingStatus" oncomplete="manageResults()">
+            <apex:param name="analyzeObj" value="" assignTo="{!ps.analyzeObj}"/>
+            <apex:param name="analyzeField" value="" assignTo="{!ps.analyzeField}"/>
+            <apex:param name="analyzeFieldLabel" value="" assignTo="{!ps.analyzeFieldLabel}"/>
+            <apex:param name="analyzeFieldType" value="" assignTo="{!ps.analyzeFieldType}"/>
+            <apex:param name="analyzeValue" value="" assignTo="{!ps.analyzeValue}"/>
+            <apex:param name="includingId" value="" assignTo="{!ps.includingId}"/>                       
+        </apex:actionFunction>
+        <apex:actionFunction name="runValueComparison" action="{!AskWebServiceAboutValueComparison}" reRender="theForm" status="WaitingStatus" oncomplete="drawValueCompareChart()"/> 
+        
+         <apex:actionStatus id="WaitingStatus">
+            <apex:facet name="start">
+                <center>
+                    <div style="position: fixed; top: 35%; left: 33%; height: 100%; width: 423px; z-index: 3000">
+                        <img src="{!URLFOR($Resource.PanayaWaiting3DBlueRing)}" width="60px" height="60px"
+                             style="margin-left: 35%; margin-top: 20%; z-index: 3020" />
+                    </div>
+                </center>
+            </apex:facet>
+        </apex:actionStatus>
+        
+        <apex:pageblock title="Panaya ChangeGuru" id="mainSection">
+            <apex:facet name="header">
+                <table border="0" cellpadding="0" cellspacing="0"><tbody><tr><td class="pbTitle"><h2 class="mainTitle">
+                    <img class="logoImage" width="20px" src="{!URLFOR($Resource.Panaya, 'img/36x36-icon.png')}"/>
+                    Panaya ChangeGuru
+                </h2></td><td>&nbsp;</td></tr></tbody></table>
+                
+            </apex:facet>
+            
+            <span id="textWidthSpan" style="display:none;">&nbsp;</span>
+            <a href="{!$Page.homepage}" >Main</a>
+            
+            <apex:outputText rendered="{!if( ps.analyzeType == 'FieldsValues',true,false)}">
+                >&nbsp;<a href="javascript:choiceMade('FieldsValues')" >Fields &amp; Values Impact Analysis</a>
+            </apex:outputText>
+            
+            <apex:outputText rendered="{!if(or(ps.analyzeType == 'ProfilesAndRoles',ps.analyzeType == 'Profile',ps.analyzeType == 'Role'),true,false)}">
+                >&nbsp;<a href="javascript:choiceMade('ProfilesAndRoles')">Profiles &amp; Roles Impact Analysis</a>
+            </apex:outputText>
+            
+            <apex:outputText rendered="{!if(ps.analyzeType == 'Profile',true,false)}">
+                >&nbsp;<a href="javascript:choiceMade('Profile')">Profiles</a>
+            </apex:outputText>
+            
+            <apex:outputText rendered="{!if(ps.analyzeType == 'Role',true,false)}">
+                >&nbsp;<a href="javascript:choiceMade('Role')">Roles</a>
+            </apex:outputText>
+            
+            <apex:outputText rendered="{!if(ps.analyzeType == 'User',true,false)}">
+                >&nbsp;<a href="javascript:choiceMade('User')">Users</a>
+            </apex:outputText>
+            
+            <apex:outputPanel rendered="{!if(AND(ps.analyzeType != 'Profile',ps.analyzeType != 'Role',ps.analyzeType != 'User'),true,false)}">
+                <apex:outputText rendered="{!if(len(ps.analyzeObjLabel)>2,true,false)}">
+                    >&nbsp;<a href="javascript:back( '{!ps.analyzeType}','{!ps.analyzeObj}','','')">{!ps.analyzeObjLabel}</a>
+                </apex:outputText>
+                <apex:outputText rendered="{!if(len(ps.analyzeFieldLabel)>2,true,false)}">
+                    >&nbsp;<a href="javascript:back( '{!ps.analyzeType}','{!ps.analyzeObj}','{!ps.analyzeField}','')">{!ps.analyzeFieldLabel}</a>
+                </apex:outputText>
+            </apex:outputPanel>
+            
+<!--             <apex:outputText rendered="{!if(len(oldValue)>2,true,false)}"> -->
+<!--                 >&nbsp;{!JSINHTMLENCODE(oldValue)} -->
+<!--             </apex:outputText> -->
+            
+            <apex:outputText rendered="{!if(len(ps.analyzeValue)>2,true,false)}">
+                >&nbsp;{!if(and(or(ps.analyzeType == 'User', ps.analyzeType == 'ProfilesAndRoles',ps.analyzeType == 'Profile',ps.analyzeType == 'Role'),ps.analyzeField=='Name'),ps.analyzeFieldLabel,ps.analyzeValue)}
+            </apex:outputText>
+            
+            <apex:inputText style="display:none" id="autoCompleteJsonInput" styleclass="autoCompleteJsonInput" value="{!autoCompleteJson}"/>
+
+        </apex:pageblock>
+        
+        
+        <apex:pageblock rendered="{!if(and(len(ps.analyzeType)>0,len(ps.analyzeObj)=0,ps.analyzeType == 'ProfilesAndRoles'),'true','false')}">
+            <apex:pageblockSection columns="1">
+                <apex:pageblockSectionItem >
+                    <apex:outputLink value="javascript:choiceMade('Profile')" style="font-weight:bold; color: #0066CC;">Profiles </apex:outputLink>
+                </apex:pageblockSectionItem>
+                <apex:pageblockSectionItem >
+                    <apex:outputLink value="javascript:choiceMade('Role')" style="font-weight:bold; color: #0066CC;">Roles </apex:outputLink>
+                </apex:pageblockSectionItem>
+            </apex:pageblockSection>
+        </apex:pageblock>
+        
+        
+        <!-- Profiles --
+        <apex:pageblock rendered="{!if(and(len(ps.analyzeType)>0,len(ps.analyzeObj)=0,ps.analyzeType == 'Profile'),'true','false')}">
+            <apex:pageBlockSection title="Select a Profile to Analyze" columns="1" collapsible="false">
+                <apex:inputtext styleClass="objectText" size="80"/>
+
+                <apex:pageBlockTable value="{!sProfiles}" var="profile">
+                    <apex:column headerValue="" width="90">
+                        <a href="javascript:newAnalyze('Profile','Id','{!JSENCODE(ps.analyzeFieldLabel)}','{!JSENCODE(ps.analyzeFieldType)}','{!left(profile.profileId,15)}');" style="color: #015ba7; text-decoration: none;"> Analyze by Id </a>
+                    </apex:column>
+                    <apex:column headerValue="Profile Id" width="200">
+                        {!JSINHTMLENCODE(profile.profileId)}
+                    </apex:column>
+                    <apex:column headerValue="" width="100">
+                        <a href="javascript:newAnalyze('Profile','Name','{!JSENCODE(ps.analyzeFieldLabel)}','{!JSENCODE(ps.analyzeFieldType)}','{!JSENCODE(profile.profileName)}');" style="color: #015ba7; text-decoration: none;"> Analyze by Name </a>
+                    </apex:column>
+                    <apex:column headerValue="Profile Name">
+                        {!JSINHTMLENCODE(profile.profileName)}
+                    </apex:column>
+                </apex:pageBlockTable>
+ 
+                <script type="text/javascript">
+                //Get the json that contains the list of objects for the auto-complete
+                var autoCompleteJSON = eval( j$(".autoCompleteJsonInput").val() ) ;
+                j$(".objectText").autocomplete({
+                    source: autoCompleteJSON,
+                    select: function(event, ui){
+                                var str=ui.item.value;
+                                newAnalyze('Profile','Name','{!JSENCODE(ps.analyzeFieldLabel)}','{!JSENCODE(ps.analyzeFieldType)}',str);
+                                //analyzeProfileClicked('Name',str,event);
+                            }
+                });
+                j$(".objectText").val('').focus();
+                var textBoxHeight=j$(".objectText").height();
+                j$(".objectText").after('<img src="{!$Resource.LookupIcon}" style="vertical-align: text-bottom;" height='+textBoxHeight+'/>');
+            </script>
+            </apex:pageBlockSection>
+        </apex:pageblock> -->
+
+        <!-- Roles 
+        <apex:pageblock rendered="{!if(and(len(ps.analyzeType)>0,len(ps.analyzeObj)=0,ps.analyzeType == 'Role'),'true','false')}">
+            <apex:pageBlockSection title="Select a Role to Analyze" columns="1" collapsible="false">
+                <apex:inputtext styleClass="objectText" size="80"/>
+                <apex:pageBlockTable value="{!sRoles}" var="role">
+                    <apex:column headerValue="" width="90">
+                        <a href="javascript:newAnalyze('UserRole','Id','{!JSENCODE(ps.analyzeFieldLabel)}','{!JSENCODE(ps.analyzeFieldType)}','{!left(role.roleId,15)}');" style="color: #015ba7; text-decoration: none;">Analyze By Id</a>
+                    </apex:column>
+                    <apex:column headerValue="Role Id" width="200">
+                        {!JSINHTMLENCODE(role.roleId)}
+                    </apex:column>
+                    <apex:column headerValue="" width="100">
+                        <a href="javascript:newAnalyze('UserRole','Name','{!JSENCODE(ps.analyzeFieldLabel)}','{!JSENCODE(ps.analyzeFieldType)}','{!JSENCODE(role.roleName)}');"  style="color: #015ba7; text-decoration: none;">Analyze By Name</a>
+                    </apex:column>
+                    <apex:column headerValue="Role Name">
+                        {!JSINHTMLENCODE(role.roleName)}
+                    </apex:column>
+                </apex:pageBlockTable>
+ 
+                <script type="text/javascript">
+                //Get the json that contains the list of objects for the auto-complete
+                var autoCompleteJSON = eval( j$(".autoCompleteJsonInput").val() ) ;
+                j$(".objectText").autocomplete({
+                    source: autoCompleteJSON,
+                    select: function(event, ui){
+                                var str=ui.item.value;
+                                //analyzeRoleClicked('Name',str,event);
+                                newAnalyze('UserRole','Name','{!JSENCODE(ps.analyzeFieldLabel)}','{!JSENCODE(ps.analyzeFieldType)}',str);
+                            }
+                });
+                j$(".objectText").val('').focus();
+                var textBoxHeight=j$(".objectText").height();
+                j$(".objectText").after('<img src="{!$Resource.LookupIcon}" style="vertical-align: text-bottom;" height='+textBoxHeight+'/>');
+            </script>
+            </apex:pageBlockSection>
+        </apex:pageblock>
+        -->
+        
+        <!-- Roles + Profiles -->
+        <apex:pageblock rendered="{!if(and(len(ps.analyzeType)>0,len(ps.analyzeObj)=0,or(ps.analyzeType == 'Role',ps.analyzeType == 'Profile')),'true','false')}">
+            <script>
+                var analyzeType = '{!if(ps.analyzeType == 'Role','UserRole','Profile')}';
+                function HTMLDecode(s){
+                    return jQuery('<div></div>').html(s).text();
+                }
+                j$(function () {
+                    var textBoxHeight=j$(".objectText").height();
+                    j$(".objectText").after('<img src="{!$Resource.PanayaIA__LookupIcon}" style="vertical-align: text-bottom;" height='+textBoxHeight+'/>');
+                    
+                    j$(".objectText").autocomplete({
+                        source:function (request, response) {
+                            searchGlobal('{!csc.baseQuery}',response);
+                        },
+                        response: function( event, ui ) {
+                            j$.each( ui.content , function( index, value ){
+                                value.label = HTMLDecode(value.label);
+                            });
+                        },
+                        focus: function(event,ui){
+                            j$(this).val(ui.item.label);
+                            event.preventDefault();
+                        },
+                        select: function(event, ui){
+                             var str=ui.item.value;
+                             analyzeClicked('Name',ui.item.label,ui.item.value);
+                             event.preventDefault();
+                         }
+                    });
+                    function analyzeClicked(type,label,value){
+                        totangoTrack(totangoModule, 'Analyze '+ analyzeType +' by Name');
+                        newAnalyze(analyzeType,'Name',label,'{!JSENCODE(ps.analyzeFieldType)}',value,'true');
+                    }
+                    /* Search */
+                    j$('.listItemPad').on("click",function() {
+                      search(j$(this).text());
+                    });
+                });
+            </script>
+            <apex:pageBlockButtons location="bottom" styleClass="paginator" style="text-align: justify;">
+                <span class="prevNextLinks">
+                    <span class="prevNext">
+                        <apex:commandLink action="{!csc.first}" rendered="{!csc.pageSOQL != 0}" status="WaitingStatus" reRender="theForm"><img src="/s.gif" class="first" alt="First Page"/></apex:commandLink>
+                        <apex:outputpanel rendered="{!csc.pageSOQL == 0}"><img src="/s.gif" class="firstoff" alt="First Page"/></apex:outputpanel>
+                    </span>
+                    <span class="prevNext">
+                        <apex:commandLink action="{!csc.previous}" rendered="{!csc.pageSOQL != 0}" status="WaitingStatus" reRender="theForm"><img src="/s.gif" class="prev" alt="Previous"/>Previous</apex:commandLink>
+                        <apex:outputpanel rendered="{!csc.pageSOQL == 0}"><img src="/s.gif" class="prevoff" alt="Previous"/>Previous</apex:outputpanel>
+                    </span>
+                    <span class="prevNext">
+                        <apex:commandLink action="{!csc.next}" rendered="{!csc.HasNext}"  status="WaitingStatus" reRender="theForm">Next<img src="/s.gif" class="next" alt="Next"/></apex:commandLink>
+                        <apex:outputpanel rendered="{!NOT(csc.HasNext)}">Next<img src="/s.gif" class="nextoff" alt="Next"/></apex:outputpanel>
+                    </span>
+                    <span class="prevNext">
+                        <apex:commandLink action="{!csc.last}" rendered="{!csc.HasNext}" status="WaitingStatus" reRender="theForm"><img src="/s.gif" class="last" alt="Last Page"/></apex:commandLink>
+                        <apex:outputpanel rendered="{!NOT(csc.HasNext)}"><img src="/s.gif" class="lastoff" alt="Last Page"/></apex:outputpanel>
+                    </span>
+                </span>
+                
+            </apex:pageBlockButtons>
+            
+            <apex:pageBlockSection title="Select a {!ps.analyzeType} to Analyze" columns="1" collapsible="false">
+                <apex:outputPanel layout="none" >
+                    <div style="float: left;">
+                        <apex:inputtext styleClass="objectText" size="80" value="{!searchText}"/>
+                    </div>
+                    <div class="rolodex" style="">
+                        <apex:repeat value="{!alphabet}" var="item">
+                            <a href="javascript:void(0)" class="listItem">
+                                <span class="{! if(item!= csc.searchTextFilter,'listItemPad','listItemSelected') }" style="color: #015ba7">{!item}</span>
+                            </a>
+                        </apex:repeat>
+                    </div>
+                </apex:outputPanel> 
+                <apex:pageBlockTable value="{!csc.Records}" var="item">
+                    <apex:column width="90">
+                        <a href="javascript:totangoTrack(totangoModule, 'Analyze '+ analyzeType +' by ID'); newAnalyze(analyzeType,'Id','{!JSENCODE(ps.analyzeFieldLabel)}','{!JSENCODE(ps.analyzeFieldType)}','{!left(item.objId,15)}');" style="color: #015ba7; text-decoration: none;">Analyze By Id</a>
+                    </apex:column>
+                    <apex:column headerValue="Id" value="{!item.objId}" width="70" /> 
+                    <apex:column width="130">
+                        <a href="javascript:totangoTrack(totangoModule, 'Analyze '+ analyzeType +' by Name'); newAnalyze(analyzeType,'Name','{!JSENCODE(item.objLabel)}','{!JSENCODE(ps.analyzeFieldType)}','{!left(item.objId,18)}');"  style="color: #015ba7; text-decoration: none;">Analyze By Name</a>
+                    </apex:column>
+                    <apex:column headerValue="Name" value="{!item.objLabel}" />
+                </apex:pageBlockTable>
+            </apex:pageBlockSection>
+        </apex:pageblock>
+        
+        <!-- Users -->
+        <apex:pageblock rendered="{!if(and(len(ps.analyzeType)>0,len(ps.analyzeObj)=0,ps.analyzeType == 'User',NOT(isAnalyze)),'true','false')}"> 
+            <script>
+                j$(function () {
+                    var textBoxHeight=j$(".objectText").height();
+                    j$(".objectText").after('<img src="{!$Resource.PanayaIA__LookupIcon}" style="vertical-align: text-bottom;" height='+textBoxHeight+'/>');
+                    
+                    j$(".objectText").autocomplete({
+                        source:function (request, response) {
+                                   searchUser(response);
+                                },
+                        focus: function(event,ui){
+                            j$(this).val(ui.item.label);
+                            event.preventDefault();
+                        },
+                        select: function(event, ui){
+                             var str=ui.item.value;
+                             analyzeClicked('Name',ui.item.label,str);
+                             
+                             event.preventDefault();
+                         }
+                    });
+                    function analyzeClicked(type,label,value){
+                        totangoTrack(totangoModule, 'Analyze User by Name');
+                        newAnalyze('User',type,label,'{!JSENCODE(ps.analyzeFieldType)}',value,'true');
+                    }
+                    /* Search */
+                    j$('.listItemPad').on("click",function() {
+                      search(j$(this).text());
+                    });
+                });
+            </script>
+            <apex:pageBlockButtons location="bottom" styleClass="paginator" style="text-align: justify;">
+                <span class="prevNextLinks">
+                    <span class="prevNext">
+                        <apex:commandLink action="{!ssc.first}" rendered="{!ssc.PageNumber != 1}" status="WaitingStatus" reRender="theForm">
+                            <img src="/s.gif" class="first" alt="First Page"/>
+                        </apex:commandLink>
+                        <apex:outputpanel rendered="{!ssc.PageNumber == 1}">
+                            <img src="/s.gif" class="firstoff" alt="First Page"/>
+                        </apex:outputpanel>
+                    </span>
+                    <span class="prevNext">
+                        <apex:commandLink action="{!ssc.previous}" rendered="{!ssc.PageNumber != 1}" status="WaitingStatus" reRender="theForm">
+                            <img src="/s.gif" class="prev" alt="Previous"/>
+                            Previous
+                        </apex:commandLink>
+                        <apex:outputpanel rendered="{!ssc.PageNumber == 1}">
+                            <img src="/s.gif" class="prevoff" alt="Previous"/>
+                            Previous
+                        </apex:outputpanel>
+                    </span>
+                    <span class="prevNext">
+                        <apex:commandLink action="{!ssc.next}" rendered="{!ssc.HasNext}" status="WaitingStatus" reRender="theForm">
+                            Next
+                            <img src="/s.gif" class="next" alt="Next"/>
+                        </apex:commandLink>
+                        <apex:outputpanel rendered="{!NOT(ssc.HasNext)}">
+                            Next
+                            <img src="/s.gif" class="nextoff" alt="Next"/>
+                        </apex:outputpanel>
+                    </span>
+                    <span class="prevNext">
+                        <apex:commandLink action="{!ssc.last}" rendered="{!ssc.HasNext}" status="WaitingStatus" reRender="theForm">
+                            <img src="/s.gif" class="last" alt="Last Page"/>
+                        </apex:commandLink>
+                        <apex:outputpanel rendered="{!NOT(ssc.HasNext)}">
+                            <img src="/s.gif" class="lastoff" alt="Last Page"/>
+                        </apex:outputpanel>
+                    </span>
+                </span>
+            </apex:pageBlockButtons>
+            
+            <apex:pageBlockSection title="Select a User to Analyze" columns="1" collapsible="false">
+            
+                <apex:outputPanel layout="none" >
+                    
+                    <div style="float: left;">
+                        <apex:inputtext styleClass="objectText" size="80" value="{!searchText}"/>
+                    </div>
+                    
+                    <div class="rolodex" style="">
+                        <apex:repeat value="{!alphabet}" var="item">
+                            <a href="javascript:void(0)" class="listItem">
+                                <span class="{! if(item!= searchTextFilter,'listItemPad','listItemSelected') }" style="color: #015ba7">{!item}</span>
+                            </a>
+    <!--                        <a href="javascript:void(0)" class="listItem,listItemLast"><span class="listItemPad,listItemSelected">{!item}</span></a> -->
+                        </apex:repeat>
+                    </div>
+                </apex:outputPanel> 
+                
+                <apex:pageBlockTable value="{!Users}" var="item">
+                    <apex:column width="90">
+                        <a href="javascript:totangoTrack(totangoModule, 'Analyze User by ID'); newAnalyze('User','Id','{!JSENCODE(item.Name)}','{!JSENCODE(ps.analyzeFieldType)}','{!left(item.id,15)}');" style="color: #015ba7; cursor: pointer" >Analyze by Id</a>
+                    </apex:column>
+                    <apex:column value="{!item.id}" width="70"/>
+<!--                    <apex:column width="130"> -->
+<!--                        <a style="color: #015ba7; cursor: pointer" onclick="analyze('username','{!item.username}')">Analyze by Username</a> -->
+<!--                    </apex:column> -->
+<!--                    <apex:column value="{!item.username}" width="180"/> -->
+                    <apex:column width="130">
+                        <a href="javascript:totangoTrack(totangoModule, 'Analyze User by Name'); newAnalyze('User','Name','{!JSENCODE(item.Name)}','{!JSENCODE(ps.analyzeFieldType)}','{!JSENCODE(item.id)}');"  style="color: #015ba7; cursor: pointer" >Analyze by Name</a>
+                    </apex:column>
+                    <apex:column value="{!item.name}" />
+                    
+                </apex:pageBlockTable>
+                
+            </apex:pageBlockSection>
+        
+        </apex:pageblock>
+        
+        
+        
+        <!-- FieldsValues - Object Selection -->
+        <apex:pageblock rendered="{!if(and(len(ps.analyzeType)>0,len(ps.analyzeObj)=0,ps.analyzeType == 'FieldsValues'),'true','false')}">
+            <apex:pageBlockSection title="Select an Object to Analyze" columns="1" collapsible="false">
+                <apex:inputtext styleClass="objectText" size="80"/>
+                <apex:pageBlockTable value="{!sObjs}" var="obj">
+                    <apex:column headerValue="Object Name">
+                        <a href="javascript:totangoTrack(totangoModule, ('{!obj.objectName}'.indexOf('__c') == '{!obj.objectName}'.length-3?'Custom Object Selected':'Standard Object Selected')); objSelected('{!JSENCODE(obj.objectLabel)}','{!obj.objectName}')">{!obj.objectLabel}</a>
+                    </apex:column>
+                    <apex:column headerValue="API Name" value="{!obj.objectName}"/>
+                </apex:pageBlockTable>
+            </apex:pageBlockSection> 
+            <script type="text/javascript">
+                //Get the json that contains the list of objects for the auto-complete
+                var autoCompleteJSON = eval( j$(".autoCompleteJsonInput").val() ) ;
+                j$(".objectText").autocomplete({
+                    source: autoCompleteJSON,
+                    select: function(event, ui){
+                                var str=ui.item.value;
+                                for (i=str.length;str.charAt(i)!='(';i--);
+                                //str=str.substring(0,i-1)+'~'+str.substring(i+1,str.length-1);
+                                objSelected(str.substring(0,i-1),str.substring(i+1,str.length-1));
+                            }
+                });
+                j$(".objectText").val('').focus();
+                var textBoxHeight=j$(".objectText").height();
+                j$(".objectText").after('<img src="{!$Resource.PanayaIA__LookupIcon}" style="vertical-align: text-bottom;" height='+textBoxHeight+'/>');
+            </script>
+<!--             <apex:inputtext value="{!forceWebservice}" size="100" rendered="{!if(orgId='00Db0000000JlHREA0',true,false)}"/> -->
+<!--             <apex:commandButton value="Run" action="{!runForcedWebservice}" rendered="{!if(orgId='00Db0000000JlHREA0',true,false)}" status="WaitingStatus" oncomplete="manageResults()" reRender="theForm"/> -->
+        </apex:pageblock>
+        
+        <!-- FieldsValues - Field Selection -->
+      
+        <apex:pageblock id="fieldsSelectBlock" rendered="{!if(and(len(ps.analyzeObj)>0,len(ps.analyzeField)=0),'true','false')}">
+            <apex:pageBlockSection title="{!ps.analyzeObjLabel} Fields" columns="1" collapsible="false">
+                <apex:inputtext styleClass="fieldText" size="80"/>
+                <apex:pageBlockTable value="{!objFields}" var="field">
+                    <apex:column headerValue="Action" width="100" rendered="true">
+                        <a href="javascript:totangoTrack(totangoModule, 'Analyze Entire Field'); newAnalyze('{!JSENCODE(ps.analyzeObj)}','{!JSENCODE(field.fieldName)}','{!JSENCODE(field.fieldLabel)}','{!JSENCODE(field.fieldType)}','');"  style="color: #015ba7; text-decoration: none;">Analyze Impact</a>
+                    </apex:column> 
+                    <apex:column headerValue="Field Name">
+                        <a href="javascript:totangoTrack(totangoModule, ('{!field.fieldName}'.indexOf('__c') == '{!field.fieldName}'.length-3?'Custom Field Selected':'Standard Field Selected')); fieldSelected('{!field.fieldLabel}','{!field.fieldName}','{!field.fieldType}')">{!field.fieldLabel}</a>
+                    </apex:column>
+                    <apex:column headerValue="Field API Name" value="{!field.fieldName}"/>
+                    <apex:column headerValue="Field Type" value="{!field.fieldType}"/>
+                </apex:pageBlockTable>
+            </apex:pageBlockSection>
+            <script type="text/javascript">
+                var autoCompleteJSON = eval( j$(".autoCompleteJsonInput").val() ) ;
+                j$(".fieldText").autocomplete({
+                    source: autoCompleteJSON,
+                    select: function(event, ui){
+                                var str=ui.item.value;
+                                for (i=str.length;str.charAt(i)!='(';i--);
+                                //str=str.substring(0,i-1)+'~'+str.substring(i+1,str.length-1);
+                                //debugger;
+                                totangoTrack(totangoModule, (str.substring(i+1,str.length-1).indexOf('__c') == str.substring(i+1,str.length-1).length-3?'Custom Field Selected':'Standard Field Selected'));
+                                fieldSelected(str.substring(0,i-1),str.substring(i+1,str.length-1),null);
+                            }
+                });
+                j$(".fieldText").val('').focus();
+                j$(".fieldText").after('<img src="{!$Resource.PanayaIA__LookupIcon}" style="vertical-align: text-bottom;" height='+textBoxHeight+'/>');
+            </script>
+        </apex:pageblock>
+
+        <!-- FieldsValues - Picklist value Selection -->
+        <apex:pageblock id="valuesSelectBlock" rendered="{!if(AND(len(ps.analyzeField)>2,NOT(isAnalyze)),'true','false')}">
+            <apex:pageblockButtons >
+                <apex:commandButton onclick="javascript:totangoTrack(totangoModule, 'Analyze Entire Field'); newAnalyze('{!JSENCODE(ps.analyzeObj)}','{!JSENCODE(ps.analyzeField)}','{!JSENCODE(ps.analyzeFieldLabel)}','{!JSENCODE(ps.analyzeFieldType)}','');" styleClass="fieldLevelButton" value="Entire Field Analysis"/>
+                <apex:commandButton onclick="javascript:totangoTrack(totangoModule, 'Values Comparison Analysis'); compareValuesClicked();" styleClass="fieldLevelButton" value="Values Comparison Analysis" rendered="{!if(or(ps.analyzeFieldType='Picklist',ps.analyzeFieldType='Multi-Picklist'),true,false)}"/>
+            </apex:pageblockButtons>
+            
+            <apex:pageblockSection id="valueCompChartSection" title="Picklist Values - Impact Comparison" columns="1" collapsible="false" rendered="{!valueComparison}">
+                <apex:inputHidden id="valueCompJson"  value="{!chartJson}"/>
+                <div id="valueCompChart"/>
+            </apex:pageblockSection>
+            <apex:pageBlockSection title="{!ps.analyzeFieldLabel} {!IF(or(ps.analyzeFieldType='Picklist',ps.analyzeFieldType='Multi-Picklist'),'Picklist','')} Values" collapsible="false">
+                <apex:pageBlockSectionItem >
+                    <apex:outputLabel value="Field Name:" for="fieldLabel"/>
+                    <apex:outputText value="{!ps.analyzeFieldLabel}" id="fieldLabel"/>
+                </apex:pageBlockSectionItem>
+                <apex:pageBlockSectionItem >
+                    <apex:outputLabel value="Field API Name:" for="apexName"/>
+                    <apex:outputText value="{!ps.analyzeField}" id="apexName"/>
+                </apex:pageBlockSectionItem> 
+                <apex:pageBlockTable value="{!picklistValues}" var="pickValue" rendered="{!if(or(ps.analyzeFieldType='Picklist',ps.analyzeFieldType='Multi-Picklist'),true,false)}">
+                    <apex:column headerValue="Action" width="100">
+                        <a href="javascript:totangoTrack(totangoModule, 'Analyze Single Value'); newAnalyze('{!JSENCODE(ps.analyzeObj)}','{!JSENCODE( ps.analyzeField)}','{!JSENCODE(ps.analyzeFieldLabel)}','{!JSENCODE(ps.analyzeFieldType)}','{!JSENCODE(pickValue)}');" style="color: #015ba7; text-decoration: none;">Analyze Impact</a>
+                    </apex:column>
+                    <apex:column headerValue="Picklist Value" value="{!pickValue}"/>
+                </apex:pageBlockTable>
+            </apex:pageBlockSection>
+            <script type="text/javascript">
+                j$(".fieldLevelButton").each(
+                    function(){
+                        if (j$(this).attr('name').indexOf("bottom")>=0){
+                            j$(this).parent().parent().parent().parent().hide();
+                        }
+                    }
+                );
+                j$(".fieldLevelButton").click(
+                    function(event){
+                        event.preventDefault();
+                    }
+                );
+            </script>
+        </apex:pageblock>
+       
+        <!-- Result -->
+        <apex:pageblock rendered="{!isAnalyze}">
+        
+<!--         <br/><br/> -->
+<!--         **{!ps.mapRes}** -->
+<!--         <br/><br/> -->
+<!--         **{!ps.searchResultComponentsJSON}** -->
+<!--         <br/><br/> -->
+<!--         **{!ps.component}** -->
+<!--         <br/><br/> -->
+        
+           <apex:actionStatus id="WaitingStatus">
+                <apex:facet name="start">
+                    <center>
+                        <div style="position: fixed; top: 35%; left: 33%; height: 100%; width: 423px; z-index: 3000">
+                            <img src="{!URLFOR($Resource.PanayaWaiting3DBlueRing)}" width="60px" height="60px"
+                                 style="margin-left: 35%; margin-top: 20%; z-index: 3020" />
+                        </div>
+                    </center>
+                </apex:facet>
+            </apex:actionStatus>
+            <apex:pageblockSection rendered="{!if(len(errorMessage)>2,true,false)}" columns="1">
+                <apex:outputText style="font-size: 18px;" value="{!HTMLENCODE(errorMessage)}" escape="false"/>
+            </apex:pageblockSection>
+            
+            <apex:pageblockSection title="{!ps.analyzeField} - {!if(and(ps.analyzeType == 'User',ps.analyzeField=='Name'),ps.analyzeFieldLabel,ps.analyzeValue)} Impact" rendered="true" columns="1" collapsible="false">
+                <div class="AnalysisRunningDetails" style="background-color: {!if(savedAnalysisRunning,'red;','lightgreen;')}">
+                    <script>
+                        //totangoTrack(totangoModule, 'Running Saved Analysis');
+                    </script>
+                    <span class="AnalysisRunningDetails" style="{!if(savedAnalysisRunning,'','display: none;')}">Running Saved Analysis</span>
+                    <span class="AnalysisRunningDetails" style="{!if(savedAnalysisRunning,'display: none;','')}">Based on Extraction - {!currentExtraction.ExtractionDateTime}</span>
+                </div>
+                <script type="text/javascript">
+                    j$(document).ready(function(){
+                        var left=j$("#chartDiv").parent().parent().position().left;
+                        j$("div.AnalysisRunningDetails").css("right",left);
+                        j$("div.AnalysisRunningDetails").css("display","inline-block");
+                    });
+                </script>
+                
+                <apex:outputPanel id="chart_div">
+                    <span id="chartJSON" style="display: none;">{!ps.searchResultComponentsJSON}</span>  
+                    <span id="maxComp" style="display: none;" >{!pr.maxComponentsCount}</span>
+                    <div id="chartDiv"/>
+                </apex:outputPanel>
+                
+                <apex:outputPanel >
+                    <br/>
+<!--                     <span style="vertical-align:middle;">The analysis currently covers <span style="font-weight: bold;">reports, dashboards, workflow rules, validation rules</span> and <span style="font-weight: bold;">formula</span> fields</span> -->
+                    &nbsp;&nbsp;&nbsp;&nbsp;<apex:commandButton value="Export Executive Summary" styleClass="exportButton" onclick="totangoTrack(totangoModule, 'Export Executive Summary');"/>
+                    &nbsp;&nbsp;&nbsp;&nbsp;<apex:commandButton value="Save Analysis" styleClass="showSaveButton" rendered="{!NOT(savedAnalysisRunning)}" />
+                    
+                    <script type="text/javascript">
+                        j$('.exportButton').click(function() {
+                            j$(this).target = "_blank";
+                            window.open('/apex/pages/EffortAssessment?object={!JSENCODE(ps.analyzeObj)}&field={!JSENCODE(ps.analyzeField)}&value={!JSENCODE(ps.analyzeValue)}&analysis={!ps.analyzeType}&valueLabel={!JSENCODE(ps.analyzeFieldLabel)}');
+                            return false;
+                        });
+                        j$('.showSaveButton').click(function() {
+                            j$(".saveDiv").show();
+                            return false;
+                        });
+                        j$('.canelSaveButton').click(function() {
+                            j$(".saveDiv").hide();
+                            return false;
+                        });
+                        j$('.saveButton').click(function() {
+                            //debugger;
+                            j$(".saveDiv").hide();
+                            j$(this).target = "_blank";
+                            /*var userId=j$(".requestedByInput").parent().parent().find("[id$='lkid']").val();*/
+                            var userId='';
+                            //RemoteAction
+                           
+                            
+                            var s = {!PsJSON};
+                            s.mapRes = null;
+                            s.resultIist=null;
+                            saveAnalysis(s,j$(".summaryInput").val(),j$(".dueDateInput").val());
+                            
+                            j$(".summaryInput").val('');
+                            j$(".dueDateInput").val('');
+                            return false;
+                        });
+                        j$(".datePicker").css({"position": "fixed","z-index": "2002"});
+                        
+                        
+                    </script>
+                    <div class="saveDiv" style="background-color: white; border:2px gray solid; border-radius:15px; position: fixed; top: 40%; left: 33%; width: 40%; z-index: 2000; display: none;" >
+                        <div style="margin-left: 30px; margin-right: 30px; margin-top: 15px; margin-bottom: 15px;">
+                            <apex:pageblockSection title="Save Analysis" columns="1" collapsible="false">
+                                <apex:pageblockSectionItem >
+                                    <apex:outputLabel value="Summary" for="summaryField"/>
+                                    <apex:inputText id="summaryField" styleClass="summaryInput" maxlength="255"/>
+                                </apex:pageblockSectionItem>
+                                <apex:pageblockSectionItem >
+                                    <apex:outputLabel value="Due Date" for="dueDateField"/>
+                                    <apex:inputField id="dueDateField" value="{!pca.PanayaIA__Due_Date__c}" styleClass="dueDateInput"/>
+                                </apex:pageblockSectionItem>
+                                <apex:pageblockSectionItem rendered="false">
+                                    <apex:outputLabel value="Requested By" for="requestedByField"/>
+                                    <apex:inputField id="requestedByField" value="{!pca.PanayaIA__Requested_By__c}" styleClass="requestedByInput"/>
+                                </apex:pageblockSectionItem>
+                            </apex:pageblockSection>
+                            &nbsp;&nbsp;
+                            <apex:commandButton value="Save Analysis" styleClass="saveButton"/>
+                             
+                            &nbsp;&nbsp;&nbsp;&nbsp;
+                            <apex:commandButton value="Cancel" styleClass="canelSaveButton" style="width: 60px;"/>
+                        </div>
+                    </div>
+                </apex:outputPanel>
+                
+                
+               <apex:outputPanel id="newTabs" >
+                
+                <apex:actionFunction name="setComp" oncomplete="manageResults();" reRender="results,paginationResult" action="{!ps.setComp}" status="WaitingStatus">
+                    <apex:param name="component" value="" assignTo="{!ps.component}"/>
+                </apex:actionFunction>
+<!--                 initPaginate(); -->
+<!--                 <apex:actionFunction name="setPage" oncomplete="manageResults();" reRender="results,paginationResult" action="{!ps.setPage}" status="WaitingStatus" > -->
+<!--                     <apex:param name="component" value="" assignTo="{!ps.page}"/> -->
+<!--                 </apex:actionFunction> -->
+    
+                <div id="tabs123" class="newTabs">
+                    <ul>
+                        <apex:variable var="cnt" value="{!1}" />
+                        <apex:repeat value="{!ps.SearchResultComponents}" var="item">
+                            <apex:outputPanel layout="none" rendered="{!item.directCount > 0 }">
+                            <li>
+                                <a class="tabsli" href="#tab{!cnt}" onclick="selectTab('{!item.entityType}');">{!item.EntityTypeLabel}</a>
+                            </li> 
+                            </apex:outputPanel>
+                        <apex:variable var="cnt" value="{!cnt+1}"/>
+                        </apex:repeat>
+                    </ul>
+                    <apex:variable var="cnt" value="{!1}" />
+                    <apex:repeat value="{!ps.SearchResultComponents}" var="items3"> 
+                        <div class="tabsDiv" style="display: none;" Id="tab{!cnt}">
+                        </div>
+                    <apex:variable var="cnt" value="{!cnt+1}"/>
+                    </apex:repeat>
+                    
+                    
+                    <apex:outputPanel id="results">
+                        
+                        <span id="NumOfPages"  style="display: none;">{!ps.NumOfPages}</span>
+                        <span id="page"  style="display: none;">{!ps.page}</span>
+                        <apex:pageblockTable value="{!ps.resultIist.results}" var="result2" >
+                            	
+							<!-- Component Type -->                            	
+                            <apex:column width="{!pr.maxIndent*40+100}" rendered="{!if(ps.fromDB,'false','true')}">
+                            	<apex:facet name="header" > 
+									<apex:commandLink oncomplete="manageResults();" reRender="results,paginationResult" action="{!ps.sortBy}" status="WaitingStatus" value="Component Type "  >
+										<apex:param name="sortBy" value="ComponentType" assignTo="{!ps.sortBy}"/>
+										<apex:image value="{!URLFOR($Resource.PanayaIA__upArrow)}"  width="10" height="4" rendered="{!ps.sortBy=='componentType' && ps.sortOrder='DESC'}"/> 
+										<apex:image value="{!URLFOR($Resource.PanayaIA__downArrow)}"  width="10" height="4" rendered="{!ps.sortBy=='componentType' && ps.sortOrder='ASC'}" />
+									</apex:commandLink>
+								</apex:facet>
+                            	
+                                <span style="margin-left: {!result2.indentationLevel*40}px;white-space:nowrap;">
+                                    <apex:image url="{!$Resource.PanayaIA__ExpandIcon}" style="vertical-align: top;display:inline-block;" styleClass="expand" rendered="{!if(result2.hasChildren=1,'true','false')}"/>
+                                    <apex:image url="{!$Resource.PanayaIA__CollapseIcon}" style="vertical-align: top;display:inline-block;" styleClass="collapse" rendered="{!if(result2.hasChildren=1,'true','false')}"/>
+                                    <span style="vertical-align: top;display:inline-block;margin-left:2px;{!if(result2.hasChildren=1,'','margin-left: 17px;')}">{!if( result2.componentType='Formula',result2.SFfieldType,result2.componentType)}</span>
+                                </span>
+                            </apex:column>
+                            <apex:column width="{!pr.maxIndent*40+100}" headerValue="Component Type" rendered="{!if(ps.fromDB,'true','false')}">
+                            	
+                                <span style="margin-left: {!result2.indentationLevel*40}px;white-space:nowrap;">
+                                    <apex:image url="{!$Resource.PanayaIA__ExpandIcon}" style="vertical-align: top;display:inline-block;" styleClass="expand" rendered="{!if(result2.hasChildren=1,'true','false')}"/>
+                                    <apex:image url="{!$Resource.PanayaIA__CollapseIcon}" style="vertical-align: top;display:inline-block;" styleClass="collapse" rendered="{!if(result2.hasChildren=1,'true','false')}"/>
+                                    <span style="vertical-align: top;display:inline-block;margin-left:2px;{!if(result2.hasChildren=1,'','margin-left: 17px;')}">{!if( result2.componentType='Formula',result2.SFfieldType,result2.componentType)}</span>
+                                </span>
+                                
+                            </apex:column>
+                            
+                            <!-- Component -->
+                            <apex:column width="230" rendered="{!if(ps.fromDB,'false','true')}">
+                            
+                            	<apex:facet name="header"> 
+									<apex:commandLink oncomplete="manageResults();" reRender="results,paginationResult" action="{!ps.sortBy}" status="WaitingStatus" value="Component ">
+										<apex:param name="sortBy" value="ComponentName" assignTo="{!ps.sortBy}"/>
+										<apex:image value="{!URLFOR($Resource.PanayaIA__upArrow)}" width="10" height="4" rendered="{!ps.sortBy=='ComponentName' && ps.sortOrder='DESC'}"/> 
+										<apex:image value="{!URLFOR($Resource.PanayaIA__downArrow)}" width="10" height="4" rendered="{!ps.sortBy=='ComponentName' && ps.sortOrder='ASC'}" /> 
+									</apex:commandLink>
+								</apex:facet>
+                            
+                                <apex:outputpanel html-componentType="{!result2.componentType}" html-indentationLevel="{!text(result2.indentationLevel)}" html-compName="{!result2.componentName}" html-parentName="{!result2.parentName}" html-hierarchyStr="{!result2.HierarchyString}">
+                                    <!-- Page Layout -->
+                                    <!-- Customized objects layout has different url(with object id 15 digits.) In layouts we send lable - so the only __c would be in the case of custom object layout -->
+                                    <apex:outputLink onclick="totangoTrack(totangoModule, totangoTabActivities['{!ps.component}'] === undefined ? 'Go to Metadata Tab Component' : 'Go to ' + totangoTabActivities['{!ps.component}']+' Component');" target="_blank" value="/layouteditor/layoutEditor.apexp?type={!result2.objName}&lid={!result2.componentId}" rendered="{!AND(result2.componentType=='Page Layout',NOT(CONTAINS(result2.componentName,'__c')))}">{!result2.componentLabel}</apex:outputLink>
+                                    <apex:outputLink onclick="totangoTrack(totangoModule, totangoTabActivities['{!ps.component}'] === undefined ? 'Go to Metadata Tab Component' : 'Go to ' + totangoTabActivities['{!ps.component}']+' Component');" target="_blank" value="/layouteditor/layoutEditor.apexp?type={!result2.parentObj15Id}&lid={!result2.componentId}" rendered="{!AND(result2.componentType=='Page Layout',CONTAINS(result2.componentName,'__c'))}">{!result2.componentLabel}</apex:outputLink>
+                                    <!-- Based Sharing Rule -->
+                                    <apex:outputLink onclick="totangoTrack(totangoModule, totangoTabActivities['{!ps.component}'] === undefined ? 'Go to Metadata Tab Component' : 'Go to ' + totangoTabActivities['{!ps.component}']+' Component');" target="_blank" value="/p/own/OrgSharingDetail?setupid=SecuritySharing" rendered="{!result2.componentType=='Based Sharing Rule'}">{!result2.componentLabel}</apex:outputLink>
+                                    <!-- Flow -->
+                                    <apex:outputLink onclick="totangoTrack(totangoModule, totangoTabActivities['{!ps.component}'] === undefined ? 'Go to Metadata Tab Component' : 'Go to ' + totangoTabActivities['{!ps.component}']+' Component');" target="_blank" value="/designer/designer.apexp#Id={!result2.componentId}" rendered="{!result2.componentType=='Flow'}">{!result2.componentLabel}</apex:outputLink>
+                                    <!--   Component ID LINK -->
+                                    <apex:outputPanel rendered="{!if(not(or(result2.componentType=='Based Sharing Rule',result2.componentType=='Page Layout',result2.componentType=='Flow')),true,false)}">
+                                    <apex:outputLink onclick="totangoTrack(totangoModule, totangoTabActivities['{!ps.component}'] === undefined ? 'Go to Metadata Tab Component' : 'Go to ' + totangoTabActivities['{!ps.component}']+' Component');"  target="_blank" value="{!if(result2.componentType=='Assignment Rule Entry','/setup/own/entityruledetail.jsp?id=' + result2.componentId + '&setupid=LeadRules' , '/' + result2.componentId)}" rendered="{!if(not(ISNULL(result2.componentId)),true,false)}">{!result2.componentLabel}</apex:outputLink>
+                                    <apex:outputtext rendered="{!if(ISNULL(result2.componentId),true,false)}">{!result2.componentLabel}</apex:outputtext>
+            <!--                             <apex:outputLink target="_blank" value="/{!result2.componentId}" rendered="{!if(or(result2.componentType='Apex Class',result2.componentType='Report',result2.componentType='Dashboard',result2.componentType='Integration Field'),true,false)}">{!result2.componentLabel}</apex:outputLink> -->
+            <!--                             Validation Rule - Formula -->
+            <!--                             <apex:outputtext rendered="{!if(or(result2.componentType='Apex Class',result2.componentType='Report',result2.componentType='Dashboard',result2.componentType='Integration Field',result2.componentType='Page Layout'),false,true)}">{!result2.componentLabel}</apex:outputtext> -->
+                                    </apex:outputPanel>
+                                </apex:outputpanel>
+                            </apex:column>
+                            <apex:column width="230" headerValue="Component" rendered="{!if(ps.fromDB,'true','false')}">
+                                <apex:outputpanel html-componentType="{!result2.componentType}" html-indentationLevel="{!text(result2.indentationLevel)}" html-compName="{!result2.componentName}" html-parentName="{!result2.parentName}" html-hierarchyStr="{!result2.HierarchyString}">
+                                    <!-- Page Layout -->
+                                    <!-- Customized objects layout has different url(with object id 15 digits.) In layouts we send lable - so the only __c would be in the case of custom object layout -->
+                                    <apex:outputLink onclick="totangoTrack(totangoModule, totangoTabActivities['{!ps.component}'] === undefined ? 'Go to Metadata Tab Component' : 'Go to ' + totangoTabActivities['{!ps.component}']+' Component');" target="_blank" value="/layouteditor/layoutEditor.apexp?type={!result2.objName}&lid={!result2.componentId}" rendered="{!AND(result2.componentType=='Page Layout',NOT(CONTAINS(result2.componentName,'__c')))}">{!result2.componentLabel}</apex:outputLink>
+                                    <apex:outputLink onclick="totangoTrack(totangoModule, totangoTabActivities['{!ps.component}'] === undefined ? 'Go to Metadata Tab Component' : 'Go to ' + totangoTabActivities['{!ps.component}']+' Component');" target="_blank" value="/layouteditor/layoutEditor.apexp?type={!result2.parentObj15Id}&lid={!result2.componentId}" rendered="{!AND(result2.componentType=='Page Layout',CONTAINS(result2.componentName,'__c'))}">{!result2.componentLabel}</apex:outputLink>
+                                    <!-- Based Sharing Rule -->
+                                    <apex:outputLink onclick="totangoTrack(totangoModule, totangoTabActivities['{!ps.component}'] === undefined ? 'Go to Metadata Tab Component' : 'Go to ' + totangoTabActivities['{!ps.component}']+' Component');" target="_blank" value="/p/own/OrgSharingDetail?setupid=SecuritySharing" rendered="{!result2.componentType=='Based Sharing Rule'}">{!result2.componentLabel}</apex:outputLink>
+                                    <!-- Flow -->
+                                    <apex:outputLink onclick="totangoTrack(totangoModule, totangoTabActivities['{!ps.component}'] === undefined ? 'Go to Metadata Tab Component' : 'Go to ' + totangoTabActivities['{!ps.component}']+' Component');" target="_blank" value="/designer/designer.apexp#Id={!result2.componentId}" rendered="{!result2.componentType=='Flow'}">{!result2.componentLabel}</apex:outputLink>
+                                    <!--   Component ID LINK -->
+                                    <apex:outputPanel rendered="{!if(not(or(result2.componentType=='Based Sharing Rule',result2.componentType=='Page Layout',result2.componentType=='Flow')),true,false)}">
+                                    <apex:outputLink onclick="totangoTrack(totangoModule, totangoTabActivities['{!ps.component}'] === undefined ? 'Go to Metadata Tab Component' : 'Go to ' + totangoTabActivities['{!ps.component}']+' Component');"  target="_blank" value="{!if(result2.componentType=='Assignment Rule Entry','/setup/own/entityruledetail.jsp?id=' + result2.componentId + '&setupid=LeadRules' , '/' + result2.componentId)}" rendered="{!if(not(ISNULL(result2.componentId)),true,false)}">{!result2.componentLabel}</apex:outputLink>
+                                    <apex:outputtext rendered="{!if(ISNULL(result2.componentId),true,false)}">{!result2.componentLabel}</apex:outputtext>
+            <!--                             <apex:outputLink target="_blank" value="/{!result2.componentId}" rendered="{!if(or(result2.componentType='Apex Class',result2.componentType='Report',result2.componentType='Dashboard',result2.componentType='Integration Field'),true,false)}">{!result2.componentLabel}</apex:outputLink> -->
+            <!--                             Validation Rule - Formula -->
+            <!--                             <apex:outputtext rendered="{!if(or(result2.componentType='Apex Class',result2.componentType='Report',result2.componentType='Dashboard',result2.componentType='Integration Field',result2.componentType='Page Layout'),false,true)}">{!result2.componentLabel}</apex:outputtext> -->
+                                    </apex:outputPanel>
+                                </apex:outputpanel>
+                            </apex:column>
+                            <!-- View source -->
+                            <apex:column width="50" headerValue="View Source">
+                                <apex:outputPanel rendered="{!and(or(result2.componentType=='Apex Class',result2.componentType=='Apex Trigger',result2.componentType=='Visualforce Page',result2.componentType=='Visualforce Component'),result2.indentationLevel==0)}">
+                                    <a href="javascript:void(0);" onclick="getHighlightedText('{!result2.componentType}','{!result2.componentName}','{!ps.analyzeObj}','{!ps.analyzeField}','{!ps.analyzeValue}');" > 
+                                        <img src="{!URLFOR($Resource.Panaya, 'img/viewSource.png')}" style="float: right;" title="View Source" height="14px"/>
+                                    </a>
+                                </apex:outputPanel>
+                            </apex:column>
+                            
+                            <!-- Folder/Object -->
+                            <apex:column width="200" rendered="{!if(ps.fromDB,'false','true')}">
+                            
+                            	<apex:facet name="header"> 
+										<apex:commandLink oncomplete="manageResults();" reRender="results,paginationResult" action="{!ps.sortBy}" status="WaitingStatus" value="Folder/Object ">
+											<apex:param name="sortBy" value="Folder/Object" assignTo="{!ps.sortBy}"/> 
+											<apex:image value="{!URLFOR($Resource.PanayaIA__upArrow)}" width="10" height="4" rendered="{!ps.sortBy=='Folder/Object' && ps.sortOrder='DESC'}"/> 
+											<apex:image value="{!URLFOR($Resource.PanayaIA__downArrow)}" width="10" height="4" rendered="{!ps.sortBy=='Folder/Object' && ps.sortOrder='ASC'}" /> 
+										</apex:commandLink>
+								</apex:facet>
+                            
+                            
+                                <apex:outputLink target="_blank" value="/{!result2.folderId}" rendered="{!if(or(result2.componentType='Report',result2.componentType='Dashboard'),true,false)}">{!result2.folderLabel}</apex:outputLink>
+                                <apex:outputtext rendered="{!if(or(result2.componentType='Formula',result2.componentType='Page Layout',result2.componentType='Workflow Rule',result2.componentType='Workflow Field Update',result2.componentType='Validation Rule',result2.componentType='Assignment Rule Entry',result2.componentType='Workflow Email Alert'),true,false)}">{!result2.objName}</apex:outputtext>
+                                <apex:outputtext rendered="{!if(result2.componentType='Integration Field',true,true)}">{!result2.integrationDetails}</apex:outputtext>
+                            </apex:column>
+                            <apex:column width="200" headerValue="Folder/Object" rendered="{!if(ps.fromDB,'true','false')}">
+                                <apex:outputLink target="_blank" value="/{!result2.folderId}" rendered="{!if(or(result2.componentType='Report',result2.componentType='Dashboard'),true,false)}">{!result2.folderLabel}</apex:outputLink>
+                                <apex:outputtext rendered="{!if(or(result2.componentType='Formula',result2.componentType='Page Layout',result2.componentType='Workflow Rule',result2.componentType='Workflow Field Update',result2.componentType='Validation Rule',result2.componentType='Assignment Rule Entry',result2.componentType='Workflow Email Alert'),true,false)}">{!result2.objName}</apex:outputtext>
+                                <apex:outputtext rendered="{!if(result2.componentType='Integration Field',true,true)}">{!result2.integrationDetails}</apex:outputtext>
+                            </apex:column>
+                            
+                            <!-- Last Run -->
+                            <apex:column width="80" headerValue="Last Run" value="{!result2.lastRun}"/>   
+                            
+                            <!-- Created By -->                         	
+                            <apex:column width="80" rendered="{!if(ps.fromDB,'false','true')}">
+                            
+	                            <apex:facet name="header"> 
+										<apex:commandLink oncomplete="manageResults();" reRender="results,paginationResult" action="{!ps.sortBy}" status="WaitingStatus" value="Created By ">
+											<apex:param name="sortBy" value="CreatedBy" assignTo="{!ps.sortBy}"/> 
+											<apex:image value="{!URLFOR($Resource.PanayaIA__upArrow)}" width="10" height="4" rendered="{!ps.sortBy=='CreatedBy' && ps.sortOrder='DESC'}"/> 
+											<apex:image value="{!URLFOR($Resource.PanayaIA__downArrow)}" width="10" height="4" rendered="{!ps.sortBy=='CreatedBy' && ps.sortOrder='ASC'}" /> 
+										</apex:commandLink>
+								</apex:facet>
+	                            <apex:outputText value="{!result2.createdBy}" />
+                            </apex:column>
+                            <apex:column width="80" headerValue="Created By" rendered="{!if(ps.fromDB,'true','false')}">
+                                <apex:outputText value="{!result2.createdBy}" />
+                            </apex:column>
+                            
+                            <!-- Last Modified By -->
+                            <apex:column width="80" rendered="{!if(ps.fromDB,'false','true')}">
+                            	<apex:facet name="header"> 
+										<apex:commandLink oncomplete="manageResults();" reRender="results,paginationResult" action="{!ps.sortBy}" status="WaitingStatus" value="Last Modified By ">
+											<apex:param name="sortBy" value="LastModifiedBy" assignTo="{!ps.sortBy}"/> 
+											<apex:image value="{!URLFOR($Resource.PanayaIA__upArrow)}" width="10" height="4" rendered="{!ps.sortBy=='LastModifiedBy' && ps.sortOrder='DESC'}"/> 
+											<apex:image value="{!URLFOR($Resource.PanayaIA__downArrow)}" width="10" height="4" rendered="{!ps.sortBy=='LastModifiedBy' && ps.sortOrder='ASC'}" /> 
+										</apex:commandLink>
+								</apex:facet>
+	                            <apex:outputText value="{!result2.LastModifiedBy}" />
+                            </apex:column>
+                            <apex:column width="80" headerValue="Last Modified By" rendered="{!if(ps.fromDB,'true','false')}">
+                            	<apex:outputText value="{!result2.LastModifiedBy}" />
+                            </apex:column>
+                            
+                            <!-- Last Modified Date -->
+                            <apex:column width="80" rendered="{!if(ps.fromDB,'false','true')}">
+                            	<apex:facet name="header"> 
+										<apex:commandLink oncomplete="manageResults();" reRender="results,paginationResult" action="{!ps.sortBy}" status="WaitingStatus" value="Last Modified Date ">
+											<apex:param name="sortBy" value="LastModifiedDate" assignTo="{!ps.sortBy}"/> 
+											<apex:image value="{!URLFOR($Resource.PanayaIA__upArrow)}" width="10" height="4" rendered="{!ps.sortBy=='LastModifiedDate' && ps.sortOrder='DESC'}"/> 
+											<apex:image value="{!URLFOR($Resource.PanayaIA__downArrow)}" width="10" height="4" rendered="{!ps.sortBy=='LastModifiedDate' && ps.sortOrder='ASC'}" /> 
+										</apex:commandLink>
+								</apex:facet>
+	                            <apex:outputText value="{!result2.lastModifiedDate}" />
+                            </apex:column>
+                            <apex:column width="80" headerValue="Last Modified Date" rendered="{!if(ps.fromDB,'true','false')}">
+                            	<apex:outputText value="{!result2.lastModifiedDate}" />
+                            </apex:column>
+                            
+                            
+<!--                            <apex:column width="130" headerValue="Fix It"> -->
+<!--                                <apex:selectList value="{!result2.action}" size="1" disabled="true" rendered="{!if(result2.selectActions=null,false,if(result2.selectActions.size>0,true,false))}"> -->
+<!--                                    <apex:selectOptions value="{!result2.selectActions}"/> -->
+<!--                                </apex:selectList> -->
+<!--                            </apex:column> -->
+                            
+                        </apex:pageblockTable>
+                        </apex:outputPanel>
+                        
+                        
+                         
+                        
+<!--                         <div id ="pagination"></div> -->
+
+                        <script>
+                        /*
+                          function initPaginate(countPage){
+                              if(j$('#NumOfPages').html()==1){
+                                  j$('#pagination').hide();
+                                  return;
+                              }
+                              j$('#pagination').show();
+                              j$('#pagination').paginate({
+                                  count       : j$('#NumOfPages').html(),
+                                  start       : 1,
+                                  display     : 8,
+                                  border                  : false,
+                                  text_color              : '#79B5E3',
+                                  background_color        : 'none',   
+                                  text_hover_color        : '#2573AF',
+                                  background_hover_color  : 'none', 
+                                  images      : false,
+                                  mouse       : 'slide',
+                                  onChange                :  function(res){setPage(res);}
+                              });
+                              
+                                  
+                          }
+                              */
+                       </script>
+
+                </div>
+                </apex:outputPanel>
+                </apex:pageblockSection>
+                
+                
+                <apex:pageBlockButtons location="bottom" styleClass="paginator" style="text-align: justify;" >
+                    <apex:outputPanel id="paginationResult" >
+                    <span class="prevNextLinks" >
+                        <span class="prevNext">
+                            <apex:commandLink action="{!ps.first}" rendered="{!ps.HasPrevious}" oncomplete="manageResults();" status="WaitingStatus" reRender="results,paginationResult"><img src="/s.gif" class="first" alt="First Page"/></apex:commandLink>
+                            <apex:outputpanel rendered="{!ps.page == 0}"><img src="/s.gif" class="firstoff" alt="First Page"/></apex:outputpanel>
+                        </span>
+                        <span class="prevNext">
+                            <apex:commandLink action="{!ps.previous}" rendered="{!ps.HasPrevious}" oncomplete="manageResults();" status="WaitingStatus" reRender="results,paginationResult"><img src="/s.gif" class="prev" alt="Previous"/>Previous</apex:commandLink>
+                            <apex:outputpanel rendered="{!ps.page == 0}"><img src="/s.gif" class="prevoff" alt="Previous"/>Previous</apex:outputpanel>
+                        </span>
+                        <span class="prevNext">
+                            <apex:commandLink action="{!ps.next}" rendered="{!ps.HasNext}" oncomplete="manageResults();" status="WaitingStatus" reRender="results,paginationResult">Next<img src="/s.gif" class="next" alt="Next"/></apex:commandLink>
+                            <apex:outputpanel rendered="{!NOT(ps.HasNext)}">Next<img src="/s.gif" class="nextoff" alt="Next"/></apex:outputpanel>
+                        </span>
+                        <span class="prevNext">
+                            <apex:commandLink action="{!ps.last}" rendered="{!ps.HasNext}" oncomplete="manageResults();" status="WaitingStatus" reRender="results,paginationResult"><img src="/s.gif" class="last" alt="Last Page"/></apex:commandLink>
+                            <apex:outputpanel rendered="{!NOT(ps.HasNext)}"><img src="/s.gif" class="lastoff" alt="Last Page"/></apex:outputpanel>
+                        </span>
+                    </span>
+                    </apex:outputPanel>
+                </apex:pageBlockButtons>
+                
+        </apex:pageblock>
+        <script>
+            j$('.newTabs').tabs();
+            j$('li.ui-state-active').append('<span class="elem_tab_active"> </span>');
+            var componentTypeStrings = JSON.parse('{!componentTypeStrings}');
+            //debugger;
+            if({!analyzeFromURL})
+                manageResults();
+        </script>
+
+    </apex:form>
+</apex:page>

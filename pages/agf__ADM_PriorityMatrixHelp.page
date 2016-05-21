@@ -1,0 +1,47 @@
+<apex:page standardController="agf__ADM_Impact__c" extensions="agf.ADM_PriorityMatrixHelpController" showHeader="false" sidebar="false" cache="true" >
+
+	<style>
+		.odd { background-color: #F0F0F0  }
+		.even {				}
+		.tableClass { font-family: Arial;
+					 border-right: 1px}
+		th {
+			font-size: 14pt;
+			border-right:1px solid #D8D8D8  ;
+			text-align: left;
+		}
+		
+		td { font-size: 10pt;
+		border-right: 1px solid #D8D8D8  ; }
+		
+		.impactName { color: #3366FF ; 
+					  font-weight:bolder }			 
+		
+	</style>
+    
+    <apex:dataTable value="{!impacts}" var="impact" id="theTable" rowClasses="odd,even"
+                        styleClass="tableClass"  cellpadding="10px" columnsWidth="25%,35%,40%">
+		
+		<apex:column >
+		        <apex:facet name="header">Impact Name</apex:facet>
+			
+			<apex:outputText styleClass="impactName" value="{!impact.name}"/>
+		</apex:column>
+		<apex:column >
+			<apex:facet name="header">Description</apex:facet>
+			
+			<apex:outputText value="{!impact.agf__Description__c}"/>
+		</apex:column>
+		<apex:column >
+			<apex:facet name="header">Example</apex:facet>
+			
+			<apex:outputText value="{!impact.agf__Example__c}"/>
+		</apex:column>
+	</apex:dataTable>
+
+   
+ 
+   
+    
+    
+</apex:page>

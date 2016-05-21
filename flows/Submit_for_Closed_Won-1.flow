@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <actionCalls>
+        <name>FAULT</name>
+        <label>FAULT</label>
+        <locationX>254</locationX>
+        <locationY>110</locationY>
+        <actionName>emailSimple</actionName>
+        <actionType>emailSimple</actionType>
+        <inputParameters>
+            <name>EmailAddresses</name>
+            <value>
+                <stringValue>mark.ross@autotradergroup.com</stringValue>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>EmailBody</name>
+            <value>
+                <elementReference>txtErrorBody</elementReference>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>EmailSubject</name>
+            <value>
+                <stringValue>Submit for Closed Won Error</stringValue>
+            </value>
+        </inputParameters>
+    </actionCalls>
+    <actionCalls>
+        <name>Submit_for_Approval</name>
+        <label>Submit for Approval</label>
+        <locationX>48</locationX>
+        <locationY>161</locationY>
+        <actionName>submit</actionName>
+        <actionType>submit</actionType>
+        <faultConnector>
+            <targetReference>FAULT</targetReference>
+        </faultConnector>
+        <inputParameters>
+            <name>objectId</name>
+            <value>
+                <elementReference>varOppID</elementReference>
+            </value>
+        </inputParameters>
+    </actionCalls>
+    <label>Submit for Closed Won</label>
+    <processType>AutoLaunchedFlow</processType>
+    <recordUpdates>
+        <name>Set_Opp_to_Pending_Won</name>
+        <label>Set Opp to Pending Won</label>
+        <locationX>48</locationX>
+        <locationY>38</locationY>
+        <connector>
+            <targetReference>Submit_for_Approval</targetReference>
+        </connector>
+        <faultConnector>
+            <targetReference>FAULT</targetReference>
+        </faultConnector>
+        <filters>
+            <field>Id</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>varOppID</elementReference>
+            </value>
+        </filters>
+        <inputAssignments>
+            <field>StageName</field>
+            <value>
+                <stringValue>Pending Won</stringValue>
+            </value>
+        </inputAssignments>
+        <object>Opportunity</object>
+    </recordUpdates>
+    <startElementReference>Set_Opp_to_Pending_Won</startElementReference>
+    <textTemplates>
+        <name>txtErrorBody</name>
+        <text>{!$Flow.FaultMessage}</text>
+    </textTemplates>
+    <variables>
+        <name>varOppID</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>true</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+</Flow>

@@ -1,0 +1,121 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN"> 
+<html> 
+<head> 
+<script type="text/javascript" src="/js/functions.js"></script> 
+<script src="/soap/ajax/12.0/connection.js"></script> 
+<script language="javascript"> 
+
+function invoices() 
+{ 
+
+	var rectype = '{!SFDC_520_Quote__c.RecordTypeId}'; //state the current record type
+
+	if(rectype != '01270000000Q3Vh')//if record is not frozen
+	{
+		var project= new sforce.SObject("SFDC_520_Quote__c"); 
+		var logId = '{!SFDC_520_Quote__c.Id}'; 
+
+		project.Id = logId; 
+		project.PREFREEZE_Rec_Type__c = rectype; //store the prefreeze rec type for later unfreezing
+		project.RecordTypeId = '01270000000Q3Vh';
+		
+		saveResult = sforce.connection.update([project]); //Freeze the Project
+		if (saveResult[0].getBoolean("success")) 
+		{ 
+		//alert("success");
+		}
+		
+		//NOW FIND THE PROJECT PIECES AND FREEZE THEM TOO
+		var ProjPieceId; 
+		var ProjPieceRecType;
+		var ProjPieceSavedRecType;
+		
+		var result = sforce.connection.query("Select p.RecordTypeId, p.Project__c, p.Project_Piece_Stage__c, p.PREFROZEN_REC_TYPE__c, p.Id From Project_Piece__c p where Project_Piece_Stage__c != 'Completed' and Project__c = '"+logId+"'"); 
+
+		var rec = result.getArray("records"); 
+
+		for(var i=0; i<result.size ; i++) 
+		{ 
+			ProjPieceId = rec[i].Id; 
+			ProjPieceRecType = rec[i].RecordTypeId;
+			ProjPieceSavedRecType = rec[i].PREFROZEN_REC_TYPE__c;
+			
+			//NOW FREEZE 'EM
+			
+			var projectpiece= new sforce.SObject("Project_Piece__c"); 
+			var logId = ProjPieceId; 
+
+			projectpiece.Id = logId; 
+			projectpiece.PREFROZEN_REC_TYPE__c = ProjPieceRecType; //store the prefreeze rec type for later unfreezing
+			projectpiece.RecordTypeId = '01270000000Q3Vc';
+			
+			saveResult = sforce.connection.update([projectpiece]); //Freeze the Project
+			if (saveResult[0].getBoolean("success")) 
+			{ 
+				//alert("success");
+			}
+		}
+		
+		
+	}
+	if(rectype == '01270000000Q3Vh')//if record is frozen
+	{
+		var project= new sforce.SObject("SFDC_520_Quote__c"); 
+		var logId = '{!SFDC_520_Quote__c.Id}'; 
+
+		project.Id = logId; 
+		project.RecordTypeId = '{!SFDC_520_Quote__c.PREFREEZE_Rec_Type__c}';
+		
+		saveResult = sforce.connection.update([project]); //UN-Freeze the Project Piece
+		if (saveResult[0].getBoolean("success")) 
+		{ 
+		//alert("success");
+		}
+		
+		//NOW FIND THE PROJECT PIECES AND UN-FREEZE THEM TOO
+		var ProjPieceId; 
+		var ProjPieceRecType;
+		var ProjPieceSavedRecType;
+		
+		var result = sforce.connection.query("Select p.RecordTypeId, p.Project__c, p.PREFROZEN_REC_TYPE__c, p.Id From Project_Piece__c p where Project_Piece_Stage__c != 'Completed' and Project__c = '"+logId+"'"); 
+
+		var rec = result.getArray("records"); 
+
+		for(var i=0; i<result.size ; i++) 
+		{ 
+			ProjPieceId = rec[i].Id; 
+			ProjPieceRecType = rec[i].RecordTypeId;
+			ProjPieceSavedRecType = rec[i].PREFROZEN_REC_TYPE__c;
+			
+			//NOW UN-FREEZE 'EM
+			
+			var projectpiece= new sforce.SObject("Project_Piece__c"); 
+			var logId = ProjPieceId; 
+
+			projectpiece.Id = logId; 
+			projectpiece.RecordTypeId = ProjPieceSavedRecType;
+                        projectpiece.PREFROZEN_REC_TYPE__c = '01270000000Q3Vh';
+			
+			saveResult = sforce.connection.update([projectpiece]); //UN-Freeze the Project Piece
+			if (saveResult[0].getBoolean("success")) 
+			{ 
+				//alert("success");
+			}
+		}
+		
+		
+	}
+
+parent.window.location.href = '/{!SFDC_520_Quote__c.Id}'; 
+
+}
+
+</script> 
+</head> 
+<body onload="invoices();"> 
+<table width="100%"> 
+<tr><td width="100%" align="center"><br><br><br>Please wait while the Project Freezes/Thaws&hellip;<br><br> 
+<img src="/img/waiting_dots.gif" border="0" width=156 height=34></td></tr> 
+</table> 
+</body> 
+</html>

@@ -1,0 +1,130 @@
+<apex:page id="ADM_ScrumTeamDetailSds" standardController="agf__ADM_Scrum_Team__c" extensions="agf.ADM_ScrumTeamWorkExtension" recordSetVar="{!works}" showHeader="false" standardStylesheets="true" sidebar="false" applyHtmlTag="false" applyBodyTag="false" docType="html-5.0">
+	<html xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+	<head>
+		<title>{!ADM_Scrum_Team__c.Name}</title>
+		<meta name="viewport" content="user-scalable=no,width=device-width,initial-scale=1.0,maximum-scale=1.0" />
+		<meta http-equiv="X-UA-Compatible" content="IE=Edge"/>
+		<apex:stylesheet value="{!URLFOR($Resource.agf__SLDS052, 'assets/styles/salesforce-lightning-design-system-vf.css')}" />
+		<apex:styleSheet value="{!$Resource.agf__extended}" />
+		<apex:includeScript value="{!$Resource.agf__jquery_1_8_3_min}" />
+		<apex:includeScript value="{!$Resource.agf__ADM_common_js}" />
+        <style>
+	        #tabpanel_details div.slds-form-element{border-bottom:1px solid #D8DDE6;}
+	       .slds .slds-form-element__label{font-size:.75rem;color:#54698D;font-weight:600;}
+	       .slds .slds-form-element__static,.sfdc_richtext{font-family:"Salesforce Sans", Arial, sans-serif;font-size:.875rem;color:#16325C;line-height:normal;font-weight:400;}
+
+	  </style>
+	</head>
+	<body class="slds">
+
+	<div class="slds-page-header">
+		<div class="slds-grid">
+			<div class="slds-col slds-has-flexi-truncate">
+			  	<div class="slds-media media--rec-home">
+				  	<div class="slds-media__figure">
+						<svg aria-hidden="true" class="slds-icon slds-icon--large slds-icon-custom-15">
+							<use xlink:href="{!URLFOR($Resource.SLDS052, 'assets/icons/custom-sprite/svg/symbols.svg#custom15')}"></use>
+						</svg>
+					</div>
+					<div class="slds-media__body">
+						<p class="slds-text-heading--label">Teams</p>
+						<div class="slds-grid">
+							<h1 class="slds-text-heading--medium slds-media--rec-home__title slds-truncate slds-align-middle" title="Record Title">{!ADM_Scrum_Team__c.Name}</h1>
+							<div class="slds-col slds-shrink-none slds-align-bottom"><!--follow button --></div>
+						</div>
+					</div>
+			  	</div>
+			</div>
+			<div class="slds-col slds-no-flex slds-align-bottom">
+				<div class="slds-button-group" role="group">
+                    <button class="slds-button slds-button--neutral" onClick="checkAndNavigateToURL('/apex/agf__adm_wall?teamid={!agf__ADM_Scrum_Team__c.Id}&retURL=%2Fapex%2Fadm_scrumteamdetail%3Fid%3D{!agf__ADM_Scrum_Team__c.Id}');">Backlog Manager</button>
+                    <button class="slds-button slds-button--neutral" onClick="checkAndNavigateToURL('/apex/agf__adm_kanbansplash?teamid={!agf__ADM_Scrum_Team__c.Id}&retURL=%2Fapex%2Fadm_scrumteamdetail%3Fid%3D{!agf__ADM_Scrum_Team__c.Id}');">Kanban</button>
+					
+                    
+					<button class="slds-button slds-button--neutral" onClick="checkAndNavigateToURL('/{!agf__ADM_Scrum_Team__c.Id}/e?retURL=%2Fapex%2Fadm_scrumteamdetail%3Fid%3D{!agf__ADM_Scrum_Team__c.Id}');">Edit</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
+    <div class="main" role="main">
+
+		<div class="slds-grid slds-wrap slds-p-top--large">
+			<div class="slds-col slds-col--padded slds-size--1-of-1 slds-medium-size--1-of-1 slds-large-size--2-of-3" style="border-right:1px solid #D8DDE6;"><!--FIX-->
+				<!-- start: tabs -->
+					<div class="slds-tabs--default">
+						<ul class="slds-tabs--default__nav" role="tablist">
+							<li class="slds-tabs__item slds-text-heading--label slds-active" title="Item One" role="presentation" data-tabpanel="tabpanel_details"><a href="#" role="tab" tabindex="0" aria-selected="true">Details</a></li>
+							<li class="slds-tabs__item slds-text-heading--label" title="Item Two" data-tabpanel="tabpanel_product_tags"><a href="#" role="tab" tabindex="-1" aria-selected="false">Product Tags</a></li>
+							<li class="slds-tabs__item slds-text-heading--label" title="Item Two" data-tabpanel="tabpanel_sprints"><a href="#" role="tab" tabindex="-1" aria-selected="false">Sprints</a></li>
+							<li class="slds-tabs__item slds-text-heading--label" title="Item Three" data-tabpanel="tabpanel_dependencies"><a href="#" role="tab" tabindex="-1" aria-selected="false">Dependencies</a></li>
+							<li class="slds-tabs__item slds-text-heading--label" title="Item Three" data-tabpanel="tabpanel_release_support"><a href="#" role="tab" tabindex="-1" aria-selected="false">Release Support</a></li>
+						</ul>
+                        <div class="slds-tabs__content slds-show" id="tabpanel_details" role="tabpanel">
+                            <apex:form >
+                                <div class="slds-col--padded">
+
+                                        <div class="slds-form-element slds-p-bottom--medium slds-grid slds-wrap">
+                                            <c:ADM_InputSds readonly="true" object="{!agf__ADM_Scrum_Team__c}" inputFieldName="Story_Point_Scale__c" inputObjectName="ADM_Scrum_Team__c" renderRow="true" inputColumnStyleClass="slds-size--1-of-1 slds-medium-size--1-of-2 slds-large-size--1-of-2" />
+                                            <c:ADM_InputSds readonly="true" object="{!agf__ADM_Scrum_Team__c}" inputFieldName="Active__c" inputObjectName="ADM_Scrum_Team__c" renderRow="true" inputColumnStyleClass="slds-size--1-of-1 slds-medium-size--1-of-2 slds-large-size--1-of-2" />
+                                            
+                                            <c:ADM_InputSds readonly="true" object="{!agf__ADM_Scrum_Team__c}" inputFieldName="Distribution_Lists__c" inputObjectName="ADM_Scrum_Team__c" renderRow="true" inputColumnStyleClass="slds-size--1-of-1 slds-medium-size--1-of-2 slds-large-size--1-of-2" />
+                                            
+                                            
+                                            <c:ADM_InputSds readonly="true" object="{!agf__ADM_Scrum_Team__c}" inputFieldName="CreatedDate" inputObjectName="ADM_Scrum_Team__c" renderRow="true" inputColumnStyleClass="slds-size--1-of-1 slds-medium-size--1-of-2 slds-large-size--1-of-2" />
+                                            <c:ADM_InputSds readonly="true" object="{!agf__ADM_Scrum_Team__c}" inputFieldName="LastModifiedDate" inputObjectName="ADM_Scrum_Team__c" renderRow="true" inputColumnStyleClass="slds-size--1-of-1 slds-medium-size--1-of-2 slds-large-size--1-of-2" /> </div>
+                                </div>
+                            </apex:form>
+                            <apex:relatedList list="Scrum_Team_Members__r" pageSize="10" />
+				            <c:ADM_OutOfOffice />
+				            <apex:relatedList list="NotesAndAttachments" />
+                        </div>
+
+
+						<div class="slds-tabs__content slds-hide" id="tabpanel_product_tags" role="tabpanel">
+							<c:ADM_TeamRules teamObject="{!agf__ADM_Scrum_Team__c}" />
+						</div>
+
+						<div class="slds-tabs__content slds-hide" id="tabpanel_sprints" role="tabpanel">
+							<apex:relatedList list="Sprints__r" pageSize="10" />
+						</div>
+
+						<div class="slds-tabs__content slds-hide" id="tabpanel_dependencies" role="tabpanel">
+				            <apex:relatedList list="Our_Dependencies__r" pageSize="10" title="Dependencies we have on other teams" />
+				            <apex:relatedList list="Dependencies_on_us__r" pageSize="10" title="Dependencies other teams have on us" />
+					        <apex:outputPanel layout="none" rendered="{!agf__ADM_Scrum_Team__c.agf__Copy_Record_Type_Name__c == 'Program Team'}">
+					                <apex:relatedList list="Associated_Team_Dependencies__r" pageSize="25" title="Team Dependencies (Associated with Program)" rendered="{!agf__ADM_Scrum_Team__c.agf__Copy_Record_Type_Name__c == 'Program Team'}" />
+					        </apex:outputPanel>
+						</div>
+
+						<div class="slds-tabs__content slds-hide" id="tabpanel_release_support" role="tabpanel">
+				            <apex:relatedList list="Release_Teams__r" pageSize="10" />
+				            <apex:relatedList list="Feature_Code_Coverage__r" pageSize="5" />
+				            <apex:relatedList list="SecQ_Scrum_Team__r" pageSize="5" />
+				            <apex:relatedList list="Third_Party_Software__r" pageSize="5" />
+						</div>
+					</div>
+				<!-- end: tabs -->
+			</div>
+
+			<div class="slds-col slds-col--padded size--1-of-1 medium-size--1-of-1 slds-large-size--1-of-3" style="border-left:1px solid #D8DDE6;margin-left:-1px;">
+				<!-- start: tabs -->
+					<div class="slds-tabs--default">
+						<ul class="slds-tabs--default__nav" role="tablist">
+							<li class="slds-tabs__item slds-text-heading--label slds-active" title="Item One" role="presentation" data-tabpanel="tabpanel_chatter"><a href="#" role="tab" tabindex="0" aria-selected="true">Collaborate</a></li>
+						</ul>
+						<div class="slds-tabs__content slds-show" id="tabpanel_chatter" role="tabpanel">
+							<chatter:feed entityId="{!agf__ADM_Scrum_Team__c.Id}" rendered="{!IF($CurrentPage.parameters.isdtp == 'p1','true', 'false')}"/>
+						</div>
+					</div>
+				<!-- end: tabs -->
+			</div>
+
+		</div><!-- end: class: grid wrap -->
+    </div><!--- end: class: main -->
+
+
+
+	</body>
+	</html>
+</apex:page>

@@ -1,0 +1,1416 @@
+<apex:page standardController="CRMfusionDBR101__Duplicate_Warning__c" extensions="CRMfusionDBR101.DB_ConvertMergeController" title="{!title}" showHeader="true" sidebar="false">
+
+    <apex:includeScript value="{!URLFOR($Resource.CRMfusionDBR101__DB_Javascript, 'jquery.min.js')}" />
+    <apex:includeScript value="{!URLFOR($Resource.CRMfusionDBR101__DB_Javascript, 'jquery-ui.min.js')}" />
+    <apex:includeScript value="{!URLFOR($Resource.CRMfusionDBR101__DB_Javascript, 'jquery.cluetip.min.js')}" />
+    <apex:stylesheet value="{!URLFOR($Resource.CRMfusionDBR101__DB_Themes, 'jquery-ui-lightness/jquery-ui-lightness.min.css')}" />
+
+    <style>
+/*
+SFDC may already have similar classes?
+*/
+.clr {
+    clear: both
+}
+
+.spacer {
+    height: 10px;
+    display: block
+}
+
+.lblLeft,.lblRight {
+    font-size: 11px;
+    margin-right: 15px;
+}
+
+.lblRight {
+    margin: 0px 0px 0px 15px;
+}
+
+.lblDisabled {
+    color: #aaa;
+}
+
+.left {
+    float: left
+}
+
+.hidden {
+    display: none
+}
+
+.container_inner {
+    margin: 0px 20px 0px 20px;
+}
+
+input[type="text"],textarea {
+    border-radius: 4px;
+    border: 1px solid #aaa;
+    padding: 3px;
+    background-color: #fff;
+}
+
+input[disabled],textarea[disabled] {
+    border: 1px solid #ccc;
+    background-color: #f8f8f8;
+}
+
+#masterHeader {
+    clear: both;
+    padding-top: 20px;
+    display: block
+}
+
+#mastersDiv {
+    clear: both
+}
+
+#leadsDiv {
+    clear: both
+}
+
+#leadHeader {
+    display: block
+}
+
+[id *=leadsBlock] img {
+    float: left;
+    display: inline;
+}
+
+[id *=leadsBlock] h1 {
+    float: left;
+}
+
+h1 {
+    font-size: 17px;
+    font-weight: normal;
+}
+
+.custom_header {
+    margin: 5px 0px 10px 15px
+}
+
+/*
+    Custom CSS
+*/
+.masterPanel,.leadPanel,.masterPanel2,.leadPanel2 {
+    background-color: #fff;
+    border: 1px solid #bfbfbf;
+    padding: 10px;
+    width: 150px;
+    -moz-border-radius: 4px;
+    -webkit-border-radius: 4px;
+    border-radius: 4px;
+    -moz-box-shadow: 0px 2px 3px 0px #ddd;
+    -webkit-box-shadow: 0px 2px 3px 0px #ddd;
+    box-shadow: 0px 2px 3px 0px #ddd;
+    float: left;
+    margin: 10px;
+    font-size: 11px;
+    line-height: 1.5em;
+    cursor: pointer;
+}
+
+.leadPanel2 {
+    margin-left: 5%
+}
+
+.masterPanel2,.leadPanel2 {
+    width: 250px;
+}
+
+.masterPanel.focused,.leadPanel.focused,.leadPanel2.focused,.masterPanel2.focused {
+    background-color: #e8f6fb;
+    border: 1px solid #1697c0;
+}
+
+#middlearrow {
+    font-size: 100px;
+    float: left;
+    margin: 75px 50px 75px 50px;
+    color: #e4e4e4;
+    text-shadow: 0px -1px #aaa, 0px 1px #fff;
+    font-weight: bold;
+    display: none;
+}
+
+#leadHeader,#masterHeader {
+    display: none
+}
+
+.masterPanel2 h1,.leadPanel2 h1 {
+    color: #1697c0;
+    font-size: 16px;
+    margin: 0px 0px 15px 0px;
+    padding: 0px;
+    display: block;
+    clear: both;
+    float: none
+}
+
+#sidebar_right {
+    float: left;
+    margin-left: 20px;
+    width: 250px;
+    padding: 10px;
+    background-color: #F8F8F8;
+    border-bottom: 1px solid #EAEAEA;
+    border-left: 1px solid #EAEAEA;
+    border-right: 1px solid #EAEAEA;
+    -moz-border-radius: 4px;
+    -webkit-border-radius: 4px;
+    border-radius: 4px;
+    border-top: 3px solid #EF7B47;
+    margin-top: 63px;
+}
+
+.Custom82Tab .primaryPalette,.individualPalette .Custom82Block .primaryPalette {
+    background-color: #ef7b47;
+    border-color: #ef7b47;
+}
+
+.Custom82Tab .secondaryPalette,.individualPalette .Custom82Block .secondaryPalette {
+    background-color: #ef7b47;
+    border-color: #ef7b47;
+}
+
+.Custom82Tab .brdPalette {
+    border-top-color: #ef7b47;
+}
+
+body .bPageBlock .pbBody {
+    padding: 10px;
+}
+
+#tooltips {
+    display: none
+}
+
+.masterPanel h3,.leadPanel h3,.masterPanel2 h3,.leadPanel2 h3 {
+    margin: 0px;
+    padding: 0px;
+    font-size: 13px;
+    clear: both;
+    display: block
+}
+
+.masterPanel h4,.leadPanel h4,.masterPanel2 h4,.leadPanel2 h4 {
+    margin: 0px;
+    padding: 0px;
+    font-size: 11px;
+    clear: both;
+    display: block
+}
+
+.masterPanel .inputCheckbox,.leadPanel .inputCheckbox {
+    text-align: center;
+}
+
+.masterPanel2 .inputCheckbox,.leadPanel2 .inputCheckbox {
+    display: none
+}
+
+.masterPanel .smaller,.leadPanel .smaller,.masterPanel2 .smaller,.leadPanel2 .smaller {
+    font-size: 10px
+}
+
+.overlay_label {
+    font-weight: bold;
+    font-size: 12px
+}
+
+#sortable_leads,#sortable_masters,#sortable_selectedLeadFields,#sortable_selectedMasterFields {
+    float: left;
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    margin-right: 10px;
+    display: block;
+}
+
+#sortable_leads li,#sortable_masters li,#sortable_selectedLeadFields li,#sortable_selectedMasterFields li {
+    font-size: 11px;
+    margin: 0 3px 0px 3px;
+    padding: 0.4em;
+    padding-left: 1.5em;
+    height: 12px;
+    width: 300px;
+    cursor: move;
+    font-weight: normal;
+    text-shadow: 0px 1px 0px #fff;
+    border-top: 1px solid #fff
+}
+
+#sortable_leads li span,#sortable_masters li span,#sortable_selectedLeadFields li span,#sortable_selectedMasterFields li span {
+    position: absolute;
+    margin-left: -1.3em;
+}
+
+#sortable_leads li:first-child,#sortable_masters li:first-child {
+    border-top: 1px solid #aaa;
+    box-shadow: inset 0px 1px 0px #fff;
+}
+
+#sortable_selectedLeadFields li:first-child,#sortable_selectedMasterFields li:first-child {
+    border-top: 1px solid #fcda57;
+    box-shadow: inset 0px 1px 0px #fff;
+}
+
+.connectedSortableLead input {
+    display: none
+}
+
+.connectedSortableMaster input {
+    display: none
+}
+
+.lead_FirstName,.lead_LastName,.lead_Name {
+    text-style: italic;
+}
+
+.ui-tabs-hide
+{
+  display: none !important
+}
+
+/* jQuery Tooltip Styles */
+/* global */
+div.ui-cluetip {
+    font-size: 11px;
+    color: #eee;
+}
+
+div.ui-cluetip .ui-widget-content,div.ui-cluetip .ui-widget-header {
+    background-color: #000;
+    border: none;
+}
+
+div.ui-cluetip td {
+    color: #eee;
+}
+
+.ui-cluetip-header,.ui-cluetip-content {
+    padding: 5px;
+    color: #eee;
+}
+
+.ui-cluetip-header {
+    font-size: 1.6em;
+    margin: 0;
+    padding: 10px;
+    overflow: hidden;
+    border-bottom: 1px solid #fff;
+    color: #fff;
+}
+
+.cluetip-title .cluetip-close {
+    float: right;
+    position: relative;
+    border: 1px solid #fff;
+    border-radius: 4px;
+    font-weight: bold;
+    padding: 0px 3px 2px 3px;
+    font-size: 12px;
+}
+
+.cluetip-close img {
+    border: 0;
+}
+
+#cluetip-waitimage {
+    width: 43px;
+    height: 11px;
+    position: absolute;
+}
+
+.cluetip-arrows {
+    display: none;
+    position: absolute;
+    top: 0;
+    left: -11px;
+    width: 11px;
+    height: 22px;
+    background-repeat: no-repeat;
+    background-position: 0 0;
+    border-width: 0;
+}
+
+.cluetip-extra {
+    display: none;
+}
+
+.cluetip-rounded {
+    -webkit-border-radius: 6px;
+    -moz-border-radius: 6px;
+    border-radius: 6px;
+    background-color: #000;
+    color: #fff;
+    border: 3px solid #fff;
+    margin-left: -15px;
+    box-shadow: 0px 0px 2px 1px #000;
+}
+
+.cluetip-rounded  .cluetip-arrows {
+    border-color: #000;
+    margin-top: 20px;
+}
+
+.cluetip-rounded a {
+    font-weight: bold;
+    color: #fff;
+    text-decoration: none;
+}
+/* need to be more specific here to override ThemeRoller defaults */
+.cluetip .ui-widget-header {
+    background: none;
+}
+
+.cluetip .ui-widget-content,div.ui-cluetip,div.ui-cluetip .ui-widget-content {
+    background: none;
+    background-color: #000000;
+}
+
+div.cluetip-rounded  .cluetip-arrows {
+    font-size: 0;
+    line-height: 0%;
+    width: 0;
+    height: 0;
+    border-style: solid;
+    background: transparent none;
+}
+
+div.clue-right-rounded .cluetip-arrows {
+    border-width: 11px 11px 11px 0;
+    border-top-color: transparent;
+    border-bottom-color: transparent;
+    border-left-color: transparent;
+}
+
+div.clue-left-rounded .cluetip-arrows {
+    left: 100%;
+    margin-right: -11px;
+    border-width: 11px 0 11px 11px;
+    border-top-color: transparent;
+    border-right-color: transparent;
+    border-bottom-color: transparent;
+}
+
+div.clue-top-rounded .cluetip-arrows {
+    top: 100%;
+    left: 50%;
+    border-width: 11px 11px 0 11px;
+    border-right-color: transparent;
+    border-bottom-color: transparent;
+    border-left-color: transparent;
+}
+
+.clue-bottom-rounded .cluetip-arrows {
+    top: -11px;
+    left: 50%;
+    border-width: 0 11px 11px 11px;
+    border-top-color: transparent;
+    border-right-color: transparent;
+    border-left-color: transparent;
+}
+/* stupid IE6 HasLayout hack */
+.cluetip-rounded .cluetip-title,.cluetip-rounded .cluetip-inner {
+    zoom: 1;
+}
+
+/* Added by E.J. */
+div.hideDiv {
+    display: none;
+}
+</style>
+    <!-- END CSS -->
+
+
+
+    <!-- jQuery -->
+    <script type="text/javascript">
+        // Toggle a panel's checked state, called from onClick event.
+        function togglePanel(panel) {
+            // if panel's currently focused, defocus and uncheck
+            if ($(panel).hasClass('focused')) {
+                $(panel).find('input').attr(
+                        'checked', false);
+                $(panel).removeClass('focused');
+                // otherwise, focus and check
+            } else {
+                // If this is a master panel, unfocus all other master panels.
+                if ($(panel).hasClass( 'masterPanel' ))
+                    $(".masterPanel").removeClass("focused");
+                $(panel).find('input').attr(
+                        'checked', true);
+                $(panel).addClass('focused');
+            }
+        }
+
+        // Start the conversion process.
+        function doConvert() {
+            // Mark us as processing and disable this button.
+            processing = true;
+            $('#convertButton').attr("disabled", true);
+
+            // Find our master record id and selected lead ids.
+            var masterId = $('input[name=masterradio]:checked').attr(
+                    'data-masterId');
+            var leads = $('input[name=leadcheckbox]:checked');
+
+            // If the masterId wasn't found, throw an error and exit.
+            if (!masterId) {
+                alert("You must first select a {!MasterObjectType} to convert into.");
+                processing = false;
+                $('#convertButton').removeAttr("disabled");
+                return false;
+            }
+            // If no leads are selected, throw an error and exit.
+            if (!leads || leads.length == 0) {
+                alert("You must first select at least one lead to convert.");
+                processing = false;
+                $('#convertButton').removeAttr("disabled");
+                return false;
+            }
+
+            // Loop through the leads and add their ID to the convertingLeadIds array.
+            var convertingLeadIds = new Array();
+            for ( var x = 0; x < leads.length; x++)
+                convertingLeadIds.push($(leads[x]).attr('data-leadId'));
+
+            // Set our converting counts and update the status.
+            convertingCount = convertingLeadIds.length;
+            convertedCount = 0;
+            updateProcessingStatus();
+
+            // Start converting the first lead, the result handler will make another call if there are still records remaining.
+            // First, get all our options for conversion.
+            var leadStatus = $('select[id$=leadStatus]').val();
+            var overwriteLeadSource = $('#overwrite:checked').val() == true;
+            var createOpp = $('#new_opportunity:checked').val() == true;
+            var oppName = $('#opportunity_name').val();
+            if (!oppName)
+                oppName = '';
+            var useCompanyName = $('#use_company_name:checked').val() == true;
+            var createTask = $('#create_new_task:checked').val() == true;
+            var taskSubject = $('#task_subject').val();
+            if (!taskSubject)
+                taskSubject = '';
+            var taskDescription = $('#task_description').val();
+            if (!taskDescription)
+                taskDescription = '';
+            // Convert the leads.
+            convertLeads(masterId, convertingLeadIds, leadStatus,
+                    overwriteLeadSource, createOpp, oppName, useCompanyName,
+                    createTask, taskSubject, taskDescription);
+
+            return false;
+        }
+
+        // If the user cancels, go back to the warning page.
+        function doCancel() {
+            $('#cancelButton').attr("disabled", true);
+            location.href = '/{!Duplicate_Warning__c.Id}';
+        }
+
+        // Call the convertLead JS remoting method.
+        function convertLeads(masterId, leads, leadStatus, overwriteLeadSource,
+                createOpp, oppName, useCompanyName, createTask, taskSubject,
+                taskDescription) {
+            var currentLeadId = leads.pop();
+            Visualforce.remoting.Manager.invokeAction(
+                    '{!$RemoteAction.DB_ConvertMergeController.convertLead}',
+                    masterId, currentLeadId, leadStatus, overwriteLeadSource,
+                    createOpp, oppName, useCompanyName, createTask,
+                    taskSubject, taskDescription, function(result, event) {
+                        handleConvertLeadResult(result, event, currentLeadId,
+                                masterId, leads, leadStatus,
+                                overwriteLeadSource, createOpp, oppName, useCompanyName,
+                                createTask, taskSubject, taskDescription);
+                    }, {
+                        escape : false
+                    });
+        }
+
+        // Handle the result of the lead conversion and if everything is good, convert the next lead if there
+        // are more to convert.  If not, complete the process.
+        function handleConvertLeadResult(result, event, convertedLeadId,
+                masterId, leads, leadStatus, overwriteLeadSource, createOpp, oppName,
+                useCompanyName, createTask, taskSubject, taskDescription) {
+            // If the call failed, display an error and exit.
+            if (!event.status) {
+                alert(event.message);
+                abortConvert();
+                return;
+            }
+
+            // Increment our converted counter and update status.
+            convertedCount++;
+            updateProcessingStatus();
+
+            // If we have more leads left to convert, do so.  Otherwise, complete the process.
+            if (leads && leads.length > 0) {
+                if ( '{!CRMfusionDBR101__Duplicate_Warning__c.CRMfusionDBR101__Scenario_Type__c}'.toLowerCase() == 'lead to account' ) {
+                    // Call convertLeads again, passing the same parameters.  For L2A scenarios
+                    // this will convert each lead in the warning into it's own contact with
+                    // associated opportunity and task if specified.
+                    convertLeads(masterId, leads, leadStatus, overwriteLeadSource,
+                            createOpp, oppName, useCompanyName, createTask, taskSubject, taskDescription);
+                } else {
+                    // Call convertLeads again, converting the next lead in the list into the
+                    // duplicate contact.  Leads after the first do not get additional opportunities
+                    // or tasks created.
+                    convertLeads(masterId, leads, leadStatus, overwriteLeadSource,
+                            false, null, false, false, null, null);
+                } // if lead to account
+            } else {
+                completeConvert(masterId);
+            }
+        }
+
+        // Call the saveSelectedFields JS remoting method to save selected display fields for the specified object type (lead, account or contact)
+        // Object type is just a string containing the name of the object.  selectedFields is an array of strings that contains the
+        // fields we want to dispay for that object in the order they should be displayed.  Once this call is done, the page will
+        // refresh.
+        function saveSelectedFields(objectType, selectedFields) {
+            Visualforce.remoting.Manager
+                    .invokeAction(
+                            '{!$RemoteAction.DB_ConvertMergeController.saveSelectedFields}',
+                            objectType, selectedFields,
+                            handleSaveSelectedFieldsResult, {
+                                escape : false
+                            });
+        }
+
+        // Handle the result of the saving selected fields, checking for errors and displaying any.  If no errors occured, reload the page to apply
+        // the changes.
+        function handleSaveSelectedFieldsResult(result, event) {
+            // If the call failed, display an error and exit.
+            if (!event.status) {
+                alert(event.message);
+                return;
+            }
+            location.reload();
+        }
+
+        // Complete the conversion process.
+        function completeConvert(masterId) {
+            processing = false;
+            $('#convertButton').removeAttr("disabled");
+            window.location.href = "/" + masterId;
+        }
+
+        // Abort the conversion process.
+        function abortConvert() {
+            processing = false;
+            $('#convertButton').removeAttr("disabled");
+            location.reload();
+        }
+
+        // Update/display processing status.
+        function updateProcessingStatus() {
+            if (convertedCount < convertingCount) {
+                $('#statusText').text(
+                        'Converted ' + convertedCount + '/' + convertingCount);
+                $('#statusProgress').progressbar({
+                    value : convertedCount / convertingCount * 100
+                });
+                $('#statusWindow').removeClass('hideDiv');
+                $('#statusWindow').dialog('open');
+            } else {
+                $('#statusText').text('Done.');
+                $('#statusProgress').progressbar({
+                    value : 100
+                });
+                $('#statusWindow').dialog('close');
+                $('#statusWindow').addClass('hideDiv');
+            }
+        }
+
+        // jQuery 
+        $(document)
+                .ready(
+                        function() {
+
+                            // strip class from all Contact panels so only one can be selected at a time
+                            // no need to uncheck the radio element since that's taken care of automatically
+                            // by using the same array for radio's name
+                            $(".masterPanel").on('click', function() {
+                                $(".masterPanel").removeClass("focused");
+                            });
+
+                            // toggle label+input enabled/disabled
+                            $("#new_opportunity")
+                                    .change(
+                                            function() {
+                                                if ($('#opportunity_name_label')
+                                                        .hasClass('lblDisabled')) {
+                                                    $('#opportunity_name_label')
+                                                            .removeClass(
+                                                                    'lblDisabled');
+                                                    $('#opportunity_name')
+                                                            .removeAttr(
+                                                                    'disabled');
+                                                } else {
+                                                    $('#opportunity_name_label')
+                                                            .addClass(
+                                                                    'lblDisabled');
+                                                    $('#opportunity_name')
+                                                            .attr('disabled', 1);
+                                                    $('#opportunity_name').val(
+                                                            '');
+                                                }
+                                            });
+                            $("#create_new_task")
+                                    .change(
+                                            function() {
+                                                if ($('#task_subject_label')
+                                                        .hasClass('lblDisabled')) {
+                                                    $('#task_subject_label')
+                                                            .removeClass(
+                                                                    'lblDisabled');
+                                                    $('#task_description_label')
+                                                            .removeClass(
+                                                                    'lblDisabled');
+                                                    $('#task_subject')
+                                                            .removeAttr(
+                                                                    'disabled');
+                                                    $('#task_description')
+                                                            .removeAttr(
+                                                                    'disabled');
+                                                } else {
+                                                    $('#task_subject_label')
+                                                            .addClass(
+                                                                    'lblDisabled');
+                                                    $('#task_description_label')
+                                                            .addClass(
+                                                                    'lblDisabled');
+                                                    $('#task_subject').attr(
+                                                            'disabled', 1);
+                                                    $('#task_description')
+                                                            .attr('disabled', 1);
+                                                    /*
+                                                    $('#task_subject').val('');
+                                                    $('#task_description').val('');
+                                                     */
+                                                }
+                                            });
+
+                            var warningData;
+                            var processing = false;
+                            var onematch = false;
+                            var convertingCount = 0, convertedCount = 0;
+                            var html = '<form id="displaySettings"><table cellpadding="5" cellspacing="0" border="0" width="100%"><tr><td width="50%"><h2>Available Fields</h2></td><td><h2>Displayed Fields</h2></td></tr><tr><td valign="top"><ul id="sortable_leads" class="connectedSortableLead">';
+                            var mhtml = '<table cellpadding="5" cellspacing="0" border="0" width="100%"><tr><td width="50%"><h2>Available Fields</h2></td><td><h2>Displayed Fields</h2></td></tr><tr><td valign="top"><ul id="sortable_masters" class="connectedSortableMaster">';
+                            var slfHTML = '<td valign="top"><ul id="sortable_selectedLeadFields" class="connectedSortableLead">';
+                            var smfHTML = '<td valign="top"><ul id="sortable_selectedMasterFields" class="connectedSortableMaster">';
+
+                            function set_warningdata(wdata) {
+                                warningData = wdata;
+
+                                // Generate html required for the sortable lists of fields in the dialog boxes
+                                // Unselected Lead fields
+                                for ( var fields = 0; fields < warningData.leadFields.length; fields++) {
+                                    currField = warningData.leadFields[fields];
+                                    if ($.inArray(
+                                            warningData.leadFields[fields],
+                                            warningData.selectedLeadFields) < 0) {
+                                        html += '<li class="ui-state-default"><input type="checkbox" name="lead_fields[]" value="' + warningData.leadFields[fields] + '" id="lead_' + warningData.leadFields[fields] + '" />'
+                                                + warningData.leadLabels[currField]
+                                                + '</li>';
+                                    }
+                                }
+                                // Unselected Masters fields
+                                for ( var mfields = 0; mfields < warningData.masterFields.length; mfields++) {
+                                    currField = warningData.masterFields[mfields];
+                                    if ($.inArray(
+                                            warningData.masterFields[mfields],
+                                            warningData.selectedMasterFields) < 0) {
+                                        mhtml += '<li class="ui-state-default"><input type="checkbox" name="master_fields[]" value="' + warningData.masterFields[mfields] + '" id="master_' + warningData.masterFields[mfields] + '" />'
+                                                + warningData.masterLabels[currField]
+                                                + '</li>';
+                                    }
+                                }
+                                html += "</ul></td>";
+                                mhtml += '</ul></td>';
+
+                                // Generate list of selected lead fields
+                                $
+                                        .each(
+                                                warningData.selectedLeadFields,
+                                                function(key, value) {
+                                                    //alert(warningData.leadLabels[value]);
+                                                    slfHTML += '<li class="ui-state-highlight lead_' + value + '"><input type="checkbox" name="lead_fields[]" value="' + value + '" id="lead_' + value + '" checked="true" />'
+                                                            + warningData.leadLabels[value]
+                                                            + '</li>';
+                                                });
+                                // Generate list of selected master fields
+                                $
+                                        .each(
+                                                warningData.selectedMasterFields,
+                                                function(key, value) {
+                                                    //alert(warningData.masterLabels[value]);
+                                                    smfHTML += '<li class="ui-state-highlight"><input type="checkbox" name="master_fields[]" value="' + value + '" id="master_' + value + '" checked="true" />'
+                                                            + warningData.masterLabels[value]
+                                                            + '</li>';
+                                                });
+
+                                // close the lists, add save/cancel buttons & wrap up HTML
+                                slfHTML += '</ul><div class="clr spacer"></div><input type="button" value="Save" class="btn" id="settings_lead_save" />&nbsp;&nbsp;<input type="button" class="settings_close btn" value="Cancel" id="settings_cancel" /></td></tr></table>';
+                                smfHTML += '</ul><div class="clr spacer"></div><input type="button" value="Save" class="btn" id="settings_master_save" />&nbsp;&nbsp;<input type="button" class="settings_close btn" value="Cancel" id="settings_cancel" /></td></tr></table>';
+                                html += slfHTML + '<div class="clr"></div>';
+                                mhtml += smfHTML
+                                        + '<div class="clr"></div></form>';
+
+                                // populate the dialog boxes with the generated html
+                                $('#settings_dialog_leads').html(html);
+                                $('#settings_dialog_masters').html(mhtml);
+
+                                // Make the lists sortable, connected
+                                $(
+                                        '#sortable_leads,#sortable_selectedLeadFields')
+                                        .sortable(
+                                                {
+                                                    connectWith : ".connectedSortableLead",
+                                                    // check/uncheck when dropped into adjacent list
+                                                    receive : function(event,
+                                                            ui) {
+                                                        if (ui.item.find(
+                                                                'input').prop(
+                                                                'checked')) {
+                                                            ui.item
+                                                                    .find(
+                                                                            'input')
+                                                                    .prop(
+                                                                            'checked',
+                                                                            false);
+                                                        } else {
+                                                            ui.item
+                                                                    .find(
+                                                                            'input')
+                                                                    .prop(
+                                                                            'checked',
+                                                                            true);
+                                                        }
+                                                    },
+                                                    //containment : "#settings_dialog_leads",
+                                                    scroll : true
+                                                });
+
+                                $(
+                                        '#sortable_masters,#sortable_selectedMasterFields')
+                                        .sortable(
+                                                {
+                                                    connectWith : ".connectedSortableMaster",
+                                                    // check/uncheck when dropped into adjacent list
+                                                    receive : function(event,
+                                                            ui) {
+                                                        if (ui.item.find(
+                                                                'input').prop(
+                                                                'checked')) {
+                                                            ui.item
+                                                                    .find(
+                                                                            'input')
+                                                                    .prop(
+                                                                            'checked',
+                                                                            false);
+                                                        } else {
+                                                            ui.item
+                                                                    .find(
+                                                                            'input')
+                                                                    .prop(
+                                                                            'checked',
+                                                                            true);
+                                                        }
+                                                    },
+                                                    //containment : "#settings_dialog_masters",
+                                                    scroll : true
+                                                });
+
+                                $('#settings_dialog')
+                                        .scroll(
+                                                function() {
+                                                    $(
+                                                            '#sortable_leads,#sortable_selectedLeadFields')
+                                                            .sortable('refresh');
+                                                    $(
+                                                            '#sortable_masters,#sortable_selectedMasterFields')
+                                                            .sortable('refresh');
+                                                });
+
+                                // Show/hide settings dialog
+                                $("#settings_show").on('click', function() {
+                                    $('#settings_dialog').dialog('open');
+                                });
+                                $(".settings_close")
+                                        .on(
+                                                'click',
+                                                function() {
+                                                    $('#settings_dialog')
+                                                            .dialog('close');
+                                                    $(
+                                                            '#sortable_leads,#sortable_selectedLeadFields')
+                                                            .sortable('cancel');
+                                                    $(
+                                                            '#sortable_masters,#sortable_selectedMasterFields')
+                                                            .sortable('cancel');
+                                                    $(
+                                                            '#sortable_selectedMasterFields input:not(checked),#sortable_selectedLeadFields input:not(checked)')
+                                                            .each(
+                                                                    function() {
+                                                                        $(this)
+                                                                                .prop(
+                                                                                        'checked',
+                                                                                        true);
+                                                                    });
+                                                    $(
+                                                            '#sortable_leads input:checked,#sortable_masters input:checked')
+                                                            .each(
+                                                                    function() {
+                                                                        $(this)
+                                                                                .prop(
+                                                                                        'checked',
+                                                                                        false);
+                                                                    });
+                                                });
+
+                                // Save Display Settings
+                                $("#settings_lead_save").on( 'click', function() {
+                                                    var saveLeadFields = new Array();
+                                                    // iterate through selected lead and master fields and store them in arrays to save
+                                                    var selLeadFields = $('#sortable_selectedLeadFields input').each(
+                                                                    function() {
+                                                                        saveLeadFields.push( $(this).val() );
+                                                                    });
+                                                    saveSelectedFields( 'lead', saveLeadFields );
+                                                });
+                                $("#settings_master_save").on( 'click', function() {
+                                                    var saveMasterFields = new Array();
+                                                    var selMasterFields = $('#sortable_selectedMasterFields input').each(
+                                                                    function() {
+                                                                        saveMasterFields.push( $(this).val() );
+                                                                    });
+                                                    saveSelectedFields( warningData.masterType, saveMasterFields );
+                                                });
+
+                                // check masterType and make sure FirstName, LastName and Name are checked when appropriate
+                                if (warningData.masterType == 'Lead'
+                                        || warningData.masterType == 'Contact') {
+                                    $('#lead_FirstName,#lead_LastName').prop(
+                                            "checked", true);
+                                    $('#lead_FirstName,#lead_LastName').on(
+                                            "click", function() {
+                                                event.preventDefault();
+                                                return false;
+                                            });
+                                } else {
+                                    $('#lead_Name').prop("checked", true);
+                                    $('#lead_Name').on('click', function() {
+                                        event.preventDefault();
+                                        return false;
+                                    });
+                                }
+                            }
+
+                            Visualforce.remoting.Manager
+                                    .invokeAction(
+                                            '{!$RemoteAction.DB_ConvertMergeController.getWarningData}',
+                                            '{!Duplicate_Warning__c.Id}',
+                                            '{!MasterObjectType}',
+                                            handleGetWarningDataResult, {
+                                                escape : true
+                                            });
+
+                            if ( {!licenseVerificationNeeded} )
+	                            Visualforce.remoting.Manager
+	                                    .invokeAction(
+	                                            '{!$RemoteAction.DB_ConvertMergeController.isValidLicense}',
+	                                            'convert',
+	                                            handleLicenseCheckResult
+	                                            );
+
+                            function formatDate(dateVal) {
+                                var dateString;
+                                // Convert the date to a JS date object.
+                                var convertedDate = new Date(dateVal);
+                                // Adjust the date to UTC as that's how SFDC stores dates and JS remoting returned
+                                // the date in our local time zone, potentially changing it.
+                                var convertedDate = new Date(convertedDate.getUTCFullYear(), convertedDate.getUTCMonth(), convertedDate.getUTCDate());
+
+                                //Attempt to format datetime using sfdc DateUtil method
+                                try {
+                                    dateString = DateUtil.getDateStringFromUserLocale(convertedDate);
+                                } catch (err) {
+                                    // Fall back to JS formatted date string.
+                                    dateString = convertedDate.toString();
+                                    // Remove first 4 characters (day), the seconds and the GMT offset
+                                    dateString = dateString.substring(4, dateString.lastIndexOf(':'));
+                                }
+
+                                return dateString;
+                            }
+
+                            function formatDateTime(dateVal) {
+                                var dateString;
+                                // Convert the date to a JS date object.
+                                var convertedDate = new Date(dateVal);
+
+                                //Attempt to format datetime using sfdc DateUtil method
+                                try {
+                                    dateString = DateUtil
+                                            .getDateTimeStringFromUserLocale(convertedDate);
+                                } catch (err) {
+                                    // Fall back to JS formatted date string.
+                                    dateString = convertedDate.toString();
+                                    // Remove first 4 characters (day), the seconds and the GMT offset
+                                    dateString = dateString.substring(4,
+                                            dateString.lastIndexOf(':'));
+                                }
+
+                                return dateString;
+                            }
+
+                            function handleGetWarningDataResult(result, event) {
+                                // If the call failed, display an error and exit.
+                                if (!event.status) {
+                                    document.getElementById("responseErrors").innerHTML = event.message;
+                                    return;
+                                }
+
+                                var output = result.masterType
+                                        + "s: <BR/><BR/>";
+                                var outputMasters = "";
+                                var outputLeads = "";
+                                var tooltipLeads = "";
+                                var tooltipMasters = "";
+
+                                var num_leads = result.leads.length;
+                                var num_masters = result.masters.length;
+                                if (num_leads == 1 && num_masters == 1) {
+                                    var onematch = true;
+                                    $("#middlearrow").show();
+                                    $("#mastersDiv").css({
+                                        clear : 'none',
+                                        float : 'left'
+                                    });
+                                } else {
+                                    var onematch = false;
+                                    $("#leadHeader,#masterHeader").show();
+                                }
+
+                                // Save the result data for use elsewhere.
+                                warningData = result;
+                                set_warningdata(warningData);
+
+                                // Loop through masters and display them.
+                                for ( var masterIndex = 0; masterIndex < result.masters.length; masterIndex++) {
+                                    var master = result[masterIndex];
+                                    if (onematch) {
+                                        outputMasters += "<div id='master" + masterIndex + "' class='masterPanel2 focused' rel='#masterPanel" + masterIndex + "'><h1>"
+                                                + result.masterType + "</h1>";
+                                    } else {
+                                        outputMasters += "<div id='master" + masterIndex + "' class='masterPanel" + ( num_masters == 1 ? ' focused' : '' ) +
+                                            "' rel='#masterPanel" + masterIndex + "' onclick='togglePanel(this)'>";
+                                    }
+
+                                    tooltipMasters += "<div id='masterPanel" + masterIndex + "' class='overlay'><table cellpadding='5' cellspacing='0' border='0' width='100%'>";
+
+                                    // Loop through each selected field and display it.
+                                    for ( var fieldIndex = 0; fieldIndex < result.selectedMasterFields.length; fieldIndex++) {
+                                        var currField = result.selectedMasterFields[fieldIndex];
+
+                                        // If the field isn't in the object for whatever reason, skip it.
+                                        if (!result.masters[masterIndex]
+                                                .hasOwnProperty(currField))
+                                            continue;
+
+                                        // Check to see if this is a relationship field or date field, if not, display it's label and value normally.
+                                        if (result.masterDateFields.indexOf(currField) >= 0) {
+                                            outputMasters += "<strong>"
+                                                    + result.masterLabels[currField]
+                                                    + "</strong>: "
+                                                    + formatDate(result.masters[masterIndex][currField])
+                                                    + "<BR/>";
+
+                                            tooltipMasters += "<tr><td><strong>"
+                                                    + result.masterLabels[currField]
+                                                    + "</strong>:</td><td>"
+                                                    + formatDate(result.masters[masterIndex][currField])
+                                                    + "</td></tr>";
+                                        } else if (result.masterDateTimeFields.indexOf(currField) >= 0) {
+                                            outputMasters += "<strong>"
+                                                    + result.masterLabels[currField]
+                                                    + "</strong>: "
+                                                    + formatDateTime(result.masters[masterIndex][currField])
+                                                    + "<BR/>";
+
+                                            tooltipMasters += "<tr><td><strong>"
+                                                    + result.masterLabels[currField]
+                                                    + "</strong>:</td><td>"
+                                                    + formatDateTime(result.masters[masterIndex][currField])
+                                                    + "</td></tr>";
+                                        } else if (result.masterRelationships.hasOwnProperty(currField)) {
+                                            // This is a relationship field, handle it appropriately.
+                                            var relationshipName = result.masterRelationships[currField];
+                                            outputMasters += "<strong>"
+                                                    + result.masterLabels[currField]
+                                                    + "</strong>: "
+                                                    + ( result.masters[masterIndex][relationshipName] == null ?
+                                                        'Unknown Id - ' + result.masters[masterIndex][currField]
+                                                        : result.masters[masterIndex][relationshipName].Name )
+                                                    + "<BR/>";
+
+                                            tooltipMasters += "<tr><td><strong>"
+                                                    + result.masterLabels[currField]
+                                                    + "</strong>:</td><td>"
+                                                    + ( result.masters[masterIndex][relationshipName] == null ?
+                                                        'Unknown Id - ' + result.masters[masterIndex][currField]
+                                                        : result.masters[masterIndex][relationshipName].Name )
+                                                    + "</td></tr>";
+                                        } else {
+                                            // Display normal fields.
+                                            outputMasters += "<strong>"
+                                                    + result.masterLabels[currField]
+                                                    + "</strong>: "
+                                                    + result.masters[masterIndex][currField]
+                                                    + "<BR/>";
+
+                                            tooltipMasters += "<tr><td><strong>"
+                                                    + result.masterLabels[currField]
+                                                    + "</strong>:</td><td>"
+                                                    + result.masters[masterIndex][currField]
+                                                    + "</td></tr>";
+                                        }
+                                    }
+
+                                    // get all fields to display in tooltip
+                                    for ( var fieldIndex = 0; fieldIndex < result.masterFields.length; fieldIndex++) {
+                                        var currField = result.masterFields[fieldIndex];
+
+                                        // If the field isn't in the object for whatever reason, skip it.
+                                        if (!result.masters[masterIndex]
+                                                .hasOwnProperty(currField))
+                                            continue;
+
+                                        // Check to see if this is a relationship field or date field, if not, display it's label and value normally.
+                                        if (result.masterDateFields.indexOf(currField) >= 0) {
+                                            tooltipMasters += "<tr><td><strong>"
+                                                    + result.masterLabels[currField]
+                                                    + "</strong>:</td><td>"
+                                                    + formatDate(result.masters[masterIndex][currField])
+                                                    + "</td></tr>";
+                                        } else if (result.masterDateTimeFields.indexOf(currField) >= 0) {
+                                            tooltipMasters += "<tr><td><strong>"
+                                                    + result.masterLabels[currField]
+                                                    + "</strong>:</td><td>"
+                                                    + formatDateTime(result.masters[masterIndex][currField])
+                                                    + "</td></tr>";
+                                        } else if (result.masterRelationships
+                                                .hasOwnProperty(currField)) {
+                                            // This is a relationship field, handle it appropriately.
+                                            var relationshipName = result.masterRelationships[currField];
+
+                                            tooltipMasters += "<tr><td><strong>"
+                                                    + result.masterLabels[currField]
+                                                    + "</strong>:</td><td>"
+                                                    + ( result.masters[masterIndex][relationshipName] == null ?
+                                                        'Unknown Id - ' + result.masters[masterIndex][currField]
+                                                        : result.masters[masterIndex][relationshipName].Name )
+                                                    + "</td></tr>";
+                                        } else {
+                                            tooltipMasters += "<tr><td><strong>"
+                                                    + result.masterLabels[currField]
+                                                    + "</strong>:</td><td>"
+                                                    + result.masters[masterIndex][currField]
+                                                    + "</td></tr>";
+                                        }
+                                    }
+                                    if (onematch || num_masters == 1) {
+                                        outputMasters += "<div class='clr spacer'></div><div class='inputCheckbox'><input data-masterId='" + result.masters[masterIndex].Id +
+            "' type='radio' value='1' name='masterradio' checked='1' /></div></div>";
+                                    } else {
+                                        outputMasters += "<div class='clr spacer'></div><div class='inputCheckbox'><input data-masterId='" + result.masters[masterIndex].Id +
+            "' type='radio' value='1' name='masterradio' /></div></div>";
+                                    }
+
+                                    tooltipMasters += "</table></div>";
+                                }
+
+                                // Loop through leads and display them.
+                                for ( var leadIndex = 0; leadIndex < result.leads.length; leadIndex++) {
+                                    if (onematch) {
+                                        outputLeads += "<div id='lead" + leadIndex + "' class='leadPanel2 focused' rel='#leadPanel" + leadIndex + "'><h1>Lead</h1>";
+                                    } else {
+                                        outputLeads += "<div id='lead" + leadIndex + "' class='leadPanel focused' rel='#leadPanel" + leadIndex + "' onclick='togglePanel(this)'>";
+                                    }
+                                    tooltipLeads += "<div id='leadPanel" + leadIndex + "' class='overlay'><table cellpadding='5' cellspacing='0' border='0' width='100%'>";
+
+                                    // Loop through each field and display it.
+                                    for ( var fieldIndex = 0; fieldIndex < result.selectedLeadFields.length; fieldIndex++) {
+                                        var currField = result.selectedLeadFields[fieldIndex];
+
+                                        // If the field isn't in the object for whatever reason, skip it.
+                                        if (!result.leads[leadIndex]
+                                                .hasOwnProperty(currField))
+                                            continue;
+
+                                        // Check to see if this is a relationship field or date field, if not, display it's label and value normally.
+                                        if (result.leadDateFields.indexOf(currField) >= 0) {
+                                            outputLeads += "<strong>"
+                                                    + result.leadLabels[currField]
+                                                    + "</strong>: "
+                                                    + formatDate(result.leads[leadIndex][currField])
+                                                    + "<BR/>";
+                                        } else if (result.leadDateTimeFields.indexOf(currField) >= 0) {
+                                            outputLeads += "<strong>"
+                                                    + result.leadLabels[currField]
+                                                    + "</strong>: "
+                                                    + formatDateTime(result.leads[leadIndex][currField])
+                                                    + "<BR/>";
+                                        } else if (result.leadRelationships
+                                                .hasOwnProperty(currField)) {
+                                            // This is a relationship field, handle it appropriately.
+                                            var relationshipName = result.leadRelationships[currField];
+                                            outputLeads += "<strong>"
+                                                    + result.leadLabels[currField]
+                                                    + "</strong>: "
+                                                    + ( result.leads[leadIndex][relationshipName] == null ?
+                                                        'Unknown Id - ' + result.leads[leadIndex][currField]
+                                                        : result.leads[leadIndex][relationshipName].Name )
+                                                    + "<BR/>";
+                                        } else {
+                                            // Display normal fields.
+                                            outputLeads += "<strong>"
+                                                    + result.leadLabels[currField]
+                                                    + "</strong>: "
+                                                    + result.leads[leadIndex][currField]
+                                                    + "<BR/>";
+                                        }
+                                    }
+
+                                    // get all fields to display in the tooltip
+                                    for ( var fieldIndex = 0; fieldIndex < result.leadFields.length; fieldIndex++) {
+                                        var currField = result.leadFields[fieldIndex];
+
+                                        // If the field isn't in the object for whatever reason, skip it.
+                                        if (!result.leads[leadIndex]
+                                                .hasOwnProperty(currField))
+                                            continue;
+
+                                        // Check to see if this is a relationship field or date field, if not, display it's label and value normally.
+                                        if (result.leadDateFields.indexOf(currField) >= 0) {
+                                            tooltipLeads += "<tr><td><strong>"
+                                                    + result.leadLabels[currField]
+                                                    + "</strong>:</td><td>"
+                                                    + formatDate(result.leads[leadIndex][currField])
+                                                    + "</td></tr>";
+                                        } else if (result.leadDateTimeFields.indexOf(currField) >= 0) {
+                                            tooltipLeads += "<tr><td><strong>"
+                                                    + result.leadLabels[currField]
+                                                    + "</strong>:</td><td>"
+                                                    + formatDateTime(result.leads[leadIndex][currField])
+                                                    + "</td></tr>";
+                                        } else if (result.leadRelationships
+                                                .hasOwnProperty(currField)) {
+                                            // This is a relationship field, handle it appropriately.
+                                            var relationshipName = result.leadRelationships[currField];
+                                            tooltipLeads += "<tr><td><strong>"
+                                                    + result.leadLabels[currField]
+                                                    + "</strong>:</td><td>"
+                                                    + ( result.leads[leadIndex][relationshipName] == null ?
+                                                        'Unknown Id - ' + result.leads[leadIndex][currField]
+                                                        : result.leads[leadIndex][relationshipName].Name )
+                                                    + "</td></tr>";
+                                        } else {
+                                            tooltipLeads += "<tr><td><strong>"
+                                                    + result.leadLabels[currField]
+                                                    + "</strong>:</td><td>"
+                                                    + result.leads[leadIndex][currField]
+                                                    + "</td></tr>";
+                                        }
+                                    }
+                                    outputLeads += "<div class='clr spacer'></div><div class='inputCheckbox'><input data-leadId='" + result.leads[leadIndex].Id +
+            "' type='checkbox' value='1' name='leadcheckbox' checked='1' /></div></div>";
+                                    tooltipLeads += "</table></div>";
+                                }
+                                
+                                // Update the output divs.
+                                $("#mastersDiv").html(outputMasters);
+                                $("#leadsDiv").html(outputLeads);
+                                $("#tooltips").append(tooltipLeads);
+                                $("#tooltips").append(tooltipMasters);
+
+                                // bind the cluetip plugin to items with .leadPanel/.leadPanel2 and .masterPanel/.masterPanel2 classes on them
+                                $(
+                                        ".leadPanel,.masterPanel,.leadPanel2,.masterPanel2")
+                                        .cluetip(
+                                                {
+                                                    arrows : true,
+                                                    height : '250px',
+                                                    width : '350px',
+                                                    hoverIntent : {
+                                                        sensitivity : 5, // old: 3
+                                                        interval : 750, // old: 200
+                                                        timeout : 750
+                                                    // old: 400
+                                                    },
+                                                    cluetipClass : 'rounded',
+                                                    positionBy : 'fixed',
+                                                    sticky : true,
+                                                    mouseOutClose : 'both',
+                                                    multiple : true,
+                                                    waitImage : false,
+                                                    local : true,
+                                                    closePosition : 'title',
+                                                    showTitle : false,
+                                                    fx : {
+                                                        open : 'fadeIn',
+                                                        openSpeed : '500',
+                                                        closespeed : 0
+                                                    },
+                                                    onShow : function(clueTip) {
+                                                        $(clueTip)
+                                                                .find(
+                                                                        '.cluetip-outer')
+                                                                .animate(
+                                                                        {
+                                                                            scrollTop : 0
+                                                                        },
+                                                                        'fast');
+                                                    }
+                                                });
+                            }
+
+                            // processing status dialog box
+                            $("#statusWindow").dialog({
+                                modal : false,
+                                autoOpen : false,
+                                title : "Status"
+                            });
+                            // settings dialog box
+                            $("#settings_dialog")
+                                    .dialog(
+                                            {
+                                                modal : true,
+                                                autoOpen : false,
+                                                width : '800',
+                                                height : '800',
+                                                position : 'top',
+                                                title : "Lead/{!IF(Duplicate_Warning__c.Scenario_Type__c = 'Lead to Account', 'Account', 'Contact')} Display Settings"
+                                            });
+                            $("#settings_tabs").tabs();
+
+                        });
+
+        function handleLicenseCheckResult(result, event) {
+            // If the call failed, display an error and exit.
+            if (!event.status) {
+                alert(event.message);
+                return;
+            }
+            
+            // If the license is invalid, display an error and exit.
+            if ( result == false )
+            {
+            	alert('The DupeBlocker license has expired or is invalid, please contact your SalesForce administrator.');
+            	doCancel();
+            	return;
+            }
+        }
+    </script>
+
+    <div id="outputDiv">
+        <apex:form >
+            <!-- Load the SFDC Date/Time input field and hide it, this causes their date/time formatting functions
+                 to be included in the page. -->
+            <div style="display: none;">
+                <apex:inputField value="{!CRMfusionDBR101__Duplicate_Warning__c.CRMfusionDBR101__Unused_Datetime__c}" />
+            </div>
+            <div style="float: left; width: 70%;">
+                <apex:sectionHeader title="{!Title}" />
+
+                <!--  Values we need to load for the scenario object. -->
+                <apex:outputText rendered="false" value="{!CRMfusionDBR101__Duplicate_Warning__c.CRMfusionDBR101__Scenario__c}" />
+                <apex:outputText rendered="false" value="{!CRMfusionDBR101__Duplicate_Warning__c.CRMfusionDBR101__Scenario_Type__c}" />
+                <apex:outputText rendered="false" value="{!CRMfusionDBR101__Duplicate_Warning__c.Scenario__r.CRMfusionDBR101__Person_Account_Scenario__c}" />
+
+                <apex:pageMessages />
+                <div id="leadHeader">
+                    <apex:image url="{!URLFOR($Resource.CRMfusionDBR101__DB_Icons, 'icon_leads.png')}" />
+                    <h1 class="custom_header right">Select the Leads you'd like to convert</h1>
+                    <div class="clr spacer"></div>
+                </div>
+
+                <div id="leadsDiv"></div>
+
+                <div id="middlearrow">&raquo;</div>
+
+                <div id="masterHeader">
+                    <apex:image url="{!URLFOR($Resource.CRMfusionDBR101__DB_Icons, 'icon_contact.png')}" />
+                    <h1 class="custom_header right">Select the {!IF(Duplicate_Warning__c.Scenario_Type__c = 'Lead to Account', 'Account', 'Contact')} you'd like
+                        to merge with</h1>
+                    <div class="clr spacer"></div>
+                </div>
+                <div id="mastersDiv"></div>
+
+                <div class="clr spacer"></div>
+                <center>
+                    <input id="cancelButton" type="button" class="btn" value="Cancel" onclick="doCancel(); return false;" />&nbsp; <input id="convertButton"
+                        type="button" class="btn" value="Convert" onclick="doConvert(); return false;" />&nbsp;
+                </center>
+            </div>
+
+            <div id="sidebar_right">
+                <h1>Conversion Settings</h1>
+                <BR />
+                <label class="lblLeft">Lead Status:</label>
+                <apex:selectList id="leadStatus" size="1" required="true" multiselect="false">
+                    <apex:selectOptions value="{!convertStatuses}" />
+                </apex:selectList>
+                <div class="clr spacer"></div>
+                <input type="checkbox" name="overwrite" value="1" id="overwrite" /><label class="lblRight">Overwrite Lead Source</label>
+                <div class="clr spacer"></div>
+                <input type="checkbox" name="new_opportunity" value="1" id="new_opportunity" /><label class="lblRight">Create New Opportunity</label>
+                <div class="clr spacer"></div>
+                <label class="lblLeft lblDisabled" id="opportunity_name_label">Opportunity Name:</label><input type="text" name="opportunity_name"
+                    id="opportunity_name" size="14" disabled="disabled" value="From Lead Convert" />
+                <div class="clr spacer"></div>
+                <input type="checkbox" name="use_company_name" value="1" checked="1" id="use_company_name" /><label class="lblRight">Use Company Name</label>
+                <div class="clr spacer"></div>
+                <input type="checkbox" name="create_new_task" value="1" id="create_new_task" /><label class="lblRight">Create New Task</label>
+                <div class="clr spacer"></div>
+                <label class="lblLeft lblDisabled" id="task_subject_label">Task Subject:</label><input type="text" id="task_subject" name="task_subject" size="14"
+                    disabled="disabled"
+                    value="Duplicate Lead/{!IF(Duplicate_Warning__c.Scenario_Type__c = 'Lead to Account', 'Account', 'Contact')} found and merged." />
+                <div class="clr spacer"></div>
+                <label class="lblLeft lblDisabled" id="task_description_label">Task Description:</label>
+                <div class="clr spacer"></div>
+                <textarea name="task_descriptions" id="task_description" rows="12" cols="25" disabled="disabled">A lead was converted and merged into a {!IF(Duplicate_Warning__c.Scenario_Type__c = 'Lead to Account', 'Account', 'Contact')}</textarea>
+                <div class="clr spacer"></div>
+                <a href="#" id="settings_show" name="settings_show">Select displayed fields</a>
+            </div>
+        </apex:form>
+    </div>
+
+    <div id="statusWindow" title="Status">
+        <div id="statusText"></div>
+        <div id="statusProgress"></div>
+    </div>
+
+    <div id="tooltips"></div>
+
+    <div id="settings_dialog">
+        <div id="settings_tabs">
+            <ul>
+                <li><a href="#settings_tabs-1">Leads</a></li>
+                <li><a href="#settings_tabs-2">{!IF(Duplicate_Warning__c.Scenario_Type__c = 'Lead to Account', 'Account', 'Contact')}s</a></li>
+            </ul>
+            <div id="settings_tabs-1">
+                <div id="settings_dialog_leads"></div>
+            </div>
+            <div id="settings_tabs-2">
+                <div id="settings_dialog_masters"></div>
+            </div>
+        </div>
+    </div>
+</apex:page>

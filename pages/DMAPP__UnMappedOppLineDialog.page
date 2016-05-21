@@ -1,0 +1,297 @@
+<apex:page standardController="DMAPP__DM_Account_Plan__c" extensions="DMAPP.TAMStandardController" >
+
+<script>
+
+
+	/* 
+	 * Copyright © The TAS Group. All rights reserved.
+	 *  
+	 */    
+
+
+    var ttg = ttg || {};
+    ttg.am = ttg.am || {};
+
+    ttg.am.unmappeddialog = function(spec) {
+        var planid = spec.planid;
+        var api = spec.api;
+        var config = spec.config;
+        
+        var opps = null;
+        var showing = false;
+        var changes = false;
+        var refreshmap = spec.refresh || function() {};
+        
+        var noprodmapblurb = 'Unknown solution';
+        var ajaxSpinnerCnt = 0;
+        
+        var currencys = null;
+        var corporateCurrency = null;
+
+        var getCurrencys = function(successHandler) {    		
+	   		apilayer.searchCurrencys(function(data) {
+	        	if(data) {
+	                currencys = jQuery.makeArray(data.currencys.currency);
+	                
+					jQuery.each(currencys, function(idx, c) {
+						if ( c.iscorporate ) {
+							corporateCurrency = c.name;
+						}
+					});
+				}
+				else {
+					currencys = [];
+				}	 
+				if(successHandler) {
+					successHandler();      
+				}              
+				
+			}, function() {}, function() {}); 	
+        };
+        
+        var addUnmappedSolution = function(td, unmappedsol, opp) {
+            if(! unmappedsol.solutionName) {
+                if(td.find('span.unmapprodname').length <= 0) {
+	                td.prepend(
+	                    jQuery('<span class="unmapprodname"/>')
+	                        //.text(unmappedsol.productName + ' - ' + noprodmapblurb)
+	                        .text(noprodmapblurb)
+	                );
+                }
+            } else {
+                td.append(
+                    jQuery('<span class="unmapsolname"/>')
+                       .text(unmappedsol.solutionName)
+                       .click(function() {
+                           add(unmappedsol.solutionId, unmappedsol.solutionName, opp);
+                       })
+                );
+            }
+        }
+
+        var renderUnmappedOp = function(opp) {
+        
+            var row = jQuery('<tr/>');
+
+            var formattedAmountHtml = jQuery('<td class="col_amount"/>').text(opp.formattedAmount);
+            var formattedUnmappedAmountHtml = jQuery('<td class="col_amount"/>').text(opp.formattedUnmappedAmount);
+
+			if ( config.multiCurrency ) {
+					if ( !currencys ) {
+			            getCurrencys(function() {
+			     			renderUnmappedOpRow(opp, row, formattedAmountHtml, formattedUnmappedAmountHtml)	       
+			            });
+					}
+					else {
+						renderUnmappedOpRow(opp, row, formattedAmountHtml, formattedUnmappedAmountHtml);
+					}
+            }
+            else {
+            	renderUnmappedOpRow(opp, row, formattedAmountHtml, formattedUnmappedAmountHtml);
+            }             
+            
+            return row;
+        };
+        
+        var renderUnmappedOpRow = function(opp, row, formattedAmountHtml, formattedUnmappedAmountHtml) {
+           	formattedAmountHtml = ttg.formatMultiCurrencyAmount(opp.formattedAmountBase, opp.formattedAmount, opp.currencyIsoCode, corporateCurrency);
+           	formattedUnmappedAmountHtml = ttg.formatMultiCurrencyAmount(opp.formattedUnmappedAmountBase, opp.formattedUnmappedAmount, opp.currencyIsoCode, corporateCurrency);
+            
+            row.append(jQuery('<td/>').text(opp.opportunityName))
+	           .append(formattedAmountHtml)
+	           .append(formattedUnmappedAmountHtml);
+
+            var td = jQuery('<td/>');
+            for(var i = 0; i < opp.unmappedSolutions.length; i++) {
+                addUnmappedSolution(td, opp.unmappedSolutions[i], opp)
+            }
+            row.append(td);
+        }     
+        
+        var add = function(solutionid, solutionname, opp) {
+            //what if fails?
+            api.insertPlanSolution(
+                planid, 
+                solutionid,
+                function() {
+                    changes = true;
+                    //need to update for all opps that have this unmapped solution
+                    for(var j = 0; j < opps.length; j++) {
+                        var lv_opp = opps[j];
+                    
+	                    var idx = -1;
+	                    for(var i = 0; i < lv_opp.unmappedSolutions.length; i++) {
+	                        if(lv_opp.unmappedSolutions[i].solutionId == solutionid) {
+	                            idx = i;
+	                            break;
+	                        }
+	                    }
+	                    
+	                    if(idx > -1) {
+	                        var removed = lv_opp.unmappedSolutions.splice(idx, 1)[0];
+	                        lv_opp.unmappedAmount -= removed.amount;
+	                        lv_opp.formattedUnmappedAmount =
+	                            lv_opp.unmappedAmount.ttg_formatCurrency(
+	                                lv_opp.currencyIsoCode + ' ', config.thousandSeparator);
+	                    }
+                    }
+                    
+                    refresh('Solution \'' + solutionname + '\' added to the account plan');
+                }
+            );
+        }
+        
+        var refresh = function(text) {
+            var tabs = jQuery('table#unmappedopptable');
+            var holder = tabs.parent('div');
+            tabs.remove();
+            renderTable().insertAfter('div.unmappedinstructions');
+            //holder.append(renderTable());
+            
+            update(text);
+        }
+        
+        var renderTable = function() {
+            var hasData = false;
+            for(var i = 0; i < opps.length; i++) {
+                if(opps[i].unmappedSolutions && opps[i].unmappedSolutions.length > 0) {
+                    hasData = true;
+                    break;
+                }
+            }
+            
+            if(!hasData) {
+                jQuery('div.unmappedinstructions').text('');
+                return jQuery('<div class="nounmapped">').text('All Opportunities are now fully mapped');
+            }
+            
+            var table = jQuery('<table class="opportunities" id="unmappedopptable"/>');
+            
+            jQuery('<tr/>')
+                .append(jQuery('<th/>').text('Opportunity Name'))
+                .append(jQuery('<th class="col_amount"/>').text('Amount'))
+                .append(jQuery('<th class="col_amount"/>').text('Unmapped Amount'))
+                .append(jQuery('<th/>').text('Solution'))
+                .appendTo(table);
+                
+            for(var i = 0; i < opps.length; i++) {
+                table.append(renderUnmappedOp(opps[i]));
+            }
+            
+            return table;
+        }
+        
+        var renderUnmappedProduct = function(product) {
+            var row = jQuery('<tr/>');
+            row.append(jQuery('<td/>').text(product.name))
+            return row;
+        }
+        
+        var renderUnmappedProducts = function(prods) {
+            if(! prods || prods.length <= 0) {
+                return null;
+            }
+        
+            var div = jQuery('<div class="unmappedprodsection"/>');
+            if(prods) {
+	            jQuery('<div/>')
+	                .text('Products not mapped to a solution. Contact your administrator to have this resolved')
+	                .appendTo(div);
+	                
+	            var table = jQuery('<table class="opportunities" id="unmappedprodtable"/>');
+	            jQuery('<tr/>')
+	                .append(jQuery('<th/>').text('Product Name'))
+	                .appendTo(table);
+	                
+	            for(var i = 0; i < prods.length; i++) {
+	                table.append(renderUnmappedProduct(prods[i]));
+	            }
+	            
+	            table.appendTo(div);
+            }
+            return div;
+        }
+        
+        var update = function(text) {
+            jQuery('div.progressupdate').text((text || ''));
+        }
+        
+        var show = function() {
+            if(showing) {
+                return;//stop multiple dialogs opening
+            }
+            showAjaxSpinner(true);
+            showing = true;
+            api.getUnmappedOpportunityLines(
+                planid,
+                function(data) {
+                    showAjaxSpinner(false);
+                
+                    var holder = jQuery('<div/>');
+                    
+                    jQuery('<div class="unmappedinstructions"/>')
+                        .append(jQuery('<span/>')
+                            .text('To add solutions to the map, click solution name from table below')
+                        )
+                        .appendTo(holder);
+                    
+                    opps = data.planOpportunities;
+                    holder.append(renderTable());
+                    holder.append(renderUnmappedProducts(data.unmappedProducts));
+                    jQuery('<div class="progressupdate"/>').appendTo(holder);
+                    
+                    jQuery(holder).dialog({
+                        buttons     : 
+                        [ 
+                            {
+                                text: 'Close', click: function() { jQuery(this).dialog('close'); } 
+                            } 
+                        ],
+                        close       : 
+	                        function(event, ui) {
+	                            holder.remove();
+	                            showing = false;
+	                            if(changes) {
+	                               refreshmap();
+	                            }
+	                        },
+                        modal       : true,
+                        minHeight   : 300,
+                        width       : 'auto',
+                        title       : 'Unmapped Opportunity Lines'
+                    });
+                },
+                function() {
+                    showAjaxSpinner(false);
+                },
+                function() {
+                    showing = false;
+                    showAjaxSpinner(false);
+                }
+            );
+        }
+        
+        function showAjaxSpinner(show) {
+            var spinner = jQuery('#dialogSpinner').css({ position: 'absolute', 'z-index': 10000});
+            if (show) { 
+                ajaxSpinnerCnt++;
+                if (ajaxSpinnerCnt == 1) {
+                    spinner.append(jQuery('<img>').attr('id', 'tas_ajax_spinner').addClass('spinner').attr('src', '{!JSENCODE(URLFOR($Resource.ttgomjs, '/ttg/graph/images/loader.gif'))}'));
+                    spinner.css("top", ( jQuery(window).height() - jQuery('#dialogSpinner').height() ) / 2+jQuery(window).scrollTop() + "px");
+                    spinner.css("left", ( jQuery(window).width() - jQuery('#dialogSpinner').width() ) / 2+jQuery(window).scrollLeft() + "px");
+                }                   
+            }
+            else {
+                ajaxSpinnerCnt--;
+                if (ajaxSpinnerCnt <= 0) {                  
+                    jQuery('#dialogSpinner').html('');
+                    ajaxSpinnerCnt = 0;
+                }
+            }
+        }               
+        
+        return {show: show};
+    };
+
+</script>
+</apex:page>

@@ -1,0 +1,80 @@
+<apex:page standardController="agf__Retrospective__c" extensions="agf.RetrospectiveControllerExtension" standardStylesheets="true" title="Retrospectives">
+  <apex:sectionHeader title="{!$ObjectType.agf__Retrospective__c.label}" subtitle="{!agf__Retrospective__c.name}"/>
+  <apex:form >
+    <apex:pageBlock title="Retrospective Detail" mode="maindetail">  
+      <apex:pageBlockButtons >
+        <apex:commandButton value="Edit" action="{!edit}" rendered="{!canEdit}"/>
+        <apex:commandButton value="Delete" action="{!delete}" rendered="{!(isEmployee && canEdit) }"/>
+        <apex:commandButton value="Submit" action="{!submitToManager}" rendered="{!canSubmit}"/>
+        <apex:commandButton value="Share" action="{!shareWithEmployee}" rendered="{!canShare}"/>
+      </apex:pageBlockButtons>
+        <apex:pageMessage detail="{!customErrorMessage}" severity="error" strength="3" rendered="{!hasCustomError}"/>
+      <apex:pageBlockSection title="Information" columns="2" showHeader="false" collapsible="false">
+        <apex:outputField value="{!agf__Retrospective__c.name}"/>
+        <apex:outputField value="{!agf__Retrospective__c.agf__Team__c}"/>
+        <apex:outputField value="{!agf__Retrospective__c.agf__User__c}"/>
+        <apex:outputField value="{!agf__Retrospective__c.agf__Manager__c}"/>
+        <apex:outputField value="{!agf__Retrospective__c.agf__Status__c}"/>
+        <apex:outputField value="{!agf__Retrospective__c.agf__Review_Period__c}"/>
+      </apex:pageBlockSection>
+      <apex:pageBlockSection title="Employee Comments" columns="1">
+
+        <apex:pageBlockSectionItem >
+            <apex:outputLabel value="{!whatWentWellLabel}" for="what_went_well_employee"/>
+            <apex:outputField id="what_went_well_employee" value="{!agf__Retrospective__c.agf__What_Went_Well_employee__c}"/>
+        </apex:pageBlockSectionItem>    
+        <apex:pageBlockSectionItem >
+            <apex:outputLabel value="{!whatDidNotGoWellLabel}" for="what_didnt_go_well_employee"/>
+            <apex:outputField id="what_didnt_go_well_employee" value="{!agf__Retrospective__c.agf__What_Didn_t_Go_Well_employee__c}"/>
+        </apex:pageBlockSectionItem>    
+        <apex:pageBlockSectionItem >
+            <apex:outputLabel value="{!whatToDoBetterLabel}" for="what_to_do_better_employee"/>
+            <apex:outputField id="what_to_do_better_employee" value="{!agf__Retrospective__c.agf__What_To_Do_Better_Next_Time_employee__c}"/>
+        </apex:pageBlockSectionItem>    
+        <apex:pageBlockSectionItem >
+            <apex:outputLabel value="{!overallRatingLabel}" for="overall_rating_employee"/>
+            <apex:outputField id="overall_rating_employee" value="{!agf__Retrospective__c.agf__Overall_Rating_employee__c}"/>
+        </apex:pageBlockSectionItem>    
+
+      </apex:pageBlockSection>
+      <apex:pageBlockSection title="Manager Comments" columns="1" rendered="{!(isEmployee && (agf__Retrospective__c.agf__Status__c == 'Complete')) || isManager}">
+
+        <apex:pageBlockSectionItem >
+            <apex:outputLabel value="{!whatWentWellLabel}" for="what_went_well_manager"/>
+            <apex:outputField id="what_went_well_manager" value="{!agf__Retrospective__c.agf__What_Went_Well_manager__c}"/>
+        </apex:pageBlockSectionItem>    
+        <apex:pageBlockSectionItem >
+            <apex:outputLabel value="{!whatDidNotGoWellLabel}" for="what_didnt_go_well_manager"/>
+            <apex:outputField id="what_didnt_go_well_manager" value="{!agf__Retrospective__c.agf__What_Didn_t_Go_Well_manager__c}"/>
+        </apex:pageBlockSectionItem>    
+        <apex:pageBlockSectionItem >
+            <apex:outputLabel value="{!whatToDoBetterLabel}" for="what_to_do_better_manager"/>
+            <apex:outputField id="what_to_do_better_manager" value="{!agf__Retrospective__c.agf__What_To_Do_Better_Next_Time_manager__c}"/>
+        </apex:pageBlockSectionItem>    
+        <apex:pageBlockSectionItem >
+            <apex:outputLabel value="{!overallRatingLabel}" for="overall_rating_manager"/>
+            <apex:outputField id="overall_rating_manager" value="{!agf__Retrospective__c.agf__Overall_Rating_manager__c}"/>
+        </apex:pageBlockSectionItem>    
+
+      </apex:pageBlockSection>  
+      <apex:pageBlockSection title="System Information" columns="2" showHeader="false" collapsible="false">
+        <apex:pageBlockSectionItem >
+          <apex:outputLabel value="Created By"/>
+            <apex:outputText > 
+              <apex:outputField value="{!agf__Retrospective__c.CreatedById}"/>
+                ,&nbsp;   
+              <apex:outputField value="{!agf__Retrospective__c.CreatedDate}"/>
+            </apex:outputText>
+          </apex:pageBlockSectionItem>
+          <apex:pageBlockSectionItem >
+            <apex:outputLabel value="Last Modified By"/>
+            <apex:outputText > 
+              <apex:outputField value="{!agf__Retrospective__c.LastModifiedById}"/>
+                ,&nbsp;
+              <apex:outputField value="{!agf__Retrospective__c.LastModifiedDate}"/>
+            </apex:outputText>
+          </apex:pageBlockSectionItem>
+      </apex:pageBlockSection>
+    </apex:pageBlock>
+  </apex:form>
+</apex:page>

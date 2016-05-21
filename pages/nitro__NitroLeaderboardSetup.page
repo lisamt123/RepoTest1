@@ -1,0 +1,69 @@
+<apex:page controller="nitro.NitroLeaderboardConfig" tabStyle="Nitro__tab" sidebar="false">
+
+   <link href="https://sfdcassets.bunchball.net/v.3.0/nitroforsalesforce.css" rel="stylesheet" type="text/css"></link>
+
+
+   <div class="nitro">
+      <apex:pageMessages />
+   
+      <apex:form >
+         <apex:pageBlock title="Leaderboard Edit" id="thePageBlock">
+         
+            <apex:pageBlockButtons id="pageButtons">
+               <apex:commandButton value="Save" action="{!saveLeaderboard}"/>
+               <apex:commandButton value="Cancel" action="{!cancel}" immediate="true"/>
+            </apex:pageBlockButtons>
+               
+               <apex:pageBlockSection columns="1" title="Leaderboard Information" collapsible="false">
+                 
+                 <apex:inputField value="{!leaderboard.nitro__isActive__c}" required="true" id="isActive"/>
+               
+                 <apex:inputField value="{!leaderboard.nitro__type__c}" required="true" id="leaderboardType">
+                    <apex:actionSupport event="onchange" rerender="thePageBlock" action="{!showActions}" status="retrvStatus"/>
+                    <apex:actionStatus id="retrvStatus"  startText=" (Retrieving data. This may take a few moments...)"  stopText=""/>
+                 </apex:inputField>
+                 
+                  <apex:selectList id="actions" value="{!displayActions}" multiselect="true" size="5" rendered="{!doShowActions}" label="Actions">
+                    <apex:selectOptions value="{!actions}" />
+                 </apex:selectList>
+                 
+                 <apex:selectList id="criteria" value="{!criteria}" multiselect="false" size="1" rendered="{!(doShowActions && leaderboard.nitro__type__c == 'Actions')}" label="Action Criteria">
+                    <apex:selectOptions value="{!criteriaOptions}" />
+                 </apex:selectList>
+                                  
+                 <apex:selectList id="challenges" value="{!displayChallenges}" multiselect="true" size="5" rendered="{!doShowChallenges}" label="Challenges">
+                    <apex:selectOptions value="{!challenges}" />
+                 </apex:selectList>
+               	 
+               	 <apex:pageBlockSectionItem >
+               	 	<apex:outputLabel value="Duration" for="leaderboardDuration"/> 
+               	 	<apex:outputPanel styleClass="requiredInput">
+						<apex:outputPanel id="thePanel1" styleClass="requiredBlock" />
+						<apex:inputField value="{!leaderboard.nitro__duration__c}" id="leaderboardDuration"/>
+					</apex:outputPanel> 
+				</apex:pageBlockSectionItem>
+				
+				<apex:pageBlockSectionItem >
+					<apex:outputLabel value="Title" for="leaderboardTitle"/> 
+               	 	<apex:outputPanel styleClass="requiredInput">
+						<apex:outputPanel id="thePanel2" styleClass="requiredBlock" />
+						<apex:inputField value="{!leaderboard.nitro__title__c}" id="leaderboardTitle"/>
+					</apex:outputPanel> 
+				 </apex:pageBlockSectionItem>
+			 
+                 <apex:selectList id="roles" value="{!displayRoles}" multiselect="true" size="5" rendered="{!doShowRoles}" label="Roles">
+                    <apex:selectOptions value="{!roles}" />
+                 </apex:selectList>
+               
+               </apex:pageBlockSection>
+            
+         </apex:pageBlock>
+   
+      </apex:form>
+   </div>
+   
+   <style>
+      .nitro h3 {color:white !important; font-size:1.2em !important;}
+   </style>
+   
+</apex:page>

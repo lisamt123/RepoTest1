@@ -1,0 +1,544 @@
+<apex:page standardController="Opportunity" extensions="DMAPP.SummaryController,DMAPP.BrandOverrideController,DMAPP.ServerSideDeviceDetection" 
+    cache="false" 
+    name="Dealmaker Opportunity Summary" 
+    label="Dealmaker Opportunity Summary"
+    action="{!logLaunchpadUsage}">
+    
+    <c:jQuery />
+    
+    <c:MobileRedirect smartOM="true" />
+    
+    <style>
+        /* iPads (portrait and landscape) ----------- */
+        @media only screen 
+        and (min-device-width : 768px) 
+        and (max-device-width : 1280px)  {
+            div#smartOM {
+                /*min-width: 310px !important;*/
+            }
+        }
+        
+        body, td {
+            color: #222222;
+            font-family: Arial,Helvetica,sans-serif;
+        }
+        
+        body {
+            font-family: 'Arial','Helvetica',sans-serif;
+            font-size: 75%;
+        }
+        
+        div#smartOM {
+        	background-color: #FFF;
+            border: 1px solid #CCC;
+            border-radius: 8px;
+            cursor: default;
+            float: left;
+            min-width: 905px;
+            padding: 45px 13px 15px;
+            position: relative;           
+        }
+        
+        /* smartphones (portrait and landscape) ----------- */
+        @media only screen and (min-width : 0px) and (max-width : 599px)  {
+        
+        	div#smartOM {
+	        	background-color: transparent;
+	            border: 0px solid #CCC;
+	            border-radius: 8px;
+	            cursor: default;
+	            float: none;
+	            display:block;
+	            margin: 0 auto;
+	            width: 97%;
+	            min-width:285px;
+	            padding: 0px;
+	            position: relative;           
+	        }
+        
+        }
+        
+        div#smartOMBranding {
+            /*clear: both;*/
+            background: url('{!URLFOR($Resource.Common, 'panel/images/bg_pad_header.png')}') left bottom repeat-x;
+            position:absolute;
+            width:100%;
+            display:block;
+            left:0px;
+            top:0px;
+            border-radius:8px 8px 0px 0px;
+            -moz-border-radius:8px 8px 0px 0px;
+            -webkit-border-radius:8px 8px 0px 0px;
+        }
+        
+        div.smartOMToolbarTitle {
+            font-weight: normal;
+            line-height: 2em;
+            color: black; /*#333333;*/
+            /*position:absolute;*/
+            bottom:0px;
+            width:100%;
+            text-align:center;
+            overflow:visible;
+            display:block;
+            font-size:0.95em;
+        }
+
+        div.smartOMToolbarTitleNoWrap {
+            white-space:nowrap;
+            /*margin-left:-5px;*/   
+        }
+        
+        
+        div.smartOMToolbarItem {
+            float: left;
+            margin-right: 15px;
+            position: relative;
+            text-align: center;
+            width: 100px;        
+        }
+        
+        div.smartOMToolbarItem a {
+        
+            background: url('{! URLFOR($Resource.Common, 'panel/images/bg_panel.png') }') left bottom no-repeat;
+            
+            display: block;
+            height: 85px;
+        }
+        
+        div.smartOMToolbarItem a.smallItem { background: url('{! URLFOR($Resource.Common, 'panel/images/bg_panel75.png') }') left bottom no-repeat; }       
+        
+        div.smartOMToolbarItemLast {
+            margin-right:0px;   
+        }
+        
+        div.smartOMToolbarImage {        
+            background-image: url('{! URLFOR($Resource.Common, 'panel/images/SummaryView_small.png') }');
+            background-repeat: no-repeat;
+            cursor: pointer;
+            height: 48px;
+            margin: 0 auto;
+            padding: 13px 10px 0px;
+            width: 49px;
+        }
+        
+        div.smartOMToolbarSummary {
+            background: url('{! URLFOR($Resource.Common, 'panel/images/bg_panel.png') }') left top no-repeat;
+            padding: 8px 0 0;
+            font-size: .95em;
+            height: 15px;
+            color: #FFF;
+            text-align: center;
+            width: 100%;
+        }
+
+        div.smartOMToolbarSummarySmall { background: url('{! URLFOR($Resource.Common, 'panel/images/bg_panel75.png') }') left top no-repeat; }       
+        
+        div#smartOMBrandingLeft {
+            float: left;
+        }
+        div#smartOMBrandingLeft img {
+            float: left;
+            margin-left:10px;
+        }
+        div#smartOMBrandingLeft div {
+            float: right;
+            margin-left: 15px;
+        }
+        div#smartOMBrandingLeft div strong {
+            display: block;
+        }
+        div#smartOMBrandingRight {
+            float: right;
+            margin-left: 30px;
+        }
+        
+        div#smartOMBrandingRight img {
+            margin-right: 10px;
+        }   
+    
+        .noLicenseText {
+            text-align: center;
+            margin: 30px auto;
+        }
+        
+        .noLicenseTextMobile {
+			line-height: 5em;
+            padding: 20px;
+            text-align: center;
+            margin: 20px auto;
+        }
+
+        .noShadowText {
+            text-align: center;
+        }
+        
+        .enableDealmakerLinkMobile { position: relative; }
+        
+        div#TRANSPARENCY {        	
+            background-color: white;
+            border-radius: 8px;
+            -moz-border-radius: 8px;
+            -webkit-border-radius: 8px;            
+            color: #6060E0;
+            filter:alpha(opacity=80); /* For IE8 and earlier */
+            font-size: large;            
+            height: auto;            
+            left: 0;
+            opacity: 0.8;          
+            position: absolute;
+            text-align: center;
+            top: 0;
+            width: 100%;            
+        }
+        
+        DIV#TRANSPARENCY A {
+            color: #6060e0;
+            display: block;
+            padding: 84px 0;
+            text-decoration: none;
+        }       
+
+        DIV#TRANSPARENCY SPAN.NOTAVAILABLE {
+        	color: #000;
+        	display: block;
+        	padding: 84px 0;            
+        }       
+
+        DIV#TRANSPARENCY A:hover {
+            text-decoration: underline;
+        }
+        
+        /* Salesforce1-specific styles */                
+        html.salesforce1 { height: auto; }
+        
+        .salesforce1 body { background: transparent !important; }
+        
+		
+		/* start: redesigned Mobile launchpad CSS */
+		
+		#tas_app_container {
+			border:1px solid #CCCCCC;
+			background-color:#FFFFFF;
+			border-radius:5px;
+			display:block;
+			width:100%;
+		}
+		
+		#tas_app_container.extraPadding {
+			margin: 7% 0% 0% 1.5%;
+			width: 97%;
+		}
+		
+		#tas_app_header {
+			position:relative;
+			background-color:#e3e3e3;
+			height:30px;
+			border-bottom:1px solid #CCCCCC;
+		}
+		
+			#tas_app_header #tas_app_brand {
+				height:10px;
+				position:absolute;
+				left:10px;
+				top:10px;
+				margin:0px;
+				padding:0px;
+				line-height:10px;
+			}
+			
+				#tas_app_header #tas_app_brand img {
+					height:100%;
+					vertical-align: bottom;
+				}
+				
+			#tas_app_header #tas_app_logo {
+				height:10px;
+				position:absolute;
+				right:10px;
+				top:10px;
+				margin:0px;
+				padding:0px;
+				line-height:10px;
+			}
+			
+				#tas_app_header #tas_app_logo img {
+					height:100%;
+					vertical-align:bottom;
+				}
+				
+				#tas_app_header #tas_app_logo_mobile {
+					height:10px;
+					position:absolute;
+					right:10px;
+					top: 0px;
+					margin:0px;
+					padding:0px;
+					line-height:10px;
+				}
+				
+					#tas_app_header #tas_app_logo_mobile img {
+						vertical-align:bottom;
+					}
+
+		/* end: redesigned Mobile launchpad CSS */
+						
+    </style>
+        
+    <apex:outputText >
+        <div id="smartOM">
+        
+            <c:Launchpad id="Launchpad"
+                isLaunch="true"
+                isRender="{! (isMobile == false)}" 
+                isMob="false"
+                opportunityId="{!opportunity.id}" 
+                isLicensedForOppManager="{!isLicensedForOppManager}"  
+                isLicensedForCallPlanner="{!isLicensedForCallPlanner}"
+                isPlaybookEnabled="{!isPlaybookEnabled}" playbookConfidence="{!playbookConfidence}" 
+                isAssessmentEnabled="{!isAssessmentEnabled}" shadowOpportunityAnsweredYesCount="{!shadowOpportunityAnsweredYesCount}" criteriaCount="{!criteriaCount}"  
+                isMilestonesEnabled="{!isMilestonesEnabled}" milestonesMaxValue="{!milestonesMaxValue}" milestonesValue="{!milestonesValue}"    
+                isPoliticalMapEnabled="{!isPoliticalMapEnabledForMainLaunchpad}" politicalContacts="{!orgChartContactCount}" 
+                isDecisionCriteriaEnabled="{!isDecisionCriteriaEnabled}" decisionCriteriaCount="{!decisionCriteriaCount}" 
+                isCollabMapEnabled="{! isCollabMapEnabled }" mapCount="{! mapCount }" 
+                isCompetitiveStrategyEnabled="{!isCompetitiveStrategyEnabled}" selectedStrategy="{!selectedStrategy}" 
+                isPRIMEActionsEnabled="{!isPRIMEActionsEnabled}" openPRIMEActionCount="{!openPRIMEActionCount}" 
+                isCallPlannerEnabled="{! IsCallPlannerEnabled }" callPlanCount="{! CallPlanCount }"
+                isCoachMeEnabled="{!isCoachMeEnabled}"  
+            />
+            
+            <!-- branding for Mobile Launchpad -->
+			<apex:outputText rendered="{! (isMobile == true)}">
+				<div id="tas_app_container" class="lpad omanager">
+				    <div id="tas_app_header">
+				    	<div id="tas_app_brand">
+				    		<apex:image url="{!URLFOR($Resource.DMAPP__Mobile, 'images/SmartOM50.png')}" alt="Dealmaker Logo"/>
+				    	</div>
+				    	<div id="tas_app_logo">
+				    		<apex:image url="{!URLFOR($Resource.DMAPP__Mobile, 'images/TASLogo50.png')}" alt="The TAS Group Logo" rendered="{!NOT(hasBrandOverrideLogo)}"/>
+				    	</div>
+				    	<div id="tas_app_logo_mobile">
+	                    	<apex:image url="{!brandOverrideLogo}" rendered="{!hasBrandOverrideLogo}"/>
+				    	</div>
+				    </div>
+				    
+				    <apex:outputText value="Current user has no licenses for any module" styleClass="noLicenseTextMobile" rendered="{!hasNoLicenses && (isMobile == true)}"/>
+                        
+		            <c:LaunchpadMobile id="LaunchpadMobile"
+		                isLaunch="true"
+		                isRender="{! (isMobile == true)}"
+		                isMob="true" 
+		                opportunityId="{!opportunity.id}" 
+		                isLicensedForOppManager="{!isLicensedForOppManager}"  
+		                isPlaybookEnabled="{!isPlaybookEnabled}" playbookConfidence="{!playbookConfidence}" 
+		                isAssessmentEnabled="{!isAssessmentEnabled}" shadowOpportunityAnsweredYesCount="{!shadowOpportunityAnsweredYesCount}" criteriaCount="{!criteriaCount}"  
+		                isMilestonesEnabled="false" milestonesMaxValue="{!milestonesMaxValue}" milestonesValue="{!milestonesValue}"    
+		                isPoliticalMapEnabled="{!isPoliticalMapEnabledForMainLaunchpad}" politicalContacts="{!orgChartContactCount}" 
+		                isDecisionCriteriaEnabled="{!isDecisionCriteriaEnabled}" decisionCriteriaCount="{!decisionCriteriaCount}" 
+		                isCollabMapEnabled="{!isCollabMapEnabled}" mapCount="{!mapCount}" 
+		                isCompetitiveStrategyEnabled="{!isCompetitiveStrategyEnabled}" selectedStrategy="{!selectedStrategy}" 
+		                isPRIMEActionsEnabled="{!isPRIMEActionsEnabled}" openPRIMEActionCount="{!openPRIMEActionCount}" 
+		                isCallPlannerEnabled="{! IsCallPlannerEnabled }" callPlanCount="{! CallPlanCount }"
+		                isCoachMeEnabled="{!isCoachMeEnabled}"  
+		            />
+		            
+				</div>
+            </apex:outputText>		            
+            
+            <apex:outputText rendered="{!hasNoLicenses && (isMobile == false)}">         
+                    <p class="noLicenseText">Current user has no licenses for any module</p>                
+            </apex:outputText>
+    
+    		<apex:outputText rendered="{! (isMobile == false)}">
+	            <div id="smartOMBranding">
+	                <div id="smartOMBrandingLeft">
+	                    <apex:image url="{!URLFOR($Resource.DMAPP__Common, 'panel/images/SmartOM50.png')}"/>               
+	                </div>
+	                <div id="smartOMBrandingRight">
+	                    <apex:image url="{!URLFOR($Resource.DMAPP__Qualification, 'TASLogo50.png')}" alt="TAS Group Logo" rendered="{!NOT(hasBrandOverrideLogo)}"/>
+	                    <apex:image url="{!brandOverrideLogo}" rendered="{!hasBrandOverrideLogo}"/>
+	                </div>              
+	            </div>
+    		</apex:outputText>
+    		
+            <apex:form rendered="{! hasNoShadowOpp && hasNoLicenses == false}">
+            
+                <div id="TRANSPARENCY">         
+                    <apex:outputText styleClass="NOTAVAILABLE" value="Dealmaker is not Available for this Opportunity" rendered="{!editable == false}"/>
+        
+                    <apex:outputText styleClass="noShadowText" rendered="{!editable}">
+                        <a href="#" id="enableDealmakerLink" class="{!IF(isMobile, 'enableDealmakerLinkMobile','')}">Click to Start Using Dealmaker</a>
+                    </apex:outputText>
+                </div>
+                
+                <apex:actionFunction name="enableDealmakerOpportunity" action="{!enableDealmakerOpportunity}"/>
+            </apex:form>
+    
+        </div>
+    </apex:outputText>
+
+    
+
+    
+    
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__ttgomjs, 'ttg/lib/modernizr.js')}"/>  
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__ttgomjs, 'ttg/lib/ttgutils.js')}"/>   
+    
+    <script>
+
+
+        /* 
+         * Copyright © The TAS Group. All rights reserved.
+         *  
+         */    
+
+        
+        function setup() {
+        
+            //var isOnlyOneIconDisabled = '{!IsOnlyOneIconDisabled}';
+            var numberOfIcons = {!numberOfIcons};
+                	        	
+        	if(ttg.isMobilePhone()) {
+        	
+				var onFullPage = (jQuery(window).height() > 300);
+				
+				if(onFullPage) {
+                 	jQuery('div#tas_app_container').addClass('extraPadding');
+					
+					// jQuery('#tas_app_header').hide();				
+                	
+				} else {
+                    jQuery('div#tas_app_container').addClass('launchpad');
+                    
+					// jQuery('#tas_app_header').show();
+				}
+				
+				jQuery('#TRANSPARENCY').width(jQuery('#tas_app_container').width())				
+					.css({				
+											
+						'margin': jQuery('.extraPadding').css('margin'),
+						'margin-left': (onFullPage ? '16px' : '1px'),
+						'margin-top': '1px'
+				});
+				
+        	
+            } else if(ttg.isTouchScreen() || ttg.isWindows8Tab() /*navigator.userAgent.match(/iPad/i) != null || navigator.userAgent.match(/Android/i) != null*/
+            || (navigator.userAgent.match(/Touch/i) != null && screen.height > screen.width)) { /* Need to factor in Win8 Tablet Portrait mode*/ 
+                
+                //jQuery('div.smartOMToolbarTitle').css('font-size', '80%');
+                jQuery('div.smartOMToolbarTitle').css('line-height', '1em');
+                jQuery('.smartOMToolbarTitleNoWrap').removeClass('smartOMToolbarTitleNoWrap');
+                jQuery('div.smartOMToolbarSummary').css('font-size', '75%');
+                
+                jQuery('#smartOM').css('padding', '45px 5px 15px');
+                
+                jQuery('.smartOMToolbarItem').css('width', '75px');
+                jQuery('div.smartOMToolbarSummary').addClass('smartOMToolbarSummarySmall');
+                jQuery('div.smartOMToolbarItem a').addClass('smallItem');
+                
+                
+                jQuery('div.smartOMToolbarItem').css('margin-right', '3px');  
+                jQuery('div.smartOMToolbarItemLast').css('margin-right', '0px');
+            
+            } 
+            else if(screen.width > 790 && screen.width < 1040) {
+                            
+                //jQuery('div.smartOMToolbarTitle').css('font-size', '80%');
+                jQuery('div.smartOMToolbarTitle').css('line-height', '1em');
+                jQuery('.smartOMToolbarTitleNoWrap').removeClass('smartOMToolbarTitleNoWrap');
+                jQuery('div.smartOMToolbarSummary').css('font-size', '75%');
+                
+                jQuery('#smartOM').css('padding', '45px 5px 15px');
+                
+                jQuery('.smartOMToolbarItem').css('width', '75px');
+                jQuery('div.smartOMToolbarSummary').addClass('smartOMToolbarSummarySmall');
+                jQuery('div.smartOMToolbarItem a').addClass('smallItem');
+                
+                
+                jQuery('div.smartOMToolbarItem').css('margin-right', '3px');  
+                jQuery('div.smartOMToolbarItemLast').css('margin-right', '0px');
+            
+            } else {
+            
+                /*if(isOnlyOneIconDisabled == 'true') {
+                    // resize the launchpad to keep the full-size width, and pad the remaining icons to be (nearly) evenly spaced
+                    jQuery('#smartOM').css('min-width', '880px');
+                    jQuery('.smartOMToolbarItem').css('margin-right', '30px');
+                }*/
+                if(numberOfIcons === 9) {
+					jQuery('#smartOM').css('min-width', '1025px');	
+                }
+                else if(numberOfIcons === 7) {
+                    jQuery('#smartOM').css('min-width', '910px');
+                    jQuery('.smartOMToolbarItem').css('margin-right', '30px');
+                }
+
+                if ( navigator.userAgent.match(/Touch/i) != null && screen.height < screen.width ) {
+                    jQuery('div.smartOMToolbarTitle').css('line-height', '2em');
+                    jQuery('.smartOMToolbarTitleNoWrap').addClass('smartOMToolbarTitleNoWrap');
+                    jQuery('div.smartOMToolbarSummary').css('font-size', '0.95em');
+                    
+                    jQuery('#smartOM').css('padding', '49px 14px 9px');
+                    
+                    jQuery('.smartOMToolbarItem').css('width', '100px');
+                    jQuery('div.smartOMToolbarSummary').removeClass('smartOMToolbarSummarySmall');
+                    jQuery('div.smartOMToolbarItem a').removeClass('smallItem');
+                    
+                    
+                    jQuery('div.smartOMToolbarItem').css('margin-right', '15px');  
+                    jQuery('div.smartOMToolbarItemLast').css('margin-right', '0px');
+                    
+                }
+            }
+            
+            
+            if((ttg.isTouchScreen() || (navigator.userAgent.match(/Touch/i) != null)) && (screen.width >= 768 && screen.width <= 1280)) {
+           		jQuery('#smartOM').css('min-width', '310px');
+           	}
+            
+            var height = jQuery('#smartOM').height();
+            
+            var enableDealmakerLinkClicked = false;
+                        
+            jQuery('#TRANSPARENCY').height(
+            
+            	(jQuery('.lpad').length > 0) ? jQuery('.lpad').height() : '100%'
+            );
+        
+            jQuery('#enableDealmakerLink').click(function() {
+                if(!enableDealmakerLinkClicked) {
+                    enableDealmakerLinkClicked = true;
+                    enableDealmakerOpportunity();
+                }
+            }).dblclick(function(e) {
+                e.preventDefault();
+                return false;
+            });        
+            
+        }
+
+        jQuery(function() {
+        
+            setup();
+            
+            if (ttg_salesforce1) {
+
+            	// Salesforce1 navigation
+	            jQuery('a.smallItem').click(function() {
+	            
+	                jQuery('.overlay').toggle();
+	            });   	         
+   	         }
+        }); 
+        
+
+        // Win8 Tablets trigger a resize event when they change orientation
+        if ( navigator.userAgent.match(/Touch/i) != null ) {
+            jQuery(window).resize(function(){
+                setup();
+            });
+        }
+    
+    </script>
+    
+</apex:page>

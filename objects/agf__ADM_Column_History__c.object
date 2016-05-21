@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <actionOverrides>
+        <actionName>Accept</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>CancelEdit</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Clone</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Delete</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Edit</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Follow</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>List</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>New</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>SaveEdit</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Tab</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>View</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <allowInChatterGroups>false</allowInChatterGroups>
+    <compactLayoutAssignment>SYSTEM</compactLayoutAssignment>
+    <deploymentStatus>Deployed</deploymentStatus>
+    <deprecated>false</deprecated>
+    <enableActivities>false</enableActivities>
+    <enableBulkApi>true</enableBulkApi>
+    <enableFeeds>false</enableFeeds>
+    <enableHistory>false</enableHistory>
+    <enableReports>false</enableReports>
+    <enableSearch>true</enableSearch>
+    <enableSharing>true</enableSharing>
+    <enableStreamingApi>true</enableStreamingApi>
+    <fields>
+        <fullName>agf__Column__c</fullName>
+        <deleteConstraint>Restrict</deleteConstraint>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>Column</label>
+        <referenceTo>agf__ADM_Column__c</referenceTo>
+        <relationshipLabel>Column History</relationshipLabel>
+        <relationshipName>Column_History</relationshipName>
+        <required>true</required>
+        <trackTrending>false</trackTrending>
+        <type>Lookup</type>
+    </fields>
+    <fields>
+        <fullName>agf__Duration_By_Work_Days__c</fullName>
+        <deprecated>false</deprecated>
+        <description>This is duration by business days. How many days is between Time Left and Time entered
+https://help.salesforce.com/help/pdfs/en/formula_date_time_tipsheet.pdf</description>
+        <externalId>false</externalId>
+        <formula>(5 * ( FLOOR( (DATEVALUE (IF( ISBLANK(agf__Time_Left__c) , NOW() , agf__Time_Left__c)) - DATE( 1900, 1, 8) ) / 7 ) ) + 
+			MIN( 5, MOD( DATEVALUE(IF( ISBLANK(agf__Time_Left__c) , NOW() , agf__Time_Left__c)) - DATE( 1900,
+				        1, 8), 7 )
+		       ) )
+
+-
+(5 * ( FLOOR( ( DATEVALUE(agf__Time_Entered__c)- DATE( 1900, 1, 8) ) / 7 ) )  + MIN( 5, MOD( DATEVALUE(agf__Time_Entered__c) - DATE( 1900,
+1, 8), 7 ) ) )</formula>
+        <label>Duration_By_Work_Days</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>2</scale>
+        <trackTrending>false</trackTrending>
+        <type>Number</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>agf__Duration__c</fullName>
+        <deprecated>false</deprecated>
+        <description>Duration with 4 precision points. Here integer part is number of days and fractional part can be converted into hours by multiplying by 24.</description>
+        <externalId>false</externalId>
+        <formula>IF( ISBLANK(agf__Time_Left__c) , NOW() , agf__Time_Left__c)  -  agf__Time_Entered__c</formula>
+        <label>Duration</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>4</scale>
+        <trackTrending>false</trackTrending>
+        <type>Number</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>agf__Time_Entered__c</fullName>
+        <defaultValue>Now()</defaultValue>
+        <deprecated>false</deprecated>
+        <description>The timestamp for when a work record enters a column</description>
+        <externalId>false</externalId>
+        <label>Time Entered</label>
+        <required>true</required>
+        <trackTrending>false</trackTrending>
+        <type>DateTime</type>
+    </fields>
+    <fields>
+        <fullName>agf__Time_Left__c</fullName>
+        <deprecated>false</deprecated>
+        <description>The time stamp for when a work record left a column (and be empty if the work record is still present).</description>
+        <externalId>false</externalId>
+        <label>Time Left</label>
+        <required>false</required>
+        <trackTrending>false</trackTrending>
+        <type>DateTime</type>
+    </fields>
+    <fields>
+        <fullName>agf__Work__c</fullName>
+        <deleteConstraint>Restrict</deleteConstraint>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>Work</label>
+        <referenceTo>agf__ADM_Work__c</referenceTo>
+        <relationshipLabel>Column History</relationshipLabel>
+        <relationshipName>Column_History</relationshipName>
+        <required>true</required>
+        <trackTrending>false</trackTrending>
+        <type>Lookup</type>
+    </fields>
+    <label>Column History</label>
+    <nameField>
+        <displayFormat>CH-{0000000000}</displayFormat>
+        <label>Column History ID</label>
+        <type>AutoNumber</type>
+    </nameField>
+    <pluralLabel>Column History</pluralLabel>
+    <searchLayouts/>
+    <sharingModel>ReadWrite</sharingModel>
+</CustomObject>

@@ -1,0 +1,150 @@
+<apex:page id="investigationWorkPage" standardController="agf__ADM_Work__c" extensions="agf.ADM_InvestigationExtension,agf.ADM_WorkRemoteActionsExtension" showHeader="true" sidebar="false" docType="html-5.0" title="{!title}">
+<meta name="viewport" content="user-scalable=no,width=device-width,initial-scale=1.0,maximum-scale=1.0" />
+<apex:stylesheet value="{!URLFOR($Resource.agf__jquery_ui_1_11_4, 'jquery-ui-1.11.4/jquery-ui.structure.min.css')}" /> 
+<apex:styleSheet value="{!$Resource.agf__ADM_common_css}" />
+<apex:includeScript value="{!$Resource.agf__jquery_1_8_3_min}" />
+<apex:includeScript value="{!URLFOR($Resource.agf__jquery_ui_1_11_4, 'jquery-ui-1.11.4/jquery-ui.min.js')}" /> 
+
+<apex:includeScript value="{!$Resource.agf__ADM_common_js}" />
+<apex:includeScript value="{!$Resource.agf__productTag_js}" />
+<apex:includeScript value="{!$Resource.agf__ADM_autocomplete2js}" />  
+<apex:styleSheet value="{!$Resource.agf__ADM_work_css}" />
+<apex:includeScript value="{!$Resource.agf__ADM_Work_js}" />   
+     
+<script type="text/javascript">
+var view;
+$(function() {
+    view = new InvestigationEditView({
+        app: window,
+        controller: {
+            getWorkAssignments: window.getWorkAssignments
+        },
+        productTagComponent: window.productTag,
+        recordTypeId: '{!JSINHTMLENCODE(ADM_Work__c.RecordTypeId)}',
+        isNew: {!isNew}
+    });
+});
+
+</script>
+
+<div class="bPageTitle"  id="editTitleBreadcrumb">
+    <div class="ptBody">
+        <div class="content">
+            <img src="{!URLFOR($Resource.investigationicon)}" alt="Work" class="pageTitleIcon" title="Work" />
+            <h1 class="pageType"><a href="/{!$ObjectType.ADM_Work__c.keyPrefix}">All Work</a> &gt;</h1>
+            <h2 class="pageDescription">{!IF(OR(isNew, isClone), ADM_Work__c.RecordType.Name, ADM_Work__c.Name)}</h2>
+            <div class="blank">&nbsp;</div>
+        </div>
+    </div>
+    <div class="ptBreadcrumb"></div>
+</div>
+
+<apex:form id="investigationForm">
+<!--Please don't remove:- Added the below field with rendering = false to make sure VF engine will default query the field or else in package we get the Field used without querying error -->
+<apex:actionFunction name="callgetAdditionalFields" action="{!getMyAdditionalFieldsForInvestigation}" rerender="refreshPanelId,myId">
+     <apex:param name="myParamId" value="" assignTo="{!myProdTag}"/>
+     </apex:actionFunction>
+    <apex:outputText value="{!agf__ADM_Work__c.Name}" rendered="false" />
+    <apex:inputHidden id="typeInput" value="{!agf__ADM_Work__c.agf__Type__c}" />
+
+    <apex:messages globalOnly="true" styleClass="message gusFormMessage"/>
+    <div class="gusFieldset">
+        <div class="gusLegend">{!ADM_Work__c.RecordType.Name}</div>
+        <div class="gusRequiredText"></div>
+    
+        <div class="gusFormToolbar gusFormToolbarTop">       
+            <apex:commandButton styleClass="investigationEditSaveButton" action="{!doSaveAndDetail}" value="Save"/>
+            <apex:commandButton action="{!doSaveAndNew}" value="Save & New"/>
+            <apex:commandButton action="{!cancel}" value="Cancel" /> 
+        </div>
+        
+        <div class="gusForm" id="mainTop">
+            <div class="gusForm1Column">
+
+
+                <div class="gusFormRow gusRow_ADM_Work__c_Subject__c">
+
+                    <div class="gusFormField gusFormFieldLeft gusFieldRequired">
+                        <label for="investigationWorkPage:investigationForm:input">
+                            <apex:outputText value=" {!$ObjectType.agf__ADM_Work__c.fields.agf__Subject__c.Label}" />
+                            <apex:outputText value="*" styleClass="assistiveText"/>
+                        </label>
+                    </div>
+                    <div class="gusFormField gusFormFieldRight gusFieldRequired">
+                        <apex:inputField id="input" value="{!agf__ADM_Work__c.agf__Subject__c}" styleClass="subjectInput gusStyle"  />
+                    </div>
+
+                </div> 
+
+                <!--c:ADM_FormRow id="subjectInput" object="{!agf__ADM_Work__c}" type="ADM_Work__c" required="true"  field="Subject__c" value="{!agf__ADM_Work__c.agf__Subject__c}" cssClass="subjectInput gusStyle" /-->
+                
+                <div class="gusFormRow gusRow_ADM_Work__c_Details_and_Steps_to_Reproduce__c">
+                    <div class="gusFormField gusFormFieldLeft gusFieldRequired">
+                        <label for="{!$Component.detailsInput}">
+                            {!$ObjectType.ADM_Work__c.fields.Details_and_Steps_to_Reproduce__c.Label}
+                            <apex:outputText value="*" styleClass="assistiveText"/>
+                            <c:ADM_HelpHover2 id="detailsInputHelpHover" type="ADM_Work__c" field="Details_and_Steps_to_Reproduce__c" />
+                        </label>
+                    </div>
+                    <div class="gusFormField gusFormFieldRight gusFieldRequired">
+                        <apex:inputField id="richDetailsInput" required="false" value="{!agf__ADM_Work__c.agf__Details_and_Steps_to_Reproduce__c}" styleClass="detailsInput gusStyle" />
+                    </div> 
+                </div>
+            </div>
+        </div>
+
+        <div class="gusForm" id="productTagRow">
+            <div class="gusForm1Column">
+                <div class="gusFormRow gusRow_ADM_Work__c_Product_Tag__c">
+                    <div class="gusFormField gusFormFieldLeft gusFieldRequired"><label for="productTagInput">{!$ObjectType.agf__ADM_Work__c.fields.agf__Product_Tag__c.Label}
+                    <apex:outputText value="*" styleClass="assistiveText"/>
+                    </label></div>
+                    <div class="gusFormField gusFormFieldRight gusFieldRequired">
+                             <c:ADM_ProductTagInput id="productTagInput" work="{!agf__ADM_Work__c}" recordType="{!recordType}" />
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="gusForm" id="investigationDetails">
+            <div id="investigationDetailsColumn1" class="gusForm3Column">
+                <c:ADM_Input id="statusInput" object="{!agf__ADM_Work__c}" inputFieldName="Status__c" inputObjectName="ADM_Work__c" renderRow="true" inputStyleClass="statusInput gusStyle" />
+                <c:ADM_Input id="sprintInput" object="{!agf__ADM_Work__c}" inputFieldName="Sprint__c" inputObjectName="ADM_Work__c" lookupObject="ADM_Sprint__c" renderRow="true" inputStyleClass="sprintInput gusStyle" />
+                <c:ADM_Input id="dealAtRiskInput" object="{!agf__ADM_Work__c}" inputFieldName="Deal_at_Risk__c" inputObjectName="ADM_Work__c"  renderRow="true" inputStyleClass="dealAtRiskInput gusStyle" />
+                <c:ADM_Input id="estimatedFinancialImpactInput" object="{!agf__ADM_Work__c}" inputFieldName="Estimated_Financial_Impact__c" inputObjectName="ADM_Work__c" renderRow="true" inputStyleClass="estimatedFinancialImpactInput gusStyle" />
+                <c:ADM_Input id="minorFuncAreaInput" object="{!agf__ADM_Work__c}" inputFieldName="Minor_Func_Area__c" inputObjectName="ADM_Work__c" required="false" renderRow="true" inputStyleClass="minorFuncAreaInput gusStyle" />
+                <c:ADM_Input id="requestRDMgrReviewInput" object="{!agf__ADM_Work__c}" inputFieldName="Request_RD_Mgr_Review__c" inputObjectName="ADM_Work__c" required="false" renderRow="true" inputStyleClass="requestRDMgrReviewInput gusStyle" />
+                <c:ADM_Input id="rootCauseAnalysisInput" object="{!agf__ADM_Work__c}" inputFieldName="Root_Cause_Analysis_2__c" inputObjectName="ADM_Work__c"  renderRow="true"  inputStyleClass="rootCauseAnalysisInput gusStyle" />
+            </div>
+            <div id="investigationDetailsColumn2" class="gusForm3Column">
+                <c:ADM_FormRowUserInput id="assigneeInput" object="{!agf__ADM_Work__c}" required="true" field="Assignee__c" type="ADM_Work__c" value="{!agf__ADM_Work__c.agf__Assignee__c}" cssClass="assigneeInput" />
+                <c:ADM_FormRowUserInput id="qaEngineerInput" object="{!agf__ADM_Work__c}" field="QA_Engineer__c" type="ADM_Work__c" required="false" value="{!agf__ADM_Work__c.agf__QA_Engineer__c}" cssClass="qaEngineerInput" />
+                <c:ADM_FormRowUserInput id="productOwnerInput" object="{!agf__ADM_Work__c}" field="Product_Owner__c" type="ADM_Work__c" required="false" value="{!agf__ADM_Work__c.agf__Product_Owner__c}" cssClass="productOwnerInput" />
+                <c:ADM_FormRowUserInput id="seniorManagementPOCInput" object="{!agf__ADM_Work__c}" field="Senior_Management_POC__c" type="ADM_Work__c" required="false"  value="{!agf__ADM_Work__c.agf__Senior_Management_POC__c}" cssClass="seniorManagementPOCInput" />
+                <c:ADM_FormRowUserInput id="cSContactInput" object="{!agf__ADM_Work__c}" field="CS_Contact__c" type="ADM_Work__c" value="{!agf__ADM_Work__c.agf__CS_Contact__c}" cssClass="cSContactInput gusStyle" />
+            </div>
+            <div id="investigationDetailsColumn3" class="gusForm3Column">       
+                <c:ADM_Input id="severityLevel" object="{!agf__ADM_Work__c}" required="true" inputFieldName="Severity_Level__c" inputObjectName="ADM_Work__c" renderRow="true" inputStyleClass="severityLevelInput gusStyle" />
+                <c:ADM_Input id="casesInput" object="{!agf__ADM_Work__c}" inputFieldName="Number_of_Cases__c" inputObjectName="ADM_Work__c" required="false" readOnly="true" renderRow="true" inputStyleClass="casesInput gusStyle" rendered="{!NOT(packagedOrg)}" />
+                <c:ADM_Input id="executiveInvolvedInput" object="{!agf__ADM_Work__c}" inputFieldName="Executive_Involved__c" inputObjectName="ADM_Work__c" renderRow="true" inputStyleClass="executiveInvolvedInput gusStyle" />
+                <c:ADM_Input id="redAccountInput" object="{!agf__ADM_Work__c}" inputFieldName="Red_Account__c" inputObjectName="ADM_Work__c" renderRow="true"  inputStyleClass="redAccountInput gusStyle" />            
+                <c:ADM_Input id="criticalCRMFeatureInput" object="{!agf__ADM_Work__c}" inputFieldName="Critical_CRM_Feature__c" inputObjectName="ADM_Work__c" renderRow="true"  inputStyleClass="criticalCRMFeatureInput gusStyle" />
+                
+            </div>
+        </div> 
+        <apex:outputPanel id="refreshPanelId">   
+            <apex:outputPanel rendered="{!additionalFieldsForInvestigation.size != 0}" id="myId">                   
+            <div class="gusForm">
+                <div class="gusForm3Column" style="width:100%!important;display:flex;flex-wrap:wrap">
+                    <apex:repeat var="af" value="{!additionalFieldsForInvestigation}">
+                        <div style="width:33%;" >
+                        <c:ADM_Input id="myId" object="{!agf__ADM_Work__c}" inputFieldName="{!af.agf__Field_API_Name__c}" inputObjectName="ADM_Work__c" renderRow="true" required="{!af.agf__Investigation_Setting__c == 'Required'}" inputStyleClass="scheduledBuildInput gusStyle" />
+                        </div>
+                    </apex:repeat>
+                </div>
+            </div>
+            </apex:outputPanel> 
+        </apex:outputPanel>
+    </div> 
+</apex:form>
+</apex:page>

@@ -1,0 +1,574 @@
+<apex:page controller="DMAPP.PlaybookAdminController" sidebar="false" docType="html-5.0">
+
+<style>
+	@import url("{!URLFOR($Resource.TAM,         'css/common.css')}");
+
+	DIV#qualifiersDiv {
+		height: 350px;
+		overflow-y: auto;
+		overflow-x: hidden;
+	}
+	
+	.qualifierTableLabelCol {
+		width: 150px;
+		vertical-align: top;
+	}
+	.qualifierInput {
+		/*width: 95%;*/
+	}
+	
+	textarea.qualifierInput {
+		resize: none;
+		width: 95%;
+	}
+	
+	.formHelpIcon {
+	    display: inline-block;
+		background-image: url('{!URLFOR($Resource.ttgomjs, 'ttg/graph/feimages/icon_info.png')}');
+		width: 12px;
+		height: 12px;
+		/*margin: 2px;
+		margin-right: 10px;*/
+		margin-left: 5px;			
+	}	
+	
+	.validationMsg {
+	    background-color: #F3CBCB;
+	    border: 1px solid #E57F7F;
+	    border-radius: 5px;
+	    color: #CC0000;
+	    /*margin-right: 10px;
+	    padding: 5px;*/
+	    margin-right: 5px;
+	    padding: 5px 3px;		    
+	    display: inline;
+	}
+	
+	#QUALIFIER_SEARCH_BUTTON {
+		font-size: 0.9em;
+		margin-left: 5px;	
+    	padding: 0.3em 0.6em;		
+	}
+	
+	#QUALIFIER_SEARCH_ERROR_MSG_CONTAINER {
+		margin-top: 10px;
+		margin-bottom: 5px;
+	}
+	
+	#QUALIFIER_SEARCH_ERROR_MSG {
+		color: red;
+		background-color: pink;
+		border: 1px solid red;
+		padding: 5px;
+		border-radius: 6px;
+	}
+
+	DIV#TAS #SPINNER {
+		position: absolute;
+		z-index: 3000 !important;
+	}
+	
+	#tooltip {
+		opacity: 1.0;
+	}
+	
+	.searchQualifierFieldDiv {
+		padding: 5px;
+	}
+
+	.searchQualifierFieldDiv span {
+	    display: inline-block;
+	    min-width: 120px;
+	    width: 120px;
+	}
+
+	
+</style>
+
+<script>
+
+	/* 
+	 * Copyright © The TAS Group. All rights reserved.
+	 *  
+	 */    
+
+    var ttg = ttg || {};
+    ttg.playbook = ttg.playbook || {};
+
+    ttg.playbook.adminaddqualifierdialog = function(spec) {
+    
+    	var working = false;
+    	var ajaxSpinnerCnt = 0;
+    	var apilayer = spec.ttgApi;
+    	var stageId;
+    	var addQualifiersHandler;
+
+    	var salesProcessId = spec.salesProcessId;
+    	var checkBoxAnswers = [];
+    	
+    	var buttonClass = 'smallerButton ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only';
+    	
+    	var localization = {
+			add_selected_click_err_msg:				'Add Selected button was clicked however no qualifiers were selected',
+			search_clicked_err_msg:					'You must enter some text to search for Qualifiers',
+			no_results_found_err_msg:				'No matching qualifiers were found',
+			table_column_heading_qualifier:			'Qualifier / Verifiable Outcome',
+			table_column_heading_industry:			'Industry',
+			table_column_heading_stage:				'Stage',						
+            table_column_heading_in_use:			'In Use',
+			table_column_heading_readonly:			'Read Only',
+            table_column_heading_include:			'Include',
+            qualifier_in_use:						'Yes',
+            qualifier_not_in_use:					'No',
+            qualifier_readonly:						'Yes',
+            qualifier_not_readonly:					'No',
+            add_qualifier_dlg_close:				'Close',
+			add_qualifier_dlg_add_selected:			'Add Selected',
+			add_qualifier_dlg_add_new:				'Add New',
+			add_qualifier_dlg_title:				'Add Qualifier / Verifiable Outcome',
+			add_new_qualifier_dialog_title:			'Add New Qualifier',
+			/*qualifer_short_name:					'Short Name',*/
+			qualifier_long_name:					'Qualifier / Verifiable Outcome',
+			qualifer_tip:							'Tip',
+			qualifer_ui_readonly:					'Smart Qualifier',
+			add_new_qualifier_cancel_button:		'Cancel',
+			add_new_qualifier_save_button:			'Save'
+		};		
+		
+		var helpText = {
+			qualifierText:						'The text for the qualifier / verifiable outcome, displayed to the user on the "Sales Process" tab in Dealmaker.\n\nTo progress an opportunity through the pipeline, the user sets the status on the qualifiers associated with each stage in the sales process.',
+			qualifierTip:						'The help text associated with the qualifier / verifiable outcome.\n\nUse this section to provide instructions to the user on what the question is asking them to focus on, what steps they should take and/or what details they should provide in the comments',
+			uiReadonly:							'A smart qualifier cannot be set by a user on the playbook UI screen.\nIt is anticipated that these qualifiers will be set by other means (triggers etc)'
+		};
+    	
+    	var setAddQualifiersHandler = function(handler) {
+    		addQualifiersHandler = handler;
+    	}
+    	
+    	var closeAddQualifierPopup = function() {
+    		jQuery('#addNewQualifierDialog').dialog('close');
+    	};
+    	
+    	var openAddQualifierPopup = function(stage) {
+            
+            stageId = stage.stageId;
+            
+            if(working) {
+                return;//ensure only one dialog can appear
+            }
+    	
+	    	function stopWorking() {
+				working = false;
+			}
+			
+			
+            function showAjaxSpinner(show) {
+            	var spinner = jQuery('#SPINNER').css({ position: 'absolute', 'z-index': 10000});
+            	if (show) { 
+                    ajaxSpinnerCnt++;
+                    if (ajaxSpinnerCnt == 1) {
+                    	spinner.append(jQuery('<img>').attr('id', 'tas_ajax_spinner').addClass('spinner').attr('src', '{!JSENCODE(URLFOR($Resource.ttgomjs, '/ttg/graph/images/loader.gif'))}'));
+                        spinner.css("top", ( jQuery(window).height() - jQuery('#SPINNER').height() ) / 2+jQuery(window).scrollTop() + "px");
+                        spinner.css("left", ( jQuery(window).width() - jQuery('#SPINNER').width() ) / 2+jQuery(window).scrollLeft() + "px");
+
+                    }                   
+                }
+                else {
+                	ajaxSpinnerCnt--;
+                    if (ajaxSpinnerCnt <= 0) {                  
+                        jQuery('#SPINNER').html('');
+                        ajaxSpinnerCnt = 0;
+                    }
+
+                }
+            }
+            
+            
+            function createSearchDiv() {
+            	
+            	var searchDiv = jQuery('<div/>', {id: 'searchDiv', width: '700px'}).addClass('tabMainContainer');
+            	var searchLabel = jQuery('<span/>').text('Qualifier contains: ');
+            	var searchInput = jQuery('<input/>', {id: 'QUALIFIER_SEARCH_INPUT', type: 'text'}).val('');
+            	var industryLabel = jQuery('<span/>').text('Industry: ');
+				var industries = ['All', 'High Technology', 'Professional Services', 'Energy & Power' , 'Financial Services', 'Healthcare', 'Industrials', 'Materials', 'Telecommunications', 'Other', 'User Created Qualifiers'];
+				var industryCombo = jQuery('<select/>', {id: 'INDUSTRY_SEARCH_INPUT'});
+				jQuery.each(industries, function(index, industry) {
+					industryCombo.append(jQuery('<option/>').val(industry).text(industry));
+				});
+            	var stageLabel = jQuery('<span/>').text('Genius Stage: ');
+				var geniusStages = ['All', 'Prospect', 'Qualify', 'Requirements' , 'Evidence', 'Acquisition', 'Verbal Order / Close'];
+				var stageCombo = jQuery('<select/>', {id: 'STAGE_SEARCH_INPUT'});
+				jQuery.each(geniusStages, function(index, stage) {
+					stageCombo.append(jQuery('<option/>').val(stage).text(stage));
+				});				
+				stageCombo.val('All');//.on('change', onChange);            	
+            	var searchErrorMsgDiv = jQuery('<div/>', {id: 'QUALIFIER_SEARCH_ERROR_MSG_CONTAINER'});
+            	var searchButton = jQuery('<button/>', {id: 'QUALIFIER_SEARCH_BUTTON'}).text('Search').addClass(buttonClass).click(searchClicked);            	
+            
+            	searchDiv.append(jQuery('<div/>').addClass('searchQualifierFieldDiv').append(searchLabel).append(searchInput))
+            			 .append(jQuery('<div/>').addClass('searchQualifierFieldDiv').append(industryLabel).append(industryCombo))
+            			 .append(jQuery('<div/>').addClass('searchQualifierFieldDiv').append(stageLabel).append(stageCombo))
+            			 .append(searchButton).append(searchErrorMsgDiv).append(jQuery('<br/>')).append(jQuery('<br/>'));            	
+            	
+            	return searchDiv;
+            }
+            
+            function addSelectedClicked() {
+            	var selectedQualifierIds = checkBoxAnswers;
+            	if((selectedQualifierIds != null) &&
+            	   (selectedQualifierIds.length > 0)) {
+            	   	jQuery('#QUALIFIER_SEARCH_ERROR_MSG_CONTAINER').empty();
+            		addQualifiersHandler(selectedQualifierIds);
+            		closeDialog();
+            	} else {
+            		jQuery('#QUALIFIER_SEARCH_ERROR_MSG_CONTAINER').empty().append(jQuery('<span/>', {id: 'QUALIFIER_SEARCH_ERROR_MSG'}).text(localization.add_selected_click_err_msg));
+            	}	
+            }
+            
+            function addNewClicked() {
+            	
+            	var addNewQualifierDialog = jQuery('<div/>', {id: 'addNewQualifierDialog'});
+            	
+            	var /*shortNameInput = jQuery('<input/>', {id: 'ADD_NEW_QUALIFIER_SHORT_NAME', type: 'text', maxlength: 80}).addClass('qualifierInput'),*/
+					longNameInput = jQuery('<textarea/>', {id: 'ADD_NEW_QUALIFIER_LONG_NAME'}).attr('rows',2).addClass('qualifierInput'),
+					tipInput = jQuery('<textarea/>', {id: 'ADD_NEW_QUALIFIER_TIP'}).attr('rows',2).addClass('qualifierInput'),
+					uiReadonlyInput = jQuery('<input/>', {id: 'ADD_NEW_QUALIFIER_UI_READONLY', type: 'checkbox'}).addClass('qualifierInput');										
+						
+				ttg.setUpMaxLimitCheck(longNameInput, 1024);
+				ttg.setUpMaxLimitCheck(tipInput, 32768);
+				
+				var longNameHelp = createHelpIcon(helpText.qualifierText),
+							tipHelp = createHelpIcon(helpText.qualifierTip),
+							uiReadonlyHelp = createHelpIcon(helpText.uiReadonly);
+							
+				var validationMsg = jQuery('<span/>', {id: 'addNewQualifierValidationMsg'}).addClass('validationMsg');	
+															
+				var addNewQualifierTable = jQuery('<table/>', {id: 'qualifierTable'})
+															/*.append(createRow(localization.qualifer_short_name + ':', shortNameInput))*/
+															.append(createRow(localization.qualifier_long_name + ':', longNameInput, longNameHelp))
+															.append(createRow(localization.qualifer_tip + ':', tipInput, tipHelp))
+															.append(createRow(localization.qualifer_ui_readonly + ':', uiReadonlyInput, uiReadonlyHelp));
+															
+				addNewQualifierDialog.append(addNewQualifierTable).append(jQuery('<div/>', {id: 'qualifierTableButtonBar'}).append(validationMsg));
+				
+				
+				function createRow(label, inputField, help) {
+					return jQuery('<tr/>').append(jQuery('<td/>').addClass('qualifierTableLabelCol').append(jQuery('<span/>').text(label)).append(help ? help : null))
+										  .append(jQuery('<td/>').append(inputField));
+				}
+				
+				var buttons = []; 
+				buttons.push( { text: localization.add_new_qualifier_save_button, id: 'ADD_NEW_QUALIFIER_SAVE', click: saveClicked } );
+				buttons.push( { text: localization.add_new_qualifier_cancel_button, id: 'ADD_NEW_QUALIFIER_CANCEL', click: cancelClicked } );
+				
+				function saveClicked() {					
+					var playbookQualifierChanges = {};
+					
+					// playbookQualifierChanges.qualifierName = shortNameInput.val();
+					
+					playbookQualifierChanges.qualifierText = longNameInput.val();
+					playbookQualifierChanges.qualifierTip = tipInput.val();
+					
+					playbookQualifierChanges.uiReadonly = uiReadonlyInput.prop('checked');
+					
+					// playbookQualifierChanges.uiReadonly = uiReadonlyInput.attr('checked') === 'checked' ? true : false;
+					
+					if (validateQualifier(playbookQualifierChanges)) {		
+						showAjaxSpinner(true);
+						var ret = function(result) { showAjaxSpinner(false); }
+						apilayer.putQualifier(playbookQualifierChanges, processAddNewQualifierResponse, undefined, ret);
+					}
+				}
+				
+				function processAddNewQualifierResponse(data) {
+					
+					if(data && data.qualifiers.qualifier.length > 0) {
+					
+						var newQualifierId = data.qualifiers.qualifier[0].id;
+						
+						//alert('in processAddNewQualifierRespose(), id:' + newQualifierId);
+						
+						addNewQualifierDialog.dialog('close');
+						
+						var newQualifierIds = [];
+            			if((newQualifierId != null) &&
+            	   		   (newQualifierId.length > 0)) {
+            	   		   
+							newQualifierIds.push(newQualifierId);
+            				addQualifiersHandler(newQualifierIds, true);
+						}
+					}
+				}		
+					
+				function cancelClicked() {
+					addNewQualifierDialog.dialog('close');
+				}
+				
+				function validateQualifier(playbookQualifierChanges) {
+					var validationStr = validateField(localization.qualifier_long_name, playbookQualifierChanges.qualifierText, 'text', null ,true);				
+					if(validationStr) {
+						validationMsg.text(validationStr).show();
+						return false;
+					}
+					else {
+						validationMsg.hide();
+						return true;
+					}
+					return true;                  
+				}
+				
+				function validateField(field, value, type, range, required) {
+					if(required) {
+						if(!value || (jQuery.trim(value) === '')) {
+	                   		return field + ' is a mandatory field';
+						}
+					}
+	           	}
+				
+				validationMsg.hide();
+						
+				addNewQualifierDialog.dialog({
+					title: localization.add_new_qualifier_dialog_title  + ' (' + stage.name + ')',
+					modal: true,
+					width: '650px',
+					buttons: buttons
+				});
+												
+            }
+            
+            function createHelpIcon(helpText) {
+
+				return jQuery('<span/>').addClass('formHelpIcon').tooltip({ delay: 0, showURL: false, bodyHandler: function() { return helpHover(helpText); } });
+
+				function helpHover() {
+					var lines = helpText ? helpText.split('\n') : [''],
+						tooltipDiv = jQuery('<div/>').addClass('tooltipDiv');
+					jQuery.each(lines, function(index, line) {
+						tooltipDiv.append(jQuery('<div/>').text(line).append(line ? null : jQuery('<br/>')));
+					});					
+					return tooltipDiv;
+				}
+			}  
+            
+            function closeDialog() {
+            	checkBoxAnswers = [];
+            	jQuery('#ADD_QUALIFIER_DIALOG').remove();
+            }
+            
+            function searchClicked() {
+            	
+            	var qualifierName = jQuery('#QUALIFIER_SEARCH_INPUT').val();
+            	/*if((qualifierName == undefined) ||
+            	   (qualifierName.length == 0)) {
+            	 	jQuery('#QUALIFIER_SEARCH_ERROR_MSG_CONTAINER').empty().append(jQuery('<span/>', {id: 'QUALIFIER_SEARCH_ERROR_MSG'}).text(localization.search_clicked_err_msg));
+            	 	return;  
+            	}*/
+            	if(qualifierName == undefined) {
+            	 	qualifierName = '';
+            	}
+            	var industry = jQuery('#INDUSTRY_SEARCH_INPUT').val();
+            	var geniusStage = jQuery('#STAGE_SEARCH_INPUT').val();
+            	jQuery('#QUALIFIER_SEARCH_ERROR_MSG_CONTAINER').empty();
+            	showAjaxSpinner(true);
+            	
+            	var myStageId = stageId;
+            	
+            	//console.log('>>> in searchClicked(), searching by qualifierName=' +  qualifierName + ', stageId=' + myStageId);
+            	
+            	var searchCompleteFunction = function() { /*console.log('>>> in searchCompleteFunction()');*/ showAjaxSpinner(false); }; // TODO
+            	var searchErrorFunction = function() {}; // TODO
+            	
+                apilayer.searchQualifiers(myStageId, salesProcessId, qualifierName, industry, geniusStage, function(data) {
+                
+                	//console.log('>>> in searchQualifiers() after call');
+                	
+					// remove the existing search results (if any)
+                    jQuery('#qualifiersDiv').remove();
+                    //jQuery('#qualifiersTable').remove(); // not necessary because nested in 'qualifiersDiv'
+                    
+                    // remove the 'other buttons' div
+                    jQuery('#otherButtonsDiv').remove();
+                
+                    if(data && data.qualifiers.qualifier.length > 0) {
+                    
+                    	var qualifiersDiv = createQualifiersDiv();
+                    	var qualifiersTable = createQualifiersTable();
+                    	
+                    	//console.log('>>>(1) data is not null, length=' + data.qualifiers.qualifier.length);
+                        for(var i = 0; i < data.qualifiers.qualifier.length; i++) {
+                           qualifiersTable.append(createQualifierRow(i, data.qualifiers.qualifier[i]));
+                        }
+                        
+                        qualifiersDiv.append(qualifiersTable);
+                    	jQuery('#searchDiv').append(qualifiersDiv);
+                    	
+                    } else {
+                    	//console.log('>>>(2) data is null:' + data);
+                    	var qualifiersDiv = createQualifiersDiv();
+                    	var notFoundLabel = jQuery('<span/>').text(localization.no_results_found_err_msg);
+                    	qualifiersDiv.append(notFoundLabel);
+                    	jQuery('#searchDiv').append(qualifiersDiv);
+                    }
+                    
+                    
+                }, searchErrorFunction, searchCompleteFunction);
+
+            }
+            
+            
+            function createQualifiersDiv() {            	
+            	var qualifiersDiv = jQuery('<div/>', { id: 'qualifiersDiv'}).addClass('tabMainContainer');
+                return qualifiersDiv;                   
+            }
+            
+            function createQualifiersTable() {
+            	
+                var	qualifiersTable = jQuery('<table/>', { id: 'qualifiersTable'}).addClass('opportunities');
+                
+                // IE7 and IE8 hack
+                if(navigator.appVersion.indexOf('MSIE 8.') != -1) {
+                	qualifiersTable.css('table-layout','fixed');
+                }
+                
+                qualifiersTable.append(jQuery('<tr/>').append(jQuery('<th/>').text(localization.table_column_heading_qualifier))
+                									 .append(jQuery('<th/>').text(localization.table_column_heading_industry))
+                									 .append(jQuery('<th/>').text(localization.table_column_heading_stage))
+                                                     .append(jQuery('<th/>').text(localization.table_column_heading_in_use))
+                                                     .append(jQuery('<th/>').text(localization.table_column_heading_readonly))
+                                                     .append(jQuery('<th/>').text(localization.table_column_heading_include))
+                                     );
+                                     
+                
+                return qualifiersTable;                   
+            }
+            
+            function removeQualifierFromList(myQualifier) {
+            	var myCheckBoxAnswers = [];
+            	
+            	jQuery.each(checkBoxAnswers,
+                	function (index, checkBoxAnswer) {
+                	
+                		if(checkBoxAnswer != myQualifier) {
+	                		myCheckBoxAnswers.push(checkBoxAnswer);
+	                	}	
+            		}
+            	)
+            	
+            	checkBoxAnswers = myCheckBoxAnswers;	
+            }
+            
+            function addQualifierToList(myQualifier) {
+            	checkBoxAnswers.push(myQualifier);
+            }
+            
+            
+            function createQualifierRow(index, qualifier) {
+            	var qualifierRow = jQuery('<tr/>');
+            	var locatorSuffix = index + 1;
+            	var locator = 'QUALIFIER_CHECKBOX_' + locatorSuffix;
+            	var checkbox = jQuery('<input type="checkbox"/>').val(qualifier.id).attr('disabled', qualifier.inUse).attr('id', locator);
+            	
+            	checkbox.on('click', function() {
+            		var myQualifier = this.value;
+            		var isChecked = this.checked;
+            		
+            		// check if qualifierId is already added to the list of qualifiers to be added 
+            		if(isChecked) {
+            			addQualifierToList(myQualifier);
+            		} else {
+            			removeQualifierFromList(myQualifier);
+            		}
+				});
+				
+				locator = 'QUALIFIER_TEXT_' + locatorSuffix;
+				var cell = jQuery('<td/>').text(qualifier.qualifierText).attr('id', locator);
+            	qualifierRow.append(cell);
+
+				locator = 'QUALIFIER_INDUSTRY_' + locatorSuffix;
+				var cell = jQuery('<td/>').text(qualifier.industry).attr('id', locator);
+            	qualifierRow.append(cell);
+            	
+				locator = 'QUALIFIER_STAGE_' + locatorSuffix;
+				var cell = jQuery('<td/>').text(qualifier.geniusStage).attr('id', locator);
+            	qualifierRow.append(cell);            	
+            	
+            	locator = 'QUALIFIER_INUSE_' + locatorSuffix;
+				var cell = (qualifier.inUse ? jQuery('<td/>').text(localization.qualifier_in_use) : jQuery('<td/>').text(localization.qualifier_not_in_use)).attr('id', locator);
+            	qualifierRow.append(cell);
+            	
+            	locator = 'QUALIFIER_READONLY_' + locatorSuffix;
+				var cell = (qualifier.readonly ? jQuery('<td/>').text(localization.qualifier_readonly) : jQuery('<td/>').text(localization.qualifier_not_readonly)).attr('id', locator);
+            	qualifierRow.append(cell);
+            					
+            	qualifierRow.append(jQuery('<td/>').append(qualifier.inUse ? '' : checkbox));
+            				
+				return qualifierRow;            				
+            }			
+			
+			
+			function openDialog() {
+			    stopWorking();
+			
+	            var addQualifierDialog = jQuery('<div/>', {id: 'ADD_QUALIFIER_DIALOG'});
+	            addQualifierDialog.dialog({
+	                modal: true,
+	                resizable: false,
+	                width: '720px',
+	                height: 'auto',
+	                autoOpen: false,
+	                title: jQuery('<pre/>')
+	                           .text(localization.add_qualifier_dlg_title + ' (' + stage.name + ')')
+	                           .html() ,
+	                close: function() {
+	                    closeDialog();
+	                },
+                    open: function() {
+                       jQuery('span.ui-dialog-title').focus();
+                    },
+                    buttons: {
+						'Add New' : {
+	                    	text: localization.add_qualifier_dlg_add_new,
+	         				id: "QUALIFIER_ADD_NEW",
+							click : function() {
+								addNewClicked();
+							}		
+						},
+						'Add Selected' : {
+	                    	text: localization.add_qualifier_dlg_add_selected,
+	         				id: "QUALIFIER_ADD_SELECTED",
+							click : function() {
+								addSelectedClicked();
+							}		
+						},
+                    	'Close' : {
+	                    	text: localization.add_qualifier_dlg_close,
+	         				id: "QUALIFIER_CLOSE",
+							click : function() {
+								closeDialog();
+							}		
+						}
+					}
+	            });
+	            
+	        
+	        	addQualifierDialog.append(createSearchDiv());
+	        	    
+	            addQualifierDialog.dialog('open').width('720px').height('auto');                       
+            }
+            
+                
+    		openDialog();	 
+        	
+            
+		};
+         
+    
+	    return { openAddQualifierPopup: openAddQualifierPopup,
+				 closeAddQualifierPopup: closeAddQualifierPopup,
+	    		 setAddQualifiersHandler: setAddQualifiersHandler }            
+    
+	}
+
+</script>
+    
+</apex:page>

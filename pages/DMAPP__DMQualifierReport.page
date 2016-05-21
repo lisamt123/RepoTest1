@@ -1,0 +1,187 @@
+<apex:page standardController="DMAPP__DM_Qualifier__c"
+    recordSetVar="dmQualifiers"
+    extensions="DMAPP.DMQualifierController"
+    sidebar="false"
+>
+    <apex:includeScript value="{! URLFOR($Resource.prefix) }" />
+    <script type="text/javascript" src="{! $Resource.l10njs }"></script>
+    <c:jQuery jQueryUI="true" 
+        underscore="true"/>
+   
+    <apex:include pageName="DMAPP__APIDelegate" />
+
+    <apex:stylesheet value="{!URLFOR($Resource.DMAPP__JsonDiffPatch, 'JsonDiffPatch/css/jsondiffstyle.css')}" />
+    <apex:stylesheet value="{!URLFOR($Resource.DMAPP__sobjectdiffvisualizercss)}" />
+
+    <script type="text/javascript" src="{! URLFOR($Resource.JsonDiffPatch, 'JsonDiffPatch/js/jsondiffpatch.js') }"></script>
+    <script type="text/javascript" src="{! URLFOR($Resource.sobjectdiffvisualizer) }"></script>
+    <script type="text/javascript" src="{! URLFOR($Resource.diff_match_patch_uncompressed, 'diff_match_patch_uncompressed.js') }"></script>
+    <script type="text/javascript" src="{! URLFOR($Resource.SObjectReportGenerator) }"></script>
+    
+    <style>
+        .errormessage {
+            color: red;
+        }
+    </style>
+
+<apex:form id="theForm">
+    <apex:pageBlock title="Comparison Report for DMQualifiers" id="reportHeader">
+        <apex:pageBlockSection title="Summary" columns="1" collapsible="true">
+           <apex:outputText value="Comparison File: {!nameFile}"/>
+            <apex:outputText id="reportStatus"/>
+            <span id="errormessage" class="errormessage"/>
+        </apex:pageBlockSection>            
+        <apex:pageBlockButtons location="top" id="theButtonBlock">
+            <apex:outputPanel id="datePanel" style="float:right;">
+                <apex:outputLabel value="Show All Elements" for="showAllElements"  title="Display all Elements, including elements that haven't changed"/>
+                <apex:inputCheckbox id="showAllElements" value="{!showAllElements}" onClick="toggleShowAllElements(this);" title="Display all elements, including elements that haven't changeds"/>
+                <apex:outputLabel value="Show All Fields" for="showAllFields"  title="Display all fields, including values that haven't changed"/>
+                <apex:inputCheckbox id="showAllFields" value="{!showAllFields}" onClick="toggleShowAllFields(this);" title="Display all fields, including values that haven't changeds">
+                </apex:inputCheckbox>
+                <apex:outputLabel value="Sort By Update Version" for="sortBy"  title="Sort by the sort order of the update version of the Plan Type"/>
+                <apex:inputCheckbox id="sortBy"  value="{!sortByUpdated}" onClick="toggleSortBy(this);" title="Sort by the sort order of the update version of the Plan Typ"/>
+                <apex:commandButton value="Refresh" id="refreshBtn" action="{!refreshPage}"/>
+            </apex:outputPanel>
+        </apex:pageBlockButtons>
+        <apex:pageBlockSection title="DM Qualifiers" columns="1" collapsible="true">
+            <apex:facet name="body">
+                    <div id="DMQualifiersReportViewDiv" style="width: auto" class="jsondiffpatch-visualdiff-root" />
+            </apex:facet>
+        </apex:pageBlockSection>
+        <apex:pageBlockSection title="DM Qualifier Quicklinks" columns="1" collapsible="true">
+            <apex:facet name="body">
+                    <div id="DMQualifierQuicklinksReportViewDiv" style="width: auto" class="jsondiffpatch-visualdiff-root" />
+            </apex:facet>
+        </apex:pageBlockSection>
+    </apex:pageBlock>
+
+    <apex:actionFunction action="{!redirectToDetailPage}" name="redirectToDetailPageAction" rerender="theForm">
+        <apex:param name="firstParam" assignTo="{!redirectId}" value="" />
+    </apex:actionFunction>
+
+    <div id='debug'  style="display: none">
+        <div class="jsontext">
+            <div>
+                <label for="json1"> This </label>
+                <textarea id="json1" class="json-input"></textarea>
+                <span id="json1errormessage" class="jsonerrormessage"></span>
+            </div>
+            <div>
+                <label for="json2"> That </label> 
+                <textarea id="json2" class="json-input"></textarea>
+                 <span id="json2errormessage" class="2sonerrormessage"></span>
+            </div>
+        </div>
+        <div class="jsontext">
+            <div>
+                <label for="jsonDiff"> Diff </label>
+                <textarea id="jsonDiff" class="json-input"></textarea>
+            </div>
+        </div>
+    </div>
+</apex:form>
+
+    <script>
+        var showAllElements;
+        var showAllFields;
+        var sortByUpdated;
+
+        ttg.DMQualifierReportGenerator = function(spec) {
+            var that = {};
+            that.spec = spec;
+
+            var id = spec.id;
+            var type = spec.type;
+            var label = spec.label;
+            var comparisionJSON = spec.comparisionJSON;
+            var sortByUpdated = spec.sortByUpdated;
+            var showAllFields = spec.showAllFields;
+            var showAllElements = spec.showAllElements;
+            var controllerName = spec.controllerName;
+
+            function getReportElements() {
+                var elements = {
+                    qualifiers : {
+                        objectType: '{!theObjectType}',
+                        name: 'qualifiers',
+                        sortFieldName: 'Name',
+                        fieldBlackList: [],
+                        divName : '#DMQualifiersReportViewDiv',
+                        importantFields : ['DMAPP__Question__c'],
+                        debug : true
+                    }};
+                return elements;
+            }
+
+            that.getReportElements = getReportElements;
+            return that;
+        };
+
+
+        jsondiffpatch.config.objectHash = function(obj) {
+            var hash = obj[ttg.vfp + 'DealmakerID__c'] || obj[ttg.vfp + 'DealmakerId__c'] || obj.Id || JSON.stringify(obj);
+            console.log('==================>objectHash(): hash = ' + hash);
+            return hash;
+        };
+
+        function toggleShowAllElements(toggle){
+            showAllElements = toggle.checked;
+          console.log('================> toggleShowAllElements(): toggleShowAllElements = ' + showAllElements);
+            jQuery('.jsondiffpatch-item-row-unchanged').each(function(){
+                    jQuery(this).css('display', ((toggle.checked) ? 'table-row' : 'none' ));
+            });
+            jQuery('.jsondiffpatch-item-table').each(function(){
+                console.log('generateTable(): hiding jsondiffpatch-item-table = ' + this);
+                jQuery(this).css('display', (showAllElements ? 'table' : 'none' ));
+            });
+        };
+
+        function toggleShowAllFields(toggle){
+            showAllFields = toggle.checked;
+//          console.log('================> toggleShowAllFields(): showAllFields = ' + showAllFields + ', sortByUpdated = ' + sortByUpdated);
+            jQuery('.jsondiffpatch-unchanged').each(function(){
+                        jQuery(this).css('display', ((toggle.checked) ? 'table-row' : 'none' ));
+                    });
+        };
+
+        function toggleSortBy(toggle){
+            sortByUpdated = toggle.checked;
+            var spec = {
+                type: "{!theObjectType}",
+                label: "{!$ObjectType[theObjectType].Label}",
+                id: '{!theQualifier.Id}',
+                controllerName : 'DMQualifierController',
+                sortByUpdated : toggle.checked,
+                showAllElements : showAllElements,
+                showAllFields : showAllFields,
+                comparisionJSON : '{!JSENCODE(comparisionJSON)}',
+            };
+//          console.log('================> toggleSortBy(): spec.showAllFields = ' + spec.showAllFields   + ', spec.sortByUpdated = ' + spec.sortByUpdated );
+            spec.objectReportGenerator = ttg.DMQualifierReportGenerator(spec); 
+            ttg.SObjectReportGenerator(spec).generateFromJSON(); 
+        };
+
+        jQuery(document).ready(function() {
+            var showAllElements = {!showAllElements};
+            var showAllFields = {!showAllFields};
+            var sortByUpdated = {!sortByUpdated};
+            var spec = {
+                    type: "{!theObjectType}",
+                    label: "{!$ObjectType[theObjectType].Label}",
+                    id: '{!theQualifier.Id}',
+                    controllerName : 'DMQualifierController',
+                    sortByUpdated : {!sortByUpdated},
+                    showAllElements : {!showAllElements},
+                    showAllFields : {!showAllFields},
+                    comparisionJSON : '{!JSENCODE(comparisionJSON)}'
+                };
+            spec.objectReportGenerator = ttg.DMQualifierReportGenerator(spec); 
+            ttg.SObjectReportGenerator(spec).generateFromJSON(); 
+        });        
+        
+        function refreshPage() {
+            location.reload();
+        }
+        
+   </script>
+</apex:page>

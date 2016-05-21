@@ -1,0 +1,173 @@
+<apex:page id="investigationDetailPage" standardController="agf__ADM_Work__c" extensions="agf.ADM_InvestigationExtension,agf.ADM_WorkRemoteActionsExtension" showHeader="true" sidebar="false" docType="html-5.0" title="{!title}">
+<meta name="viewport" content="user-scalable=no,width=device-width,initial-scale=1.0,maximum-scale=1.0" />
+<apex:stylesheet value="{!URLFOR($Resource.agf__jquery_ui_1_9_2_redmond, 'css/redmond/jquery-ui-1.9.2.custom.css')}" />  
+<apex:styleSheet value="{!$Resource.agf__ADM_common_css}" />
+<apex:styleSheet value="{!$Resource.agf__ADM_work_css}" />
+<apex:includeScript value="{!$Resource.agf__jquery_1_8_3_min}" />
+<apex:includeScript value="{!URLFOR($Resource.agf__jquery_ui_1_9_2_redmond, 'js/jquery-ui-1.9.2.custom.min.js')}" />
+<apex:includeScript value="{!$Resource.agf__ADM_common_js}" />
+<apex:includeScript value="{!$Resource.agf__ADM_autocomplete2js}" />
+<apex:includeScript value="{!$Resource.agf__ADM_Work_js}" />
+
+<div class="bPageTitle">
+    <div class="ptBody">
+        <div class="content">
+            <img src="{!URLFOR($Resource.investigationicon)}" alt="Work" class="pageTitleIcon" title="Work" />
+            <h1 class="pageType"><a href="/{!$ObjectType.ADM_Work__c.keyPrefix}">All Work</a> &gt;</h1>
+            <h2 class="pageDescription">{!agf__ADM_Work__c.Name}</h2>
+            <div class="blank">&nbsp;</div>
+        </div>
+    </div>
+    <div class="ptBreadcrumb"></div>
+</div>
+
+<apex:form id="investigationWorkForm" html-autocomplete="off">
+<!--Please don't remove:- Added the below field with rendering = false to make sure VF engine will default query the field or else in package we get the Field used without querying error -->
+    <apex:outputText value="{!agf__ADM_Work__c.Name}" rendered="false" />
+    <apex:messages globalOnly="true" styleClass="message gusFormMessage"/>
+    <div class="gusFieldset gusDetailView">
+        <div class="gusLegend">{!agf__ADM_Work__c.RecordType.Name}<a href="/setup/ui/recordtypeselect.jsp?id={!LEFT(agf__ADM_Work__c.Id,15)}&retURL=%2Fapex%2F{!nameSpace}ADM_InvestigationDetail%3Fid%3D{!agf__ADM_Work__c.Id}" title="Change Record Type">change</a></div>
+    
+        <div class="gusFormToolbar gusFormToolbarTop">
+            <apex:commandButton id="editButtonTop" action="{!edit}" value="Edit" rendered="{!$ObjectType.agf__ADM_Work__c.updateable}" />
+            <apex:commandButton id="cloneButtonTop" action="{!doClone}" value="Clone" rendered="{!$ObjectType.agf__ADM_Work__c.createable}" />
+            <div class="gusPhoneOnlyInline"><input type="button" value="Feed" onTouchStart="this.className='btn active';" onTouchEnd="this.className='btn';" onClick="sforce.one.navigateToFeed('{!agf__ADM_Work__c.Id}', 'RECORD')" /></div>
+            <apex:commandButton id="inlineEditSaveButtonTop" styleClass="inlineEditSaveButton" action="{!save}" style="display:none;" value="Save" />
+            <apex:commandButton id="inlineEditCancelButtonTop" styleClass="inlineEditCancelButton" action="{!cancel}" style="display:none;" value="Cancel" />
+        </div> 
+        
+        <div class="gusForm" id="mainTop">
+            <div class="gusForm1Column">
+                <div id="gusSubject"><c:ADM_Input id="subjectInput" object="{!agf__ADM_Work__c}" inputFieldName="Subject__c" inputObjectName="ADM_Work__c" required="true" renderRow="false" readonly="true" inlineEdit="true" inputStyleClass="gusStyle" /></div>
+                <div id="chatter-follow"><chatter:follow entityId="{!agf__ADM_Work__c.Id}" /></div>
+                <div id="gusDstrContainer">
+                    <div id="gusDstrLabel">Details and Steps to Reproduce</div>
+                    <div id="gusDstrContainerOverflow"><div id="gusDstrContainerOverflowContents"><apex:outputField value="{!agf__ADM_Work__c.agf__Details_and_Steps_to_Reproduce__c}"  /></div></div>
+                    <div id="gusDstrButton"><span class="drawerDownArrows">&#9660;</span><span class="drawerUpArrows">&#9650;</span> <span class="drawerLabelExpand">Expand</span><span class="drawerLabelCollapse">Collapse</span> <span class="drawerDownArrows">&#9660;</span><span class="drawerUpArrows">&#9650;</span></div>
+                </div>
+            </div>
+        </div>
+
+<script>
+$(function() {
+    $('#gusDstrButton').bind('click', function() {
+        if (!$('#gusDstrContainerOverflow').hasClass('opened')) {
+            $('#gusDstrContainerOverflow,#gusDstrButton').addClass('opened');
+            $('#gusDstrContainerOverflow').css('height', ($('#gusDstrContainerOverflowContents').height() + 24) + 'px' ).css('max-height','none');
+        } else {
+            $('#gusDstrContainerOverflow,#gusDstrButton').removeClass('opened');
+            $('#gusDstrContainerOverflow').css('height','auto').css('max-height','400px');
+        }
+    });
+
+    if ($('#gusDstrContainerOverflowContents').height() > 400) {
+        $('#gusDstrButton').show();
+    }
+
+    $('iframe.htmlDetailElementIframe').each(function() {
+        $(this).height( $(this).contents().find('body').height() );
+    });
+});
+</script>
+
+        <div class="gusForm" id="productTagRow">
+            <div class="gusForm1Column">
+                <div class="gusFormRow">
+                    <div class="gusFormField gusFormFieldLeft"><label><apex:outputText value="{!$ObjectType.agf__ADM_Work__c.fields.agf__Product_Tag__c.Label}" /></label></div>
+                    <div class="gusFormField gusFormFieldRight">
+                        <div id="productTagHolder">
+                            <div id="productTagLeft"><apex:outputField value="{!agf__ADM_Work__c.agf__Scrum_Team__c}" /></div>
+                            <div id="productTagRight"><apex:outputField value="{!agf__ADM_Work__c.agf__Product_Tag__c}" /></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="gusForm" id="investigationDetails">
+            <div id="investigationDetailsColumn1" class="gusForm3Column">
+                <c:ADM_Input id="statusInput" object="{!agf__ADM_Work__c}" inputFieldName="Status__c" inputObjectName="ADM_Work__c" renderRow="true" readonly="true" inlineEdit="true" inputStyleClass="statusInput gusStyle" />
+                <c:ADM_Input id="sprintInput" object="{!agf__ADM_Work__c}" inputFieldName="Sprint__c" inputObjectName="ADM_Work__c" lookupObject="ADM_Sprint__c" readonly="true" renderRow="true" inlineEdit="true" inputStyleClass="sprintInput gusStyle" />
+                <c:ADM_Input id="dealAtRiskInput" object="{!agf__ADM_Work__c}" inputFieldName="Deal_at_Risk__c" inputObjectName="ADM_Work__c" renderRow="true" readonly="true" inlineEdit="true" inputStyleClass="dealAtRiskInput gusStyle" />
+                <c:ADM_Input id="estimatedFinancialImpactInput" object="{!agf__ADM_Work__c}" inputFieldName="Estimated_Financial_Impact__c" inputObjectName="ADM_Work__c"  renderRow="true" readonly="true" inlineEdit="true" inputStyleClass="estimatedFinancialImpactInput gusStyle" />
+                <c:ADM_Input id="minorFuncAreaInput" object="{!agf__ADM_Work__c}" inputFieldName="Minor_Func_Area__c" inputObjectName="ADM_Work__c" renderRow="true" readonly="true" inlineEdit="true" inputStyleClass="minorFuncAreaInput gusStyle" />
+                <c:ADM_Input id="requestRDMgrReviewInput" object="{!agf__ADM_Work__c}" inputFieldName="Request_RD_Mgr_Review__c" inputObjectName="ADM_Work__c" renderRow="true" readonly="true" inlineEdit="true" inputStyleClass="requestRDMgrReviewInput gusStyle" />
+                <c:ADM_Input id="rootCauseAnalysisInput" object="{!agf__ADM_Work__c}" inputFieldName="Root_Cause_Analysis_2__c" inputObjectName="ADM_Work__c" renderRow="true" readonly="true" inlineEdit="true" inputStyleClass="rootCauseAnalysisInput gusStyle" />
+            </div>
+            <div id="investigationDetailsColumn2" class="gusForm3Column">
+                <c:ADM_Input id="assigneeInput" object="{!agf__ADM_Work__c}" inputFieldName="Assignee__c" inputObjectName="ADM_Work__c" required="true" lookupObject="User" renderRow="true" readonly="true" inlineEdit="true" inputStyleClass="assigneeInput gusStyle" />
+                <c:ADM_Input id="qaEngineerInput" object="{!agf__ADM_Work__c}" inputFieldName="QA_Engineer__c" inputObjectName="ADM_Work__c" lookupObject="User" renderRow="true" readonly="true" inlineEdit="true" inputStyleClass="qaEngineerInput gusStyle" />
+                <c:ADM_Input id="productOwnerInput" object="{!agf__ADM_Work__c}" inputFieldName="Product_Owner__c" inputObjectName="ADM_Work__c" lookupObject="User" renderRow="true" readonly="true" inlineEdit="true" inputStyleClass="productOwnerInput gusStyle" />
+                <c:ADM_Input id="seniorManagementPOCInput" object="{!agf__ADM_Work__c}" inputFieldName="Senior_Management_POC__c" inputObjectName="ADM_Work__c" renderRow="true" readonly="true" inlineEdit="true" inputStyleClass="seniorManagementPOCInput gusStyle" />
+                <c:ADM_Input id="cSContactInput" object="{!agf__ADM_Work__c}" inputFieldName="CS_Contact__c" inputObjectName="ADM_Work__c" renderRow="true" readonly="true" inlineEdit="true" inputStyleClass="cSContactInput gusStyle" />
+                <div class="gusFormRow gusRow_ADM_Work__c_CreatedBy">
+                    <div class="gusFormField gusFormFieldLeft"><label>Created By</label></div>
+                    <div class="gusFormField gusFormFieldRight">
+                        <div class="gusFormFieldUserInputRight"><a href="/{!agf__ADM_Work__c.CreatedById}">{!agf__ADM_Work__c.CreatedBy.Name}</a><br/><apex:outputField value=" {!agf__ADM_Work__c.CreatedDate}" /></div>
+                    </div>
+                </div>
+                 <div class="gusFormRow gusRow_ADM_Work__c_LastModifiedBy">
+                    <div class="gusFormField gusFormFieldLeft"><label>Last Modified By</label></div>
+                    <div class="gusFormField gusFormFieldRight">
+                        <div class="gusFormFieldUserInputRight"><a href="/{!agf__ADM_Work__c.LastModifiedById}">{!agf__ADM_Work__c.LastModifiedBy.Name}</a><br/><apex:outputField value=" {!agf__ADM_Work__c.LastModifiedDate}" /></div>
+                    </div>
+                </div>
+                
+            </div>
+            <div id="investigationDetailsColumn3" class="gusForm3Column">
+                <c:ADM_Input id="severityLevel" object="{!agf__ADM_Work__c}" inputFieldName="Severity_Level__c" required="true" inputObjectName="ADM_Work__c" renderRow="true" readonly="true" inlineEdit="true" inputStyleClass="severityLevelInput gusStyle" />
+                <apex:outputPanel styleClass="gusFormRow gusRow" rendered="{!NOT(ISNULL(agf__ADM_Work__c.agf__Due_Date__c))}">
+                    <div class="gusFormField gusFormFieldLeft"><label style="{!SLACountdownLabelStyle}">{!SLACountdownLabel}</label></div>
+                    <div class="gusFormField gusFormFieldRight"><div class="gusFormFieldUserInputRight"><span style="{!SLACountdownStyle}">{!SLADueTimeDiff}</span><br/><apex:outputField value="{!agf__ADM_Work__c.agf__Due_Date__c}"/></div></div>
+                </apex:outputPanel>
+                <c:ADM_Input id="casesInput" object="{!agf__ADM_Work__c}" inputFieldName="Number_of_Cases__c" inputObjectName="ADM_Work__c" renderRow="true" readonly="true"  inputStyleClass="casesInput gusStyle" />
+                <c:ADM_Input id="executiveInvolvedInput" object="{!agf__ADM_Work__c}" inputFieldName="Executive_Involved__c" inputObjectName="ADM_Work__c" renderRow="true" readonly="true" inlineEdit="true" inputStyleClass="executiveInvolvedInput gusStyle" />
+                <c:ADM_Input id="redAccountInput" object="{!agf__ADM_Work__c}" inputFieldName="Red_Account__c" inputObjectName="ADM_Work__c" renderRow="true" readonly="true" inlineEdit="true" inputStyleClass="redAccountInput gusStyle" />  
+                <c:ADM_Input id="criticalCRMFeatureInput" object="{!agf__ADM_Work__c}" inputFieldName="Critical_CRM_Feature__c" inputObjectName="ADM_Work__c" renderRow="true" readonly="true" inlineEdit="true" inputStyleClass="criticalCRMFeatureInput gusStyle" />
+               
+            </div>
+        </div>
+
+        <apex:outputPanel id="refreshPanelId">
+            <apex:outputPanel rendered="{!additionalFieldsForInvestigation.size != 0}" id="myId">
+                <div class="gusForm">
+                    <div class="gusForm3Column" style="width:100%!important;display:flex;flex-wrap:wrap">
+                        <apex:repeat var="af" value="{!additionalFieldsForInvestigation}">
+                            <div style="width:33%;" >
+                                <c:ADM_Input id="myId" object="{!agf__ADM_Work__c}" inputFieldName="{!af.agf__Field_API_Name__c}" inputObjectName="ADM_Work__c" readonly="true" inlineEdit="true" renderRow="true" inputStyleClass="scheduledBuildInput gusStyle" />
+                            </div>
+                        </apex:repeat>
+                    </div>
+                </div>
+            </apex:outputPanel>  
+        </apex:outputPanel>
+    </div> 
+     <apex:outputPanel layout="none" rendered="{!NOT(ISBLANK($CurrentPage.parameters.fromEmail))}">
+        <script>
+            if('{!JSINHTMLENCODE($CurrentPage.parameters.fromEmail)}' == '1'){
+                selectTab('chatter', 'work-{!agf__ADM_Work__c.Id}');
+                if (this.$) {
+                    $(document).ready(function() {
+                        $('#tab-chatter').get(0).scrollIntoView();
+                    });
+                }
+            }
+        </script>
+    </apex:outputPanel>
+    
+    <script>
+        // This looks for inline edit changes; If found it shows the proper buttons for submitting the form
+        $(function() {
+            setTimeout(function() {
+                if($('.inlineEditModified').is(":visible")) {
+                    $('.gusFormToolbar input').hide();
+                    $('.inlineEditSaveButton,.inlineEditCancelButton').show();  
+                }
+            }, 100);
+        });
+    </script>
+</apex:form>
+
+<apex:include id="workTabPanelInclude" pageName="agf__ADM_WorkTabPanel" />
+
+</apex:page>

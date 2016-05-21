@@ -1,0 +1,227 @@
+<apex:component controller="FOD_UpsellCtrl" id="upslComp">
+
+<script type="text/javascript">
+          function showProcessingImage(){
+              console.log("showing processing Div");
+                 $(".overlay").show();
+          }
+          function hideProcessingImage(){
+          console.log("Hide processing Div");
+               $(".overlay").hide();
+          }
+</script>
+
+<div class="col-lg-6 upsellHead">
+    <div class="row">
+        <div class="col-lg-1"></div>
+        <div class="col-lg-10">
+            <apex:outputPanel id="upsl">
+                <apex:outputPanel rendered="{!showFirstScreen}">
+                    <apex:form >
+                        <div class="upsellPanel col-lg-12">
+                            <div class="row one">
+                                <div class="col-lg-6 upsellLink">
+                                        <apex:commandLink value="Module Upsells" action="{!queryUpsellProjects}" reRender="upsl" styleClass="provDBanchor">  </apex:commandLink>
+                                </div>
+                                <div class="col-lg-6 upsellLink">
+                                    <apex:commandLink value="Listings/ Syndication/ Window Stickers" action="{!queryListingProjects}" reRender="upsl" styleClass="provDBanchor">  </apex:commandLink>
+                                </div>
+                            </div>
+                            <div class="row two">
+                                <div class="col-lg-6 upsellLink">
+                                        <apex:commandLink value="New User Session" action="{!queryNewUserProjects}" reRender="upsl" styleClass="provDBanchor" onclick="showProcessingImage()" oncomplete="hideProcessingImage()">  </apex:commandLink>
+                                </div>
+                                <div class="col-lg-6 upsellLink">
+                                        <apex:commandLink value="Stockwave" action="{!queryStockwaveProjects}" reRender="upsl" styleClass="provDBanchor" onclick="showProcessingImage()" oncomplete="hideProcessingImage()">  </apex:commandLink>
+                                </div>
+                            </div>
+                        </div>
+                    </apex:form>                
+                </apex:outputPanel>
+
+                <!-- Module Upsells Panel -->
+                <apex:outputPanel rendered="{!showUpsells}">
+                    <div class="col-lg-12 trainingDetail">
+                        <h2>Training1</h2>
+                        <apex:form >
+                            <div class="row">
+                                <div class="active col-lg-3"> 
+                                    <apex:outputLink value="/apex/FOD_ModuleProjectList?pname=Module-Upsell&stage=Training 1&onholdtype=Active" styleClass="provDBanchor">{!activeUpslCnt}</apex:outputLink>
+                                </div>
+                                <div class="backtosales col-lg-3"> 
+                                    <apex:outputLink value="/apex/FOD_ModuleProjectList?pname=Module-Upsell&stage=Training 1&onholdtype=Back To Sales" styleClass="provDBanchor">{!upslDelCnt}</apex:outputLink>
+                                </div>
+                                <div class="deferred col-lg-3">
+                                    <apex:outputLink value="/apex/FOD_ModuleProjectList?pname=Module-Upsell&stage=Training 1&onholdtype=Deferred" styleClass="provDBanchor">{!upslDefCnt}</apex:outputLink>
+                                </div>
+                                <div class="backBtn col-lg-3"> 
+                                    <apex:commandLink value="Back" action="{!back}" reRender="upsl" styleClass="provDBanchor">  </apex:commandLink>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="escalated col-lg-3"> 
+                                    <apex:outputLink value="/apex/FOD_ModuleProjectList?pname=Module-Upsell&stage=Training 1&onholdtype=Escalated To PM" styleClass="provDBanchor">{!upslEscCnt}</apex:outputLink>
+                                </div>
+                                <div class="compMo col-lg-3"> 
+                                    <apex:outputLink value="/apex/FOD_ModuleProjectList?pname=Module-Upsell&completedtype=month" styleClass="provDBanchor">{!completedByMonthUpslCnt}</apex:outputLink>
+                                </div>
+                                <div class="compQTD col-lg-3"> 
+                                    <apex:outputLink value="/apex/FOD_ModuleProjectList?pname=Module-Upsell&completedtype=year" styleClass="provDBanchor">{!completedByYearUpslCnt}</apex:outputLink>
+                                </div>
+                            </div>
+                        </apex:form>
+                    </div>
+                </apex:outputPanel>
+
+                <!-- Listing & Window Stickers Panel -->
+                <apex:outputPanel rendered="{!showListings}">
+                    <div class="col-lg-12 listingsDetail">
+                        <h2>Listings</h2>
+                        <apex:form >
+                            <div class="active col-lg-2"> 
+                                <apex:outputLink value="/apex/FOD_ModuleProjectList?pname=Listings/Photos/Syndication-Upsell&stage=Integration&onholdtype=Active" styleClass="provDBanchor">{!activeListingCnt}</apex:outputLink>
+                            </div>
+                            <div class="deferred col-lg-2">
+                                <apex:outputLink value="/apex/FOD_ModuleProjectList?pname=Listings/Photos/Syndication-Upsell&stage=Integration&onholdtype=Deferred" styleClass="provDBanchor">{!listingDefCnt}</apex:outputLink>
+                            </div>
+                            <div class="escalated col-lg-2"> 
+                                <apex:outputLink value="/apex/FOD_ModuleProjectList?pname=Listings/Photos/Syndication-Upsell&stage=Integration&onholdtype=Escalated To PM" styleClass="provDBanchor">{!listingEscCnt}</apex:outputLink>
+                            </div>
+                            <div class="compMo col-lg-2"> 
+                                <apex:outputLink value="/apex/FOD_ModuleProjectList?pname=Listings/Photos/Syndication-Upsell&completedtype=month" styleClass="provDBanchor">{!completedByMonthListingCnt}</apex:outputLink>
+                            </div>
+                            <div class="compQTD col-lg-2"> 
+                                <apex:outputLink value="/apex/FOD_ModuleProjectList?pname=Listings/Photos/Syndication-Upsell&completedtype=year" styleClass="provDBanchor">{!completedByYearListingCnt}</apex:outputLink>
+                            </div>
+                            <div class="backBtn col-lg-2"> 
+                                <apex:commandLink value="Back" action="{!back}" reRender="upsl" styleClass="provDBanchor">  </apex:commandLink>
+                            </div>
+                        </apex:form>
+                    </div>
+
+                    <div class="col-lg-12 stickersDetail">
+                        <h2>Window Stickers</h2>
+                        <apex:form >
+                            <div class="active col-lg-2"> 
+                                <apex:outputLink value="/apex/FOD_ModuleProjectList?pname=Window Stickers-Upsell&stage=Integration&onholdtype=Active" styleClass="provDBanchor">{!activeWinCnt}</apex:outputLink>
+                            </div>
+                            <div class="deferred col-lg-2">
+                                <apex:outputLink value="/apex/FOD_ModuleProjectList?pname=Window Stickers-Upsell&stage=Integration&onholdtype=Deferred" styleClass="provDBanchor">{!winDefCnt}</apex:outputLink>
+                            </div>
+                            <div class="escalated col-lg-2"> 
+                                <apex:outputLink value="/apex/FOD_ModuleProjectList?pname=Window Stickers-Upsell&stage=Integration&onholdtype=Escalated To PM" styleClass="provDBanchor">{!winEscCnt}</apex:outputLink>
+                            </div>
+                            <div class="compMo col-lg-2">
+                                <apex:outputLink value="/apex/FOD_ModuleProjectList?pname=Window Stickers-Upsell&completedtype=month" styleClass="provDBanchor">{!completedByMonthWinCnt}</apex:outputLink>
+                            </div>
+                            <div class="compQTD col-lg-2"> 
+                                <apex:outputLink value="/apex/FOD_ModuleProjectList?pname=Window Stickers-Upsell&completedtype=year" styleClass="provDBanchor">{!completedByYearWinCnt}</apex:outputLink>
+                            </div>
+                        </apex:form>
+                    </div>
+                </apex:outputPanel> 
+
+                <!-- New User Session Panel -->
+                <apex:outputPanel rendered="{!showNewUserSession}">
+                    <div class="col-lg-12 newuserDetail">
+                        <h2>New User Session</h2>
+                        <apex:form >
+                            <div class="row">
+                                <div class="active col-lg-3"> 
+                                    <apex:outputLink value="/apex/FOD_TaskList?status=Active" styleClass="provDBanchor">{!activeNewUsrCnt}</apex:outputLink>
+                                </div>
+                                <div class="deferred col-lg-3">
+                                    <apex:outputLink value="/apex/FOD_TaskList?status=Deferred" styleClass="provDBanchor">{!newUsrDefCnt}</apex:outputLink>
+                                </div>
+                                <div class="escalated col-lg-3"> 
+                                    <apex:outputLink value="/apex/FOD_TaskList?status=Escalated To PM" styleClass="provDBanchor">{!newUsrEscCnt}</apex:outputLink>
+                                </div>
+                                <div class="backBtn col-lg-3"> 
+                                    <apex:commandLink value="Back" action="{!back}" reRender="upsl" styleClass="provDBanchor">  </apex:commandLink>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="compMo col-lg-3"> 
+                                    <apex:outputLink value="/apex/FOD_TaskList?status=Completed&completedtype=month" styleClass="provDBanchor">{!completedByMonthNewUsrCnt}</apex:outputLink>
+                                </div>
+                                <div class="compQTD col-lg-3"> 
+                                    <apex:outputLink value="/apex/FOD_TaskList?status=Completed&completedtype=year" styleClass="provDBanchor">{!completedByYearNewUsrCnt}</apex:outputLink>
+                                </div>
+                            </div> 
+                        </apex:form>
+                    </div>
+                </apex:outputPanel> 
+                
+                <!-- StockWave Panel -->
+                <apex:outputPanel rendered="{!showStockWave}">
+                    <div class="col-lg-12 stockwave">
+                        <div class="row">
+                            <div class="col-lg-6">
+                                <div class="col-lg-12">
+                                    <h2>Integration</h2>
+                                </div>
+                                <div class="col-lg-12">
+                                    <apex:form >
+                                        <div class="active col-lg-3"> 
+                                            <apex:outputLink value="/apex/FOD_ProjectList?pname=Stockwave&stage=Integration&onholdtype=Active" styleClass="provDBanchor">{!activeIntSWCnt}</apex:outputLink>
+                                        </div>
+                                        <div class="backtosales col-lg-3"> 
+                                            <apex:outputLink value="/apex/FOD_ProjectList?pname=Stockwave&stage=Integration&onholdtype=Back To Sales" styleClass="provDBanchor"> {!intDelSWCnt}</apex:outputLink>
+                                        </div>
+                                        <div class="deferred col-lg-3">
+                                            <apex:outputLink value="/apex/FOD_ProjectList?pname=Stockwave&stage=Integration&onholdtype=Deferred" styleClass="provDBanchor">{!intDefSWCnt}</apex:outputLink>
+                                        </div>
+                                    </apex:form>    
+                                </div>
+                            </div>
+                             <div class="col-lg-6">
+                                <div class="col-lg-12">
+                                    <h2>Training1</h2>
+                                </div>
+                                <div class="col-lg-12">
+                                    <apex:form >
+                                        <div class="active col-lg-3">
+                                            <apex:outputLink value="/apex/FOD_ProjectList?pname=Stockwave&stage=Training 1&onholdtype=Active" styleClass="provDBanchor">{!activeTrnSWCnt}</apex:outputLink>
+                                        </div>
+                                        <div class="backtosales col-lg-3"> 
+                                            <apex:outputLink value="/apex/FOD_ProjectList?pname=Stockwave&stage=Training 1&onholdtype=Back To Sales" styleClass="provDBanchor">{!trnDelSWCnt}</apex:outputLink>
+                                        </div>
+                                        <div class="deferred col-lg-3">
+                                            <apex:outputLink value="/apex/FOD_ProjectList?pname=Stockwave&stage=Training 1&onholdtype=Deferred" styleClass="provDBanchor">{!trnDefSWCnt}</apex:outputLink>
+                                        </div>
+                                        <div class="escalated col-lg-3"> 
+                                            <apex:outputLink value="/apex/FOD_ProjectList?pname=Stockwave&stage=Training 1&onholdtype=Escalated To PM" styleClass="provDBanchor">{!trnEscSWCnt}</apex:outputLink>
+                                        </div>  
+                                    </apex:form>
+                                </div>
+                             </div>
+                        </div>
+                    
+                        <div class="row">
+                            <div class="col-lg-6 metrics">
+                               
+                                <div class="compMo col-lg-3"> 
+                                    <apex:outputLink value="/apex/FOD_ProjectList?pname=Stockwave&completedtype=month" styleClass="provDBanchor">{!completedByMonthSWCnt}</apex:outputLink>
+                                </div>
+                                <div class="compQTD col-lg-3"> 
+                                    <apex:outputLink value="/apex/FOD_ProjectList?pname=Stockwave&completedtype=month" styleClass="provDBanchor">{!completedByYearSWCnt}</apex:outputLink>
+                                </div>  
+                                <div class="budgetMTD col-lg-3"> 
+                                    {!budgetMTDSW}
+                                </div> 
+                                <div class="budgetQTD col-lg-3"> 
+                                    {!budgetQTDSW}
+                                </div> 
+                            </div>
+                            <div class="col-lg-2 backBtn">
+                                <apex:form ><apex:commandLink value="Back" action="{!back}" reRender="upsl" styleClass="provDBanchor">  </apex:commandLink></apex:form>
+                            </div>
+                        </div>
+                    </div>
+                </apex:outputPanel> 
+            </apex:outputPanel>
+        </div>
+    </div>
+</div>
+
+</apex:component>

@@ -1,0 +1,103 @@
+<apex:page standardController="SFDC_520_Quote__c"
+	extensions="DataIntegrationController" showHeader="true" setup="true"
+	sidebar="true">
+	<!--  <apex:stylesheet value="{!$Resource.styles}"></apex:stylesheet>-->
+	<!--  DATA INTEGRATION PIECE EXISTS -->
+	<br />
+	<apex:form id="alreadygenerated"
+		rendered="{!if(pieceExists,True, False)}">
+		<apex:pageBlock title="Send Project to Integration">
+			<table width="100%">
+				<tr>
+					<td width="50%"><b>Account: &nbsp;<apex:outputtext value="{!thisAccount.Name}" /><br /> </b> <b>Project: &nbsp;<apex:outputtext value="{!thisProject.Name}" /><br /> </b> <b>Comments:</b><br />
+						<apex:inputTextArea value="{!notes}"
+							style="height:200px; width:88%;" /><br /> <!--  <apex:commandButton action="{!goToPiece}" value="View Data Integration Piece" />&nbsp;-->
+						<table width="90%">
+							<tr>
+								<td width="75%">Request:&nbsp; <apex:selectList id="RunnerAction" value="{!requestType}" size="1"
+										required="true">
+										<apex:selectOptions value="{!requestOptions}" />
+									</apex:selectList></td>
+								<td align="right" width="25%"><apex:commandButton action="{!returnToProject}" value="Back" /> <apex:commandButton action="{!updateProjectPiece}" value="Submit" />&nbsp;</td>
+							</tr>
+						</table>
+					</td>
+					<td width="50%"><apex:outputPanel id="detail">
+							<apex:actionStatus startText="Requesting...">
+								<apex:facet name="stop">
+									<apex:detail subject="{!$CurrentPage.parameters.cid}"
+										relatedList="false" title="false" />
+								</apex:facet>
+							</apex:actionStatus>
+						</apex:outputPanel>
+					</td>
+				</tr>
+			</table>
+		</apex:pageBlock>
+		<apex:pageBlock title="Data Integration History (click Id to view detail)">
+			<apex:pageBlockTable value="{!pieceRunnerHistory}" var="history"
+				id="runnerHistoryList" title="history">
+				<apex:column >
+					<apex:actionSupport event="onclick" rerender="detail"> 
+                              {!history.Id}
+                              <apex:param name="cid"
+							value="{!history.Id}" />
+					</apex:actionSupport>
+				</apex:column>
+				<apex:column value="{!history.CreatedDate}" />
+				<apex:column value="{!history.Run_To__c}" />
+				<apex:column value="{!history.Runner_Action__c}" />
+				<apex:column value="{!history.Runner_Type__c}" />
+			</apex:pageBlockTable>
+		</apex:pageBlock>
+
+
+
+	</apex:form>
+
+
+
+	<!--  DATA INTEGRATION PIECE DOES NOT EXISTS -->
+	<apex:form id="notgenerated" rendered="{!if(pieceExists,False, True)}">
+		<apex:pageBlock title="Send Project to Integration"
+			tabstyle="SFDC_520_Quote__c">
+			<b>Account: &nbsp;<apex:outputtext value="{!thisAccount.Name}" /><br />
+			</b>
+			<b>Project: &nbsp;<apex:outputtext value="{!thisProject.Name}" /><br />
+			</b>
+
+			<b>Comments:</b>
+			<br />
+			<apex:inputTextArea value="{!notes}"
+				style="height:200px; width:400px;" />
+			<br />
+			<table>
+				<tr>
+					<td width="50%">Request Type:&nbsp; <apex:selectList id="RunnerAction" value="{!requestType}" size="1">
+							<apex:selectOptions value="{!requestOptions}" />
+						</apex:selectList></td>
+					<td align="right" width="50%"><apex:commandButton action="{!returnToProject}" value="Back" /> <apex:commandButton action="{!generateProjectPiece}" value="Submit" />&nbsp;</td>
+				</tr>
+			</table>
+		</apex:pageBlock>
+	</apex:form>
+
+	<style type="text/css">
+.customPopup {
+	background-color: white;
+	border-style: solid;
+	border-width: 2px;
+	left: 50%;
+	padding: 10px;
+	position: absolute;
+	z-index: 9999;
+	/* These are the 3 css properties you will need to tweak so the pop 
+            up displays in the center of the screen. First set the width. Then set 
+            margin-left to negative half of what the width is. You can also add 
+            the height property for a fixed size pop up.*/
+	width: 500px;
+	margin-left: -250px;
+	top: 100px;
+}
+</style>
+</apex:page>

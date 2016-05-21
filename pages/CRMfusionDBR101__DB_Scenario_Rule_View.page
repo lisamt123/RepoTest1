@@ -1,0 +1,55 @@
+<apex:page standardController="CRMfusionDBR101__Scenario_Rule__c" extensions="CRMfusionDBR101.DB_Scenario_Rule_View_Controller" showHeader="true" tabStyle="CRMfusionDBR101__Scenario__c"
+    standardStylesheets="true">
+    <apex:sectionHeader title="{!$Label.CRMfusionDBR101__DB_SR_View_Section_Title}" subTitle="{!CRMfusionDBR101__Scenario_Rule__c.Name}" />
+    <apex:messages />
+    <apex:form >
+        <apex:pageBlock id="mainBlock" title="{!$Label.CRMfusionDBR101__DB_SR_View_Main_Block_Title}" mode="detail" tabStyle="Scenario__c">
+            <apex:pageBlockButtons >
+                <apex:commandButton value="{!$Label.CRMfusionDBR101__DB_Edit_Word}" action="{!Edit}" />
+                <apex:commandButton value="{!$Label.CRMfusionDBR101__DB_Delete_Word}" action="{!deleteRule}" />
+            </apex:pageBlockButtons>
+            <apex:pageBlockSection columns="2" collapsible="false">
+                <apex:pageBlockSectionItem rendered="{!NOT( BEGINS( LOWER( CRMfusionDBR101__Scenario_Rule__c.CRMfusionDBR101__Scenario_Type__c ), 'lead to ' ) )}"
+                    helpText="{!$ObjectType.CRMfusionDBR101__Scenario_Rule__c.Fields.CRMfusionDBR101__Scenario_Type__c.inlineHelpText}">
+                    <apex:outputLabel for="scenarioType" value="{!$ObjectType.CRMfusionDBR101__Scenario_Rule__c.Fields.CRMfusionDBR101__Scenario_Type__c.Label}" />
+                    <apex:outputText id="scenarioType" value="{!$ObjectType[CRMfusionDBR101__Scenario_Rule__c.CRMfusionDBR101__Scenario_Type__c].Label}" />
+                </apex:pageBlockSectionItem>
+                <apex:outputField value="{!CRMfusionDBR101__Scenario_Rule__c.CRMfusionDBR101__Scenario_Type__c}" rendered="{!BEGINS( LOWER( CRMfusionDBR101__Scenario_Rule__c.CRMfusionDBR101__Scenario_Type__c ), 'lead to ' )}" />
+                <apex:outputField value="{!CRMfusionDBR101__Scenario_Rule__c.CRMfusionDBR101__Scenario__c}" />
+                <apex:pageBlockSectionItem rendered="{!NOT( BEGINS( LOWER( CRMfusionDBR101__Scenario_Rule__c.CRMfusionDBR101__Scenario_Type__c ), 'lead to ' ) )}"
+                    helpText="{!$ObjectType.CRMfusionDBR101__Scenario_Rule__c.Fields.CRMfusionDBR101__Field_Display_Value__c.inlineHelpText}">
+                    <apex:outputLabel for="field" value="{!$ObjectType[CRMfusionDBR101__Scenario_Rule__c.CRMfusionDBR101__Scenario_Type__c].Label} {!$Label.CRMfusionDBR101__DB_SR_Match_Field_Label_Suffix}" />
+                    <apex:outputText escape="false" id="field" value="{!JSINHTMLENCODE( CRMfusionDBR101__Scenario_Rule__c.CRMfusionDBR101__Field_Display_Value__c )}" />
+                </apex:pageBlockSectionItem>
+                <apex:pageBlockSectionItem rendered="{!BEGINS( LOWER( CRMfusionDBR101__Scenario_Rule__c.CRMfusionDBR101__Scenario_Type__c ), 'lead to ' )}"
+                    helpText="{!$ObjectType.CRMfusionDBR101__Scenario_Rule__c.Fields.CRMfusionDBR101__Field_Display_Value__c.inlineHelpText}">
+                    <apex:outputLabel for="field" value="{!$ObjectType.Lead.Label} {!$Label.CRMfusionDBR101__DB_SR_Match_Field_Label_Suffix}" />
+                    <apex:outputText escape="false" id="field" value="{!JSINHTMLENCODE( CRMfusionDBR101__Scenario_Rule__c.CRMfusionDBR101__Field_Display_Value__c )}" />
+                </apex:pageBlockSectionItem>
+                <apex:outputField id="eFuzzy" value="{!CRMfusionDBR101__Scenario_Rule__c.CRMfusionDBR101__English_Fuzzy__c}" />
+                <apex:outputField id="mappingType" value="{!CRMfusionDBR101__Scenario_Rule__c.CRMfusionDBR101__Mapping_Type__c}" />
+                <apex:outputField id="alphaClean" value="{!CRMfusionDBR101__Scenario_Rule__c.CRMfusionDBR101__AlphaClean__c}" />
+
+                <apex:outputField id="firstXxLetters" value="{!CRMfusionDBR101__Scenario_Rule__c.CRMfusionDBR101__First_XX_Letters__c}"
+                    rendered="{!LOWER(CRMfusionDBR101__Scenario_Rule__c.CRMfusionDBR101__Mapping_Type__c)=='first xx letters'}" />
+                <apex:outputField id="firstXxWords" value="{!CRMfusionDBR101__Scenario_Rule__c.CRMfusionDBR101__First_XX_Words__c}"
+                    rendered="{!LOWER(CRMfusionDBR101__Scenario_Rule__c.CRMfusionDBR101__Mapping_Type__c)=='first xx words'}" />
+                <apex:outputField id="regex" value="{!CRMfusionDBR101__Scenario_Rule__c.CRMfusionDBR101__Regex__c}"
+                    rendered="{!OR( LOWER(CRMfusionDBR101__Scenario_Rule__c.CRMfusionDBR101__Mapping_Type__c)=='regular expression', LOWER(CRMfusionDBR101__Scenario_Rule__c.CRMfusionDBR101__Mapping_Type__c)=='regular expression y/n' )}" />
+                <apex:pageBlockSectionItem rendered="{!NOT(showParameter)}">
+                </apex:pageBlockSectionItem>
+                <apex:outputField id="transpose" value="{!CRMfusionDBR101__Scenario_Rule__c.CRMfusionDBR101__Transpose__c}" />
+
+                <apex:pageBlockSectionItem helpText="{!$ObjectType.CRMfusionDBR101__Scenario_Rule__c.Fields.CRMfusionDBR101__Related_Field_Display_Value__c.inlineHelpText}"
+                    rendered="{!NOT(ISNULL(CRMfusionDBR101__Scenario_Rule__c.CRMfusionDBR101__Related_Field_Display_Value__c))}">
+                    <apex:outputLabel for="field"
+                        value="{!$ObjectType[RIGHT(CRMfusionDBR101__Scenario_Rule__c.CRMfusionDBR101__Scenario_Type__c, LEN(CRMfusionDBR101__Scenario_Rule__c.CRMfusionDBR101__Scenario_Type__c) - 8)].Label} {!$Label.CRMfusionDBR101__DB_SR_Match_Field_Label_Suffix}" />
+                    <apex:outputText escape="false" value="{!JSINHTMLENCODE( CRMfusionDBR101__Scenario_Rule__c.CRMfusionDBR101__Related_Field_Display_Value__c )}" />
+                </apex:pageBlockSectionItem>
+                <apex:pageBlockSectionItem rendered="{!ISNULL(CRMfusionDBR101__Scenario_Rule__c.CRMfusionDBR101__Related_Field_Display_Value__c)}">
+                </apex:pageBlockSectionItem>
+                <apex:outputField id="matchBlank" value="{!CRMfusionDBR101__Scenario_Rule__c.CRMfusionDBR101__Match_Blank__c}" />
+            </apex:pageBlockSection>
+        </apex:pageBlock>
+    </apex:form>
+</apex:page>

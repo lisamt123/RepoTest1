@@ -1,0 +1,231 @@
+<apex:page controller="WelcomePacketWizard" showHeader="false">
+	<head>
+<apex:stylesheet value="{!$Resource.styles}"></apex:stylesheet>
+	</head>
+
+	<script>
+function confirmCancel()
+{
+	var isCancel = confirm("Are you sure you wish to cancel?");
+	return isCancel;
+}
+</script>
+
+	<table border="0" width="100%" height="100%" id="bg">
+		<tr valign="top">
+			<td>
+				<div class="maincontainer">
+					<apex:image id="key1" width="100%"
+						value="/resource/1265230873000/Header" />
+
+					<apex:sectionHeader title="VinSolutions Secondary Packet"
+						subtitle="Packet Confirmation" />
+
+					<apex:form >
+						<apex:pageBlock title="Please Confirm">
+							<table border="0" width="100%" align="center">
+								<tr align="center">
+									<td align="center"><apex:commandButton action="{!jumpBackFromConfirm}" value="Previous Step" /> <apex:commandButton action="{!secondaryComplete}" value="Complete" /> <apex:commandButton action="{!saveQuitWeb}" value="Save & Quit"
+											onclick="return confirmCancel()" immediate="true" />
+									</td>
+								</tr>
+							</table>
+
+							<table align="center">
+								<tr align="center">
+									<td align="center"><apex:OutputText value="Take a moment to review your progress and verify the information that has been entered." /><br />
+										<apex:OutputText value="Should you see information that is incorrect, simply click on the 'Edit Section' button for that section." /><br />
+										<apex:Outputtext value="If, after review, all the information appears to be correct, you may continue by clicking the 'Confirm' button." />
+									</td>
+								</tr>
+							</table>
+
+
+						</apex:pageBlock>
+
+
+
+						<!-- WEBSITE-------------------------------------------------------------------------------------------->
+
+
+
+						<a name="Step 1" />
+						<apex:pageBlock title="Website/Email"
+							rendered="{!if(!CONTAINS(welcome.Secondary_Packet_Includes__c,'Website'),FALSE, TRUE)}">
+
+							<table border="0" width="100%" align="center">
+								<tr align="center">
+									<td align="center"><apex:commandButton action="{!secondaryStartPointCheck}" value="Edit Section" />
+									</td>
+								</tr>
+							</table>
+							<!-- ---------------------------------------------------------------------------- -->
+
+							<apex:pageBlockSection collapsible="false" title="" columns="1">
+								<b> VinSolutions will need to be provided with the following
+									information prior to your VinSolutions Website going live:</b>
+								<br />
+								<br />
+
+								<apex:outputField value="{!welcome.Website_to_be_transferred__c}" />
+								<apex:outputField value="{!welcome.Current_Web_Host__c}" />
+								<apex:outputField value="{!welcome.Contract_End_Date__c}" />
+								<apex:outputField value="{!welcome.Current_Registrar__c}" />
+								<apex:outputField value="{!welcome.Registrar_to_transfer_to__c}" />
+								<apex:outputField value="{!welcome.Username_to_registrar__c}" />
+								<apex:outputField value="{!welcome.Password_to_registrar__c}" />
+
+								<b><u>Once your website is completed, you will need to
+										point the domain name at the new VinSolutions website. If you
+										need our assistance, we will require your registrar’s username
+										and password.</u> </b>
+								<br />
+								<br />
+
+								<apex:outputField value="{!welcome.Will_you_need_VinSolutions_to_host_email__c}" />
+								<br />
+
+								<b><u>If VinSolutions is hosting your email, it is VERY
+										IMPORTANT that none of your users ever enter their
+										Vinsolutions email into MotoSnap in their own customer record.
+										Their own customer record in MotoSnap can interfere with email
+										delivery.<br /> <br /> Please inform all users to not enter
+										their own email into the customer email field under any
+										circumstances.</u> </b>
+
+							</apex:pageBlockSection>
+
+
+							<!-- ---------------------------------------------------------------------------- -->
+
+
+							<apex:pageBlockSection collapsible="false" title=""></apex:pageBlockSection>
+							<table border="0" width="100%" align="center">
+								<tr align="center">
+									<td align="center"><apex:commandButton action="{!secondaryStartPointCheck}" value="Edit Section" />
+									</td>
+								</tr>
+							</table>
+						</apex:pageBlock>
+
+						<!-- END WEBSITE----------------------------------------------------------------------------------------------->
+
+						<!-- MotoBlast------------------------------------------------------------------------------------------------->
+
+
+
+						<a name="Step 2" />
+						<apex:pageBlock title="MotoBlast Flagging"
+							rendered="{!if(!CONTAINS(welcome.Secondary_Packet_Includes__c,'Motoblast'),FALSE, TRUE)}">
+
+							<table border="0" width="100%" align="center">
+								<tr align="center">
+									<td align="center"><apex:commandButton action="{!jumpToMotoBlast}" value="Edit Section" />
+									</td>
+								</tr>
+							</table>
+
+							<!-- ---------------------------------------------------------------------------- -->
+							<apex:pageBlockSection title="" columns="1" collapsible="false">
+								<b> Listing your vehicles automatically on consumer content
+									websites. </b>
+								<br />
+								<br />
+                    
+                    In order for you to get the most out of your MotoBlast Product, and Craigslist postings you 
+                    <b><u>MUST NOT</u> </b> use alternative methods to post the same vehicle or dealership information to Craigslist.<br />
+								<br />
+                    
+                    If <b><u>ANYONE</u> </b> from your dealership posts vehicles listed from your inventory to Craigslist, this will 
+                    cause that vehicle to become flagged, and therefore removing your listing immediately. Please inform 
+                    your staff to not use a personal Craigslist account to post vehicles as this can, and will often cause 
+                    your postings to be flagged and removed by Craigslist due to overposting.<br />
+								<br />
+                    
+                    If you have, or are currently using additional posting tools or are manually posting vehicles to Craigslist, 
+                    MotoBlast this will cause this important product to not function properly.<br />
+								<br />
+                    
+                    If you have any questions concerning the posting of ads on Craigslist, please contact your Implementation Manager.                  
+                </apex:pageBlockSection>
+
+							<!-- ---------------------------------------------------------------------------- -->
+
+							<apex:pageBlockSection collapsible="false" title=""></apex:pageBlockSection>
+							<table border="0" width="100%" align="center">
+								<tr align="center">
+									<td align="center"><apex:commandButton action="{!jumpToMotoBlast}" value="Edit Section" />
+									</td>
+								</tr>
+							</table>
+						</apex:pageBlock>
+
+						<!-- END MotoBlast------------------------------------------------------------------------------------------->
+
+						<!-- Inventory----------------------------------------------------------------------------------------------->
+
+
+
+						<a name="Step 3" />
+						<apex:pageBlock title="Inventory Verification"
+							rendered="{!if(!CONTAINS(welcome.Secondary_Packet_Includes__c,'Inventory'),FALSE, TRUE)}">
+
+							<table border="0" width="100%" align="center">
+								<tr align="center">
+									<td align="center"><apex:commandButton action="{!jumpToInventoryVerification}" value="Edit Section" />
+									</td>
+								</tr>
+							</table>
+							<!-- ---------------------------------------------------------------------------- -->
+							<apex:pageBlockSection title="" columns="1" collapsible="false">
+                    
+                    I certify that I have reviewed my inventory extensively and that all of the 
+                    following data is listed in my Inventory module correctly:  
+                    <small><i>(Please check the appropriate
+										boxes)</i> </small>
+
+								<apex:outputfield value="{!welcome.Vehicle_Make__c}" />
+								<apex:outputfield value="{!welcome.Vehicle_Model__c}" />
+								<apex:outputfield value="{!welcome.Vehicle_Year__c}" />
+								<apex:outputfield value="{!welcome.Vehicle_Trim_if_entered_in_DMS__c}" />
+								<apex:outputfield value="{!welcome.Vehicle_Color_interior__c}" />
+								<apex:outputfield value="{!welcome.Vehicle_Color_Exterior__c}" />
+								<apex:outputfield value="{!welcome.Lot_Price_Field__c}" />
+								<apex:outputfield value="{!welcome.Web_Price_Field__c}" />
+								<apex:outputfield value="{!welcome.Cost_Price_Field__c}" />
+
+							</apex:pageBlockSection>
+							<!-- ---------------------------------------------------------------------------- -->
+
+
+							<apex:pageBlockSection collapsible="false" title=""></apex:pageBlockSection>
+							<table border="0" width="100%" align="center">
+								<tr align="center">
+									<td align="center"><apex:commandButton action="{!jumpToInventoryVerification}" value="Edit Section" />
+									</td>
+								</tr>
+							</table>
+						</apex:pageBlock>
+
+						<!-- END Inventory-------------------------------------------------------------------------------------------->
+
+
+
+						<apex:pageBlock >
+							<apex:pageBlockSection collapsible="false" title=""></apex:pageBlockSection>
+
+							<table border="0" width="100%" align="center">
+								<tr align="center">
+									<td align="center"><apex:commandButton action="{!jumpBackFromConfirm}" value="Previous Step" /> <apex:commandButton action="{!secondaryComplete}" value="Complete" /> <apex:commandButton action="{!saveQuitWeb}" value="Save & Quit"
+											onclick="return confirmCancel()" immediate="true" />
+									</td>
+								</tr>
+							</table>
+
+						</apex:pageBlock>
+					</apex:form>
+				</div>
+			</td>
+		</tr>
+	</table>
+</apex:page>

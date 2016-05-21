@@ -1,0 +1,171 @@
+<apex:page sidebar="false" standardController="CRMfusionDBR101__Scenario__c" extensions="CRMfusionDBR101.DB_AutoConvert" showHeader="true" tabStyle="CRMfusionDBR101__Scenario__c"
+    standardStylesheets="true">
+
+    <apex:sectionHeader title="{!$Label.CRMfusionDBR101__DB_AC_Settings_Edit_Title}" subtitle="{!CRMfusionDBR101__Scenario__c.Name}" />
+
+    <p />
+
+    <!--  Values we need to load for the scenario object. -->
+    <apex:outputText rendered="false" value="{!CRMfusionDBR101__Scenario__c.CRMfusionDBR101__Scenario_Type__c}" />
+
+    <apex:pageMessages />
+    <apex:form >
+        <apex:pageBlock id="primaryBlock" title="{!$Label.CRMfusionDBR101__DB_AC_Primary_Settings_Block_Title}" mode="edit">
+            <apex:actionStatus layout="block" startStyle="text-align: center; font-weight: bold; color: red;" id="settingsStatus" stopText=""
+                startText="{!$Label.CRMfusionDBR101__DB_Updating_Available_Options}" />
+            <apex:pageBlockSection columns="2" collapsible="false">
+                <apex:inputField value="{!convertSettings.CRMfusionDBR101__Conversion_Target__c}" required="true" />
+                <apex:pageBlockSectionItem helpText="{!$ObjectType.CRMfusionDBR101__AutoConvert_Setting__c.Fields.CRMfusionDBR101__Converted_Status__c.inlineHelpText}">
+                    <apex:outputLabel for="convertStatus" value="{!$ObjectType.CRMfusionDBR101__AutoConvert_Setting__c.Fields.CRMfusionDBR101__Converted_Status__c.label}" />
+                    <apex:selectList id="convertStatus" size="1" value="{!convertSettings.CRMfusionDBR101__Converted_Status__c}" multiselect="false">
+                        <apex:selectOptions value="{!convertedStatuses}" />
+                    </apex:selectList>
+                </apex:pageBlockSectionItem>
+
+                <apex:inputField value="{!convertSettings.CRMfusionDBR101__Conversion_Priority__c}" required="true" />
+                <apex:inputField value="{!convertSettings.CRMfusionDBR101__Contact_Owner__c}" rendered="{!CRMfusionDBR101__Scenario__c.CRMfusionDBR101__Scenario_Type__c == 'Lead to Account'}"
+                    required="{!CRMfusionDBR101__Scenario__c.CRMfusionDBR101__Scenario_Type__c == 'Lead to Account'}" />
+                <apex:pageBlockSectionItem rendered="{!CRMfusionDBR101__Scenario__c.CRMfusionDBR101__Scenario_Type__c != 'Lead to Account'}">
+                    <TD></TD>
+                    <TD></TD>
+                </apex:pageBlockSectionItem>
+
+                <apex:inputField value="{!convertSettings.CRMfusionDBR101__Create_Task__c}">
+                    <apex:actionSupport event="onclick" rerender="primaryBlock" status="settingsStatus" />
+                </apex:inputField>
+                <apex:inputField value="{!convertSettings.CRMfusionDBR101__Create_Opportunity__c}">
+                    <apex:actionSupport event="onclick" rerender="primaryBlock" status="settingsStatus" />
+                </apex:inputField>
+            </apex:pageBlockSection>
+
+            <apex:pageBlockSection id="taskBlock" columns="2" collapsible="false" rendered="{!convertSettings.CRMfusionDBR101__Create_Task__c}">
+                <apex:inputField value="{!convertSettings.CRMfusionDBR101__Task_Subject__c}" rendered="{!convertSettings.CRMfusionDBR101__Create_Task__c}" />
+                <apex:inputField value="{!convertSettings.CRMfusionDBR101__Default_Include_in_Task__c}" rendered="{!convertSettings.CRMfusionDBR101__Create_Task__c}" />
+                <apex:inputField value="{!convertSettings.CRMfusionDBR101__Task_Owner__c}" rendered="{!convertSettings.CRMfusionDBR101__Create_Task__c}" />
+                <apex:inputField value="{!convertSettings.CRMfusionDBR101__Task_Due_Date__c}" rendered="{!convertSettings.CRMfusionDBR101__Create_Task__c}" />
+                <apex:pageBlockSectionItem helpText="The status to assign to the task." rendered="{!convertSettings.CRMfusionDBR101__Create_Task__c}">
+                    <apex:outputLabel for="taskStatus" value="Task Status" />
+                    <apex:selectList id="taskStatus" size="1" value="{!convertSettings.CRMfusionDBR101__Task_Status__c}" multiselect="false">
+                        <apex:selectOptions value="{!taskStatuses}" />
+                    </apex:selectList>
+                </apex:pageBlockSectionItem>
+            </apex:pageBlockSection>
+
+            <apex:pageBlockSection id="oppBlock" columns="2" collapsible="false" rendered="{!convertSettings.CRMfusionDBR101__Create_Opportunity__c}">
+                <apex:inputField value="{!convertSettings.CRMfusionDBR101__Opportunity_Owner__c}" rendered="{!convertSettings.CRMfusionDBR101__Create_Opportunity__c}" />
+                <apex:inputField value="{!convertSettings.CRMfusionDBR101__Opportunity_Name__c}" rendered="{!convertSettings.CRMfusionDBR101__Create_Opportunity__c}" />
+
+                <apex:inputField value="{!convertSettings.CRMfusionDBR101__Opportunity_Close_Date__c}" rendered="{!convertSettings.CRMfusionDBR101__Create_Opportunity__c}" />
+                <apex:pageBlockSectionItem helpText="{!$ObjectType.CRMfusionDBR101__AutoConvert_Setting__c.Fields.CRMfusionDBR101__Opportunity_Stage__c.inlineHelpText}">
+                    <apex:outputLabel for="oppStage" value="{!$ObjectType.CRMfusionDBR101__AutoConvert_Setting__c.Fields.CRMfusionDBR101__Opportunity_Stage__c.label}" />
+                    <apex:selectList id="oppStage" size="1" value="{!convertSettings.CRMfusionDBR101__Opportunity_Stage__c}" multiselect="false">
+                        <apex:selectOptions value="{!oppStages}" />
+                    </apex:selectList>
+                </apex:pageBlockSectionItem>
+
+                <apex:inputField value="{!convertSettings.CRMfusionDBR101__Send_Notification_Email__c}" rendered="{!convertSettings.CRMfusionDBR101__Create_Opportunity__c}" />
+                <td></td>
+                <td></td>
+            </apex:pageBlockSection>
+
+            <apex:pageBlockButtons >
+                <apex:commandButton value="{!$Label.CRMfusionDBR101__DB_AC_Clear_Mappings}" action="{!clearAllMappings}" title="{!$Label.CRMfusionDBR101__DB_AC_Clear_Mappings_Help}" />
+                <apex:commandButton value="{!$Label.CRMfusionDBR101__DB_Cancel_Word}" action="{!cancelSettingsEdit}" />
+                <apex:commandButton value="{!$Label.CRMfusionDBR101__DB_Save_Word}" action="{!saveSettings}" />
+            </apex:pageBlockButtons>
+        </apex:pageBlock>
+
+        <apex:pageBlock id="newMappingBlock" title="{!$Label.CRMfusionDBR101__DB_AC_Add_New_Field_Mapping}">
+            <apex:actionStatus layout="block" startStyle="text-align: center; font-weight: bold; color: red;" id="newMappingStatus" stopText=""
+                startText="{!$Label.CRMfusionDBR101__DB_Updating_Available_Options}" />
+            <apex:pageBlockSection columns="9">
+                <apex:pageBlockSectionItem helpText="{!$ObjectType.CRMfusionDBR101__AutoConvert_Mapping__c.Fields.CRMfusionDBR101__Lead_Field_Display__c.inlineHelpText}">
+                    <apex:outputLabel for="leadField" value="{!$ObjectType.CRMfusionDBR101__AutoConvert_Mapping__c.Fields.CRMfusionDBR101__Lead_Field_Display__c.label}" />
+                    <apex:outputPanel styleClass="requiredInput" layout="block">
+                        <apex:selectList id="leadField" size="1" required="true" value="{!newMapping.CRMfusionDBR101__Lead_Field__c}" multiselect="false">
+                            <apex:selectOptions value="{!leadFields}" />
+                            <apex:actionSupport status="newMappingStatus" event="onchange" rerender="targetField,conversionAction" />
+                        </apex:selectList>
+                    </apex:outputPanel>
+                </apex:pageBlockSectionItem>
+                <apex:pageBlockSectionItem helpText="{!$Label.CRMfusionDBR101__DB_AC_Target_Object_Select_Help}">
+                    <apex:outputLabel for="targetObject" value="{!$ObjectType.CRMfusionDBR101__AutoConvert_Mapping__c.Fields.CRMfusionDBR101__Target_Object__c.label}" />
+                    <apex:outputPanel styleClass="requiredInput" layout="block">
+                        <apex:selectList id="targetObject" size="1" required="true" value="{!newMapping.CRMfusionDBR101__Target_Object__c}" multiselect="false">
+                            <apex:selectOptions value="{!targetObjects}" />
+                            <apex:actionSupport status="newMappingStatus" event="onchange" rerender="targetField,conversionAction" />
+                        </apex:selectList>
+                    </apex:outputPanel>
+                </apex:pageBlockSectionItem>
+                <apex:pageBlockSectionItem helpText="{!$Label.CRMfusionDBR101__DB_AC_Target_Filter_Select_Help}">
+                    <apex:outputLabel for="targetField" value="{!$ObjectType.CRMfusionDBR101__AutoConvert_Mapping__c.Fields.CRMfusionDBR101__Target_Field_Display__c.label}" />
+                    <apex:outputPanel styleClass="requiredInput" layout="block">
+                        <apex:selectList id="targetField" size="1" required="true" value="{!newMapping.CRMfusionDBR101__Target_Field__c}" multiselect="false">
+                            <apex:selectOptions value="{!targetFields}" />
+                            <apex:actionSupport status="newMappingStatus" event="onchange" rerender="conversionAction" />
+                        </apex:selectList>
+                    </apex:outputPanel>
+                </apex:pageBlockSectionItem>
+                <apex:pageBlockSectionItem helpText="{!$Label.CRMfusionDBR101__DB_AC_Conversion_Action_Select_Help}">
+                    <apex:outputLabel for="conversionAction" value="{!$ObjectType.CRMfusionDBR101__AutoConvert_Mapping__c.Fields.CRMfusionDBR101__Conversion_Action__c.label}" />
+                    <apex:outputPanel styleClass="requiredInput" layout="block">
+                        <apex:selectList id="conversionAction" size="1" required="true" value="{!newMapping.CRMfusionDBR101__Conversion_Action__c}" multiselect="false">
+                            <apex:selectOptions value="{!fieldActions}" />
+                        </apex:selectList>
+                    </apex:outputPanel>
+                </apex:pageBlockSectionItem>
+                <apex:inputField value="{!newMapping.CRMfusionDBR101__Include_in_Task__c}" />
+                <apex:commandButton value="Add" action="{!addMapping}" />
+            </apex:pageBlockSection>
+        </apex:pageBlock>
+
+        <apex:pageBlock title="{!$Label.CRMfusionDBR101__DB_Current_Field_Mappings}">
+            <apex:outputPanel id="fieldMappings">
+                <table width="100%">
+                    <tr>
+                        <th>{!$Label.CRMfusionDBR101__DB_Actions_Header}</th>
+                        <th>{!$ObjectType.CRMfusionDBR101__AutoConvert_Mapping__c.Fields.CRMfusionDBR101__Lead_Field_Display__c.label}</th>
+                        <th>{!$ObjectType.CRMfusionDBR101__AutoConvert_Mapping__c.Fields.CRMfusionDBR101__Target_Object__c.label}</th>
+                        <th>{!$ObjectType.CRMfusionDBR101__AutoConvert_Mapping__c.Fields.CRMfusionDBR101__Target_Field_Display__c.label}</th>
+                        <th>{!$ObjectType.CRMfusionDBR101__AutoConvert_Mapping__c.Fields.CRMfusionDBR101__Conversion_Action__c.label}</th>
+                        <th>{!$ObjectType.CRMfusionDBR101__AutoConvert_Mapping__c.Fields.CRMfusionDBR101__Include_in_Task__c.label}</th>
+                    </tr>
+                    <apex:repeat value="{!convertMappings}" var="m">
+                        <tr style="height: 20px">
+                            <apex:outputPanel id="editRow" layout="none" rendered="{!m.CRMfusionDBR101__Key__c == editMapping.CRMfusionDBR101__Key__c}">
+                                <td><apex:commandLink action="{!cancelEdit}" rerender="fieldMappings">{!$Label.CRMfusionDBR101__DB_Cancel_Word}</apex:commandLink> &nbsp;|&nbsp; <apex:commandLink action="{!saveEdit}" rerender="fieldMappings">{!$Label.CRMfusionDBR101__DB_Save_Word}</apex:commandLink>
+                                </td>
+                                <td><apex:outputField value="{!editMapping.CRMfusionDBR101__Lead_Field_Display__c}" />
+                                </td>
+                                <td><apex:outputField value="{!editMapping.CRMfusionDBR101__Target_Object__c}" />
+                                </td>
+                                <td><apex:outputField value="{!editMapping.CRMfusionDBR101__Target_Field_Display__c}" />
+                                </td>
+                                <td><apex:selectList id="editFieldAction" size="1" required="true" value="{!editMapping.CRMfusionDBR101__Conversion_Action__c}" multiselect="false">
+                                        <apex:selectOptions value="{!editFieldActions}" />
+                                    </apex:selectList></td>
+                                <td><apex:inputField value="{!editMapping.CRMfusionDBR101__Include_in_Task__c}" />
+                                </td>
+                            </apex:outputPanel>
+                            <apex:outputPanel id="viewRow" layout="none" rendered="{!m.CRMfusionDBR101__Key__c != editMapping.CRMfusionDBR101__Key__c}">
+                                <td><apex:commandLink action="{!editMapping}" rerender="fieldMappings">{!$Label.CRMfusionDBR101__DB_Edit_Word}
+                                <apex:param name="editKey" value="{!m.CRMfusionDBR101__Key__c}" />
+                                    </apex:commandLink> &nbsp;|&nbsp; <apex:commandLink action="{!deleteMapping}"
+                                        onclick="return confirm('{!JSINHTMLENCODE($Label.CRMfusionDBR101__DB_Delete_Mapping_Confirmation)}')">
+                                {!$Label.CRMfusionDBR101__DB_Delete_Word}
+                                <apex:param name="deleteKey" value="{!m.CRMfusionDBR101__Key__c}" />
+                                    </apex:commandLink></td>
+                                <td>{!m.Lead_Field_Display__c}</td>
+                                <td>{!m.Target_Object__c}</td>
+                                <td>{!m.Target_Field_Display__c}</td>
+                                <td>{!m.Conversion_Action__c}</td>
+                                <td><IMG src="{!$Resource.DB_Checkboxes}/{!m.Include_in_Task__c}.gif" />
+                                </td>
+                            </apex:outputPanel>
+                        </tr>
+                    </apex:repeat>
+                </table>
+            </apex:outputPanel>
+        </apex:pageBlock>
+    </apex:form>
+</apex:page>

@@ -1,0 +1,33 @@
+<apex:page Controller="Multiple_Attachments" Id="theMAPage" sidebar="false">
+	<apex:form id="attForm">
+		<apex:pageBlock title="Upload Attachments">
+			<apex:pageMessages id="errors" />
+			<apex:repeat value="{!newAttachments}" var="newAtt">
+				<apex:pageBlockSection columns="3">
+				   <apex:pageBlockSectionItem >
+						<apex:outputLabel value="File"/>						 
+						<apex:inputFile value="{!newAtt.body}" filename="{!newAtt.name}"/>
+					</apex:pageBlockSectionItem>
+					<apex:pageBlockSectionItem >
+						<apex:outputLabel value="Description"/>						 
+						<apex:inputText value="{!newAtt.Description}"/>
+					</apex:pageBlockSectionItem>
+				</apex:pageBlockSection>
+			</apex:repeat>
+			<apex:pageBlockButtons location="bottom">
+				<apex:commandButton value="Add More" action="{!addMore}" />
+				<apex:commandButton value="Save" action="{!save}"/>
+				<apex:commandButton value="Done" action="{!done}"/>
+			</apex:pageBlockButtons>
+		</apex:pageBlock>
+	</apex:form>
+	<apex:pageBlock title="Existing Attachments" rendered="{!existingAttachments}">
+		<apex:pageBlockTable value="{!attachments}" var="attachment">
+			<apex:column headerValue="Action">
+			   <apex:outputLink value="{!URLFOR($Action.Attachment.Download, attachment.Id)}" target="_blank">View</apex:outputLink>
+			</apex:column>
+			<apex:column value="{!attachment.Name}"/>
+			<apex:column value="{!attachment.Description}"/>
+		</apex:pageBlockTable>
+	</apex:pageBlock>
+</apex:page>

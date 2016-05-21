@@ -1,0 +1,602 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html><head>
+<!--  
+ AJAX S-Control, Gather Case Comments, update Case History, Activities, Attachment into one timeline  
+ and allow the history to be sent via email
+ 
+-->
+<link  href="/dCSS/Theme2/default/common.css" type="text/css" rel="stylesheet" > 
+<style>
+.bPageTitle .ptBody .content {
+    width: 90.0%;
+    padding-bottom: 5px;
+}
+.usertimestamp td {
+	background: #FFFFFF;
+	border-top: 1px solid #E3DEB8;
+	font-weight:bold;
+	font-size: 91%;
+}
+
+</style>
+<script type="text/javascript" src="/js/functions.js"></script>
+<script src="https://www.salesforce.com/services/lib/ajax/beta3.3/sforceclient.js" type="text/javascript"></script>
+<script language="javascript">
+<!--
+/* spec
+1.       User navigates to the case details page
+2.       User presses “Add Comments/Send Update” custom link and is presented with a view 
+			that looks and feels like Salesforce.com.
+3.       View displays the following case fields:
+a.       Case Subject (read-only)
+b.      Case Description (read-only)
+c.       Case Status (read-only)
+d.      Comment (write)
+e.       Checkbox for “Public” should be defaulted to checked.
+f.       Checkbox for “Send History to Customer” as a check box. 
+g.      Send Customer Notification should NOT be displayed
+a.       Past case comments
+4.       User enters new case comment.
+5.       User presses Save.  System:
+a.       Saves the new comment as Public or Private depending on the choice made by the user.
+b.      Generates the new chron history with this additional public comment
+c.       If “Send History to Customer” is checked send email to Case Contact with Public chronological history view.
+
+ 5.11 add CaseHistory_ispublic, default to false
+*/
+var debug = false; 
+var cid = "{!Case_ID}";
+var dformat; // holds the format string that we think date should be shown with
+var qr; 	// global query result
+var table;  // the main list table
+var hide_private = false; // starts false
+var CaseHistory_ispublic = false; // configurable
+var newest_ontop = true;
+var hasVisInSS = false; 	// this task field may be off for many orgs, controls task visiblity in SSP
+var nameHistoryField = "HistoryText__c" ; // the name of the field to write the history text into
+var nameHistoryFieldName = "HistoryText"; // name without the suffix so that we can instruct user to add it
+var maxSizeCommentOrActivity = 2048;
+var invalidData = "Error: Invalid Data. <br>Review all error messages below to correct your data.";
+var mustValue = "<br>Error: You must enter a value";
+var newWindow;
+
+function saveComment() { // check for invalid data, insert the comment, generate the history
+	if ( ! checkInputs() ) return false;
+	newWindow = openWaitWindow(); 
+	setTimeout('saveComment2();',50);
+}
+function saveComment2() {
+	try { 	// save this comment
+		var cbean = new Sforce.Dynabean("CaseComment");
+		// Select c.ParentId, c.IsPublished, c.CommentBody From CaseComment c
+		cbean.set("ParentId",cid);
+		cbean.set("IsPublished", document.getElementById('p0').checked );
+		cbean.set("CommentBody",document.getElementById('p1').value );
+		var sr = sforceClient.Create([cbean])[0];
+		
+		if (sr.className != "SaveResult" || sr.success != true ) { 
+			throw ("could not save comment "+sr.toString());
+		}
+		
+		queryHistory(); // generate new history, save that 
+		
+		// send an email if the checkbox is set
+		if (document.getElementById('p2').checked == true) { sendEmail(); }
+		
+	} catch (e) { 	
+		generalError(e); return;
+	} 
+	newWindow.close(); 
+	jumpback();
+} 
+
+function initPage() {
+	sforceClient.init("{!API_Session_ID}", "{!API_Partner_Server_URL_70}");
+	if ( sforceClient.userInfo && sforceClient.userInfo.faultcode && 
+		sforceClient.userInfo.faultcode.indexOf("API_DISABLED_FOR_ORG")>0) {
+		alert( sforceClient.userInfo.faultstring +
+			"\nThis custom link utilizes the AppExchange API.\n" +
+			"It appears that the Salesforce.com edition you are using does not have this feature enabled."
+		);
+		jumpback(); return; 
+	}
+
+	dformat = Sforce.Util.ParseDateFormat("{!Today}", sforceClient.userInfo.userLocale);
+
+	if ( ! fieldDefined("Case",nameHistoryField) ) { 
+		generalError("Missing Field: for email history functionality you must add a Large Text field named "+
+			nameHistoryFieldName + " to your case object"); 
+	} else { generalErrorClear(); } 
+	
+}
+
+function queryHistory() {
+	var list = []; 	
+	var qr;  
+	
+	if ( CaseHistory_ispublic ) { 
+		qr = sforceClient.query( "Select Id, CreatedById, CreatedDate, Field, NewValue, OldValue From casehistory where caseid = '" + cid + "'" );
+		list = list.concat(qcallback(qr));
+	} 
+	
+	// get activities
+	var fields = " Id,CreatedById, subject, WhoId, CreatedDate,Description ";
+	if ( fieldDefined("Task",'IsVisibleInSelfService') ) { 
+		fields += ", IsVisibleInSelfService ";
+		hasVisInSS = true; 
+	}
+	// tasks 
+	qr = sforceClient.query( "Select "+ fields + " From Task where WhatId = '" + cid + "'" );
+	list = list.concat(qcallback(qr));
+	// comments
+	qr = sforceClient.query( "Select Id,  CreatedById, IsPublished, CommentBody, CreatedDate From CaseComment where ParentId = '" + cid + "'" );
+	list = list.concat(qcallback(qr));
+	// attachments
+	qr = sforceClient.query("select id,	Name,CreatedDate, CreatedById from Attachment where ParentId = '" + cid + "'" );
+	list = list.concat(qcallback(qr));
+	// events
+	qr = sforceClient.query("Select "+ fields + " From Event where WhatId = '" + cid + "'" );
+	list = list.concat(qcallback(qr));
+	
+	// list; // sort  by date
+	fillHistoryField( list.sort(sortDate) ); // write into the big field
+
+	return; 
+}
+
+/* these next two functions create a text version of the history in a large text field 
+ * on the case record, handy if we want to mail a "public" summary of the case to the user.
+ * we build a button in this control interface to run the email send, but it could also be a custom link on case
+ */ 
+var textField; var maxSizeTextField = 0;
+function fillHistoryField( list) { 
+	if ( ! fieldDefined("Case",nameHistoryField) ) return; // check for the history field, msg user?
+	textField = '';
+	maxSizeTextField = fieldSize("Case",nameHistoryField); // grab the size of the target field so we dont over write it..
+	
+	for (var i=0;i<list.length;i++) { addHistFieldItem(list[i]); }	
+	// build the new history text field
+	var dacase = new Sforce.Dynabean("Case"); 	// create bean and fill it
+	dacase.set("Id",cid); 
+	dacase.set(nameHistoryField,textField); 
+	var sr = dacase.save(); 					// write the bean to database
+	if (sr.className != "SaveResult" || sr.success != true ) { 
+		throw("could not save field :" + nameHistoryField +"<br>"+  sr.toString()); 
+	}
+} 
+
+/* desired format
+CASE HISTORY TIMELINE
+1023145
+___________________________________________________________________________
+4/2/2006 5:55PM        Jane Supporto 
+---------------------------------------------------------------------------
+Comment:
+"Your ticket has been closed. Thank you for contacting our service department. 
+You can rate your experience here: http://www.salesforce.com "
+
+___________________________________________________________________________
+4/2/2006 5:09 PM       Jane Supporto 	 
+---------------------------------------------------------------------------
+Task:
+Email: Your case 00001026 self-service password [ ref:00D363w9.50031bSIR:
+Comment: 
+Additional To: spavlova@uog.com
+CC:
+BCC: me@salesforce.com
+Attachment:
+Subject: Your case 00001026 self-service password [ ref:00D363w9.50031bS
+Body:Your case # 00001026: test sub has been updated.
+Please click on the link below to view this case on the self-service portal.
+<insert the link to your self-service portal login page here>
+saleforce.com Customer Support
+
+___________________________________________________________________________
+4/2/2006 4:17 PM        Joe User 
+---------------------------------------------------------------------------
+Comment:
+"I'll be home after 5pm"
+
+*/
+function addHistFieldItem(so) { 		
+	if (!ispublic(so)) return; // this field is always the public version of 
+
+	var l_textField = "_______________________________________________________________\n" + 
+	Sforce.Util.FormatDate(so.get('CreatedDate'), dformat + " HH:mm") + "        ";
+	l_textField += fkname( so.get('CreatedById') ) + "\n" +
+	"---------------------------------------------------------------\n";
+	switch (so.name) { 
+		case "CaseHistory":
+			// special case, history contains a duplicate entry holding the id of a user or contact change
+			// or asset, but we already get the strings , so skip this these.
+			var ov = so.get('OldValue'); var nv = so.get('NewValue');
+			if ( /005/.test(ov) || /005/.test(nv) ) return;
+			if ( /003/.test(ov) || /003/.test(nv) ) return;		
+			if ( /02i/.test(ov) || /02i/.test(nv) ) return;	
+			
+			var ff = so.get('Field');
+			var what = ff.slice(0,1).toUpperCase()+ ff.substr(1); 
+			switch (what) { 
+			case 'Created': l_textField += "Case created"; 
+				break;
+			case 'Closed': l_textField += "Case Closed"; 
+				break;
+			case 'OwnerAssignment' : what = 'Owner Assignment';
+			default:
+				if (ov && nv) { 
+					l_textField += what + " changed from " + ov + " to " + nv;
+				} else if (nv) { 
+					l_textField += what + " changed to " + nv; 
+				} else { 
+					l_textField += what + " changed";
+				}
+				break;
+			} 
+
+		break;
+		case "Event": 
+		case "Task":	// add related info link?
+			var body = so.get('Description').substring(0,maxSizeCommentOrActivity);
+			if (body.length >= maxSizeCommentOrActivity ) body += "\n...";
+			body = body.replace(/(\s)(\s)(\s)/g,"$3");  // collapse multiple spaces
+			l_textField += so.name + ":\nSubject: " + so.get('Subject') + "\n" + 
+				"Name: " + fkname(so.get('WhoId') ) + "\n" + body;
+		break;
+		case "CaseComment": 
+			var body = so.get('CommentBody'); 
+			body =  body.substring(0,maxSizeCommentOrActivity) ;  // truncate the way too long comments that may be here...
+			if (body.length >= maxSizeCommentOrActivity ) body += "\n...";
+			body = body.replace(/(\s)(\s)(\s)/g,"$3"); // collapse multiple spaces
+			l_textField += "Comment:\n" + body;	
+		break;
+		case "Attachment": 
+			l_textField += "Attachment Added: " + so.get('Name').substring(0,55) ;
+		break;
+	} 
+	l_textField += "\n\n";
+	
+	if ( textField.length + l_textField.length > maxSizeTextField ) {
+		generalError("Warning: case history is larger than History Text field, data truncated");
+	} else {
+		textField += l_textField; 
+	}
+}
+
+function sendEmail() { // use a hardcoded template id, will be fixed up at install time
+/*
+/email/author/emailauthor.jsp?retURL=%2F500x0000000UOlh&p3_lkid=500x0000000UOlh&rtype=003&p2_lkid=003x0000004Ezrj&save=1&p24=xxxxx@salesforce.com&p4=&p5=
+the first one, retURL=%2F500x0000000UO1h is where to go back to.  
+It is URL-escaped, (the %2F is the '/') so it will actually go back to /500x0000000UO1h, which is a case.  
+if you are creating a weblink from say, a case, you would want the caseId mergeField in place of the 500x0000000UO1h.
+
+the 2nd parameter: p3_lkid=500x0000000UOlh
+that is the WHAT for the email.  Substitute the ID for a case, account, solution ID.
+
+the 3rd parameter: p2_lkid=003x0000004Ezrj
+that is the WHO for the email.  Substitute the ID for any contact's ID.
+
+Aha, the save=1.  yes you need that.
+
+But you also need the p24=xxxx@salesforce.com.    
+This is the "Additional To:" field.  You can 
+pass in any email address you want in there.  The emaill will be sent to this address, in ADDITION 
+to the WHO.  You can pass in more than one address here by delimiting them with a semi-colon: ';'
+p4 and p5 are CC and BCC addresses.    If you are missing p24, p4, and p5, you'll get an error.
+
+*/
+	// to avoid hitting a limit on what we can pass to emailauthor, use a template to load the 
+	// history text into the body
+	var tid = "00X7000000125Vx";  // hard code reference to template as we cant' look up templates with AJAX
+	var url = "/email/author/emailauthor.jsp?p3_lkid={!Case_ID}&rtype=003&p2_lkid={!Case_Contact_ID}&"+
+		"save=1&p24=&p4=&p5=&template_id="+tid+"&new_template=1"; 
+	var resp = new Sforce.XMLDOMFile(url);
+	// check return found in resp?
+	
+}
+
+function qcallback(qr) { 
+	if (qr.className != "QueryResult") {
+		throw("SOQL error " +qr.className +"\tcould not query " + qr.toString() );	
+	}
+	return qr.records; // return the list to append
+} 
+
+function sortDate(a,b) {
+	if (newest_ontop) return b.get('CreatedDate') - a.get('CreatedDate');
+	return a.get('CreatedDate') - b.get('CreatedDate');
+}
+
+function wrapnl( s) { // replace newlines with BR tags
+	// if lines are longer than 80 chars or so, and they contain no spaces
+	// they will bump off the table, will need to wrap those here
+	for ( var i = 0; i < s.length; i++) { 
+		var c = s.charAt(i);
+		var j = 0; 
+		while ( c != ' ' && c != '\n' ) { 
+			j++;
+			if (j> maxBrokenLine) { // insert a space
+				var news = s.substring(0,i+j) + ' ' + s.substr(i+j);
+				s = news;
+				break;
+			}
+		}
+		i = i + j; 
+	}
+	
+	s = s.replace(/(\s)(\s)(\s)/g,"$3");  // collapse multiple spaces
+	s = s.replace(/\n/g,"<br>");
+	return s;
+} 
+
+function poplink(a,b) { return "<a target=\"_blank\" href=\"/" + a + "\">" + b + "</a>"; } 
+function ispublic(so) { 
+	switch (so.name) { 
+		case "CaseHistory": 	return CaseHistory_ispublic; 			break;
+		case "Task":			return (hasVisInSS && so.get('IsVisibleInSelfService'));		break;
+		case "Event":			return (hasVisInSS && so.get('IsVisibleInSelfService'));		break;
+		case "CaseComment": 	return so.get('IsPublished');		break;
+		case "Attachment": 		return true; 			break;
+	} 
+	throw ( "unknown sobject name "+ so.name); 
+	return false; // should never get here
+} 
+
+function checkInputs() { 	var err = 0;
+	var errComment = document.getElementById('error_Comment'); 
+	
+	if (document.getElementById('p1').value != "") { drawHide(errComment) }
+	else {	drawShow(errComment,mustValue);	err = 2;	}	
+	
+	// draw overall error msg if we saw any issues
+	if (err == 0) {
+		generalErrorClear(); 
+		return true;
+	} else {
+		generalError( invalidData );
+		return false;
+	}
+} 
+
+function generalError(msg) { 
+	drawShow( document.getElementById('error_General'), 
+		'<center>'+msg+'</center>'); }
+function generalErrorClear() { drawHide(document.getElementById('error_General')) }
+function drawShow(ele,msg) { 
+	if(msg) {ele.innerHTML= msg;} 
+	ele.style.visibility = 'visible';
+}
+function drawHide(ele) { ele.style.visibility = 'hidden'; ele.innerHTML = '' } 
+
+function jumpback() { 
+	if ( window.opener && typeof(window.opener) == 'object' ) { 
+		setTimeout("window.close();",100); 
+		window.opener.location.href = "/" + "{!Case_ID}";
+	}
+	else { window.parent.parent.location.href = "/" + "{!Case_ID}"; }
+}
+
+var cache = new Array(); // cache this name for later lookups
+function fkname ( whoid) { // foreign key name of a contact or user
+	if (!whoid) { return '&nbsp;'} //alert('missing param to fkname');
+	if ( cache[whoid] ) { return cache[whoid]; } 
+	var qr; 
+	if ( /003/.test(whoid) ) { 
+		qr= sforceClient.query("select firstname,lastname from Contact where id = '"+whoid+"'");
+	} else { 
+		qr= sforceClient.query("select firstname,lastname from user where id = '"+whoid+"'");
+	} 
+	if (qr.className != "QueryResult") { return '&nbsp;'} 
+	if (qr.records.length < 1) { return '&nbsp;'} 
+	var ret = qr.records[0].get('FirstName') + ' ' + qr.records[0].get('LastName');
+	cache[whoid]=ret;
+	return ret;
+} 
+
+function cell_add ( str) { if (str == undefined || str == null ) { str='&nbsp;';} return str; }
+
+function makeTable(p) {
+	var table = createTag(p,"table",{ 'class':'list','width':'100%','border':'0','cellspacing':'0','cellpadding':'0'} );
+	table.tbody = createTag(table,'tbody');
+	return table
+}
+
+function makeRow(atts) { var ret= createTag(null,'TR',atts); ret.active = false; return ret;}
+
+function createTag(parent, name, keyvalPairs) {
+	var ret; 
+	if (sforceClient.appType == Sforce.Application.Type.InternetExplorer) {
+		var trTag = "<"+name+" ";
+		for (key in keyvalPairs) { trTag += key + "=\"" + keyvalPairs[key] + "\""; }
+		trTag += ">";
+		ret = document.createElement(trTag);
+	} else { 
+		ret = document.createElement(name);
+		for (key in keyvalPairs) {	ret.setAttribute(key, keyvalPairs[key]); }
+	} 
+	if (parent) parent.appendChild(ret);
+	return ret;
+}
+
+/* ParseDateFormat ( "26/02/2006" ) == "d/M/y"
+ * given a date string, report which format it is in, 
+ * used to detect locale date formats 
+*/
+Sforce.Util.ParseDateFormat = function(val,lang) {lang = lang+"";
+/*Lang comes from API Name: LocaleSidKey Type: picklist */
+	var preferEuro = true;
+	if ( /US/.test(lang) ) preferEuro = false; 
+	generalFormats=new Array('y-M-d','MMM d, y','MMM d,y','y-MMM-d','d-MMM-y','MMM d');
+	monthFirst=new Array('M/d/y','M-d-y','M.d.y','MMM-d','M/d','M-d');
+	dateFirst =new Array('d/MM/y','d-M-y','d.M.y','d-MMM','d/M','d-M');
+	var checkList= new Array(generalFormats,preferEuro?dateFirst:monthFirst,preferEuro?monthFirst:dateFirst);
+	var d=null;
+	for (var i=0; i<checkList.length; i++) {
+		var l=checkList[i];
+		for (var j=0; j<l.length; j++) {
+			d=Sforce.Util.GetDateFromFormat(val,l[j]);
+			if (d!=0) { return l[j] }
+		}
+	}
+	return "M/d/y"; // default
+} 
+
+function fieldDefined(table, name) { // checks for custom field exists, return Boolean
+	name = name.toLowerCase();
+	if( ! /__c/.test(name) ) { name += '__c';}	
+	var def = sforceClient.DescribeSObject(table);	// first see if field exists
+	var ret =  def.fieldMap.containsItem(name);
+	return ( ret );
+}
+function fieldSize(table, name) { // checks for custom field exists, return Boolean
+	name = name.toLowerCase();
+	if( ! /__c/.test(name) ) { name += '__c';}	
+	var def = sforceClient.DescribeSObject(table);	// first see if field exists
+	var ret =  def.fieldMap.getItem(name);
+	return ( ret.length );
+}
+
+function setCommentCheckbox(published, commentName, defaultOn) {
+	var commentBox = document.getElementById(commentName);
+	if (commentBox) {
+		if (published.checked) {
+			commentBox.disabled = false;
+			if (defaultOn == '1') {
+				commentBox.checked = true;
+			} else {
+				commentBox.checked = false;
+			}
+		} else {
+			commentBox.disabled = true;
+			commentBox.checked = false;				
+		}
+	}
+}
+Sforce.Client.prototype.setUserInfo = function(uinfo) { 
+	// fix for the beta 3.3 version 
+	this.userInfo = uinfo; 	// save uinfo into this client
+};
+
+
+function openWaitWindow() { 
+	var width = 250; 
+	var height = 150; 
+	var left = parseInt((screen.availWidth/2) - (width/2)); 
+	var top = parseInt((screen.availHeight/2) - (height/2)); 
+	var windowFeatures = "width=" + width + ",height=" + height + 
+	",status=no,resizable=no,toolbar=no,scrollbars=no,menubar=no,directories=no,dependant,location=no,left=" + 
+		left + ",top=" + top + 	",screenX=" + left + ",screenY=" + top; 
+	var myWindow = window.open("", "Waiting", windowFeatures); 
+	writeToWindow(myWindow); 	
+	return myWindow; 
+} 
+
+function writeToWindow(newWindow) { 
+	// assemble content for new window 
+	var newContent = "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\" \"http://www.w3.org/TR/html4/loose.dtd\">"; 
+	newContent += "<html><head><title>Loading</title></head>"; 
+	newContent += "<body ><center>"; 
+	newContent += "Updating records... please wait<br>"; 
+	newContent += "<img src='/img/waiting_dots.gif' alt='Please wait...' title='Please wait...' width=196 height=20>"; 
+	newContent += "</center></body></html>"; 
+	
+	// write HTML to new window document 
+	newWindow.document.write(newContent); 
+	newWindow.document.close( ); // close layout stream 
+}
+// init
+setCommentCheckbox(document.getElementById('p0'), 'p6', 'null');
+
+//-->
+</script>
+</head>
+<body onload="initPage();" class="case overviewPage" >
+<!--  -->
+<a name="skiplink">
+<img src="/s.gif" height='1' width='1' alt="Content Starts Here" class="skiplink"></a>
+<div id=all>
+<div class="bPageTitle"><div class="ptBody secondaryPalette">
+<div class="content">
+<img src="/s.gif" alt="Case"  class="pageTitleIcon">
+<h1 class="pageType">Add Comments<span  class="titleSeparatingColon">:</span></h1>
+<h2 class="pageDescription">Case {!Case_Number}</h2><div class="blank">&nbsp;</div></div>
+
+</div>
+<div class="ptBreadcrumb"></div>
+</div>
+
+<div class="bPageBlock secondaryPalette" id="ep">
+<div class="pbHeader">
+<TABLE  cellpadding="0" cellspacing="0" border="0"><TR><TD class="pbTitle">
+<img src="/s.gif" alt="" title="" width=1 height=1 class="minWidth">
+<span class="mainTitle">Case Summary</span></TD></TR>
+</TABLE></div>
+<div class="pbBody">
+<div class="pbSubsection">
+<TABLE  class="detailList" cellpadding="0" cellspacing="0" border="0">
+<TR><TD class="labelCol">Subject</TD><TD class="data2Col" colspan="3">{!Case_Subject}</TD></TR>
+<TR><TD class="labelCol ">Description</TD><TD class="data2Col " colspan="3">{!Case_Description}</TD></TR>
+<TR><TD class="labelCol last">Status</TD><TD class="data2Col last" colspan="3">{!Case_Status}</TD></TR>
+</TABLE></div></div>
+<div class="pbFooter secondaryPalette"><div class="bg"></div></div>
+</div>
+
+<form  action="#" id="editPage" name="editPage" >
+<div class="bPageBlock bEditBlock bLayoutBlock secondaryPalette" id="ep_1">
+<div class="pbHeader">
+<TABLE  cellpadding="0" cellspacing="0" border="0"><TR>
+	<TD class="pbTitle"><img src="/s.gif" alt="" title="" width=1 height=1 class="minWidth">
+	<h2 class="mainTitle"></h2></TD><TD class="pbButton">
+	<input value=" Save "  class="btn"  type="button" onclick="javascript:saveComment();" 
+		title="Save" name="save"> 
+<!--  
+<input value=" Save & Email History "  class="btn" type="button" onclick="javascript:saveCommentAndEmail();" title="Save" name="saveand"> 
+ -->
+	<input value="Cancel"  class="btn" type="button" onclick="javascript:jumpback()" 
+		title="Cancel" name="cancel"></TD></TR>
+</TABLE></div>
+
+<div class="pbBody"><div class="pbSubsection">
+<div class=errorMsg id=error_General ></div>
+<TABLE  class="detailList" cellpadding="0" cellspacing="0" border="0">
+<tbody>
+<TR>
+<TD class="labelCol"><label for="p0">Public</label></TD>
+<TD class="data2Col" ><input  value="1" type="checkbox" id="p0" name="p0" /></TD>
+</TR>
+<TR><TD class="labelCol requiredInput "><label for="p1"><span class="requiredMark">*</span>Comment</label>
+<div class="textCounterOuter"><div class="textCounterMiddle">
+<div class="textCounter" id="p1_counter">4000 remaining</div></div></div></TD>
+<TD class="data2Col last" colspan="3"><div class="requiredInput"><div class="requiredBlock"></div>
+<textarea  cols="80" onkeyup="handleTextAreaElementChange('p1', 4000, 'remaining', 'over limit');" 
+	rows="8" maxlength="4000" type="text" 
+	onclick="handleTextAreaElementChange('p1', 4000, 'remaining', 'over limit');" 
+	onkeydown="handleTextAreaElementChange('p1', 4000, 'remaining', 'over limit');" 
+	wrap="soft" onmousedown="handleTextAreaElementChange('p1', 4000, 'remaining', 'over limit');" 
+	onchange="handleTextAreaElementChange('p1', 4000, 'remaining', 'over limit');" id="p1" name="p1"></textarea>
+<span class="errorMsg" id="error_Comment"></span></div></TD></TR>
+<TR>
+<TD class="labelCol"><label for="p2">Send History to Customer</label></TD>
+<TD class="data2Col" ><input  value="1" type="checkbox" id="p2" name="p2" /></TD>
+</TR>
+</tbody></TABLE>
+</div></div>
+
+<div class="pbBottomButtons">
+<TABLE  cellpadding="0" cellspacing="0" border="0"><TR>
+<TD class="pbTitle"><img src="/s.gif" alt="" title="" width=1 height=1 class="minWidth">&nbsp;</TD>
+<TD class="pbButtonb">
+ <input value=" Save "  class="btn" type="button" onclick="javascript:saveComment();" 
+ 	title="Save" name="save"> 
+<!--  <input value=" Save & Email History "  class="btn" type="button" onclick="javascript:saveCommentAndEmail();" 
+ 	title="Save and send" name="saveand"> 
+  -->
+ <input value="Cancel"  class="btn" type="button" onclick="javascript:jumpback();" 
+ 	title="Cancel" name="cancel"></TD></TR>
+</TABLE></div><div class="pbFooter secondaryPalette"><div class="bg"></div></div>
+
+</div>
+
+</form>
+</div>
+</body>
+</html>

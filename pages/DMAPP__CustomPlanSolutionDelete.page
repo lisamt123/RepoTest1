@@ -1,0 +1,56 @@
+<apex:page standardController="DMAPP__AM_Solution__c" extensions="DMAPP.DeletePlanSolutionExtension">
+<apex:includeScript value="{!URLFOR($Resource.DMAPP__jQueryUI, 'js/jquery-1.7.2.min.js')}"/>
+
+<style>
+    .centered {
+        margin: auto;
+    }
+    
+    td.selected {
+        background-color: #9C0;
+    }
+</style>
+
+<apex:form >
+	<apex:pageBlock title="Plan Solutions">
+	   
+	   <!-- TODO need to look up to see if there are any accounts solutions linked to it -->
+	   <!-- If none just need to say are you sure -->
+	   
+	   <apex:outputText value="Please select a replacement solution for the one you intend to delete."/>
+	   
+        <apex:panelGrid columns="2" styleClass="centered">
+            <apex:commandButton action="{!cancel}" value="Cancel"/>
+            <apex:commandButton action="{!doDelete}" onclick="return confirm('Are you sure you want to proceed?');" 
+                value="Replace & Delete" disabled="{!hasNoReplacement}" id="replaceBtn"/>
+        </apex:panelGrid>
+
+	    <apex:panelGrid columns="5" styleClass="centered">
+            <apex:commandLink action="{!first}">First</apex:commandlink>
+	        <apex:commandLink action="{!previous}">Previous</apex:commandlink>
+
+			<apex:selectList value="{!pageNumber}" multiselect="false" size="1">
+    			<apex:selectOptions value="{!pageList}"/>
+    			<apex:actionSupport event="onchange" action="{!changePage}"/>
+			</apex:selectList>
+
+	        <apex:commandLink action="{!next}">Next</apex:commandlink>
+            <apex:commandLink action="{!last}">Last</apex:commandlink>
+	    </apex:panelGrid>
+
+        <apex:actionFunction name="selectSolution" action="{!selectReplacement}" rerender="table,replaceBtn">
+            <apex:param name="replacementId" value="" assignTo="{!replacementId}"/>
+        </apex:actionFunction>
+	    <apex:pageBlockTable value="{!solutionPagination}" var="s" id="table">
+	       <apex:column headerValue="" styleClass="{!IF(s.selected, 'selected', '')}">
+	           <apex:inputCheckbox value="{!s.selected}" onclick="selectSolution('{!s.solution.Id}');" 
+	               styleClass="solution"/>
+	       </apex:column>
+	        <apex:column headerValue="Solution Name" styleClass="{!IF(s.selected, 'selected', '')}">
+	            <apex:outputlink value="/{!s.solution.Id}" target="_top">{!s.solution.Name}</apex:outputlink>
+	        </apex:column>
+	    </apex:pageBlockTable>
+
+	</apex:pageBlock>
+</apex:form>
+</apex:page>

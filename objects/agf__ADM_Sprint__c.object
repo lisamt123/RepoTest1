@@ -1,0 +1,429 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <actionOverrides>
+        <actionName>Accept</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>CancelEdit</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Clone</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Delete</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Edit</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Follow</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>List</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>New</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>SaveEdit</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Tab</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>View</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <allowInChatterGroups>false</allowInChatterGroups>
+    <compactLayoutAssignment>agf__Sprint</compactLayoutAssignment>
+    <compactLayouts>
+        <fullName>agf__Sprint</fullName>
+        <fields>Name</fields>
+        <fields>agf__Start_Date__c</fields>
+        <fields>agf__End_Date__c</fields>
+        <label>Sprint</label>
+    </compactLayouts>
+    <deploymentStatus>Deployed</deploymentStatus>
+    <deprecated>false</deprecated>
+    <description>Added to support User Story for Scrumforce integration into GUS.</description>
+    <enableActivities>true</enableActivities>
+    <enableBulkApi>true</enableBulkApi>
+    <enableEnhancedLookup>false</enableEnhancedLookup>
+    <enableFeeds>true</enableFeeds>
+    <enableHistory>true</enableHistory>
+    <enableReports>true</enableReports>
+    <enableSearch>true</enableSearch>
+    <enableSharing>true</enableSharing>
+    <enableStreamingApi>true</enableStreamingApi>
+    <fields>
+        <fullName>agf__Backlog__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <formula>HYPERLINK(&quot;/apex/ADM_SprintBacklog?id=&quot; &amp;  Id , &quot;View Backlog&quot;, &quot;_top&quot;)</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>Backlog</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>agf__Completed_Story_Points__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>Velocity</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>0</scale>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Number</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>agf__Days_Remaining__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <formula>IF( TODAY() &lt; agf__Start_Date__c, &apos;NOT STARTED&apos;, IF( agf__End_Date__c &gt;= TODAY(), TEXT( ROUND(agf__End_Date__c - TODAY(), 0) + 1 ), &apos;CLOSED&apos; ) )</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>Days Remaining</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>agf__Discount_Work__c</fullName>
+        <defaultValue>0</defaultValue>
+        <deprecated>false</deprecated>
+        <description>% to take off of the total time available</description>
+        <externalId>false</externalId>
+        <label>Discount work time (%)</label>
+        <precision>2</precision>
+        <required>false</required>
+        <scale>0</scale>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Percent</type>
+    </fields>
+    <fields>
+        <fullName>agf__End_Date__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>End Date</label>
+        <required>true</required>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Date</type>
+    </fields>
+    <fields>
+        <fullName>agf__External_ID__c</fullName>
+        <caseSensitive>true</caseSensitive>
+        <deprecated>false</deprecated>
+        <externalId>true</externalId>
+        <label>External ID</label>
+        <length>50</length>
+        <required>false</required>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>true</unique>
+    </fields>
+    <fields>
+        <fullName>agf__Goals__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>Goals</label>
+        <length>3000</length>
+        <trackFeedHistory>true</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>LongTextArea</type>
+        <visibleLines>10</visibleLines>
+    </fields>
+    <fields>
+        <fullName>agf__Hours_in_a_work_day__c</fullName>
+        <defaultValue>6</defaultValue>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>Hours in a work day</label>
+        <precision>3</precision>
+        <required>false</required>
+        <scale>1</scale>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Number</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>agf__NameValidator__c</fullName>
+        <caseSensitive>false</caseSensitive>
+        <deprecated>false</deprecated>
+        <description>This field is used to enforce a unique name as the standard Name field does not offer the option to enforce uniqueness.</description>
+        <externalId>false</externalId>
+        <label>NameValidator</label>
+        <length>255</length>
+        <required>false</required>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>true</unique>
+    </fields>
+    <fields>
+        <fullName>agf__Projected_Velocity__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>Projected Velocity</label>
+        <precision>3</precision>
+        <required>false</required>
+        <scale>0</scale>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Number</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>agf__Release_Burndown_Calc__c</fullName>
+        <defaultValue>false</defaultValue>
+        <deprecated>false</deprecated>
+        <description>Internal field used by the system to figure out if it should calculate a release burndown for this sprint. This field is updated by a Time Based Workflow and causes a trigger action to fire and calculate the Release_Burndown_Item__c</description>
+        <externalId>false</externalId>
+        <label>Release Burndown Calculated</label>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>agf__Retrospective__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>Retrospective</label>
+        <length>32000</length>
+        <trackFeedHistory>true</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>LongTextArea</type>
+        <visibleLines>20</visibleLines>
+    </fields>
+    <fields>
+        <fullName>agf__Risks__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>Risks</label>
+        <length>2000</length>
+        <trackFeedHistory>true</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>LongTextArea</type>
+        <visibleLines>6</visibleLines>
+    </fields>
+    <fields>
+        <fullName>agf__Scrum_Team__c</fullName>
+        <deleteConstraint>SetNull</deleteConstraint>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>Scrum Team</label>
+        <referenceTo>agf__ADM_Scrum_Team__c</referenceTo>
+        <relationshipLabel>Sprints</relationshipLabel>
+        <relationshipName>Sprints</relationshipName>
+        <required>false</required>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Lookup</type>
+    </fields>
+    <fields>
+        <fullName>agf__Sprint_Timeframe__c</fullName>
+        <deprecated>false</deprecated>
+        <description>The first 8 characters of the sprint name</description>
+        <externalId>false</externalId>
+        <formula>trim(LEFT(Name,8))</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>Sprint Timeframe YYYY.MMx</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>agf__Start_Date__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>Start Date</label>
+        <required>true</required>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Date</type>
+    </fields>
+    <fields>
+        <fullName>agf__Total_Workdays__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>Total Workdays</label>
+        <precision>3</precision>
+        <required>false</required>
+        <scale>0</scale>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Number</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>agf__Transformed__c</fullName>
+        <defaultValue>false</defaultValue>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>Transformed</label>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Checkbox</type>
+    </fields>
+    <label>Sprint</label>
+    <listViews>
+        <fullName>All</fullName>
+        <columns>NAME</columns>
+        <columns>agf__Days_Remaining__c</columns>
+        <columns>agf__Start_Date__c</columns>
+        <columns>agf__End_Date__c</columns>
+        <columns>agf__Total_Workdays__c</columns>
+        <columns>CREATEDBY_USER</columns>
+        <columns>CREATED_DATE</columns>
+        <columns>UPDATEDBY_USER.ALIAS</columns>
+        <columns>UPDATEDBY_USER</columns>
+        <columns>LAST_UPDATE</columns>
+        <columns>agf__Completed_Story_Points__c</columns>
+        <columns>agf__Backlog__c</columns>
+        <filterScope>Everything</filterScope>
+        <label>All</label>
+        <language>en_US</language>
+    </listViews>
+    <listViews>
+        <fullName>agf__All</fullName>
+        <columns>NAME</columns>
+        <columns>agf__Days_Remaining__c</columns>
+        <columns>agf__Start_Date__c</columns>
+        <columns>agf__End_Date__c</columns>
+        <columns>agf__Total_Workdays__c</columns>
+        <columns>CREATEDBY_USER</columns>
+        <columns>CREATED_DATE</columns>
+        <columns>UPDATEDBY_USER.ALIAS</columns>
+        <columns>UPDATEDBY_USER</columns>
+        <columns>LAST_UPDATE</columns>
+        <columns>agf__Completed_Story_Points__c</columns>
+        <columns>agf__Backlog__c</columns>
+        <filterScope>Everything</filterScope>
+        <label>All</label>
+        <language>en_US</language>
+    </listViews>
+    <listViews>
+        <fullName>agf__GUS_Sprints</fullName>
+        <columns>NAME</columns>
+        <columns>agf__Days_Remaining__c</columns>
+        <columns>agf__Start_Date__c</columns>
+        <columns>agf__End_Date__c</columns>
+        <columns>agf__Completed_Story_Points__c</columns>
+        <filterScope>Everything</filterScope>
+        <filters>
+            <field>agf__Scrum_Team__c</field>
+            <operation>equals</operation>
+            <value>GUS</value>
+        </filters>
+        <label>GUS Sprints</label>
+    </listViews>
+    <nameField>
+        <label>Name</label>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <type>Text</type>
+    </nameField>
+    <pluralLabel>Sprints</pluralLabel>
+    <searchLayouts/>
+    <sharingModel>ReadWrite</sharingModel>
+    <validationRules>
+        <fullName>agf__Hours_In_A_Work_Day</fullName>
+        <active>true</active>
+        <description>Limit hours in a work day to a maximum of 24</description>
+        <errorConditionFormula>agf__Hours_in_a_work_day__c &gt; 24</errorConditionFormula>
+        <errorDisplayField>agf__Hours_in_a_work_day__c</errorDisplayField>
+        <errorMessage>Hours in a work day cannot exceed 24</errorMessage>
+    </validationRules>
+    <validationRules>
+        <fullName>agf__Hours_In_A_Work_Day_Neg</fullName>
+        <active>true</active>
+        <description>Limit hours in a work day to positive numbers</description>
+        <errorConditionFormula>agf__Hours_in_a_work_day__c &lt; 0</errorConditionFormula>
+        <errorDisplayField>agf__Hours_in_a_work_day__c</errorDisplayField>
+        <errorMessage>Hours in a work day cannot be a negative number</errorMessage>
+    </validationRules>
+    <validationRules>
+        <fullName>agf__Projected_Velocity_Neg</fullName>
+        <active>true</active>
+        <description>Limit projected velocity to positive numbers</description>
+        <errorConditionFormula>agf__Projected_Velocity__c &lt; 0</errorConditionFormula>
+        <errorDisplayField>agf__Projected_Velocity__c</errorDisplayField>
+        <errorMessage>Projected velocity cannot be a negative number</errorMessage>
+    </validationRules>
+    <validationRules>
+        <fullName>agf__Scrum_Team_Is_Active</fullName>
+        <active>true</active>
+        <errorConditionFormula>agf__Scrum_Team__r.agf__Active__c = false</errorConditionFormula>
+        <errorMessage>The scrum team you selected is not active.</errorMessage>
+    </validationRules>
+    <validationRules>
+        <fullName>agf__Verify_end_date</fullName>
+        <active>true</active>
+        <description>Make sure that end date &gt; start date (accidents happen)</description>
+        <errorConditionFormula>agf__Start_Date__c &gt;= agf__End_Date__c</errorConditionFormula>
+        <errorMessage>Your End Date must be after your Start Date</errorMessage>
+    </validationRules>
+    <validationRules>
+        <fullName>agf__Verify_length_of_sprint</fullName>
+        <active>true</active>
+        <description>make sure sprint length is &lt;= 31</description>
+        <errorConditionFormula>(agf__End_Date__c - agf__Start_Date__c) &gt; 31</errorConditionFormula>
+        <errorDisplayField>agf__End_Date__c</errorDisplayField>
+        <errorMessage>A sprint can&apos;t be longer than one month (31 days). Please correct your end date and click &apos;Save&apos;.</errorMessage>
+    </validationRules>
+    <validationRules>
+        <fullName>agf__Verify_name_format</fullName>
+        <active>true</active>
+        <description>Will verify that the name of the sprint fits the following format:
+20YY.MM[a-z] - &lt;letters&gt;</description>
+        <errorConditionFormula>OR(
+    NOT( CONTAINS( &quot;2&quot;, LEFT(Name, 1) ) ),
+    NOT( CONTAINS( &quot;0&quot;, MID(Name, 2, 1) ) ),
+    NOT( CONTAINS( &quot;0123456789&quot;, MID(Name, 3, 1) ) ),
+    NOT( CONTAINS( &quot;0123456789&quot;, MID(Name, 4, 1) ) ),
+    NOT( CONTAINS(&quot;.&quot;, MID(Name, 5,1) ) ),
+    NOT( CONTAINS( &quot;0123456789&quot;, MID(Name, 6, 1) ) ),
+    NOT( CONTAINS( &quot;0123456789&quot;, MID(Name, 7, 1) ) ),
+    NOT( CONTAINS(&quot; abcdef0123456789&quot;, MID(Name, 8,1) ) )
+)</errorConditionFormula>
+        <errorDisplayField>Name</errorDisplayField>
+        <errorMessage>Your sprint should follow the format: YYYY.MM(0-9 or a-f) - &lt;Team Name&gt;4 digit year, 2 digit month, optional (0-9 or a-f) - &lt;your team name&gt;</errorMessage>
+    </validationRules>
+</CustomObject>

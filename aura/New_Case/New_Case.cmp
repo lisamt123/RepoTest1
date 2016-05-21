@@ -1,0 +1,57 @@
+<aura:component implements="forceCommunity:availableForAllPageTypes" controller="NewCaseController">
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+    <aura:attribute name="accountName"	type="String" />
+    <aura:attribute name="userName"	type="String" />
+    <aura:attribute name="userEmail" type="String" />
+    <aura:attribute name="userPhone" type="String" />
+    <aura:attribute name="productAreaList" type="String[]"/>
+    <aura:attribute name="newCase" type="Case"
+                    default="{
+                            	'sobjectType': 'Case',
+                             	'Subject'	 : '',
+                             	'Description': '',
+                             	'Product_Area__c' : ''
+                               }"/>
+    <form>
+        <div class="forceCommunityCreateRecordForm">
+            <h1 class="headerLabel">{!$Label.c.New_Case_Header}</h1>
+            <div class="row">
+				<label><strong>{!$Label.c.New_Case_Account_Name}</strong></label><br/>
+            	<ui:outputText value="{!v.accountName}" class="text"></ui:outputText>
+            </div>
+            <div class="row">
+                <label><strong>{!$Label.c.New_Case_User_Name}</strong></label><br/>
+            	<ui:outputText value="{!v.userName}" class="text"></ui:outputText>
+            </div>
+            <div class="row">
+                <label><strong>{!$Label.c.New_Case_User_Email}</strong></label><br/>
+            	<ui:outputText value="{!v.userEmail}" class="text"></ui:outputText>
+            </div>
+            <div class="row">
+                <label><strong>{!$Label.c.New_Case_User_Phone}</strong></label><br/>
+            	<ui:outputText value="{!v.userPhone}" class="text"></ui:outputText>
+            </div>
+            <div class="row">
+                <label><strong>{!$Label.c.New_Case_ProductArea}</strong></label><br/>
+                <ui:inputSelect aura:id="productArea" value="{!v.newCase.Product_Area__c}">
+                    <ui:inputSelectOption text="" label="{!$Label.c.New_Case_EmptySelectOption}"/>
+                    <aura:iteration items="{!v.productAreaList}" var="productArea">
+                        <ui:inputSelectOption text="{!productArea}" label="{!productArea}"/>
+                    </aura:iteration>
+                </ui:inputSelect>
+        	</div>
+            <div class="row">
+                <label><strong>{!$Label.c.New_Case_Subject}</strong></label><br/>
+                <ui:inputText aura:id="subject" value="{!v.newCase.Subject}" />
+            </div>
+            <div class="row">
+                <label><strong>{!$Label.c.New_Case_Description}</strong></label><br/>
+                <ui:inputTextArea aura:id="description" value="{!v.newCase.Description}" />
+            </div>
+            
+            <div class="buttonWrapper">
+                <ui:button label="{!$Label.c.New_Case_Confirm_Btn}" press="{!c.createCase}" class="button uiButton--default uiButton--brand uiButton"/>
+            </div>
+        </div>
+    </form>
+</aura:component>

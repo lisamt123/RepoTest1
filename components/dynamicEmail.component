@@ -1,0 +1,90 @@
+<apex:component controller="ctrl_dynamicEmail" access="global" layout="none" >
+
+
+
+<apex:attribute name="RID" description="ID of the Related To ID"
+	type="ID" assignTo="{!RID}" />
+
+<apex:panelGrid columns="1" 
+	style="vertical-align:top;height:100%;float:top;">
+	<apex:panelGrid columns="1" style="padding-right:10px;width:100%">
+		<c:bannerComponent templateID="{!tempID}" />
+		<apex:panelGrid columns="1" style="text-align:right;width:100%" >
+			<apex:image url="{!dynamicEmail.Urgency_URL__c}" />
+		</apex:panelGrid>
+	</apex:panelGrid>
+	<apex:outputPanel layout="block" style="width:1000px;height:100%;vertical-align:top">
+		<table>
+			<tr>
+				<td
+					style="width: 269px; vertical-align: top; word-break: hyphenate;">
+					<apex:outputText escape="false" id="sbRT" value="{!dynamicEmail.Sidebar_Body__c}"
+						style="font-size:12pt;vertical-align:top;word-break:hyphenate;width:269px;font-family:Times New Roman" />
+				</td>
+				<td
+					style="width: 731px; vertical-align: top; word-break: hyphenate;border-left:1px solid black;padding-left:10px">
+					<!-- 
+					<apex:outputText value="{!standardText}" escape="false"
+							style="font-size:9pt;padding-bottom:0px;width:731px;" /> 
+					-->
+					<apex:panelGrid columns="1" style="width:731px;font-family: Times New Roman; font-size:12pt;">
+						<pre style="width:731px;font-family: Times New Roman; font-size:12pt;">
+							<apex:outputText value="{!standardText}" escape="false" style="font-size:12pt;padding-bottom:0px;width:731px;"/>
+						</pre>
+					</apex:panelGrid>
+						<!-- 
+						<c:emailTables RID="{!ObjID}" templateID="{!tempID}"/>
+						-->
+						<div style="height:15px;width:731px">
+							<apex:outputText value=" "/>
+						</div>
+						<apex:repeat value="{!tables}" var="t">
+						<apex:dataTable id="dt"
+							value="{!t.objRecs}" rules="all" style="border-spacing:1px;cellPadding:1px;cellSpacing:1px;background-color:lightGrey;border: 1px solid black;width:731px;font-size:12pt;" var="obj">
+							<apex:repeat value="{!t.colHeads}" var="ch">
+								 <!-- 
+								<apex:column id="col" headerValue="{!t.headerMap[ch]}"  style="margin:0;cellPadding:0px;cellSpacing:0px;border:1px solid grey;padding:0px;" > 
+										<apex:outputText value="{!obj[ch]}"/>
+								</apex:column>
+								-->
+									<apex:column id="col" style="border-spacing:1px;width:91px;cellPadding:1px;cellSpacing:1px;word-break: hyphenate;background-color:white;margin:0;border:1px solid black;" > 
+										<apex:outputPanel layout="block" style="padding:6px;">
+											<apex:outputText value="{!obj[ch]}" style="width:91px;word-break: hyphenate;color:black;text-decoration:none;cursor:default;"/>
+										</apex:outputPanel>
+										<apex:facet name="header">
+											<div
+												style="font-size:12pt;background-color: lightGrey; word-break: hyphenate; padding-left:2px;padding-right:2px;height:80px;text-align:left;vertical-align:middle;padding-bottom:15px;">&#160;<p style="line-height:100%;vertical-align:middle;padding-bottom:10px;">{!t.headerMap[ch]}</p></div>
+										</apex:facet>
+									</apex:column>
+									<!-- <apex:facet name="header"><div style="background-color:#D1D1D1;padding:0px;border:1px solid lightgrey;">{!t.headerMap[ch]}</div></apex:facet> 
+								</apex:column>
+								-->
+							</apex:repeat>
+						</apex:dataTable>
+						<div style="height:15px;width:731px">
+							<apex:outputText value=" "/>
+							<br/>
+						</div>
+						
+					</apex:repeat>
+						<apex:outputText escape="false" value="{!dynamicEmail.Main_Body__c}"
+							style="font-size:12pt;word-break:hyphenate;width:412px;padding-top:10px;font-family:Times New Roman" />
+					</td>
+			</tr>
+		</table>
+</apex:outputPanel>
+<apex:panelGrid columns="1"  style="font-size:12pt;width:100%;font-family:Times New Roman">
+	<apex:outputText value="{!FirstName} {!lastname}" />
+	<apex:outputText value="{!title}" />
+	<apex:outputText value="Email: {!email}" />
+	<apex:outputText value="Phone: {!phone} ext. {!ext}" />
+</apex:panelGrid>
+
+<apex:panelGrid columns="1" width="100%" style="padding-bottom:10%">
+	<apex:image url="https://c.cs12.content.force.com/servlet/servlet.ImageServer?id=015V000000052pU&oid=00DV0000006NEHJ&lastMod=1356111080000"
+		width="1000px" />
+</apex:panelGrid>
+</apex:panelGrid>
+
+
+</apex:component>

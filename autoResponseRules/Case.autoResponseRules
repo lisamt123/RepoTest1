@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<AutoResponseRules xmlns="http://soap.sforce.com/2006/04/metadata">
+    <autoResponseRule>
+        <fullName>Support Responder</fullName>
+        <active>true</active>
+        <ruleEntry>
+            <criteriaItems>
+                <field>Case.Date_Created__c</field>
+                <operation>equals</operation>
+                <value>TODAY</value>
+            </criteriaItems>
+            <criteriaItems>
+                <field>Case.Origin</field>
+                <operation>equals</operation>
+                <value>Lexus Support</value>
+            </criteriaItems>
+            <criteriaItems>
+                <field>Case.Subject</field>
+                <operation>notContain</operation>
+                <value>undeliverable</value>
+            </criteriaItems>
+            <notifyCcRecipients>false</notifyCcRecipients>
+            <replyToEmail>noreply@vinsolutions.com</replyToEmail>
+            <senderEmail>noreply@vinsolutions.com</senderEmail>
+            <senderName>Lexus Response</senderName>
+            <template>Support_Auto_Responses/HY_Lexus_Support_Email_to_Case</template>
+        </ruleEntry>
+        <ruleEntry>
+            <criteriaItems>
+                <field>Case.Date_Created__c</field>
+                <operation>equals</operation>
+                <value>TODAY</value>
+            </criteriaItems>
+            <criteriaItems>
+                <field>Case.Origin</field>
+                <operation>equals</operation>
+                <value>Web,WebDev,Website Support</value>
+            </criteriaItems>
+            <criteriaItems>
+                <field>Case.Subject</field>
+                <operation>notContain</operation>
+                <value>undeliverable</value>
+            </criteriaItems>
+            <criteriaItems>
+                <field>Case.Business_Unit__c</field>
+                <operation>notEqual</operation>
+                <value>vAuto</value>
+            </criteriaItems>
+            <notifyCcRecipients>false</notifyCcRecipients>
+            <replyToEmail>websitesupport@vinsolutions.com</replyToEmail>
+            <senderEmail>noreply@vinsolutions.com</senderEmail>
+            <senderName>Website Support</senderName>
+            <template>Support_Auto_Responses/Haystak_Email_to_Case_Response</template>
+        </ruleEntry>
+        <ruleEntry>
+            <criteriaItems>
+                <field>Case.Date_Created__c</field>
+                <operation>equals</operation>
+                <value>TODAY</value>
+            </criteriaItems>
+            <criteriaItems>
+                <field>Case.Origin</field>
+                <operation>notEqual</operation>
+                <value>Eula,Phone,Internal,Emergency Line,Web,WebDev,Website Support</value>
+            </criteriaItems>
+            <criteriaItems>
+                <field>Case.Subject</field>
+                <operation>notContain</operation>
+                <value>undeliverable</value>
+            </criteriaItems>
+            <criteriaItems>
+                <field>Case.Business_Unit__c</field>
+                <operation>notEqual</operation>
+                <value>vAuto</value>
+            </criteriaItems>
+            <notifyCcRecipients>false</notifyCcRecipients>
+            <senderEmail>supportteam@vinsolutions.com</senderEmail>
+            <senderName>Dealer Support</senderName>
+            <template>Support_Auto_Responses/Email_to_Case_Response</template>
+        </ruleEntry>
+    </autoResponseRule>
+</AutoResponseRules>

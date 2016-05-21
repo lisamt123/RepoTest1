@@ -1,0 +1,283 @@
+<apex:page standardController="Opportunity" showHeader="false"
+	renderas="pdf">
+
+	<table class='MsoNormal' border='0' cellspacing='0' cellpadding='0'
+		width="100%" style='width: 100.0%'>
+		<tr>
+			<td style='padding: 0in 0in 0in 0in'>
+				<p class='MsoNormal'
+					style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+					<span style='font-size: 10.0pt; font-family: "Arial", "sans-serif"'><img
+						width='200' height='65'
+						src="/servlet/servlet.ImageServer?id=01570000000xU56&oid=00D700000008zHZ&lastMod=1243526330000"
+						title='logo' /> </span>
+				</p>
+			</td>
+			<td style='padding: 0in 0in 0in 0in'>
+				<p class='MsoNormal' align='right'
+					style='margin-bottom: 10.0pt; text-align: right; line-height: normal'>
+					<span style='font-size: 10.0pt; font-family: "Arial", "sans-serif"'>{!$Organization.Name}<br />
+						{!$Organization.Street}<br /> {!$Organization.City}, KS
+						{!$Organization.PostalCode}<br /> www.vinsolutions.com<br />
+						Sales and Support: 913-825-6124</span>
+				</p>
+			</td>
+		</tr>
+	</table>
+
+	<div class='MsoNormal' align='center'
+		style='margin-bottom: 0in; margin-bottom: .0001pt; text-align: center; line-height: normal'>
+		<span
+			style='font-size: 10.0pt; font-family: "Arial", "sans-serif"; color: black'>
+
+			<hr size='2' width="100%" align='center' /> </span>
+	</div>
+	<table border="0" width="100%" id="table2">
+		<tr>
+			<td align="center">DEAL SHEET</td>
+		</tr>
+		<tr>
+			<td align="left">Close Date: &nbsp; <apex:OutputField value="{!Opportunity.CloseDate}" /></td>
+		</tr>
+		<tr>
+			<td align="left">Dealer Name: {!Opportunity.Account.Name}</td>
+			<td align="right">Dealer VS ID#:
+				{!Opportunity.Account.AccountNumber}</td>
+		</tr>
+		<tr>
+			<!--<td align="left">DMS Type {!Opportunity.Account.DMS__c}</td>-->
+			<td align="right">Dealer Contact:
+				{!Opportunity.Deal_Contact__r.Name}</td>
+		</tr>
+		<tr>
+			<td align="Left">SOLD BY: {!Opportunity.Owner.FirstName}
+				{!Opportunity.Owner.LastName}</td>
+			<td align="Right">Deal
+				Number:{!Opportunity.QuoteNumber__c}{!Opportunity.QuoteVersion__c}</td>
+		</tr>
+	</table>
+
+
+	<p class='MsoNormal'
+		style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+		<span
+			style='font-size: 10.0pt; font-family: "Arial", "sans-serif"; color: black; display: none'>&nbsp;</span>
+	</p>
+
+	<table class='MsoNormal' border='0' cellpadding='0' width="100%"
+		style='width: 100.0%'>
+		<tr>
+			<td style='padding: .75pt .75pt .75pt .75pt'>
+				<p class='MsoNormal'
+					style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+					<b><span
+						style='font-size: 10.0pt; font-family: "Arial", "sans-serif"'>Bill
+							To:</span> </b><span
+						style='font-size: 10.0pt; font-family: "Arial", "sans-serif"'><br />
+						{!Opportunity.Account.BillingStreet}<br />
+						{!Opportunity.Account.BillingCity},
+						{!Opportunity.Account.BillingState}
+						{!Opportunity.Account.BillingPostalCode}</span>
+				</p>
+			</td>
+			<td width="50%"
+				style='width: 50.0%; padding: .75pt .75pt .75pt .75pt'></td>
+			<td style='padding: .75pt .75pt .75pt .75pt'>
+				<p class='MsoNormal'
+					style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+					<b><span
+						style='font-size: 10.0pt; font-family: "Arial", "sans-serif"'>Ship
+							To:</span> </b><span
+						style='font-size: 10.0pt; font-family: "Arial", "sans-serif"'><br />
+						{!Opportunity.Account.ShippingStreet}<br />
+						{!Opportunity.Account.ShippingCity},
+						{!Opportunity.Account.ShippingState}
+						{!Opportunity.Account.ShippingPostalCode}</span>
+				</p>
+			</td>
+		</tr>
+	</table>
+
+
+	<hr />
+	<p class='MsoNormal' style='line-height: normal'>
+		<b><span
+			style='font-size: 12.0pt; font-family: "Arial", "sans-serif"; color: navy'>Products</span>
+		</b>
+	</p>
+
+	<table class='MsoNormal' border='0' cellpadding='0' width="100%"
+		style='width: 100.0%'>
+		<tr style='height: 382.5pt'>
+			<td valign='top'
+				style='padding: .75pt .75pt .75pt .75pt; height: 382.5pt'>
+				<table class='MsoNormal' border='0' cellpadding='0' width="100%"
+					style='width: 100.0%'>
+					<tr>
+						<td style='background: silver; padding: .75pt .75pt .75pt .75pt'>
+							<p class='MsoNormal'
+								style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+								<span
+									style='font-size: 12.0pt; font-family: "Arial", "sans-serif"'>Product</span>
+							</p>
+						</td>
+						<td style='background: silver; padding: .75pt .75pt .75pt .75pt'>
+							<p class='MsoNormal'
+								style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+								<span
+									style='font-size: 12.0pt; font-family: "Arial", "sans-serif"'>Quantity</span>
+							</p>
+						</td>
+						<td style='background: silver; padding: .75pt .75pt .75pt .75pt'>
+							<p class='MsoNormal'
+								style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+								<span
+									style='font-size: 12.0pt; font-family: "Arial", "sans-serif"'>List
+									Price</span>
+							</p>
+						</td>
+						<td style='background: silver; padding: .75pt .75pt .75pt .75pt'>
+							<p class='MsoNormal'
+								style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+								<span
+									style='font-size: 12.0pt; font-family: "Arial", "sans-serif"'>Sale
+									Price</span>
+							</p>
+						</td>
+						<td style='background: silver; padding: .75pt .75pt .75pt .75pt'>
+							<p class='MsoNormal'
+								style='margin-bottom: 0in; margin-bottom: .0001pt; line-height: normal'>
+								<span
+									style='font-size: 12.0pt; font-family: "Arial", "sans-serif"'>Total
+									Price</span>
+							</p>
+						</td>
+					</tr>
+					<tr>
+						<td style='padding: .75pt .75pt .75pt .75pt'></td>
+						<td style='padding: .75pt .75pt .75pt .75pt'></td>
+						<td style='padding: .75pt .75pt .75pt .75pt'></td>
+						<td style='padding: .75pt .75pt .75pt .75pt'></td>
+						<td style='padding: .75pt .75pt .75pt .75pt'></td>
+					</tr>
+
+					<tr>
+						<apex:repeat value="{!Opportunity.OpportunityLineItems}"
+							var="line">
+							<tr>
+								<td>{!line.PricebookEntry.Name}</td>
+								<td>{!line.Quantity}</td>
+								<td><apex:OutputField value="{!line.ListPrice}" /></td>
+								<td><apex:OutputField value="{!line.UnitPrice}" /></td>
+								<td><apex:OutputField value="{!line.TotalPrice}" /></td>
+							</tr>
+						</apex:repeat>
+					</tr>
+
+
+					<tr>
+						<td bgcolor="#C0C0C0" align="right" colspan="6"><font
+							face="Arial"><b>Total:</b>&nbsp;<apex:OutputField value="{!Opportunity.Amount}" /> </font></td>
+					</tr>
+
+				</table>
+
+
+
+				<table border='0' cellspacing="0" cellpadding="0" width="100%"
+					id="table 10">
+
+					<tr>
+
+						<td align="Center" colspan="5"><font face="Arial"><b>One
+									Time Fees:</b>&nbsp;<apex:OutputField value="{!Opportunity.One_Time_Fees__c}" /> </font></td>
+
+						<td align="center" colspan="5"><font face="Arial"><b>Monthly
+									Reoccuring Fees:</b>&nbsp;<apex:OutputField value="{!Opportunity.Monthly_Recurring_Fees__c}" /> </font></td>
+
+						<td align="center" colspan="5"><font face="Arial"><b>Setup
+									Fees:</b>&nbsp;<apex:OutputField value="{!Opportunity.Setup_Fees__c}" /> </font></td>
+
+					</tr>
+
+				</table>
+
+
+
+				<table border='0' cellspacing="0" cellpadding="0" width="100%"
+					id="table 10">
+
+					<tr>
+
+						<td align="Center" colspan="5"><font face="Arial"><b>Discount
+									One Time Fees:</b>&nbsp;<apex:OutputField value="{!Opportunity.Discount_One_Time__c}" /> </font></td>
+
+						<td align="center" colspan="5"><font face="Arial"><b>Discount
+									Monthly Reoccuring Fees:</b>&nbsp;<apex:OutputField value="{!Opportunity.Discount_Subscription__c}" /> </font></td>
+
+						<td align="center" colspan="5"><font face="Arial"><b>Discount
+									Setup Fees:</b>&nbsp;<apex:OutputField value="{!Opportunity.Discount_Setup__c}" /> </font></td>
+
+					</tr>
+
+				</table> <br />
+
+				<hr />
+
+
+
+				<table border='0' width="25%" id="table6">
+
+					<tr>
+
+						<td bgcolor="#C0C0C0" align="left" colspan="10"><font
+							face="Arial"><big><b>Invoice Total</b> </big> </font></td>
+
+					</tr>
+
+					<tr>
+
+						<td>Retail Value:</td>
+
+						<td align="right">&nbsp;<apex:OutputField value="{!Opportunity.Total_List_Price_ROLL__c}" /></td>
+
+					</tr>
+
+					<tr>
+
+						<td>Total Discount:</td>
+						<td align="right">&nbsp;<apex:OutputField value="{!Opportunity.Discount_Amount_ROLL__c}" /></td>
+
+					</tr>
+
+					<tr>
+
+						<td>Invoice Total:</td>
+						<td align="right">&nbsp;<apex:OutputField value="{!Opportunity.Amount}" /></td>
+
+					</tr>
+
+				</table> <br />
+			</td>
+		</tr>
+		<br />
+	</table>
+
+
+
+	<div style="page-break-before: avoid;">
+
+
+
+		<p align="center">
+			<font face="Arial"><i>Copyright {!$Organization.Name}.</i> </font>
+		</p>
+
+
+
+
+
+	</div>
+
+
+</apex:page>

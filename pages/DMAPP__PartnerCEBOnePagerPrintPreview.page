@@ -1,0 +1,603 @@
+<apex:page showHeader="false" sidebar="false" standardController="Opportunity" extensions="DMAPP.PartnerCEBSummaryController,DMAPP.BrandOverrideController" docType="html-5.0">
+
+<style>
+
+	/* Branding CSS */
+	
+	div#smartOM {
+		padding: 20px;
+	}
+
+	div#smartOM div#smartOMBranding {
+
+		background: url('{!URLFOR($Resource.Common, 'panel/images/bg_pad_header.png')}') left bottom repeat-x;
+		position:absolute;
+		width:100%;
+		display:block;
+		left:0px;
+		top:0px;
+		border-radius:8px 8px 0px 0px;
+		-moz-border-radius:8px 8px 0px 0px;
+		-webkit-border-radius:8px 8px 0px 0px;
+	}
+	
+	div#smartOM div#smartOMBrandingLeft {
+	    float: left;
+	}
+	div#smartOM div#smartOMBrandingLeft img {
+	    float: left;
+		margin-left:10px;
+	}
+	div#smartOM div#smartOMBrandingLeft div {
+	    float: right;
+	    margin-left: 15px;
+	}
+	div#smartOM div#smartOMBrandingLeft div strong {
+	    display: block;
+	}
+	div#smartOM div#smartOMBrandingRight {
+	    float: right;
+	    margin-left: 30px;
+	}
+	
+	div#smartOM div#smartOMBrandingRight img {
+	    margin-right: 10px;
+	}   
+	
+
+       
+       /* page header CSS */
+       
+       div#smartOM .smartOMTabContainer {
+           margin-top: 30px;
+           clear: both;
+           float: left;
+           width: 100%;
+       }
+       
+       div#smartOM .displayPageHeaderClose {
+           float:right;    
+           margin:10px;
+       }
+       
+       div#smartOM .displayPageHeaderClose a {
+           float:left;
+           display:block;
+           background: url('{!URLFOR($Resource.Qualification, 'pb_icon_remove.png')}') left center no-repeat;
+           padding:5px 0px 5px 20px;
+           text-decoration:none;
+           color:#405773;
+           cursor: pointer; 
+       }
+       
+       div#smartOM .displayPageHeaderClose A:hover {
+           text-decoration: underline;
+       }
+       
+       div#smartOM .displayPageHeaderPrint {
+           float:right;    
+           margin:10px;
+       }
+       
+       div#smartOM .displayPageHeaderPrint a {
+           float:left;
+           display:block;
+           background: url('{!URLFOR($Resource.SmartOM, 'icon_print_small.png')}') left center no-repeat;
+           padding:5px 0px 5px 35px;
+           text-decoration:none;
+           color:#405773;
+           cursor: pointer; 
+       }
+       
+       div#smartOM .displayPageHeaderPrint A:hover {
+           text-decoration: underline;
+       }
+       
+       
+       /* Stage Completion CSS */
+       
+	DIV#smartOM .ScoreYes {
+	    background: #019040;
+	    border-color: #019040;
+		color: white;
+		border-radius:5px;
+		-moz-border-radius:5px;
+		-webkit-border-radius:5px;
+	}
+
+	DIV#smartOM .ScoreNo {
+		background: #CC0000;
+		border-color: #CC0000;
+		color: white;
+		border-radius:5px;
+		-moz-border-radius:5px;
+		-webkit-border-radius:5px;
+	}
+
+	DIV#smartOM .ScoreUnscored {
+		background: #ABABAB;
+		border-color: #ABABAB;
+		color: #EFEFEF;
+		border-radius:5px;
+		-moz-border-radius:5px;
+		-webkit-border-radius:5px;
+	}
+
+	DIV#smartOM .ScoreUnknown {
+		background: #FFBE00;
+		border-color: #FFBE00;
+    	color: white;
+ 		border-radius:5px;
+ 		-moz-border-radius:5px;
+		-webkit-border-radius:5px;
+	}
+	
+	
+	DIV#smartOM SPAN.STAGE_PERCENTBAR {
+	    background-color: #E3E3E3;
+	    border: 1px solid white;
+	    border-radius: 5px 5px 5px 5px;
+	    display: inline-block;
+	    height: 16px;
+	    margin: 2px 2px 2px 20px;
+	    vertical-align: top;
+	    width: 160px;
+	}
+       
+       
+	DIV#smartOM .STAGE_PERCENTBAR .ScoreYes {
+		background: #019040 url('{!URLFOR($Resource.Qualification, 'img_percent_green.png')}') left top repeat-x;
+	}
+
+	DIV#smartOM .STAGE_PERCENTBAR .ScoreNo {
+		background: #CC0000 url('{!URLFOR($Resource.Qualification, 'img_percent_red.png')}') left top repeat-x;
+	}
+
+	DIV#smartOM .STAGE_PERCENTBAR .ScoreUnscored {
+		background: #ABABAB url('{!URLFOR($Resource.Qualification, 'img_percent_grey.png')}') left top repeat-x;
+	}
+
+	DIV#smartOM .STAGE_PERCENTBAR .ScoreUnknown {
+		background: #FFBE00 url('{!URLFOR($Resource.Qualification, 'img_percent_orange.png')}') left top repeat-x;
+	}
+       
+       
+
+
+     /* Data table CSS */
+     
+     div#smartOM .dataTableOutlineTwoColumns {
+     	/* TODO */
+     }
+     
+     div#smartOM .dataTableOutlineTwoColumns .dataTableOutlineLeft {
+     	float: left;
+     }
+     
+     div#smartOM .dataTableOutlineTwoColumns .dataTableOutlineRight {
+     	float: right;
+     	/*padding-left: 20px;*/
+     }
+     
+     
+     div#smartOM .dataTableOutline {
+     	/*background-color: #CBD5E2;*/
+     	border: 1px solid #E6E7EB; /*#A0B5CA;*/
+     	border-radius: 4px 4px 4px 4px;
+     	margin-top: 1px;
+     	overflow: hidden;
+     	/*padding: 10px;*/
+     }
+     
+     div#smartOM .dataTableHeaderClass {
+     	background-color: #587BA6;
+     	color: white;
+     	padding: 10px 4px;
+     }
+     
+     div#smartOM .dataTableClass {
+     	width: 100%;
+     }
+             
+     div#smartOM .dataTableClassColumn {
+     	padding: 6px 4px;
+     	text-align: left;
+     }
+     
+     div#smartOM .dataTableClass TR TD {
+		border-bottom: 1px solid #E1E6EC;
+	 }
+     
+     div#smartOM .dataTableClass TR:last-child TD {
+		border-bottom: 0px solid #E1E6EC;
+	 }
+	 
+     div#smartOM .dataTableNoData {
+		text-align: center;
+		font-size: 1.1em;
+		font-weight: normal;
+		line-height: 2.5em;
+		padding: 40px;
+		text-decoration: none;
+  	}
+  	
+  	/* CSS for Stakeholder Profile */
+  	
+  	div#smartOM div.blockerOrOutsider {
+  		color: red;
+  	}
+  	
+  	div#smartOM div.talker {
+  		color: #DB6505;
+  	}
+  	
+  	div#smartOM div.mobilizer {
+  		color: green;
+  	}
+  	
+  	div#smartOM div.none {
+  		/* none */
+  	}
+  	
+  	span.currentStage {
+  		background-color: #D94A38;
+  		border-radius: 5px;
+  		-moz-border-radius: 5px;
+  		-webkit-border-radius: 5px;
+  		color: #FFFFFF;
+  		margin-left: -5px;
+  		padding: 5px 10px;
+  		marging-right: 10px;
+  	}
+  	
+  	/* https://code.google.com/p/chromium-print-background-colors/source/browse/trunk/inject.css */
+  	:root {
+  		-webkit-print-color-adjust: exact;
+	}
+  	
+                
+</style>
+
+    <script>
+    
+    	var _DISPLAY_PAGE = function(spec) {
+    		
+    		var that = { };
+            
+            function closePage() {
+            
+            	window.close();
+
+            }
+            
+            function printPage() {
+            
+            	window.print();
+
+            }
+
+            that.closePage = closePage;
+            that.printPage = printPage;
+            
+            return that;
+    	}
+    	
+    	var displayPage = _DISPLAY_PAGE({});
+    	
+    </script>	
+
+<div id="smartOM">
+
+
+	<div id="smartOMBranding">
+	    <div id="smartOMBrandingLeft">
+	        <apex:image url="{!URLFOR($Resource.DMAPP__Common, 'panel/images/SmartOM50.png')}"/>               
+	    </div>
+	       <div id="smartOMBrandingRight">
+	       	<apex:image url="{!URLFOR($Resource.DMAPP__Qualification, 'TASLogo50.png')}" alt="TAS Group Logo" rendered="{!NOT(hasBrandOverrideLogo)}"/>
+	       	<apex:image url="{!brandOverrideLogo}" rendered="{!hasBrandOverrideLogo}"/>
+	       </div>	            
+	</div>	
+
+	<div class="smartOMTabContainer">
+	
+		<div id='DISPLAY_PAGE_PRINT' class="displayPageHeaderPrint" >
+			<a id="DISPLAY_PAGE_PRINT_LINK" onclick="javascript: displayPage.printPage();">Print</a>
+		</div>
+		
+		<div id='DISPLAY_PAGE_CLOSE' class="displayPageHeaderClose" >
+			<a id="DISPLAY_PAGE_CLOSE_LINK" onclick="javascript: displayPage.closePage();">Close</a>
+		</div>
+	
+	</div>
+
+	<br />
+	
+	<div class="dataTableOutlineTwoColumns">
+		<div class="dataTableOutlineLeft">
+			<div class="dataTableOutline">
+		        <c:PartnerCEBSummary id="PartnerCEBSummary" 
+					myAccountName="{!SummaryDetails.accountName}"
+					myOpportunityName="{!SummaryDetails.opportunityName}"
+					myClosingConfidenceScore="{!SummaryDetails.closingConfidenceScore}"
+					myCurrentBuyingStage="{!SummaryDetails.currentBuyingStage}"
+					myExpectedCloseDate="{!SummaryDetails.expectedCloseDate}"
+				/>
+			</div>
+		</div>
+		
+		<div class="dataTableOutlineRight">
+			<div class="dataTableOutline">
+		        <c:PartnerCEBStageCompletion id="PartnerCEBStageCompletion" 
+		        	opportunityId="{!opportunity.id}" 
+		        	stage="{!SummaryDetails.currentBuyingStage}"
+		    	/>
+			</div>
+		</div>
+	</div>
+		
+	<br />
+	<br />
+	
+	<div class="dataTableOutline" style="margin-top: 300px;">
+        <c:PartnerCEBQuestions id="PartnerCEBQuestions" 
+        	opportunityId="{!opportunity.id}" 
+        	stage="{!SummaryDetails.currentBuyingStage}"
+    	/>
+	</div>
+
+	<br />
+	<br />
+	
+	<div class="dataTableOutline">
+        <c:PartnerCEBContacts id="PartnerCEBContacts" 
+        	opportunityId="{!opportunity.id}" 
+    	/>
+	</div>
+	
+</div>
+
+<!-- start of CoachMe -->
+	<!-- l10n data -->
+    <apex:includeScript value="{!$Resource.DMAPP__l10njs}"/>
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__prefix)}"/> <!--  added for CoachMe -->
+
+    <style>
+		@import url("{!URLFOR($Resource.jQueryUI, 'css/custom-theme/jquery-ui-1.8.21.custom.css')}");
+
+        TABLE.CoachMeTable 
+        {
+            margin: 0px;
+            padding: 0px;
+            border-collapse: collapse;
+            border-spacing: 0px;
+            width:100%;
+        }
+        
+        TABLE.CoachMeTable TD 
+        {
+            padding: 0px;
+            border-collapse: collapse;
+            border-spacing: 0px;
+            text-align: left;
+            font-size: 12px;
+        }
+        
+        TABLE.CoachMeTable H1 
+        {
+            margin-top: 8px;
+            font-size: 24px;
+            text-align: left;
+            font-weight: normal;
+        }
+        
+        TABLE.CoachMeTable TR.banner 
+        {
+            background-color: #7788BC;
+            color: white;
+        }
+        
+        TABLE.CoachMeTable TR.subheading 
+        {
+            background-color: #D5DBE9;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        
+        TABLE.CoachMeTable TR.subheading TD 
+        {
+            padding: 2px;
+            padding-left: 20px;
+        }
+        
+        TABLE.adviceList {
+            margin-top: 20px;
+            margin-right: 40px;
+            font-size: 12px;
+        }
+        
+        TABLE.adviceList TD
+        {
+            font-size: 12px;
+        }
+        
+        TABLE.adviceList TD.numbering {
+            font-weight: normal;
+            width: 30px;
+            text-align: right;
+            padding-right: 10px;
+            vertical-align: top;
+            font-size:20px;
+            color: #A0B5CA;
+        }       
+    
+        div#coachMeDialog {
+            clear: both;
+            padding: 0px 20px 20px;
+        }
+    
+    	div#coach_advice_header {
+            font-size: 22px;
+            font-weight: bold;
+            border-bottom: 1px solid #364861;
+            color: #364861;
+            padding-bottom: 10px;
+    	}
+    </style>
+        
+    <div id="TAS">
+		<!-- <apex:include pageName="DMAPP__SummaryTab2"/> -->
+        <div class="all">       
+            <div id="ttgCanvasDiv" class="canvasDiv" style="overflow:hidden; position:relative;">       
+                <canvas id="ttgCanvas" class="canvas" height="1" width="1">
+                </canvas>
+            </div>
+        </div>
+    </div>
+        
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__jQueryUI, 'js/jquery-1.10.2.min.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__jQueryUI, 'js/jquery-ui-1.10.3.custom.min.js')}"/>
+        
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__rulesprocessorjs)}"/> 
+    <apex:include pageName="DMAPP__RuleAdviceProcessor"/>      
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__ttgomjs, 'ttg/lib/ttgservice.js')}"/> 
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__ftk, 'forcetk.js')}"/>
+    
+    <script type="text/javascript" src="{!URLFOR($Resource.dvls, 'js/flowplayer-3.2.6.js')}"></script>
+    
+    <apex:include pageName="DMAPP__APIDelegate"/>
+    <apex:include pageName="DMAPP__Quicklinks"/>
+        
+    <script>
+        jQuery(document).ready(function() {
+        
+        	// start hack to hide Summary Tab 2 panel
+        	//jQuery('.smartOMOpportunitySummary').hide();
+        	//jQuery('.smartOMTabContainer').hide();
+        	// end hack
+        	
+            var spec = {
+                ttgApi: ttg.apiLayer.sfdcDelegate( { sessionid : '{!JSENCODE($Api.Session_ID)}', opportunityid : '{!JSENCODE(opportunity.id)}' } )
+            };
+    		/*
+            var _quicklinks = new QUICKLINKS({});
+            
+            _quicklinks.setQuicklinkHitCallback(function(spec) {
+				if(ttgApi) {
+					ttgApi.logQuicklinkHitJS(); // N.B. This is depracated, if this code is ever reinstated - see logQuicklinkUsageHitJS
+				}
+			});
+            */
+            var ttg_coachMe = (function(_spec) {
+            
+                var ttgApi = _spec.ttgApi;
+                
+                //var imgscr = "{!URLFOR($Resource.CoachMe, 'coach_me_dude.gif')}";
+                //var loadingscr = "{!URLFOR($Resource.CoachMe, 'loading-bar.gif')}";
+                
+                //jQuery('div#coachMeDialog').attr('title', _ttg_l10n.lookup('coach_title_coach_me'));
+                jQuery('div#coachMeDialog').append(
+                    '<table class="CoachMeTable" cellpadding="0">' +
+                    '   <tr>' +
+                    '       <td colspan="2" align="center">' +
+                    '           <table width="100%" id="coachMeHeader">' +
+                    '				<tr><td id="centerHeaderCol"></td></tr>' +
+                    '           </table>' +
+                    '       </td>' +
+                    '   </tr>' +
+                    '   <tr>' +
+                    '       <td colspan="2">' +
+                    '           <div id="coachMeAnalyzing">' +
+                    '               <center style="font-size: 24px">' +
+                    '                   <div>' + _ttg_l10n.lookup('coach_me_analyzing') + '</div><br/>' +
+                    //'                   <img src="' + loadingscr + '"/>' +
+                    '               </center>' +
+                    '           </div>' +
+                    '       </td>' +
+                    '   </tr>' +
+                    '</table>'
+                );
+
+                var open = function()
+                {
+                    var divHolder = jQuery('div#coachMeDialog');
+                    jQuery(divHolder).append('<table class="adviceList" style="display: none;" cellpadding="10"></table>');
+                    
+                    var oprid = '{!opportunity.id}';
+                    
+                    var createQuickLink = function(crid, index, rulename) {
+                        jQuery('table.adviceList tr td a[id=cr_'+ crid +']').click(function() {
+                            _quicklinks.quicklinkDlg(index, rulename);
+                        });
+                    };
+                    
+                    ttgApi.getCoachMeOpportunitiesView(oprid, 
+                        function(oppViewData) {
+                             
+                            ttgApi.getCoachMeRules(
+                                function(ruleData) 
+                                {
+                                    //jQuery( "#coachMeDialog" ).html(JSON.stringify(ruleData, null, '\t'));
+                                    //console.log(JSON.stringify(oppViewData, null, '\t'));
+                                    
+                                    //TODO Localisation text to supply .... 
+                                    //jQuery("table#coachMeHeader tr td#centerHeaderCol" ).append('<localisation:localiser tag="coach.analyzed.opportunity" encoding="html"/>');
+                                    jQuery("table#coachMeHeader tr td#centerHeaderCol" ).
+                                    	append("<div id='coach_advice_header'>" + 'Coaching:'/*_ttg_l10n.lookup('coach_analyzed_header')*/ + "</div>")/*).
+                                 		append("<div>" + _ttg_l10n.lookup('coach_analyzed_opportunity') + "</div>")*/;
+
+                                     var advicelist = _rulesProcessor.processRules(oppViewData, ruleData);
+                                    _rulesAdviceProcessor.processAdvice(advicelist, 'class=adviceList');                    
+                                    
+                                    jQuery('table[class=\'CoachMeTable\']').find('tr td div#coachMeAnalyzing').closest("tr").remove();
+                                    jQuery('table[class=\'adviceList\']').show();
+                                    
+                                    //_quickLinksHelper.setupQuickLinksUrl(urlPrefix, orgId, sessionId, userId, swfCommon, appName);
+                                    //_quickLinksHelper.setupCoachRules();
+                                    /*
+                                    var _quicklinksData = [];
+                                    var count = 0;
+                                    jQuery.each(ruleData.coachrules.coachrule, function(_idx, cr) {
+                                        var data = false;
+                                        var _ql = [];
+                                        jQuery.each(cr.quicklinks.quicklink, function(__idx, n) {
+                                            data = true;
+                                            _ql.push(n);                        
+                                        });                                 
+                                    
+                                        if(data) {
+                                            _quicklinksData.push(_ql);
+                                            jQuery('table.adviceList tr td a[id=cr_'+ cr.id +']').show();
+                                            createQuickLink(cr.id, count, cr.rulename);
+                                            count++;
+                                        }
+                                    });
+                                    
+                                    _quicklinks.setDM_Quicklinks(_quicklinksData);
+                                    */ 
+                                },
+                                function() {},
+                                function() {}
+                            );              
+                        },
+                        function() {},
+                        function() {}
+                    );
+                };
+
+                var that = {};
+                that.open = open;
+                return that;
+            }(spec));       
+
+            ttg_coachMe.open();
+        });
+    
+    </script>       
+
+<div id="coachMeDialog"></div>
+
+
+<!-- end of CoachMe -->
+
+</apex:page>

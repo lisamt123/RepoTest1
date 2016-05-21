@@ -1,0 +1,26 @@
+<apex:page standardController="agf__ADM_Product_Tag__c"  sidebar="false">
+ <apex:outputText >
+ 	<div class="ui-corner-all" style="margin:3px;padding:6px; !important;width:99%'"> 
+          <a href="/{!agf__ADM_Product_Tag__c.agf__Team__c}">Back to Team page</a>
+        </div>
+ </apex:outputText>
+ <apex:outputText rendered="{!agf__ADM_Product_Tag__c.Team__r.agf__Active__c == false}">
+ 	<div class="ui-state-highlight ui-corner-all" style="margin:3px;padding:6px;background:#FFFCCC;border-color:#BDE5F8; !important;width:99%'"> 
+          <apex:image url="{!URLFOR($Resource.agf__silkIcons, 'icons/information.png')}" style="vertical-align:middle" />  
+          <span>&nbsp; Warning: This product tag belongs to an inactive team. To modify its assignment rules please first activate the team.</span>
+        </div>
+ </apex:outputText>
+    
+ <apex:detail inlineEdit="false" subject="{!agf__ADM_Product_Tag__c.Id}" relatedList="true" title="true"/>     
+
+  
+<div style="clear:both"/>
+
+
+
+<div style="display:block;padding-left:7px;">
+<br/>     
+     <c:ADM_TagAssignmentMatrix tagID="{!agf__ADM_Product_Tag__c.Id}" rendered="{!agf__ADM_Product_Tag__c.Team__r.agf__Active__c == true}" />
+</div>      
+
+</apex:page>

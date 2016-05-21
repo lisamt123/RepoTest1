@@ -1,0 +1,350 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <actionOverrides>
+        <actionName>Accept</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>CancelEdit</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Clone</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Delete</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Edit</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Follow</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>List</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>New</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>SaveEdit</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Tab</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>View</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <allowInChatterGroups>false</allowInChatterGroups>
+    <compactLayoutAssignment>SYSTEM</compactLayoutAssignment>
+    <deploymentStatus>Deployed</deploymentStatus>
+    <deprecated>false</deprecated>
+    <description>A retrospective is a means of collecting/providing feedback about an individual&apos;s performance on a particular release</description>
+    <enableActivities>true</enableActivities>
+    <enableBulkApi>true</enableBulkApi>
+    <enableEnhancedLookup>false</enableEnhancedLookup>
+    <enableFeeds>true</enableFeeds>
+    <enableHistory>true</enableHistory>
+    <enableReports>false</enableReports>
+    <enableSearch>true</enableSearch>
+    <enableSharing>true</enableSharing>
+    <enableStreamingApi>true</enableStreamingApi>
+    <fields>
+        <fullName>agf__Is_Current_User_the_manager__c</fullName>
+        <deprecated>false</deprecated>
+        <description>Checks whether the current user is the manager for this retrospective record</description>
+        <externalId>false</externalId>
+        <formula>IF($User.Username = agf__Manager__r.Username, &apos;TRUE&apos;, &apos;FALSE&apos;)</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>Is Current User the manager</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>agf__Is_Current_User_the_owner__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <formula>IF($User.Username = agf__User__r.Username, &apos;TRUE&apos;, &apos;FALSE&apos;)</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>Is Current User the owner</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>agf__Manager__c</fullName>
+        <deleteConstraint>SetNull</deleteConstraint>
+        <deprecated>false</deprecated>
+        <description>The retrospective&apos;s subject&apos;s manager</description>
+        <externalId>false</externalId>
+        <label>Manager</label>
+        <referenceTo>User</referenceTo>
+        <relationshipName>Release_Reviews1</relationshipName>
+        <required>false</required>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Lookup</type>
+    </fields>
+    <fields>
+        <fullName>agf__Overall_Rating_employee__c</fullName>
+        <deprecated>false</deprecated>
+        <description>Overall Rating as seen by the employee for this release</description>
+        <externalId>false</externalId>
+        <inlineHelpText>Please specify the overall rating for your performance in this release</inlineHelpText>
+        <label>Overall Rating (employee)</label>
+        <picklist>
+            <picklistValues>
+                <fullName>Sunny</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Partly Sunny</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Cloudy</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Rain Showers</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Blizzard</fullName>
+                <default>false</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Picklist</type>
+    </fields>
+    <fields>
+        <fullName>agf__Overall_Rating_manager__c</fullName>
+        <deprecated>false</deprecated>
+        <description>Overall Rating of this employee&apos;s performance in this release as seen by the manager</description>
+        <externalId>false</externalId>
+        <inlineHelpText>Please specify the overall rating of this employee during this release</inlineHelpText>
+        <label>Overall Rating (manager)</label>
+        <picklist>
+            <picklistValues>
+                <fullName>Sunny</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Partly Sunny</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Cloudy</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Rain Showers</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Blizzard</fullName>
+                <default>false</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Picklist</type>
+    </fields>
+    <fields>
+        <fullName>agf__Review_Period__c</fullName>
+        <deleteConstraint>SetNull</deleteConstraint>
+        <deprecated>false</deprecated>
+        <description>The release for which this retrospective applies</description>
+        <externalId>false</externalId>
+        <label>Retrospective Period</label>
+        <referenceTo>agf__ADM_Release__c</referenceTo>
+        <relationshipName>Release_Retrospectives</relationshipName>
+        <required>false</required>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Lookup</type>
+    </fields>
+    <fields>
+        <fullName>agf__Status__c</fullName>
+        <defaultValue>&quot;New&quot;</defaultValue>
+        <deprecated>false</deprecated>
+        <description>Status of the retrospective.  One of &apos;New&apos;, &apos;Submitted&apos;, or &apos;Shared&apos;</description>
+        <externalId>false</externalId>
+        <label>Status</label>
+        <length>20</length>
+        <required>false</required>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>agf__Team__c</fullName>
+        <deleteConstraint>SetNull</deleteConstraint>
+        <deprecated>false</deprecated>
+        <description>The User&apos;s Team</description>
+        <externalId>false</externalId>
+        <label>Team</label>
+        <referenceTo>agf__ADM_Scrum_Team__c</referenceTo>
+        <relationshipName>Release_Retrospectives</relationshipName>
+        <required>false</required>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Lookup</type>
+    </fields>
+    <fields>
+        <fullName>agf__User__c</fullName>
+        <deleteConstraint>SetNull</deleteConstraint>
+        <deprecated>false</deprecated>
+        <description>The subject of the release retrospective</description>
+        <externalId>false</externalId>
+        <label>User</label>
+        <referenceTo>User</referenceTo>
+        <relationshipName>Release_Reviews</relationshipName>
+        <required>false</required>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Lookup</type>
+    </fields>
+    <fields>
+        <fullName>agf__What_Didn_t_Go_Well_employee__c</fullName>
+        <deprecated>false</deprecated>
+        <description>What Didn&apos;t Go Well in this release as seen by the employee</description>
+        <externalId>false</externalId>
+        <inlineHelpText>Please specify what did not go well in this release</inlineHelpText>
+        <label>What Didn&apos;t Go Well (employee)</label>
+        <length>32000</length>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>LongTextArea</type>
+        <visibleLines>3</visibleLines>
+    </fields>
+    <fields>
+        <fullName>agf__What_Didn_t_Go_Well_manager__c</fullName>
+        <deprecated>false</deprecated>
+        <description>What Didn&apos;t Go Well as seen by the manager</description>
+        <externalId>false</externalId>
+        <inlineHelpText>Please specify what did not go well in this release for this employee</inlineHelpText>
+        <label>What Didn&apos;t Go Well (manager)</label>
+        <length>32000</length>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>LongTextArea</type>
+        <visibleLines>3</visibleLines>
+    </fields>
+    <fields>
+        <fullName>agf__What_To_Do_Better_Next_Time_employee__c</fullName>
+        <deprecated>false</deprecated>
+        <description>What To Do Better in the next release as seen by the employee</description>
+        <externalId>false</externalId>
+        <inlineHelpText>Please specify what you can do better in the next release</inlineHelpText>
+        <label>What To Do Better Next Time (employee)</label>
+        <length>32000</length>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>LongTextArea</type>
+        <visibleLines>3</visibleLines>
+    </fields>
+    <fields>
+        <fullName>agf__What_To_Do_Better_Next_Time_manager__c</fullName>
+        <deprecated>false</deprecated>
+        <description>What To Do Better Next Time as seen by the manager</description>
+        <externalId>false</externalId>
+        <inlineHelpText>Please specify what this employee can do better next time</inlineHelpText>
+        <label>What To Do Better Next Time (manager)</label>
+        <length>32000</length>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>LongTextArea</type>
+        <visibleLines>3</visibleLines>
+    </fields>
+    <fields>
+        <fullName>agf__What_Went_Well_employee__c</fullName>
+        <deprecated>false</deprecated>
+        <description>What Went Well in the release as seen by the employee</description>
+        <externalId>false</externalId>
+        <inlineHelpText>Please specify what went well during this release</inlineHelpText>
+        <label>What Went Well (employee)</label>
+        <length>32000</length>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>LongTextArea</type>
+        <visibleLines>3</visibleLines>
+    </fields>
+    <fields>
+        <fullName>agf__What_Went_Well_manager__c</fullName>
+        <deprecated>false</deprecated>
+        <description>What Went Well as seen by the manager</description>
+        <externalId>false</externalId>
+        <inlineHelpText>Please specify what went well in this release</inlineHelpText>
+        <label>What Went Well (manager)</label>
+        <length>32000</length>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>LongTextArea</type>
+        <visibleLines>3</visibleLines>
+    </fields>
+    <label>Retrospective</label>
+    <listViews>
+        <fullName>agf__My_retrospectives</fullName>
+        <booleanFilter>1 OR 2</booleanFilter>
+        <columns>NAME</columns>
+        <columns>agf__User__c</columns>
+        <columns>agf__Manager__c</columns>
+        <columns>agf__Review_Period__c</columns>
+        <columns>agf__Status__c</columns>
+        <filterScope>Everything</filterScope>
+        <filters>
+            <field>agf__Is_Current_User_the_manager__c</field>
+            <operation>equals</operation>
+            <value>TRUE</value>
+        </filters>
+        <filters>
+            <field>agf__Is_Current_User_the_owner__c</field>
+            <operation>equals</operation>
+            <value>TRUE</value>
+        </filters>
+        <label>My retrospectives</label>
+    </listViews>
+    <nameField>
+        <label>Retrospective Name</label>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <type>Text</type>
+    </nameField>
+    <pluralLabel>Retrospectives</pluralLabel>
+    <searchLayouts>
+        <excludedStandardButtons>ChangeOwner</excludedStandardButtons>
+    </searchLayouts>
+    <sharingModel>Private</sharingModel>
+</CustomObject>

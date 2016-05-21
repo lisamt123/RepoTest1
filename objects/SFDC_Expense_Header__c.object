@@ -1,0 +1,1318 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <actionOverrides>
+        <actionName>Accept</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>CancelEdit</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Clone</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Delete</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Edit</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Follow</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>List</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>New</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>SaveEdit</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Tab</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>View</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <allowInChatterGroups>false</allowInChatterGroups>
+    <compactLayoutAssignment>SYSTEM</compactLayoutAssignment>
+    <deploymentStatus>Deployed</deploymentStatus>
+    <description>Individual expense reports.</description>
+    <enableActivities>true</enableActivities>
+    <enableBulkApi>true</enableBulkApi>
+    <enableEnhancedLookup>false</enableEnhancedLookup>
+    <enableFeeds>true</enableFeeds>
+    <enableHistory>true</enableHistory>
+    <enableReports>true</enableReports>
+    <enableSearch>true</enableSearch>
+    <enableSharing>true</enableSharing>
+    <enableStreamingApi>true</enableStreamingApi>
+    <fields>
+        <fullName>AR_Invoice_Number__c</fullName>
+        <description>for Accounting only</description>
+        <externalId>false</externalId>
+        <label>AR Invoice Number</label>
+        <length>20</length>
+        <required>false</required>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Account_Name__c</fullName>
+        <deleteConstraint>SetNull</deleteConstraint>
+        <externalId>false</externalId>
+        <label>Account Name</label>
+        <referenceTo>Account</referenceTo>
+        <relationshipLabel>Expense Reports</relationshipLabel>
+        <relationshipName>R00N700000029NsMEAU</relationshipName>
+        <required>false</required>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Lookup</type>
+    </fields>
+    <fields>
+        <fullName>Account_Number__c</fullName>
+        <externalId>false</externalId>
+        <label>Account Number</label>
+        <length>5</length>
+        <required>false</required>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Approval_Status__c</fullName>
+        <externalId>false</externalId>
+        <formula>IF( Exlcude_from_Goal__c = False, 
+IF( Date_Manager_Approved__c  &lt;= Manager_Goal_Date__c , &quot;Goal Met&quot;, &quot;Goal Missed&quot;),&quot;Goal Met&quot;)</formula>
+        <inlineHelpText>formula field that looks at Manager Goal Date and the date manager approved and determines whether the manager approved the expense report</inlineHelpText>
+        <label>Manager Goal Status</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Approved_Total__c</fullName>
+        <externalId>false</externalId>
+        <label>Approved Total</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>2</scale>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>true</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Currency</type>
+    </fields>
+    <fields>
+        <fullName>Approver__c</fullName>
+        <deleteConstraint>SetNull</deleteConstraint>
+        <externalId>false</externalId>
+        <inlineHelpText>trigger auto updates this field based on the role of the owner of the expense report - approver = the user&apos;s manager unless their role is trainer, then it uses the User&apos;s Delegated Approver</inlineHelpText>
+        <label>Approver</label>
+        <referenceTo>User</referenceTo>
+        <relationshipName>Expense_Reports</relationshipName>
+        <required>false</required>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Lookup</type>
+    </fields>
+    <fields>
+        <fullName>Approving_Manager__c</fullName>
+        <externalId>false</externalId>
+        <formula>User__r.Manager.FirstName&amp;&quot; &quot;&amp;User__r.Manager.LastName</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <inlineHelpText>this field auto populates using a formula that takes the name of the employee&apos;s manager from their user profile</inlineHelpText>
+        <label>Approving Manager</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Bill_Expenses_to_Dealer__c</fullName>
+        <defaultValue>true</defaultValue>
+        <externalId>false</externalId>
+        <inlineHelpText>Travel Coordinator will update this checkbox accordingly, if the option is NO, travel coordinator will  uncheck the box and submit a reason for not billing</inlineHelpText>
+        <label>Bill Expenses to Dealer</label>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>Billed_MRR__c</fullName>
+        <externalId>false</externalId>
+        <formula>Account_Name__r.Billed_Recurring_Revenue__c</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <inlineHelpText>formula field that reads the Billed MRR that is sync&apos;d over from MotoSnap to the SF Account Page</inlineHelpText>
+        <label>Billed MRR</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>2</scale>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Currency</type>
+    </fields>
+    <fields>
+        <fullName>Chargeback_to_Customer__c</fullName>
+        <defaultValue>false</defaultValue>
+        <externalId>false</externalId>
+        <label>Chargeback to Customer</label>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>Created_By_Role__c</fullName>
+        <externalId>false</externalId>
+        <formula>CreatedBy.UserRole.Name</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>Created By Role</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Date_Expenses_Billed_to_Dealer__c</fullName>
+        <externalId>false</externalId>
+        <inlineHelpText>updated by Accounting</inlineHelpText>
+        <label>Date Expenses Billed to Dealer</label>
+        <required>false</required>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Date</type>
+    </fields>
+    <fields>
+        <fullName>Date_Final_Approved__c</fullName>
+        <externalId>false</externalId>
+        <inlineHelpText>updated by the Approval Process when the final approval is selected by the CFO</inlineHelpText>
+        <label>Date Final Approved</label>
+        <required>false</required>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Date</type>
+    </fields>
+    <fields>
+        <fullName>Date_Manager_Approved__c</fullName>
+        <externalId>false</externalId>
+        <label>Date Manager Approved</label>
+        <required>false</required>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>true</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Date</type>
+    </fields>
+    <fields>
+        <fullName>Date_Submitted_for_Approval__c</fullName>
+        <externalId>false</externalId>
+        <inlineHelpText>date user submitted expense report for approval, updated by workflow</inlineHelpText>
+        <label>Date Submitted for Approval</label>
+        <required>false</required>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Date</type>
+    </fields>
+    <fields>
+        <fullName>Days_to_Approve__c</fullName>
+        <externalId>false</externalId>
+        <formula>Date_Manager_Approved__c - Date_Submitted_for_Approval__c</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <inlineHelpText>formula field that calculates the # of days between the date submitted for approval and the date the manager approved</inlineHelpText>
+        <label># Days to Approve</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>0</scale>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Number</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Dealer_Region__c</fullName>
+        <externalId>false</externalId>
+        <formula>Account_Name__r.Territory_Name__c</formula>
+        <inlineHelpText>formula field that pulls the Territory name from the Account</inlineHelpText>
+        <label>Dealer Region</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Dealer__c</fullName>
+        <externalId>false</externalId>
+        <formula>Account_Name__r.AccountNumber</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <inlineHelpText>formula field that is auto-populated from the account</inlineHelpText>
+        <label>Dealer #</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Employee_Department__c</fullName>
+        <externalId>false</externalId>
+        <formula>User__r.Department</formula>
+        <inlineHelpText>formula field that reads the Employees department from their SF user profile</inlineHelpText>
+        <label>Employee Department</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Employee_Name_Non_SFDC__c</fullName>
+        <deleteConstraint>SetNull</deleteConstraint>
+        <externalId>false</externalId>
+        <inlineHelpText>lookup contact or Employee that is not a SFDC user</inlineHelpText>
+        <label>Employee Name (Non SFDC)</label>
+        <referenceTo>Contact</referenceTo>
+        <relationshipLabel>Expense Reports</relationshipLabel>
+        <relationshipName>Expense_Reports</relationshipName>
+        <required>false</required>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Lookup</type>
+    </fields>
+    <fields>
+        <fullName>Employee_Role__c</fullName>
+        <externalId>false</externalId>
+        <formula>User__r.UserRole.Name</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>Employee Role</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Employee_Title__c</fullName>
+        <externalId>false</externalId>
+        <formula>User__r.Title</formula>
+        <inlineHelpText>formula field that reads the employee&apos;s title from their user profile</inlineHelpText>
+        <label>Employee Title</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Exlcude_from_Goal__c</fullName>
+        <defaultValue>false</defaultValue>
+        <externalId>false</externalId>
+        <inlineHelpText>formula field that is updated by workflow - when the trainer misses their submit goal the record is excluded from the Manager Goal</inlineHelpText>
+        <label>Exclude from Goal</label>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>Expense_Due_Date__c</fullName>
+        <externalId>false</externalId>
+        <formula>Project__r.Confirmed_Training_End__c +3</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <inlineHelpText>formula field that pulls the Confirmed Training End Date from the project and adds 3 days</inlineHelpText>
+        <label>Expense Due Date</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Date</type>
+    </fields>
+    <fields>
+        <fullName>Expense_Report_Paid_Message__c</fullName>
+        <description>Message to appear when a user tries to edit or resubmit an expense report that has already been marked &quot;Paid&quot;.</description>
+        <externalId>false</externalId>
+        <formula>IMAGE(&quot;/servlet/servlet.FileDownload?file=01570000001U7WX&quot;, &quot;Expense&quot;)</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>Expense Report Paid Message</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Expenses_Paid_by_Card__c</fullName>
+        <externalId>false</externalId>
+        <label>Expenses Paid by Card</label>
+        <summarizedField>SFDC_Expense_Line_Item__c.Amount_Paid_by_Card__c</summarizedField>
+        <summaryForeignKey>SFDC_Expense_Line_Item__c.Expense_Header__c</summaryForeignKey>
+        <summaryOperation>sum</summaryOperation>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Summary</type>
+    </fields>
+    <fields>
+        <fullName>Expenses_Paid_by_Dealer__c</fullName>
+        <externalId>false</externalId>
+        <formula>IF( Project__r.Training_Expenses_Paid_by_Dealer__c = True, &quot;Yes&quot;, &quot;No&quot;)</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <inlineHelpText>this field reads the same field on the Project</inlineHelpText>
+        <label>Expenses Paid by Dealer</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Expenses_Paid_by_Trainer__c</fullName>
+        <externalId>false</externalId>
+        <formula>Total_Expense_Items__c - Expenses_Paid_by_Card__c</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>Expenses Paid by Employee</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>2</scale>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Currency</type>
+    </fields>
+    <fields>
+        <fullName>Help_Information__c</fullName>
+        <externalId>false</externalId>
+        <formula>IMAGE(&quot;/servlet/servlet.ImageServer?id=01570000001Tx6L&amp;oid=00D700000008zHZ&amp;lastMod=1301690563000&quot;, &quot;Help&quot;)</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>Help Information</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>INSTRUCTIONS__c</fullName>
+        <defaultValue>&quot;Add Line Items, Attach Receipts, Submit for Approval&quot;</defaultValue>
+        <externalId>false</externalId>
+        <label>INSTRUCTIONS</label>
+        <length>100</length>
+        <required>false</required>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Manager_Email_Address__c</fullName>
+        <externalId>false</externalId>
+        <inlineHelpText>auto populated by a trigger</inlineHelpText>
+        <label>Manager Email Address</label>
+        <required>false</required>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Email</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Manager_For_Approval_old__c</fullName>
+        <deleteConstraint>SetNull</deleteConstraint>
+        <externalId>false</externalId>
+        <inlineHelpText>not used anymore- submitter&apos;s manager auto-populates to the object effective 12/2010</inlineHelpText>
+        <label>Manager For Approval_old</label>
+        <referenceTo>User</referenceTo>
+        <relationshipName>R00N700000028Gm2EAE</relationshipName>
+        <required>false</required>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Lookup</type>
+    </fields>
+    <fields>
+        <fullName>Manager_Goal_Date__c</fullName>
+        <externalId>false</externalId>
+        <formula>IF( Training_End_Date_Day__c = &quot;Monday&quot;, Training_End_Date__c +8, 
+IF( Training_End_Date_Day__c = &quot;Tuesday&quot;, Training_End_Date__c +7, 
+IF( Training_End_Date_Day__c = &quot;Wednesday&quot;, Training_End_Date__c +6, 
+IF( Training_End_Date_Day__c = &quot;Thursday&quot;, Training_End_Date__c +5, 
+IF( Training_End_Date_Day__c = &quot;Friday&quot;, Training_End_Date__c +4, 
+IF( Training_End_Date_Day__c = &quot;Saturday&quot;, Training_End_Date__c +3, 
+Training_End_Date__c +2))))))</formula>
+        <inlineHelpText>formula field that calculates the Manager due date for approval for Goal Reporting for the Director of Implementation</inlineHelpText>
+        <label>Manager Goal Date</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Date</type>
+    </fields>
+    <fields>
+        <fullName>Mulitple_Trainers__c</fullName>
+        <externalId>false</externalId>
+        <formula>IF( Project__r.Trainer_2__c !=null, &quot;**YES**&quot;,
+IF( Project__r.Trainer_3__c !=null, &quot;**YES**&quot;,
+IF( Project__r.Trainer_4__c !=null, &quot;**YES**&quot;,
+null
+)))</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <inlineHelpText>this field is automatically calculated by the system and will return the value of &quot;Yes&quot; if there are values in the Trainer 1,2,3 or 4 fields on the project.</inlineHelpText>
+        <label>Are their multiple trainers?</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Notes_and_comments__c</fullName>
+        <externalId>false</externalId>
+        <label>Notes and comments</label>
+        <required>false</required>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>TextArea</type>
+    </fields>
+    <fields>
+        <fullName>Owner_Role__c</fullName>
+        <externalId>false</externalId>
+        <formula>User__r.UserRole.Name</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <inlineHelpText>formula field that pulls in the Employee Role for reporting</inlineHelpText>
+        <label>Owner Role</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Paid__c</fullName>
+        <externalId>false</externalId>
+        <label>Paid</label>
+        <picklist>
+            <picklistValues>
+                <fullName>No</fullName>
+                <default>true</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Yes</fullName>
+                <default>false</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>true</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Picklist</type>
+    </fields>
+    <fields>
+        <fullName>Project__c</fullName>
+        <deleteConstraint>SetNull</deleteConstraint>
+        <externalId>false</externalId>
+        <inlineHelpText>lookup Project expenses are related to</inlineHelpText>
+        <label>Project</label>
+        <referenceTo>SFDC_520_Quote__c</referenceTo>
+        <relationshipLabel>Expense Reports</relationshipLabel>
+        <relationshipName>Expense_Reports</relationshipName>
+        <required>false</required>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Lookup</type>
+    </fields>
+    <fields>
+        <fullName>Proposed_Travel_Expenses__c</fullName>
+        <externalId>false</externalId>
+        <inlineHelpText>Auto calculated by the System by summing all the expense line items proposed amounts</inlineHelpText>
+        <label>Proposed Travel Expenses</label>
+        <summarizedField>SFDC_Expense_Line_Item__c.Proposed_Amount__c</summarizedField>
+        <summaryForeignKey>SFDC_Expense_Line_Item__c.Expense_Header__c</summaryForeignKey>
+        <summaryOperation>sum</summaryOperation>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Summary</type>
+    </fields>
+    <fields>
+        <fullName>Reason_not_billing_expenses_to_Dealer__c</fullName>
+        <externalId>false</externalId>
+        <label>Reason not billing expenses to Dealer</label>
+        <required>false</required>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>TextArea</type>
+    </fields>
+    <fields>
+        <fullName>Related_Contract__c</fullName>
+        <deleteConstraint>SetNull</deleteConstraint>
+        <externalId>false</externalId>
+        <label>Related Contract</label>
+        <referenceTo>Contract</referenceTo>
+        <relationshipName>R00N700000028GlwEAE</relationshipName>
+        <required>false</required>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Lookup</type>
+    </fields>
+    <fields>
+        <fullName>Related_Opportunity__c</fullName>
+        <deleteConstraint>SetNull</deleteConstraint>
+        <externalId>false</externalId>
+        <label>Related Opportunity</label>
+        <referenceTo>Opportunity</referenceTo>
+        <relationshipLabel>Expense Reports</relationshipLabel>
+        <relationshipName>R00N700000028GmDEAU</relationshipName>
+        <required>false</required>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Lookup</type>
+    </fields>
+    <fields>
+        <fullName>Status__c</fullName>
+        <externalId>false</externalId>
+        <inlineHelpText>updated by the system as the expense report moves through the approval process</inlineHelpText>
+        <label>Status</label>
+        <picklist>
+            <picklistValues>
+                <fullName>Approved</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Approved by CSMO</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Approved by Manager</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Cancelled</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Final Approval By CEO</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Final Approval by CFO</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>In Progress</fullName>
+                <color>#FF0000</color>
+                <default>true</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Pending Final Approval</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Rejected</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Submitted for Approval</fullName>
+                <default>false</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>true</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Picklist</type>
+    </fields>
+    <fields>
+        <fullName>Super_Region__c</fullName>
+        <externalId>false</externalId>
+        <formula>Account_Name__r.Super_Region__c</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>Super Region</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Total_Approved_Expenses__c</fullName>
+        <externalId>false</externalId>
+        <inlineHelpText>This field is autocalculated and updated upon edit</inlineHelpText>
+        <label>Total Approved Expenses</label>
+        <summarizedField>SFDC_Expense_Line_Item__c.Approved_AP_Amount__c</summarizedField>
+        <summaryForeignKey>SFDC_Expense_Line_Item__c.Expense_Header__c</summaryForeignKey>
+        <summaryOperation>sum</summaryOperation>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Summary</type>
+    </fields>
+    <fields>
+        <fullName>Total_Billable_Expenses__c</fullName>
+        <externalId>false</externalId>
+        <formula>IF( Bill_Expenses_to_Dealer__c ,  Total_Expense_Items__c ,null)</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <inlineHelpText>this field looks at the checkbox &quot;Bill Expenses to Dealer&quot; and only creates a total amount if the box is checked</inlineHelpText>
+        <label>Total Billable Expenses</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>2</scale>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Currency</type>
+    </fields>
+    <fields>
+        <fullName>Total_Expense_Items__c</fullName>
+        <externalId>false</externalId>
+        <inlineHelpText>This field is autocalculated as line items are added or edited</inlineHelpText>
+        <label>Total Expense Items</label>
+        <summarizedField>SFDC_Expense_Line_Item__c.Quantity__c</summarizedField>
+        <summaryForeignKey>SFDC_Expense_Line_Item__c.Expense_Header__c</summaryForeignKey>
+        <summaryOperation>sum</summaryOperation>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Summary</type>
+    </fields>
+    <fields>
+        <fullName>Total__c</fullName>
+        <externalId>false</externalId>
+        <label>Total</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>2</scale>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>true</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Currency</type>
+    </fields>
+    <fields>
+        <fullName>Trainer_Goal_Date__c</fullName>
+        <externalId>false</externalId>
+        <formula>IF( Training_End_Date_Day__c = &quot;Monday&quot;, Training_End_Date__c +7, 
+IF( Training_End_Date_Day__c = &quot;Tuesday&quot;, Training_End_Date__c +6, 
+IF( Training_End_Date_Day__c = &quot;Wednesday&quot;, Training_End_Date__c +5, 
+IF( Training_End_Date_Day__c = &quot;Thursday&quot;, Training_End_Date__c +4, 
+IF( Training_End_Date_Day__c = &quot;Friday&quot;, Training_End_Date__c +3, 
+IF( Training_End_Date_Day__c = &quot;Saturday&quot;, Training_End_Date__c +2, 
+Training_End_Date__c +1))))))</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>Trainer Goal Date</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Date</type>
+    </fields>
+    <fields>
+        <fullName>Trainer_Submit_Status__c</fullName>
+        <externalId>false</externalId>
+        <formula>IF(!ISBLANK(  Date_Submitted_for_Approval__c  ) &amp;&amp;  Date_Submitted_for_Approval__c  &lt;= Trainer_Goal_Date__c , &quot;Goal Met&quot;, &quot;Goal Missed&quot;)</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>Trainer Submit Status</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Training_End_Date_Day__c</fullName>
+        <externalId>false</externalId>
+        <formula>CASE( MOD( Training_End_Date__c - DATE(1900, 1, 7), 7), 
+0, &quot;Sunday&quot;, 
+1, &quot;Monday&quot;, 
+2, &quot;Tuesday&quot;, 
+3, &quot;Wednesday&quot;, 
+4, &quot;Thursday&quot;, 
+5, &quot;Friday&quot;, 
+6, &quot;Saturday&quot;, 
+&quot;Enter Training End Date&quot;)</formula>
+        <inlineHelpText>formula field that looks at the Training End Date and displays the day of the week</inlineHelpText>
+        <label>Training End Date Day</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Training_End_Date__c</fullName>
+        <externalId>false</externalId>
+        <formula>Project__r.Confirmed_Training_End__c</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <inlineHelpText>formula field that brings the Training End Date into the Expense Report for goal reporting for the Director of Training</inlineHelpText>
+        <label>Training End Date</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Date</type>
+    </fields>
+    <fields>
+        <fullName>User__c</fullName>
+        <deleteConstraint>SetNull</deleteConstraint>
+        <externalId>false</externalId>
+        <label>Employee Name</label>
+        <referenceTo>User</referenceTo>
+        <relationshipName>R00N700000028Gm4EAE</relationshipName>
+        <required>false</required>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Lookup</type>
+    </fields>
+    <fields>
+        <fullName>Week_Ending__c</fullName>
+        <externalId>false</externalId>
+        <label>Week Ending</label>
+        <required>false</required>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Date</type>
+    </fields>
+    <label>Expense Report</label>
+    <listViews>
+        <fullName>AwaitingFinanceManagerApproval</fullName>
+        <columns>NAME</columns>
+        <columns>CREATED_DATE</columns>
+        <columns>User__c</columns>
+        <columns>Status__c</columns>
+        <columns>Week_Ending__c</columns>
+        <columns>Bill_Expenses_to_Dealer__c</columns>
+        <columns>Total_Expense_Items__c</columns>
+        <columns>Approving_Manager__c</columns>
+        <columns>UPDATEDBY_USER</columns>
+        <columns>LAST_UPDATE</columns>
+        <filterScope>Everything</filterScope>
+        <filters>
+            <field>Status__c</field>
+            <operation>equals</operation>
+            <value>Pending Final Approval</value>
+        </filters>
+        <filters>
+            <field>Paid__c</field>
+            <operation>equals</operation>
+            <value>No</value>
+        </filters>
+        <label>Awaiting Finance Manager Approval</label>
+        <sharedTo>
+            <role>AccountingSupport</role>
+            <role>CEO</role>
+            <role>VPofImplementationSupport</role>
+            <role>VPofSales</role>
+            <roleAndSubordinatesInternal>AccountingSupport</roleAndSubordinatesInternal>
+        </sharedTo>
+    </listViews>
+    <listViews>
+        <fullName>Brittney_s_View</fullName>
+        <columns>User__c</columns>
+        <columns>Account_Name__c</columns>
+        <columns>NAME</columns>
+        <columns>Approver__c</columns>
+        <columns>Approving_Manager__c</columns>
+        <columns>Expenses_Paid_by_Trainer__c</columns>
+        <columns>Expenses_Paid_by_Card__c</columns>
+        <columns>Notes_and_comments__c</columns>
+        <columns>Total_Expense_Items__c</columns>
+        <columns>Week_Ending__c</columns>
+        <columns>Status__c</columns>
+        <columns>Total__c</columns>
+        <filterScope>Everything</filterScope>
+        <filters>
+            <field>Approver__c</field>
+            <operation>equals</operation>
+            <value>Shelli Clark,greg becker,john evans,chris hawthorne</value>
+        </filters>
+        <label>Brittney&apos;s View</label>
+    </listViews>
+    <listViews>
+        <fullName>Expense_Reports_Pending_Payment</fullName>
+        <columns>User__c</columns>
+        <columns>NAME</columns>
+        <columns>Account_Name__c</columns>
+        <columns>Status__c</columns>
+        <columns>Week_Ending__c</columns>
+        <columns>Paid__c</columns>
+        <columns>Bill_Expenses_to_Dealer__c</columns>
+        <columns>Expenses_Paid_by_Trainer__c</columns>
+        <columns>Total_Expense_Items__c</columns>
+        <columns>Expenses_Paid_by_Dealer__c</columns>
+        <columns>Expenses_Paid_by_Card__c</columns>
+        <filterScope>Everything</filterScope>
+        <filters>
+            <field>Paid__c</field>
+            <operation>notEqual</operation>
+            <value>Yes</value>
+        </filters>
+        <filters>
+            <field>Status__c</field>
+            <operation>equals</operation>
+            <value>Final Approval by CFO</value>
+        </filters>
+        <filters>
+            <field>RECORDTYPE</field>
+            <operation>equals</operation>
+            <value>SFDC_Expense_Header__c.Process_Expense_Report</value>
+        </filters>
+        <label>Expense Reports Pending Payment</label>
+    </listViews>
+    <listViews>
+        <fullName>Expenses_Billed_Dealer</fullName>
+        <columns>NAME</columns>
+        <columns>User__c</columns>
+        <columns>Approving_Manager__c</columns>
+        <columns>Week_Ending__c</columns>
+        <columns>Proposed_Travel_Expenses__c</columns>
+        <columns>Total_Expense_Items__c</columns>
+        <columns>Paid__c</columns>
+        <columns>Date_Expenses_Billed_to_Dealer__c</columns>
+        <columns>AR_Invoice_Number__c</columns>
+        <filterScope>Everything</filterScope>
+        <filters>
+            <field>Date_Expenses_Billed_to_Dealer__c</field>
+            <operation>equals</operation>
+        </filters>
+        <filters>
+            <field>Status__c</field>
+            <operation>equals</operation>
+            <value>Final Approval by CFO,Final Approval By CEO</value>
+        </filters>
+        <filters>
+            <field>Proposed_Travel_Expenses__c</field>
+            <operation>greaterThan</operation>
+            <value>0</value>
+        </filters>
+        <filters>
+            <field>Date_Expenses_Billed_to_Dealer__c</field>
+            <operation>equals</operation>
+            <value>THIS_YEAR</value>
+        </filters>
+        <label>Expenses Billed to Dealer - This Year</label>
+        <sharedTo>
+            <role>Controller</role>
+        </sharedTo>
+    </listViews>
+    <listViews>
+        <fullName>Expenses_Pending_Billing_Dealer</fullName>
+        <columns>NAME</columns>
+        <columns>User__c</columns>
+        <columns>Paid__c</columns>
+        <columns>Dealer__c</columns>
+        <columns>Proposed_Travel_Expenses__c</columns>
+        <columns>Total_Expense_Items__c</columns>
+        <columns>Mulitple_Trainers__c</columns>
+        <columns>Week_Ending__c</columns>
+        <columns>Project__c</columns>
+        <columns>Bill_Expenses_to_Dealer__c</columns>
+        <columns>Expenses_Paid_by_Dealer__c</columns>
+        <columns>AR_Invoice_Number__c</columns>
+        <columns>Date_Expenses_Billed_to_Dealer__c</columns>
+        <columns>Reason_not_billing_expenses_to_Dealer__c</columns>
+        <filterScope>Everything</filterScope>
+        <filters>
+            <field>Date_Expenses_Billed_to_Dealer__c</field>
+            <operation>equals</operation>
+        </filters>
+        <filters>
+            <field>Status__c</field>
+            <operation>equals</operation>
+            <value>Final Approval by CFO,Final Approval By CEO</value>
+        </filters>
+        <filters>
+            <field>Employee_Role__c</field>
+            <operation>equals</operation>
+            <value>trainer</value>
+        </filters>
+        <filters>
+            <field>Expenses_Paid_by_Dealer__c</field>
+            <operation>equals</operation>
+            <value>yes</value>
+        </filters>
+        <filters>
+            <field>Bill_Expenses_to_Dealer__c</field>
+            <operation>equals</operation>
+            <value>1</value>
+        </filters>
+        <label>Expenses Pending Billing to Dealer</label>
+    </listViews>
+    <listViews>
+        <fullName>JanelPaidReportsYear</fullName>
+        <columns>NAME</columns>
+        <columns>User__c</columns>
+        <columns>Total_Expense_Items__c</columns>
+        <columns>Paid__c</columns>
+        <columns>LAST_UPDATE</columns>
+        <columns>Status__c</columns>
+        <columns>Week_Ending__c</columns>
+        <filterScope>Everything</filterScope>
+        <filters>
+            <field>Paid__c</field>
+            <operation>equals</operation>
+            <value>Yes</value>
+        </filters>
+        <filters>
+            <field>LAST_UPDATE</field>
+            <operation>equals</operation>
+            <value>THIS_YEAR</value>
+        </filters>
+        <label>Janel - Paid Reports This Year</label>
+        <sharedTo>
+            <role>Trainer</role>
+        </sharedTo>
+    </listViews>
+    <listViews>
+        <fullName>Juanita_s</fullName>
+        <columns>NAME</columns>
+        <columns>User__c</columns>
+        <columns>Proposed_Travel_Expenses__c</columns>
+        <columns>Total_Expense_Items__c</columns>
+        <columns>Paid__c</columns>
+        <columns>LAST_UPDATE</columns>
+        <columns>Status__c</columns>
+        <columns>Account_Name__c</columns>
+        <columns>Dealer__c</columns>
+        <columns>AR_Invoice_Number__c</columns>
+        <columns>Date_Expenses_Billed_to_Dealer__c</columns>
+        <filterScope>Everything</filterScope>
+        <filters>
+            <field>LAST_UPDATE</field>
+            <operation>greaterThan</operation>
+            <value>1/1/2012 12:00 AM</value>
+        </filters>
+        <label>Juanita&apos;s All Expense Reports All</label>
+    </listViews>
+    <listViews>
+        <fullName>My_Expense_Report_s</fullName>
+        <columns>NAME</columns>
+        <columns>Account_Name__c</columns>
+        <columns>CREATED_DATE</columns>
+        <columns>Status__c</columns>
+        <columns>Total_Billable_Expenses__c</columns>
+        <columns>Total_Expense_Items__c</columns>
+        <columns>Expenses_Paid_by_Trainer__c</columns>
+        <columns>Total__c</columns>
+        <filterScope>Mine</filterScope>
+        <label>!My Expense Report(s)</label>
+    </listViews>
+    <listViews>
+        <fullName>Trainer_Expense_Reports_In_Progress1</fullName>
+        <booleanFilter>(1 or 2) AND 3 and 4</booleanFilter>
+        <columns>CREATED_DATE</columns>
+        <columns>NAME</columns>
+        <columns>User__c</columns>
+        <columns>Week_Ending__c</columns>
+        <columns>Account_Name__c</columns>
+        <columns>Approver__c</columns>
+        <columns>Approving_Manager__c</columns>
+        <columns>Status__c</columns>
+        <columns>Proposed_Travel_Expenses__c</columns>
+        <columns>Total_Expense_Items__c</columns>
+        <columns>Paid__c</columns>
+        <columns>Bill_Expenses_to_Dealer__c</columns>
+        <filterScope>Everything</filterScope>
+        <filters>
+            <field>Paid__c</field>
+            <operation>equals</operation>
+            <value>No</value>
+        </filters>
+        <filters>
+            <field>Paid__c</field>
+            <operation>equals</operation>
+        </filters>
+        <filters>
+            <field>Status__c</field>
+            <operation>equals</operation>
+            <value>In Progress</value>
+        </filters>
+        <filters>
+            <field>Employee_Role__c</field>
+            <operation>equals</operation>
+            <value>trainer</value>
+        </filters>
+        <label>*Trainer Expense Reports - In Progress</label>
+    </listViews>
+    <nameField>
+        <displayFormat>EXP-{YYYY}{MM}{DD}-{0000}</displayFormat>
+        <label>Expense Report #</label>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <type>AutoNumber</type>
+    </nameField>
+    <pluralLabel>Expense Reports</pluralLabel>
+    <recordTypeTrackFeedHistory>false</recordTypeTrackFeedHistory>
+    <recordTypeTrackHistory>true</recordTypeTrackHistory>
+    <recordTypes>
+        <fullName>Create_New</fullName>
+        <active>true</active>
+        <label>Create New</label>
+        <picklistValues>
+            <picklist>Paid__c</picklist>
+            <values>
+                <fullName>No</fullName>
+                <default>true</default>
+            </values>
+            <values>
+                <fullName>Yes</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Status__c</picklist>
+            <values>
+                <fullName>Approved</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Approved by CSMO</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Approved by Manager</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Final Approval By CEO</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Final Approval by CFO</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>In Progress</fullName>
+                <default>true</default>
+            </values>
+            <values>
+                <fullName>Pending Final Approval</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Rejected</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Submitted for Approval</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+    </recordTypes>
+    <recordTypes>
+        <fullName>Expense_Report_Paid</fullName>
+        <active>true</active>
+        <description>Cannot be edited by roles other than Controller.</description>
+        <label>Expense Report Paid</label>
+        <picklistValues>
+            <picklist>Paid__c</picklist>
+            <values>
+                <fullName>Yes</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Status__c</picklist>
+            <values>
+                <fullName>Approved</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Approved by CSMO</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Approved by Manager</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Final Approval By CEO</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Final Approval by CFO</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>In Progress</fullName>
+                <default>true</default>
+            </values>
+            <values>
+                <fullName>Pending Final Approval</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Rejected</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Submitted for Approval</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+    </recordTypes>
+    <recordTypes>
+        <fullName>Process_Expense_Report</fullName>
+        <active>true</active>
+        <label>Process Expense Report</label>
+        <picklistValues>
+            <picklist>Paid__c</picklist>
+            <values>
+                <fullName>No</fullName>
+                <default>true</default>
+            </values>
+            <values>
+                <fullName>Yes</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Status__c</picklist>
+            <values>
+                <fullName>Approved</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Approved by CSMO</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Approved by Manager</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Cancelled</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Final Approval By CEO</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Final Approval by CFO</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>In Progress</fullName>
+                <default>true</default>
+            </values>
+            <values>
+                <fullName>Pending Final Approval</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Rejected</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Submitted for Approval</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+    </recordTypes>
+    <searchLayouts>
+        <customTabListAdditionalFields>Status__c</customTabListAdditionalFields>
+        <customTabListAdditionalFields>User__c</customTabListAdditionalFields>
+        <customTabListAdditionalFields>Employee_Name_Non_SFDC__c</customTabListAdditionalFields>
+        <customTabListAdditionalFields>Account_Name__c</customTabListAdditionalFields>
+        <lookupDialogsAdditionalFields>Status__c</lookupDialogsAdditionalFields>
+        <lookupDialogsAdditionalFields>User__c</lookupDialogsAdditionalFields>
+        <lookupDialogsAdditionalFields>Employee_Name_Non_SFDC__c</lookupDialogsAdditionalFields>
+        <searchFilterFields>OBJECT_ID</searchFilterFields>
+        <searchFilterFields>NAME</searchFilterFields>
+        <searchFilterFields>User__c</searchFilterFields>
+        <searchFilterFields>Employee_Name_Non_SFDC__c</searchFilterFields>
+        <searchResultsAdditionalFields>Status__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields>User__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields>Employee_Name_Non_SFDC__c</searchResultsAdditionalFields>
+    </searchLayouts>
+    <sharingModel>Read</sharingModel>
+    <webLinks>
+        <fullName>CalculateTotal</fullName>
+        <availability>online</availability>
+        <displayType>link</displayType>
+        <hasMenubar>false</hasMenubar>
+        <hasScrollbars>true</hasScrollbars>
+        <hasToolbar>false</hasToolbar>
+        <height>230</height>
+        <isResizable>true</isResizable>
+        <linkType>sControl</linkType>
+        <masterLabel>Calculate Total</masterLabel>
+        <openType>newWindow</openType>
+        <position>none</position>
+        <protected>false</protected>
+        <scontrol>CalculateTotal</scontrol>
+        <showsLocation>false</showsLocation>
+        <showsStatus>false</showsStatus>
+        <width>230</width>
+    </webLinks>
+    <webLinks>
+        <fullName>Combine_Training_Expenses</fullName>
+        <availability>online</availability>
+        <displayType>link</displayType>
+        <encodingKey>UTF-8</encodingKey>
+        <linkType>url</linkType>
+        <masterLabel>Combine Training Expenses</masterLabel>
+        <openType>replace</openType>
+        <protected>false</protected>
+        <url>/00O70000002pCgl?pv0={!SFDC_Expense_Header__c.ProjectId__c}</url>
+    </webLinks>
+    <webLinks>
+        <fullName>Recalculate_Approved_Total</fullName>
+        <availability>online</availability>
+        <displayType>link</displayType>
+        <hasMenubar>false</hasMenubar>
+        <hasScrollbars>true</hasScrollbars>
+        <hasToolbar>false</hasToolbar>
+        <height>600</height>
+        <isResizable>true</isResizable>
+        <linkType>sControl</linkType>
+        <masterLabel>Recalculate Approved Total</masterLabel>
+        <openType>newWindow</openType>
+        <position>none</position>
+        <protected>false</protected>
+        <scontrol>Approved_Total</scontrol>
+        <showsLocation>false</showsLocation>
+        <showsStatus>false</showsStatus>
+    </webLinks>
+    <webLinks>
+        <fullName>Show_Totals_by_Region</fullName>
+        <availability>online</availability>
+        <displayType>link</displayType>
+        <encodingKey>UTF-8</encodingKey>
+        <hasMenubar>false</hasMenubar>
+        <hasScrollbars>true</hasScrollbars>
+        <hasToolbar>false</hasToolbar>
+        <height>600</height>
+        <isResizable>true</isResizable>
+        <linkType>url</linkType>
+        <masterLabel>Show Totals by Region</masterLabel>
+        <openType>newWindow</openType>
+        <position>none</position>
+        <protected>false</protected>
+        <showsLocation>false</showsLocation>
+        <showsStatus>false</showsStatus>
+        <url>/00O70000003K54P?pv0={!SFDC_Expense_Header__c.Id}</url>
+    </webLinks>
+</CustomObject>

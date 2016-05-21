@@ -1,0 +1,458 @@
+<!--
+09/09/14 BS Mute highlight color at bottom of settings tab [Change 104336] (2.1)
+01/07/15 BS Update tab style [Change 110043] (2.12)
+03/11/15 BS Add checkbox multiselect picklist option and checkbox / radio alignment options (112823)
+07/07/15 BS Minor capitalization correction (00115083)
+07/14/15 BS Update alignment options to disable dropdown if not enabled / checked (117745)
+-->
+
+<apex:page id="pg" controller="simplesurvey.TemplateGeneratorCtrl" title="Simple Survey Template Builder" tabStyle="Simple_Survey_Template_Builder__tab">
+    <style>
+        .pbSubheader {
+            background: #E96E25 !important; /* Fallback to solid color for older browsers */
+            background-image: linear-gradient(to top, #b95e15, #f97e35) !important;
+            border-radius: 4px;
+            text-shadow: -1px 0 #b95e15, 0 1px #b95e15,1px 0 #b95e15, 0 -1px #b95e15;
+        }
+        .activeTab {
+            background-color: #E96E25;
+            font-weight:bold;
+            color:#FFFFFF !important;
+            cursor: default;
+            padding: 7px 6px;
+        }
+        .inactiveTab {
+            background-color: lightgrey;
+            font-weight:normal;
+            color:#000000 !important;
+            cursor: pointer;
+            padding: 6px;
+        }
+        .activeTab, .inactiveTab {
+            background-image:none;
+            border: 0px;
+            height: 14px;
+            border-radius: 4px 4px 0px 0px;
+        }
+        .rich-tabhdr-side-border {
+            background: none;
+        }
+        .btn::-moz-focus-inner {
+            border:0;
+            padding:0;
+            padding-bottom:1px;
+        }
+    </style>
+    
+    <script>
+        function updateDisableFields() {
+            document.getElementById('pg:frm:pb:pbs:pbsScaleDisplayPrefs:pbsiRadios:radioAlignment').disabled = !document.getElementById('pg:frm:pb:pbs:pbsScaleDisplayPrefs:pbsiRadios:radios').checked;
+            document.getElementById('pg:frm:pb:pbs:pbsScaleDisplayPrefs:pbsiCheckboxes:checkboxAlignment').disabled = !document.getElementById('pg:frm:pb:pbs:pbsScaleDisplayPrefs:pbsiCheckboxes:checkboxes').checked;
+        }
+    </script>
+    
+    <apex:sectionHeader title="Simple Survey" subtitle="Template Builder" />
+    <apex:form id="frm">
+    <apex:pageBlock id="pb">
+    <apex:pageMessages />
+        <apex:pageBlockSection columns="1">
+            <p>
+                Use the template builder to create a custom Simple Survey email template, complete with the links your customers will click to select their survey response.
+                <br/><br/>
+                <font style="font-weight:bold; background-color:#FFFF66; padding:2px;">Warning: Navigating away from the Simple Survey Template Builder while in progress will result in all changes being lost.</font>
+            </p>
+        </apex:pageBlockSection>
+        <apex:pageBlockSection id="pbs" columns="1">
+            <apex:tabPanel switchType="server" id="TabPanel" value="{!activeTab}" tabClass="activeTab" inactiveTabClass="inactiveTab">
+                <apex:tab label="Settings" name="Settings" id="SettingsTab">
+                    <table width="50%">
+                        <tr><td align="center">
+                            <apex:commandButton value="Next" action="{!goToTab}" rerender="TabPanel">
+                                <apex:param value="{!IF(emailMethod == 'sf_existing' || emailMethod == 'external_existing', 'EmailMethod', 'MessageContent')}" name="switchTab" assignTo="{!switchTab}"/>
+                            </apex:commandButton>
+                         </td></tr>
+                    </table>
+                    
+                    <apex:pageBlockSection title="Method of Use" collapsible="false">
+                       <apex:selectList value="{!emailMethod}" multiselect="false" size="1" label="Email Method">
+                           <apex:selectOption itemValue="sf_new" itemLabel="Salesforce with new template"/>
+                           <apex:selectOption itemValue="sf_existing" itemLabel="Salesforce with existing template"/>
+                           <apex:selectOption itemValue="external_new" itemLabel="External tool with new template (i.e. Pardot, Marketo)"/>
+                           <apex:selectOption itemValue="external_existing" itemLabel="External tool with existing template (i.e. Pardot, Marketo)"/>
+                           <apex:actionSupport event="onchange" action="{!refresh}" rerender="TabPanel"/>
+                       </apex:selectList>
+                    </apex:pageBlockSection>
+                    
+                    <apex:pageBlockSection title="Email Template Info" id="templateInfo" collapsible="false" rendered="{!emailMethod == 'sf_new'}">
+                        <apex:inputText id="inputName" label="Email Template Name" value="{!templateName}" disabled="{!emailMethod != 'sf_new'}"/>
+                        <apex:selectList value="{!folder}" multiselect="false" size="1" label="Folder" disabled="{!emailMethod != 'sf_new'}">
+                            <apex:selectOptions value="{!folderNames}"/>
+                        </apex:selectList>
+                        <apex:inputText label="Description" value="{!templateDescription}" disabled="{!emailMethod != 'sf_new'}"/>
+                    </apex:pageBlockSection>
+                    
+                    <apex:pageBlockSection id="pbsScaleDisplayPrefs" title="Scale and Display Preferences" collapsible="false" columns="1">
+                        <apex:selectList value="{!scale}" multiselect="false" size="1" label="Rating Scale">
+                            <apex:selectOption itemValue="1" itemLabel="1-5 Stars / CSat Customer Satisfaction Score"/>
+                            <apex:selectOption itemValue="2" itemLabel="0-10 Scale / Net Promoter System ℠"/>
+                        </apex:selectList>
+                        
+                        <!-- <apex:pageBlockSectionItem helpText="Display picklist fields as either dropdown menus (default option) or as radio select buttons."> -->
+                        <apex:pageBlockSectionItem id="pbsiRadios" helpText="Select this option if you would like to display picklist options as radio buttons instead of standard drop downs. Additionally, select the layout of the options. Vertical will display the items from top to bottom on separate lines and is recommended for most uses. Horizontal will display the items on a single line from left to right and is recommended for short values, such as single numbers.">
+                            <apex:outputLabel value="Display Picklists as Radio Buttons" />
+                            <apex:outputPanel >
+                                <apex:inputCheckbox id="radios" value="{!radioPicklists}" onchange="updateDisableFields();"/>
+                            
+                                <apex:selectList id="radioAlignment" value="{!horizontalRadios}" style="margin-left: 8px;" size="1">
+                                    <apex:selectOption itemValue="false" itemLabel="Vertical"/>
+                                    <apex:selectOption itemValue="true" itemLabel="Horizontal"/>
+                                </apex:selectList>
+                            </apex:outputPanel>
+                        </apex:pageBlockSectionItem> 
+                        
+                        <!-- <apex:pageBlockSectionItem helpText="Display multi-select picklist fields as either option selectors (default option) or as checkboxes."> -->
+                        <apex:pageBlockSectionItem id="pbsiCheckboxes" helpText="Select this option if you would like to display multi-select picklist options as check boxes instead of standard multi-select editors. Additionally, select the layout of the options. Vertical will display the items from top to bottom on separate lines and is recommended for most uses. Horizontal will display the items on a single line from left to right and is recommended for short values, such as single numbers.">
+                            <apex:outputLabel value="Display Multi-select Picklist as Check Boxes"/>
+                            <apex:outputPanel >
+                                <apex:inputCheckbox id="checkboxes" value="{!checkboxPicklists}" onchange="updateDisableFields();"/>
+                                
+                                <apex:selectList id="checkboxAlignment" value="{!horizontalCheckboxes}" style="margin-left: 8px;" size="1">
+                                    <apex:selectOption itemValue="false" itemLabel="Vertical"/>
+                                    <apex:selectOption itemValue="true" itemLabel="Horizontal"/>
+                                </apex:selectList>
+                                
+                                <script>updateDisableFields();</script>
+                            </apex:outputPanel>
+                        </apex:pageBlockSectionItem>
+                        
+                        <apex:pageBlockSectionItem helpText="Additional questions to display on the survey landing page">
+                            <apex:outputLabel value="Survey Field Set" />
+                            <apex:selectList value="{!fieldSet}" multiselect="false" size="1">
+                                <apex:selectOptions value="{!surveyFieldSets}" />
+                            </apex:selectList>
+                        </apex:pageBlockSectionItem>  
+                    </apex:pageBlockSection>
+                    
+                    <apex:pageBlockSection title="Language Options" collapsible="false" columns="1">
+                        <p>If you&#39;re using the Translation Workbench and would like this survey to be displayed in a different language, select it from the list.</p>
+                        <apex:selectList value="{!language}" multiselect="false" size="1" label="Language">
+                            <apex:selectOption itemValue="sq" itemLabel="Albanian: sq"/>
+                            <apex:selectOption itemValue="ar" itemLabel="Arabic: ar"/>
+                            <apex:selectOption itemValue="hy" itemLabel="Armenian: hy"/>
+                            <apex:selectOption itemValue="eu" itemLabel="Basque: eu"/>
+                            <apex:selectOption itemValue="bs" itemLabel="Bosnian: bs"/>
+                            <apex:selectOption itemValue="bn" itemLabel="Bengali: bn"/>
+                            <apex:selectOption itemValue="bg" itemLabel="Bulgarian: bg"/>
+                            <apex:selectOption itemValue="zh_CN" itemLabel="Chinese (Simplified): zh_CN"/>
+                            <apex:selectOption itemValue="zh_TW" itemLabel="Chinese (Traditional): zh_TW"/>
+                            <apex:selectOption itemValue="hr" itemLabel="Croatian: hr"/>
+                            <apex:selectOption itemValue="cs" itemLabel="Czech: cs"/>
+                            <apex:selectOption itemValue="da" itemLabel="Danish: da"/>
+                            <apex:selectOption itemValue="nl_NL" itemLabel="Dutch: nl_NL"/>
+                            <apex:selectOption itemValue="en_US" itemLabel="English: en_US"/>
+                            <apex:selectOption itemValue="en_AU" itemLabel="English (Australia): en_AU"/>
+                            <apex:selectOption itemValue="en_CA" itemLabel="English (Canada): en_CA"/>
+                            <apex:selectOption itemValue="en_IN" itemLabel="English (India): en_IN"/>
+                            <apex:selectOption itemValue="en_MY" itemLabel="English (Malaysia): en_MY"/>
+                            <apex:selectOption itemValue="en_PH" itemLabel="English (Philippines): en_PH"/>
+                            <apex:selectOption itemValue="en_GB" itemLabel="English (UK): en_GB"/>
+                            <apex:selectOption itemValue="et" itemLabel="Estonian: et"/>
+                            <apex:selectOption itemValue="fi" itemLabel="Finnish: fi"/>
+                            <apex:selectOption itemValue="fr" itemLabel="French: fr"/>
+                            <apex:selectOption itemValue="fr_CA" itemLabel="French (Canada): fr_CA"/>
+                            <apex:selectOption itemValue="de" itemLabel="German: de"/>
+                            <apex:selectOption itemValue="de_AT" itemLabel="German (Austria): de_AT"/>
+                            <apex:selectOption itemValue="de_CH" itemLabel="German (Switzerland): de_CH"/>
+                            <apex:selectOption itemValue="ka" itemLabel="Georgian: ka"/>
+                            <apex:selectOption itemValue="el" itemLabel="Greek: el"/>
+                            <apex:selectOption itemValue="iw" itemLabel="Hebrew: iw"/>
+                            <apex:selectOption itemValue="hi" itemLabel="Hindi: hi"/>
+                            <apex:selectOption itemValue="hu" itemLabel="Hungarian: hu"/>
+                            <apex:selectOption itemValue="is" itemLabel="Icelandic: is"/>
+                            <apex:selectOption itemValue="in" itemLabel="Indonesian: in"/>
+                            <apex:selectOption itemValue="ga" itemLabel="Irish: ga"/>
+                            <apex:selectOption itemValue="it" itemLabel="Italian: it"/>
+                            <apex:selectOption itemValue="ja" itemLabel="Japanese: ja"/>
+                            <apex:selectOption itemValue="ko" itemLabel="Korean: ko"/>
+                            <apex:selectOption itemValue="lv" itemLabel="Latvian: lv"/>
+                            <apex:selectOption itemValue="lt" itemLabel="Lithuanian: lt"/>
+                            <apex:selectOption itemValue="lb" itemLabel="Luxembourgish: lb"/>
+                            <apex:selectOption itemValue="mk" itemLabel="Macedonian: mk"/>
+                            <apex:selectOption itemValue="ms" itemLabel="Malay: ms"/>
+                            <apex:selectOption itemValue="mt" itemLabel="Maltese: mt"/>
+                            <apex:selectOption itemValue="sh_ME" itemLabel="Montenegrin: sh_ME"/>
+                            <apex:selectOption itemValue="no" itemLabel="Norwegian: no"/>
+                            <apex:selectOption itemValue="pl" itemLabel="Polish: pl"/>
+                            <apex:selectOption itemValue="pt_BR" itemLabel="Portuguese (Brazil): pt_BR"/>
+                            <apex:selectOption itemValue="pt_PT" itemLabel="Portuguese (European): pt_PT"/>
+                            <apex:selectOption itemValue="ro" itemLabel="Romanian: ro"/>
+                            <apex:selectOption itemValue="ro_MD" itemLabel="Romanian (Moldova): ro_MD"/>
+                            <apex:selectOption itemValue="rm" itemLabel="Romansh: rm"/>
+                            <apex:selectOption itemValue="ru" itemLabel="Russian: ru"/>
+                            <apex:selectOption itemValue="es" itemLabel="Spanish: es"/>
+                            <apex:selectOption itemValue="es_MX" itemLabel="Spanish (Mexico): es_MX"/>
+                            <apex:selectOption itemValue="sv" itemLabel="Swedish: sv"/>
+                            <apex:selectOption itemValue="sr" itemLabel="Serbian (Cyrillic): sr"/>
+                            <apex:selectOption itemValue="sh" itemLabel="Serbian (Latin): sh"/>
+                            <apex:selectOption itemValue="sk" itemLabel="Slovak: sk"/>
+                            <apex:selectOption itemValue="sl" itemLabel="Slovenian: sl"/>
+                            <apex:selectOption itemValue="tl" itemLabel="Tagalog: tl"/>
+                            <apex:selectOption itemValue="ta" itemLabel="Tamil: ta"/>
+                            <apex:selectOption itemValue="th" itemLabel="Thai: th"/>
+                            <apex:selectOption itemValue="tr" itemLabel="Turkish: tr"/>
+                            <apex:selectOption itemValue="uk" itemLabel="Ukrainian: uk"/>
+                            <apex:selectOption itemValue="ur" itemLabel="Urdu: ur"/>
+                            <apex:selectOption itemValue="vi" itemLabel="Vietnamese: vi"/>
+                            <apex:selectOption itemValue="cy" itemLabel="Welsh: cy"/>
+                        </apex:selectList>
+                    </apex:pageBlockSection>
+                    
+                    <apex:pageBlockSection title="Object and Field Preferences" collapsible="false">
+                        <apex:pageBlockSectionItem helpText="Choose the object to which this email template should link the survey">
+                            <apex:outputLabel value="Survey from Object" />
+                            <apex:selectList value="{!surveyObject}" multiselect="false" size="1">
+                                <apex:selectOptions value="{!surveyObjectOptions}"/>
+                                <apex:actionSupport event="onchange" action="{!resetFieldMappings}" rerender="TabPanel"/>
+                            </apex:selectList>
+                        </apex:pageBlockSectionItem>
+                    </apex:pageBlockSection>
+                    <apex:pageBlockSection id="fieldMappingSection" columns="1">
+                        <apex:variable value="{!0}" var="rowNumber" />
+                        <apex:pageBlockTable id="fieldMappingTable" value="{!fieldMappings}" var="f">
+                            <apex:column >
+                                <apex:commandButton value="X" action="{!removeFieldMapping}" rerender="frm" style="color:red">
+                                    <apex:param name="removeRow" value="{!rowNumber}" assignTo="{!removeRow}"/>
+                                </apex:commandButton>
+                                <apex:variable var="rowNumber" value="{!rowNumber + 1}" />
+                            </apex:column>
+                            <apex:column headerValue="{!surveyObject} Fields">
+                                <apex:selectList value="{!f.objField}" multiselect="false" size="1">
+                                    <apex:selectOption itemValue="(static)" itemLabel="-- Static Value --"/>
+                                    <apex:selectOptions value="{!f.objFieldOpts}"/>
+                                    <apex:actionSupport event="onchange" action="{!refresh}" rerender="TabPanel"/>
+                                </apex:selectList>
+                            </apex:column>
+                            <apex:column id="staticValueCol" headerValue="">
+                                <apex:inputText value="{!f.staticValue}" disabled="{!f.objField != '(static)'}" rendered="{!f.objField == '(static)'}"/>
+                            </apex:column>
+                            <apex:column headerValue="Survey Fields">
+                                <apex:selectList value="{!f.surveyField}" multiselect="false" size="1" style="margin-bottom:2px">
+                                    <apex:selectOptions value="{!f.surveyFieldOpts}"/>
+                                </apex:selectList>
+                            </apex:column>
+                        </apex:pageBlockTable>
+                        <apex:outputPanel >
+                            <apex:commandButton value="Add Row" action="{!addFieldMapping}" rerender="frm" style="margin-left:5px"/>
+                            <apex:commandLink value="Need to capture another {!surveyObject} field on Surveys?" style="float:right; margin-right:5px;" onclick="toggleHighlighting(); return false;"/>
+                        </apex:outputPanel>    
+                    </apex:pageBlockSection>
+                    
+                    <apex:pageBlockSection columns="1">
+                        <p id="newFieldMessage" style="padding: 4px; border-radius: 4px;">
+                            Need to capture another {!surveyObject} field on Surveys?  You have two options.
+                            <br/><br/>
+                            1. <a href="/p/setup/custent/CustomObjectsPage" target="_blank">Create a formula field on Survey</a> to span a value from the related {!surveyObject}.  If the value on the {!surveyObject} is ever changed, the Survey will reflect that change.
+                            <br/><br/>
+                            2. <a href="/p/setup/custent/CustomObjectsPage" target="_blank">Create a field on the same type on Survey</a>, click Refresh Fields, and then map it.  If the value on the {!surveyObject} is ever changed, the Survey will reflect the value at the time the survey was taken.
+                        </p>
+                    </apex:pageBlockSection>
+                    <table width="50%">
+                        <tr><td align="center">
+                            <apex:actionStatus id="refreshStatus">
+                                <apex:facet name="stop">
+                                    <apex:commandButton value="Refresh Field Picklists" action="{!refreshFieldMappings}" rerender="frm" status="refreshStatus"/>
+                                </apex:facet>
+                                <apex:facet name="start">
+                                    <apex:commandButton value="Refreshing..." disabled="true" rerender="frm" status="refreshStatus"/>
+                                </apex:facet>
+                            </apex:actionStatus>
+                        </td></tr>
+                        <tr style="height:15px"></tr>
+                        <tr><td align="center">
+                            <apex:commandButton value="Next" action="{!goToTab}" rerender="TabPanel">
+                                <apex:param value="{!IF(emailMethod == 'sf_existing' || emailMethod == 'external_existing', 'EmailMethod', 'MessageContent')}" name="switchTab" assignTo="{!switchTab}"/>
+                            </apex:commandButton>
+                         </td></tr>
+                    </table>
+                </apex:tab>
+                <apex:tab label="Message Content" name="MessageContent" id="MessageContentTab" rendered="{!emailMethod == 'sf_new' || emailMethod == 'external_new'}">
+                    <table width="50%">
+                        <tr><td align="center">
+                            <apex:commandButton value="Back" action="{!goToTab}" rerender="TabPanel">
+                                <apex:param value="Settings" name="switchTab" assignTo="{!switchTab}"/>
+                            </apex:commandButton>
+                            <apex:commandButton value="Next" action="{!goToTab}" rerender="TabPanel">
+                                <apex:param value="EmailMethod" name="switchTab" assignTo="{!switchTab}"/>
+                            </apex:commandButton>
+                         </td></tr>
+                    </table>
+                    <apex:pageBlockSection columns="1">
+                        <p>
+                            Enter some text and use the merge field pickers to set your greeting, including a salutation to your customer and an invitation to take the survey.
+                            <br/><br/>
+                        </p>
+                    </apex:pageBlockSection>
+                    <apex:pageBlockSection columns="1">
+                        <apex:commandButton value="Insert Net Promoter System ℠ Message" onclick="insertAtCursor('{!$Component.greetingMsg}', '{!netPromoterMsg}'); return false;" rendered="{!scale == '2'}" style="margin-bottom:5px" disabled="{!emailMethod == 'sf_existing' || emailMethod == 'external_existing'}"/>
+                        <apex:commandButton value="Insert 5-pt Survey Message" onclick="insertAtCursor('{!$Component.greetingMsg}', '{!fivePtMsg}'); return false;" rendered="{!scale == '1'}" style="margin-bottom:5px" disabled="{!emailMethod == 'sf_existing' || emailMethod == 'external_existing'}"/>
+                        <apex:panelGrid columns="2" border="0" cellpadding="0" cellspacing="0">
+                            <apex:outputText value="Greeting" style="font-weight:bold; margin-right:120px"/>
+                            <apex:outputPanel id="greetingPanel">
+                                <apex:outputLabel value="Object" style="margin-right:5px"/>
+                                <apex:selectList id="greetingObj" value="{!greetingObj}" multiselect="false" size="1" style="margin-right:20px" disabled="{!emailMethod == 'sf_existing' || emailMethod == 'external_existing'}">
+                                    <apex:selectOptions value="{!surveyObjectOptions}"/>
+                                    <apex:actionSupport event="onchange" action="{!resetGreetingField}" rerender="greetingPanel"/>
+                                </apex:selectList>
+                                <apex:outputLabel value="Field" style="margin-right:5px"/>
+                                <apex:selectList id="greetingFld" value="{!greetingFld}" multiselect="false" size="1" style="margin-right:20px" disabled="{!emailMethod == 'sf_existing' || emailMethod == 'external_existing'}">
+                                    <apex:selectOptions value="{!greetingObjFields}"/>
+                                    <!-- <apex:actionSupport event="onchange" action="{!refresh}" rerender="greetingPanel"/> -->
+                                </apex:selectList>
+                                <apex:commandButton value="Insert Selected Field" onclick="insertAtCursor('{!$Component.greetingMsg}', fieldRef(document.getElementById('{!$Component.greetingObj}').value, document.getElementById('{!$Component.greetingFld}').value)); return false;" disabled="{!emailMethod == 'sf_existing' || emailMethod == 'external_existing'}"/>
+                            </apex:outputPanel>                                                    <!-- '{!greetingFieldPath}' -->
+                        </apex:panelGrid>
+                        <apex:inputTextArea id="greetingMsg" value="{!greeting}" cols="150" rows="5" disabled="{!emailMethod == 'sf_existing' || emailMethod == 'external_existing'}"/>
+                        <br/>
+                        <apex:panelGrid columns="2" border="0" cellpadding="0" cellspacing="0">
+                            <apex:outputText value="Farewell" style="font-weight:bold; margin-right:120px"/>
+                            <apex:outputPanel id="farewellPanel">
+                                <apex:outputLabel value="Object" style="margin-right:5px"/>
+                                <apex:selectList id="farewellObj" value="{!farewellObj}" multiselect="false" size="1" style="margin-right:20px" disabled="{!emailMethod == 'sf_existing' || emailMethod == 'external_existing'}">
+                                    <apex:selectOptions value="{!surveyObjectOptions}"/>
+                                    <apex:actionSupport event="onchange" action="{!resetFarewellField}" rerender="farewellPanel"/>
+                                </apex:selectList>
+                                <apex:outputLabel value="Field" style="margin-right:5px"/>
+                                <apex:selectList id="farewellFld" value="{!farewellFld}" multiselect="false" size="1" style="margin-right:20px" disabled="{!emailMethod == 'sf_existing' || emailMethod == 'external_existing'}">
+                                    <apex:selectOptions value="{!farewellObjFields}"/>
+                                    <!-- <apex:actionSupport event="onchange" action="{!refresh}" rerender="farewellPanel"/> -->
+                                </apex:selectList>
+                                <apex:commandButton value="Insert Selected Field" onclick="insertAtCursor('{!$Component.farewellMsg}', fieldRef(document.getElementById('{!$Component.farewellObj}').value, document.getElementById('{!$Component.farewellFld}').value)); return false;" disabled="{!emailMethod == 'sf_existing' || emailMethod == 'external_existing'}"/>
+                            </apex:outputPanel>                                                     <!-- '{!farewellFieldPath}' -->
+                        </apex:panelGrid>
+                        <apex:inputTextArea id="farewellMsg" value="{!farewell}" cols="150" rows="5" disabled="{!emailMethod == 'sf_existing' || emailMethod == 'external_existing'}"/>
+                    </apex:pageBlockSection>
+                    <table width="50%">
+                        <tr><td align="center">
+                            <apex:commandButton value="Back" action="{!goToTab}" rerender="TabPanel">
+                                <apex:param value="Settings" name="switchTab" assignTo="{!switchTab}"/>
+                            </apex:commandButton>
+                            <apex:commandButton value="Next" action="{!goToTab}" rerender="TabPanel">
+                                <apex:param value="EmailMethod" name="switchTab" assignTo="{!switchTab}"/>
+                            </apex:commandButton>
+                         </td></tr>
+                    </table>
+                </apex:tab>
+                <apex:tab label="Email Method" name="EmailMethod" id="EmailMethodTab">
+                    <table width="50%">
+                        <tr><td align="center">
+                            <apex:commandButton value="Back" action="{!goToTab}" rerender="TabPanel">
+                                <apex:param value="{!IF(emailMethod == 'sf_existing' || emailMethod == 'external_existing', 'Settings', 'MessageContent')}" name="switchTab" assignTo="{!switchTab}"/>
+                            </apex:commandButton>
+                        </td></tr>
+                    </table>
+                    <apex:pageBlockSection >
+                       <apex:selectList value="{!emailMethod}" multiselect="false" size="1" label="Email Method">
+                           <apex:selectOption itemValue="sf_new" itemLabel="Salesforce with new template"/>
+                           <apex:selectOption itemValue="sf_existing" itemLabel="Salesforce with existing template"/>
+                           <apex:selectOption itemValue="external_new" itemLabel="External tool with new template (i.e. Pardot, Marketo)"/>
+                           <apex:selectOption itemValue="external_existing" itemLabel="External tool with existing template (i.e. Pardot, Marketo)"/>
+                           <apex:actionSupport event="onchange" action="{!refresh}" rerender="TabPanel"/>
+                       </apex:selectList>
+                    </apex:pageBlockSection>
+                    
+                    <apex:pageBlockSection id="emailInstructions" columns="1">
+                        <apex:outputText value="Select this option if you wish to send your survey from Salesforce via single email, mass email, or workflow, and you need to build a new email template." rendered="{!emailMethod == 'sf_new'}"/>
+                        <apex:outputText value="Select this option if you wish to send your survey from Salesforce via single email, mass email, or workflow, and you need to paste new links into an existing email template." rendered="{!emailMethod == 'sf_existing'}"/>
+                        <apex:outputText value="Select this option if you are using an external tool and need to deliver the new email template HTML and instructions to your marketing team." rendered="{!emailMethod == 'external_new'}"/>
+                        <apex:outputText value="Select this option if you are using an external tool and need to deliver just the links and instructions to your marketing team for an existing email template. (The URL parameters in curly brackets will need to be replaced)." rendered="{!emailMethod == 'external_existing'}"/>
+                    </apex:pageBlockSection>
+                    
+                    <apex:variable value="{!0}" var="tenCount"/>
+                    <apex:variable value="{!1}" var="fiveCount"/>
+                    <apex:pageBlockSection id="emailLinksPanel" columns="1">
+                       <apex:pageBlockTable id="emailLinks" value="{!generateLinks}" var="link" width="100%" rendered="{!emailMethod == 'sf_existing' || emailMethod == 'external_existing'}">
+                           <apex:column headerValue="Rating">
+                               <apex:outputText value="{!fiveCount}" rendered="{!scale == '1'}"/>
+                               <apex:outputText value="{!tenCount}" rendered="{!scale == '2'}"/>
+                               <apex:variable var="tenCount" value="{!tenCount + 1}"/>
+                               <apex:variable var="fiveCount" value="{!fiveCount + 1}"/>
+                           </apex:column>
+                           <apex:column headerValue="Survey Link">
+                               <apex:actionSupport event="onclick" onsubmit="selectText('{!$Component.surveyLink}'); return false;" />
+                               <apex:outputText id="surveyLink" value="{!link}" />
+                           </apex:column>
+                        </apex:pageBlockTable>
+                    </apex:pageBlockSection>
+                    <apex:variable value="{!0}" var="tenCount"/>
+                    <apex:variable value="{!1}" var="fiveCount"/>
+                    <br/>
+                    <table width="50%">
+                        <tr><td align="center">
+                            <apex:outputPanel id="emailButtons">
+                                <apex:commandLink action="{!createTemplate}" target="_blank" style="text-decoration:none" rendered="{!emailMethod == 'sf_new'}">
+                                    <apex:commandButton value="Finish and Create Template"/>
+                                </apex:commandLink>
+                                <apex:commandButton value="Send Template and Instructions to your Email" action="{!sendEmail}" rendered="{!emailMethod == 'external_new'}"/>
+                            </apex:outputPanel>
+                        </td></tr>
+                    </table>
+                </apex:tab>
+            </apex:tabPanel>
+        </apex:pageBlockSection>
+    </apex:pageBlock>
+    </apex:form>
+
+    <script>
+        function fieldRef(obj, field) {
+            if(obj == 'Contact' && field == 'AccountId')
+                return '{\!Account.Id}';
+            else
+                return '{\!' + obj + '.' + field + '}';
+        }
+
+        function insertAtCursor(textFieldID, value) {
+            try {
+                var textField = document.getElementById(textFieldID);
+                textField.focus();
+                //IE support
+                if (document.selection) {
+                    sel = document.selection.createRange();
+                    sel.text = value;
+                }
+                //Other browsers
+                else if (textField.selectionStart || textField.selectionStart == '0') {
+                    var startPos = textField.selectionStart;
+                    var endPos = textField.selectionEnd;
+                    textField.value = textField.value.substring(0, startPos) + value + textField.value.substring(endPos, textField.value.length);
+                    textField.selectionStart = textField.selectionEnd = startPos + value.length;
+                } else {
+                    textField.value += value;
+                }
+                textField.focus();
+            } catch(e){}
+        }
+        
+        function toggleHighlighting(){
+            try {
+                var para = document.getElementById("newFieldMessage");
+                if (para.style.backgroundColor != ""){
+                    para.style.backgroundColor = '';
+                } else {
+                    para.style.backgroundColor = "#ddd";
+                }
+            } catch(e){}
+        }
+        
+        function selectText(elemID){
+            if (document.selection){
+                var range = document.body.createTextRange();
+                range.moveToElementText(document.getElementById(elemID));
+                range.select();
+            } else if (window.getSelection) {
+                var range = document.createRange();
+                range.selectNode(document.getElementById(elemID));
+                window.getSelection().addRange(range);
+            }
+        }
+    </script>
+</apex:page>

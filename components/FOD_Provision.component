@@ -1,0 +1,222 @@
+<apex:component controller="FOD_ProvisionCtrl" id="theComp1">
+
+
+<div class="col-lg-6 provHead" id="provQuad">
+    <div class="row">
+        <div class="col-lg-6">
+            <div class="col-lg-12">
+                <h2>Integration</h2>
+            </div>
+            <div class="moduleBorder">
+                <apex:form >
+                    <div class="active col-lg-3"> 
+                        <apex:outputLink value="/apex/FOD_ProjectList?pname=Account Setup&stage=Integration&onholdtype=Active" styleClass="provDBanchor">{!activeIntCnt}</apex:outputLink>
+                    </div>
+                    <div class="backtosales col-lg-3"> 
+                        <apex:outputLink value="/apex/FOD_ProjectList?pname=Account Setup&stage=Integration&onholdtype=Back To Sales" styleClass="provDBanchor"> {!intDelCnt}</apex:outputLink>
+                    </div>
+                    <div class="deferred col-lg-3">
+                        <apex:outputLink value="/apex/FOD_ProjectList?pname=Account Setup&stage=Integration&onholdtype=Deferred" styleClass="provDBanchor">{!intDefCnt}</apex:outputLink>
+                    </div>
+                    <div class="escalated col-lg-3"> 
+                        <apex:outputLink value="/apex/FOD_ProjectList?pname=Account Setup&stage=Integration&onholdtype=Escalated To PM" styleClass="provDBanchor">{!intEscCnt}</apex:outputLink>
+                    </div>
+                </apex:form>    
+            </div>
+        </div>
+         <div class="col-lg-6">
+            <div class="col-lg-12">
+                <h2>Training1</h2>
+            </div>
+            <div class="moduleBorder">
+                <apex:form >
+                    <div class="active col-lg-3">
+                        <apex:outputLink value="/apex/FOD_ProjectList?pname=Account Setup&stage=Training 1&onholdtype=Active" styleClass="provDBanchor">{!activeTrnCnt}</apex:outputLink>
+                    </div>
+                    <div class="backtosales col-lg-3"> 
+                        <apex:outputLink value="/apex/FOD_ProjectList?pname=Account Setup&stage=Training 1&onholdtype=Back To Sales" styleClass="provDBanchor">{!trnDelCnt}</apex:outputLink>
+                    </div>
+                    <div class="deferred col-lg-3">
+                        <apex:outputLink value="/apex/FOD_ProjectList?pname=Account Setup&stage=Training 1&onholdtype=Deferred" styleClass="provDBanchor">{!trnDefCnt}</apex:outputLink>
+                    </div>
+                    <div class="escalated col-lg-3"> 
+                        <apex:outputLink value="/apex/FOD_ProjectList?pname=Account Setup&stage=Training 1&onholdtype=Escalated To PM" styleClass="provDBanchor">{!trnEscCnt}</apex:outputLink>
+                    </div>  
+                </apex:form>
+            </div>
+         </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-6"></div>
+        <div class="col-lg-6 metrics">
+           
+            <div class="compMo col-lg-3"> 
+                <!--
+                <apex:outputLink value="/apex/FOD_ProjectList?pname=Account Setup&completedtype=month" styleClass="provDBanchor">{!completedByMonthCnt}</apex:outputLink>
+                -->
+                <apex:outputLink value="#" styleClass="provDBanchor" onclick="loadGoogleAPIProv('month')">{!completedByMonthCnt}</apex:outputLink>
+            </div>
+            <div class="compQTD col-lg-3"> 
+                <!--
+                <apex:outputLink value="/apex/FOD_ProjectList?pname=Account Setup&completedtype=year" styleClass="provDBanchor">{!completedByYearCnt}</apex:outputLink>
+                -->
+                <apex:outputLink value="#" styleClass="provDBanchor" onclick="loadGoogleAPIProv('year')">{!completedByYearCnt}</apex:outputLink>
+            </div>  
+            <div class="budgetMTD col-lg-3"> 
+                <!--BUDGET YEAR TO DATE CALL HERE--> {!budgetMTD}
+            </div> 
+            <div class="budgetQTD col-lg-3"> 
+                <!--BUDGET QUARTER TO DATE CALL HERE--> {!budgetQTD}
+            </div> 
+        </div>
+    </div>
+
+</div>  <!-- end provHead -->
+
+<script type="text/javascript" src="https://www.google.com/jsapi"></script>            
+   <script type="text/javascript">
+       $( document ).ready(function() {
+        $("#chrtQuad").hide();
+       });
+   
+       function showProcessingImage(){
+           //console.log("showing processing Div");
+           $(".overlay").show();
+       }
+       function hideProcessingImage(){
+           //console.log("Hide processing Div");
+           $(".overlay").hide();
+       }
+   </script>
+   <script type="text/javascript">
+       var gSelDurationProv;
+       var gSelMttrProv;
+       var gSelChartProv;
+       
+       function loadGoogleAPIProv(selDuration){ 
+           showProcessingImage();
+           gSelDurationProv = selDuration;
+           console.log("loading google API..");
+           // Load the Visualization API and the piechart package.
+           google.load('visualization', '1.0', {'packages':['corechart']});
+    
+           // Set a callback to run when the Google Visualization API is loaded.
+           google.setOnLoadCallback(onLoadDrawChartProv);
+           //$("#provQuad").hide();
+           onLoadDrawChartProv(selDuration);
+          
+           
+          }
+           function onLoadDrawChartProv(selDuration) {
+              console.log("onLoadDrawChartProv");
+              queryChartDataProv('', 'mttr', selDuration);
+              
+          }
+          function drawPieChartProv(str, cType) {
+              console.log("data "+str);
+              str="["+str+"]";
+              var data = new google.visualization.DataTable();
+              data.addColumn('string', 'Opptys');
+              data.addColumn('number', 'count');
+              data.addRows(JSON.parse(str));
+              
+              var chslice1 = '#7ac943'; 
+              var chslice2 = '#E2C033'; 
+              var chslice3 = '#961A1A'; 
+              if(cType == 'acc') {
+                  chslice1 = '#4784d5'; 
+                  chslice2 = '#94ffff'; 
+                  chslice3 = '#0c4773'; 
+              }
+               
+              // Set chart options
+              var options = {'title':'',
+                   'height':315,
+                   'chartArea': {'backgroundColor':{'stroke': '#000819', 'strokeWidth': 2 },'left': 0, 'top': 40,'width': '90%', 'height': '80%'},
+                   'legend': {'position': 'left', 'textStyle': {'color': '#94FFFF', 'fontSize': '13'} },
+                   'tooltip':{'trigger':'none'},
+                   'pieSliceText':'value-and-percentage',
+                   'backgroundColor':'transparent',
+                   //'slices': [{'color': '#4784d5'}, {'color': '#94ffff'}, {'color': '#0c4773'}, {'color': '#0a2c3d'}],
+                   'slices': [{'color': chslice1}, {'color': chslice2}, {'color': chslice3}],
+                   'pieSliceTextStyle': {'color':'#000819', 'fontSize': '13'}
+                           
+                             };
+              var chart = new google.visualization.PieChart(document.getElementById('chart_div_prov'));
+              $("#provQuad").hide();
+              $("#chrtQuad").show(); 
+              if(data.getNumberOfRows() == 0){
+                  document.getElementById('chart_div_prov').innerHTML = "<p>Apologies, that information isn't available.</p>";
+               }else{
+                    chart.draw(data, options);       
+                    
+               }
+              
+              google.visualization.events.addListener(chart, 'select', selectHandler1);
+              
+              function selectHandler1(e) {
+              showProcessingImage();
+                var selection = chart.getSelection();
+                var item = selection[0];
+    
+                var selVal = data.getFormattedValue(item.row,0);
+                
+                if(cType == 'mttr') {
+                    queryChartDataProv(selVal, 'acc', gSelDurationProv);
+                    gSelMttrProv = selVal;
+                } else if(cType == 'acc') {
+                    window.location.href = '/apex/FOD_CompletedProjects?sv='+selVal+'&sd='+gSelDurationProv+'&pname=Account Setup'+'&sm='+ gSelMttrProv;
+                }
+              }
+           }
+       
+           function queryChartDataProv(selVal, cType,selDuration) {
+                  gSelChartProv = cType;
+                  var str;
+                  Visualforce.remoting.Manager.invokeAction(
+                    '{!$RemoteAction.FOD_ProvisionCtrl.getChartData}', 
+                    selVal, cType, selDuration,
+                    function(result, event){
+                    hideProcessingImage();
+                   
+                        console.debug(result);
+                        str = result;                        
+                        console.debug(str);
+                        var n = str.indexOf("&quot;");
+                        console.debug("n "+n);
+                        str=str.replace(/&#39;/g, '"');                        
+                        drawPieChartProv(str, cType);
+                        console.debug("final str"+str);
+                    }, 
+                    {escape: true}
+                  );
+                
+              }
+              function goToListProv() {
+                  window.location.href = '/apex/FOD_ProjectList?pname=Account Setup&completedtype='+gSelDurationProv;
+              }
+              function goToPrevChartProv() {
+                  if(gSelChartProv == 'acc') {
+                      queryChartDataProv('', 'mttr', gSelDurationProv);
+                  } else if(gSelChartProv == 'mttr') {
+                      $("#provQuad").show();
+                      $("#chrtQuad").hide();
+                  }
+              }
+   </script>
+
+<div class="col-lg-6 provHead" id="chrtQuad">
+   <div class="row">
+      <div class="col-lg-2"></div>
+      <div class="col-lg-10">
+          
+         <div id="chart_div_prov"></div>
+         <div class="chartBtn provision">
+            <input type="button" value="View All" id="month" onclick="goToListProv();" ></input>
+            <input type="button" value="Back" id="" onclick="goToPrevChartProv();" ></input>
+         </div>
+      </div>
+   </div>
+</div>
+</apex:component>

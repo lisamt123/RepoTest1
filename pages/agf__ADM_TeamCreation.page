@@ -1,0 +1,277 @@
+<apex:page standardController="agf__ADM_Scrum_Team__c" extensions="agf.ADM_TeamCreatorController" sidebar="false">
+    <apex:styleSheet value="{!URLFOR($Resource.agf__jquery_ui_1813_redmond, 'css/redmond/jquery-ui-1.8.13.custom.css')}" />
+    <apex:styleSheet value="{!$Resource.agf__ADM_common_css}" />
+    <apex:includeScript value="{!$Resource.agf__json2}" />
+    <apex:includeScript value="{!$Resource.agf__jquery_1_8_3_min}" />
+    <apex:includeScript value="{!URLFOR($Resource.agf__jquery_ui_1_9_2_redmond, 'js/jquery-ui-1.9.2.custom.min.js')}" />
+    <apex:includeScript value="{!$Resource.agf__ADM_common_js}" />
+    <script type="text/javascript">
+        
+        //specify for models for Team, Team Member and Product Tag.  
+        function ADM_Scrum_Team__c(){
+          /* Note the field names are case-sensitive. The field names must match the API names */
+          this.Id = null; 
+          this.Name = null;
+          this.Active__c = null; /* the field names must match the API names */       
+          this.Cloud__c = null;       
+          this.Domain__c = null;
+          this.Team_Home_Page__c = null;  
+       }
+        
+       function ADM_Scrum_Team_Member__c(){
+          this.Id = null; 
+          this.Member_Name__c = null;  
+          this.Allocation__c = 0;       
+          this.Role__c = null;       
+       }  
+       
+       function ADM_Product_Tag__c() {
+            this.Id = null;
+            this.Name = null;
+       }
+        
+        
+       function saveTeam() {
+            var team = new ADM_Scrum_Team__c();
+
+            team.Name = $('.gusTeamName').val();
+        
+            //use class selectors for visual force components due to IDs relying on heirachy of the page for which we don't know since this is a component itself
+            team.Cloud__c = $(".cloudPicklist").val(); //$(“#elementid option:selected”)
+            
+            //TODO: Improve!  We don't use jQuery such as team.Domain__c = $(".domainPicklist").val(); because the fields class gets lost as it
+            //is a VF input:Field backed dependent picklist.  We don't want to hard coded the pick list values and re-building via the describe API is expensive 
+            //Also can't look up directly by ID with jQuery as jQuery doesn't like : in the names.  So this works but will be brittle.
+            team.Domain__c = $(".domainPicklist").val();
+              
+            team.Active__c = $('.activeFlag').is(':checked');
+        	team.Team_Home_Page__c = $('.homePageURL').val();
+           
+           
+            console.debug('saveTeam() about to insert team:');
+            console.debug(team);
+        
+            //call insertTeamAndMembers to make this operational transactional vs insertTeam commented out below
+            
+            //build list of team members
+            var teamMemberList = [];
+            
+            //iterate each row from the team membership grid and add populated rows to the list 
+            $('.membershipGrid .row').not(':first-child').each(function() {
+                
+                var memberID = $(this).find('.gusRichAutoCompleteUserID').val();
+                if(memberID) {
+                    var member = new ADM_Scrum_Team_Member__c();
+                    member.Member_Name__c = memberID;
+                    var allocation = $(this).find('.memberAllocationTextBox').val();
+                    if(allocation) {
+                        member.Allocation__c = allocation;
+                    }
+                    var role = $(this).find('.memberRole').val();
+                    if(role) {
+                        member.Role__c = role;
+                    }
+                    teamMemberList.push(member);
+                }
+                
+            })
+
+
+
+            console.debug('saveTeam() id:{!$Component.newTeamForm.Domain__c} member list:');
+            console.debug(teamMemberList);
+            var tag = new ADM_Product_Tag__c();
+    
+            tag.Name = $('#tagName').val();
+        
+            Visualforce.remoting.Manager.invokeAction(
+
+                '{!$RemoteAction.ADM_TeamCreatorController.insertTeamAndMembers}',
+        
+                team, teamMemberList, tag, 
+        
+                function(result, event) {
+                  if(event.type == 'exception') {
+                    showTeamError(event.message);
+                } else {
+                    console.log('ADM_TeamCreatorController.insertTeamAndMembers() result:' + result);
+                    var teamID = result;
+                    //redirect to the team
+                    window.location.href = '/' + teamID;
+                }
+             
+            }); 
+
+        
+       } 
+
+       function showTeamError(message) {
+            $("#teamErrorMessage").html(message);
+            $("#teamErrorMessageWrapper").show();
+            //errors are shown on the top of the page and can be missed if the user is on a small screen
+            //TODO: research why jQuery doesn't like scrollIntoView() hence the use of document.getElementById()
+            var el = document.getElementById('teamErrorMessageWrapper');
+            el.scrollIntoView(true);
+       } 
+        
+    </script>    
+    
+    
+    <style type="text/css">
+    
+      #teamName {
+       width:100%; 
+      }
+        
+      .membershipGrid {
+        display: table;
+        width: 100%;
+        
+      }
+      
+      .membershipGrid .row {
+        display: table-row;
+      }
+        
+      .membershipGrid .cell  {
+        display: table-cell;
+        vertical-align: middle;
+        height:50px;
+        border-top:1px #ccc dotted;
+      } 
+
+    .membershipGrid .celltop  {
+        display: table-cell;
+        vertical-align: top;
+        min-height: 30px;
+        padding: 0.5em;
+        
+      }     
+        
+      .memberAllocationTextBox {
+       width:50px !important;min-width:auto !important;text-align:center;
+      }
+      
+	  .memberRole{
+		  width:auto !important;min-width:auto !important;
+      }
+      
+      .membershipGrid .nameColumn {
+        width:400px;
+      }
+        
+     .membershipGrid .roleColumn {
+        width:250px; 
+     }
+     
+     .membershipGrid .celltop{
+	     font-weight:bold;
+     }
+     
+     .membershipGrid .allocationColumn {
+        width:35px; 
+     }   
+
+     .descriptionText {
+        padding: 1em 0;
+     }
+
+     div.gusRichAutoComplete img.status-indicator{left:208px;}
+
+    </style>
+    
+<div class="bPageTitle">
+    <div class="ptBody">
+        <div class="content">
+            <img src="{!$Resource.icon_scrum_team}" alt="Team" class="pageTitleIcon" title="Team" />
+            <h1 class="pageType"><a href="{!ListViewLink}">All Teams</a> &gt;</h1>
+            <h2 class="pageDescription"> New Team </h2>
+            <div class="blank">&nbsp;</div>
+        </div>
+    </div>
+    <div class="ptBreadcrumb"></div>
+</div>   
+    
+ 
+<apex:form id="newTeamForm" onsubmit="saveTeam();return false">    
+<div class="message gusFormMessage" id="teamErrorMessageWrapper" style="display:none">
+    <span id="teamErrorMessage">&nbsp;</span>
+</div> 
+
+<div class="gusFieldset">
+    <div class="gusLegend">Team Details</div>
+    <div class="gusRequiredText"></div>
+    
+    <div class="gusFormToolbar gusFormToolbarTop">
+        <input type="submit" value="Save" class="teamSaveButton" /> 
+        <input type="button" onClick="location.href='{!ListViewLink}';" value="Cancel" class="teamCancelButton" />
+    </div>
+    
+    <div class="gusForm" style="width:100%;">
+        <div class="gusForm2Column">
+         	<c:ADM_FormRow object="{!agf__ADM_Scrum_Team__c}" type="ADM_Scrum_Team__c" required="true"  field="Name" cssClass="gusTeamName" />
+         	<c:ADM_FormRow object="{!agf__ADM_Scrum_Team__c}" type="ADM_Scrum_Team__c" required="true"  field="Cloud__c" cssClass="cloudPicklist" value="{!agf__ADM_Scrum_Team__c.agf__Cloud__c}" />
+        	<c:ADM_FormRow object="{!agf__ADM_Scrum_Team__c}" type="ADM_Scrum_Team__c" required="false" field="Team_Home_Page__c" cssClass="homePageURL" value="{!agf__ADM_Scrum_Team__c.agf__Team_Home_Page__c}" />
+        </div>
+        
+        <div class="gusForm2Column">     
+         	<c:ADM_FormRow object="{!agf__ADM_Scrum_Team__c}" type="ADM_Scrum_Team__c" required="false" field="Active__c" cssClass="activeFlag" value="{!agf__ADM_Scrum_Team__c.agf__Active__c}" />
+         	<c:ADM_FormRow object="{!agf__ADM_Scrum_Team__c}" type="ADM_Scrum_Team__c" required="false" field="Domain__c" cssClass="domainPicklist" value="{!agf__ADM_Scrum_Team__c.agf__Domain__c}" info="Depends on &quot;Cloud&quot;" />
+        </div>
+        
+        
+    </div>
+</div>
+
+ <div class="gusFieldset">   
+    <div class="gusLegend">Team Members</div>
+    <div class="descriptionText">Who is going to be on this team?</div> 
+    <div class="membershipGrid">
+        <div class="row">
+            <div class="celltop nameColumn">Name</div>
+            <div class="celltop roleColumn">Role</div>
+            <div class="celltop allocationColumn">Allocation %</div>
+            <div class="celltop">&nbsp;</div>
+        </div>
+        <apex:repeat id="teamMemberContainer" value="{!teamMembers}" var="teamMember">
+            <div class="row">
+                <div class="cell field">
+                    <c:ADM_RichAutoComplete id="teamMember" object="{!teamMember}" field="Member_Name__c" />
+                </div>
+                <div class="cell"><apex:inputField styleClass="gusStyle memberRoleTextBox memberRole" value="{!teamMember.agf__Role__c}" /></div>
+                <div class="cell field"><input type="text" class="gusStyle memberAllocationTextBox" /></div>
+                <div class="cell">&nbsp;</div>
+            </div>
+        </apex:repeat>
+    </div>
+</div>
+
+<div class="gusFieldset">
+    <div class="gusLegend">Product Tag</div>
+    <div class="gusForm" style="width:100%;">
+        <div class="gusForm2Column">
+            <div class="gusFormRow">
+                <div class="gusFormField gusFieldRequired">
+                    <label for="tagName">
+                        Tag Name
+                        <span class="gusFormHelpText" title="A Product Tag is like a label or category for the team's work. You can create more product tags and specify how they are assigned once the team has been created."></span>
+                    </label>
+                </div>
+                <div class="gusFormField">
+                    <input type= "text" id="tagName" value=""/>                
+                </div>
+            </div>
+        </div>
+        <div class="gusForm2Column"></div>
+    </div>
+
+    <div class="gusFormToolbar gusFormToolbarBottom">
+        <input type="submit" value="Save" class="teamSaveButton" /> 
+        <input type="button" onClick="location.href='{!ListViewLink}';" value="Cancel" class="teamCancelButton" />
+    </div>
+
+</div>
+
+</apex:form>
+
+</apex:page>

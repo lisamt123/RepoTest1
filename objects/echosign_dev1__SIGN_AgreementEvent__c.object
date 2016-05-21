@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <actionOverrides>
+        <actionName>Accept</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>CancelEdit</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Clone</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Delete</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Edit</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Follow</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>List</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>New</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>SaveEdit</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Tab</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>View</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <allowInChatterGroups>false</allowInChatterGroups>
+    <compactLayoutAssignment>SYSTEM</compactLayoutAssignment>
+    <deploymentStatus>Deployed</deploymentStatus>
+    <deprecated>false</deprecated>
+    <enableActivities>false</enableActivities>
+    <enableBulkApi>true</enableBulkApi>
+    <enableFeeds>false</enableFeeds>
+    <enableHistory>false</enableHistory>
+    <enableReports>true</enableReports>
+    <enableSearch>true</enableSearch>
+    <enableSharing>true</enableSharing>
+    <enableStreamingApi>true</enableStreamingApi>
+    <fields>
+        <fullName>echosign_dev1__Date__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>Date</label>
+        <required>false</required>
+        <trackTrending>false</trackTrending>
+        <type>DateTime</type>
+    </fields>
+    <fields>
+        <fullName>echosign_dev1__Days_Ago__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <formula>now() - CreatedDate</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>Days Ago</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>5</scale>
+        <trackTrending>false</trackTrending>
+        <type>Number</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>echosign_dev1__Description__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>Description</label>
+        <length>255</length>
+        <required>false</required>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>echosign_dev1__Document_Version_Key__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>Document Version Key</label>
+        <length>255</length>
+        <required>false</required>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>echosign_dev1__Key__c</fullName>
+        <caseSensitive>true</caseSensitive>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>Key</label>
+        <length>255</length>
+        <required>false</required>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>true</unique>
+    </fields>
+    <fields>
+        <fullName>echosign_dev1__SIGN_Agreement__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>Agreement</label>
+        <referenceTo>echosign_dev1__SIGN_Agreement__c</referenceTo>
+        <relationshipLabel>Agreement Events</relationshipLabel>
+        <relationshipName>Name</relationshipName>
+        <relationshipOrder>0</relationshipOrder>
+        <reparentableMasterDetail>false</reparentableMasterDetail>
+        <trackTrending>false</trackTrending>
+        <type>MasterDetail</type>
+        <writeRequiresMasterRead>false</writeRequiresMasterRead>
+    </fields>
+    <fields>
+        <fullName>echosign_dev1__Type__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <formula>IF(
+  CONTAINS( echosign_dev1__Description__c , &quot;sent out for signature to&quot;), 
+  &quot;SENT&quot;, 
+IF(
+  CONTAINS( echosign_dev1__Description__c , &quot;sent out for approval to&quot;), 
+  &quot;SENT FOR APPROVAL&quot;,
+IF(
+  CONTAINS( echosign_dev1__Description__c , &quot;signed by&quot;),
+  &quot;SIGNED&quot;,
+IF(
+  CONTAINS( echosign_dev1__Description__c , &quot;approved by&quot;),
+  &quot;APPROVED&quot;,
+IF(
+  CONTAINS( echosign_dev1__Description__c , &quot;viewed by&quot;),
+  &quot;VIEWED&quot;,
+IF(
+  CONTAINS( echosign_dev1__Description__c , &quot;created by&quot;),
+  &quot;CREATED&quot;,
+IF(
+  CONTAINS( echosign_dev1__Description__c , &quot;cancelled by&quot;),
+  &quot;CANCELLED&quot;,
+IF(
+  CONTAINS( echosign_dev1__Description__c , &quot;declined by&quot;),
+  &quot;DECLINED&quot;,
+IF(
+  CONTAINS( echosign_dev1__Description__c , &quot;reminder sent to&quot;),
+  &quot;REMINDER&quot;,
+IF(
+  CONTAINS( echosign_dev1__Description__c , &quot;expired&quot;),
+  &quot;EXPIRED&quot;,
+&quot;OTHER&quot;))))))))))</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>Type</label>
+        <required>false</required>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <label>Agreement Event</label>
+    <listViews>
+        <fullName>echosign_dev1__All</fullName>
+        <filterScope>Everything</filterScope>
+        <label>All</label>
+    </listViews>
+    <nameField>
+        <displayFormat>E{000000}</displayFormat>
+        <label>Event Number</label>
+        <type>AutoNumber</type>
+    </nameField>
+    <pluralLabel>Agreement Events</pluralLabel>
+    <searchLayouts>
+        <customTabListAdditionalFields>echosign_dev1__Date__c</customTabListAdditionalFields>
+        <customTabListAdditionalFields>echosign_dev1__Description__c</customTabListAdditionalFields>
+        <lookupDialogsAdditionalFields>echosign_dev1__Date__c</lookupDialogsAdditionalFields>
+        <lookupDialogsAdditionalFields>echosign_dev1__Description__c</lookupDialogsAdditionalFields>
+    </searchLayouts>
+    <sharingModel>ControlledByParent</sharingModel>
+</CustomObject>

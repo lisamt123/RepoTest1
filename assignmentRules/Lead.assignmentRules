@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<AssignmentRules xmlns="http://soap.sforce.com/2006/04/metadata">
+    <assignmentRule>
+        <fullName>AutoTrader</fullName>
+        <active>false</active>
+        <ruleEntry>
+            <assignedTo>Sales</assignedTo>
+            <assignedToType>Queue</assignedToType>
+            <criteriaItems>
+                <field>Lead.Affiliate__c</field>
+                <operation>equals</operation>
+                <value>Homenet,AutoTrader,KBB,vAuto</value>
+            </criteriaItems>
+            <criteriaItems>
+                <field>Lead.CreatedDate</field>
+                <operation>equals</operation>
+                <value>TODAY</value>
+            </criteriaItems>
+            <template>Sales1/New_Lead_from_ATC</template>
+        </ruleEntry>
+    </assignmentRule>
+    <assignmentRule>
+        <fullName>BU Leads</fullName>
+        <active>true</active>
+        <ruleEntry>
+            <assignedTo>chris.farnham@haystak.com</assignedTo>
+            <assignedToType>User</assignedToType>
+            <criteriaItems>
+                <field>Lead.Business_Unit__c</field>
+                <operation>equals</operation>
+                <value>Haystak</value>
+            </criteriaItems>
+        </ruleEntry>
+        <ruleEntry>
+            <assignedTo>elizabeth.kupcho@vauto.com</assignedTo>
+            <assignedToType>User</assignedToType>
+            <booleanFilter>1 OR 2 OR 3</booleanFilter>
+            <criteriaItems>
+                <field>Lead.Business_Unit__c</field>
+                <operation>equals</operation>
+                <value>vAuto</value>
+            </criteriaItems>
+            <criteriaItems>
+                <field>Lead.Opp_Type__c</field>
+                <operation>equals</operation>
+                <value>Conquest,Provision,KBB PAR,Genius Labs,vAuto Core,vAuto Non-Core</value>
+            </criteriaItems>
+            <criteriaItems>
+                <field>Lead.LeadSource</field>
+                <operation>equals</operation>
+                <value>vAuto Website</value>
+            </criteriaItems>
+        </ruleEntry>
+        <ruleEntry>
+            <assignedTo>stephen.keen@vinsolutions.com</assignedTo>
+            <assignedToType>User</assignedToType>
+            <criteriaItems>
+                <field>Lead.LeadSource</field>
+                <operation>equals</operation>
+                <value>VS Website,AutoTrader.com,Employee Referral,Vin PM,WAM Referral,ATG</value>
+            </criteriaItems>
+        </ruleEntry>
+    </assignmentRule>
+</AssignmentRules>

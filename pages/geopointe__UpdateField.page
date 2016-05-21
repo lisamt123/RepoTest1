@@ -1,0 +1,330 @@
+<apex:page controller="geopointe.UpdateField_Controller" sidebar="false" extensions="geopointe.RemoteAction" showHeader="false" standardStylesheets="true" tabStyle="Lead" title="Geopointe - Update Field" applyHtmlTag="false" applyBodyTag="false" docType="html-5.0">
+  <html xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <apex:stylesheet value="{!URLFOR($Resource.geopointe__jquery, '/css/common/common.css')}"/><!-- Geopointe common css -->
+    <apex:stylesheet value="{!URLFOR($Resource.geopointe__jquery, '/css/common/common-lightning.css')}"/> <!-- Common geopointe CSS for lightning styled pages--> 
+    <apex:stylesheet value="https://maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css"/> <!--Font awesome library for icons and such -->
+    <apex:stylesheet value="{!URLFOR($Resource.geopointe__SLDS, '/0.8.0/assets/styles/salesforce-lightning-design-system-vf.min.css')}"/> <!-- Salesforce Lightning Design System -->
+    <style>
+        .updateTargetLayout div {display:inline;}
+        .slds-button { text-align: center; }
+        .slds-card__body { text-align: left; }
+        i.fa-check-circle { color: green; }
+        i.fa-info-circle { color:#3096c4; }
+        i.fa-warning { color: rgb(255, 183, 93); }
+        .inputLabel{
+            width: 12%;
+            display: inline-block;
+            text-align: right;
+        }
+        .gpUpdateValue{
+            color: black;
+        }
+        img.picklistArrowRight, img.picklistArrowLeft {
+            height:20px !important;
+            margin-left: 25%;
+        }
+        table.multiSelectPicklistTable {
+            display: inline-block;
+            width:auto;
+            vertical-align: top;
+            margin-top: -0.4em;
+        }
+        td.multiSelectPicklistCell {
+            width: 45px;
+        }
+    </style>
+
+    <apex:includeScript value="{!URLFOR($Resource.geopointe__jquery, '/jquery-1.8.3.min.js')}" /> <!-- core jQuery -->
+    <script src="{!URLFOR($Resource.jquery, '/js/lib/async.js')}"></script> <!-- async.js for help with asynchronous flow control -->
+    <script src="{!URLFOR($Page.translations)}"></script> <!-- Geopointe translations -->
+    <!-- localize.js -->
+    <script src="https://cdn.localizejs.com/localize.js"></script>
+    <script>!function(a){if(!a.Localize){a.Localize={};for(var e=["translate","untranslate","phrase","initialize","translatePage","setLanguage","getLanguage","detectLanguage","untranslatePage","bootstrap","prefetch","on","off"],t=0;t<e.length;t++)a.Localize[e[t]]=function(){}}}(window);</script>
+
+    <script>
+        Localize.initialize({
+            key: '1SeX6sYAXWLng', 
+            rememberLanguage: false,
+            saveNewPhrases: false,
+            translateBody: true
+        });
+        Localize.setLanguage('{!userLanguage}');
+    </script>
+
+    <apex:includeScript value="{!URLFOR($Resource.geopointe__jquery, '/jquery-1.8.3.min.js')}" /> <!-- core jQuery -->
+    <apex:includeScript value="{!URLFOR($Resource.geopointe__jquery, '/ui/js/jquery-ui-1.9.2.custom.min.js')}" /> <!-- jQuery UI -->
+    <apex:includeScript value="{!$Resource.geopointe__GeopointeJS}" /> <!-- Geopointe universal functions -->
+    <apex:includeScript value="{!$Page.geopointe__js_GA}" /> <!-- Google Analytics --> 
+
+    <div class="slds">
+        <apex:form >
+            <apex:inputTextarea id="recordIds" style="display:none"/>
+            <apex:inputTextarea id="objectNameText" style="display:none"/>
+            <apex:outputPanel id="formattedInput" style="display:none" styleClass="inputValueFormatted">
+                {!formattedInput}
+            </apex:outputPanel>
+            <apex:outputPanel rendered="{!idArrayPresent=false}" layout="block" style="min-height:100px;">
+                <apex:outputPanel styleClass="slds-card__body slds-text-body--small slds-p-horizontal--medium">
+                    <br/>Please include Data Set records before applying this action.
+                </apex:outputPanel>
+            </apex:outputPanel>
+            <apex:outputPanel id="pageMessages">
+                <apex:pageMessages id="pageMessageError"/>
+            </apex:outputPanel>
+
+            <apex:outputPanel rendered="{!idArrayPresent}" id="updateFieldPanel" layout="block" styleClass="slds-card__body slds-text-body--small slds-p-horizontal--medium">
+                <apex:outputPanel rendered="{!NOT(processingComplete)}" layout="block" style="min-height:100px;">
+                    <apex:actionRegion id="ignoreFieldUpdateValueWhenDiscarding">
+                    <apex:outputPanel rendered="{!AND(idArrayPresent, NOT(processingComplete))}" layout="block" style="min-height:3em;">
+                        <apex:outputLabel value="Object" styleClass="label inputLabel uiLabel-left form-element__label uiLabel notranslate" style="margin-right:10px"/>
+                        <apex:selectList id="selectObjectType" value="{!selectObjectType}" multiselect="false" size="1" style="width:60%" styleClass="input" title="Objects which are Accessible with your user permissions">
+                            <apex:actionSupport onsubmit="gpClearFieldSelect()" event="onchange" action="{!showFieldList}" rerender="updateFieldPanel"/>
+                            <apex:selectOptions value="{!selectObjectTypeOptions}"/>
+                        </apex:selectList>
+                    </apex:outputPanel>
+                    <apex:outputPanel id="selectTargetField" rendered="{!AND(AND(fieldListPresent, ''==updateStatus), NOT(processingComplete))}" layout="block" style="min-height:3em;">
+                        <apex:outputLabel value="Field" styleClass="label inputLabel uiLabel-left form-element__label uiLabel notranslate" style="margin-right:10px"/>
+                        <apex:selectList id="selectTargetFieldName" value="{!selectTargetField}" multiselect="false" size="1" style="width:60%" styleClass="input" title="Fields which are Editable with your user permissions">
+                            <apex:actionSupport onsubmit="gpClearFieldValue();" event="onchange" action="{!showFieldUpdate}" rerender="updateFieldPanel" oncomplete="jQuery('#commitButton').prop('disabled',{!NOT(fieldUpdatePresent)});setTimeout(function(){rerenderInputStringValue();},10)"/>
+                            <apex:selectOptions value="{!selectTargetFieldOptions}"/>
+                        </apex:selectList>
+                    </apex:outputPanel>
+                    </apex:actionRegion>
+                    <apex:outputPanel id="updateTargetField" rendered="{!AND(fieldUpdatePresent, NOT(processingComplete))}" styleClass="updateTargetLayout" layout="block">
+                        <apex:outputPanel rendered="{!NOT(''==targetFieldController)}" layout="block">
+                            The selected Dependent Field also requires a value to be entered for its Controlling Field.<br/>
+                            <apex:outputLabel id="updateTargetControlName" value="{!targetFieldController}" styleClass="label inputLabel uiLabel-left form-element__label uiLabel notranslate" style="margin-right:10px"/>
+                            <apex:inputField id="updateTargetControlValue" value="{!editObj[targetFieldController]}" style="width:60%"/><br/><br/>
+                        </apex:outputPanel>
+                        <apex:outputPanel layout="block" style="min-height:3em;">
+                            <apex:outputLabel value="Value" styleClass="label inputLabel uiLabel-left form-element__label uiLabel notranslate" style="margin-right:10px"/>
+                            <apex:inputField id="updateTargetFieldValue" required="{!isTargetValueRequired}" value="{!editObj[selectTargetField]}" styleClass="gpUpdateValue" style="width:60%"/>
+                        </apex:outputPanel>
+                    </apex:outputPanel>
+                    <apex:outputPanel rendered="{!''!=updateStatus}">
+                        <div><i class="fa fa-info-circle"></i> <var>{!updateStatus}</var><br/><br/></div>
+                    </apex:outputPanel>
+                </apex:outputPanel>
+                <apex:outputPanel layout="block" rendered="{!NOT(processingComplete)}" styleClass="slds-card__body slds-text-body--small slds-p-horizontal--medium" style="text-align:center;">
+                    {!recordIdCount} record(s) selected for update.
+                </apex:outputPanel>
+            </apex:outputPanel>
+            <apex:outputPanel >
+                <apex:actionStatus id="updateButtonStatus">
+                    <apex:facet name="start">
+                        Processing <var>{!totalRecordCount}</var> records...
+                    </apex:facet>
+                    <apex:facet name="stop">
+                        <apex:outputPanel id="resultsReportPanel">
+                            <apex:outputPanel rendered="{!NOT(processingComplete)}" layout="block" style="text-align:center">
+                                <button id="commitButton" class="slds-button slds-button--neutral" disabled="{!NOT(AND(fieldListPresent,fieldUpdatePresent))}" onclick="rerenderInputStringValueAndSave();return false;">
+                                    Update Field Values
+                                </button>
+                            </apex:outputPanel>
+                            <apex:outputPanel rendered="{!AND(processingComplete, recCountSuccess == recCountTotal)}">
+                                <div class="slds-card slds-m-bottom--medium">
+                                    <section class="slds-card__body slds-p-horizontal--medium">
+                                        <div><i class="fa fa-check-circle"></i> <b>Update was successful!</b></div>
+                                        <apex:outputPanel >
+                                            <b><var>{!recCountSuccess}</var> of <var>{!recCountTotal}</var> record(s)</b> were updated.<br/>
+                                        </apex:outputPanel>
+                                    </section>
+                                </div>
+                            </apex:outputPanel>
+                            <apex:outputPanel rendered="{!AND(processingComplete, recCountSuccess < recCountTotal)}">
+                                <div class="slds-card slds-m-bottom--medium">
+                                    <section class="slds-card__body slds-p-horizontal--medium">
+                                        <div><i class="fa fa-warning"></i> <b>Update completed with errors.</b></div>
+                                        <apex:outputPanel >
+                                            <b><var>{!recCountSuccess}</var> of <var>{!recCountTotal}</var> record(s)</b> were updated.<br/>
+                                        </apex:outputPanel>
+                                    </section>
+                                </div>
+                                <div class="slds-card slds-m-bottom--medium">
+                                    <section class="slds-card__body slds-p-horizontal--medium">
+                                        <apex:outputPanel >
+                                        <div><b>The following errors occured:</b></div>
+                                        <div id="renderErrorReport"></div>
+                                        </apex:outputPanel>
+                                    </section>
+                                </div>
+                            </apex:outputPanel>
+                        </apex:outputPanel>
+                    </apex:facet>
+                </apex:actionStatus>
+            </apex:outputPanel>
+            <apex:actionFunction name="renderPreselectedObjectType" rerender="updateFieldPanel"/>
+            <apex:actionFunction name="resetEditObject" action="{!showFieldUpdate}" rerender="updateFieldPanel" oncomplete="setTimeout(function(){rerenderInputStringValue();},10)"/>
+            <apex:actionFunction name="populateRecordIds" action="{!doFieldUpdate}"/>
+            <apex:actionFunction name="updateFieldComplete" action="{!updateCompleteAction}" rerender="updateFieldPanel,resultsReportPanel" oncomplete="jQuery('#renderErrorReport').html(renderedReport);return false;">
+                <apex:param name="recCountSuccess" assignTo="{!recCountSuccess}" value=""/>
+                <apex:param name="recCountTotal" assignTo="{!recCountTotal}" value=""/>
+            </apex:actionFunction>
+            <apex:actionFunction name="rerenderInputStringValue" rerender="formattedInput,recordIdsJS" action="{!formatInput}"/>
+            <apex:actionFunction name="rerenderInputStringValueAndSave" rerender="formattedInput,pageMessages" action="{!formatInput}" oncomplete="updateFieldValueRecords();return false;"/>
+        </apex:form>
+    </div>
+    <apex:outputPanel id="hiddenRerenderPanel">
+        <apex:outputPanel id="recordIdsJS">
+            <script type="text/javascript">
+                var recordIdsVar = JSON.parse('{!recordIds}');
+                jQuery("textarea[id$='recordIds']").val(recordIdsVar);
+                var objectNameVar = '{!selectObjectName}';
+                jQuery("textarea[id$='objectNameText']").val(objectNameVar);
+                // this structure should be returned from the remote call as JSON in 'result'
+                // and batch results should be added to this accumulator for eventual reporting
+                var resultsMessage = {
+                    recCountSuccess: 0,
+                    recCountTotal: 0,
+                    recMessageFail: []
+                    //    { 'Id': recordId, 'Errors': ['id1', 'id2'] } // just for example...
+                };
+                var renderedReport = '';
+            </script>
+        </apex:outputPanel>
+
+        <script type="text/javascript">
+            jQuery(document).ready(function() {
+                renderPreselectedObjectType();
+            });
+            function gpClearFieldSelect() {
+                jQuery("[id$='updateTargetFieldValue']").val('');
+                jQuery("[id$='selectTargetFieldName']").val('');
+            }
+            function gpClearFieldValue() {
+                jQuery("[id$='updateTargetFieldValue']").val('');
+            }
+            function updateFieldValueRecords() {
+                // allow client-side validation to abort processing
+                var errCell = jQuery("table.messageTable td.messageCell .messageText");
+                var errText = errCell.html();
+                if (errText) {
+                    var valCell = jQuery("[id$='updateTargetFieldValue']");
+                    errCell.html(errText + ' ' + valCell.val());
+                    resetEditObject();
+                    return;
+                }
+
+                var controllingField = jQuery("label[id$='updateTargetControlName']").text();
+                var updateObject = objectNameVar;
+                var updateFieldNames = [ jQuery("select[id$='selectTargetFieldName']").val() ];
+                var updateFieldValues = [ jQuery(".inputValueFormatted").text() ];
+
+                if (controllingField) {
+                    var controllingFieldValue = jQuery("select[id$='updateTargetControlValue']").val();
+                    if (controllingFieldValue) {
+                        updateFieldNames.push(controllingField);
+                        updateFieldValues.push(controllingFieldValue);
+                    }
+                }
+                var numOfBatches = 0;
+
+                geopointeAjaxStart('body','Updating Fields...');
+
+                var q = async.queue(function (task, callback) {
+                    //Calculate and update completion percent in ajax spinner
+                    var percentComplete = Math.round( (1 - (q.length() + 1) / numOfBatches) * 100 );
+
+                    jQuery('.geopointeAjaxImgPercent').text(percentComplete + "%");
+
+                    Visualforce.remoting.Manager.invokeAction(
+                        '{!$RemoteAction.RemoteAction.doRemoteAction}',
+                        'UpdateField_Controller.updateFieldRecords',
+                        { recordIdsJSON: JSON.stringify(task.recordIds),
+                          objName: updateObject,
+                          fieldNames: JSON.stringify(updateFieldNames),
+                          fieldValues: JSON.stringify(updateFieldValues)},
+                        function(result, event) {
+                            if (event.status) {
+                                // accumulate results for final output report
+                                var currentResult = JSON.parse(result);
+                                var preSuccess = Number(resultsMessage['recCountSuccess']);
+                                var preTotal = Number(resultsMessage['recCountTotal']);
+                                var preErrorById = resultsMessage['recMessageFail'];
+                                var newSuccess = Number(currentResult['recCountSuccess']);
+                                var newTotal = Number(currentResult['recCountTotal']);
+                                var newErrorById = currentResult['recMessageFail'];
+                                for (var id in newErrorById) {
+                                    preErrorById.push({'Id': id, 'Errors': newErrorById[id]});
+                                }
+                                resultsMessage = {
+                                    recCountSuccess: Number(preSuccess + newSuccess),
+                                    recCountTotal: Number(preTotal + newTotal),
+                                    recMessageFail: preErrorById
+                                };
+                            }
+                            else {
+                                geopointeAjaxEnd();
+                                alert('Something didn\'t quite work right: ' + event.message);
+                                if (q.kill) q.kill();
+                                else {  // q.kill() not defined? terminate processing by hand
+                                    q.tasks = [];
+                                    q.drain = null;
+                                }
+                            }
+                            callback();
+                        },
+                        {escape: false, timeout: 120000, buffer: false}
+                    );
+                }, 1); //Has to be 1 due to dml row locking issues
+
+                // Called when the queue is all done inserting campaign members
+                q.drain = function() {
+                    jQuery('.geopointeAjaxImgPercent').text('100%');
+                    renderResultsReport();
+                    geopointeAjaxEnd();
+                }
+
+                // Load up the queue
+                var CHUNKSIZE = 500;
+                var tempIds = [];
+                for (var i = 0; i < recordIdsVar.length; i++) {
+                    tempIds.push(recordIdsVar[i]);
+
+                    if (tempIds.length == CHUNKSIZE) {
+                        numOfBatches++;
+                        q.push({recordIds: tempIds},function(err) {
+                            if (err) {
+                                console.log(err);
+                            }   
+                        });
+                        // Reset temp list
+                        tempIds = [];
+                    }
+                }
+
+                // Add last chunk of ids
+                if (tempIds.length > 0) {
+                    numOfBatches++;
+                    q.push({recordIds: tempIds}, function(err) {
+                        if (err) {
+                            console.log(err);
+                        }   
+                    });
+                }
+            }
+
+            function renderResultsReport() {
+                var recSuccess = resultsMessage['recCountSuccess'];
+                var recTotal = resultsMessage['recCountTotal'];
+                var errorMaps = resultsMessage['recMessageFail'];
+                var recMsgs = '';   // render for display - apex:param just stores the string until after rerender
+                if (errorMaps.length > 0) {
+                    for (var err = 0; err < errorMaps.length; ++err) {
+                        var recErr = errorMaps[err];
+                        if (recErr["Id"]) {
+                            var callIt = recErr['Id'].split(':');
+                            recMsgs += '<a href=/' + callIt[0] + ' target="_blank">' + callIt[1] + '</a>:';
+                            for (var msg = 0; msg < recErr["Errors"].length; ++msg) {
+                                recMsgs += '&nbsp;&nbsp;' + recErr["Errors"][msg] + '<br/>';
+                            }
+                        }
+                    }
+                }
+                renderedReport = recMsgs;
+                updateFieldComplete(recSuccess, recTotal); //, recMsgs);
+            }
+        </script>
+    </apex:outputPanel>
+  </html>
+</apex:page>

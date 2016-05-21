@@ -1,0 +1,22 @@
+<apex:page >
+<apex:includeScript value="{!$Resource.agf__jquery_1_8_3_min}" />
+Loading...
+<script>
+$(function () {
+
+	$('li.publisherFeedItemTypeChoice a[title="Bug"],li.publisherFeedItemTypeChoice a[title="Story"]', parent.window.document).bind('click', function(e) {
+		if ($(this).data('loaded')) {
+            return;
+        }
+        var actionLabel = $(this).attr('title'); // assumes the title will always be "Bug" or "Story"
+        var actionElementId = $(this).attr('id'); // assumes element ID starts with "publisherAttach", followed by ID of the global action
+        if (actionElementId.indexOf('publisherAttach') === 0) {
+            var actionId = actionElementId.substring('publisherAttach'.length);
+            $('.' + actionId + ' iframe', parent.window.document).attr('src','/apex/adm_work' + actionLabel + 'richglobalaction');
+            $(this).data('loaded',true);
+        }
+    });
+
+});
+</script>
+</apex:page>

@@ -1,0 +1,1518 @@
+<apex:page standardController="Opportunity" extensions="DMAPP.OMStandardController,DMAPP.CompetitiveStrategyController" 
+    action="{!logCompetitiveStrategyUsage}" 
+    sidebar="false"
+    docType="html-5.0"
+    >
+
+    <style>
+
+        div#strategyOuterContainer, div#competitorsOuterContainer {
+            clear: both;
+        }
+        div#strategyContainerTitle, div#competitorsContainerTitle {
+            font-size: 1.5em;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        div#strategyInnerContainer, div#competitorsInnerContainer {
+            background-color: #CBD5E2;
+            border: 1px solid #A0B5CA;
+            border-radius: 5px 5px 5px 5px;
+            margin-bottom: 20px;
+            /*overflow-y: auto;*/
+            padding: 1%;
+        }
+        div#strategyInnerLeft {
+            background-color: white;
+            border-radius: 5px 5px 5px 5px;
+            float: left;
+            height: 7em;
+            margin-right: 1%;
+            padding: 0;
+            width: 30%; /* was 24% */
+        }
+        div#strategyInnerRight {
+            background-color: white;
+            border-radius: 5px 5px 5px 5px;
+            float: left;
+            /*height: 7em;*/
+            padding: 0;
+            width: 69%; /* was 75% */
+        }
+        div#strategyPanel {
+            padding: 10px;
+        }
+        #effectiveStrategy {
+            display: inline;
+            font-size: 1.5em;
+            font-weight: bold;
+        }
+        #getStrategyButton {
+            float: right;
+        }
+        div#useRecommendedPanel {
+            padding: 10px;
+        }
+        #useRecommendStrategyLabel {
+            display: inline;
+        }
+        div#strategyDescriptionPanel {
+            float: left;
+            padding: 1%;
+            width: 47%;
+        }
+        div#strategyDetailsPanel {
+            float: left;
+            padding: 1%;
+            width: 48%;
+        }
+        #competitorsTable {
+            border-collapse: collapse;
+            width: 100%;
+          /*  min-width: 100%;
+          table-layout:fixed;*/ 
+        }
+        #competitorsTable tr td {
+            background-color: #FFFFFF;
+            border-bottom: 5px solid #CBD5E2;
+            padding: 5px;
+            vertical-align: top;
+        }
+        #competitorsTable tr th {
+            padding: 5px;
+            vertical-align: top;
+        }
+        tr.competitorRow {
+            border-radius: 8px 8px 8px 8px;
+            margin: 4px;
+        }
+        td.competitorNameCell {
+            width: 12%;
+        }
+        td.strategyCell {
+            width: 13%;
+        }
+        td.strengthsCell {
+            width: 38%;
+        }
+        td.weaknessesCell {
+            width: 34%;
+        }
+        select.strategyDropdown {
+            border: 1px solid #C0C0C0;
+            border-radius: 3px;
+            height: 29px !important;
+            padding: 2px;
+        }
+        input.strategyReadOnly {
+            background: none repeat scroll 0 0 #FFFFFF;
+            border: 0 solid #D8D8D8;
+            color: #222222;
+        }
+        div.textEditorContainer {
+        }
+        div.noteEditHyperlink {
+            cursor: pointer;
+            text-decoration: underline;
+        }
+        div.noteEditButton {
+            background-image: url('{!URLFOR($Resource.DMAPP__DecisionCriteria, 'icon_edit_criteria.png')}');
+            cursor: pointer;
+            height: 16px;
+            margin-top: 5px;
+            width: 16px;
+        }
+        
+        div.strategyNoteEditButton {
+            background-image: url('{!URLFOR($Resource.DMAPP__Assessment, 'icon_edit.png')}');
+            cursor: pointer;
+            height: 16px;
+            margin-top: 5px;
+            width: 16px;
+        }
+        
+        
+        pre#strategyNotes {
+            float: left;    
+        }
+        
+        div.textEditorContainer div.noteEditButton {
+            float: right;
+            position: relative;
+        }
+        
+        div.textEditorContainer div.strategyNoteEditButton {
+            float: right;
+            position: relative;
+        }
+        
+        
+        div.noteSaveButton {
+            background-image: url('{!URLFOR($Resource.DMAPP__DecisionCriteria, 'icon_save.png')}');
+            cursor: pointer;
+            float: left;
+            height: 16px;
+            margin-left: 5px;
+            width: 16px;
+        }
+        div.noteUndoButton {
+            background-image: url('{!URLFOR($Resource.DMAPP__DecisionCriteria, 'icon_undo.png')}');
+            cursor: pointer;
+            float: left;
+            height: 16px;
+            margin-left: 5px;
+            width: 16px;
+        }
+        div.deleteCompetitorButton {
+            background-image: url('{!URLFOR($Resource.DMAPP__DecisionCriteria, 'icon_row_remove.png')}');
+            cursor: pointer;
+            height: 16px;
+            width: 16px;
+        }
+        
+        div.textNote, pre.textNote {
+            color: #222222;
+            font-family: Arial,Helvetica,sans-serif;
+            /*font-size: 75%;*/
+            font-weight: normal;
+            line-height: 150%;
+            margin-top: 0;
+            min-width: 120px;
+            width:auto;
+            white-space: pre-wrap;       /* css-3 */
+            white-space: -moz-pre-wrap;  /* Mozilla, since 1999 */
+            white-space: -pre-wrap;      /* Opera 4-6 */
+            white-space: -o-pre-wrap;    /* Opera 7 */
+            word-wrap: break-word;       /* Internet Explorer 5.5+ */
+        }
+        textArea.textNote  {
+            background-color: white;
+            border: none;
+            color: #222222;
+            overflow: hidden;
+            resize: none;
+            font-family: Arial,Helvetica,sans-serif;
+            /*font-size: 75%;*/
+            font-weight: normal;
+            line-height: 150%;
+            margin-top: 0;
+           /* min-width: 120px; */      
+            width: 75%;
+            white-space: pre-wrap;       /* css-3 */
+            white-space: -moz-pre-wrap;  /* Mozilla, since 1999 */
+            white-space: -pre-wrap;      /* Opera 4-6 */
+            white-space: -o-pre-wrap;    /* Opera 7 */
+            word-wrap: break-word;       /* Internet Explorer 5.5+ */
+            padding: 5px;           
+        }
+        textarea.textNoteArea {
+            border: 1px solid #C0C0C0;
+            border-radius: 3px 3px 3px 3px;
+            float: left;
+            margin: 0;
+            padding: 5px;
+            resize: none;
+            width: 98%;
+            white-space: pre-wrap;       /* css-3 */
+            white-space: -moz-pre-wrap;  /* Mozilla, since 1999 */
+            white-space: -pre-wrap;      /* Opera 4-6 */
+            white-space: -o-pre-wrap;    /* Opera 7 */
+            word-wrap: break-word;       /* Internet Explorer 5.5+ */
+            line-height: 150%;
+        }
+        input.competitorName {
+            border: 1px solid #C0C0C0;
+            border-radius: 3px 3px 3px 3px;
+            padding: 5px;
+            line-height: 15px;
+        }
+        div.errorMessage {
+            /*background-color: pink;
+            border: 1px solid red;
+            border-radius: 8px 8px 8px 8px;
+            box-shadow: 3px 3px 4px black;*/
+            color: red;
+            cursor: default;
+            font-weight: bold;
+            padding: 3px; /* 8px; */
+            /*position: absolute;
+            text-align: center;*/
+            width: 150px;
+        }
+        .floatRight {
+            float: right;
+        } 
+        
+        .clear {
+            clear: both;
+        }
+        
+        .competitorButtonContainer div {
+            border: 1px solid red;
+            padding: 8px;
+        }
+        
+        .editorButtonsContainer {
+            padding-top: 5px;
+            clear: left;
+            text-align: right;
+        }       
+        
+
+        /* Custom Select Box and Checkbox */
+        
+        select {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size:12px !important;
+            box-sizing: border-box;
+            -webkit-box-align: center;
+            -webkit-appearance: menulist-button;
+        }
+        
+        .customStyleSelectBox {
+            background: none repeat scroll 0 0 #FFFFFF;
+            border:1px solid #d8d8d8;
+            color: #222222;
+            font-family: Arial,Helvetica,sans-serif;
+            font-size: 1.5em;
+            font-weight: bold;
+            padding: 4px 5px 5px 5px;
+            line-height:20px;
+            height:20px;
+            width:auto;
+            white-space:nowrap;
+            cursor:pointer;
+        }
+        
+        .customStyleSelectBox.changed {
+        /* You can use this if you want a different style after user has made a selection */
+        }
+        
+        /* on the next line we add a down arrow on the right to indicate that it is a select box */
+        .customStyleSelectBoxInner {
+            background: url('{!URLFOR($Resource.DMAPP__SmartOM, 'select-arrow.png')}') no-repeat center right;
+            /* padding-right:20px;*/
+            cursor:pointer;
+        }
+        
+        .mySelectBoxClass {
+            cursor:pointer;
+            /* padding-right:20px; */
+        }
+        
+        DIV.working {
+            position            :   absolute;
+            background-image    :   url('{!$Resource.DMAPP__ttgomjs}/ttg/graph/images/loader.gif');
+            background-position :   center center;
+            background-repeat   :   no-repeat;
+            background-size     :   cover;
+            top                 :   45%;
+            left                :   45%;
+            height              :   32px;
+            width               :   32px;
+        }
+        
+    </style>
+
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__ttgomjs, 'ttg/lib/ttgutils.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__ttgomjs, 'ttg/lib/ttgservice.js')}"/>
+    
+    <apex:include pageName="DMAPP__APIDelegate" />
+    	
+    <c:jQuery customSelect="true" 
+    	jQueryUI="true"
+        paging="true"
+        underscore="true"
+        chosen="true"/>
+    	
+    <c:MobileRedirect smartOM="true" />
+    
+    <script>
+    
+    var $j = jQuery.noConflict();
+        
+    $j.ajaxSetup({
+        jsonp: null,
+        jsonpCallback: null
+    });
+    
+    </script>
+      
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__ftk, 'forcetk.js')}" />
+
+    <style>
+        @import url("{!URLFOR($Resource.DMAPP__SmartOM,         'css/summarytab.css')}");
+        @import url("{!URLFOR($Resource.DMAPP__SmartOM,         'css/chatterpost.css')}");
+                
+        /* start of additions for Chatter */
+    
+        @import url("{!URLFOR($Resource.DMAPP__ttgomjs,         'ttg/chatter/css/chatter_side_panel.css')}");
+        @import url("{!URLFOR($Resource.DMAPP__ttgomjs,         'ttg/chatter/css/chatter_post.css')}");
+        @import url("{!URLFOR($Resource.DMAPP__ttgomjs,         'ttg/graph/css/glyphs/style.css')}");
+        @import url("{!URLFOR($Resource.DMAPP__ttgomjs,         'ttg/chatter/css/chatter_summary.css')}");
+        
+        /* end of additions for Chatter */
+        
+       /* Restores AJAX spinner size to normal (AMOF-813) */
+        .spinner {
+            height: auto;
+            width: auto;
+        }
+        
+    </style>    
+    <apex:include pageName="DMAPP__SummaryTab2"/>
+     
+
+    
+    
+    
+    <div id="TAS">
+        <div id="competitive_strategy_main_div">
+            <div id="strategyOuterContainer">
+                <div id="strategyContainerTitle">Your Strategy</div>
+                <div id="strategyInnerContainer">
+                    <div id="strategyInnerLeft">
+                        <div id="strategyPanel"></div>
+                        <div id="useRecommendedPanel"></div>
+                    </div>
+                    <div id="strategyInnerRight">
+                        <div id="strategyDescriptionPanel"></div>
+                        <div id="strategyDetailsPanel"></div>
+                        <br class="clear"/>
+                    </div>
+                    <br class="clear"/>
+                </div>
+            </div>
+
+            <div id="competitorsOuterContainer">
+                <div id="competitorsContainerTitle">Competitors</div>
+                <div id="competitorsInnerContainer">
+                    <table id="competitorsTable">
+                    </table>
+                    <br class="clear"/>
+                </div>
+            </div>
+
+        </div>  
+    </div>
+
+    
+
+    <script>
+
+        /* 
+         * Copyright © The TAS Group. All rights reserved.
+         *  
+         */    
+    
+        var ttg = ttg || {};
+        
+        ttg.competitiveStrategy = function(spec) {
+
+            var workingDiv = null;
+
+            var ttgApi = spec.ttgApi,
+                readOnly = spec.readonly,
+                extraOpp = null,
+                competitorsData = null,
+                competitorPicklist = spec.competitorPicklist,
+                disableCompetitorCreation = spec.disableCompetitorCreation,
+                newCompetitor = null,
+                errorMsgString = '';        
+            
+            
+            var strategies = [
+                'Frontal', 'Flanking', 'Defend', 'Develop', 'Disengage', 'Fragment'
+            ];      
+
+            var stateMachine = [
+                {   question:'Is there a compelling event or can you create one?',
+                    yes: 1,
+                    no: 4,
+                    updateField: ttg.vfp + 'TCS_Q1__c',
+                    answer: 'Unknown'
+                },        
+                {   question:'Can you compete?',        
+                    yes: 2,
+                    no: 4,
+                    updateField: ttg.vfp + 'TCS_Q2__c',
+                    answer: 'Unknown'
+                },
+                {   question:'Do you have a 3:1 advantage?',        
+                    yes: 7, // FRONTAL
+                    no: 3,
+                    updateField: ttg.vfp + 'TCS_Q3__c',
+                    answer: 'Unknown'
+                },
+                {   question:'Can you change or expand the buying criteria?',
+                    yes: 8, // FLANKING
+                    no: 6,
+                    updateField: ttg.vfp + 'TCS_Q4__c',
+                    answer: 'Unknown'
+                },
+                {   question:'Do you have a position in the account that you must protect?',
+                    yes: 9, // DEFEND
+                    no: 5,
+                    updateField: ttg.vfp + 'TCS_Q5__c',
+                    answer: 'Unknown'
+                },
+                {   question:'Is there future revenue or strategic value?',
+                    yes: 10, //DEVELOP
+                    no: 11, // DISENGAGE
+                    updateField: ttg.vfp + 'TCS_Q6__c',
+                    answer: 'Unknown'
+                },
+                {   question:'Can you identify a profitable subset of the opportunity that you can win?',
+                    yes: 12, // FRAGMENT
+                    no: 11, // DISENGAGE
+                    updateField: ttg.vfp + 'TCS_Q7__c',
+                    answer: 'Unknown'
+                },
+                {
+                    strategy: 'Frontal'
+                },
+                {
+                    strategy: 'Flanking'
+                },
+                {
+                    strategy: 'Defend'
+                },
+                {
+                    strategy: 'Develop'
+                },
+                {
+                    strategy: 'Disengage'
+                },
+                {
+                    strategy: 'Fragment'
+                }
+            ];        
+
+            var statesStack = [ stateMachine[0] ];
+            
+            var data;
+                                        
+            function checkNewCompetitorName(newName, currentCompetitorName, isAfterKeyEvent) {
+                if(!newName || jQuery.trim(newName) === '') {
+                    errorMsgString = 'Competitor\'s name must be non empty';
+                    return false;
+                }
+                
+                if(isCompetitorNameAlreadyIncluded(newName, currentCompetitorName)) {
+                    errorMsgString = 'There is already a competitor with the same name';
+                    return false;
+                }
+                
+                if(isAfterKeyEvent) {
+                    if(!isCompetitorValid(newName, true)) {
+                        errorMsgString = 'You can only use an existing competitor\'s name';
+                        return false;
+                    }               
+                }
+                else {
+                    if(!isCompetitorValid(newName)) {
+                        errorMsgString = 'You can only use an existing competitor\'s name';
+                        return false;
+                    }   
+                }
+                
+                /*if(competitorsData) {
+                    var index, 
+                        competitor,
+                        competitorsLength = competitorsData.length;
+                    for(index = 0; index < competitorsLength; index++) {
+                        competitor = competitorsData[index]; 
+                        if(jQuery.trim(competitor.Name.toLowerCase()) === jQuery.trim(newName.toLowerCase())) {
+                            if(currentCompetitorId !== competitor.Id) {
+                                return false;
+                            }
+                        }
+                    }
+                }   */  
+                return true;         
+            }
+                            
+            function startWorking() {
+                workingDiv = workingDiv || jQuery('<div/>').addClass('working') ; 
+                jQuery('#competitive_strategy_main_div').append(workingDiv);
+            }
+            
+            function stopWorking() {
+                if (workingDiv) {
+                    workingDiv.remove();
+                    workingDiv = null;
+                }
+            }
+            
+            function populateMainDiv() {
+                createStrategyContainerLeft();
+                createStrategyContainerRight();
+            }
+                
+            function hideNewCompetitorRow() {
+                jQuery('#newCompetitorButtonsContainer').remove();
+                jQuery('#addCompetitorButton').show();
+                jQuery('#newCompetitorRow').remove();
+            }
+            
+            function createNewCompetitorRow() {
+                newCompetitor = {};
+                
+                var strategyDropDown = createStrategyDropDown2('newCompetitorStrategy'),
+                    competitorNameEditor = createTextEditor3('newCompetitorName', 40, true, competitorPicklist),
+                    strengthsEditor = createTextEditor3('newStrengthsNotes', 1000),
+                    weaknessesEditor = createTextEditor3('newWeaknessesNotes', 1000),
+                    newCompetitorButtons = createNewCompetitorButtons();
+                
+                
+                var competitorRow = jQuery('<tr/>',{id:"newCompetitorRow"}).addClass('competitorRow');
+                competitorRow
+                    .append(jQuery('<td/>').addClass('competitorNameCell').append(competitorNameEditor.getContainer()))
+                    .append(jQuery('<td/>').addClass('strategyCell').append(strategyDropDown.getContainer()))
+                    .append(jQuery('<td/>').addClass('strengthsCell').append(strengthsEditor.getContainer()))
+                    .append(jQuery('<td/>').addClass('weaknessesCell').append(weaknessesEditor.getContainer()))
+                    .append(jQuery('<td/>').text(''))
+                    .append(jQuery('<td/>').text(''));
+                jQuery('#competitorsTable').append(competitorRow).
+                                            after(newCompetitorButtons);
+                
+                triggerEvent('editClicked');
+                    
+                
+                function createNewCompetitorButtons() {
+                    var newCompetitorButtonsDiv = jQuery('<div/>', {id: 'newCompetitorButtonsContainer'}),
+                        errorMsg = null;
+                    var saveButton = jQuery('<input/>', {type:'button', value:'Save'}).on('click', function() {
+                    	newCompetitorButtonsDiv.find('input[type=button]').attr('disabled', 'disabled');
+                        var ret = saveNewCompetitor(newCompetitor);
+                        if(!ret) {
+                        	newCompetitorButtonsDiv.find('input[type=button]').removeAttr('disabled');
+                            if(!errorMsg) {
+                                errorMsg = highlightCompetitorName('textarea_newCompetitorName', newCompetitor.Name);
+                                errorMsg.text(errorMsgString).show();
+                            } else {
+                                errorMsg.text(errorMsgString).show();
+                            }
+                        }
+                    });
+                    var cancelButton = jQuery('<input/>', {type:'button', value:'Cancel'}).on('click', function() {
+                        hideNewCompetitorRow();
+                    });
+                    saveButton.addClass('ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only floatRight');
+                    cancelButton.addClass('ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only floatRight');
+                    newCompetitorButtonsDiv.append(cancelButton).append(saveButton);                    
+                    return newCompetitorButtonsDiv;
+                }
+                    
+                        
+                function populateNewCompetitor(competitor) {
+                    competitor.Name = competitorNameEditor.getValue();
+                    competitor[ttg.vfp + 'Strategy__c'] = strategyDropDown.getValue();
+                    competitor[ttg.vfp + 'Strengths__c'] = strengthsEditor.getValue();
+                    competitor[ttg.vfp + 'Weaknesses__c'] = weaknessesEditor.getValue();        
+                }
+                    
+                function saveNewCompetitor(competitor) {
+                    triggerEvent('saveClicked');
+                    if(!checkNewCompetitorName(competitorNameEditor.getValue(), competitor.Name)) {
+                        triggerEvent('editClicked');                
+                        return false;
+                    }
+                    populateNewCompetitor(competitor);                  
+                    createCompetitor(competitor);
+                    return true;        
+                }
+                
+                function triggerEvent(eventName) {
+                    competitorNameEditor.getContainer().trigger(eventName);                 
+                    strategyDropDown.getContainer().trigger(eventName);
+                    strengthsEditor.getContainer().trigger(eventName);  
+                    weaknessesEditor.getContainer().trigger(eventName); 
+                }                   
+
+
+            }
+            
+        
+            function createStrategyDropDown(dropDownId, onChangeListener) {
+                var strategyDropDown = null;
+                if(!readOnly) {
+                    strategyDropDown = jQuery('<select/>', {id:dropDownId})
+                                            .addClass('strategyDropdown mySelectBoxClass')
+                                            .attr('style', 'display: block; width:140px; display:inline;');
+                    strategyDropDown.append(jQuery('<option/>', {value: 'Unknown'}).text('Unknown'));
+                    jQuery.each(strategies, function(index, strategy) {
+                        strategyDropDown.append(jQuery('<option/>', {value: strategy}).text(strategy));
+                    });
+                    strategyDropDown.on('change', onChangeListener);
+                    //strategyDropDown.customSelect();
+                }
+                else {
+                    strategyDropDown = jQuery('<input/>', {id:dropDownId, type:'text'}).addClass('strategyReadOnly');
+                    strategyDropDown.attr('disabled', 'disabled');
+                }
+                return strategyDropDown;
+            }       
+            
+        
+            function createStrategyDropDown2(dropDownId) {
+                var parentDiv = jQuery('<div/>');
+                var strategyInput = jQuery('<input/>', {id:dropDownId, type:'text'}).addClass('strategyReadOnly');
+                strategyInput.attr('disabled', 'disabled');
+                
+                parentDiv.append(strategyInput);
+
+                if(!readOnly) {
+                
+                    var strategyDropDown = jQuery('<select/>', {id:'select_'+dropDownId}).addClass('strategyDropdown');
+                    strategyDropDown.append(jQuery('<option/>', {value: 'Unknown'}).text('Unknown'));
+                    jQuery.each(strategies, function(index, strategy) {
+                        strategyDropDown.append(jQuery('<option/>', {value: strategy}).text(strategy));
+                    });
+                
+                    parentDiv.append(strategyDropDown);
+                    strategyDropDown.hide();
+                    
+                    parentDiv.on('editClicked', function() {
+                        strategyDropDown.val(strategyInput.val());
+                        strategyInput.hide();
+                        strategyDropDown.show();
+                    });
+                    
+                    parentDiv.on('saveClicked', function() {
+                        strategyInput.val(strategyDropDown.val());
+                        strategyDropDown.hide();
+                        strategyInput.show();
+                    });
+                    
+                    parentDiv.on('cancelClicked', function() {
+                        strategyDropDown.hide();
+                        strategyInput.show();
+                    });                 
+                }
+                
+                function getValue() {
+                    return strategyInput.val();
+                }
+                
+                function setValue(value) {
+                    strategyInput.val(value);
+                }
+                
+                function getContainer() {
+                    return parentDiv;
+                }
+                
+                return { 
+                    getContainer : getContainer,
+                    setValue : setValue,
+                    getValue : getValue
+                };
+            }               
+                                    
+
+            function createStrategyContainerLeft() {
+                jQuery('#strategyPanel').append(jQuery('<div>', { id: 'effectiveStrategy' }))         
+                	.append(createUserStrategyDropDown())
+                    .append(createGetStrategyButton());
+                                        
+                jQuery('#userStrategy').customSelect()
+                .hide()
+                .css('width', '150px')
+                .next()
+                .hide();
+                
+                // Added during jQuery plugin migration
+                jQuery('.customSelect').addClass('customStyleSelectBox')
+                	.find('span')
+                	.removeClass('customSelectInner')
+                	.addClass('customStyleSelectBoxInner');
+        
+                jQuery('#useRecommendedPanel').append(createUseRecommendedStrategyCheckbox())
+                                                
+                function createUserStrategyDropDown() {
+                    var strategyDropDown = createStrategyDropDown('userStrategy', function() {
+                    	extraOpp[ttg.vfp + 'User_Defined_Strategy__c'] = jQuery(this).val();
+                        remoteUpdate(extraOpp);
+                    });
+                    return strategyDropDown;
+                }                           
+
+                function createGetStrategyButton() {
+                    if(readOnly) {
+                        return jQuery('<div/>');
+                    }
+                    var strategyButton = jQuery('<input/>',{id:'getStrategyButton', type:'button', value:'Get Strategy Advice'});
+                    strategyButton.addClass('ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only');
+                    strategyButton.hide();
+                    strategyButton.on('click', createWizard);
+                    return strategyButton;
+                }
+                
+                function createUseRecommendedStrategyCheckbox() {
+                    var checkBox = jQuery('<input>', { id: 'useRecommendStrategy', type: 'checkbox' });
+                    checkBox.on('change', function() {
+                        extraOpp[ttg.vfp + 'Use_Recommended__c'] = jQuery(this).prop('checked');
+                        remoteUpdate(extraOpp); 
+                    });
+                    var useRecommendedCheckbox = jQuery('<div>', { id: 'useRecommendStrategyContainer' });
+                    if(!readOnly) {                 
+                    	useRecommendedCheckbox.append(checkBox)
+                        	.append(jQuery('<div>', { id: 'useRecommendStrategyLabel' }).html('Use recommended strategy'));
+                    }
+                    useRecommendedCheckbox.hide();
+                    return useRecommendedCheckbox;
+                }
+            }
+
+            var editor = null;
+            
+            function createStrategyContainerRight() {
+                jQuery('#strategyDescriptionPanel').append(jQuery('<div/>', {id: 'strategyDescription'}));
+                this.editor = createTextEditor('strategyNotes', function() {
+                    extraOpp[ttg.vfp + 'Effective_Strategy_Details_Text__c'] = jQuery('#strategyNotes').val();
+                    remoteUpdate(extraOpp);
+                    return true;
+                }, 1024);
+                jQuery('#strategyNotes').addClass('strategyDetailsTextArea');
+                jQuery('#strategyDetailsPanel').append(this.editor.getParent());
+            }
+            
+            function createTextEditor(id, saveCallback, characterLimit, initialValue) {
+                var parent = jQuery('<div/>');
+                var textLinkContainer = jQuery('<div/>').addClass('textEditorContainer');
+                var textLink = jQuery('<textarea/>', {id: id, rows: 4}).attr('readonly','readonly');
+                var textArea = jQuery('<textarea/>', {id: 'textarea_' + id, rows: 4}).addClass('textNoteArea');
+                var textContainer = jQuery('<div/>');
+                var textEditIcon = jQuery('<div/>').addClass((id != 'strategyNotes') ? 'noteEditButton' : 'strategyNoteEditButton');
+                var saveButton = jQuery('<input/>', {type:'button', value:'Save'}).addClass('ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only'); //jQuery('<div/>').addClass('noteSaveButton');
+                var cancelButton = jQuery('<input/>', {type:'button', value:'Cancel'}).addClass('ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only'); //jQuery('<div/>').addClass('noteUndoButton');
+                
+                saveButton.on('click', save);
+                cancelButton.on('click', cancel);
+                                
+                textContainer.append(textArea).append(jQuery('<div/>').addClass('editorButtonsContainer').append(saveButton).append(cancelButton));
+                
+                if(characterLimit) {
+                    ttg.setUpMaxLimitCheck(textArea, characterLimit);
+                }               
+                
+                setReadOnlyText(initialValue);
+                
+                textLink.addClass('textNote');
+                textLinkContainer.append(textLink);
+                if(!readOnly) {
+                    textLinkContainer.append(textEditIcon);
+                    textEditIcon.on('click', showTextArea);
+                }
+                
+                parent.append(textLinkContainer);
+                parent.append(textContainer.hide());
+
+                fixTextLinkHeight();
+
+                if(!readOnly) {
+                    textLink.on('click', showTextArea);
+                }
+                                
+                return {
+                    getParent : getParent,
+                    setReadOnlyText : setReadOnlyText
+                };
+                
+                function showTextArea() {
+                    textLinkContainer.hide();
+                    textArea.val(textLink.val());
+                    textContainer.show();               
+                }
+                
+                function save() {
+                
+                    startWorking();
+                
+                    var oldValue = textLink.val();
+                    setReadOnlyText(textArea.val());
+                    var textAreaScrollHeight = textArea[0].scrollHeight;
+                    fixTextLinkHeight(textAreaScrollHeight > 0 ? textAreaScrollHeight : null);
+                    if(saveCallback()) {
+                        textContainer.hide();
+                        textLinkContainer.show();
+                    }
+                    else {
+                        textLink.val(oldValue);
+                    }
+                }
+                    
+                function cancel() {
+                    textContainer.hide();
+                    textLinkContainer.show();
+                }
+                
+                function setReadOnlyText(text) {
+                    textLink.val(text);
+                    fixTextLinkHeight();
+                }
+                
+                function fixTextLinkHeight(height) {
+                    if(!height) {
+                        if(textLink[0].scrollHeight > 0) {
+                            textLink.css('height', (textLink[0].scrollHeight + 5)+'px');
+                        }
+                    }
+                    else {
+                        textLink.css('height', (height + 5)+'px');
+                    }
+                    }
+                
+                function getParent() {
+                    return parent;
+                }
+                    
+            }
+
+
+            function createTextEditor3(id, characterLimit, displayAsTextField, autocompleteValues, previousSelectedValue) {
+                var textContainer = jQuery('<div/>').addClass('textNote');
+                var textArea = displayAsTextField ? jQuery('<input/>', {id: 'textarea_' + id, type: 'text', placeholder: 'Start typing...'}).addClass('competitorName') 
+                                                  : jQuery('<textarea/>', {id: 'textarea_' + id,  rows: 4}).addClass('textNoteArea');
+                if(characterLimit) {
+                    if(displayAsTextField) {
+                        textArea.attr('maxlength', characterLimit);
+                    }
+                    else {
+                        ttg.setUpMaxLimitCheck(textArea, characterLimit);
+                    }
+                }
+                
+                if(displayAsTextField && autocompleteValues) {
+                    textArea.autocomplete(
+                        {   source : findAutocompleteValues,
+                            select : newAutocompleteValueSelected,
+                            minLength   : 3,
+                            open: function( event, ui ) {
+                                jQuery('.errorMessage').hide();
+                            },
+                            focus  : function(event, ui) {
+                                if(ui.item.id == 0) {
+                                    return false;
+                                }
+                            }
+                        }
+                    );
+                }
+                    
+                var parentDiv = jQuery('<div/>');
+                parentDiv.append(textContainer);
+
+                if(!readOnly) {
+                
+                	if(!(spec.addCompetitorButtonHidden && id.indexOf('competitorName_') !== -1)) {
+	                    parentDiv.append(textArea);
+	                    textArea.hide();
+	                    
+	                    parentDiv.on('editClicked', function() {
+	                        textArea.val((textContainer.html() === '&nbsp;') ? '' : jQuery.trim(textContainer.text()));
+	                        textContainer.hide();
+	                        textArea.show();
+	                    });
+	                    
+	                    parentDiv.on('saveClicked', function() {
+	                        (textArea.val() && textArea.val().length > 0) ? textContainer.text(textArea.val()) : textContainer.html('&nbsp;');
+	                        textArea.hide();
+	                        textContainer.show();
+	                        if(getValue() && jQuery.trim(getValue()) !== '') {
+	                            previousSelectedValue = getValue();
+	                        }                       
+	                    });
+	                    
+	                    parentDiv.on('cancelClicked', function() {
+	                        textArea.hide();
+	                        textContainer.show();
+	                    });                                 
+                    }
+                    
+                }
+                
+                function getValue() {
+                    return (textContainer.html() === '&nbsp;') ? '' : textContainer.text();
+                }
+                
+                function setValue(value) {
+                    (value && value.length > 0) ? textContainer.text(value) : textContainer.html('&nbsp;');
+                }
+                
+                function getContainer() {
+                    return parentDiv;
+                }
+                  
+                function findAutocompleteValues(term, callback) {
+                    var filteredValues = [],
+                        re,
+                        i;
+                    for(i = 0; i < autocompleteValues.length; i++) {
+                        re = new RegExp('\\b' + term.term + '.*', 'gi');
+                        if(re.test(autocompleteValues[i]) && !isCompetitorNameAlreadyIncluded(autocompleteValues[i], previousSelectedValue || getValue())) {
+                            filteredValues.push(autocompleteValues[i]);
+                        }
+                    } 
+                    jQuery.each(filteredValues, function(idx, value) {
+                            value.label = value;
+                    });
+                    
+                    if(! filteredValues || ! filteredValues.length) {
+                        var noResultBlurb = jQuery('<pre/>').text('No results match "' + term.term + '"').html();
+                        filteredValues = [{id: 0, label: noResultBlurb, value: '0'}];
+                    }
+                    
+                    callback(filteredValues);                       
+                }
+                               
+                function newAutocompleteValueSelected(event, ui) {
+                    var item = ui.item;
+                    
+                    if(ui.item.id == 0) {
+                        setValue('');
+                        return false;
+                    }
+                    
+                    setValue(item.label);
+                    jQuery('.errorMessage').hide();
+                }
+        
+                
+                return { 
+                    getContainer : getContainer,
+                    setValue : setValue,
+                    getValue : getValue
+                };
+                                    
+            }           
+            
+            function createWizard() {
+                var wizardContainer = jQuery('#wizardContainer');
+                
+                if(wizardContainer.length == 0) {
+                    wizardContainer = jQuery('<div/>', {id: 'wizardContainer'});
+                }
+                wizardContainer.append(jQuery('<div/>', {id: 'wizardCurrentQuestion'}));
+                wizardContainer.dialog({
+                	buttons: {
+                		'Yes': function() { answerClicked('Yes') },
+                        'No': function() { answerClicked('No') }
+                    },
+                	close: resetStates,
+                    modal: true,
+                    resizable: false,
+                    title: 'Guideline Questions'           
+                });
+                
+                populateCurrentQuestionDiv();
+                
+                function populateCurrentQuestionDiv() {
+                    jQuery('#wizardCurrentQuestion')
+                        .text(getCurrentQuestionState().question);
+                
+                }
+                
+                function answerClicked(answer) {
+                    var nextState = answer === 'Yes' ? getCurrentQuestionState().yes : getCurrentQuestionState().no;
+                    getCurrentQuestionState().answer = answer;
+                    statesStack.push(stateMachine[nextState]);
+                    if(getCurrentQuestionState().strategy) {
+                        extraOpp[ttg.vfp + 'Recommended_Strategy__c'] = getCurrentQuestionState().strategy;
+                        closeAndSaveWizard();
+                        return;
+                    }
+                    populateCurrentQuestionDiv();
+                }
+                
+                function closeAndSaveWizard() {
+                    startWorking();
+                    
+                    populateExtraOppAnswers();
+                    remoteUpdate(extraOpp);
+                    wizardContainer.dialog('close');
+                }
+
+                function resetStates() {
+                    statesStack = [ stateMachine[0] ];
+                    statesStack[0].answer = 'Unknown';
+                }
+                
+                
+                function populateExtraOppAnswers() {
+                    var i, 
+                        state, 
+                        statesStackLength = statesStack.length;
+                    resetExtraOppAnswers();
+                    for(i = 0; i < statesStackLength; i++) {
+                        state = statesStack[i];
+                        if(state.updateField && state.answer) {
+                            extraOpp[state.updateField] = state.answer;
+                        }
+                    }
+                }   
+                
+                function resetExtraOppAnswers() {
+                    extraOpp[ttg.vfp + 'TCS_Q1__c'] = 'Unknown';
+                    extraOpp[ttg.vfp + 'TCS_Q2__c'] = 'Unknown';
+                    extraOpp[ttg.vfp + 'TCS_Q3__c'] = 'Unknown';
+                    extraOpp[ttg.vfp + 'TCS_Q4__c'] = 'Unknown';
+                    extraOpp[ttg.vfp + 'TCS_Q5__c'] = 'Unknown';
+                    extraOpp[ttg.vfp + 'TCS_Q6__c'] = 'Unknown';                                        
+                    extraOpp[ttg.vfp + 'TCS_Q7__c'] = 'Unknown';                                                                                
+                }
+                
+                function getCurrentQuestionState() {
+                    return statesStack[statesStack.length-1];
+                }                   
+                
+            }           
+            
+            
+            function retrieveCompetitiveStrategy() {
+            
+                startWorking();
+                //console.log('Calling getCompetitiveStrategy()');
+                ttgApi.getCompetitiveStrategy('{!opportunity.id}', updateRawData, undefined, competitiveStrategyLoaded);
+            }
+            
+            function updateRawData(d) {
+                data = d;   
+            }
+            
+            function competitiveStrategyLoaded() {
+                populateStrategyInnerContainer(data);
+            }
+            
+            function populateStrategyInnerContainer(data) {
+                var userDefinedStrategy = null;
+                extraOpp = null;
+                if(data && data.shadowOpportunity) {
+                    extraOpp = data.shadowOpportunity;
+                    jQuery('#effectiveStrategy').text(extraOpp[ttg.vfp + 'Effective_Strategy__c']);
+                    jQuery('#strategyDescription').text(extraOpp[ttg.vfp + 'Effective_Strategy_Description__c'] || '');
+                    if(this.editor) {
+                        this.editor.setReadOnlyText(extraOpp[ttg.vfp + 'Effective_Strategy_Details_Text__c']);
+                    }
+                    
+                    // jQuery('#strategyNotes').val(extraOpp[ttg.vfp + 'Effective_Strategy_Details_Text__c']);
+                    
+                    userDefinedStrategy = extraOpp[ttg.vfp + 'User_Defined_Strategy__c'];
+                    jQuery('#useRecommendStrategyContainer').show();
+                    jQuery('#getStrategyButton').show();
+                    if(extraOpp[ttg.vfp + 'Use_Recommended__c']) {
+                    
+                        // JQuery dropdown plugin adds a span to the DOM to fake the dropdown
+                        jQuery('#userStrategy').hide()
+                        	.next()
+                        	.hide();                                         
+                        jQuery('#effectiveStrategy').show();
+                        jQuery('#useRecommendStrategyLabel').text('Use recommended strategy');
+                        jQuery('#useRecommendStrategy').prop('checked', 'checked');
+                        if (!extraOpp[ttg.vfp + 'Recommended_Strategy__c'] || extraOpp[ttg.vfp + 'Recommended_Strategy__c'] === 'Unknown') {
+                            jQuery('#getStrategyButton').val('Get Strategy Advice');
+                        } else {
+                            jQuery('#getStrategyButton').val('Change');                     
+                        }
+                        jQuery('#getStrategyButton').show();
+                    }
+                    else {
+                    
+                        // JQuery dropdown plugin adds a span to the DOM to fake the dropdown
+                        jQuery('#userStrategy').show().val(userDefinedStrategy)
+                        	.next()
+                        	.show()
+                            .children()
+                            .first()
+                            .text(userDefinedStrategy);
+                        jQuery('#effectiveStrategy').hide();
+                        jQuery('#useRecommendStrategy').removeAttr('checked');
+                        if (extraOpp[ttg.vfp + 'Recommended_Strategy__c'] && extraOpp[ttg.vfp + 'Recommended_Strategy__c'] !== 'Unknown') {
+                        	jQuery('#useRecommendStrategyLabel').text('Use recommended strategy');
+                        }
+                        jQuery('#getStrategyButton').hide();
+                    }
+                }                
+                stopWorking();
+            }
+            
+            
+            function remoteUpdate(extraOpp) {
+                
+                var competitiveStrategyChanges = {
+                        useRecommended                          :   extraOpp[ttg.vfp + 'Use_Recommended__c'],
+                        userDefinedStrategy                     :   extraOpp[ttg.vfp + 'User_Defined_Strategy__c'],
+                        recommendedStrategy                     :   extraOpp[ttg.vfp + 'Recommended_Strategy__c'],
+                        effectiveStrategyDescription            :   extraOpp[ttg.vfp + 'Effective_Strategy_Description__c'],
+                        effectiveStrategyDetails                :   extraOpp[ttg.vfp + 'Effective_Strategy_Details_Text__c'],
+                        wizardAnswers                           :   [extraOpp[ttg.vfp + 'TCS_Q1__c'], extraOpp[ttg.vfp + 'TCS_Q2__c'], extraOpp[ttg.vfp + 'TCS_Q3__c'], extraOpp[ttg.vfp + 'TCS_Q4__c'],
+                                                                     extraOpp[ttg.vfp + 'TCS_Q5__c'], extraOpp[ttg.vfp + 'TCS_Q6__c'], extraOpp[ttg.vfp + 'TCS_Q7__c']]
+                }
+                
+                ttgApi.putCompetitiveStrategy('{!opportunity.id}', {competitiveStrategyChanges: competitiveStrategyChanges}, function() {}, undefined, retrieveCompetitiveStrategy);
+            
+            }
+            
+            function retrieveCompetitors() {
+                ttgApi.getCompetitiveStrategyCompetitors('{!opportunity.id}', updateCompetitorsRawData, undefined, competitorsLoaded);
+            }
+            
+            function updateCompetitorsRawData(d) {
+                competitorsData = d;    
+            }
+            
+            function competitorsLoaded() {
+                hideNewCompetitorRow();
+                populateCompetitorsInnerContainer(competitorsData);
+                stopWorking();
+            }        
+            
+            function populateCompetitorsInnerContainer(competitorsData) {
+                jQuery('#competitorsTable tr').remove();
+                jQuery('#competitorsTable').append(jQuery('<tr/>')
+                                                    .append(jQuery('<th/>').text('Competitor Name'))
+                                                    .append(jQuery('<th/>').text('Strategy'))
+                                                    .append(jQuery('<th/>').text('Strengths'))
+                                                    .append(jQuery('<th/>').text('Weaknesses'))
+                                                    .append(jQuery('<th/>'))
+                                                    .append(jQuery('<th/>'))
+                                                    );
+                if(competitorsData && competitorsData.length > 0) {
+                    jQuery.each(competitorsData, function(index, competitor) { 
+                        jQuery('#competitorsTable').append(createCompetitorRow(competitor));
+                    });
+                }
+                if(!readOnly && jQuery('#addCompetitorButton').length == 0) {
+                    jQuery('#competitorsTable').after(createAddCompetitorButton());
+                }
+            }   
+            
+            function createAddCompetitorButton() {
+                var competitorButton = jQuery('<input/>', {id:'addCompetitorButton', type:'button', value:'Add Competitor'});
+                competitorButton.on('click',function() {
+                        jQuery('#addCompetitorButton').hide();
+                        jQuery('#competitorsTable').after(createNewCompetitorRow());
+                });
+				if(spec.addCompetitorButtonHidden) {
+					competitorButton.hide();
+				}
+				else {
+	                if(spec.addCompetitorButtonEnabled) {
+	                    competitorButton.removeAttr('disabled').removeClass('ui-state-disabled');
+	                }
+	                else {
+	                    competitorButton.attr('disabled', 'disabled').addClass('ui-state-disabled');
+	                }
+				}
+                competitorButton.addClass('ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only floatRight');
+                return competitorButton;                
+            }
+            
+            function createCompetitorRow(competitor) {
+                var strategyDropDown = createStrategyDropDown2('competitorStrategy_' + competitor.Id),
+                    competitorNameEditor = createTextEditor3('competitorName_' + competitor.Id, 40, true, competitorPicklist, competitor.Name),
+                    strengthsEditor = createTextEditor3('strengthsNotes_' + competitor.Id, 1000),
+                    weaknessesEditor = createTextEditor3('weaknessesNotes_' + competitor.Id, 1000),
+                    buttonContainer = null,
+                    errorMsg = null,
+                    editButton = createEditButton();
+                
+                var competitorRow = jQuery('<tr/>').addClass('competitorRow');
+                prepopulateRow();
+                competitorRow
+                    .append(jQuery('<td/>').addClass('competitorNameCell').append(competitorNameEditor.getContainer()))
+                    .append(jQuery('<td/>').addClass('strategyCell').append(strategyDropDown.getContainer()))
+                    .append(jQuery('<td/>').addClass('strengthsCell').append(strengthsEditor.getContainer()))
+                    .append(jQuery('<td/>').addClass('weaknessesCell').append(weaknessesEditor.getContainer()))
+                    .append(jQuery('<td/>').append(editButton))
+                    .append(jQuery('<td/>').append(createDeleteButton()));
+                return competitorRow;
+                
+                function prepopulateRow() {
+                    competitorNameEditor.setValue(competitor.Name);
+                    strategyDropDown.setValue(competitor[ttg.vfp + 'Strategy__c']);
+                    strengthsEditor.setValue(competitor[ttg.vfp + 'Strengths__c']);
+                    weaknessesEditor.setValue(competitor[ttg.vfp + 'Weaknesses__c']);
+                }
+                
+                function createEditButton() {
+                    var button = jQuery('<div/>');
+                    if(!readOnly) {
+                        button.addClass('noteEditButton');
+                        button.on('click', function() {
+                            editClicked();
+                            jQuery('#addCompetitorButton').hide();
+                        });
+                    }
+                    return button;
+                }
+                
+                function createSaveButton() {
+                    var button = jQuery('<input/>', {type:'button', value:'Save'});
+                    button.addClass('ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only floatRight');
+                    button.on('click', function() {
+                        saveClicked();
+                        if(!spec.addCompetitorButtonHidden) {
+                        	jQuery('#addCompetitorButton').show();
+                        }
+                    });
+                    return button;
+                }
+                
+                function createCancelButton() {
+                    var button = jQuery('<input/>', {type:'button', value:'Cancel'});
+                    button.addClass('ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only floatRight');
+                    button.on('click', function() {
+                        cancelClicked();
+                        if(!spec.addCompetitorButtonHidden) {
+                        	jQuery('#addCompetitorButton').show();
+                        }
+                    });
+                    return button;
+                }   
+                
+                function createButtonContainer() {
+                    var saveButton = createSaveButton(),
+                        cancelButton = createCancelButton(),
+                        buttonContainer = jQuery('<tr/>')
+                                            .append(jQuery('<td/>')
+                                                        .attr('colspan', 6)
+                                                        .attr('style', 'background-color: #CBD5E2')
+                                                        .append(jQuery('<div/>')
+                                                                    .addClass('competitorButtonContainer')
+                                                                    .append(cancelButton)
+                                                                    .append(saveButton)
+                                                                )
+                                                    );
+                    return buttonContainer;
+                }           
+                
+                function createDeleteButton() {
+                    var button = jQuery('<div/>');
+                    if(!readOnly && !spec.addCompetitorButtonHidden) {
+                        button.addClass('deleteCompetitorButton');
+                        button.on('click', function() {
+                        
+                            jQuery('<div>', { title: 'Deleting Competitor'}).text('Are you sure?').dialog({
+	                            buttons: {
+	                                'Yes': function() {
+                                    	jQuery(this).dialog('close');
+	                                    deleteCompetitor(competitor);
+	                                    competitorRow.remove();
+	                                    if (buttonContainer) {
+	                                        buttonContainer.remove();
+	                                    }
+	                                    return true;
+                                	},
+                                    'No': function() {
+                                        jQuery(this).dialog('close');
+                                        return false;
+                                    }                           
+                                },
+                                modal: true,
+                                resizable: false
+                            });
+             
+                        });
+                    }
+                    return button;
+                }               
+                
+                function doUpdateCompetitor2() {
+                    if(!checkNewCompetitorName(competitorNameEditor.getValue(), competitor.Name) && !spec.addCompetitorButtonHidden) {             
+                        return false;
+                    }
+                    competitor.Name = competitorNameEditor.getValue();
+                    competitor[ttg.vfp + 'Strategy__c'] = strategyDropDown.getValue();
+                    competitor[ttg.vfp + 'Strengths__c'] = strengthsEditor.getValue();
+                    competitor[ttg.vfp + 'Weaknesses__c'] = weaknessesEditor.getValue();
+                    updateCompetitor(competitor);
+                    return true;
+                }               
+                
+                function editClicked() {
+                    editButton.hide();
+                    buttonContainer = createButtonContainer()
+                    competitorRow.after(buttonContainer);
+                    triggerEvent('editClicked');
+                }
+                
+                function saveClicked() {
+                    editButton.show();
+                    buttonContainer.remove();
+                    triggerEvent('saveClicked');
+                    var ret = doUpdateCompetitor2();
+                    if(!ret) {
+                        editClicked();
+                        if(!errorMsg) {
+                            errorMsg = highlightCompetitorName('textarea_competitorName_' + competitor.Id, competitor.Name);
+                            errorMsg.text(errorMsgString).show();
+                        }
+                    }
+                    else {
+                        if(errorMsg) { 
+                            errorMsg.hide(); 
+                        }
+                    }
+                    
+                }       
+                
+                function cancelClicked() {
+                    editButton.show();
+                    buttonContainer.remove();
+                    competitorNameEditor.setValue(competitor.Name);  // Hack!
+                    if(errorMsg) { 
+                        errorMsg.hide(); 
+                    }
+                    triggerEvent('cancelClicked');                                                      
+                }       
+                
+                function triggerEvent(eventName) {
+                    competitorNameEditor.getContainer().trigger(eventName);                 
+                    strategyDropDown.getContainer().trigger(eventName);
+                    strengthsEditor.getContainer().trigger(eventName);  
+                    weaknessesEditor.getContainer().trigger(eventName); 
+                }                   
+                
+                
+            }
+            
+            function highlightCompetitorName(fieldIdToHighlight, competitorName) {
+                var field = jQuery('#' + fieldIdToHighlight);
+                var errorMsg = jQuery('<div/>').addClass('errorMessage').text(errorMsgString);
+                jQuery(field).on('keyup keydown', function(event) {
+                    if(checkNewCompetitorName(field.val(), true)) {
+                        errorMsg.hide();
+                    }
+                    else {
+                        errorMsg.text(errorMsgString).show();
+                    }
+                });
+                var fieldPosition = field.offset();
+                //errorMsg.offset({top: fieldPosition.top - 180, left: fieldPosition.left + 100});
+                field.after(errorMsg);
+                //errorMsg.css('position', 'absolute'); // IE
+                return errorMsg;
+            }
+            
+            
+            function isIE7() {
+                return jQuery.browser.msie && parseInt(jQuery.browser.version, 10) === 7;
+            }
+
+            function isCompetitorNameAlreadyIncluded(competitorName, currentCompetitorName) {
+                if(competitorsData) {
+                    var competitorNames = _.pluck(competitorsData, 'Name');
+                    return _.contains(competitorNames, competitorName) && competitorName !== currentCompetitorName;
+                }
+                else {
+                    return false;
+                }
+            }
+            
+            function isCompetitorValid(competitorName, acceptIncompleteNames) {
+                if(!disableCompetitorCreation) {
+                    return true;
+                }
+                if(acceptIncompleteNames) {
+                    return _.find(competitorPicklist, function(name) { return name.toLowerCase().indexOf(competitorName.toLowerCase()) === 0; });
+                }
+                else {
+                    return competitorPicklist.indexOf(competitorName) !== -1;
+                }
+            }           
+            
+                        
+            /*function fixNewLines(text) {
+                if(text && isIE7()) {
+                    return text.replace(/\n/gi,'\r\n');
+                }
+                else {
+                    return text;
+                }
+            }   
+
+            function unfixNewLines(text) {
+                if(text && isIE7()) {
+                    return text.replace(/\r\n/gi,'\n');
+                }
+                else {
+                    return text;
+                }
+            }*/             
+            
+            function updateCompetitor(competitor) {
+                
+                var competitorChanges = {
+                        competitorId    :   competitor.Id,
+                        name            :   competitor.Name,
+                        strategy        :   competitor[ttg.vfp + 'Strategy__c'],
+                        strengths       :   competitor[ttg.vfp + 'Strengths__c'],
+                        weaknesses      :   competitor[ttg.vfp + 'Weaknesses__c']
+                }
+                
+                startWorking();
+                
+                ttgApi.putCompetitiveStrategyCompetitor('{!opportunity.id}', {competitorChanges: competitorChanges}, function() {}, undefined, function() {stopWorking();});
+            
+            }
+            
+            
+            function createCompetitor(competitor) {
+                
+                var competitorChanges = {
+                        competitorId    :   competitor.Id,
+                        name            :   competitor.Name,
+                        strategy        :   competitor[ttg.vfp + 'Strategy__c'],
+                        strengths       :   competitor[ttg.vfp + 'Strengths__c'],
+                        weaknesses      :   competitor[ttg.vfp + 'Weaknesses__c']
+                }
+                
+                startWorking();
+                
+                ttgApi.postCompetitiveStrategyCompetitor('{!opportunity.id}', {competitorChanges: competitorChanges}, function() {}, undefined, retrieveCompetitors);
+            
+            }    
+
+
+            function deleteCompetitor(competitor) {
+                
+                startWorking();
+                
+                ttgApi.deleteCompetitiveStrategyCompetitor(competitor.Id, function() {}, undefined, function() {stopWorking();});
+                if(competitorsData) {
+                    var index = competitorsData.indexOf(competitor);
+                    if(index >= 0) {
+                        competitorsData.splice(index, 1);
+                    }
+                }
+            
+            }
+            
+
+
+			populateMainDiv();
+			retrieveCompetitiveStrategy();
+			retrieveCompetitors();
+			
+		};
+		
+		
+		jQuery(function() {
+		
+			ttg.competitiveStrategy({
+				ttgApi						:	ttg.apiLayer.sfdcDelegate( { sessionid : '{!JSENCODE($Api.Session_ID)}', opportunityid : '{!JSENCODE(opportunity.Id)}' } ),
+				readonly					: 	{!CompetitiveStrategyEditable == false}, 
+				competitorPicklist			: 	{!competitorPicklistJS},
+				disableCompetitorCreation	:	{!disableCompetitorCreation},
+				addCompetitorButtonEnabled	: {!addCompetitorButtonEnabled},
+				addCompetitorButtonHidden	: {!addCompetitorButtonHidden}
+			});
+		
+		
+		});
+	
+	</script>
+
+</apex:page>

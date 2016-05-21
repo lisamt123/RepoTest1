@@ -1,0 +1,73 @@
+<apex:page standardController="SFDC_520_Quote__c" showHeader="false"
+	renderAs="pdf" extensions="salesQuotes">
+	<body>
+		<apex:stylesheet value="{!URLFOR($Resource.pdfresource, 'styles.css')}" />
+		<apex:image value="{!URLFOR($Resource.vinlogo2)}" width="340"
+			height="150" />
+		<apex:panelGrid columns="1" styleClass="companyTable" width="100%">
+			<apex:outputText value="{!$Organization.Name}"
+				styleClass="companyName" />
+			<apex:outputText value="{!$Organization.Street}" />
+			<apex:outputText value="{!$Organization.City}, {!$Organization.State} {!$Organization.PostalCode}" />
+			<apex:outputText value="{!$Organization.Phone}" />
+		</apex:panelGrid>
+		<apex:outputPanel layout="block" styleClass="line" />
+		<apex:panelGrid columns="1" styleClass="centered" width="100%">
+			<apex:panelGrid columns="2" width="100%" cellpadding="0"
+				cellspacing="0" columnClasses="left,right">
+				<apex:outputText value="Quote# {!SFDC_520_Quote__c.name}"
+					styleClass="customerName" />
+				<apex:outputField value="{!SFDC_520_Quote__c.lastmodifieddate}"
+					style="text-align:right" />
+			</apex:panelGrid>
+			<apex:outputText value="{!SFDC_520_Quote__c.opportunity__r.account.name}"
+				styleClass="customerName" />
+			<apex:outputText value="{!contact.name}" styleClass="contactName" />
+		</apex:panelGrid>
+		<apex:panelGrid columns="1">
+			<apex:outputText value="{!SFDC_520_Quote__c.opportunity__r.account.name}" />
+			<apex:outputText value="{!contact.mailingStreet}" />
+			<apex:panelGroup >
+				<apex:outputText value="{!contact.mailingCity}" />
+				<apex:outputText value=", {!contact.mailingState}" />
+				<apex:outputText value=" {!contact.mailingPostalCode}" />
+			</apex:panelGroup>
+			<apex:outputText value="Phone: {!contact.phone}" />
+		</apex:panelGrid>
+		<apex:outputPanel layout="block" styleClass="lineSmall" />
+		<apex:repeat value="{!SFDC_520_Quote__c.quote_lines__r}" var="line">
+			<apex:panelGrid columns="2" columnClasses="left,right" width="100%">
+				<apex:panelGroup >
+					<apex:outputText value="{!line.name}" styleClass="productName" />
+					<apex:outputPanel layout="block" styleClass="productDetail">
+						<apex:panelGrid columns="2" columnClasses="left,none">
+							<apex:outputText value="Units:" style="font-weight:bold" />
+							<apex:outputField value="{!line.Qty_Ordered__c}" />
+							<apex:outputText value="Description:" style="font-weight:bold" />
+							<apex:outputField value="{!line.product2__r.description}" />
+							<apex:outputText value="Unit Price:" style="font-weight:bold" />
+							<apex:outputField value="{!line.Unit_Price__c}" />
+							<apex:outputText value="Unit Ext Price:" style="font-weight:bold" />
+							<apex:outputField value="{!line.Ext_Net_Price__c}" />
+							<apex:outputText value="Product Code:" style="font-weight:bold" />
+							<apex:outputField value="{!line.product2__r.productCode}" />
+						</apex:panelGrid>
+					</apex:outputPanel>
+				</apex:panelGroup>
+				<apex:outputField value="{!line.Ext_Net_Price__c}"
+					styleClass="productName" />
+			</apex:panelGrid>
+		</apex:repeat>
+		<apex:outputPanel layout="block" styleClass="lineSmall" />
+		<apex:panelGrid columns="2" columnClasses="right" width="100%">
+			<apex:panelGrid columns="2" cellpadding="10"
+				columnClasses="right totalLabel,right total" width="100%">
+				<apex:outputText value="Total" />
+				<apex:outputField value="{!SFDC_520_Quote__c.Quote_Amount_rollup__c}" />
+			</apex:panelGrid>
+		</apex:panelGrid>
+		<apex:outputPanel layout="block" styleClass="line" />
+		<apex:image value="{!URLFOR($Resource.footer)}" width="632"
+			height="64" style="text-align:center" />
+	</body>
+</apex:page>

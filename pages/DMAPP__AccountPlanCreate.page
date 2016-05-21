@@ -1,0 +1,212 @@
+<apex:page standardController="DMAPP__DM_Account_Plan__c" extensions="DMAPP.AccountPlanCreateController,DMAPP.BrandOverrideController" sidebar="false">
+    
+     <c:jQuery jQueryUI="true" 
+        underscore="true"
+        dropdown="true"
+        touchPunch="true"
+        paging="true"
+        chosen="true"
+        tooltip="true"
+     />
+     
+     <c:MobileRedirect TAM="true" />
+    
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__prefix)}"/>
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__ftk, 'forcetk.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__ttgomjs, 'ttg/lib/ttgutils.js')}"/>
+    
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__OpportunityMapConfiguration)}"/>
+    <apex:include pageName="DMAPP__CRUD" />
+    <apex:include pageName="DMAPP__APIDelegate" />
+    
+    <style>
+        @import url("{!URLFOR($Resource.DMAPP__TAM,         'css/common.css')}");
+        
+        @import url("{! URLFOR($Resource.DMAPP__TAM,    'css/solutionTooltip.css') }");
+        
+        div#smartAM {
+            background-color: #FFF;
+            border: 1px solid #CCC;
+            border-radius: 8px;
+            -moz-border-radius: 8px;
+            -webkit-border-radius: 8px;            
+            cursor: default;
+            padding: 49px 14px 9px;
+            position: relative;
+            display:none;
+        }
+
+        div#smartAM table {
+            width:100%; 
+        }
+        div#smartAMBranding {
+            clear: both;
+            background: url('{!URLFOR($Resource.DMAPP__Common, 'panel/images/bg_pad_header.png')}') left bottom repeat-x;
+            position:absolute;
+            width:100%;
+            display:block;
+            left:0px;
+            top:0px;
+            border-radius:8px 8px 0px 0px;
+            -moz-border-radius:8px 8px 0px 0px;
+            -webkit-border-radius:8px 8px 0px 0px;
+        }
+        
+        div#smartAMBrandingLeft {
+            float: left;
+        }
+        
+        div#smartAMBrandingLeft span {
+            float: right;
+            margin-left: 10px;
+            font-size:1.4em;
+            line-height:30px;
+        }
+        div#smartAMBrandingLeft div strong {
+            display: block;
+        }
+        div#smartAMBrandingRight {
+            float: right;
+            margin-left: 30px;
+        }
+        
+        div#smartAMBrandingRight img {
+            margin-right: 10px;
+        }
+        
+        body .apexp .bPageBlock.apexDefaultPageBlock div.pbHeader {
+            display: none;
+        }
+        
+        .apexp .bPageBlock.apexDefaultPageBlock div.pbBody {
+            margin: 0 !important;
+        }
+        
+        body .individualPalette div.secondaryPalette.bPageBlock {
+            border-top-color: #236FBD; /**#EAEAEA;**/
+            border-top-width: 3px;/**1px;**/
+        }
+
+        body .bPageBlock .pbBody td.data2Col {
+            padding: 5px;
+        }
+        
+        .inactiveCell, a.inactiveCell, a.inactiveCell span {
+            color: #999999;
+        }
+        
+        th.headerCell, body .pbBody table.list tr.headerRow td, body .pbBody table.list tr.headerRow th.headerCell {
+            background-image: url('{!URLFOR($Resource.DMAPP__TAM, 'images/bg_table_header.jpg')}'); 
+            color: #FFFFFF;
+            padding-right: 5px;
+        }
+        
+        .headerLeft {
+            border-radius: 4px 0px 0px 0px;
+        }
+        
+        .headerRight {
+            border-radius: 0px 4px 0px 0px;
+        }
+        
+        th.headerCell a, th.headerCell, body .pbBody table.list tr.headerRow td, body .pbBody table.list tr.headerRow th.headerCell a {
+            color: #FFFFFF;
+        } 
+        
+        .settingsCell, body .pbBody table.list tr.dataRow th, body .pbBody table.list tr.dataRow td.settingsCell {
+            padding-left: 10px;
+        }       
+        
+        div.smartOMHelpLink {
+            float:right;    
+            margin: 8px 4px 0 0;
+        }
+        
+        div.smartOMHelpLink a {
+            float:left;
+            display:block;
+            background: url('{!URLFOR($Resource.DMAPP__SmartOM, 'tabs/icon_help.png')}') left center no-repeat;
+            font-weight: normal;
+            padding: 0 0 0 20px;
+            text-decoration:none;
+            color:#405773;
+            cursor: pointer; 
+        }
+        
+        /* Salesforce1-specific styles */                
+        html.salesforce1 { height: auto; }
+        
+        .salesforce1 body { background: transparent !important; } 
+    </style>
+    
+    
+    
+        <div id="smartAM">  
+            <div id="AM_table_container">
+                <apex:outputPanel layout="block" rendered="{!NOT(isLicensedForAccountManager)}">
+                    <apex:outputText value="Current user has no license for Account Manager module" styleClass="noLicenseText" />
+        
+                    <div id="smartAMBranding">
+                        <div id="smartAMBrandingLeft"><apex:image url="{!URLFOR($Resource.DMAPP__Common, 'panel/images/SmartOM50.png')}"/></div>
+                        <div id="smartAMBrandingRight">
+                            <apex:image url="{!URLFOR($Resource.DMAPP__Qualification, 'TASLogo50.png')}" alt="TAS Group Logo" rendered="{!NOT(hasBrandOverrideLogo)}"/>
+                            <apex:image url="{!brandOverrideLogo}" rendered="{!hasBrandOverrideLogo}"/>
+                        </div>
+                    </div>
+                </apex:outputPanel>    
+           </div>
+        </div>
+
+
+    <script>
+    
+        var ttg = ttg || {};
+        ttg.am = ttg.am || {};
+
+        // This is referenced by OpportunityMapConfiguration, which is a staticresource, so need to ensure this is visible to it
+        ttg.am.showSettingsHelp = function() {
+            window.open('{!helpURLBase}' + "/Default.htm#Smart_AM/1.Plan_Creation/1.Plan_Creation.htm", "TAS", "resizable=1,location=1,status=1,scrollbars=1,width=1000,height=600");
+        }
+    
+        jQuery(document).ready(function() {
+        
+            var isLicensed = {!isLicensedForAccountManager};
+            
+            if(!(isLicensed)) {
+                jQuery('#smartAM').show();
+                return;
+            }
+
+            var spec = {
+                sessionid : '{!JSENCODE($Api.Session_ID)}',
+                userId: '{!$User.Id}',
+                ttgApi: ttg.apiLayer.sfdcDelegate( { sessionid : '{!JSENCODE($Api.Session_ID)}' } ),
+                planId: '',
+                spinnerURL: '{!JSENCODE(URLFOR($Resource.DMAPP__ttgomjs, '/ttg/graph/images/loader.gif'))}',
+                calendarURL: "{!URLFOR($Resource.DMAPP__Common, 'images/icon_calendar.png')}",
+                title: 'Plan Settings',
+                accountId: '{!accountId}',
+                accountName: '{!JSENCODE(accountName)}',
+                onSave: function(info) { top.location.href = '/apex/am_opp_map_app?id=' + encodeURIComponent(info.planId) + "&" + (new Date()).getTime(); },
+                onDelete: function() { filterPage() },
+                onCancel: function() { window.history.go(-1); },
+                hideScorecard: {!NOT(showScorecard)},
+                useAccountGrouping: {!accountGroupingEnabled},
+                fiscalYearStartMonth: {!fiscalYearStartMonth},
+                usesStartDateAsFiscalYearName: {!usesStartDateAsFiscalYearName},
+                showSolutionFamilies: {!showSolutionFamilies},
+                showAutoPostOption: {!showAutoPostOption},
+                isoCode: '{!JSENCODE(CurrencyISO)}'  
+            };
+            
+            var amConfiguration = ttg.am.configuration(spec);
+            amConfiguration.configure();
+                 
+            }
+        )
+
+    </script>
+
+    <apex:include pageName="DMAPP__OpportunityMapConfiguration" />
+    
+</apex:page>

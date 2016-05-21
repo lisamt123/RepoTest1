@@ -1,0 +1,698 @@
+<apex:page standardController="DMAPP__DM_Account_Plan__c" extensions="DMAPP.TAMStandardController" >
+
+<script>
+
+	/* 
+	 * Copyright © The TAS Group. All rights reserved.
+	 *  
+	 */    
+
+  /*  var ttg = ttg || {};
+    ttg.am = ttg.am || {};
+    
+    var screenWidth = jQuery(window).width();
+    
+    var isProductLineSplitsEnabled = {!ProductLineSplits};
+    var amountField = '{!oppAmountField}';
+
+    ttg.am.oppmapimportdialog = function(spec) {
+    
+        var api = spec.api,
+        	planid = spec.planid,
+        	userid = spec.userid,
+        	user = spec.user;
+        
+        var currencys = null;
+        var corporateCurrency = null;
+
+		var data;
+		var targeted = false;
+		        
+        var getCurrencys = function() {         
+            apilayer.searchCurrencys(function(data) {
+                if(data) {
+                    currencys = jQuery.makeArray(data.currencys.currency);
+                    
+                    jQuery.each(currencys, function(idx, c) {
+                        if ( c.iscorporate ) {
+                            corporateCurrency = c.name;
+                        }
+                    });
+                }
+                else {
+                    currencys = [];
+                }                        
+                
+            }, function() {}, function() {});   
+        };
+        
+        var defaultIsoCode = null;
+        
+        var onAddOpportunities = function(callback) {
+        	refreshAddOpportunities = callback;
+        };
+        
+        var planFromDate, planToDate;
+        var setPlanDates = function(fromDate, toDate) {
+
+            // assumption here is that fromDate and toDate are date objects adapted by the APIDelegate.
+        	planFromDate = fromDate;        	
+        	planToDate = toDate;
+
+        };        
+        	
+        var ajaxSpinnerCnt = 0,
+        	dateFormat =  '{!dateFormat}' || 'yy-mm-dd', 
+ 			jsonDateFormat = 'yy-mm-dd',
+ 			
+ 			
+ 			stageOptions = [],
+          	dialogAlreadyOpen = false;
+  
+  		dateFormat = dateFormat.replace(/yyyy/gi, 'yy');
+       	
+       	// Copied for OpportunityMapDialog
+        var planTeamMembers = {!planMembers};
+        planTeamMembers = _.sortBy(planTeamMembers, 'Name');
+        planTeamMembers = _.uniq(planTeamMembers, true, function(user) { return user.Id;});
+
+        	
+        	var openImportDialog = function(map, bulkImportButton, isTargeted) {
+        	
+        		   targeted = isTargeted;
+        	
+			   	   apilayer.getIncludedPlanOpportunityIds(planid, function(includedOppIds) {
+
+						var oppSearchSpec = jQuery.extend({}, spec);
+						oppSearchSpec.ttgApi = spec.api;
+						oppSearchSpec.title = 'Bulk Import Opportunities';
+						oppSearchSpec.autosearch = true;
+						oppSearchSpec.multiSelect = true;
+						oppSearchSpec.dateFormat = dateFormat,
+						oppSearchSpec.lookup = { callback: function() { } }
+						oppSearchSpec.lookupPostDisplay = function(evt, dlg) { };
+						oppSearchSpec.lookup = { 
+							overallCallback: function(selected) {
+								openOppIncludeDialog(jQuery('.genericSearchDialog'), map, selected);
+							}
+				   		};	
+				   		oppSearchSpec.saveButtonTitle = 'Next';	
+				   		oppSearchSpec.hideOnSave = true;
+				   		oppSearchSpec.amountField = amountField;		
+						oppSearchSpec.restrict = {'opportunity': function() {
+	   														var ret = '';
+	   														var existingAccountIds = _.map(map.plan.units, function(unit) {
+	   															if(unit.memberAccounts && unit.memberAccounts.length > 0) {
+	   																return _.pluck(unit.memberAccounts, 'id');
+	   															}
+	   															else {
+	   																return unit.accountId;
+	   															}
+	   														});
+													   		existingAccountIds = _.uniq(_.compact(_.flatten(existingAccountIds)));
+													   		existingAccountIds = _.map(existingAccountIds, function(accountId) {
+													   			return '\'' + accountId + '\''
+													   		});
+													   		var existingOppIds = _.map(includedOppIds || [], function(oppId) {
+													   			return '\'' + oppId + '\''
+													   		});
+													   		
+													        if(existingAccountIds.length > 0) {
+													        	ret = ' AND (AccountId IN (' + existingAccountIds.join() + ') OR Account.ParentId IN (' + existingAccountIds.join() + ') OR Account.Parent.ParentId IN (' + existingAccountIds.join() + ')) ';
+													        }
+													        else {
+																ret = ' AND AccountId = \'dummy_name_to_return_no_results\'';
+													        }  
+													        
+													        if(existingOppIds.length > 0) {
+													        	ret += ' AND Id NOT IN (' + existingOppIds.join() + ') ';
+													        }
+													        
+													        return ret;
+													}
+						};
+					   		
+						var filterResultCallback = function(account) {
+		                    return false;
+		                }					
+		                
+						oppSearchSpec.orderedFields = ['Name', 'Account.Name', 'Amount', 'CloseDate', 'StageName', 'Owner.Name'];
+	 					
+						var oppMetadataControl = ttg.metadata(oppSearchSpec);
+						oppMetadataControl.lookup.call(bulkImportButton, filterResultCallback, null, true);                         
+
+                   }, function() {  }, function() { showAjaxSpinner(false); });	
+                           	
+        	};     
+        	
+        	function checkAllCheckboxes(selectAllCheckbox) {
+        		var allCheckboxes = jQuery('.oppCheckbox').not(jQuery('.oppCheckbox[disabled]'));
+        		var selectedCheckboxes = jQuery('.oppCheckbox:checked');
+        		if(selectAllCheckbox.is(':checked')) {
+	        		allCheckboxes.not(selectedCheckboxes).click();	        		
+        		}
+        		else {
+        			selectedCheckboxes.click();
+        		}
+        	}
+        	
+        	var openOppIncludeDialog = function(searchDialog, map, selectedOpps) {
+        	
+        	   	var dlg = jQuery('<div>');
+        	   	
+        	   	var table = jQuery('<table/>').addClass('RESULTS');
+        	   	
+				var checkAll = jQuery('<span>').append(jQuery('<input type="checkbox">').attr('id','select_all').click(function() { checkAllCheckboxes(jQuery(this)); } ));
+				
+				var chosenOpps = {};
+				
+				var accountSolIdToSolId = {};
+        	   	_.each(map.plan.solutions, function(sol) {
+        	   		accountSolIdToSolId[sol.accountSolutionId] = sol.id;
+        	   	});
+        	   	
+        	   	var header = jQuery('<tr/>').append(jQuery('<th/>').append(checkAll))
+       	   								 .append(jQuery('<th/>').text('Name'))
+       	   								 .append(jQuery('<th/>').text('Account'))
+       	   								 .append(jQuery('<th/>').text('Unit'))
+       	   								 .append(jQuery('<th/>').text('Solution'))
+       	   								 .append(jQuery('<th/>').text('Amount'))
+       	   								 .append(jQuery('<th/>').text('Close'))
+       	   								 .append(jQuery('<th/>').text('Stage'))
+       	   								 .append(jQuery('<th/>').text('Owner'));        	   	
+        	   	
+        	   	table.append(jQuery('<thead>').append(header));
+				var tbody = jQuery('<tbody>');
+				
+				
+				function renderTable() {
+	        	   	_.each(selectedOpps, function(opp) {
+	        	   	
+	        	   		var chosenOpp = {
+		                	name: opp.Name, 
+		                    oppType: opp.StageName === 'Closed Won' ? 'won' : 'current', 
+		                    amount: amountField !== null ? opp[amountField] : opp.Amount,
+		                    currencyIsoCode: null,//opp.currencyIsoCode,
+		                    ownerId: opp.OwnerId,
+		                    unitSolutionId: null,
+							unitId: null, 
+							accountSolutionId: null,
+							solId : null, 	                         
+		                    oppId: opp.Id, 
+		                    hasOpportunityLineItem : opp.HasOpportunityLineItem       	   		
+	        	   		};
+	        	   	
+	        	   	
+	        	   		var selectCheckbox = jQuery('<input type="checkbox"/>').addClass('oppCheckbox').click(function() {
+	        	   			var oppId = opp.Id;
+	        	   			var selected = jQuery(this).attr('checked');
+	        	   			if(selected) {
+	        	   				chosenOpps[oppId] = chosenOpp;  	   			
+	        	   			}
+	        	   			else {
+	        	   				delete chosenOpps[oppId]; 
+	        	   			}
+	        				        	   			
+	        	   		});
+	        	   	
+	        	   		
+		                function accept(opp, unit) {
+		                    
+		                    var memberAccounts = null;
+		                    var isGroupedAccount = false;
+		                    var accountsInOpp = opp.AccountId + ' ' + (opp.Account ? opp.Account.ParentId : '') + ' ' + (opp.Account && opp.Account.Parent ? opp.Account.Parent.ParentId : '');
+		                    //var accountsInOpp = opp.AccountId;// + ' ' + opp.ancestorAccountIds.join(' ')
+		                    if(unit && unit.memberAccounts && accountsInOpp) {
+		                        memberAccounts = _.pluck(unit.memberAccounts, 'id')
+		                        if(!memberAccounts || memberAccounts.length === 0) {
+		                            if(unit.accountId) {
+		                                memberAccounts.push(unit.accountId);
+		                            }
+		                        }
+		                        isGroupedAccount = _.reduce(memberAccounts, function(prev, accountId) { return prev || accountsInOpp.indexOf(accountId) !== -1; }, false);
+		                    }
+		                
+		                    return (!unit.children || unit.children.length === 0) 
+		                        //&& !blocked 
+		                        && ((!memberAccounts || memberAccounts.length === 0) ? (accountsInOpp.indexOf(unit.accountId) !== -1) : isGroupedAccount);
+		                }   
+		                
+		                function buildUnitDropdown(opp) {
+		                	var allUnits = [];
+		                	addChildUnits(allUnits, map.plan.units);
+		                	
+		                	function addChildUnits(list, units) {
+		                		_.each(units, function(unit) {
+			                		list.push(unit);
+			                		if(unit.children && unit.children.length > 0) {
+			                			addChildUnits(list, unit.children);
+			                		}
+		                		});
+		                	};
+		                	
+		                	var eligibleUnits = _.filter(allUnits, function(unit) {
+		                		return accept(opp, unit);
+		                	});
+		                	if(eligibleUnits && eligibleUnits.length > 1) {
+			                	var select = jQuery('<select/>');
+			                	select.append(jQuery('<option/>'));
+			                	jQuery.each(eligibleUnits, function(idx, unit) {
+									select.append(jQuery('<option/>').val(unit.id).text(unit.name));
+			                	});
+			                	select.on('change', function() {
+			                		var newValue = jQuery(this).val();
+			                		chosenOpp.unitId = newValue;
+			                		buildSolutionDropdown(solutionCell, chosenOpp, newValue);	                		
+			                	});
+			                	chosenOpp.unitId = select.val();
+			                	return select;
+		                	}
+		                	else {
+		                		if(eligibleUnits.length === 1) {
+		                			chosenOpp.unitId = eligibleUnits[0].id;
+		                			return jQuery('<span/>', {'selectedId': eligibleUnits[0].id }).text(eligibleUnits[0].name);
+		                		}
+		                		else {
+		                			chosenOpp.unitId = null;
+		                			return null;
+		                		}
+		                	}
+		                	checkEverythingIsSelected();
+		                }	 
+		                
+		                function findPreviousSelection(cell) {
+							var select = cell.find('select');
+							var span = cell.find('span');
+							if(select.length > 0) {
+								return select.val();
+							}
+							else if(span.length > 0) {
+								return span.attr('selectedId');
+							}
+							else {
+								return null;
+							}
+		                }  		
+	        	   		
+		                
+		                function buildSolutionDropdown(solutionCell, chosenOpp, newUnitId) {
+		                	var previousSolutionId = findPreviousSelection(solutionCell);
+	
+		                	var eligibleSols = _.filter(map.plan.solutions, function(sol) {
+		                		if(newUnitId) {
+		                			return true; //return !map.plan.blocked[newUnitId] || !map.plan.blocked[newUnitId][sol.id];
+		                		}
+		                		else {
+		                			return true;
+		                		}
+		                	});
+		                	var element = null;
+		                	if(eligibleSols && eligibleSols.length > 0 && chosenOpp.hasOpportunityLineItem && isProductLineSplitsEnabled) {
+		                		element = jQuery('<span/>', {'selectedId': eligibleSols[0].id }).text('Auto Mapped');
+	                			chosenOpp.accountSolutionId = eligibleSols[0].accountSolutionId;
+	                			chosenOpp.solId = accountSolIdToSolId[chosenOpp.accountSolutionId];	                		
+		                	}
+		                	else {
+			                	if(eligibleSols && eligibleSols.length > 1) {	                	
+				                	element = jQuery('<select/>');
+				                	element.append(jQuery('<option/>'));
+				                	jQuery.each(eligibleSols, function(idx, solution) {
+				                		element.append(jQuery('<option/>').val(solution.accountSolutionId).text(solution.name));
+				                		if(previousSolutionId && previousSolutionId === solution.accountSolutionId) {
+				                			element.val(previousSolutionId);
+				                		}		                		
+				                	});
+				                	element.on('change', function() {
+				                		var newValue = jQuery(this).val();
+				                		chosenOpp.accountSolutionId = newValue;
+				                		chosenOpp.solId = accountSolIdToSolId[chosenOpp.accountSolutionId];
+				                		checkBlockedCell();
+				                		checkEverythingIsSelected();
+				                	});
+				                	chosenOpp.accountSolutionId = element.val();
+				                	chosenOpp.solId = accountSolIdToSolId[chosenOpp.accountSolutionId];		                	
+								}
+			                	else {
+			                		if(eligibleSols.length === 1) {
+			                			element = jQuery('<span/>', {'selectedId': eligibleSols[0].id }).text(eligibleSols[0].name);
+			                			chosenOpp.accountSolutionId = eligibleSols[0].accountSolutionId;
+			                			chosenOpp.solId = accountSolIdToSolId[chosenOpp.accountSolutionId];
+			                		}
+			                		else {
+			                			chosenOpp.accountSolutionId = null;
+			                			chosenOpp.solId = null; 
+			                		}
+			                	}
+		                	}
+		                	solutionCell.empty().append(element);
+	                		checkBlockedCell(); 
+	                		checkEverythingIsSelected();	                	
+		                }	
+		                
+		                function checkBlockedCell() {
+		                
+							function isBlocked() {
+								var unitId = chosenOpp.unitId;
+								var accountSolutionId = chosenOpp.accountSolutionId;
+							 	return map.plan.blocked[unitId] && map.plan.blocked[unitId][accountSolIdToSolId[accountSolutionId]];
+							}
+								                
+	                		if(isBlocked()) {
+	                			solutionCell.addClass('blocked');
+	                			solutionCell.append(jQuery('<div/>').addClass('blockedMsg').text('Chosen cell is blocked'));
+	                			if(selectCheckbox.is(':checked')) {
+	                				selectCheckbox.click();
+	                			}
+	                			selectCheckbox.attr('disabled', 'disabled');
+	                		}
+	                		else {
+	                			selectCheckbox.removeAttr('disabled');
+	              				solutionCell.removeClass('blocked');
+	                			solutionCell.find('.blockedMsg').remove();
+	                		}	
+		                }      
+		                
+		                function checkEverythingIsSelected() {
+	
+							var unitId = chosenOpp.unitId;
+							var accountSolutionId = chosenOpp.accountSolutionId;
+							
+							if(unitId && accountSolutionId) {
+	                			if(!selectCheckbox.is(':checked')) {
+	                				selectCheckbox.click();
+	                			}						
+							}
+							else {
+	                			if(selectCheckbox.is(':checked')) {
+	                				selectCheckbox.click();
+	                			}							
+							}	
+		                }	                
+		                
+		                var unitCell = jQuery('<td/>').addClass('unitCell');
+		                var solutionCell = jQuery('<td/>').addClass('solutionCell');  	   		
+	        	   		
+	        	   		var row = jQuery('<tr/>').append(jQuery('<td/>').append(selectCheckbox))
+	        	   								 .append(jQuery('<td/>').text(opp.Name))
+	        	   								 .append(jQuery('<td/>').text(opp.Account.Name))
+	        	   								 .append(unitCell.append(buildUnitDropdown(opp)))
+	        	   								 .append(solutionCell)
+	        	   								 .append(jQuery('<td/>').text(amountField !== null ? opp[amountField] : opp.Amount))
+	        	   								 .append(jQuery('<td/>').text(jQuery.datepicker.formatDate(dateFormat, new Date(opp.CloseDate))))
+	        	   								 .append(jQuery('<td/>').text(opp.StageName))
+	        	   								 .append(jQuery('<td/>').text(opp.Owner.Name));
+						buildSolutionDropdown(solutionCell, chosenOpp);
+						
+						if(unitCell.children().length === 0 || solutionCell.children().length === 0) {
+							selectCheckbox.attr('disabled', 'disabled');
+							unitCell.find('select').attr('disabled', 'disabled');
+							solutionCell.find('select').attr('disabled', 'disabled');
+						}					
+	
+	*/
+						
+						/*function fixBlockedCellCombinations() {
+							var unitIdOptions = unitCell.find('option');
+							var unitIdSpan = unitCell.find('span');
+							var unitIds = [];
+							if(unitIdOptions.length > 0) {
+								unitIdOptions.each(function(index, option) {
+									unitIds.push(jQuery(option).val());
+								});
+							}
+							else if(unitIdSpan.length > 0) {
+								unitIds.push(unitIdSpan.attr('selectedId'));
+							}
+							var solutionIdOptions = solutionCell.find('option');
+							var solutionIdSpan = unitCell.find('span');
+							var solutionIds = [];
+							if(solutionIdOptions.length > 0) {
+								solutionIdOptions.each(function(index, option) {
+									solutionIds.push(jQuery(option).val());
+								});
+							}
+							else if(solutionIdSpan.length > 0) {
+								solutionIds.push(solutionIdSpan.attr('selectedId'));
+							}	
+							
+							var i = 0;
+							var j = 0;
+							var firstNonBlockedUnitId = null;
+							var firstNonBlockedSolutionId = null;
+							for(i = 0; i < unitIds.length; i++) {
+								var unitId = unitIds[i];
+								for(j = 0; j < solutionIds.length; j++) {
+									var solutionId = solutionIds[j];
+									var isBlocked = map.plan.blocked[unitId] && map.plan.blocked[unitId][accountSolIdToSolId[solutionId]];
+									if(!isBlocked) {
+										if(!firstNonBlockedUnitId && !firstNonBlockedSolutionId) {
+											firstNonBlockedUnitId = unitId;
+											firstNonBlockedSolutionId = solutionId;
+										}
+										
+									}
+								}
+							}
+							
+							if(!firstNonBlockedUnitId && !firstNonBlockedSolutionId) {
+								// ALL CELLS ARE BLOCKED!
+							}
+							else {
+								if(unitIdOptions.length > 0) {
+									unitCell.find('select').val(firstNonBlockedUnitId);
+								}
+								else if(unitIdSpan.length > 0) {
+									unitIdSpan.attr('selectedId', firstNonBlockedUnitId);
+								}
+								if(solutionIdOptions.length > 0) {
+									solutionCell.find('select').val(firstNonBlockedSolutionId);
+								}
+								else if(unitIdSpan.length > 0) {
+									solutionIdSpan.attr('selectedId', firstNonBlockedSolutionId);
+								}
+							}
+												
+						}*/
+			/*			
+						//fixBlockedCellCombinations();
+	
+	        	   		tbody.append(row);
+	        	   	});
+	        	   	
+				}
+        	   	
+        	   	
+        	   	renderTable();
+        	   	tbody.find('tr:odd').addClass('trListOdd');
+        	   	table.append(tbody);
+        	   	dlg.append(table);
+                dlg.dialog({ 
+                        modal: true, 
+                        resizable: false, 
+                        width: (ttg_salesforce1 && (screenWidth < 1024)) ? screenWidth - 25 : '850', 
+                        autoOpen: true, 
+                        title: 'Bulk Import Opportunities',
+						buttons: {
+							'Back' : function() { dlg.dialog('close'); searchDialog.parent().show();  },
+							'Import' : function() { 
+								addOpportunities(_.values(chosenOpps));
+								removeImportedOpps();
+								//dlg.dialog('close'); 
+							},
+							'Close' : function() { dlg.dialog('close'); searchDialog.dialog('close'); }
+						},
+						close: function() { dlg.remove() }                        
+                    }
+                );
+        	
+	        	function removeImportedOpps() {
+	        		selectedOpps = _.reject(selectedOpps, function(selectedOpp) {
+	        			return chosenOpps[selectedOpp.Id];
+	        		});
+	        		chosenOpps = {};
+	        		tbody.empty();
+	        		renderTable();
+	        	}        	
+        	
+        	
+        	};  
+        	
+
+        	
+        	
+        	
+        	function addOpportunities(chosenOpps) {
+        	     
+        	     var unitSolutionOppChanges = _.map(chosenOpps, function(chosenOpp) { return _.omit(chosenOpp, 'solId',  'hasOpportunityLineItem'); } );
+        	     var unitAndSolIds = _.map(chosenOpps, function(chosenOpp) { return _.pick(chosenOpp, 'oppId', 'unitId', 'solId'); } );
+        	     var unitAndSolIdByOppId = {};
+        	     _.each(unitAndSolIds, function(unitAndSolId) {
+        	     	unitAndSolIdByOppId[unitAndSolId.oppId] = {
+        	     		unitId: unitAndSolId.unitId,
+        	     		solId: unitAndSolId.solId
+        	     	};
+        	     }); 
+        	     
+                 showAjaxSpinner(true);
+                 apilayer.postOpportunityMapUnitSolutionOpp(null, {unitSolutionOppChanges : {unitSolutionOppChanges : unitSolutionOppChanges}} , function(opps) {
+                 			
+							var oppsToAdd = {};
+          							   
+						   	_.each(opps, function(opp) {
+						   		var oppType = opp.stageName === 'Closed Won' ? 'won' : 'current'; 
+						   		if(!oppsToAdd[oppType]) {
+						   			oppsToAdd[oppType] = {};
+						   		}
+						   		var unitId = unitAndSolIdByOppId[opp.opportunityId].unitId;
+						   		if(!oppsToAdd[oppType][unitId]) {
+						   			oppsToAdd[oppType][unitId] = {};
+						   		}
+						   		var solId = unitAndSolIdByOppId[opp.opportunityId].solId;
+						   		if(!oppsToAdd[oppType][unitId][solId]) {
+						   			oppsToAdd[oppType][unitId][solId] = [];
+						   		}
+						   		oppsToAdd[oppType][unitId][solId].push(opp); 
+						   	});
+						   	
+						   	for(var oppType in oppsToAdd) {
+						   		if(oppsToAdd.hasOwnProperty(oppType)) {
+						   			for(var unitId in oppsToAdd[oppType]) {
+						   				if(oppsToAdd[oppType].hasOwnProperty(unitId)) {	
+								   			for(var solId in oppsToAdd[oppType][unitId]) {
+								   				if(oppsToAdd[oppType][unitId].hasOwnProperty(solId)) {
+								   				
+								   					var data = oppsToAdd[oppType][unitId][solId];				   				
+                 							   
+  
+							                           if(data && data.length > 0) {
+		
+						                                    var newAmountSum = 0;
+						                                    var actualAddedOpps = 0;
+						                                    var actualAddedLines = 0;
+						                                    var addedLineItems = {};
+						                                    var hasLineItem = false;
+						                                    var allmapped = {added:[]};
+						                                    var addedOpps = {};
+						                                    
+						                                    for(var count = 0; count < data.length; count++) {
+						                                        if(!targeted || data[count].target) {
+						                                            if(data[count].lineItems && data[count].lineItems.length > 0) {
+						                                            //if(data[count].lineItemId && data[count].unitSolutionId != unitSolData.solutionId) {
+						                                                for(var i = 0; i < data[count].lineItems.length; i++) {
+		                                                                    var lv_lineItem = data[count].lineItems[i];
+							                                                if(!lv_lineItem.unitSolutionId) {
+					                                                            allmapped.added[allmapped.added.length] = lv_lineItem;
+					                                                            continue;
+					                                                        }
+						                                            
+							                                                var _lineItemAgg = addedLineItems[lv_lineItem.unitSolutionId];
+							                                                if(_lineItemAgg == null) {
+							                                                    _lineItemAgg = {
+							                                                        solutionid         : lv_lineItem.unitSolutionId,
+							                                                        unitid             : unitId,
+							                                                        opportunitytype    : oppType,
+							                                                        oppcount           : 0,
+							                                                        summarycount       : 0,
+							                                                        oppamountsum       : lv_lineItem.amountBase || 0
+							                                                    };
+							                                                    addedLineItems[lv_lineItem.unitSolutionId] = _lineItemAgg;
+							                                                } else {
+							                                                    _lineItemAgg.oppamountsum += (lv_lineItem.amountBase || 0);
+							                                                }
+						                                                
+			                                                                if(! addedOpps[
+			                                                                    data[count].opportunityId + '#' + lv_lineItem.unitSolutionId]
+			                                                                ){
+			                                                                    _lineItemAgg.summarycount++;
+			                                                                }
+					                                                        if(!addedOpps[data[count].opportunityId]) {
+					                                                            _lineItemAgg.oppcount++;
+					                                                        }
+					                                                        
+					                                                        addedOpps[
+						                                                        data[count].opportunityId + '#' + lv_lineItem.unitSolutionId
+						                                                    ] = true;
+						                                                    addedOpps[data[count].opportunityId] = true;
+				                                                        }
+						                                            } else {
+		                                                                newAmountSum += data[count].amountBase;
+		                                                                actualAddedOpps++;
+		                                                                actualAddedLines++;
+						                                            }
+		
+				                                                    addedOpps[data[count].opportunityId] = true;
+					                                            }
+					                                        }
+		
+						                                    var addedLineItemsArray = [];
+						                                    for (var prop in addedLineItems) {
+						                                        if (addedLineItems.hasOwnProperty(prop)) {
+						                                            addedLineItemsArray[addedLineItemsArray.length] = addedLineItems[prop];
+						                                        }
+						                                    }
+						                                    
+						                                    if(addedLineItemsArray.length > 0) {
+						                                        refreshAddOpportunities(addedLineItemsArray, allmapped);
+						                                        
+						                                        allmapped = null;
+						                                    }
+						                                    if(actualAddedOpps != 0 || hasLineItem) {
+						                                        refreshAddOpportunities([ { solutionid      : solId,
+						                                                                    unitid          : unitId,
+						                                                                    opportunitytype : oppType,
+						                                                                    oppcount        : actualAddedOpps,
+						                                                                    oppamountsum    : newAmountSum || 0,
+						                                                                    summarycount    : actualAddedLines
+						                                                                }],
+						                                                                allmapped);  
+						                                    }
+					                           		}
+					                           
+					                           }
+											}
+										}
+									}
+					    		}
+				 			}
+                 }, function() {}, function() { showAjaxSpinner(false); });                 
+                 
+             } 	
+         	
+         	
+         	function showAjaxSpinner(show) {
+            	var spinner = jQuery('#dialogSpinner').css({ position: 'absolute', 'z-index': 10000});
+            	if (show) { 
+                    ajaxSpinnerCnt++;
+                    if (ajaxSpinnerCnt == 1) {
+                    	spinner.append(jQuery('<img>').attr('id', 'tas_ajax_spinner').addClass('spinner').attr('src', '{!JSENCODE(URLFOR($Resource.ttgomjs, '/ttg/graph/images/loader.gif'))}'));
+                        spinner.css("top", ( jQuery(window).height() - jQuery('#dialogSpinner').height() ) / 2+jQuery(window).scrollTop() + "px");
+                        spinner.css("left", ( jQuery(window).width() - jQuery('#dialogSpinner').width() ) / 2+jQuery(window).scrollLeft() + "px");
+
+                    }                   
+                }
+                else {
+                	ajaxSpinnerCnt--;
+                    if (ajaxSpinnerCnt <= 0) {                  
+                        jQuery('#dialogSpinner').html('');
+                        ajaxSpinnerCnt = 0;
+                    }
+
+                }
+            }   
+        	
+        	
+        	return {
+        		openImportDialog : openImportDialog,
+        		onAddOpportunities: onAddOpportunities,
+        		setPlanDates: setPlanDates
+        	};
+        	
+        	
+        }
+
+
+*/
+</script>
+
+
+</apex:page>

@@ -1,0 +1,57 @@
+<apex:page controller="admin_ctrl_updateDealerGroupMRR">
+	<apex:form >
+		<a href='/apexpages/setup/listAsyncApexJobs.apexp' target='_blank'>View Apex Jobs</a>
+		<br /><br /><br />
+		<!-- 
+		<apex:pageBlock title="Dealer Feature Debug Activate Job - ({!debugBillingItemsSize} records)">
+			<apex:commandLink value="Click to manually activate all billing items marked as debug__c = true" action="{!btnDeactivate_Click}">
+			</apex:commandLink>
+			<br /><br />
+			<div style="width:50%;">
+				<apex:pageBlockTable value="{!debugBillingItems}" var="bi">
+					<apex:column headerValue="Id">
+						{!bi.Id}
+					</apex:column>
+					<apex:column headerValue="Debug">
+						{!bi.Debug__c}
+					</apex:column>
+				</apex:pageBlockTable>  
+			</div>
+		</apex:pageBlock>
+		-->
+		
+		<apex:outputPanel id="theOp">
+			<apex:pageBlock title="Dealer Feature Deactivate Job - ({!billingItemsSize} records)">
+				<apex:commandLink value="Click to manually deactivate all pending items" action="{!btnDeactivate_Click}">
+				</apex:commandLink>
+				<br /><br />
+				<div style="width:50%;">
+					<apex:pageBlockTable value="{!billingItems}" var="bi">
+						<apex:column headerValue="Debug">
+							<apex:commandLink value="Debug" action="{!peformDebug}" rerender="theOp">
+								<apex:param value="{!bi.Id}" name="debugBillingItemId" assignTo="{!debugBillingItemId}" />
+							</apex:commandLink>
+						</apex:column>
+						<apex:column headerValue="Id">
+							{!bi.Id}
+						</apex:column>
+						<apex:column headerValue="Pending Deactivation">
+							{!bi.MSDelayRemovedDONOTCHANGE__c}
+						</apex:column>
+						<apex:column headerValue="Deactivation Date">
+							{!bi.End_Date__c}
+						</apex:column>
+					</apex:pageBlockTable>
+				</div>
+			</apex:pageBlock>
+		</apex:outputPanel>
+		<apex:pageBlock title="Dealer Group MRR Job">
+			<apex:commandLink value="Begin Job" action="{!btnUpdate_Click}">
+			</apex:commandLink>
+		</apex:pageBlock>
+		<apex:pageBlock title="Billed Recurring Revenue Job">
+			<apex:commandLink value="Begin Job" action="{!btnStartBilledJob}">
+			</apex:commandLink>
+		</apex:pageBlock>
+	</apex:form>
+</apex:page>

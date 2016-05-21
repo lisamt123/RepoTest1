@@ -1,0 +1,341 @@
+<apex:page >
+<script>
+
+	/* 
+	 * Copyright © The TAS Group. All rights reserved.
+	 *  
+	 */    
+
+    var ttg = ttg || {};
+    ttg.dvls = ttg.dvls || {};
+    
+    ttg.dvls.assessmentplayer = (function() {
+    var assessment = null;
+    var ttgApi = null;
+    var resultCallback = null;
+    var quizzDialogDiv = null;
+    var quizzStarted = false;
+    var submitting = false;
+    
+    var that = {};
+
+    var renderButtonPanel = function(idx) {
+        
+        var main = that;
+        //if splash page - need start test, or cancel
+        var btns = null;
+        //if question need next, prev and submit if all questions attempted
+        if(assessment.questions.length == 1) {
+            if(assessment.readview) {
+	            btns = [{
+	                text: 'Finish',
+	                click: function() {
+	                	jQuery('div#tas_dvls_assessment').dialog('close');
+	                    //main.renderResultsPage();
+	                }
+	            }];
+            } else {
+	            btns = [{
+	                text: 'Submit',
+	                click: function() {
+	                    main.submitAnswers();
+	                }
+	            }];
+            }
+        } else if (idx == 0) {
+            btns = [{
+                text: 'Next',
+                click: function() {
+                    main.renderQuestionPage(assessment.questions[idx + 1], idx + 1);
+                }
+            }];
+        } else if (idx == (assessment.questions.length - 1)) {
+            if(assessment.readview) {
+	            btns = [{
+	                text: 'Previous',
+	                click: function() {
+	                    main.renderQuestionPage(assessment.questions[idx - 1], idx - 1);
+	                }
+	            },{
+                    text: 'Finish',
+                    click: function() {
+                    	jQuery('div#tas_dvls_assessment').dialog('close');
+                        // main.renderResultsPage();
+                    }
+	            }];
+            } else {
+	            btns = [{
+	                text: 'Previous',
+	                click: function() {
+	                    main.renderQuestionPage(assessment.questions[idx - 1], idx - 1);
+	                }
+	            },{
+	                text: 'Submit',
+	                click: function() {
+	                    main.submitAnswers();
+	                }
+	            }];
+            }
+
+        } else {
+            btns = [{
+                text: 'Previous',
+                click: function() {
+                    main.renderQuestionPage(assessment.questions[idx - 1], idx - 1);
+                }
+            },{
+                text: 'Next',
+                click: function() {
+                    main.renderQuestionPage(assessment.questions[idx + 1], idx + 1);
+                }
+            }];
+        }
+    
+        jQuery('div#tas_dvls_assessment').dialog(
+            "option", "buttons", btns
+        );
+    }
+
+    var renderSplashPage = function() {
+        var header = jQuery('<div class="assessmenttitle"/>').text(assessment.assessmentTitle);
+        
+        var blurb = jQuery('<div class="assessmentblurb"/>').text(
+            'There are ' + assessment.questions.length + ' questions in this test'
+        );
+        
+        return jQuery('<div/>').append(header).append(blurb);
+    }
+    
+    var renderAnswerOption = function(optiontype, questionid, option, clearfunc) {
+        var span = jQuery('<span class="answeroption"/>');
+        var optionText = jQuery('<span/>').text(option.text);
+    
+		// IE7 forces to create the radio button like this:
+		var input = jQuery('<input type="' + optiontype + '" name="' + questionid + '" value="' + option.id + '"/>')		
+		.click(function() {
+		    if(clearfunc) {
+		    	clearfunc();
+		    }
+
+		    var checked = jQuery(this).prop('checked')?true:false;
+		    option.checked = checked;		    
+		});
+		
+		if(assessment.readview) {
+		  input.prop({disabled: 'disabled'});
+		}
+		
+        if(option.checked) {
+          input.prop('checked', true);
+        }
+		input.appendTo(span);
+		
+		span.append(optionText);
+		
+		return span;
+    }
+
+    var renderQuestionPage = function(question, idx) {
+        jQuery('div#tas_dvls_assessment').dialog(
+            "option", "title", jQuery('<pre/>').text(assessment.assessmentTitle).html()
+        );
+        
+        var questionNumber = 'Question ' + (idx + 1) + ' of ' + assessment.questions.length;
+        
+        var num = jQuery('<div class="questionumber"/>').text(questionNumber);
+        
+        var bigQ = jQuery('<div class="questionbullet"/>').text('Q');
+        var q = jQuery('<div class="questiontext"/>').text(question.text);
+        
+        var optiontype = question.multiplechoice ? 'checkbox' : 'radio';
+        
+        var a = jQuery('<div class="answeroptions"/>');
+        
+        var clearfunction = 'radio' == optiontype ? function() {
+            for(var i = 0; i < question.options.length; i++) {
+                question.options[i].checked = false;
+            }
+        } : null;
+        
+        for(var i = 0; i < question.options.length; i++) {
+            renderAnswerOption(optiontype, question.id, question.options[i], clearfunction)
+                .appendTo(a);
+            if(assessment.readview) {
+                jQuery('<span class="answeroptionresult"/>').addClass((question.options[i].correct ? 'correct': 'incorrect')).text((question.options[i].correct ? 'Right': 'Wrong')).appendTo(a);
+            }
+        }
+        
+        jQuery('div#tas_dvls_assessment').empty();
+        
+        var div = jQuery('<div>').append(num).append(bigQ).append(q).append(a);
+        
+        if(assessment.readview && question.tip) {
+            jQuery('<div class="tip">').text(question.tip).appendTo(div);
+        }
+        
+        div.appendTo('div#tas_dvls_assessment');
+        
+        renderButtonPanel(idx);
+    }
+    
+    var submitAnswers = function() {
+    
+    	if (submitting) {
+    		return;
+    	}
+    
+    	submitting = true;
+    
+        if(ttgApi) {
+        	this.quizzStarted = false;
+            ttgApi.submitDVLSAssessment(
+            	assessment,
+	            function(data) {
+	                assessment = data.assessment;
+	                renderResultsPage();
+	                
+	                if(resultCallback) {
+	                    resultCallback(assessment);
+	                }
+	                
+	                submitting = false;
+	            }
+	        );
+        }
+    }
+    
+    var renderResultsPage = function() {
+        jQuery('div#tas_dvls_assessment').dialog(
+            "option", "title", jQuery('<pre/>').text(assessment.assessmentTitle).html()
+        );
+        
+        var main = jQuery('<div class="resultmain"/>').text('Test Result');
+        
+        var resultBlurb = jQuery('<div class="resultblurb"/>')
+                            .text('You scored ' + assessment.testsummary.score + ' / ' + assessment.questions.length);
+        
+        var resultMain = jQuery('<div class="resultbody"/>');
+        
+        //iterate over questions and answers given ...
+        for(var i = 0; i < assessment.questions.length; i++) {
+            var questionReviewHolder = jQuery('<span class="review_question_section"/>');
+            var qReviewHolderMain = jQuery('<span/>');
+            jQuery('<span class="reviewnum"/>').text(i + 1 + '.').appendTo(qReviewHolderMain);
+            jQuery('<span class="reviewquestion"/>').text(assessment.questions[i].text).appendTo(qReviewHolderMain);
+            
+            questionReviewHolder.append(qReviewHolderMain).append(jQuery('<br/>'));
+        
+            var ansArr = [];
+            for(var j = 0; j < assessment.questions[i].options.length; j++) {
+                if(assessment.questions[i].options[j].checked) {
+                    ansArr[ansArr.length] = assessment.questions[i].options[j].text;
+                }
+            }
+            
+            if(ansArr.length > 1) {
+                jQuery('<span class="reviewanswer"/>').text('Your answers: ').appendTo(questionReviewHolder);
+            } else {
+                jQuery('<span class="reviewanswer"/>').text('Your answer: ').appendTo(questionReviewHolder);                
+            }
+            
+            questionReviewHolder.append(jQuery('<br/>'));
+            
+            for(var j = 0; j < ansArr.length; j++) {
+                jQuery('<span class="selectedanswer"/>').text(ansArr[j]).appendTo(questionReviewHolder);
+                questionReviewHolder.append(jQuery('<br/>'));
+            }
+            
+            var resultReviewHolder = jQuery('<span class="review_result_section"/>').text((assessment.questions[i].correct ? 'Right': 'Wrong'));
+            if(assessment.questions[i].correct) {
+                resultReviewHolder.addClass('correct');
+            } else {
+                resultReviewHolder.addClass('incorrect');
+            }
+            resultMain.append(questionReviewHolder).append(resultReviewHolder).append(jQuery('<br/>'))
+        }
+        
+        jQuery('div#tas_dvls_assessment').empty();
+        jQuery('<div>').append(main).append(resultBlurb).append(resultMain).appendTo('div#tas_dvls_assessment');
+        
+        var btns = [{
+                text: 'Next',
+                click: function() {
+                    that.renderQuestionPage(assessment.questions[0], 0);
+                }
+            },{
+                text: 'Finish',
+                click: function() {
+                    jQuery('div#tas_dvls_assessment').dialog('close');
+                }
+            }];
+
+        jQuery('div#tas_dvls_assessment').dialog(
+            "option", "buttons", btns
+        );
+    }
+
+    var takeQuizz = function(_assessment, api) {
+        var main = that;
+        ttgApi = api;
+        
+        //get quizz using rest resource
+        //if anything back we build up player else we just escape
+        assessment = _assessment;
+        if(assessment == null || assessment.questions == null || assessment.questions.length == 0) {
+            return;
+        }
+        
+        quizzDialogDiv = jQuery('#tas_dvls_assessment');
+        if(!quizzDialogDiv || quizzDialogDiv.length === 0) {
+        	quizzDialogDiv = jQuery('<div>', {id: 'tas_dvls_assessment'});
+        }
+        if(assessment.readview) {
+	        quizzDialogDiv
+	            .dialog({
+	                modal: true,
+	                width: '600px',
+                    close: function() { jQuery('div#tas_dvls_assessment').remove(); }
+	            });
+	            
+	            that.renderResultsPage();
+        } else {
+        	main.quizzStarted = false;
+	        quizzDialogDiv
+	        	.empty()
+	            .append(renderSplashPage())
+	            .dialog({
+	                modal: true,
+	                buttons: {
+	                    'Start' : function() { 
+	                    			main.renderQuestionPage(assessment.questions[0], 0);
+	                    			main.quizzStarted = true;
+	                    		  },
+	                    'Close' : function() { jQuery('div#tas_dvls_assessment').dialog('close'); }
+	                },
+	                width: '600px',
+	                close: function() {
+	                	if(main.quizzStarted) {
+	                		main.submitAnswers();
+	                	} 
+	                	jQuery('div#tas_dvls_assessment').remove();
+	                }
+	            });
+        }
+    }
+    
+    var onResult = function(cb) {
+        resultCallback = cb;
+    }
+    
+    that.takeQuizz = takeQuizz;
+    that.renderQuestionPage = renderQuestionPage;
+    that.submitAnswers = submitAnswers;
+    that.renderResultsPage = renderResultsPage;
+    that.onResult = onResult;
+    
+    return that;
+
+    }());
+
+</script>
+</apex:page>

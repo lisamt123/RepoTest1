@@ -1,0 +1,23 @@
+<apex:page standardController="agf__ADM_Work__c" extensions="agf.ADM_ChatterWorkController">
+    <script type="text/javascript" src="{!URLFOR($Resource.DojoJS, 'dojo/dojo.js')}" djConfig="parseOnLoad:true, isDebug:false"></script>
+
+    <script>       
+        dojo.require("dojo._base.query"); 
+        
+        var els = parent.document;
+        if(els == null) els = document;
+        
+        findFollowButton(els);
+                                               
+        function findFollowButton(el) {
+            dojo.query(".btn").forEach(
+                function(el) {
+                    if(el.name.indexOf('follow') > -1) {  
+                        el.value = '{!chatterValue}';
+                        el.title = '{!chatterValue}';  
+                    }
+                 }                               
+            );
+        }
+    </script>
+</apex:page>

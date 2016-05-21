@@ -1,0 +1,120 @@
+<apex:page controller="TimeLogDashboardController" showHeader="false"
+	setup="false" sidebar="false">
+	<apex:form style="background-color: #CFEEF8;"
+		rendered="{!if(isError,False, True)}">
+		<table width="100%">
+			<tr>
+				<td width="100%" align="center" colspan="2"><apex:selectList id="timeLogRequest" value="{!requestType}" size="1">
+						<apex:selectOptions value="{!requestOptions}" />
+					</apex:selectList>
+				</td>
+			</tr>
+			<tr>
+				<td width="50%" align="right"><apex:commandButton action="{!updateTimeLogIn}" value=" Start " />
+				</td>
+				<td width="50%" align="left"><apex:commandButton action="{!updateTimeLogOut}" value="  End  " />
+				</td>
+			</tr>
+			<tr>
+				<td align="center" colspan="2"><b>Current Status:</b>
+				</td>
+			</tr>
+			<tr>
+				<td align="center" colspan="2"><apex:outputtext style="color:{!color};" value="{!thisTimeLog.Status__c}" />
+				</td>
+			</tr>
+			<tr>
+				<td width="100%" align="center" colspan="2"><apex:outputText value="Login Time:"
+						rendered="{!IF(thisTimeLog.Login__c == true, true, false)}" />
+				</td>
+			</tr>
+			<tr>
+				<td width="100%" align="center" colspan="2"><apex:outputField value="{!thisTimeLog.Login_Time__c}"
+						rendered="{!IF(thisTimeLog.Login__c == true, true, false)}" /> <!--  <apex:outputText value="{0, date, hh - 6:mm:ss z}">
+                        <apex:param value="{!thisTimeLog.Login_Time__c}" /> 
+                    </apex:outputText> -->
+				</td>
+			</tr>
+
+		</table>
+	</apex:form>
+
+	<apex:form style="background-color: #CFEEF8;"
+		rendered="{!if(isError,True, False)}">
+		<table width="100%">
+			<tr>
+				<td width="100%" align="center" colspan="2"><apex:selectList id="timeLogRequest" value="{!requestType}" size="1">
+						<apex:selectOptions value="{!requestOptions}" />
+					</apex:selectList>
+				</td>
+			</tr>
+			<tr>
+				<td width="50%" align="right"><apex:commandButton action="{!updateTimeLogIn}" value=" Start " />
+				</td>
+				<td width="50%" align="left"><apex:commandButton action="{!updateTimeLogOut}" value="  End  " />
+				</td>
+			</tr>
+			<tr>
+				<td align="center" colspan="2"><font color="red"><b>Error:</b>
+				</font>
+				</td>
+			</tr>
+			<tr>
+				<td align="center" colspan="2"><font color="red"><apex:outputtext value="{!errorMessage}" /> </font>
+				</td>
+			</tr>
+
+		</table>
+	</apex:form>
+	<div class="sidebarModule linksModule"
+		style="background-color: #CFEEF8;">
+		<div class="sidebarModuleHeader" style="background-color: #CFEEF8;">
+			<h2>CUSTOM LINKS</h2>
+		</div>
+		<div class="sidebarModuleBody" style="background-color: #CFEEF8;">
+			<ul>
+				<li><a
+					href="/sfc/#version?selectedDocumentId=06970000000Ll9O">PTO
+						- How does it work?</a></li>
+				<li><a
+					href="/a06?fcf=00B70000006vOpH">My
+						Time Off Balance/Requests</a></li>
+				<li><a
+					href="/setup/ui/recordtypeselect.jsp?ent=01I7000000034JZ&amp;retURL=%2Fa0Z%2Fo&amp;save_new_url=%2Fa0Z%2Fe%3FretURL%3D%252Fa0Z%252Fo">****LOG
+						A SALESFORCE ISSUE/REQUEST*****</a></li>
+				<li><a href="/00O70000002Z3GR">**WHO
+						ARE OUR CUSTOMERS***</a></li>
+				<li><a href="/00O70000003Ic51">VinSolutions
+						Phone Directory</a></li>
+				<li><a href="/00O70000003JB9Y">My
+						Open Tasks- Special</a></li>
+				<li><a
+					href="/a0E?fcf=00B70000006vCbh">Find
+						My Expense Reports</a></li>
+				<li><a
+					href="/a0E/e?retURL=%2Fa0E%2Fo">Create
+						a New Expense Report</a></li>
+				<li><a href="/00O70000002lDzM">***Where
+						are our Trainers***</a></li>
+				<li><a
+					href="/servlet/servlet.ImageServer?id=01570000001U2BQ&amp;oid=00D700000008zHZ&amp;lastMod=1310141361000">****HOW
+						TO REQUEST TIME OFF</a></li>
+				<li><a
+					href="/sol/public/solutionbrowser.jsp?cid=02n70000000PfW0&amp;orgId=00D700000008zHZ">Public
+						Forms Library</a></li>
+				<li><a href="/apex/pto_calendar">***PTO
+						Calendar</a></li>
+				<li><a
+					href="/servlet/servlet.FileDownload?file=015700000019SmP">How
+						to Create an Expense Report</a></li>
+				<li><a
+					href="/CarDashboard/Pages/SupportRequest.aspx">Click
+						to Submit a Ticket</a></li>
+				<li><a href="/00O70000002YhZQ">My
+						Activities Today</a></li>
+			</ul>
+			<br /> <br /> <br /> <br /> <br /> <br /> <br /> <br /> <br />
+			<br /> <br /> <br /> <br /> <br /> <br />
+		</div>
+	</div>
+</apex:page>

@@ -1,0 +1,374 @@
+<apex:page standardController="echosign_dev1__Attachment_Template__c" extensions="echosign_dev1.AttachmentTemplateController" tabStyle="echosign_dev1__Agreement_Template__c">
+	<script>
+  		function confirmCancel() {
+      		var isCancel = confirm("{!$Label.Cancel_Confirm_Prompt}");
+      		if( isCancel ) {
+      			return true;
+  			}
+  			
+     		return false;
+  		}  
+  	</script>
+  
+  	<apex:sectionHeader title="{!$Label.echosign_dev1__Template_Add_File_Attachments_Label}" subtitle="{!sectionSubtitle}" />
+    
+    <apex:form >
+    	<apex:pagemessages id="theMessages"/>
+		<apex:pageBlock id="wizardPageBlock" title="{!blockTitle}">
+			<apex:pageBlockButtons >
+       			<apex:commandButton id="backButton" action="{!doBack}" value="{!$Label.echosign_dev1__Back_Button_Label}" rerender="theMessages,stepTypeSection,stepValueSection,stepSelectionSection,attachmentTemplateEchoSignLibraryValue,wizardPageBlock,saveButton,backButton,nextButton" rendered="{! isStepValue || isStepSelection }" />
+       			<apex:commandButton id="nextButton" action="{!doNext}" value="{!$Label.echosign_dev1__Next_Button_Label}" rerender="theMessages,stepTypeSection,stepValueSection,stepSelectionSection,attachmentTemplateEchoSignLibraryValue,wizardPageBlock,saveButton,backButton,nextButton" rendered="{!isStepType}" />
+       			<apex:commandButton id="saveButton" action="{!doSave}" value="{!$Label.echosign_dev1__Save_Button_Label}" rendered="{! isStepSelection || isStepValue }" />
+        		<apex:commandButton action="{!cancel}" value="{!$Label.echosign_dev1__Cancel_Button_Label}" onclick="return confirmCancel()" immediate="true"/>
+        	</apex:pageBlockButtons>
+        	<apex:outputPanel id="attachmentTemplateTypeDescription" rendered="{!isStepType}">
+        		{!$Label.echosign_dev1__Template_Quote_Prompt_One}<br/>
+        		<br/>{!$Label.echosign_dev1__Template_Quote_Prompt_Two} <br/>{!$Label.echosign_dev1__Template_Quote_Prompt_Three}
+      			<br/><br/>
+      		</apex:outputPanel>
+      		<apex:outputPanel id="attachmentTemplateValueDescription" rendered="{! isStepSelection && isTypeMaster }">
+        		{!$Label.echosign_dev1__Template_Quote_Prompt_Five}{!masterObjectName} {!$Label.echosign_dev1__Template_Quote_Prompt_Six}<br/>
+        		<br/>{!$Label.echosign_dev1__Template_Quote_Prompt_Seven}{!masterObjectName} {!$Label.echosign_dev1__Template_Quote_Prompt_Eight}<br/>{!$Label.echosign_dev1__Template_Quote_Prompt_Nine}
+      			<br/><br/>
+      		</apex:outputPanel>
+      		<apex:pageBlockSection id="stepTypeSection" columns="1">
+      			<apex:selectList id="attachmentTemplateType" value="{!attachmentTemplate.echosign_dev1__Type__c}" size="1" required="true" rendered="{!isStepType}"> 
+                	<apex:selectOptions value="{!attachmentTemplateTypeOptions}"/> 
+               	</apex:selectList>
+      		</apex:pageBlockSection>
+      		<apex:pageBlockSection id="stepValueSection" columns="1">
+      			<apex:outputpanel id="attachmentTemplateConstantValue" rendered="{! isStepValue && isTypeConstant }">
+					<div class="lookupTab FilePickerResultsFrame"> 
+		                <apex:pageBlockSectionItem >
+		                       <apex:selectList id="Folder" value="{!attachDocumentController.selectedFolder}" size="1" >
+		                           <apex:selectOptions value="{!attachDocumentController.documentFolders}"/>
+		                           <apex:actionSupport event="onchange" action="{!attachDocumentController.setFolder}" status="status" rerender="theList"/>
+		                         <apex:actionStatus id="status">
+		                               <apex:facet name="start"><img src="{!$Resource.loading}" style="width:20px;height:20px" /></apex:facet>
+		                               <apex:facet name="stop"><img src="/s.gif" style="width:20px;height:20px" /></apex:facet>
+		                           </apex:actionStatus>
+		                       </apex:selectList>       
+		                </apex:pageBlockSectionItem>
+			            <apex:outputpanel id="theList" rendered="{!NOT ISNULL(attachDocumentController.Products)}" layout="block" >        
+			                <apex:pageBlockTable id="BFTable2a" value="{!attachDocumentController.Products}" rowClasses="firstHeaderRow" var="documentObject" columns="6" width="200%">
+			                    <apex:column width="20px">
+			                        <apex:facet name="header"></apex:facet>
+			                        <apex:inputCheckbox value="{!documentObject.selected}" id="checkedone"/>
+			                    </apex:column>              
+			                   <apex:column >
+						            <apex:facet name="header">
+				                   		<apex:outputPanel >
+				                   			<apex:commandLink value="{!$ObjectType.Document.fields.Name.label}" action="{!attachDocumentController.doSort}" rerender="BFTable2a">
+												<apex:param name="sortField" value="Name" assignTo="{!attachDocumentController.sortField}"/>
+											</apex:commandLink>
+											<apex:image value="{!$Resource.echosign_dev1__SortDescArrow}" title="Sort Descending" rendered="{! attachDocumentController.previousSortField = attachDocumentController.sortField && attachDocumentController.isSortedByName }">
+												<apex:actionSupport event="onclick" action="{!attachDocumentController.doSort}" rerender="BFTable2a">
+													<apex:param name="sortField" value="Name" assignTo="{!attachDocumentController.sortField}"/>
+												</apex:actionSupport>
+											</apex:image>
+											<apex:image value="{!$Resource.echosign_dev1__SortAscArrow}" title="Sort Ascending" rendered="{! attachDocumentController.previousSortField <> attachDocumentController.sortField && attachDocumentController.isSortedByName }">
+												<apex:actionSupport event="onclick" action="{!attachDocumentController.doSort}" rerender="BFTable2a">
+													<apex:param name="sortField" value="Name" assignTo="{!attachDocumentController.sortField}"/>
+												</apex:actionSupport>
+											</apex:image>
+										</apex:outputPanel>
+									</apex:facet>
+			                   		<apex:image value="{!$Resource.echosign_dev1__PdfIcon}" rendered="{!documentObject.isPdf}"/>
+				               		<apex:image value="{!$Resource.echosign_dev1__WordIcon}" rendered="{!documentObject.isWord}"/>
+			                        &nbsp;<apex:outputfield value="{!documentObject.prod.Name}"/>             
+			                  </apex:column>  
+			                  <apex:column >
+				                   <apex:facet name="header">
+				                   		<apex:outputPanel >
+				                   			<apex:commandLink value="{!$ObjectType.Document.fields.Type.label}" action="{!attachDocumentController.doSort}" rerender="BFTable2a">
+												<apex:param name="sortField" value="Type" assignTo="{!attachDocumentController.sortField}"/>
+											</apex:commandLink>
+											<apex:image value="{!$Resource.echosign_dev1__SortDescArrow}" title="Sort Descending" rendered="{! attachDocumentController.previousSortField = attachDocumentController.sortField && attachDocumentController.isSortedByType }">
+												<apex:actionSupport event="onclick" action="{!attachDocumentController.doSort}" rerender="BFTable2a">
+													<apex:param name="sortField" value="Type" assignTo="{!attachDocumentController.sortField}"/>
+												</apex:actionSupport>
+											</apex:image>
+											<apex:image value="{!$Resource.echosign_dev1__SortAscArrow}" title="Sort Ascending" rendered="{! attachDocumentController.previousSortField <> attachDocumentController.sortField && attachDocumentController.isSortedByType }">
+												<apex:actionSupport event="onclick" action="{!attachDocumentController.doSort}" rerender="BFTable2a">
+													<apex:param name="sortField" value="Type" assignTo="{!attachDocumentController.sortField}"/>
+												</apex:actionSupport>
+											</apex:image>
+										</apex:outputPanel>
+									</apex:facet>
+                    				<apex:outputtext value="{!documentObject.fileType}"/>
+                  			   </apex:column>  
+			                   <apex:column >
+							       <apex:facet name="header">
+				                   		<apex:outputPanel >
+				                   			<apex:commandLink value="{!$ObjectType.Document.fields.AuthorId.label}" action="{!attachDocumentController.doSort}" rerender="BFTable2a">
+												<apex:param name="sortField" value="Author" assignTo="{!attachDocumentController.sortField}"/>
+											</apex:commandLink>
+											<apex:image value="{!$Resource.echosign_dev1__SortDescArrow}" title="Sort Descending" rendered="{! attachDocumentController.previousSortField = attachDocumentController.sortField && attachDocumentController.isSortedByAuthor }">
+												<apex:actionSupport event="onclick" action="{!attachDocumentController.doSort}" rerender="BFTable2a">
+													<apex:param name="sortField" value="Author" assignTo="{!attachDocumentController.sortField}"/>
+												</apex:actionSupport>
+											</apex:image>
+											<apex:image value="{!$Resource.echosign_dev1__SortAscArrow}" title="Sort Ascending" rendered="{! attachDocumentController.previousSortField <> attachDocumentController.sortField && attachDocumentController.isSortedByAuthor }">
+												<apex:actionSupport event="onclick" action="{!attachDocumentController.doSort}" rerender="BFTable2a">
+													<apex:param name="sortField" value="Author" assignTo="{!attachDocumentController.sortField}"/>
+												</apex:actionSupport>
+											</apex:image>
+										</apex:outputPanel>
+									</apex:facet>
+			                    	<apex:outputfield value="{!documentObject.prod.Author.Name}"/>
+			                  </apex:column>      
+			                   <apex:column >
+							       <apex:facet name="header">
+				                   		<apex:outputPanel >
+				                   			<apex:commandLink value="{!$ObjectType.Document.fields.BodyLength.label}" action="{!attachDocumentController.doSort}" rerender="BFTable2a">
+												<apex:param name="sortField" value="Length" assignTo="{!attachDocumentController.sortField}"/>
+											</apex:commandLink>
+											<apex:image value="{!$Resource.echosign_dev1__SortDescArrow}" title="Sort Descending" rendered="{! attachDocumentController.previousSortField = attachDocumentController.sortField && attachDocumentController.isSortedByLength }">
+												<apex:actionSupport event="onclick" action="{!attachDocumentController.doSort}" rerender="BFTable2a">
+													<apex:param name="sortField" value="Length" assignTo="{!attachDocumentController.sortField}"/>
+												</apex:actionSupport>
+											</apex:image>
+											<apex:image value="{!$Resource.echosign_dev1__SortAscArrow}" title="Sort Ascending" rendered="{! attachDocumentController.previousSortField <> attachDocumentController.sortField && attachDocumentController.isSortedByLength }">
+												<apex:actionSupport event="onclick" action="{!attachDocumentController.doSort}" rerender="BFTable2a">
+													<apex:param name="sortField" value="Length" assignTo="{!attachDocumentController.sortField}"/>
+												</apex:actionSupport>
+											</apex:image>
+										</apex:outputPanel>
+									</apex:facet>
+			                    	<apex:outputtext value="{!documentObject.size}"/>
+			                  </apex:column> 
+			                   <apex:column >
+			                   <apex:facet name="header">{!$ObjectType.Document.fields.IsInternalUseOnly.label}</apex:facet>
+			                    <apex:inputcheckbox disabled="true" value="{!documentObject.prod.IsInternalUseOnly}"/>
+			                  </apex:column>      
+			                </apex:pageBlockTable>
+			            </apex:outputpanel>
+					</div>
+				</apex:outputpanel>
+				
+				
+				<apex:outputpanel id="attachmentTemplateLibraryValue" rendered="{! isStepValue && isTypeLibrary }">
+					<div class="lookupTab FilePickerResultsFrame"> 
+            <apex:outputpanel layout="block" >        
+                <apex:pageBlockTable id="documentLibrariesTable" value="{!attachLibraryController.libraryTemplateWrappers}" rowClasses="firstHeaderRow" var="libraryTemplateWrapper" columns="3" width="100%">
+                    <apex:column width="20px">
+                        <apex:facet name="header"></apex:facet>
+                        <apex:inputCheckbox value="{!libraryTemplateWrapper.isSelected}"/>
+                    </apex:column>              
+                   <apex:column >
+                        <apex:facet name="header">
+                            <apex:outputPanel >
+                                <apex:commandLink value="{!$ObjectType.echosign_dev1__Library_Template__c.fields.Name.label}" action="{!attachLibraryController.doSort}" rerender="documentLibrariesTable">
+                                    <apex:param name="sortField" value="Name" assignTo="{!sortField}"/>
+                                </apex:commandLink>
+                                <apex:image value="{!$Resource.echosign_dev1__SortDescArrow}" title="{!$Label.echosign_dev1__Sort_Descending_Label}" rendered="{! attachLibraryController.previousSortField = attachLibraryController.sortField && attachLibraryController.isSortedByName }">
+                                    <apex:actionSupport event="onclick" action="{!attachLibraryController.doSort}" rerender="documentLibrariesTable">
+                                        <apex:param name="sortField" value="Name" assignTo="{!attachLibraryController.sortField}"/>
+                                    </apex:actionSupport>
+                                </apex:image>
+                                <apex:image value="{!$Resource.echosign_dev1__SortAscArrow}" title="{!$Label.echosign_dev1__Sort_Ascending_Label}" rendered="{! attachLibraryController.previousSortField <> attachLibraryController.sortField && attachLibraryController.isSortedByName }">
+                                    <apex:actionSupport event="onclick" action="{!attachLibraryController.doSort}" rerender="documentLibrariesTable">
+                                        <apex:param name="sortField" value="Name" assignTo="{!attachLibraryController.sortField}"/>
+                                    </apex:actionSupport>
+                                </apex:image>
+                            </apex:outputPanel>
+                        </apex:facet>
+                        <apex:image title="{!$Label.echosign_dev1__Library_Document_Template_Tooltip}" style="vertical-align: text-bottom; height: 18px;" value="{!$Resource.echosign_dev1__LibraryDocumentTemplate}" />
+                        <!-- <apex:image title="{!$Label.Library_Layer_Template_Tooltip}" style="vertical-align: text-bottom;" value="{!$Resource.LibraryFieldsTemplate}" rendered="{! libraryTemplateWrapper.documentLibrary.isFormFieldLayer && !libraryTemplateWrapper.documentLibrary.isDocument }"/> -->
+                        <!-- <apex:image title="{!$Label.Library_Document_and_Layer_Template_Tooltip}" style="vertical-align: text-bottom;" value="{!$Resource.echosign_dev1__LibraryDocumentTemplate}" rendered="{! libraryTemplateWrapper.documentLibrary.isDocument && libraryTemplateWrapper.documentLibrary.isFormFieldLayer }"/> -->
+                        &nbsp;<apex:outputText value="{!libraryTemplateWrapper.documentLibrary.name}"/>             
+                  </apex:column>
+                  <apex:column >
+                    <apex:facet name="header">
+                        <apex:outputPanel >
+                            <apex:commandLink value="{!$ObjectType.echosign_dev1__Library_Template__c.fields.echosign_dev1__Last_Modified__c.label}" action="{!attachLibraryController.doSort}" rerender="documentLibrariesTable">
+                                <apex:param name="sortField" value="ModifiedDate" assignTo="{!sortField}"/>
+                            </apex:commandLink>
+                            <apex:image value="{!$Resource.echosign_dev1__SortDescArrow}" title="{!$Label.echosign_dev1__Sort_Descending_Label}" rendered="{! attachLibraryController.previousSortField = attachLibraryController.sortField && attachLibraryController.isSortedByModifiedDate }">
+                                <apex:actionSupport event="onclick" action="{!attachLibraryController.doSort}" rerender="documentLibrariesTable">
+                                    <apex:param name="sortField" value="ModifiedDate" assignTo="{!sortField}"/>
+                                </apex:actionSupport>
+                            </apex:image>
+                            <apex:image value="{!$Resource.echosign_dev1__SortAscArrow}" title="{!$Label.echosign_dev1__Sort_Ascending_Label}" rendered="{! attachLibraryController.previousSortField <> attachLibraryController.sortField && attachLibraryController.isSortedByModifiedDate }">
+                                <apex:actionSupport event="onclick" action="{!attachLibraryController.doSort}" rerender="documentLibrariesTable">
+                                    <apex:param name="sortField" value="ModifiedDate" assignTo="{!attachLibraryController.sortField}"/>
+                                </apex:actionSupport>
+                            </apex:image>
+                        </apex:outputPanel>
+                    </apex:facet>
+                    <apex:outputText value="{0, date, short}">
+                		<apex:param value="{!libraryTemplateWrapper.documentLibrary.modifiedDate}"/>
+                	</apex:outputText>
+                  </apex:column>  
+                </apex:pageBlockTable>
+            </apex:outputpanel>
+					</div>
+				</apex:outputpanel>
+				
+				
+      			<apex:outputpanel id="contentTemplateConstantValue" rendered="{! isStepValue && isTypeContent }">
+      				<div class="lookupTab FilePickerResultsFrame">
+       					<apex:pageBlock id="errorpb" rendered="{!attachContentController.isError}">
+       						<apex:outputPanel id="recipientTemplateTypeDescription" rendered="{!attachContentController.isError}">
+       							{!$Label.echosign_dev1__Content_Disabled_Error_Prefix} <a href="/ui/setup/org/ContentSettingsPage/d?setupid=ContentSettings">{!$Label.echosign_dev1__Content_Disabled_Link}</a> {!$Label.echosign_dev1__Content_Disabled_Postfix}<br/>
+     						</apex:outputPanel>
+       					</apex:pageBlock>
+				             	<apex:pageBlockSection id="searchSection" columns="1">
+				                	<apex:pageBlockSectionItem id="librarysection" dataStyle="margin-left: 0px; padding-left: 0px;">
+				                		<apex:outputPanel id="librarySelector" layout="block">
+				                			<b>{!$Label.echosign_dev1__Attach_Content_Search_Prefix}</b>
+				                       		<apex:selectList id="Library" value="{!attachContentController.selectedLibrary}" size="1">
+				                           		<apex:selectOptions value="{!attachContentController.libraryOptions}"/>
+				                           		<apex:actionSupport event="onchange" action="{!attachContentController.onLibraryChange}" rerender="buttonsSection,theContentList"/>
+				                         		<apex:actionStatus id="statuslibrary">
+				                            		<apex:facet name="start"><img src="{!$Resource.loading}" style="width:20px;height:20px" /></apex:facet>
+				                               		<apex:facet name="stop"><img src="/s.gif" style="width:20px;height:20px" /></apex:facet>
+				                           		</apex:actionStatus>
+				                       		</apex:selectList>
+				                       		<b>{!$Label.Attach_Content_Search_Postfix}</b>&nbsp;
+				                       		<apex:inputText value="{!attachContentController.searchTerm}">
+				               					<apex:actionSupport event="onchange" rerender="theContentList" action="{!attachContentController.onSearch}"/>
+				               					<apex:actionSupport event="onkeyup" rerender="theContentList" action="{!attachContentController.onSearch}"/>
+				           					</apex:inputText>
+				                   	 	</apex:outputPanel>
+				                   </apex:pageBlockSectionItem>
+				                </apex:pageBlockSection> 
+             					<apex:pageBlockSectionItem id="tagsection">
+                	    			<apex:outputPanel id="tagsSelector" layout="block">
+     									<h2>{!$Label.Attach_Content_Filter_Tags}</h2>&nbsp;&nbsp;
+     									<apex:repeat value="{!attachContentController.tagWrappers}" var="tagWrapper" >
+     						    			<apex:inputCheckbox value="{!tagWrapper.isSelected}">
+             									<apex:actionSupport event="onchange" rerender="tagssection,theContentList" action="{!attachContentController.onTagChange}"/>
+               									<apex:actionSupport event="onclick" rerender="tagssection,theContentList" action="{!attachContentController.onTagChange}"/>
+         									</apex:inputCheckbox>
+         									<apex:outputText value="{!tagWrapper.Name}   "/>
+     									</apex:repeat>
+ 										<br />
+ 										<apex:commandLink action="{!attachContentController.onSelectAllTags}" value="{!$Label.echosign_dev1__Attach_Content_Select_All_Tags}" rerender="tagsSelector,theContentList" />&nbsp;&nbsp;|&nbsp;&nbsp;
+										<apex:commandLink action="{!attachContentController.onDeselectAllTags}" value="{!$Label.echosign_dev1__Attach_Content_Deselect_All_Tags}" rerender="tagsSelector,theContentList" />
+									</apex:outputPanel>
+                 				</apex:pageBlockSectionItem>
+            				<apex:outputpanel id="theContentList" rendered="{!NOT ISNULL(attachContentController.contentWrappers)}" layout="block" >        
+                				<apex:pageBlockTable id="BFTable3a" value="{!attachContentController.contentWrappers}" rowClasses="firstHeaderRow" var="contentWrapper" columns="5" width="200%">
+                					<apex:column width="20px">
+                        				<apex:facet name="header"></apex:facet>
+                        				<apex:inputCheckbox value="{!contentWrapper.isSelected}" id="checkedone">
+                        					<apex:actionSupport event="onchange" rerender="theGrid" action="{!attachContentController.onContentSelectionChanged}"/>
+	                        				<apex:actionSupport event="onclick" rerender="theGrid" action="{!attachContentController.onContentSelectionChanged}"/>
+                        				</apex:inputCheckbox>
+                    				</apex:column>              
+				                   	<apex:column >
+				                   		<apex:facet name="header">
+							                <apex:outputPanel >
+				                   				<apex:commandLink value="{!$Label.echosign_dev1__Content_Title_Column_Label}" action="{!attachContentController.doSort}" rerender="BFTable3a">
+													<apex:param name="sortField" value="Title" assignTo="{!attachContentController.sortField}"/>
+												</apex:commandLink>
+												<apex:image value="{!$Resource.echosign_dev1__SortDescArrow}" title="{!$Label.echosign_dev1__Sort_Descending_Label}" rendered="{! attachContentController.previousSortField = attachContentController.sortField && attachContentController.isSortedByTitle }">
+													<apex:actionSupport event="onclick" action="{!attachContentController.doSort}" rerender="BFTable3a">
+														<apex:param name="sortField" value="Title" assignTo="{!attachContentController.sortField}"/>
+													</apex:actionSupport>
+												</apex:image>
+												<apex:image value="{!$Resource.echosign_dev1__SortAscArrow}" title="{!$Label.echosign_dev1__Sort_Ascending_Label}" rendered="{! attachContentController.previousSortField <> attachContentController.sortField && attachContentController.isSortedByTitle }">
+													<apex:actionSupport event="onclick" action="{!attachContentController.doSort}" rerender="BFTable3a">
+														<apex:param name="sortField" value="Title" assignTo="{!attachContentController.sortField}"/>
+													</apex:actionSupport>
+												</apex:image>
+											</apex:outputPanel>
+				                   		</apex:facet>
+				                    	<apex:image value="{!$Resource.echosign_dev1__PdfIcon}" rendered="{!contentWrapper.isPdf}"/>
+	                   					<apex:image value="{!$Resource.echosign_dev1__WordIcon}" rendered="{!contentWrapper.isWord}"/>
+	                    				&nbsp;<apex:outputtext value="{!contentWrapper.title}"/>             
+				                  	</apex:column>  
+				                   	<apex:column >
+				                   		<apex:facet name="header">
+				                   			<apex:outputPanel >
+				                   				<apex:commandLink value="{!$Label.echosign_dev1__Content_File_Type_Column_Label}" action="{!attachContentController.doSort}" rerender="BFTable3a">
+													<apex:param name="sortField" value="Type" assignTo="{!attachContentController.sortField}"/>
+												</apex:commandLink>
+												<apex:image value="{!$Resource.echosign_dev1__SortDescArrow}" title="{!$Label.echosign_dev1__Sort_Descending_Label}" rendered="{! attachContentController.previousSortField = attachContentController.sortField && attachContentController.isSortedByType }">
+													<apex:actionSupport event="onclick" action="{!attachContentController.doSort}" rerender="BFTable3a">
+														<apex:param name="sortField" value="Type" assignTo="{!attachContentController.sortField}"/>
+													</apex:actionSupport>
+												</apex:image>
+												<apex:image value="{!$Resource.echosign_dev1__SortAscArrow}" title="{!$Label.echosign_dev1__Sort_Ascending_Label}" rendered="{! attachContentController.previousSortField <> attachContentController.sortField && attachContentController.isSortedByType }">
+													<apex:actionSupport event="onclick" action="{!attachContentController.doSort}" rerender="BFTable3a">
+														<apex:param name="sortField" value="Type" assignTo="{!attachContentController.sortField}"/>
+													</apex:actionSupport>
+												</apex:image>
+											</apex:outputPanel>
+										</apex:facet>
+				                    	<apex:outputtext value="{!contentWrapper.fileType}"/>
+				                  	</apex:column> 
+				     				<apex:column >
+	                  					<apex:facet name="header">
+	                   						<apex:outputPanel >
+	                   							<apex:commandLink value="{!$Label.echosign_dev1__Content_File_Size_Column_Label}" action="{!attachContentController.doSort}" rerender="BFTable3a">
+													<apex:param name="sortField" value="Size" assignTo="{!attachContentController.sortField}"/>
+												</apex:commandLink>
+												<apex:image value="{!$Resource.echosign_dev1__SortDescArrow}" title="{!$Label.echosign_dev1__Sort_Descending_Label}" rendered="{! attachContentController.previousSortField = attachContentController.sortField && attachContentController.isSortedBySize }">
+													<apex:actionSupport event="onclick" action="{!attachContentController.doSort}" rerender="BFTable3a">
+														<apex:param name="sortField" value="Size" assignTo="{!attachContentController.sortField}"/>
+													</apex:actionSupport>
+												</apex:image>
+												<apex:image value="{!$Resource.echosign_dev1__SortAscArrow}" title="{!$Label.echosign_dev1__Sort_Ascending_Label}" rendered="{! attachContentController.previousSortField <> attachContentController.sortField && attachContentController.isSortedBySize }">
+													<apex:actionSupport event="onclick" action="{!attachContentController.doSort}" rerender="BFTable3a">
+														<apex:param name="sortField" value="Size" assignTo="{!attachContentController.sortField}"/>
+													</apex:actionSupport>
+												</apex:image>
+											</apex:outputPanel>
+										</apex:facet>
+	                    				<apex:outputtext value="{!contentWrapper.contentSize}"/>
+	                  				</apex:column>  
+				                   	<apex:column >
+				                  		<apex:facet name="header">
+				                   			<apex:outputPanel >
+				                   				<apex:commandLink value="{!$Label.echosign_dev1__Content_Version_Column_Label}" action="{!attachContentController.doSort}" rerender="BFTable3a">
+													<apex:param name="sortField" value="Version" assignTo="{!attachContentController.sortField}"/>
+												</apex:commandLink>
+												<apex:image value="{!$Resource.echosign_dev1__SortDescArrow}" title="{!$Label.echosign_dev1__Sort_Descending_Label}" rendered="{! attachContentController.previousSortField = attachContentController.sortField && attachContentController.isSortedByVersion }">
+													<apex:actionSupport event="onclick" action="{!attachContentController.doSort}" rerender="BFTable3a">
+														<apex:param name="sortField" value="Version" assignTo="{!attachContentController.sortField}"/>
+													</apex:actionSupport>
+												</apex:image>
+												<apex:image value="{!$Resource.echosign_dev1__SortAscArrow}" title="{!$Label.echosign_dev1__Sort_Ascending_Label}" rendered="{! attachContentController.previousSortField <> attachContentController.sortField && attachContentController.isSortedByVersion }">
+													<apex:actionSupport event="onclick" action="{!attachContentController.doSort}" rerender="BFTable3a">
+														<apex:param name="sortField" value="Version" assignTo="{!attachContentController.sortField}"/>
+													</apex:actionSupport>
+												</apex:image>
+											</apex:outputPanel>
+										</apex:facet>
+				                    	<apex:outputtext value="{!contentWrapper.versionNumber}"/>
+				                  	</apex:column>      
+				               	</apex:pageBlockTable>
+            				</apex:outputpanel>
+					</div> 
+      			</apex:outputpanel>
+      		</apex:pageBlockSection>
+      		<apex:pageBlockSection id="stepSelectionSection" columns="1">
+      			<apex:inputField id="attachmentTemplateMasterSelectionType" value="{!attachmentTemplate.echosign_dev1__Attachment_Selection_Type__c}" rendered="{! isStepSelection && isTypeMaster }">
+      				<apex:actionSupport event="onchange" action="{!onSelectionTypeChange}" rerender="stepSelectionSection"/>
+      			</apex:inputField>
+      			<apex:inputField id="attachmentTemplateMasterSelectionField" value="{!attachmentTemplate.echosign_dev1__Attachment_Selection_Field__c}" rendered="{! isStepSelection && isTypeMaster && NOT(isAttachmentSelectionTypeAll) }"/>
+      			
+      			<apex:outputPanel id="quoteOppTemplateDescription" rendered="{! isStepSelection && isTypeOppQuote  }">
+        		{!$Label.echosign_dev1__Template_Quote_Prompt_Quote}<br/>
+      			</apex:outputPanel>
+      		
+      			<apex:inputField id="quoteOppTemplateMasterSelectionType" value="{!attachmentTemplate.echosign_dev1__Quote_Selection_Type__c}" rendered="{! isStepSelection && isTypeOppQuote }"/>
+      			<apex:inputField id="quoteOppTemplateMasterSelectionField" value="{!attachmentTemplate.echosign_dev1__Quote_Selection_Field__c}" rendered="{! isStepSelection && isTypeOppQuote }"/>
+      			
+      			<apex:outputPanel id="quoteOppTemplateDocumentDescription" rendered="{! isStepSelection && isTypeOppQuote  }">
+        		<br/>{!$Label.echosign_dev1__Template_Quote_Prompt_Document}<br/>
+      			</apex:outputPanel>
+      			
+      			<apex:inputField id="quoteDocumentTemplateMasterSelectionType" value="{!attachmentTemplate.echosign_dev1__Quote_Document_Selection_Type__c}" rendered="{! isStepSelection && ( isTypeQuote || isTypeOppQuote ) }">
+      				<apex:actionSupport event="onchange" action="{!onSelectionTypeChange}" rerender="stepSelectionSection"/>
+      			</apex:inputField>
+      			<apex:inputField id="quoteDocumentTemplateMasterSelectionField" value="{!attachmentTemplate.echosign_dev1__Quote_Document_Selection_Field__c}" rendered="{! isStepSelection && ( isTypeQuote || isTypeOppQuote ) && NOT(isQuoteDocumentSelectionTypeAll) }"/>
+      			
+      			<apex:inputField id="attachmentTemplateVariableValue" value="{!attachmentTemplate.echosign_dev1__Variable_Name__c}" rendered="{! isStepValue && isTypeVariable }"/>
+        	</apex:pageBlockSection>
+  		</apex:pageBlock>
+	</apex:form>
+
+</apex:page>

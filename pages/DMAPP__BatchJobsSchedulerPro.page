@@ -1,0 +1,54 @@
+<apex:page controller="DMAPP.BatchJobsSchedulerProController" 
+    sidebar="false"
+    docType="html-5.0"
+    >
+    
+    <style>
+    
+        @import url("{!URLFOR($Resource.DMAPP__jQueryUI, 'css/custom-theme/jquery-ui-1.8.21.custom.css')}");
+    
+    	#mainContainer {
+    		width: 818px;
+    	}
+    	
+    	.sectionContainer {
+		    border: 1px solid #A0B5CA;
+		    border-radius: 7px 7px 7px 7px;
+		    box-shadow: 0 1px 0 rgba(255, 255, 255, 0.7) inset;
+		    margin: 10px;
+		    padding: 10px;
+    	}
+    	
+    	.sectionHeader {
+    		font-size: 1.5em;
+    		color: #5979A0;
+    		margin-bottom: 10px;
+    	}
+    	
+    	.sectionLabel {
+		    color: #444444;
+		    display: block;
+		    padding: 5px 0;
+    	}    	
+    
+    </style>
+    
+    
+    <apex:form >
+    	
+    	<div id="mainContainer">
+    		<div class="sectionContainer">
+    			<div class="sectionHeader">Scorecard Batch</div>
+	    		<apex:outputText id="scoreCardBatchStatus" value="{!IF(scoreCardBatchJob.scheduled, 'This batch job is scheduled', 'This batch job is NOT scheduled')}" styleClass="sectionLabel"/>
+				<apex:commandButton id="scoreCardBatchButton" action="{!scheduleOrAbortScorecardBatch}" value="{!scoreCardBatchJob.label}" styleClass="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" reRender="scoreCardBatchStatus,scoreCardBatchButton"/>
+			</div>
+			<div class="sectionContainer">
+				<div class="sectionHeader">Send Usage Batch</div>
+		    	<apex:outputText id="sendUsageBatchStatus" value="{!IF(sendUsageBatchJob.scheduled, 'This batch job is scheduled', 'This batch job is NOT scheduled')}" styleClass="sectionLabel"/>
+				<apex:commandButton id="sendUsageBatchButton" action="{!scheduleOrAbortSendUsageBatch}" value="{!sendUsageBatchJob.label}" styleClass="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" reRender="sendUsageBatchStatus,sendUsageBatchButton"/>
+			</div>
+       	</div>
+    	
+    </apex:form>
+    
+</apex:page>

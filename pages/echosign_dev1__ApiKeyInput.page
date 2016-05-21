@@ -1,0 +1,37 @@
+<apex:page controller="echosign_dev1.EchoSignAdminController" 
+	title="{!$Label.echosign_dev1__API_Key_Input_Section_Label}"
+	sidebar="false" 
+	showHeader="false">
+	
+	<script>
+		function getUrlVars() {
+    		var vars = {};
+    		var parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m,key,value) {
+        		vars[key] = value;
+    		});
+    		return vars;
+		}
+	</script>
+	
+	<apex:outputpanel id="apiKeyInputPanel" style="background-color:white;">
+        <apex:form >
+            <apex:pageBlock id="apiKey">
+            	<apex:outputPanel id="thePanel" layout="block" style="font-size: 1.2em;"><p><h2>{!$Label.echosign_dev1__API_Key_Input_Section_Label}</h2></p></apex:outputPanel>
+                <apex:pageblockbuttons location="bottom">
+                    <apex:commandbutton id="saveApiKeyButton" value="{!$Label.echosign_dev1__Save_Button_Label}" action="{!saveApiKey}" oncomplete="window.parent.parent.secbox.hide(); if( getUrlVars()['reloadPage'] ) { window.parent.parent.location.reload(); }"/>
+                    <input type="button" name="CancelSecurityPopup" value="{!$Label.Cancel_Button_Label}" onclick="window.parent.parent.secbox.hide(); if( getUrlVars()['reloadPage'] ) { window.parent.parent.location.reload(); }" class="btn" />              
+                </apex:pageblockbuttons>
+                <apex:pageBlockSection columns="1">
+      				<apex:outputpanel id="apiKeyInputPanel">
+      					<apex:outputpanel ><b>{!$Label.echosign_dev1__API_Key_Input_Description}</b></apex:outputpanel><br/><br/>
+      					<img src="{!$Resource.RightBlueArrow}" style="vertical-align: bottom;"/>&nbsp;&nbsp;<apex:commandLink style="color: blue; vertical-align: super;" onclick="window.open('{!baseServerUrl}/salesforce-web/page/account/echosignApi?session={!$Api.Session_ID}&server={!$Api.Partner_Server_URL_70}', 'EchoSignApi', 'menubar=0,width=960,height=620,toolbar=0,location=0');" value="{!$Label.echosign_dev1__API_Key_Input_Get_Label}" /><br/><br/> 
+      					<apex:outputpanel >{!$Label.echosign_dev1__API_Key_Input_Email_Label}: {!userEmail}</apex:outputpanel><br/>      
+                    	<apex:pageblocksectionitem >
+                        	{!$Label.API_Key_Input_Output_Label}:&nbsp;<apex:inputField value="{!privateSettings.echosign_dev1__API_Key__c}"/>
+                    	</apex:pageblocksectionitem>  
+    				</apex:outputpanel>
+      			</apex:pageBlockSection>
+            </apex:pageBlock>
+        </apex:form> 
+    </apex:outputpanel>
+</apex:page>

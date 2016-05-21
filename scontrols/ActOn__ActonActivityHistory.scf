@@ -1,0 +1,44 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+    <script type="text/javascript" src="/js/functions.js">
+    </script>
+<script type="text/javascript" src="/soap/ajax/32.0/connection.js"> 
+</script> 
+<script type="text/javascript" src="/soap/ajax/32.0/apex.js"> 
+</script> 
+    <script type="text/javascript">
+            function getHistory()
+                {
+                var state = {
+                    output : document.getElementById("result"),
+                    startTime : new Date().getTime()
+                    };
+                doCall(state);
+                }
+
+            function doCall(source)
+                {
+                var version = '0.16';
+                var server=sforce.apex.execute('ActOn/ActonWebService','getServerUrl',{});
+
+                var url = server +
+                          '/acton/sforce/sforceActivityHistory_Acton.jsp?' +
+                          'id={!Contact.Id}{!Lead.Id}' +
+                          '&v=' + version +
+                          '&session={!$Api.Session_ID}' +
+                          '&server={!$Api.Partner_Server_URL_190}';
+                source.output.src = url;
+                }
+    </script>
+    <title>Act-On Activity History</title>
+</head>
+
+<body onLoad="getHistory();" style="margin: 0px;" width="800px">
+<table border="0" cellspacing="0" cellpadding="0" width="100%" height="100%">
+<tr><td id="theContent" height="*" width="100%">
+ <iframe id="result" frameborder="0" width="100%" scrolling="auto" height="100%"  src="" ></iframe>
+</td></tr>
+</table>
+</body>
+</html>

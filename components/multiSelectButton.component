@@ -1,0 +1,53 @@
+<!------------------------------------------------------------------->
+<!-- Similar to .NET's DropDownList with more control than normal 
+	 visualForce select list..... accomplished w/ some javaScript
+	 included on the page
+
+	Working demo on the "demo_UBB.page"
+
+	Uses two attributes, the button text and the uniqueId 
+	 string to keep the Divs id's unique						   -->
+<!------------------------------------------------------------------->
+ 
+ 
+<apex:component >
+	
+	
+	<apex:includeScript value="{!$Resource.multiSelectButton_js}"/>
+	
+	
+	<!----------------->
+	<!-- Button Text -->
+	<!----------------->  
+	
+	<apex:attribute name="buttonText" description="Text displayed." type="String" required="true"/>
+	
+	<!------------------------------------------------------->
+	<!-- Unique Id for the Divs  **Not the Components Id** -->
+	<!------------------------------------------------------->
+	
+	<apex:attribute name="uniqueId" description="Unique Id for this componenet. Must be unique across all 
+			multiSelectButtons. This is not the component Id." type="String" required="true"/>
+ 
+	<!-------------------------------------------------------------------------------------------------------->
+	<!--Controls Structure...Overrides the basic CloneButton and references the salesForce.com style sheets--->
+	<!--For the menu options, use either outputLinks or commandLinks------------------------------------------>
+	<!-------------------------------------------------------------------------------------------------------->
+	
+	<div name="multiButton" id="button{!uniqueId}" class="menuButton" onclick="showOptions('{!uniqueId}');" >
+	
+			<div id="CloneButton{!uniqueId}" class="menuButtonButton" onmouseover="divHover = 'CloneMenu{!uniqueId}';"
+				 onmouseout="divHover = '';">{!buttonText}</div>
+	
+			<div name="multipButtonOpts" id="CloneMenu{!uniqueId}" class="menuButtonMenu">
+	
+				<apex:componentBody />
+	
+			</div>
+	
+	</div>
+		
+		
+		
+
+</apex:component>

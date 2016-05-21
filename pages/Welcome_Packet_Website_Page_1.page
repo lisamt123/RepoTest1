@@ -1,0 +1,94 @@
+<apex:page controller="WelcomePacketWizard" showHeader="false">
+	<head>
+<apex:stylesheet value="{!$Resource.styles}"></apex:stylesheet>
+	</head>
+
+	<script>
+function confirmCancel()
+{
+    var isCancel = confirm("Are you sure you wish to cancel?");
+    return isCancel;
+}	
+</script>
+
+	<table border="0" width="100%" height="100%" id="bg">
+		<tr valign="top">
+			<td>
+				<div class="maincontainer">
+					<apex:image id="key1" width="100%"
+						value="/resource/1265230873000/Header" />
+
+					<apex:sectionHeader title="VinSolutions Secondary Packet"
+						subtitle="Website and Email Information" />
+
+					<apex:form >
+						<apex:pageBlock id="pb1" title="Website/Email">
+
+							<table border="0" width="100%" align="center">
+								<tr align="center">
+									<td align="center"><apex:commandButton action="{!jumpBackFromWebsite}" value="Previous Step" /> <apex:commandButton action="{!jumpToMotoBlast}" value="Next Step" /> <apex:commandButton action="{!cancel}" value="Save & Quit"
+											onclick="return confirmCancel()" immediate="true" /> <apex:commandButton action="{!confirmWebsite}"
+											value="Save - To Confirmation Page"
+											rendered="{!welcome.ReachedWebConfirm__c}" />
+									</td>
+								</tr>
+							</table>
+
+							<apex:pageBlockSection collapsible="false" title="" columns="1">
+								<b> VinSolutions will need to be provided with the following
+									information prior to your VinSolutions Website going live:</b>
+								<br />
+								<br />
+
+								<apex:inputField value="{!welcome.Website_to_be_transferred__c}" />
+								<apex:inputField value="{!welcome.Current_Web_Host__c}" />
+								<apex:inputField value="{!welcome.Contract_End_Date__c}" />
+								<apex:inputField value="{!welcome.Current_Registrar__c}" />
+								<apex:inputField value="{!welcome.Registrar_to_transfer_to__c}" />
+								<apex:inputField value="{!welcome.Username_to_registrar__c}" />
+								<apex:inputField value="{!welcome.Password_to_registrar__c}" />
+
+								<b><u>Once your website is completed, you will need to
+										point the domain name at the new VinSolutions website. If you
+										need our assistance, we will require your registrar’s username
+										and password.</u> </b>
+								<br />
+								<br />
+
+								<apex:inputField value="{!welcome.Will_you_need_VinSolutions_to_host_email__c}" />
+								<br />
+
+								<b><u>If VinSolutions is hosting your email, it is VERY
+										IMPORTANT that none of your users ever enter their
+										Vinsolutions email into MotoSnap in their own customer record.
+										Their own customer record in MotoSnap can interfere with email
+										delivery.<br /> <br /> Please inform all users to not enter
+										their own email into the customer email field under any
+										circumstances.</u> </b>
+
+							</apex:pageBlockSection>
+
+
+
+
+
+							<apex:pageBlockSection collapsible="false" title=""></apex:pageBlockSection>
+
+							<table border="0" width="100%" align="center">
+								<tr align="center">
+									<td align="center"><apex:commandButton action="{!jumpbackFromWebsite}" value="Previous Step" /> <apex:commandButton action="{!jumpToMotoBlast}" value="Next Step" /> <apex:commandButton action="{!cancel}" value="Save & Quit"
+											onclick="return confirmCancel()" immediate="true" /> <apex:commandButton action="{!confirmWebsite}"
+											value="Save - To Confirmation Page"
+											rendered="{!welcome.ReachedWebConfirm__c}" />
+									</td>
+								</tr>
+							</table>
+
+						</apex:pageBlock>
+
+					</apex:form>
+				</div>
+			</td>
+		</tr>
+	</table>
+</apex:page>

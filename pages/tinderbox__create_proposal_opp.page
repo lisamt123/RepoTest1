@@ -1,0 +1,19 @@
+<apex:page standardController="Opportunity">
+    <apex:includeScript value="{!$Resource.tinderbox__TB_scripts}"/>
+    <apex:stylesheet value="{!$Resource.tinderbox__TB_PageStyles}"/>
+    
+    <div id="progressIndicator" class="progressIndicatorStyle">
+        <h1>Loading...</h1>
+        <div style="margin:20px auto;"><apex:image value="{!$Resource.tinderbox__TB_LoadingImage}"/></div>
+    </div>
+
+    <iframe onload="closeProgressIndicator()" frameborder="false" width="100%" height="800px" 
+        src="{!
+            IF(($Setup.tinderbox__TinderBox__c.tinderbox__Use_HTTPS__c), 'https://', 'http://')
+            + $Setup.tinderbox__TinderBox__c.tinderbox__Company_URL__c
+        }/salesforce/new_proposal?ext_opportunity={!Opportunity.Id}&sobject_type=Opportunity&remote_systemtype=sfdc&remote_sessionid={!
+        $Api.Session_ID}&remote_serverurl={!$Api.Partner_Server_URL_190}">
+    </iframe>
+
+
+</apex:page>

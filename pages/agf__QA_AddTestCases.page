@@ -1,0 +1,247 @@
+<apex:page id="page" controller="agf.QA_AddTestCasesController" >
+	<head>
+		<style type="text/css">
+			textarea {
+				border:none;
+				width:120px; 
+				height:15px;
+				background-color:inherit;
+			}
+			input {
+				border:none;
+				width:120px; 
+				height:15px;
+				background-color:inherit;
+			}
+			body {
+				margin-left: 0px;
+				margin-top: 0px;
+				margin-right: 0px;
+				margin-bottom: 0px;
+			}
+			<!--table, tr, td {
+			    border-style:solid;
+			    border-width:1px;
+			    border-color:#C6C3C6;
+			    border-collapse:collapse;
+			    
+			}-->
+			.spreadsheet{
+				border-style:solid;
+			    border-width:1px;
+			    border-color:#C6C3C6;
+			    border-collapse:collapse;
+			}
+			.Header{
+				font-size: 12px;
+				font-weight: bold;
+				font-family: Arial, Helvetica, sans-serif;
+				color: #444444;
+			}
+			.TextField{
+				border:none;
+				background-color:inherit;
+			}
+			.FieldError{
+				border-left-color: #990000;
+				border-left-width: 4px;
+				border-left-style: solid;
+			}
+			.PickList{
+				padding:1px;
+				background-color:inherit;
+				border:none;
+			}
+			.errorText {
+				font-family: Arial, Helvetica, sans-serif;
+				font-size: 11px;
+				font-style: italic;
+				color: #990000;
+			}
+			.bodyText {
+				font-size: 11px;
+				font-family: Arial, Helvetica, sans-serif;
+				color: #444444;
+			}
+			.textBold{
+				font-weight: bold;
+			}
+		</style>
+	</head>
+	
+	{!init}
+	
+	
+	<apex:form id="theForm">
+		<!-- This javascript allows the user to use Shift+Arrow to navigate the spreadsheet
+		Unfortunately though, whenever I add anything to handle the Shift+LeftArrow combo
+		there is some weird parsing error and random jumbled text breaks the for loops. -->
+		<script type="text/javascript">
+		window.onload = removeAutoComplete;
+		var ie = document.all;
+		var curRow = 0; //starting position
+		var ifShiftDown = 0;
+		
+		function removeAutoComplete(){
+			var f = document.getElementById('{!$Component.theForm}');
+			var u = f.elements[0];
+			f.setAttribute('autocomplete', 'off');
+			u.focus(); 
+		}	
+		
+		function handleKeyDown(e){
+			var keyPressed;
+			if(ie){ keyPressed = e.keyCode;
+			}else{ keyPressed = e.which; }
+			if(keyPressed == 16) ifShiftDown = 1;
+		}
+		
+		function handleKeyUp(e,colName){
+			var keyPressed;
+			if(ie){
+				keyPressed = e.keyCode;
+			}else{
+				keyPressed = e.which;
+			}
+			
+			//handle the key press
+			switch(keyPressed){
+			//left arrow
+			case 37:
+				if(ifShiftDown) {
+					//do nothing
+				}
+				break;
+			//right arrow
+			case 39:
+				if(ifShiftDown) {
+					var colNext = '';
+					if (colName == 'Hier') 
+					{
+						colNext = 'BriefDesc';
+					}
+					else if (colName == 'BriefDesc') 
+					{
+						colNext = 'LongDesc';
+					}
+					else if (colName == 'LongDesc') 
+					{
+						colNext = 'EResults';
+					}
+					else if (colName == 'EResults') 
+					{
+						colNext = 'Priority';
+					}
+					else if (colName == 'Priority') 
+					{
+						colNext = 'ExecType';
+					}
+					else if (colName == 'ExecType') 
+					{
+						colNext = 'Related';
+					}
+					var re = new RegExp(curRow+':'+colNext,'g');
+					var el = document.getElementsByTagName('*');
+					for(var i=0;i<el.length;i++){
+						if(el[i].id.match(re)){
+							document.getElementById(el[i].id).focus();
+						}
+					}
+				}
+				break;
+			//up arrow
+			case 38:
+				if(ifShiftDown) {
+					var nextRow = curRow - 1;
+					if (nextRow == -1) {
+						curRow = 0;
+						break;
+					}
+					var re = new RegExp(nextRow+':'+colName,'g');
+					var el = document.getElementsByTagName('*');
+					for(var i=0;i<el.length;i++){
+						if(el[i].id.match(re)){
+							document.getElementById(el[i].id).focus();
+							curRow = nextRow;
+						}
+					}	
+				}
+				break;
+			//tab
+			case 9:
+				//don't really need this case...
+				break;
+			//down arrow or enter
+			case 40:
+				if(ifShiftDown) {
+					var nextRow = curRow + 1;
+					var re = new RegExp(nextRow+':'+colName,'g');
+					var el = document.getElementsByTagName('*');
+					for(var i=0;i<el.length;i++){
+						if(el[i].id.match(re)){
+							document.getElementById(el[i].id).focus();
+							curRow = nextRow;
+						}
+					}	
+				}
+				break;
+			case 16:
+				ifShiftDown = 0;
+				break;
+			}
+		}
+		function handleSelect(e){
+			var field = ie ? e.srcElement : e.target;
+			var id = field.id;
+			var coor = id.split(':');
+			curRow = parseInt(coor[4]);
+		}
+		</script>
+		<apex:pageBlock title="Add Test Cases" mode="detail" id="sheet"><br/>
+		<apex:outputPanel id="messages" style="color:red">         
+                <apex:messages />
+        </apex:outputPanel>
+		To navigate the spreadsheet, hold down SHIFT and press ARROW UP/DOWN to move up and down. To move left and right use SHIFT-TAB/TAB.
+		<apex:pageBlockButtons >
+			<apex:commandButton action="{!addRow}" value="Add 5 Rows" reRender="sheet,messages"/>&nbsp;&nbsp;&nbsp;&nbsp;
+			<apex:commandButton action="{!save}" value="Create Test Cases" reRender="sheet"/>
+			<apex:commandButton action="{!cancel}" id="cancelButton" value="Cancel"/>
+		</apex:pageBlockButtons>
+		<table class="spreadsheet" width="100%">
+			<tr class="Header spreadsheet" style="background-color: #E9E9DA;">
+				<td width="20px">#</td>
+				<td>Hierarchy</td>
+				<td>Brief Description</td>
+				<td>Long Description</td>
+				<td>Expected Results</td>
+				<td width="80px">Priority</td>
+				<td width="100px">Execution Type</td>
+			</tr>
+
+			<apex:repeat value="{!testCases}" var="testCase" id="theRepeat">
+				<tr style="background-color:#F8F8F8;" class="spreadsheet">
+					<td class="bodyText spreadsheet" align="center"><strong>{!testCase.Index}</strong></td>
+					<td class="spreadsheet">
+						<apex:inputField style="width:100%" required="false" styleclass="bodyText" id="Hier" onkeydown="handleKeyDown(event)" onkeyup="handleKeyUp(event,'Hier')" onfocus="handleSelect(event)" value="{!testCase.tc.agf__Hierarchy__c}"/>
+						<apex:outputText rendered="{!testCase.isHierError}" style="color:red" styleclass="bodyText" value="{!testCase.hierError}"/>
+					</td>
+					<td class="spreadsheet">
+						<apex:inputField style="width:100%" required="false" styleclass="bodyText" id="BriefDesc" onkeydown="handleKeyDown(event)" onkeyup="handleKeyUp(event,'BriefDesc')" onfocus="handleSelect(event)" value="{!testCase.tc.agf__Brief_Description__c}"/>
+						<apex:outputText rendered="{!testCase.isDescError}" style="color:red" styleclass="bodyText" value="{!testCase.descError}"/>
+					</td>
+					<td class="spreadsheet"><apex:inputField style="width:100%" styleclass="bodyText" id="LongDesc" onkeydown="handleKeyDown(event)" onkeyup="handleKeyUp(event,'LongDesc')" onfocus="handleSelect(event)" value="{!testCase.tc.agf__Steps_to_Reproduce__c}"/></td>
+					<td class="spreadsheet"><apex:inputField style="width:100%" styleclass="bodyText" id="EResults" onkeydown="handleKeyDown(event)" onkeyup="handleKeyUp(event,'EResults')" onfocus="handleSelect(event)" value="{!testCase.tc.agf__Expected_Results__c}"/></td>
+					<td class="spreadsheet"><apex:inputField style="width:100%" styleclass="bodyText" id="Priority" onkeydown="handleKeyDown(event)" onkeyup="handleKeyUp(event,'Priority')" onfocus="handleSelect(event)" value="{!testCase.tc.agf__Priority__c}"/></td>
+					<td class="spreadsheet">
+						<apex:selectList value="{!testCase.tc.agf__Execution_Type__c}" id="ExecType" onkeydown="handleKeyDown(event)" onkeyup="handleKeyUp(event,'ExecType')" onfocus="handleSelect(event)" multiselect="false" size="1" styleclass="bodyText">
+		                	<apex:selectOptions value="{!execOptions}"/>
+		                </apex:selectList>
+					</td>
+				</tr>
+			</apex:repeat>
+			
+			
+		</table>
+		</apex:pageBlock>
+	</apex:form>
+</apex:page>

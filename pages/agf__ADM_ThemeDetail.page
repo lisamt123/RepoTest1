@@ -1,0 +1,51 @@
+<apex:page standardController="agf__ADM_Theme__c" showHeader="true" sidebar="true" title="{!agf__ADM_Theme__c.Name}" >
+<apex:styleSheet value="{!$Resource.agf__ADM_common_css}" />
+<apex:includeScript value="{!$Resource.agf__jquery_1_8_3_min}" />
+<apex:includeScript value="{!$Resource.agf__ADM_common_js}" />
+
+
+<div class="bPageTitle">
+    <div class="ptBody">
+        <div class="content">
+            <img src="{!$Resource.icon_story}" alt="Theme" class="pageTitleIcon" title="Theme" />
+            <h1 class="pageType"><a href="/{!$ObjectType.ADM_Theme__c.keyPrefix}/o">All Themes</a> &gt;</h1>
+            <h2 class="pageDescription"> {!agf__ADM_Theme__c.Name}</h2>
+            <div class="blank">&nbsp;</div>
+        </div>
+    </div>
+    <div class="ptBreadcrumb"></div>
+</div>
+
+    
+            <div class="gusFieldset gusFieldsetForm">
+                <div class="gusLegend">Theme Detail</div>
+                
+                <div class="gusFormToolbar gusFormToolbarTop">
+                  <apex:outputPanel layout="none">
+                    <input type="button" class="editButton" onClick="checkAndNavigateToURL('/{!ADM_Theme__c.Id}/e?retURL={!ADM_Theme__c.Id}');" value="Edit" />
+                    <input type="button" class="editButton" onClick="checkAndNavigateToURL('/apex/ADM_ThemeAggregatorPage?id={!ADM_Theme__c.Id}&retURL=%2Fapex%2FADM_ThemeDetail%3Fid%3D{!ADM_Theme__c.Id}');" value="Add Work To Theme" />
+                  </apex:outputPanel> 
+                </div>
+                
+                <apex:form >
+                    <div class="gusForm" style="width:100%;">
+                        <div class="gusForm2Column">
+                            <c:ADM_FormRow object="{!agf__ADM_Theme__c}" type="ADM_Theme__c" readonly="true" required="true"  field="Name" />
+                            <c:ADM_FormRow object="{!agf__ADM_Theme__c}" type="ADM_Theme__c" readonly="true" required="false" field="Description__c" value="{!agf__ADM_Theme__c.agf__Description__c}" />
+                        </div>
+                        <div class="gusForm2Column">
+                            <c:ADM_FormRow object="{!agf__ADM_Theme__c}" type="ADM_Theme__c" readonly="true" required="false" field="Active__c" value="{!agf__ADM_Theme__c.agf__Active__c}" />
+                            <div class="gusFormRow">
+                                <div class="gusFormField"><label>Created By</label></div>
+                                <div class="gusFormField"><a href="/{!agf__ADM_Theme__c.CreatedById}">{!agf__ADM_Theme__c.CreatedBy.Name}</a>,<span> </span><apex:outputField value=" {!agf__ADM_Theme__c.CreatedDate}" /></div>
+                            </div>
+                            <div class="gusFormRow">
+                                <div class="gusFormField"><label>Last Modified By</label></div>
+                                <div class="gusFormField"><a href="/{!agf__ADM_Theme__c.LastModifiedById}">{!agf__ADM_Theme__c.LastModifiedBy.Name}</a>,<span> </span><apex:outputField value=" {!agf__ADM_Theme__c.LastModifiedDate}" /></div>
+                            </div>
+                        </div>
+                    </div>
+                </apex:form>
+            </div>
+    		<c:ADM_ThemeAssignWorkListView theme="{!agf__ADM_Theme__c}" label="Assigned Work" pageSize="100" massSelect="false"/>    
+</apex:page>

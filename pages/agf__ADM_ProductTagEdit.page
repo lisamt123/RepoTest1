@@ -1,0 +1,59 @@
+<apex:page standardController="agf__ADM_Product_Tag__c" extensions="agf.ADM_ProductTagController" >
+
+    <apex:form id="formEdit">   
+        
+        <apex:pageMessages id="pm" escape="false" />            
+        <apex:pageBlock id="pageBlockEdit" title="Product Tag Edit">   
+            <apex:pageBlockButtons >                
+                <apex:commandButton action="{!saveTag}" styleClass="saveButtonClass" value="Save" onClick="return confirmChanges();"/>
+                <apex:commandButton value="Cancel" action="{!cancel}" />
+            </apex:pageBlockButtons>
+                
+            <!--  Product Tag -->
+            <apex:pageBlockSection title="Information" id="pageBlockSectionInformation" columns="2" showHeader="true">
+                <apex:inputField id="TagName" styleClass="tagNameClass" value="{!tag.Name}" required="true" />
+                
+                
+                <apex:inputField id="TeamName" styleClass="teamNameClass"  value="{!tag.agf__Team__c}" required="true" />
+                
+                <apex:inputField id="description" styleClass="teamNameClass"  value="{!tag.agf__Description__c}"  />
+                
+            </apex:pageBlockSection>            
+        </apex:pageBlock>       
+    </apex:form>    
+
+    <script>
+        var originalTagName = '{!JSINHTMLENCODE(tag.Name)}';
+        var originalTeamName = '{!JSINHTMLENCODE(tag.Team__r.Name)}';
+        var numberWorkRecordsWithProductTag = {!numberWorkRecordsWithProductTag};
+        var numberMessagePart = '';
+        if (numberWorkRecordsWithProductTag == 1) {
+            numberMessagePart = '1 Work record';
+        } else if (numberWorkRecordsWithProductTag > 100) {
+            numberMessagePart = 'over 100 Work records';
+        } else {
+            numberMessagePart = numberWorkRecordsWithProductTag + ' Work records';
+        }
+    
+        function confirmChanges() {
+            var currentTeamName = document.getElementById('{!$Component.formEdit.pageBlockEdit.pageBlockSectionInformation.TeamName}').value;
+            
+            var currentTagName = document.getElementById('{!$Component.formEdit.pageBlockEdit.pageBlockSectionInformation.TagName}').value;
+            
+            if(currentTeamName != originalTeamName && numberWorkRecordsWithProductTag > 0){
+                return confirm('New Work records created with this tag will now be assigned to the ' + currentTeamName + ' team.  This tag is currently used on ' + numberMessagePart + ' which will remain with the ' + originalTeamName + ' team and can be updated via an enhanced list view if required.');
+            } else {
+                var currentTagName = document.getElementById('{!$Component.formEdit.pageBlockEdit.pageBlockSectionInformation.TagName}').value;
+                if (numberWorkRecordsWithProductTag > 0 && originalTagName !== currentTagName) {
+                    return confirm('Whoa, this Product Tag is currently used on ' + numberMessagePart +
+                        '. Are you sure the new name, "' + currentTagName + '," is applicable to all of these records?');
+                } else {
+                    return true;
+                }
+            }
+        }
+    
+        
+    </script>
+
+</apex:page>

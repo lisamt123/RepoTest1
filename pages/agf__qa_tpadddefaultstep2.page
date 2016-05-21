@@ -1,0 +1,145 @@
+<apex:page controller="agf.QA_TPAddDefault">
+<style type="text/css">
+    .redBarContainer {
+        position: relative;
+        height: 100%;
+    }
+    .redBar {
+        background-color: #C00;
+        position: absolute;
+        left: -4px;
+        width: 3px;
+        top: 1px;
+        bottom: 1px;
+    }   
+    .dropDownWidth {
+        width:162px;
+    }
+    .hidden {
+        display:none;
+    }
+    .errorMessage {
+        color:#D74C3B;
+        font-family:Arial,Helvetica,sans-serif;
+    }
+    .errorDropDown {
+        border:2px solid #CC0000;
+    }
+    .tableBorder {
+        border:1px solid #C6C3C6;
+        border-collapse:collapse;
+    }
+    .bodyFontPadding {
+        padding:3px;
+        font-size:11px;
+        font-family:Arial,Helvetica,sans-serif;
+    }
+    .tableHeader {
+        background-color:#E3F3FF;
+        padding:3px;
+    }
+</style>
+
+<apex:form >
+<apex:sectionHeader title="Add Default Test Cases"></apex:sectionHeader>
+<apex:pageBlock title="Step 2 of 2: Create Test Executions">    
+    <apex:outputPanel id="TETable">
+    <table width="100%">
+        <tr>
+            <td width="100px"><strong>User Story</strong></td>
+            <td>
+                <apex:outputPanel layout="block" styleClass="redBarContainer">
+                    <apex:outputPanel layout="block" styleClass="redBar"/>
+                    <apex:selectList id="userStorySelect" value="{!testExec.agf__User_Story__c}" multiselect="false" size="1" styleClass="dropDownWidth">
+                        <apex:selectOptions value="{!userStoryOptions}"/>
+                        
+                        <script type="text/javascript">
+                            function handleUserStoryError() {
+                                var selected = document.getElementById('{!$Component.userStorySelect}').value;
+                                if(selected == "") {
+                                    document.getElementById('{!$Component.userStorySelect}').className = "dropDownWidth errorDropDown";
+                                    document.getElementById('{!$Component.error}').className = "errorMessage";
+                                }
+                                else {
+                                    document.getElementById('{!$Component.userStorySelect}').className = "dropDownWidth";
+                                    document.getElementById('{!$Component.error}').className = "errorMessage hidden";
+                                }
+                            }
+                        </script>
+                        
+                    </apex:selectList>
+                    <br/>
+                    <apex:outputPanel id="error" styleClass="errorMessage hidden"><strong>Error:</strong> You must enter a value</apex:outputPanel>
+                </apex:outputPanel>
+            </td>
+        </tr>
+        
+        <tr>
+            <td><strong>Type</strong></td>
+            <td><apex:outputPanel id="type"><apex:inputField id="typeField" value="{!testExec.agf__Type__c}" required="true" styleClass="dropDownWidth"/></apex:outputPanel></td>
+        </tr>
+        
+        <tr>
+            <td><strong>Assignee</strong></td>
+            <td><apex:outputPanel id="assignee"><apex:inputField id="assigneeField" value="{!testExec.agf__Assignee__c}" required="true"/></apex:outputPanel></td>
+        </tr>
+    </table>
+    </apex:outputPanel>
+    
+    <p/>
+    <apex:outputPanel id="showTC"><a href="#" onclick="toggleTCTableDisplay()">Show Test Cases</a></apex:outputPanel>
+    <apex:outputPanel id="hideTC" styleClass="hidden"><a href="#" onclick="toggleTCTableDisplay()">Hide Test Cases</a></apex:outputPanel>
+    <p/>
+    <script type="text/javascript">
+        var visible = false;
+        function toggleTCTableDisplay() {
+            if(!visible) {
+                document.getElementById('{!$Component.showTC}').className = "hidden";
+                document.getElementById('{!$Component.hideTC}').className = "";
+                document.getElementById('{!$Component.TCTable}').className = "tableBorder";
+            }
+            else {
+                document.getElementById('{!$Component.showTC}').className = "";
+                document.getElementById('{!$Component.hideTC}').className = "hidden";
+                document.getElementById('{!$Component.TCTable}').className = "tableBorder hidden";
+            }
+            visible = !visible;
+        }
+    </script>
+    
+    <apex:dataTable id="TCTable" value="{!selectedTCs}" var="testCase" width="100%" styleClass="tableBorder hidden" rules="all" headerClass="tableHeader">
+        <apex:column width="25%" styleClass="bodyFontPadding">
+            <apex:facet name="header">Hierarchy</apex:facet>
+            <apex:outputField style="width:100%" value="{!testCase.agf__Hierarchy__c}"/>
+        </apex:column>
+        <apex:column width="25%" styleClass="bodyFontPadding">
+            <apex:facet name="header">Brief Description</apex:facet>
+            <apex:outputField style="width:100%" value="{!testCase.agf__Brief_Description__c}"/>
+        </apex:column>
+        <apex:column width="25%" styleClass="bodyFontPadding">
+            <apex:facet name="header">Long Description</apex:facet>
+            <apex:outputField style="width:100%" value="{!testCase.agf__Steps_to_Reproduce__c}"/>
+        </apex:column>
+        <apex:column width="25%" styleClass="bodyFontPadding">
+            <apex:facet name="header">Expected Results</apex:facet>
+            <apex:outputField style="width:100%"  value="{!testCase.agf__Expected_Results__c}"/>
+        </apex:column>
+        <apex:column styleClass="bodyFontPadding">
+            <apex:facet name="header">Priority</apex:facet>
+            <apex:outputField value="{!testCase.agf__Priority__c}"/>
+        </apex:column>
+        <apex:column styleClass="bodyFontPadding">
+            <apex:facet name="header">Execution Type</apex:facet>
+            <apex:outputField value="{!testCase.agf__Execution_Type__c}"/>
+        </apex:column>
+    </apex:dataTable>
+    
+    <p/>
+    <apex:outputPanel id="buttons">
+        <apex:commandButton value="Previous" action="{!step1}" immediate="true"/>&nbsp;
+        <apex:commandButton value="Save Test Cases and Executions" action="{!save}" oncomplete="handleUserStoryError()" rerender="type,assignee,messages"/>&nbsp;
+        <apex:commandButton value="Cancel" action="{!cancel}" immediate="true"/>
+    </apex:outputPanel>
+</apex:pageBlock>
+</apex:form>
+</apex:page>

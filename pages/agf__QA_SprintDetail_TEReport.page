@@ -1,0 +1,55 @@
+<apex:page standardController="agf__ADM_Sprint__c" extensions="agf.QA_TEReportExtension" showHeader="false" sidebar="false">
+
+
+    <script type="text/javascript" language="javascript">
+	    function resizeIFrame() {
+
+		    var parentIFrame = parent.document.getElementById(window.name);
+
+
+		    if(parentIFrame != null) {
+		        if(document.height != null && document.height > 0) {
+		            parentIFrame.style.height = document.height+"px";
+		        } else {
+		            parentIFrame.style.height = document.body.clientHeight;
+		        }
+		    }
+		}
+    </script>
+    <apex:pageBlock >
+        <table id="teReportTable" class="detailList" cellspacing="0" cellpadding="0" border="0">
+            <tr>
+                <td colspan="2" width="100%">
+                    <div style="float:right; padding-right:20px;">
+                        <c:helpHover id="teReportHelp" body="The Test Execution Report indicates the total number of all Test Executions associated with stories in the sprint, with a breakdown by status." type="help"/>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td class="labelCol" width="50%">In Progress : %</td>
+                <td class="dataCol col02">{!inProgress}</td>
+            </tr>
+            <tr>
+                <td class="labelCol">Passed : %</td>
+                <td class="dataCol col02">{!passed}</td>
+            </tr>
+            <tr>
+                <td class="labelCol">Failed : %</td>
+                <td class="dataCol col02">{!failed}</td>
+            </tr>
+            <tr>
+                <td class="labelCol">Blocked : %</td>
+                <td class="dataCol col02">{!blocked}</td>
+            </tr>
+            <tr>
+                <td class="labelCol">Planned : %</td>
+                <td class="dataCol col02">{!planned}</td>
+            </tr>
+            <tr>
+                <td class="labelCol last">Total</td>
+                <td class="dataCol col02 last">{!total}</td>
+            </tr>
+        </table>
+    </apex:pageBlock>
+    <script>resizeIFrame();</script>
+</apex:page>

@@ -1,0 +1,159 @@
+<apex:page >
+<script>
+
+
+/* 
+ * Copyright © The TAS Group. All rights reserved.
+ *  
+ */    
+
+
+var ttg_note_editor = (function(_spec) {
+
+	var that = { };
+	
+	var id = _spec.id || 'NOTEDIALOG';
+	var changed = _spec.changed || function() { };
+	var noteText = _spec.noteText || '';
+	var tip = _spec.tip || '';
+	var readonly = _spec.readonly;
+	var title = _spec.title || '';
+	var maxlength = _spec.maxlength || 32768;
+	var subtitle = _spec.subtitle || '';
+		
+	function createDialogHTML() {
+	
+		jQuery('#TAS').append(
+			 jQuery('<div>').css('display', 'none').attr('id', id
+			).append(
+				jQuery('<TEXTAREA>').attr('id', 'NOTEEDITOR')
+			).append(
+				jQuery('<span>').attr('id', 'NOTE_SUBTITLE')
+			).append(
+				jQuery('<span>').attr('id', 'NOTE_HELP')
+			).append(
+				jQuery('<input>').attr('id', 'NOTEEDITOR_ID').attr('type', 'hidden').attr('maxlength', maxlength).limitMaxlength({})
+			)
+		);
+	}
+	
+	function close() {
+
+		jQuery('#'+id).remove();
+	
+	}
+	
+	function setupNoteDialog() {
+	
+		createDialogHTML();
+		
+		if (readonly) {
+			
+	
+			jQuery('#' + id).dialog({ modal: true, width: "640px", resizable: false, autoOpen: false, close: close, buttons: {'Cancel': function() { jQuery(this).dialog("close"); } }  });
+			jQuery('#NOTEEDITOR').attr('disabled', 'true');
+	
+		}
+		else {
+	
+			jQuery('#' + id).dialog({ modal: true, width: "640px", resizable: false, autoOpen: false, close: close, buttons: { 'Save': function() { noteOk(jQuery(this)); }, 'Cancel': function() { jQuery(this).dialog("close"); }  }  });
+	
+		}
+	
+	}
+
+	function openNoteDialog() {
+
+    	jQuery('#NOTEEDITOR').val(noteText);
+
+    	jQuery('#NOTEEDITOR_ID').val(id);
+
+    	jQuery('#' + id).dialog('option', 'title', title);              
+
+    	jQuery('#NOTE_SUBTITLE').html(htmlescape(subtitle))
+    	
+    	jQuery('#NOTE_HELP').html(htmlescape(tip))
+
+    	jQuery('#' + id).dialog('open');
+
+    	jQuery(".ui-widget-overlay").click(function(){ jQuery(".ui-dialog-titlebar-close").trigger('click');});
+
+	}
+
+	function noteOk(ctrl) {
+
+	    var value = jQuery('#NOTEEDITOR').val();
+    
+	    changed(id, value);
+    
+	    jQuery('#' + id).dialog("close");
+
+	}
+
+	function htmlescape(v) {
+	    if (v != undefined) {
+    
+	        var items = v.split('\n');
+	        var html = ''
+
+		    jQuery.each(items,
+		     	function (index, item) {
+		             if (html != '') html += '<br/>';
+		             html += jQuery('<div/>').text(item).html(); 
+		     	}
+		     )
+	
+	        return html;
+	    }
+	}
+	
+	function setNoteText(ctrl, v) {
+
+	    if (v != undefined) {
+    
+	        var html = htmlescape(v);
+
+	        ctrl.html(html);
+	        
+	        if (html != '') {
+	            ctrl.css('display', 'block');
+	        }
+	        else {
+	            ctrl.css('display', 'none');
+	        }
+
+	    }
+
+	}
+
+	function getNoteText(ctrl) {
+	    var html = ctrl.html()
+	
+	    html = html.replace(/<br>/gi, '\n');
+	
+	    var items = html.split('\n');
+	    var text = ''
+	    
+	    jQuery.each(items,
+	    	function (index, item) {
+	         if (text != '') text += '\n';
+	         text += jQuery('<div/>').html(item).text(); 
+	    	}
+	    )
+	
+	    return text;
+	}
+	
+    that.setupNoteDialog = setupNoteDialog;
+    that.openNoteDialog = openNoteDialog;
+    that.setNoteText = setNoteText;
+    that.getNoteText = getNoteText;
+    that.htmlescape = htmlescape;
+            
+    return that;
+	
+});
+
+
+</script>
+</apex:page>

@@ -1,0 +1,23 @@
+<apex:page controller="pdfInvoiceSave">
+	<apex:sectionHeader title="Save Generated Invoice as PDF to Opportunity and My Documents Folder"
+		subtitle="Attach Generated Invoice" description="" />
+
+	<apex:form >
+		<apex:pageBlock title="Generated Invoice">
+
+			<apex:pageBlockButtons >
+				<apex:commandButton action="{!savePdf}" value="Save PDF" />
+			</apex:pageBlockButtons>
+			<apex:pageMessages />
+
+			<apex:pageBlockSection >
+
+				<apex:pageBlockSectionItem >
+					<apex:outputLabel value="File Name:" for="pdfName" />
+					<apex:outputLabel value="Invoice-{!opp.VS_ID__c}-{!opp.Account.Name}-{!NOW()}"
+						id="pdfName" />
+				</apex:pageBlockSectionItem>
+			</apex:pageBlockSection>
+		</apex:pageBlock>
+	</apex:form>
+</apex:page>

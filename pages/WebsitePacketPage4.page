@@ -1,0 +1,117 @@
+<apex:page controller="WebsitePacket" showHeader="false">
+
+	<head>
+<apex:stylesheet value="{!$Resource.styles}"></apex:stylesheet>
+<apex:includeScript value="{!$Resource.jQuery}"></apex:includeScript>
+	</head>
+
+	<script type="text/javascript">
+function confirmCancel()
+{
+    var isCancel = confirm("Are you sure you wish to quit?");
+    return isCancel;
+}
+
+
+
+</script>
+
+	<table border="0" width="100%" height="100%" id="bg">
+		<tr valign="top">
+			<td>
+				<div class="maincontainer">
+					<apex:image id="key1" width="100%"
+						value="/resource/1265230873000/Header" />
+
+					<apex:sectionHeader title="VinSolutions" subtitle="Website Packet" />
+
+					<apex:form >
+						<apex:pageBlock id="pb1" title="WEBSITE SET UP FORM">
+
+							<table border="0" width="100%" align="center">
+								<tr align="center">
+									<td align="center"><apex:commandButton action="{!goback}"
+											value="Previous Step" /> <apex:commandButton action="{!complete}" value="Next Step" /> <apex:commandButton action="{!cancel}" value="Save & Quit"
+											onclick="return confirmCancel()" immediate="true" />
+									</td>
+								</tr>
+							</table>
+
+
+
+
+							<apex:pageBlockSection collapsible="false"
+								title="Basic Preferences" columns="1">
+								<apex:inputField value="{!welcome.Color_Preferences__c}" />
+
+
+							</apex:pageBlockSection>
+
+							<apex:pageBlockSection collapsible="false"
+								title="Dealer Contact Info" columns="2">
+								<apex:inputField value="{!welcome.Sales_Phone__c}" />
+								<apex:inputField value="{!welcome.Internet_Sales_Phone__c}" />
+								<apex:inputField value="{!welcome.Parts_Phone__c}" />
+								<apex:inputField value="{!welcome.Service_Phone__c}" />
+								<apex:inputField value="{!welcome.Body_Shop_Phone__c}" />
+								<apex:inputField value="{!welcome.Other_Phone__c}" />
+
+								<apex:inputField value="{!welcome.Physical_Address__c}" />
+
+							</apex:pageBlockSection>
+
+							<apex:pageBlockSection collapsible="false" title="Dealer Hours"
+								columns="2">
+								<apex:inputField value="{!welcome.Sales_Hours__c}" />
+								<apex:inputField value="{!welcome.Parts_Service_Hours__c}" />
+							</apex:pageBlockSection>
+
+							<apex:pageBlockSection collapsible="false"
+								title="Social Network URLs" columns="1">
+								<apex:inputField value="{!welcome.Facebook_URL__c}" />
+								<apex:inputField value="{!welcome.YouTube_Channel_URL__c}" />
+								<apex:inputField value="{!welcome.Blogger_URL__c}" />
+								<apex:inputField value="{!welcome.Myspace_URL__c}" />
+								<apex:inputField value="{!welcome.Ning_URL__c}" />
+								<apex:inputField value="{!welcome.Twitter_URL__c}" />
+
+								<apex:inputField value="{!welcome.Live_Chat__c}" />
+
+							</apex:pageBlockSection>
+
+							<apex:pageBlockSection collapsible="false"
+								title="Would you like to Upload Graphics/Content Next?"
+								columns="1">
+								<apex:inputField value="{!welcome.Check_To_Upload_Graphics_Custom_Content__c}" />
+								<apex:inputField value="{!welcome.Comments_on_Header_Layout__c}" />
+								<table width="100%" align="center">
+									<tr align="center">
+										<td align="center"><small>(click next to
+												continue)</small>
+										</td>
+									</tr>
+								</table>
+							</apex:pageBlockSection>
+
+
+
+
+							<apex:pageBlockSection collapsible="false" title=""></apex:pageBlockSection>
+
+							<table border="0" width="100%" align="center">
+								<tr align="center">
+									<td align="center"><apex:commandButton action="{!goBack}"
+											value="Previous Step" /> <apex:commandButton action="{!complete}" value="Next Step" /> <apex:commandButton action="{!cancel}" value="Save & Quit"
+											onclick="return confirmCancel()" immediate="true" />
+									</td>
+								</tr>
+							</table>
+
+						</apex:pageBlock>
+
+					</apex:form>
+				</div>
+			</td>
+		</tr>
+	</table>
+</apex:page>

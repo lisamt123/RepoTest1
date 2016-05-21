@@ -1,0 +1,19 @@
+<apex:page sidebar="false" showHeader="false" standardStylesheets="true" title="Geopointe - Chatter Feed">
+	
+	<body style="homeTab">
+		
+		<apex:outputPanel rendered="{!NOT(ISNULL($CurrentPage.parameters.Id)) && NOT(ISNULL($CurrentPage.parameters.Name))}">
+			<apex:sectionHeader title="Chatter Feed" subtitle="{!$CurrentPage.parameters.Name}" />
+			<div style="margin: 20px; font-size: 90%;">
+				<chatter:feedWithFollowers showHeader="false" entityId="{!$CurrentPage.parameters.Id}"/>
+			</div>
+		</apex:outputPanel>
+		
+		<apex:outputPanel rendered="{!ISNULL($CurrentPage.parameters.Id) || ISNULL($CurrentPage.parameters.Name)}">
+				<apex:pageMessage severity="error" strength="2" title="Record ID and Name are required to be passed into this page's URL.">
+			</apex:pageMessage>
+		</apex:outputPanel>
+		
+	</body>
+
+</apex:page>

@@ -1,0 +1,74 @@
+<apex:page id="jQuery">
+	<style>
+		@import url("{!URLFOR($Resource.jQueryUI,	'css/custom-theme/jquery-ui-1.8.21.custom.css')}");
+		@import url("{!URLFOR($Resource.jQueryUI, 'js/jquery.jqGrid-4.5.4/css/ui.jqgrid.css')}") screen;
+    	@import url("{!URLFOR($Resource.jQueryUI, 'js/jquery-dropdown/jquery.dropdown.css')}");
+
+	    .dropdown-relative {
+	        margin-left: -69px !important;
+	    }
+	
+	    .dropdown .dropdown-menu,
+	    .dropdown .dropdown-panel {
+	        min-width: 90px !important;
+	    }
+	</style>
+
+    <script type="text/javascript" src="{!URLFOR($Resource.jQueryUI, 'js/jquery-1.7.2.min.js')}"></script>
+    <script type="text/javascript" src="{!URLFOR($Resource.jQueryUI, 'js/jquery-dropdown/jquery.dropdown.js')}"></script>
+    <script type="text/javascript" src="{!URLFOR($Resource.jQueryUI, 'js/jquery-ui-1.8.21.custom.min.js')}"></script>
+    <script type="text/javascript" src="{!URLFOR($Resource.jQueryUI, 'js/jquery.tools.min.js')}"></script>
+    <script type="text/javascript" src="{!URLFOR($Resource.jQueryUI, 'js/jquery.validate.min.js')}"></script>
+    <script type="text/javascript" src="{!URLFOR($Resource.jQueryUI, 'js/additional-methods.min.js')}"></script>
+    <script type="text/javascript" src="{!URLFOR($Resource.jQueryUI, 'js/jquery.paging.min.js')}"></script>
+    <script type="text/javascript" src="{!URLFOR($Resource.jQueryUI, 'js/jquery.jqGrid-4.5.4/js/jquery.jqGrid.src.js')}"></script>
+    <script type="text/javascript" src="{!URLFOR($Resource.jQueryUI, 'js/jquery.jqGrid-4.5.4/js/i18n/grid.locale-en.js')}"></script>
+    <script>
+    
+	// http://that-matt.com/2010/04/updated-textarea-maxlength-with-jquery-plugin/
+	jQuery.fn.limitMaxlength = function(options){
+	 
+	    var settings = jQuery.extend({
+	        attribute: "maxlength",
+	        onLimit: function(){},
+	        onEdit: function(){}
+	    }, options);
+	 
+	    // Event handler to limit the textarea
+	    var onEdit = function(){
+	        var textarea = jQuery(this);
+	        var maxlength = parseInt(textarea.attr(settings.attribute));
+	 
+	        if(textarea.val().length > maxlength){
+	            textarea.val(textarea.val().substr(0, maxlength));
+	 
+	            // Call the onlimit handler within the scope of the textarea
+	            jQuery.proxy(settings.onLimit, this)();
+	        }
+	 
+	        // Call the onEdit handler within the scope of the textarea
+	        jQuery.proxy(settings.onEdit, this)(maxlength - textarea.val().length);
+	    }
+	 
+	    this.each(onEdit);
+	 
+	    return this.keyup(onEdit)
+	                .keydown(onEdit)
+	                .focus(onEdit)
+	                .live('input paste', onEdit);
+	}    
+    
+	jQuery.fn.addBack = jQuery.fn.addBack || function (selector) {
+	     return this.add(selector == null ? 
+	      this.prevObject : this.prevObject.filter(selector));
+	}
+
+    
+    var $j = jQuery.noConflict();
+        
+    $j.ajaxSetup({
+        jsonp: null,
+        jsonpCallback: null
+    });
+    </script>
+</apex:page>

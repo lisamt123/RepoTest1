@@ -1,0 +1,5064 @@
+<!--  
+	The DebugController look incongruous because it is
+	
+	Ideally we would house any non page specific RemoteActions in an API specific controller
+	however we are introducing this in a patch which means that we cant add a new class
+	and hence we have to add it to an existing controller. The debug controller 
+	is the only one that is record type agnostic so should be fine on any page  
+--> 
+<apex:page >
+
+<apex:includeScript value="{!URLFOR($Resource.DMAPP__ttgomjs, 'ttg/lib/json2.js')}"/>
+<apex:includeScript value="{!URLFOR($Resource.DMAPP__ttgomjs, 'ttg/lib/visualforce_error_handler.js')}"/> 
+
+<script>
+
+/* 
+ * Copyright � The TAS Group. All rights reserved.
+ *  
+ */    
+var ttg = ttg || {};
+ttg.apiLayer = ttg.apiLayer || {};
+ 
+
+if ('undefined' !== typeof Visualforce && 'undefined' !== typeof Visualforce.remoting) { 
+    Visualforce.remoting.timeout=120000;
+}
+
+
+if ('undefined' !== typeof _Visualforce && 'undefined' !== typeof _Visualforce.Ajax) {
+   _Visualforce.Ajax.timeout=120000;
+}
+
+
+
+// Set the AJAX time also to 120 secs.  See: DMPS-383  
+jQuery.ajaxSetup({
+    timeout: 120000
+});
+
+
+ttg.getController= function(methodName) {
+
+	var overrides = {
+		'DMAPP.APIDelegateController.loadOMOrgChart' 		: 'DMAPP.OMStandardController.loadOMOrgChart',
+		'DMAPP.APIDelegateController.getAssessment' 		: 'DMAPP.AssessmentController.getAssessment',
+		'DMAPP.APIDelegateController.putAssessment' 		: 'DMAPP.AssessmentController.putAssessment',
+		'DMAPP.APIDelegateController.getQualification' 		: 'DMAPP.OMStandardController.getQualification',
+		'DMAPP.APIDelegateController.putQualification' 		: 'DMAPP.OMStandardController.putQualification',
+		'DMAPP.APIDelegateController.getValueMap' 			: 'DMAPP.ValueMapController.getValueMap',
+		'DMAPP.APIDelegateController.getSegmentation' 		: 'DMAPP.ValueMapController.getSegmentation',
+		'DMAPP.APIDelegateController.getPlanDetails' 		: 'DMAPP.TAMStandardController.getPlanDetails',
+		'DMAPP.APIDelegateController.getJSR' 				: 'DMAPP.TAMStandardController.getJSR', 
+		'DMAPP.APIDelegateController.getOpportunityMapUnitSolution' 			: 'DMAPP.TAMStandardController.getOpportunityMapUnitSolution',
+		'DMAPP.APIDelegateController.getOpportunityMapUnitSolutionOpp' 			: 'DMAPP.TAMStandardController.getOpportunityMapUnitSolutionOpp',
+		'DMAPP.APIDelegateController.getOpportunityMapUnitSolutionCompetitor' 	: 'DMAPP.TAMStandardController.getOpportunityMapUnitSolutionCompetitor',
+		'DMAPP.APIDelegateController.getOpportunityMap' 						: 'DMAPP.TAMStandardController.getOpportunityMap',
+		'DMAPP.APIDelegateController.query' 				: 'DMAPP.TAMStandardController.query' 		
+	}
+	
+	return ( ttg.use_api_delegate_contrroller ? methodName : overrides[methodName] || methodName );
+	
+
+}
+
+
+ttgInvoker = (function() {
+
+	var outstandingCount = 0;
+	var totalCount = 0;
+		
+	function invokeVFR() {
+		
+		if (null === arguments || 0 === arguments.length) {
+			throw 'Cannot invoke remote action without arguments'
+		}
+
+		var args=[];
+		
+		var cb = null;
+
+		for (var idx = 0 ; idx < arguments.length ; idx++) {
+			if (typeof arguments[idx] == 'function') {
+
+				var fn = arguments[idx];
+	
+				cb = cb || fn;
+
+				args.push( function() { try { fn.apply(this, arguments) }  finally { outstandingCount -= 1 } } );
+
+			} else {
+				args.push(arguments[idx]);
+			}
+		}
+		
+				
+		if (ttg.pre_fetch && ttg.pre_fetch[arguments[0]]) {		
+			var tmpRet = ttg.pre_fetch[arguments[0]];
+			eval('tmpRet = ' + tmpRet);
+			delete ttg.pre_fetch[arguments[0]];	
+			cb.apply(this,[tmpRet, {}]); 
+		} else {			
+			outstandingCount += 1;
+			totalCount += 1;
+			Visualforce.remoting.Manager.invokeAction.apply(Visualforce.remoting.Manager, args);
+		}
+	}
+
+	
+	function getTotalCount() { return totalCount; }
+	
+	function getOutstandingCount() { return outstandingCount; }
+	
+	return {
+		invokeVFR 				: 	invokeVFR,
+		getOutstandingCount	: 	getOutstandingCount,
+		getTotalCount 		: 	getTotalCount		
+	}
+	
+})()
+
+
+
+
+
+        
+ttg.apiLayer.sfdcDelegate = function(spec) {
+    
+
+    var delegateSpec = spec;
+
+	var apiVersion = '25.0'; // Not used everywhere yet
+
+    searchHelper = function() {
+        
+        var entities = {
+            contact :   {
+                interesting_fields  : [ "firstname", "lastname", "title", "account", "accountid", "owner"],
+                result_columns      : [ 
+                    "id", "firstname", "lastname", "title", "account.name", "account.id", 
+                    "owner.name" , "reportsto.id", "reportsto.name", "department"
+                ]
+            }
+        }
+
+                
+        function getSearchDetails(entity) {
+            if (!entities[entity.toLowerCase()]) {      
+                throw 'Unsupported entity ';
+            }
+            return entities[entity.toLowerCase()];
+        }
+        
+        
+        function includeField(entity, fld) {            
+            var details = getSearchDetails(entity);                     
+            return details.interesting_fields.ttg_find(function(f) { return f.toLowerCase() == fld.name.toLowerCase() })                
+        }
+        
+        
+        function getResultColumns(entity) {
+            if (!entities[entity.toLowerCase()]) {      
+                throw 'Unsupported entity ';
+            }
+            
+            return entities[entity.toLowerCase()].result_columns                
+        }
+        
+        
+        function getSelectList(entity) {            
+            return  getResultColumns(entity).join();                        
+        }
+        
+        
+        return {
+            includeField        :   includeField,
+            getResultColumns    :   getResultColumns,
+            getSelectList       :   getSelectList
+        }
+    }
+
+
+    adapter = (function() {
+
+        function adaptLoadOrgChart(data) {
+            
+            var adapted = {
+                "org_charts": {
+                    "org_chart": null
+                }
+            };
+            
+            adapted.org_charts.org_chart = data;
+            
+            var reporting_edges = adapted.org_charts.org_chart.reportingedges.edge;
+            var influence_edges = adapted.org_charts.org_chart.influenceedges.edge;
+            
+            jQuery.each(jQuery.makeArray(reporting_edges), function (idx,e) {
+                e.from = e.fromc;
+            });
+            
+            jQuery.each(jQuery.makeArray(influence_edges), function (idx,e) {
+                e.from = e.fromc;
+            });
+                                    
+            return adapted;         
+        };
+        
+        
+        function adaptAddOrgChartContact(data, oldOrgChartContacts) {
+        
+            var adapted = {
+                links : {
+                    link : []
+                }
+            };
+            
+            var contactInfo = {};
+            
+            jQuery.each(oldOrgChartContacts, function(idx,c) {
+                contactInfo[c.Id] = { reportstoid: c.reportstoid, reportstoname: c.reportstoname, department: c.Department };
+            });
+            
+            jQuery.each(data.contacts, function(idx,c) {
+            	var info = contactInfo[c.contactid];
+            	if(info) {
+            		adapted.links.link.push({ id : c.orgchartcontactid, accountUnitId: c.accountUnitId, reportstoid: info.reportstoid , reportstoname: info.reportstoname, department: info.department, contactTasks: c.contactTasks || [] });
+            	} 
+                else {
+                	adapted.links.link.push({ id : c.orgchartcontactid, accountUnitId: c.accountUnitId });
+                }
+            });
+            
+            return adapted;
+        }
+        
+        
+        function adaptGetSearchableFields(data) {
+        
+            function fieldDef(f) {
+                
+                function getPicklistItems() {
+    
+                    var items = [];
+                    
+                    jQuery.each(f.picklistValues, function(idx, plv) {
+                        items.push({
+                            getLabel    :   function() { return plv.label; },
+                            getValue    :   function() { return plv.value; },
+                            getOrder    :   function() { return idx; },
+                            isDefault   :   function() { return plv.defaultValue; },
+                            isActive    :   function() { return true; }
+                        })
+                    })
+                    
+                    return items;
+                }
+                
+                return {
+                    getFieldName        :   function() { return f.name; },
+                    getLabel            :   function() { return f.label; },
+                    getPicklistItems    :   getPicklistItems,
+                    getReference        :   function() { return f.referenceTo.length > 0 ? f.referenceTo[0] : ''; },
+                    getSummary          :   function() { return f.name.indexOf('__c') == -1 ;},                         // bit of a hack
+                    getType             :   function() { return f.type },
+                    isDateField         :   function() { return f.type = 'date' },
+                    isSearchable        :   function() { return f.name.indexOf('__c') == -1 },                          // hacky as above
+                    isSystemField       :   function() { return f.name.indexOf('__c') == -1 },                          // tired saying this now
+                    setPicklistItems    :   function() { throw 'not supported'; },
+                    setReference        :   function() { throw 'not supported'; },
+                    setSummary          :   function() { throw 'not supported'; }
+                }
+                
+            }
+
+            var fields = [];
+            
+            jQuery.each(data.fields, function(fidx, f) {
+                if (searchHelper().includeField(data.name, f)) {
+                    if('contact' == data.name.toLowerCase() && 'accountid' == f.name.toLowerCase()) {
+                        var _f = fieldDef(f);
+                        _f.getLabel = function() { return 'Account' };
+                        fields.push(_f);
+                    } else {
+                        fields.push(fieldDef(f));
+                    }
+                }
+            });
+                    
+            return fields;
+        }
+        
+                
+        function adaptGetSearchableFieldsJS(data, type) {
+        	// need to parse the string to make a proper object
+        	var dataObject = JSON.parse(data);
+        
+            function fieldDef(f) {
+                
+                function getPicklistItems() {
+    
+                    var items = [];
+                    
+                    jQuery.each(f.picklistValues, function(idx, plv) {
+                        items.push({
+                            getLabel    :   function() { return plv.label; },
+                            getValue    :   function() { return plv.value; },
+                            getOrder    :   function() { return idx; },
+                            isDefault   :   function() { return plv.defaultValue; },
+                            isActive    :   function() { return true; }
+                        })
+                    })
+                    
+                    return items;
+                }
+                
+                return {
+                    getFieldName        :   function() { return f.name; },
+                    getLabel            :   function() { return f.label; },
+                    getPicklistItems    :   getPicklistItems,
+                    getReference        :   function() { return (f.referenceTo && f.referenceTo.length > 0) ? f.referenceTo[0] : ''; },
+                    getSummary          :   function() { return f.name.indexOf('__c') == -1 ;},                         // bit of a hack
+                    getType             :   function() { return f.type },
+                    isDateField         :   function() { return f.type = 'date' },
+                    isSearchable        :   function() { return f.name.indexOf('__c') == -1 },                          // hacky as above
+                    isSystemField       :   function() { return f.name.indexOf('__c') == -1 },                          // tired saying this now
+                    setPicklistItems    :   function() { throw 'not supported'; },
+                    setReference        :   function() { throw 'not supported'; },
+                    setSummary          :   function() { throw 'not supported'; }
+                }
+                
+            }
+
+            var fields = [];
+            
+            // Note in remote JS the order is different to REST way. So I reorder them here. To keep order the same as old way.
+            jQuery.each(dataObject.fields, function(fidx, f) {
+                if (searchHelper().includeField(type, f)) {
+                    if('contact' == type.toLowerCase()) {
+                        if ('accountid' == f.name.toLowerCase()) {
+                            var _f = fieldDef(f);
+                            _f.getLabel = function() { return 'Account' };
+                             fields[0] = _f;
+                         } else if ('lastname' === f.name.toLowerCase()) {
+                             fields[1] = fieldDef(f);
+                         } else if ('firstname' === f.name.toLowerCase()) {
+                             fields[2] = fieldDef(f);
+                         } else if ('title' === f.name.toLowerCase()) {
+                             fields[3] = fieldDef(f);
+                         }
+                     } else {
+                         fields.push(fieldDef(f));
+                     }
+                }
+            });
+                    
+            return fields;
+        }
+        
+        
+        function adaptDoSearch(data) {
+        
+            var adapted = {
+                "contacts":{
+                    "state":{
+                        "total": data.totalSize,
+                        "previous":"",
+                        "start":0,
+                        "next":"",
+                        "end":9
+                    },
+                    "contact":[]
+                    }
+                };
+                
+            function isnull(n) {
+                return n ? n : '';
+            }
+            
+            jQuery.each(data.records, function(idx,r) {
+            
+                r.id = data.records[idx].Id;
+                r.firstname = isnull(data.records[idx].FirstName) ;
+                r.lastname = isnull(data.records[idx].LastName);
+                r.contactname = isnull(data.records[idx].FirstName) + ' ' + isnull(data.records[idx].LastName);
+                r.title = isnull(data.records[idx].Title)
+                r.accountname = data.records[idx].Account != null ? isnull(data.records[idx].Account.Name) : '';
+                r.accountid = data.records[idx].Account != null ? isnull(data.records[idx].Account.Id) : '';
+                r.crmownername = data.records[idx].Owner != null ? isnull(data.records[idx].Owner.Name) : '';                           
+                r.ownername = data.records[idx].Owner != null ? isnull(data.records[idx].Owner.Name) : '';              
+                r.reportstoid = data.records[idx].ReportsTo != null ? isnull(data.records[idx].ReportsTo.Id) : '';             
+                r.reportstoname = data.records[idx].ReportsTo != null ? isnull(data.records[idx].ReportsTo.Name) : '';
+                r.department = data.records[idx].Department != null ? isnull(data.records[idx].Department) : '';
+                adapted.contacts.contact.push(r);
+            });
+            
+            return adapted;
+        }
+        
+        
+        function adaptSearchOrgCharts(data) {
+        
+            var adapted = {
+                "org_charts": {
+                    "org_chart": []
+                    }
+            }
+                        
+            jQuery.each(data.records, function(idx,rec) {
+                adapted.org_charts.org_chart.push({
+                    id      :   rec.Id,
+                    name    :   rec[ttg.vfp+'Opportunity__r'].Name,
+                    type    :   rec.attributes.type
+                });
+            });
+            
+            return adapted;
+        }
+
+        function adaptSearchOrgChartsJS(data, typevar) {
+        
+            var adapted = {
+                "org_charts": {
+                    "org_chart": []
+                    }
+            }
+                        
+            jQuery.each(data.records, function(idx,rec) {
+                adapted.org_charts.org_chart.push({
+                    id      :   rec.Id,
+                    name    :   rec[ttg.vfp+'Opportunity__r'].Name,
+                    type    :   typevar
+                });
+            });
+            
+            return adapted;
+        }
+        
+        
+        
+        function adaptSearchCollaborationMaps(data) {
+            
+            var adapted = {
+                collaborationmaps: {
+                    collaborationmap: []
+                }
+            };
+            
+            jQuery.each(data.records, function(idx,rec) {
+                adapted.collaborationmaps.collaborationmap.push({
+                    id              :   rec.Id,
+                    template        :   rec.Template,
+                    name            :   rec.Name
+                });
+            })
+            
+            return adapted;
+        }
+        
+        
+        function adaptCreateCollaborationMap(data) {
+                    
+            var adapted = {
+                links : {
+                    link: {
+                        id: data.id
+                    }
+                }
+            };
+            
+            return adapted
+        
+        }       
+        
+        
+        function adaptLoadCollaborationMaps(data) {
+            
+            jQuery.each(data.nodes.node, function(idx,n) {
+                n.type = n.type.toLowerCase().replace(/ /g,'_');
+                // funkily empty strings appear to be coming over as nulls
+                n.shortdescription = n.shortdescription ? n.shortdescription : '';
+                n.longdescription = n.longdescription ? n.longdescription : '';
+                n.notes = n.notes ? n.notes : '';
+                n.ownerid = n.contactid ? n.contactid : '';
+                n.ownername = n.contactname ? n.contactname : '';
+            });
+            
+            var adapted = {
+                collaborationmaps   : {
+                    collaborationmap: data
+                }
+            };
+            
+            return adapted;
+        }
+        
+        
+        function adaptSaveCollaborationMapNodes(data) {
+
+            var adapted = {
+                links : {
+                    link: []
+                }
+            };
+
+            jQuery.each(data.nodes.node, function(idx,n) {
+                adapted.links.link.push({ id : n.id})
+            });
+            
+            return adapted;
+        }
+        
+        function adaptGetCoachMeRulesJS(data) {
+            
+            var adapted = {
+                coachrules: {
+                    coachrule: []
+                }
+            };
+            
+            // was jQuery.each(data.records, function(idx,n) {
+            jQuery.each(data, function(idx,n) {
+                var cr = {
+                                        
+                    ruleadvice      :   n[ttg.vfp+'Advice_Template__c'],
+                    id              :   n.Id,
+                    enabled         :   n[ttg.vfp+'Enabled__c'],
+                    ruledescription :   n[ttg.vfp+'Description__c'],
+                    rulename        :   n[ttg.vfp+'Rule__c'],
+                    executionorder  :   n[ttg.vfp+'Order_Number__c'],
+                    type            :   6,
+                    
+                    coachruleparts  : {
+                        coachrulepart: []
+                    },
+                    
+                    quicklinks      : {
+                        quicklink   :   []
+                    }
+                };
+                
+                if(n[ttg.vfp+'DM_Coach_Rule_Parts__r']) {
+                    jQuery.each(n[ttg.vfp+'DM_Coach_Rule_Parts__r'], function(idx, n2) {
+                        cr.coachruleparts.coachrulepart.push({
+                            primitivetype           :   n2[ttg.vfp+'Primitive_Type__c'],
+                            rulepart                :   n2[ttg.vfp+'Rule_Part__c'],
+                            joinrulepartno          :   n2[ttg.vfp+'Join_Rule_Part_No__c'],
+                            rulepartexecutionorder  :   n2[ttg.vfp+'Execution_Order__c'],
+                            parentrulename          :   n[ttg.vfp+'Rule__c']
+                        });
+                    });
+                }
+                
+                if(n[ttg.vfp+'DM_Coach_Quicklinks__r']) {
+                    jQuery.each(n[ttg.vfp+'DM_Coach_Quicklinks__r'], function(idx, n3) {
+                        cr.quicklinks.quicklink.push({
+                            id                    	:   n3[ttg.vfp+'DM_Quicklink__r'].Id,
+                            name                    :   n3[ttg.vfp+'DM_Quicklink__r'].Name,
+                            link                    :   n3[ttg.vfp+'DM_Quicklink__r'][ttg.vfp+'Link__c'],
+                            description             :   n3[ttg.vfp+'DM_Quicklink__r'][ttg.vfp+'Description__c'],
+                            type                    :   n3[ttg.vfp+'DM_Quicklink__r'][ttg.vfp+'Type__c']
+                        });
+                    });
+                }
+                
+                adapted.coachrules.coachrule.push(cr);
+            });
+            
+            
+            return adapted;
+        }
+        
+        function adaptGetCoachMeRules(data) {
+            //alert('adapting ' + JSON.stringify(data));
+            
+            var adapted = {
+                coachrules: {
+                    coachrule: []
+                }
+            };
+            
+            // was jQuery.each(data.records, function(idx,n) {
+            jQuery.each(data, function(idx,n) {
+                var cr = {
+                                        
+                    ruleadvice      :   n[ttg.vfp+'Advice_Template__c'],
+                    id              :   n.Id,
+                    enabled         :   n[ttg.vfp+'Enabled__c'],
+                    ruledescription :   n[ttg.vfp+'Description__c'],
+                    rulename        :   n[ttg.vfp+'Rule__c'],
+                    executionorder  :   n[ttg.vfp+'Order_Number__c'],
+                    type            :   6,
+                    
+                    coachruleparts  : {
+                        coachrulepart: []
+                    },
+                    
+                    quicklinks      : {
+                        quicklink   :   []
+                    }
+                };
+                
+                if(n[ttg.vfp+'DM_Coach_Rule_Parts__r']) {
+                    jQuery.each(n[ttg.vfp+'DM_Coach_Rule_Parts__r'].records, function(idx, n2) {
+                        cr.coachruleparts.coachrulepart.push({
+                            primitivetype           :   n2[ttg.vfp+'Primitive_Type__c'],
+                            rulepart                :   n2[ttg.vfp+'Rule_Part__c'],
+                            joinrulepartno          :   n2[ttg.vfp+'Join_Rule_Part_No__c'],
+                            rulepartexecutionorder  :   n2[ttg.vfp+'Execution_Order__c'],
+                            parentrulename          :   n[ttg.vfp+'Rule__c']
+                        });
+                    });
+                }
+                
+                if(n[ttg.vfp+'DM_Coach_Quicklinks__r']) {
+                    jQuery.each(n[ttg.vfp+'DM_Coach_Quicklinks__r'].records, function(idx, n3) {
+                        cr.quicklinks.quicklink.push({
+                            id                      :   n3[ttg.vfp+'DM_Quicklink__r'].Id,
+                            name                    :   n3[ttg.vfp+'DM_Quicklink__r'].Name,
+                            link                    :   n3[ttg.vfp+'DM_Quicklink__r'][ttg.vfp+'Link__c'],
+                            description             :   n3[ttg.vfp+'DM_Quicklink__r'][ttg.vfp+'Description__c'],
+                            type                    :   n3[ttg.vfp+'DM_Quicklink__r'][ttg.vfp+'Type__c']
+                        });
+                    });
+                }
+                
+                adapted.coachrules.coachrule.push(cr);
+            });
+            
+            
+            return adapted;
+        }
+            
+        function adaptCoachMeOpportunitiesViewJS(data) {
+            //alert('adapting ' + JSON.stringify(data));
+            if (jQuery.isArray(data.coachopportunitiesview.coachopportunityview)) {
+	           jQuery.each(data.coachopportunitiesview.coachopportunityview, function(index, value) {
+	           		setMissingValuesToNull(value);
+	           });
+           } else {
+               setMissingValuesToNull(data.coachopportunitiesview.coachopportunityview);
+           }
+
+
+            if(data.coachopportunitiesview.coachopportunityview 
+                && jQuery.isArray(data.coachopportunitiesview.coachopportunityview)
+                && data.coachopportunitiesview.coachopportunityview.length == 1) {
+                data.coachopportunitiesview.coachopportunityview = data.coachopportunitiesview.coachopportunityview[0];
+            }
+            
+            
+            function setMissingValuesToNull(value) {
+           	    value.probabilityvariance = 
+           			(value.probabilityvariance ? value.probabilityvariance :  null);
+           		value.primeactions = 
+           			(value.primeactions ? value.primeactions :  null);	
+           		value.dmprobability =
+           			(value.dmprobability ? value.dmprobability :  null);
+           		value.dmdaystoclose =
+           			(value.dmdaystoclose ? value.dmdaystoclose :  null);
+           		value.closedatevariance =
+           			(value.closedatevariance ? value.closedatevariance :  null);
+            }
+            
+            return data;
+        }
+            
+        function adaptCoachMeOpportunitiesView(data) {
+            //alert('adapting ' + JSON.stringify(data));
+            
+            if(data.coachopportunitiesview.coachopportunityview 
+                && jQuery.isArray(data.coachopportunitiesview.coachopportunityview)
+                && data.coachopportunitiesview.coachopportunityview.length == 1) {
+                data.coachopportunitiesview.coachopportunityview = data.coachopportunitiesview.coachopportunityview[0];
+            }
+            
+            return data;
+        }
+
+        function adaptSearchOwners(data) {
+            
+            var adapted = {
+                users : {
+                    user :  []
+                }
+            };
+            
+            jQuery.each(data.records, function(idx,r) {
+                adapted.users.user.push({
+                    id          :   r.Id,
+                    name        :   r.Name,
+                    firstname   :   r.FirstName,
+                    lastname    :   r.LastName
+                });
+            });
+            
+            return adapted;
+        }
+
+        function adaptSearchOwnersWithCurrency(data) {
+            
+            var adapted = {
+                users : {
+                    user :  []
+                }
+            };
+            
+            jQuery.each(data.records, function(idx,r) {
+                adapted.users.user.push({
+                    id          	:   r.Id,
+                    name        	:   r.Name,
+                    firstname   	:   r.FirstName,
+                    lastname    	:   r.LastName,
+                    defaultisocode 	: 	r.DefaultCurrencyIsoCode
+                });
+            });
+            
+            return adapted;
+        }
+
+        function adaptOurCompanyLogo(data) {
+            
+            var logoId = null,
+            	settings;
+            
+            if(data.records && data.records.length > 0) {
+            	settings = data.records[0];
+                if(settings.Attachments && settings.Attachments.length > 0) {
+                    logoId = settings.Attachments[0].Id;
+                }
+            }
+
+            return logoId;
+        }  
+        
+        
+        function adaptSearchPlanOpportunities(data, planId, config) {
+            
+            var adapted = [];
+            
+            jQuery.each(data.records, function(idx,r) {
+            
+            	var isIncluded = false,
+            		unitName = '',
+            		solutionName = '',
+            		targeted=false,
+            		i;
+            	
+            	if(r[ttg.vfp+'Unit_Solution_Opps__r'] && r[ttg.vfp+'Unit_Solution_Opps__r'].totalSize > 0) {
+            		for(i = 0; i < r[ttg.vfp+'Unit_Solution_Opps__r'].totalSize; i++) {
+						if(r[ttg.vfp+'Unit_Solution_Opps__r'].records[i][ttg.vfp+'Plan_Unit__r'][ttg.vfp+'Account_Plan__c'] === planId) {
+            				isIncluded = true;
+            				unitName = r[ttg.vfp+'Unit_Solution_Opps__r'].records[i][ttg.vfp+'Plan_Unit__r']['Name'];
+            				solutionName = r[ttg.vfp+'Unit_Solution_Opps__r'].records[i][ttg.vfp+'Plan_Solution__r'][ttg.vfp+'AM_Solution__r']['Name'];
+            				targeted = r[ttg.vfp+'Unit_Solution_Opps__r'].records[i][ttg.vfp+'Target__c'];
+            				break;
+            			}
+            		}
+            	}
+            
+                adapted.push({
+                	id	: r.Id,
+                	name	: r.Name,
+                	accountId	: r.AccountId,
+                	account	: r.Account.Name,
+                	amount	: r.Amount,
+                	amountFormatted	: config ? (r.Amount || 0).ttg_formatCurrency(config.ccy, config.thousandSeparator, config.decimalSeparator) : r.Amount,
+                	closeDate	: r.CloseDate,
+                	stageName	: r.StageName,
+                	ownerId	: r.OwnerId,
+                	owner	: r.Owner.Name,
+                	probability	: r.Probability,
+                	included	: isIncluded,
+                	unit	: unitName,
+                	solution : solutionName,
+                	oppType	: r.IsWon ? 'won' : 'current',
+                	target: targeted
+                });
+            });
+            
+            return adapted;
+        }              
+
+
+        function adaptSearchContacts(data) {
+            
+            var adapted = {
+                contacts :  {
+                    contact :   []
+                }
+            };
+            
+            jQuery.each(data.records, function(idx,r) {
+                adapted.contacts.contact.push({
+                    id          :   r.Id,
+                    name        :   r.Name,
+                    firstname   :   r.FirstName,
+                    lastname    :   r.LastName,
+                    contactname :   r.Name
+                });
+            });
+            
+            return adapted;
+        }   
+        
+        function adaptSearchCurrencys(data) {
+            
+            var adapted = {
+                currencys :  {
+                    currency :   []
+                }
+            };
+            
+            jQuery.each(data.records, function(idx,r) {
+                adapted.currencys.currency.push({
+                    id             :   r.Id,
+                    name           :   r.IsoCode,
+                    iscorporate    :   r.IsCorporate,
+                    conversionrate :   r.ConversionRate
+                });
+            });
+            
+            return adapted;
+        }   
+        
+        function adaptSearchAccountUnits(data) {
+        	var adapted = {
+        		accountunits : {
+        			accountunit : []
+        		}
+        	};
+        	jQuery.each(data.records, function(idx, r) {
+        		adapted.accountunits.accountunit.push({
+        			id		: r.Id,
+        			name	: r.Name
+        		});
+        	});
+        	
+        	return adapted;
+        }
+        
+        function adaptSearchQualifiers(data) {
+        	var adapted = {
+        		qualifiers : {
+        			qualifier : []
+        		}
+        	};
+        	
+        	jQuery.each(data, function(idx, r) {
+        
+        		adapted.qualifiers.qualifier.push({
+        			id		: r.id,
+        			name	: r.name,
+        			qualifierText	:	r.qualifierText,
+        			tip		: r.tip,
+        			readonly		:	r.readonly,
+        			inUse			:	r.inUse,
+        			industry			:	r.industry,
+        			geniusStage			:	r.geniusStage        			        			
+        		});	
+        	});
+        	
+        	return adapted;
+        }
+        
+        function adaptLoadStrategyMaps(data) {
+            
+            jQuery.each(data.nodes.node, function(idx,n) {
+                n.type = n.type.toLowerCase().replace(/ /g,'_');
+                // funkily empty strings appear to be coming over as nulls
+                n.shortdescription = n.shortdescription ? n.shortdescription : '';
+                n.longdescription = n.longdescription ? n.longdescription : '';
+                n.notes = n.notes ? n.notes : '';
+                n.ownerid = n.contactid ? n.contactid : '';
+                n.ownername = n.contactname ? n.contactname : '';
+                n.date = n.nodedate || '';
+                n.date = n.nodedate ? jQuery.datepicker.formatDate('yy-mm-dd',new Date(n.nodedate)) : '';
+            });
+                        
+            var adapted = {
+                strategymaps   : {
+                    strategymap: data
+                }
+            };
+            
+            return adapted;
+        }
+        
+        function adaptSearchStrategyMaps(data) {
+            
+            var adapted = {
+                strategymaps: {
+                    strategymap: []
+                }
+            };
+            
+            jQuery.each(data.records, function(idx,rec) {
+                adapted.strategymaps.strategymap.push({
+                    id              :   rec.Id,
+                    template        :   rec.Template,
+                    name            :   rec.Name
+                });
+            })
+            
+            return adapted;
+        }
+        
+        
+        function adaptTASAssessments(data ) {
+        	var adapatedCriteria = [];
+        	function adaptQuickLinks(quickLinks) {	        
+	        	var adaptedQuickLink = {
+	        		totalSize:  quickLinks ? quickLinks.length : 0,
+	        		done:true,
+	   				records:[]
+	        	};
+	        	
+	        	if (quickLinks) {	        	
+					// the marshalling engine used bu JSRemoting is different to that used by JSON.serialize
+					var qlRecords = quickLinks.records ? quickLinks.records : quickLinks;
+		        	jQuery.each(qlRecords, function(idx, rec) {
+		        		adaptedQuickLink.records.push(rec);
+		       		});
+				}
+	       		return adaptedQuickLink;
+	        } 
+	        	 
+	        jQuery.each(data.criteria, function(idx, rec) {
+	        	// adapt the quick links
+	        	// but only if there is something to quicklinks criteria in the map.
+	        	if ('DMAPP__DM_Quicklinks__r' in rec) {
+	            	var adaptedQuickLink = adaptQuickLinks(rec.DM_Quicklinks__r)
+	            	rec.DM_Quicklinks__r = adaptedQuickLink;
+	            }
+	            adapatedCriteria.push(rec);
+	        });
+	        data.criteria = adapatedCriteria;
+	       	return data;
+	    }
+	    
+	    function adaptGetPlanObjectives(data) {
+	    
+	    	function isnull(n) {
+                return n ? n : '';
+            }
+            
+            var adapted = {
+            	/*accountplan		:	data.accountPlan,*/
+                priorities		:	data.objectivePriorities || [],
+                statuses		:	data.objectiveStatuses || [],
+                types			:	data.objectiveTypes || [],
+                planobjectives: {
+                    planobjective: []
+                },
+                taskstatuses	:	data.statuses	||	[],
+                taskpriorities	:	data.taskPriorities || [],
+                taskstats		:	data.taskStats	||	[],
+                planunits : {	
+                	planunit : []
+                },	
+                owners: {
+                    owner: []
+                }
+            };
+            
+            jQuery.each(data.planObjectives, function(idx,rec) {
+                
+                var ownerid 	= rec[ttg.vfp+'Owner__r'].Id;
+                var ownername 	= rec[ttg.vfp+'Owner__r'].Name;
+                
+                adapted.planobjectives.planobjective.push({
+                	id				:	rec.Id,
+                    subject			:   isnull(rec[ttg.vfp+'Subject__c']),
+                    owner  : {
+                        id: 	ownerid,
+                        name: 	ownername
+                    },
+                    duedate			: isnull(rec[ttg.vfp+'Due_Date__c']),
+                    status			: isnull(rec[ttg.vfp+'Status__c']),
+                    priority		: isnull(rec[ttg.vfp+'Priority__c']),
+                    planunit  : {
+                        id: 	((rec[ttg.vfp+'Plan_Unit__r']) ? (rec[ttg.vfp+'Plan_Unit__r'].Id) : ''),		// FIXME
+                        name: 	((rec[ttg.vfp+'Plan_Unit__r']) ? (rec[ttg.vfp+'Plan_Unit__r'].Name) : '')
+                    },
+                    type			: isnull(rec[ttg.vfp+'Type__c']),
+                    strategy		: isnull(rec[ttg.vfp+'Strategy__c']),
+                    overdue			: rec[ttg.vfp+'IsOverdue__c'],
+                    completed		: rec[ttg.vfp+'IsCompleted__c'],
+                    comments		: isnull(rec[ttg.vfp+'Objective_Description__c']),
+                    metric			: isnull(rec[ttg.vfp+'Metric__c']),
+                    tasks			: data.objectiveTasks[rec.Id] || []
+				});
+				              
+            })
+            
+			function isOwnerInOwners(myownerid) {
+				var result = false;
+				
+				jQuery.each(adapted.owners.owner, function(idx, record) {
+					if(record && (record.id == myownerid)) {
+						result = true;
+					}
+				})
+								
+				return result;
+			}
+			
+			var tempUserRecs = data.accountPlan[ttg.vfp+'Account_Users__r'].records ? data.accountPlan[ttg.vfp+'Account_Users__r'].records : data.accountPlan[ttg.vfp+'Account_Users__r']; 
+			
+			// get the list of available Owners
+			jQuery.each(tempUserRecs, function(idx, rec) {
+			
+				var accountUser = rec[ttg.vfp+'User__r'];
+            
+				if(!(isOwnerInOwners(accountUser.Id))) {
+					adapted.owners.owner.push({
+						id: 	accountUser.Id,
+						name: 	accountUser.Name
+					});
+				} 
+			})
+			
+            function isPlanUnitInPlanUnits(myplanunitid) {
+				var result = false;
+				
+				jQuery.each(adapted.planunits.planunit, function(idx, record) {
+					if(record && (record.id == myplanunitid)) {
+						result = true;
+					}
+				})
+							
+				return result;
+			}
+			
+			// get the list of available Plan Units
+			jQuery.each(data.planUnits, function(idx,rec) {
+            
+				if(!(isPlanUnitInPlanUnits(rec.Id))) {
+					adapted.planunits.planunit.push({
+						id: 	rec.Id,
+						name: 	rec.Name
+					});
+				} 
+			})
+            
+            return adapted;
+        }
+
+        
+        return {
+            adaptLoadOrgChart               :   adaptLoadOrgChart,
+            adaptAddOrgChartContact         :   adaptAddOrgChartContact,
+            adaptGetSearchableFields        :   adaptGetSearchableFields,
+            adaptGetSearchableFieldsJS      :   adaptGetSearchableFieldsJS,   // parses some json
+            adaptDoSearch                   :   adaptDoSearch,
+            adaptSearchOrgCharts            :   adaptSearchOrgCharts,
+            adaptSearchCollaborationMaps    :   adaptSearchCollaborationMaps,
+            adaptCreateCollaborationMap     :   adaptCreateCollaborationMap,
+            adaptLoadCollaborationMaps      :   adaptLoadCollaborationMaps,
+            adaptSaveCollaborationMapNodes  :   adaptSaveCollaborationMapNodes,
+            adaptSearchOwners               :   adaptSearchOwners,
+            adaptSearchOwnersWithCurrency   :   adaptSearchOwnersWithCurrency,
+            adaptOurCompanyLogo				:	adaptOurCompanyLogo,
+            adaptSearchPlanOpportunities   	:   adaptSearchPlanOpportunities,            
+            adaptSearchAccountUnits         :   adaptSearchAccountUnits,
+            adaptSearchQualifiers         	:   adaptSearchQualifiers,
+            adaptSearchContacts             :   adaptSearchContacts,
+            adaptSearchCurrencys            :   adaptSearchCurrencys,
+            adaptGetCoachMeRules            :   adaptGetCoachMeRulesJS,		// JS Remoting adaption
+            adaptCoachMeOpportunitiesView   :   adaptCoachMeOpportunitiesViewJS, // JS remoting adaption - make nulls explicit
+            adaptLoadStrategyMaps           :   adaptLoadStrategyMaps,
+            adaptSearchStrategyMaps         :   adaptSearchStrategyMaps,
+            adaptTASAssessments				:   adaptTASAssessments,    // JS remoting adaptation.
+            adaptSearchOrgChartsJS          :   adaptSearchOrgChartsJS, // js remoting adapation
+            adaptGetPlanObjectives			:	adaptGetPlanObjectives
+        }
+        
+    }());
+    
+    
+   
+    
+   
+    
+    //
+    // The Org Chart related calls
+    //
+    function createGraph(graph, success, error, complete) {
+        // in sfdc native we dont have an org chart object
+        // every org chart is assumed to have one and so we 
+        // will always be able to load one and hence never 
+        // have to create one
+    };
+    
+    function loadOrgChart(id, success, error, complete, isOM) {   
+    	if (isOM) {
+    		loadOMOrgChartJS(id, success, error, complete);
+    	} else {
+			loadAMOrgChartJS(id, success, error, complete);
+    	}
+    }
+    
+    
+    function loadOMOrgChartJS(id, success, error, complete) {   
+        
+        function sfdc_success(data) {
+            success(adapter.adaptLoadOrgChart(data));
+        }
+        
+        var succ = function(data) { try {sfdc_success(data)} finally { complete(); } };
+        var err = ttg.ajaxErrorFunction(error,complete);        
+              
+       	ttgInvoker.invokeVFR(
+			ttg.getController('DMAPP.APIDelegateController.loadOMOrgChart'),
+			id, 
+			function(result, event) { 
+				if (event.type == 'exception') { 
+					err(result,event);
+				} else {
+					succ(result); 
+				}
+			}, {escape: false}
+		)     
+
+    }
+
+	function loadAMOrgChartJS(id, success, error, complete) {   
+		    
+	    function sfdc_success(data) {
+	        success(adapter.adaptLoadOrgChart(data));
+	    }
+	    
+	    var succ = function(data) { try {sfdc_success(data)} finally { complete(); } };
+        var err = ttg.ajaxErrorFunction(error,complete); 
+        
+	    ttgInvoker.invokeVFR(
+			ttg.getController('DMAPP.APIDelegateController.loadAMOrgChart'),
+			id, 
+			function(result, event) { 
+				if (event.type == 'exception') { 
+					err(result,event);
+				} else {
+					succ(result); 
+				}
+			}, {escape: false}
+		) 
+	}
+	
+    function markOrgChartAsPrimary(mapid, success, error, complete) {
+        complete = complete || function() {};
+        var succ = function(data) { try {success(data)} finally { complete(); } };
+        var err = ttg.ajaxErrorFunction(error,complete); 
+        
+        ttgInvoker.invokeVFR(
+            ttg.getController('DMAPP.AccountPoliticalMapController.markOrgChartAsPrimary'),
+            mapid, 
+            function(result, event) { 
+                if (event.type == 'exception') { 
+                    err(result,event);
+                } else {
+                    succ(result); 
+                }
+            }, {escape: false}
+        );
+    }
+	
+    function associatePlanUnitAccountOrgChart(planunitid, mapid, success, error, complete) {
+	    complete = complete || function() {};
+	    var succ = function(data) { try {success(data)} finally { complete(); } };
+	    var err = ttg.ajaxErrorFunction(error,complete); 
+	    
+	    ttgInvoker.invokeVFR(
+	        ttg.getController('DMAPP.AccountPoliticalMapController.associatePlanUnitAccountOrgChart'),
+	        planunitid,
+	        mapid, 
+	        function(result, event) { 
+	            if (event.type == 'exception') { 
+	                err(result,event);
+	            } else {
+	                succ(result); 
+	            }
+	        }, {escape: false}
+	    );
+    }
+    
+    function importFromAccountOrgCharts(opportunityExtraId, mapids, success, error, complete) {
+        complete = complete || function() {};
+        var succ = function(data) { try { success(data); } finally { complete(); } };
+        var err = ttg.ajaxErrorFunction(error,complete);     
+        
+        ttgInvoker.invokeVFR(
+            ttg.getController('DMAPP.APIDelegateController.importFromAccountOrgCharts'),
+            opportunityExtraId,
+             mapids,
+            function(result, event) { 
+                if (event.type == 'exception') { 
+                    err(result,event);
+                } else {
+                    succ(result); 
+                }
+            }, {escape: false}
+        ) 
+    }
+    function importFromOpportunityOrgCharts(opportunityExtraId, oppids, success, error, complete) {
+        complete = complete || function() {};
+        var succ = function(data) { try { success(data); } finally { complete(); } };
+        var err = ttg.ajaxErrorFunction(error,complete);     
+        
+        ttgInvoker.invokeVFR(
+            ttg.getController('DMAPP.APIDelegateController.importFromOpportunityOrgCharts'),
+            opportunityExtraId,
+             oppids,
+            function(result, event) { 
+                if (event.type == 'exception') { 
+                    err(result,event);
+                } else {
+                    succ(result); 
+                }
+            }, {escape: false}
+        ) 
+    }
+
+    function associateAccountLevelMap(opportunityExtraId, accountPolMapId, success, error, complete) {
+        complete = complete || function() {};
+        var succ = function(data) { try { success(data); } finally { complete(); } };
+        var err = ttg.ajaxErrorFunction(error,complete);        
+                  
+        ttgInvoker.invokeVFR(
+            ttg.getController('DMAPP.APIDelegateController.associateAccountLevelMap'),
+            opportunityExtraId,
+             accountPolMapId,
+            function(result, event) { 
+                if (event.type == 'exception') { 
+                    err(result,event);
+                } else {
+                    succ(result); 
+                }
+            }, {escape: false}
+        ) 
+    }
+
+    function addOrgChartContactJS(graphId, orgChartContacts, success, error, complete) {
+        
+        var succ = function(data) { try { success( adapter.adaptAddOrgChartContact(data, orgChartContacts) ); } finally { complete(); } };
+        var err = ttg.ajaxErrorFunction(error,complete);        
+        var req =  { "occs" : { "contacts" : [] } }; 
+        
+        jQuery.each( jQuery.makeArray(orgChartContacts), function(idx, occ) {
+                req.occs.contacts.push( { 
+                    opportunityid       :   graphId, 
+                    contactid           :   occ.id,
+                    hookstoid           :   occ.hookstoid,
+                    political 			:	occ.political,
+					adaptability 		:	occ.adaptability,
+					coverage 			:	occ.coverage,
+					status 				:	occ.status
+                });
+        });
+                  
+       	ttgInvoker.invokeVFR(
+			ttg.getController('DMAPP.APIDelegateController.addOrgChartContact'),
+			req.occs, 
+			function(result, event) { 
+				if (event.type == 'exception') { 
+					err(result,event);
+				} else {
+					succ(result); 
+				}
+			}, {escape: false}
+		) 
+                 
+    }
+      
+        
+    function updateContactAttributeJS(contactId, contactAttr, orgChartMetadata, success, error, complete) {
+    
+        var succ = function(data) { try { success(data); } finally { complete(); } };
+        var err = ttg.ajaxErrorFunction(error,complete)
+
+        function makeContactsList(arr) {
+            var cl = {
+                contactid : []
+            }
+            
+            jQuery.each(arr, function(idx, a) { cl.contactid.push(a); });
+            
+            return cl;
+        }
+                
+        adaptedPost = {
+            occs    :   {
+                contacts : []
+            }
+        };
+        
+        
+        jQuery.each(jQuery.makeArray(contactAttr), function(idx, cntct) {
+            var newCntct = {
+                    opportunityid       :   spec.graphId,
+                    contactid           :   cntct.id,
+                    orgchartcontactid   :   cntct.orgchartcontactid, 
+                    ownerid             :   cntct.ownerid,
+                    note                :   cntct.note,
+                    political           :   cntct.political,
+                    adaptability        :   cntct.adaptability,
+                    coverage            :   cntct.coverage,
+                    status              :   cntct.status,
+                    keyplayer           :   cntct.keyplayer,
+                    approved            :   cntct.approved,
+                    buyerroles          :   jQuery.makeArray(cntct.buyingrole),
+                    influences          :   makeContactsList(cntct.influences),
+                    influencedby        :   makeContactsList(cntct.influencedBy),
+                    decisioncriteria    :   cntct.decisioncriteria,
+                    hookstoid           :   cntct.hookstoid,
+                    alwaysonmap         :   cntct.alwaysonmap
+                };
+
+            adaptedPost.occs.contacts.push(newCntct);
+        });
+       
+        
+        ttgInvoker.invokeVFR(
+			ttg.getController('DMAPP.APIDelegateController.updateContactAttribute'),
+			adaptedPost.occs, 
+			function(result, event) { 
+				if (event.type == 'exception') { 
+					err(result,event);
+				} else {
+					succ(result); 
+				}
+			}, {escape: false}
+		)  
+          
+    }
+    
+    
+   function updateReportsToJS(contactId, reportsTo, contact, success, error, complete) {
+    
+        var succ = function(data) { try { success(data); } finally { complete(); } };
+        var err = ttg.ajaxErrorFunction(error,complete);
+    
+        var req = { c : { Id : contactId,  ReportsToId : reportsTo }, opportunityId :  spec.graphId};
+        
+        ttgInvoker.invokeVFR(
+			ttg.getController('DMAPP.APIDelegateController.updateReportsTo'),
+			contactId,   // contact ID
+			req.c, // contact
+			function(result, event) { 
+				if (event.type == 'exception') { 
+					err(result,event);
+				} else {
+					succ(result); 
+				}
+			}, {escape: false}
+		) 
+        
+    }
+    
+    function removeOrgChartContactJS(contactId, success, error, complete) {   
+
+        var succ = function(data) { try { success(data); } finally { complete(); } };
+        var err = ttg.ajaxErrorFunction(error,complete);     
+              
+       	ttgInvoker.invokeVFR(
+			ttg.getController('DMAPP.APIDelegateController.removeOrgChartContact'),
+			contactId, 
+			function(result, event) { 
+				if (event.type == 'exception') { 
+					err(result,event);
+				} else {
+					succ(result); 
+				}
+			}, {escape: false}
+		)   
+    }
+            
+    function searchOrgChartsJS(search, success, error, complete, isOM) {
+    	if (isOM) {
+    		searchOMOrgChartsJS(search, success, error, complete);
+    	} else {
+    		searchAMOrgChartsJS(search, success, error, complete);
+    	}
+    } 
+   
+	
+	function searchAMOrgChartsJS(search, success, error, complete) {
+	    var grabber = /name like '(.*)'$/
+	    matches = grabber.exec(search);
+	    if (!matches) { throw 'Unsupported search ' + search; } 
+	    var type = ttg.vfp+'AM_Plan_Unit__c';
+	    var succ = function(data) { try { success(am.adaptSearchOrgChartsJS(data, type)); } finally { complete(); } };
+	    var err = function() { try { error(); } finally { complete(); } };
+	    
+	    var searchStr = matches[1].replace(/'/g, '\\' + '\'');
+	    //var newQuery = 'SELECT+Id,'+ttg.vfp+'Account__r.Name+FROM+'+ttg.vfp+'AM_Plan_Unit__c+WHERE+'+ttg.vfp+'Account__r.Name+like+\'' + searchStr +'\'+ORDER+BY+Name+ASC+LIMIT+15' ;
+	    var newQuery = 'SELECT Id,Name FROM '+ type + ' WHERE Name like \'' + searchStr +'\' ORDER BY Name ASC LIMIT 15' ;
+	    queryJS(newQuery, succ,err);         
+	} 
+	
+    
+   function searchOMOrgChartsJS(search, success, error, complete) {
+  
+  		if (search.indexOf('opportunityname') == -1) {
+	   		search = search.replace('name', 'opportunityname');
+  		} 
+   		
+        var grabber = /opportunityname like '(.*)'$/
+        matches = grabber.exec(search);
+        if (!matches) { throw 'Unsupported search ' + search; } 
+        var type = ttg.vfp+'DM_Opportunity_Extra__c';
+        var succ = function(data) { try { success(adapter.adaptSearchOrgChartsJS(data, type)); } finally { complete(); } };
+        var err = ttg.ajaxErrorFunction(error,complete);    
+        var searchStr = matches[1].replace(/'/g, '\\' + '\'');
+        var newQuery = 'SELECT Id,'+ttg.vfp+'Opportunity__r.Name FROM '+ttg.vfp+'DM_Opportunity_Extra__c WHERE '+ttg.vfp+'Opportunity__r.Name like \'' + searchStr +'\' ORDER BY Name ASC LIMIT 15' ;
+	    queryJS(newQuery, succ,err);          
+    
+    }
+    
+
+    function getSearchableFieldsJS(spc, success, error, complete) {
+    
+        var succ = function(data) { try { success(adapter.adaptGetSearchableFieldsJS(data, spc.entity)); } finally { complete(); } };
+        var err = ttg.ajaxErrorFunction(error,complete);
+        
+                
+        ttgInvoker.invokeVFR(
+			ttg.getController('DMAPP.APIDelegateController.getSearchableFields'),
+			spc.entity,
+			function(result, event) { 
+				if (event.type == 'exception') { 
+					err(result,event);
+				} else {
+					succ(result); 
+				}
+			}, 
+			{escape: false}
+		)                     
+    }
+
+    function doSearchJS(spec, success, error, complete, crit) {
+    
+        if (spec.entity != 'Contact') {
+            throw 'unsupported entity type ' + spec.entity + ' exception';
+        }
+
+        var succ = function(data) { try { success(adapter.adaptDoSearch(data)); } finally { complete(); } };
+        var err = ttg.ajaxErrorFunction(error,complete);
+        var extra = spec.extraSearchParams ? spec.extraSearchParams() : ''
+        var orderdir = spec.orderdir ? spec.orderdir : 'ASC';
+        var orderby = spec.orderby ? ' ORDER BY ' + spec.orderby + ' ' + orderdir + ' ' : ' ';
+        
+        if(!spec.term && extra && extra.indexOf(' AND') === 0) {
+        	extra = extra.substring(4);
+        }
+        
+        var newQuery = 'SELECT ' + searchHelper().getSelectList(spec.entity) 
+                        + ' FROM '+ spec.entity +
+                        ((spec.term || extra) 
+                        ?
+                        ' WHERE '+spec.term + ' ' + extra + orderby +' LIMIT 15' 
+                        :
+                        ' ' + orderby +' LIMIT 15');
+        
+        queryJS(newQuery,succ,err);
+    } 
+
+
+    
+    function searchCollaborationMapsJS(search, success, error, complete, orderby) {
+        
+        var srchClauses = [];
+        var queryClause = '';   
+            
+        if (search.opportunityid) { srchClauses.push(ttg.vfp+'DM_Opportunity_Extra__r.'+ttg.vfp+'Opportunity__c =\'' + search.opportunityid + '\' ') }
+        if (search.searchStr) { 
+            srchClauses.push(
+                ' Name like \'' 
+                + search.searchStr.replace(/'/g, '\\\'')+'%' 
+                + '\' '
+            ) 
+        }
+        if (search.hasOwnProperty('template')) {  srchClauses.push(' '+ttg.vfp+'Template__c = ' + search.template + ' ') }
+
+        jQuery.each(srchClauses, function(idx, s) {
+            if (idx > 0) { queryClause += ' and '; }
+            queryClause += s;
+        });
+    
+    
+        var succ = function(data) { try { success(adapter.adaptSearchCollaborationMaps(data)); } finally { complete(); } };
+        var err = ttg.ajaxErrorFunction(error,complete);
+        var q = 
+            'SELECT Id,Name,'+ttg.vfp+'Template__c,'+ttg.vfp+'DM_Opportunity_Extra__r.'+ttg.vfp+'Opportunity__c ' +
+            'FROM '+ttg.vfp+'DM_Collaboration_Map__c ' + 
+            'WHERE ' + queryClause;
+		
+		queryJS(q, succ, err, complete);          
+    }
+   
+        
+    function createCollaborationMapJS(spec, success, error, complete) {
+
+        var succ = function(data) { try { success(adapter.adaptCreateCollaborationMap(data)); } finally { complete(); } };
+        var err = ttg.ajaxErrorFunction(error,complete);        
+
+        var template = (spec.hasOwnProperty('template') ? spec.template : false);
+        if(template == null || template == undefined) {
+            template = false;
+        }
+        
+        ttgInvoker.invokeVFR(
+			ttg.getController('DMAPP.APIDelegateController.createCollaborationMap'),
+			delegateSpec.opportunityid, spec.name, template,
+			function(result, event) { 
+				if (event.type == 'exception') { 
+					err(result,event);
+				} else {
+					succ(result); 
+				}
+			}, 
+			{escape: false}
+		)
+                 
+    }
+    
+    function updateCollaborationMapJS(spec, success, error, complete) {
+        if(complete == null) {
+            complete = function() {}
+        }
+        if(error == null) {
+            error = function() {}
+        }
+    
+        var succ = function(data) { try { success(adapter.adaptCreateCollaborationMap(data)); } finally { complete(); } };
+        var err = ttg.ajaxErrorFunction(error,complete);        
+        
+        var template = (spec.hasOwnProperty('template') ? spec.template : false);
+        if(template == null || template == undefined) {
+            template = false;
+        }
+        
+        // call js remoting api and pass in spec.id, spec.name, spec.opportunityId and template
+        ttgInvoker.invokeVFR(
+			ttg.getController('DMAPP.APIDelegateController.updateCollaborationMap'),
+			spec.id, spec.name, spec.opportunityId, template, 
+			function(result, event) { 
+				if (event.type == 'exception') { 
+					err(result,event);
+				} else {
+					succ(result); 
+				}
+			}, 
+			{escape: false} 
+		)        
+    }
+
+    
+    function deleteCollaborationMapJS(mapid, success, error, complete) {
+        var err = ttg.ajaxErrorFunction(error,complete);        
+              
+        ttgInvoker.invokeVFR(
+			ttg.getController('DMAPP.APIDelegateController.deleteCollaborationMap'),
+			mapid, 
+			function(result, event) { 
+				if (event.type == 'exception') { 
+					err(result,event);
+				} else {
+					success(); 
+				}
+			}, 
+			{escape: false}
+		) 
+    }
+    
+
+    function loadCollaborationMapsJS(mapid, success, error, complete) {
+    
+        var succ = function(data) { try { success(adapter.adaptLoadCollaborationMaps(data)); } finally { complete(); } };
+        var err = ttg.ajaxErrorFunction(error,complete);        
+              
+        ttgInvoker.invokeVFR(
+			ttg.getController('DMAPP.APIDelegateController.loadCollaborationMap'),
+			mapid, 
+			function(result, event) { 
+				if (event.type == 'exception') { 
+					err(result,event);
+				} else {
+					succ(result); 
+				}
+			}, 
+			{escape: false}
+		)  
+    }
+    
+    /*
+    function saveCollaborationMapNodes(mapId, nodesArray, mapType, nodeTypes, success, error, complete) {
+        
+        var req = {
+            collaborationmapnodes : {
+                mapId   :   mapId,
+                nodes   :   {
+                    node : []
+                }
+            }
+        };
+        
+        jQuery.each(nodesArray, function(idx, n) {
+            var newn = {
+                id                  :   n.id ? n.id : '',
+                mapid               :   mapId,
+                type                :   n.type,
+                confirmed           :   n.confirmed,
+                isprivate           :   n.isprivate,
+                blocked             :   n.isblocked == undefined ? false : n.isblocked,
+                contactid           :   n.ownerid ? n.ownerid : null,
+                shortdescription    :   n.short_description,
+                longdescription     :   n.long_description,
+                notes               :   n.notes,
+                parentnodes         :   {
+                    parent : []
+                },
+                competitors         : {
+                    competitor : []
+                }   
+            };
+            
+            jQuery.each(n.getParents(), function(idxx, parent) {                
+                if (!parent.isVirtual()) {
+                    newn.parentnodes.parent.push({ id : parent.getId() });
+                }
+            });
+            
+            var ourpositions = ['unknown','up','equal','down'];
+            
+            jQuery.each(n.competitors, function(idxx, c) {
+                newn.competitors.competitor.push( { id : c.id, name : c.name, position : ourpositions[c.ourposition] });
+            })
+            
+            req.collaborationmapnodes.nodes.node.push(newn);
+        });
+
+        var succ = function(data) { try { success(adapter.adaptSaveCollaborationMapNodes(data)); } finally { complete(); } };
+
+        sfdcClient().apexrest(ttg.vfpurl+'/CollaborationMapNode', 
+            succ, 
+			ttg.ajaxErrorFunction(error,complete),
+           'POST', 
+            JSON.stringify(req));          
+    }
+    */
+   
+    
+    function deleteCollaborationMapNodeJS(nodeid, success, error, complete) {
+    
+        var succ = function(data) { try { success(data); } finally { complete(); } };
+        var err = ttg.ajaxErrorFunction(error,complete);
+    	
+    	ttgInvoker.invokeVFR(
+			ttg.getController('DMAPP.APIDelegateController.deleteCollaborationMapNode'),
+			nodeid, 
+			function(result, event) { 
+				if (event.type == 'exception') { 
+					err(result,event);
+				} else {
+					succ(result); 
+				}
+			}, 
+			{escape: false}
+		) 
+                           
+    }
+    
+    function getCoachMeRulesJS(success, error, complete) {
+        var succ = function(data) { try { success(adapter.adaptGetCoachMeRules(data)); } finally { complete(); } };
+        var err = ttg.ajaxErrorFunction(error,complete);
+        
+        ttgInvoker.invokeVFR( 
+			ttg.getController('DMAPP.APIDelegateController.getCoachMeRules'), 
+			function(result, event) { 
+				if (event.type == 'exception') { 
+					err(result,event);
+				} else {
+					succ(result); 
+				}
+			}, 
+			{escape: false}
+		) 
+ 
+    }
+   
+    
+    function searchOwnersJS(search, success, error, complete) {
+        var grabber = /name like '(.*)'$/
+        matches = grabber.exec(search);
+        if (!matches) { throw 'Unsupported search ' + search; } 
+        var succ = function(data) { try { success(adapter.adaptSearchOwners(data)); } finally { complete(); } };
+        var err = ttg.ajaxErrorFunction(error,complete);
+		var searchStr = matches[1].replace(/'/g,'\\\'');
+        var newQuery = 'SELECT Id,Name,FirstName,lastname,isactive FROM User WHERE isactive=true AND UserType=\'Standard\' AND (FirstName like \'' + searchStr +'\' OR LastName like \'' + searchStr +'\' OR Name like \'' + searchStr +'\') ORDER BY FirstName,LastName ASC LIMIT 15' ;        
+		queryJS(newQuery, succ,err);         
+    };
+
+   
+
+    function searchOwnersWithCurrencyJS(search, success, error, complete) {
+        var grabber = /name like '(.*)'$/
+        matches = grabber.exec(search);
+        if (!matches) { throw 'Unsupported search ' + search; } 
+        var succ = function(data) { try { success(adapter.adaptSearchOwnersWithCurrency(data)); } finally { complete(); } };
+        var err = ttg.ajaxErrorFunction(error,complete);
+		var searchStr = matches[1].replace(/'/g, '\\' + '\'');
+        var newQuery = 'SELECT Id,Name,FirstName,LastName,DefaultCurrencyIsoCode FROM User WHERE isactive=true AND UserType=\'Standard\' AND Name like \'' + searchStr +'\' ORDER BY Name ASC LIMIT 15' ;
+        queryJS(newQuery, succ,err);         
+    };
+
+
+
+    function searchAccountPlanTeamMembersJS(planId, search, success, error, complete) {
+        var grabber = /name like '(.*)'$/
+        matches = grabber.exec(search);
+        if (!matches) { throw 'Unsupported search ' + search; } 
+        var succ = function(data) { try { success(adapter.adaptSearchOwners(data)); } finally { complete(); } };
+        var err = function() { try { error(); } finally { complete(); } };
+		var searchStr = matches[1].replace(/'/g, '\\' + '\'');		
+        var newQuery = 'SELECT Id,Name,FirstName,LastName FROM User WHERE Name like \'' + searchStr +'\' AND Id IN (SELECT '+ttg.vfp+'User__c FROM '+ttg.vfp+'AM_Plan_Team__c WHERE '+ttg.vfp+'Account_Plan__c=\''+planId+'\') ORDER BY Name ASC LIMIT 15';
+        queryJS(newQuery, succ, err);         
+    };
+
+    
+    
+   function searchAccountPlanTeamMembersWithCurrencyJS(planId, search, success, error, complete) {
+        var grabber = /name like '(.*)'$/
+        matches = grabber.exec(search);
+        if (!matches) { throw 'Unsupported search ' + search; } 
+        var succ = function(data) { try { success(adapter.adaptSearchOwnersWithCurrency(data)); } finally { complete(); } };
+        var err = function() { try { error(); } finally { complete(); } };
+		var searchStr = matches[1].replace(/'/g, '\\' + '\'');		
+        var newQuery = 'SELECT Id,Name,FirstName,LastName,DefaultCurrencyIsoCode FROM User WHERE Name like \'' + searchStr +'\' AND Id IN (SELECT '+ttg.vfp+'User__c FROM '+ttg.vfp+'AM_Plan_Team__c WHERE '+ttg.vfp+'Account_Plan__c=\''+planId+'\') ORDER BY Name ASC LIMIT 15';
+        queryJS(newQuery, succ, err);         
+    }; 
+    
+    
+   	function getAccountPlanTeamMembersJS(planId, success, error, complete) {
+        var succ = function(data) { try { success(adapter.adaptSearchOwners(data)); } finally { complete(); } };
+        var err = ttg.ajaxErrorFunction(error,complete);	
+        var newQuery = 'SELECT Id,Name,FirstName,LastName FROM User WHERE Id IN (SELECT '+ttg.vfp+'User__c FROM '+ttg.vfp+'AM_Plan_Team__c WHERE '+ttg.vfp+'Account_Plan__c=\''+planId+'\') ORDER BY Name ASC LIMIT 15';
+        queryJS(newQuery, succ, err);         
+    }; 
+    
+    function getAccountPlanTeamMembersWithCurrencyJS(planId, success, error, complete) {
+        var succ = function(data) { try { success(adapter.adaptSearchOwnersWithCurrency(data)); } finally { complete(); } };
+        var err = function() { try { error(); } finally { complete(); } };		
+        var newQuery = 'SELECT Id,Name,FirstName,LastName,DefaultCurrencyIsoCode FROM User WHERE Id IN (SELECT+'+ttg.vfp+'User__c FROM '+ttg.vfp+'AM_Plan_Team__c WHERE '+ttg.vfp+'Account_Plan__c=\''+planId+'\') ORDER BY Name ASC LIMIT 15';
+        queryJS(newQuery, succ, err);         
+    }; 
+    
+	function getAccountPlanOwnerJS(planId, success, error, complete) {
+        var succ = function(data) { try { success(adapter.adaptSearchOwners(data)); } finally { complete(); } };
+        var err = function() { try { error(); } finally { complete(); } };		
+        var newQuery = 'SELECT Id,Name,FirstName,LastName FROM User WHERE Id IN (SELECT OwnerId FROM '+ttg.vfp+'DM_Account_Plan__c WHERE Id=\''+planId+'\') LIMIT 1';
+        queryJS(newQuery, succ, err);          
+    };       
+    
+        
+	function getAccountPlanOwnerWithCurrencyJS(planId, success, error, complete) {
+        var succ = function(data) { try { success(adapter.adaptSearchOwnersWithCurrency(data)); } finally { complete(); } };
+        var err = function() { try { error(); } finally { complete(); } };		
+        var newQuery = 'SELECT Id,Name,FirstName,LastName,DefaultCurrencyIsoCode FROM User WHERE Id IN (SELECT OwnerId FROM '+ttg.vfp+'DM_Account_Plan__c WHERE Id=\''+planId+'\') LIMIT 1';
+        queryJS(newQuery, succ, err);         
+    };       
+
+    
+    function searchQualifiersJS(stageId, salesProcessId, search, industry, geniusStage, success, error, complete) {
+        var succ = function(data) { try { success(adapter.adaptSearchQualifiers(data)); } finally { complete(); } };
+        var err = ttg.ajaxErrorFunction(error,complete);
+        var params ={stageid: stageId, salesProcessId: salesProcessId, qualifierText: search, industry: industry, geniusStage: geniusStage}; //'params' must exactly match the parameter name in the Resource 
+        
+        ttgInvoker.invokeVFR(
+			ttg.getController('DMAPP.APIDelegateController.searchQualifiers'),
+			params, 
+			function(result, event) { 
+				if (event.type == 'exception') { 
+					err(result,event);
+				} else {
+					succ(result); 
+				}
+			}, 
+			{escape: false}
+		) 
+    };
+    
+   
+    function putQualifierJS(playbookQualifierChanges, success, error, complete) {
+    	var succ = function(data) { try { success(adapter.adaptSearchQualifiers(data)); } finally { complete(); } };
+        var err = ttg.ajaxErrorFunction(error,complete);
+        var params = {name: playbookQualifierChanges.qualifierName, qualifierText: playbookQualifierChanges.qualifierText, tip : playbookQualifierChanges.qualifierTip, inUse: false, readonly: playbookQualifierChanges.uiReadonly}; // NB the nme of the 2nd 'params' must exactly match the parameter name in the Resource
+        
+        ttgInvoker.invokeVFR(
+			ttg.getController('DMAPP.APIDelegateController.putQualifier'),
+			params, 
+			function(result, event) { 
+				if (event.type == 'exception') { 
+					err(result,event);
+				} else {
+					succ(result); 
+				}
+			}, 
+			{escape: false}
+		)
+    }
+
+    function getCoachMeOpportunitiesViewJS(oppid, success, error, complete) {
+        var succ = function(data) { try { success(adapter.adaptCoachMeOpportunitiesView(data)); } finally { complete(); } };
+        var err = ttg.ajaxErrorFunction(error,complete);
+        
+        ttgInvoker.invokeVFR(
+			ttg.getController('DMAPP.APIDelegateController.getCoachMeOpportunitiesView'),
+			oppid, 
+			function(result, event) { 
+				if (event.type == 'exception') { 
+					err(result,event);
+				} else {
+					succ(result); 
+				}
+			}, 
+			{escape: false}
+		) 
+    }
+   
+    
+    function searchContactsJS(search, success, error, complete) {
+        var succ = function(data) { try { success(adapter.adaptSearchContacts(data)); } finally { complete(); } };
+        var err = ttg.ajaxErrorFunction(error,complete);
+        
+        var newQuery = 'SELECT Id,Name,FirstName,lastname FROM Contact WHERE ' + search +' ORDER BY FirstName,LastName ASC LIMIT 15' ;
+        queryJS(newQuery, succ,err);         
+    }
+    
+    function searchCurrencysJS(success, error, complete) {
+        var succ = function(data) { try { success(adapter.adaptSearchCurrencys(data)); } finally { complete(); } };
+        var err = ttg.ajaxErrorFunction(error,complete);
+        var newQuery = 'SELECT Id,IsoCode,IsCorporate,ConversionRate FROM CurrencyType ORDER BY IsoCode ASC' ;
+        queryJS(newQuery, succ,err);         
+    }
+
+    function getOrgChartContact(contactId, success, error, complete) {
+    }
+    
+
+    function getCollaborationMapNode(nodeid, success, error, complete) {
+    }
+
+    //
+    // Account Management Related
+    //
+    function searchPlanOpportunitiesJS(search, planId, config, success, error, complete) {
+    
+        var succ = function(data) { try { success(adapter.adaptSearchPlanOpportunities(data, planId, config)); } finally { complete(); } };
+        var err = function() { try { error(); } finally { complete(); } };
+        console.log('searchPlanOpportunitiesJS');
+        ttgInvoker.invokeVFR(
+            ttg.getController('DMAPP.APIDelegateController.searchPlanOpportunities'),
+            search,
+            function(result, event) {
+                if (event.type == 'exception') {
+                    err(result,event);
+                } else {
+                    succ(result);
+                }
+            }, 
+            {escape: false}
+        )
+        // var newQuery = 'SELECT Id,Name,AccountId,Account.Name,Amount,CloseDate,StageName,OwnerId,Owner.Name,Probability,IsWon,IsClosed,'+
+					   // '(select Id,'+ttg.vfp+'Plan_Unit__r.'+ttg.vfp+'Account_Plan__c,'+
+					   // ttg.vfp+'Plan_Unit__r.Name,'+ttg.vfp+'Target__c,'+
+					   // ttg.vfp+'Plan_Solution__r.'+ttg.vfp+'AM_Solution__r.Name from '+ttg.vfp+'Unit_Solution_Opps__r) ' +
+					   // 'FROM Opportunity';
+        
+        // if(search && search.length > 0) {
+        // 	newQuery = newQuery + ' ' + search;
+        // }
+        
+        // queryJS(newQuery, succ,err);        
+    
+    }
+   
+    
+    function getOurCompanyLogoJS(success, error, complete) {
+    
+        var succ = function(data) { try { success(adapter.adaptOurCompanyLogo(data)); } finally { complete(); } };
+        var err = function() { try { error(); } finally { complete(); } };
+        var newQuery = 'SELECT Id,Name,'+
+					   '(select Id,Name FROM Attachments WHERE NAME LIKE \'' + '%logo%.png' + '\' LIMIT 1) ' +
+					   'FROM '+ttg.vfp+'DM_Setting__c LIMIT 1';
+        queryJS(newQuery, succ, err);    
+    }
+
+    
+    //
+    // Strategy Map Releated
+    //
+    function searchStrategyMapsJS(search, success, error, complete, orderby) {
+        var srchClauses = [];
+        var queryClause = '';   
+
+        if (search.accountunitid) { srchClauses.push(ttg.vfp+'Plan_Unit__c =\'' + search.accountunitid + '\' ') }
+        //if (search.accountunitid) { srchClauses.push(ttg.vfp+'AM_Plan_Unit__c.'+ttg.vfp+'Opportunity__c+=\'' + search.opportunityid + '\'+') }
+        if (search.searchStr) { 
+            srchClauses.push(
+                ' Name like \'' 
+                + '%'+search.searchStr.replace(/'/g, '\\\'')+'%' 
+                + '\' '
+            ) 
+        }
+        if (search.hasOwnProperty('template')) {  srchClauses.push(' '+ttg.vfp+'Template__c = ' + search.template + ' ') }
+
+        jQuery.each(srchClauses, function(idx, s) {
+            if (idx > 0) { queryClause += ' and '; }
+            queryClause += s;
+        });
+
+        var succ = function(data) { try { success(adapter.adaptSearchStrategyMaps(data)); } finally { complete(); } };
+        var err = function(a,b,c) { 
+            try { error(); } finally { complete(); } 
+        };
+        var q = 
+            'SELECT Id,Name,'+ttg.vfp+'Template__c,'+ttg.vfp+'Plan_Unit__r.'+ttg.vfp+'Account__c ' +
+            'FROM '+ttg.vfp+'DM_Strategy_Map__c ' + 
+            'WHERE ' + queryClause;
+
+		queryJS(q, succ, err, complete);
+    }
+        
+    function loadStrategyMapsJS(mapid, success, error, complete) {
+        var succ = function(data) { try { success(adapter.adaptLoadStrategyMaps(data)); } finally { complete(); } };
+        var err = ttg.ajaxErrorFunction(error,complete);
+        ttgInvoker.invokeVFR(
+			ttg.getController('DMAPP.APIDelegateController.loadStrategyMaps'),
+			mapid, 
+			function(result, event) { 
+				if (event.type == 'exception') { 
+					err(result,event);
+				} else {
+					succ(result); 
+				}
+			}, 
+			{escape: false}
+		) 
+    }
+    
+    function deleteStrategyMapJS(mapid, success, error, complete) {
+        var err = ttg.ajaxErrorFunction(error,complete);
+        var succ = function(data) { try { success(data); } finally { complete(); } };
+        
+        ttgInvoker.invokeVFR(
+			ttg.getController('DMAPP.APIDelegateController.deleteStrategyMap'),
+			mapid, 
+			function(result, event) { 
+				if (event.type == 'exception') { 
+					err(result,event);
+				} else {
+					succ(result); 
+				}
+			}, 
+			{escape: false}
+		); 
+		
+    }
+    
+    
+    function updateStrategyMapJS(spec, success, error, complete) {
+        var succ = function(data) { try { success(adapter.adaptCreateCollaborationMap(data)); } finally { complete(); } };
+        var err = ttg.ajaxErrorFunction(error,complete);
+
+        var template = (spec.hasOwnProperty('template') ? spec.template : false);
+        if(template == null || template == undefined) {
+            template = false;
+        }
+        
+        var req = {
+            name            :   spec.name,
+            template        :   template,
+            id              :   spec.mapId,
+            accountUnitId   :   spec.accountId
+        };
+        
+        ttgInvoker.invokeVFR(
+			ttg.getController('DMAPP.APIDelegateController.updateStrategyMap'),
+			req, 
+			template,
+			function(result, event) { 
+				if (event.type == 'exception') { 
+					err(result,event);
+				} else {
+					succ(result); 
+				}
+			}, 
+			{escape: false}
+		);  
+    }
+    
+    function createStrategyMapJS(spec, success, error, complete) {
+        var succ = function(data) { try { success(adapter.adaptCreateCollaborationMap(data)); } finally { complete(); } };
+        var err = ttg.ajaxErrorFunction(error,complete);
+        var template = (spec.hasOwnProperty('template') ? spec.template : false);
+        if(template == null || template == undefined) {
+            template = false;
+        }
+        
+        var req = {
+            name            :   spec.name,
+            template        :   template,
+            accountUnitId   :   spec.accountId
+        };
+                
+        ttgInvoker.invokeVFR(
+			ttg.getController('DMAPP.APIDelegateController.createStrategyMap'),
+			req, 
+			template,
+			function(result, event) { 
+				if (event.type == 'exception') { 
+					err(result,event);
+				} else {
+					succ(result); 
+				}
+			}, 
+			{escape: false}
+		); 
+    }
+        
+    function saveStrategyMapNodesJS(mapId, nodesArray, mapType, nodeTypes, success, error, complete) {
+        var err = ttg.ajaxErrorFunction(error,complete);
+        
+        var req = {
+            strategymapnodes : {
+                mapId   :   mapId,
+                nodes   :   {
+                    node : []
+                }
+            }
+        };
+        
+        jQuery.each(nodesArray, function(idx, n) {
+
+            var newn = {
+                id                  :   n.id ? n.id : '',
+                mapid               :   mapId,
+                type                :   n.type,
+                confirmed           :   n.confirmed,
+                isprivate           :   n.isprivate,
+                blocked             :   n.isblocked == undefined ? false : n.isblocked,
+                contactid           :   n.ownerid ? n.ownerid : null,
+                shortdescription    :   n.short_description,
+                longdescription     :   n.long_description,
+                notes               :   n.notes,
+                nodedate            :   n.date ? n.date.ttg_toUTCDate("yy-mm-dd") : n.date,
+                parentnodes         :   {
+                    parent : []
+                }
+            };
+            
+            jQuery.each(n.getParents(), function(idxx, parent) {                
+                if (!parent.isVirtual()) {
+                    newn.parentnodes.parent.push({ id : parent.getId() });
+                }
+            });
+            
+            req.strategymapnodes.nodes.node.push(newn);
+        });
+
+        var succ = function(data) { try { success(adapter.adaptSaveCollaborationMapNodes(data)); } finally { complete(); } };
+            
+        ttgInvoker.invokeVFR(
+			ttg.getController('DMAPP.APIDelegateController.saveStrategyMapNodes'),
+			req.strategymapnodes,
+			function(result, event) { 
+				if (event.type == 'exception') { 
+					err(result,event);
+				} else {
+					succ(result); 
+				}
+			}, 
+			{escape: false} 
+		);  
+		
+    }
+    
+    function deleteStrategyMapNodeJS(nodeid, success, error, complete) {
+        var succ = function(data) { try { success(data); } finally { complete(); } };
+        var err = ttg.ajaxErrorFunction(error,complete);
+    
+        ttgInvoker.invokeVFR(
+			ttg.getController('DMAPP.APIDelegateController.deleteStrategyMapNode'),
+			nodeid,
+			function(result, event) { 
+				if (event.type == 'exception') { 
+					err(result,event);
+				} else {
+					succ(result); 
+				}
+			}, 
+			{escape: false} 
+		);
+    }
+    
+    function getStrategyMapNode(nodeid, success, error, complete) {
+    }
+
+    // Auto Complete
+    function autocompleteJS(id, entity, holder, selectCallback, extra) {
+
+        var sel = selectCallback || function(event, ui) {
+        	
+            if(ui && ui.item) { 
+            
+                jQuery('input#' + id + '_SEARCH_TEXT').val(ui.item.label);
+                jQuery('input#' + id + '_SEARCH_TEXT_ID').val(ui.item.value);
+            }
+            
+            return false;
+        };
+
+		var focus = function(event, ui) {
+			event.preventDefault();
+			return false;
+		}
+        
+        jQuery(holder).autocomplete({
+            source: function(request, response) {
+                var term = '' + request.term;
+                term = term.replace(/'/g,'\\\'');
+                var newQuery = "SELECT Name, Id FROM "
+                
+                if(extra) {
+                    newQuery = newQuery.concat(entity," WHERE Name LIKE '",term,"%' ", extra, " LIMIT 15");
+                } else {
+                    newQuery = newQuery.concat(entity," WHERE Name LIKE '",term,"%' LIMIT 15");
+                }
+                
+                queryJS(
+                    newQuery,
+                    function(data) {
+                        response(jQuery.map(data.records, function( item ) {
+                            return {
+                                label: item.Name,
+                                value: item.Id
+                            }
+                        }))
+                    },
+                    ttg.ajaxErrorFunction()
+                );
+            },
+            minLength: 3,
+            select: sel,
+            focus: focus
+        });
+    }
+
+    function handleError(data, textStatus, errorThrown) {
+
+        try {
+            switch(data.status) {
+                case 200:   // OK
+                case 201:   // CREATED
+                case 202:   // ACCEPTED
+                case 204:   // NO_CONTENT
+                case 206:   // PARTIAL_CONTENT
+                case 300:   // MULTIPLE_CHOICES
+                case 301:   // MOVED_PERMANENTLY
+                case 302:   // FOUND
+                case 304:   // NOT_MODIFIED
+                case 400:   // BAD_REQUEST
+                case 401:   // UNAUTHORIZED
+                case 403:   // FORBIDDEN
+                case 404:   // NOT_FOUND
+                case 405:   // METHOD_NOT_ALLOWED
+                case 406:   // NOT_ACCEPTABLE
+                case 409:   // CONFLICT
+                case 410:   // GONE
+                case 412:   // PRECONDITION_FAILED
+                case 413:   // REQUEST_ENTITY_TOO_LARGE
+                case 414:   // REQUEST_URI_TOO_LARGE
+                case 415:   // UNSUPPORTED_MEDIA_TYPE
+                case 417:   // EXPECTATION_FAILED
+                case 500:   // INTERNAL_SERVER_ERROR
+                case 503:   // SERVER_UNAVAILABLE
+    
+                default:
+                
+                    var msg = 'An error has occured communicating with the service.';
+                    if (data.responseText[0].message != undefined) {
+                        msg +=  '\nMessage returned is \n\n\t' + data.responseText[0].message;
+                    }
+                    if (data.statusText != undefined) {
+                        msg +=  '\n\n\t' + data.statusText;
+                    }
+
+                    alert(msg);
+
+                    return true;
+                    
+            }
+        }
+        catch(e)
+        {
+            // WTF?
+        }
+
+        return false;
+    }
+   
+
+    function getAssessmentJS(opportunityId, success, error, complete) {
+    
+        var succ = function(data) { try { success(data); } finally { complete(); } };
+        var err = ttg.ajaxErrorFunction(error,complete);  
+        ttgInvoker.invokeVFR(
+			ttg.getController('DMAPP.APIDelegateController.getAssessment'),
+			 opportunityId,
+			function(result, event) { 
+				if (event.type == 'exception') { 
+					err(result,event);
+				} else {
+					result = adapter.adaptTASAssessments(result);
+					succ(result); 
+				}
+			}, 
+			{escape: false}
+		)
+    }
+
+    function putAssessmentJS(opportunityId, linechange, success, error, complete) {
+
+        var succ = function(data) { try { success(data); } finally { complete(); } };
+        var err = ttg.ajaxErrorFunction(error,complete);
+    
+    	// We need to send over something like: {"line":{"criteriaId":"a1Cd00000006sOSEAY","ourAnswer":"Yes","note":"","competitorAnswers":[]}}
+    	ttgInvoker.invokeVFR(
+			ttg.getController('DMAPP.APIDelegateController.putAssessment'),
+			 opportunityId,
+			 linechange.line, 
+			function(result, event) { 
+				if (event.type == 'exception') { 
+					err(result,event);
+				} else {
+					succ(result); 
+				}
+			}, 
+			{escape: false}
+		)
+    }
+    
+    // alex leave
+    function getMilestonesJS(opportunityId, success, error, complete) {
+    
+        var succ = function(data) { try { success(data); } finally { complete(); } };
+        var err = ttg.ajaxErrorFunction(error,complete);
+        
+        ttgInvoker.invokeVFR(
+			ttg.getController('DMAPP.APIDelegateController.getMilestones'),
+			 opportunityId,
+			function(result, event) {
+				if (event.type == 'exception') {
+					err(result,event);
+				} else {
+					succ(result);
+				}
+			}, 
+			{escape: false}
+		)
+    }
+
+	// alex leave    
+    function putMilestonesJS(opportunityId, linechange, success, error, complete) {
+    
+        var succ = function(data) { try { success(data); } finally { complete(); } };
+        var err = ttg.ajaxErrorFunction(error,complete);
+        
+        ttgInvoker.invokeVFR(
+			ttg.getController('DMAPP.APIDelegateController.putMilestones'),
+			 opportunityId, linechange.linechange,
+			function(result, event) {
+				if (event.type == 'exception') {
+					err(result,event);
+				} else {
+					succ(result);
+				}
+			}, 
+			{escape: false}
+		)
+    }
+
+    function logQuicklinkUsageHitJS(quicklinkid, success, error, complete) {
+    
+        var succ = function(data) { try { success(data); } finally { complete(); } };
+        var err = ttg.ajaxErrorFunction(error,complete);
+        
+        ttgInvoker.invokeVFR(
+            ttg.getController('DMAPP.APIDelegateController.logQuicklinkUsageHit'),
+            quicklinkid,
+            function(result, event) {
+                if (event.type == 'exception') {
+                    err(result,event);
+                } else {
+                    succ(result);
+                }
+            }, 
+            {escape: false}
+        )
+    }
+    
+    function getScoreCardDetailsJS(planid, success, error, complete) {
+        var succ = function(data) { try { success(data); } finally { complete(); } };
+        var err = ttg.ajaxErrorFunction(error,complete);
+		ttgInvoker.invokeVFR(ttg.getController('DMAPP.APIDelegateController.getScoreCardDetails'), 
+        	planid, 
+        	function(result, event) { 
+				if (event.type == 'exception') { 
+					err(result,event);
+				} else {
+					succ(result); 
+				} 
+			}, 
+			{escape: false});
+	}
+	
+    
+    function getPlanActivityDetailsJS(planid, success, error, complete) {
+        var succ = function(data) { try { success(data); } finally { complete(); } };
+        var err = ttg.ajaxErrorFunction(error,complete);
+		ttgInvoker.invokeVFR(ttg.getController('DMAPP.APIDelegateController.getPlanActivityDetails'), 
+        	planid, 
+        	function(result, event) { 
+				if (event.type == 'exception') { 
+					err(result,event);
+				} else {
+					succ(result); 
+				} 
+			}, 
+			{escape: false});
+	}	
+
+    function logDVLSQuicklinkUsageHitJS(quicklinkid, success, error, complete) {
+    
+        var succ = function(data) { try { success(data); } finally { complete(); } };
+        var err = ttg.ajaxErrorFunction(error,complete);
+        
+        ttgInvoker.invokeVFR(
+            ttg.getController('DMAPP.APIDelegateController.logDVLSQuicklinkUsageHit'),
+            quicklinkid,
+            function(result, event) {
+                if (event.type == 'exception') {
+                    err(result,event);
+                } else {
+                    succ(result);
+                }
+            }, 
+            {escape: false}
+        )
+    }
+    
+    function getCompetitiveStrategyJS(opportunityId, success, error, complete) {
+    	
+        var succ = function(data) { try { success(data); } finally { complete(); } };
+        var err = ttg.ajaxErrorFunction(error,complete);
+    
+    	ttgInvoker.invokeVFR(
+			ttg.getController('DMAPP.APIDelegateController.getCompetitiveStrategy'),
+			 opportunityId, 
+			function(result, event) {
+				if (event.type == 'exception') {
+					err(result,event);
+				} else {
+					succ(result);
+				}
+			}, 
+			{escape: false}
+		)
+    }   
+    
+    function putCompetitiveStrategyJS(opportunityId, competitiveStrategy, success, error, complete) {
+
+        var succ = function(data) { try { success(data); } finally { complete(); } };
+        var err = ttg.ajaxErrorFunction(error,complete);
+
+        ttgInvoker.invokeVFR(
+			ttg.getController('DMAPP.APIDelegateController.putCompetitiveStrategy'),
+			 opportunityId, 
+			 competitiveStrategy.competitiveStrategyChanges,
+			function(result, event) {
+				if (event.type == 'exception') { 
+					err(result,event);
+				} else {
+					succ(result);
+				}
+			}, 
+			{escape: false}
+		)
+    
+    }   
+    
+    function getCompetitiveStrategyCompetitorsJS(opportunityId, success, error, complete) {
+    	
+        var succ = function(data) { try { success(data); } finally { complete(); } };
+        var err = ttg.ajaxErrorFunction(error,complete);
+        
+        ttgInvoker.invokeVFR(
+			ttg.getController('DMAPP.APIDelegateController.getCompetitiveStrategyCompetitors'),
+			 opportunityId, 
+			function(result, event) {
+				if (event.type == 'exception') {
+					err(result,event);
+				} else {
+					succ(result);
+				}
+			}, 
+			{escape: false}
+		)
+    
+    }   
+
+    function putCompetitiveStrategyCompetitorJS(opportunityId, competitor, success, error, complete) {
+
+        var succ = function(data) { try { success(data); } finally { complete(); } };
+        var err = ttg.ajaxErrorFunction(error,complete);
+
+        ttgInvoker.invokeVFR(
+			ttg.getController('DMAPP.APIDelegateController.putCompetitiveStrategyCompetitor'),
+			 opportunityId, 
+			 competitor.competitorChanges,
+			function(result, event) {
+				if (event.type == 'exception') {
+					err(result,event);
+				} else {
+					succ(result);
+				}
+			}, 
+			{escape: false} 
+		)
+    }   
+    
+        
+   function postCompetitiveStrategyCompetitorJS(opportunityId, competitor, success, error, complete) {
+
+        var succ = function(data) { try { success(data); } finally { complete(); } };
+        var err = ttg.ajaxErrorFunction(error,complete);
+        
+        ttgInvoker.invokeVFR(
+			ttg.getController('DMAPP.APIDelegateController.postCompetitiveStrategyCompetitor'),
+			 opportunityId, 
+			 competitor.competitorChanges,
+			function(result, event) {
+				if (event.type == 'exception') {
+					err(result,event);
+				} else {
+					succ(result);
+				}
+			}, 
+			{escape: false} 
+		);
+    }
+        
+    function deleteCompetitiveStrategyCompetitorJS(competitorId, success, error, complete) { 
+
+        var succ = function(data) { try { success(data); } finally { complete(); } };
+        var err = ttg.ajaxErrorFunction(error,complete);
+ 
+        ttgInvoker.invokeVFR(
+			ttg.getController('DMAPP.APIDelegateController.deleteCompetitiveStrategyCompetitor'),
+			 competitorId, 
+			function(result, event) {
+				if (event.type == 'exception') {
+					err(result,event);
+				} else {
+					succ(result);
+				}
+			}, 
+			{escape: false} 
+		);
+    }         
+       
+    function getDVLSCurriculaJS(success, error, complete) {
+    	if (complete === undefined) complete = function() {};
+    	
+        var succ = function(data) { try { success(data); } finally { complete(); } };
+        var err = ttg.ajaxErrorFunction(error,complete);
+
+        ttgInvoker.invokeVFR(
+			ttg.getController('DMAPP.APIDelegateController.getDVLSCurricula'),
+			function(result, event) {
+				if (event.type == 'exception') {
+					err(result,event);
+				} else {
+					succ(result);
+				}
+			}, 
+			{escape: false} 
+		);
+    }
+   
+    
+    function startDVLSCurriculumJS(curriculumId, success, error, complete) {
+        if (complete === undefined) complete = function() {};
+        
+        var succ = function(data) { try { success(data); } finally { complete(); } };
+        var err = ttg.ajaxErrorFunction(error,complete);
+
+        ttgInvoker.invokeVFR(
+			ttg.getController('DMAPP.APIDelegateController.startDVLSCurriculum'),
+			curriculumId,
+			function(result, event) {
+				if (event.type == 'exception') {
+					err(result,event);
+				} else {
+					succ(result);
+				}
+			}, 
+			{escape: false} 
+		);
+    }
+  
+        
+    function updateDVLSQuicklinkProgressJS(quicklinkid, iscomplete, success, error, complete) {
+        if (complete === undefined) complete = function() {};
+        
+        var succ = function(data) { try { success(data); } finally { complete(); } };
+        var err = ttg.ajaxErrorFunction(error,complete);
+        
+        var quicklink = {id: quicklinkid, status: iscomplete ? 'complete' : 'playing'};
+        
+        ttgInvoker.invokeVFR(
+			ttg.getController('DMAPP.APIDelegateController.updateDVLSQuicklinkProgress'),
+			quicklink,
+			function(result, event) {
+				if (event.type == 'exception') {
+					err(result,event);
+				} else {
+					succ(result);
+				}
+			}, 
+			{escape: false} 
+		);
+		
+    }
+    
+    function getDVLSAssessmentJS(componentid, success, error, complete) {
+        if (complete === undefined) complete = function() {};
+        
+        var succ = function(data) { try { success(data); } finally { complete(); } };
+        var err = ttg.ajaxErrorFunction(error,complete);
+        
+        ttgInvoker.invokeVFR(
+			ttg.getController('DMAPP.APIDelegateController.getDVLSAssessment'), 
+			componentid,
+			function(result, event) {
+				if (event.type == 'exception') {
+					err(result,event);
+				} else {
+					succ(result);
+				}
+			}, 
+			{escape: false} 
+		);
+    }
+   
+    
+   function submitDVLSAssessmentJS(assessment, success, error, complete) {
+        if (complete === undefined) complete = function() {};
+        
+        var succ = function(data) { try { success(data); } finally { complete(); } };
+        var err = ttg.ajaxErrorFunction(error,complete);
+        
+        var answers = {assessment: assessment};     
+        ttgInvoker.invokeVFR(
+			ttg.getController('DMAPP.APIDelegateController.submitDVLSAssessment'), 
+			answers,
+			function(result, event) {
+				if (event.type == 'exception') {
+					err(result,event);
+				} else {
+					succ(result);
+				}
+			}, 
+			{escape: false} 
+		);
+    }
+    
+    
+    function resetDVLSAssessmentAnswersJS(componentid, success, error, complete) {
+        if (complete === undefined) complete = function() {};
+        
+        var succ = function(data) { try { success(data); } finally { complete(); } };
+        var err = ttg.ajaxErrorFunction(error,complete);
+        
+        ttgInvoker.invokeVFR(
+			ttg.getController('DMAPP.APIDelegateController.resetDVLSAssessmentAnswers'), 
+			componentid,
+			function(result, event) {
+				if (event.type == 'exception') {
+					err(result,event);
+				} else {
+					succ(result);
+				}
+			}, 
+			{escape: false} 
+		);
+    }
+   
+    function getDealmakerStageAdminJS(success, error, complete) {
+    
+        var succ = function(data) { try { success(data); } finally { complete(); } };
+        var err = ttg.ajaxErrorFunction(error,complete);
+        
+        ttgInvoker.invokeVFR(
+			ttg.getController('DMAPP.APIDelegateController.getDealmakerStageAdmin'),
+			function(result, event) {
+				if (event.type == 'exception') {
+					err(result,event);
+				} else {
+					succ(result);
+				}
+			}, 
+			{escape: false} 
+		);
+    }
+    
+    function getPlaybookQuicklinkJS(searchString, success, error, complete) {
+    
+        var succ = function(data) { try { success(data); } finally { complete(); } };
+        var err = ttg.ajaxErrorFunction(error,complete);
+        
+        ttgInvoker.invokeVFR(
+			ttg.getController('DMAPP.APIDelegateController.getPlaybookQuicklink'),
+			searchString,
+			function(result, event) {
+				if (event.type == 'exception') {
+					err(result,event);
+				} else {
+					succ(result);
+				}
+			}, 
+			{escape: false} 
+		);
+    }
+    
+    function postPlaybookQuicklinkJS(quicklinkChanges, success, error, complete) {
+
+        var succ = function(data) { try { success(data); } finally { complete(); } };
+        var err = ttg.ajaxErrorFunction(error,complete);
+        
+        ttgInvoker.invokeVFR(
+			ttg.getController('DMAPP.APIDelegateController.postPlaybookQuicklink'),
+			quicklinkChanges.quicklinkChanges,
+			function(result, event) {
+				if (event.type == 'exception') {
+					err(result,event);
+				} else {
+					succ(result);
+				}
+			}, 
+			{escape: false} 
+		);
+
+    }
+        
+    function putPlaybookQuicklinkJS(quicklinkId, quicklinkChanges, success, error, complete) {
+
+        var succ = function(data) { try { success(data); } finally { complete(); } };
+        var err = ttg.ajaxErrorFunction(error,complete);
+        
+        ttgInvoker.invokeVFR(
+			ttg.getController('DMAPP.APIDelegateController.putPlaybookQuicklink'),
+			quicklinkId,
+			quicklinkChanges.quicklinkChanges,
+			function(result, event) {
+				if (event.type == 'exception') {
+					err(result,event);
+				} else {
+					succ(result);
+				}
+			}, 
+			{escape: false} 
+		);
+        
+   }
+    
+    function deletePlaybookQuicklinkJS(quicklinkId, success, error, complete) {
+
+        var succ = function(data) { try { success(data); } finally { complete(); } };
+        var err = ttg.ajaxErrorFunction(error,complete);
+        
+        ttgInvoker.invokeVFR(
+			ttg.getController('DMAPP.APIDelegateController.deletePlaybookQuicklink'),
+			quicklinkId,
+			function(result, event) {
+				if (event.type == 'exception') {
+					err(result,event);
+				} else {
+					succ(result);
+				}
+			}, 
+			{escape: false} 
+		);
+    }  
+      
+    function putPlaybookQualifierQuicklinkAdminJS(quicklinkIds, success, error, complete) {
+
+        var succ = function(data) { try { success(data); } finally { complete(); } };
+        var err = ttg.ajaxErrorFunction(error,complete);
+
+        ttgInvoker.invokeVFR(
+			ttg.getController('DMAPP.APIDelegateController.putPlaybookQualifierQuicklinkAdmin'),
+			quicklinkIds,
+			function(result, event) {
+				if (event.type == 'exception') {
+					err(result,event); 
+				} else {
+					succ(result);
+				}
+			}, 
+			{escape: false} 
+		);
+    }  
+        
+    function postPlaybookQualifierQuicklinkAdminJS(qualifierId, quicklinkIds, success, error, complete) {
+
+        var succ = function(data) { try { success(data); } finally { complete(); } };
+        var err = ttg.ajaxErrorFunction(error,complete);
+
+        ttgInvoker.invokeVFR(
+			ttg.getController('DMAPP.APIDelegateController.postPlaybookQualifierQuicklinkAdmin'),
+			qualifierId,
+			quicklinkIds,
+			function(result, event) {
+				if (event.type == 'exception') {
+					err(result,event);
+				} else {
+					succ(result);
+				}
+			}, 
+			{escape: false} 
+		);
+    }  
+
+    function deletePlaybookQualifierQuicklinkAdminJS(quicklinkId, success, error, complete) {
+
+        var succ = function(data) { try { success(data); } finally { complete(); } };
+        var err = ttg.ajaxErrorFunction(error,complete);
+        
+        ttgInvoker.invokeVFR(
+			ttg.getController('DMAPP.APIDelegateController.deletePlaybookQualifierQuicklinkAdmin'),
+			quicklinkId,
+			function(result, event) {
+				if (event.type == 'exception') {
+					err(result,event);
+				} else {
+					succ(result);
+				}
+			}, 
+			{escape: false} 
+		);
+    }
+    
+    function getSalesProcessAdminJS(salesProcessId, success, error, complete) {
+    
+        var succ = function(data) { try { success(data); } finally { complete(); } };
+        var err = ttg.ajaxErrorFunction(error,complete);
+        
+        ttgInvoker.invokeVFR(
+			ttg.getController('DMAPP.APIDelegateController.getSalesProcessAdmin'),
+			 salesProcessId,
+			function(result, event) {
+				if (event.type == 'exception') {
+					err(result,event);
+				} else {
+					succ(result);
+				}
+			}, 
+			{escape: false} 
+		);
+    }
+    
+    function putSalesProcessAdminJS(salesProcessId, salesProcessChanges, success, error, complete) {
+
+        var succ = function(data) { try { success(data); } finally { complete(); } };
+        var err = ttg.ajaxErrorFunction(error,complete);
+        
+        ttgInvoker.invokeVFR(
+			ttg.getController('DMAPP.APIDelegateController.putSalesProcessAdmin'),
+			 salesProcessId,
+			 salesProcessChanges.salesProcessChanges,
+			function(result, event) {
+				if (event.type == 'exception') {
+					err(result,event);
+				} else {
+					succ(result);
+				}
+			}, 
+			{escape: false} 
+		);
+    }  
+    
+    function postSalesProcessAdminJS(salesProcessId, salesProcessChanges, success, error, complete) {
+
+        var succ = function(data) { try { success(data); } finally { complete(); } };
+        var err = ttg.ajaxErrorFunction(error,complete);
+
+        ttgInvoker.invokeVFR(
+			ttg.getController('DMAPP.APIDelegateController.postSalesProcessAdmin'),
+			 salesProcessId,
+			 salesProcessChanges.salesProcessChanges,
+			function(result, event) {
+				if (event.type == 'exception') {
+					err(result,event);
+				} else {
+					succ(result);
+				}
+			}, 
+			{escape: false} 
+		);
+    }
+    
+    function deleteSalesProcessAdminJS(salesProcessId, replaceProcessId, success, error, complete) {
+
+        var succ = function(data) { try { success(data); } finally { complete(); } };
+        var err = ttg.ajaxErrorFunction(error,complete);
+        var url = ttg.vfpurl+'/PlaybookSalesProcessAdmin/' + encodeURIComponent(salesProcessId);
+        var replaceProcessIdToSend = (replaceProcessId ? replaceProcessId  : '');
+         
+      	ttgInvoker.invokeVFR(
+			ttg.getController('DMAPP.APIDelegateController.deleteSalesProcessAdmin'),
+			 salesProcessId, 
+			 replaceProcessIdToSend,
+			function(result, event) {
+				if (event.type == 'exception') {
+					err(result,event);
+				} else {
+					succ(result);
+				}
+			}, 
+			{escape: false} 
+		);
+    } 
+
+    function getSalesProcessStageAdminJS(salesProcessId, success, error, complete) {
+    
+        var succ = function(data) { try { success(data); } finally { complete(); } };
+        var err = ttg.ajaxErrorFunction(error,complete);
+        
+        ttgInvoker.invokeVFR(
+			ttg.getController('DMAPP.APIDelegateController.getSalesProcessStage'),
+			 salesProcessId, 
+			function(result, event) {
+				if (event.type == 'exception') {
+					err(result,event);
+				} else {
+					succ(result);
+				}
+			}, 
+			{escape: false} 
+		);
+    }   
+  
+    
+    function putSalesProcessStageAdminJS(salesProcessStageId, salesProcessStageChanges, success, error, complete) {
+    
+        var succ = function(data) { try { success(data); } finally { complete(); } };
+        var err = ttg.ajaxErrorFunction(error,complete);
+        
+        ttgInvoker.invokeVFR(
+			ttg.getController('DMAPP.APIDelegateController.putSalesProcessStage'),
+			 salesProcessStageId, 
+			 salesProcessStageChanges.salesProcessStageChanges,
+			function(result, event) {
+				if (event.type == 'exception') {
+					err(result,event);
+				} else {
+					succ(result);
+				}
+			}, 
+			{escape: false} 
+		);
+    }
+    
+    function postSalesProcessStageAdminJS(salesProcessId, stages, success, error, complete) {
+
+        var succ = function(data) { try { success(data); } finally { complete(); } };
+        var err = ttg.ajaxErrorFunction(error,complete);
+
+        ttgInvoker.invokeVFR(
+			ttg.getController('DMAPP.APIDelegateController.postSalesProcessStage'),
+			 salesProcessId, 
+			 stages.stages,
+			function(result, event) {
+				if (event.type == 'exception') {
+					err(result,event);
+				} else {
+					succ(result);
+				}
+			}, 
+			{escape: false} 
+		);
+    }
+    
+    function deleteSalesProcessStageAdminJS(salesProcessStageId, blankOpportunityStage, success, error, complete) {
+
+        var succ = function(data) { try { success(data); } finally { complete(); } };
+        var err = ttg.ajaxErrorFunction(error,complete);
+        var blankOpportunityStageToSend = (blankOpportunityStage ? 'true' : '');
+        
+        ttgInvoker.invokeVFR(
+			ttg.getController('DMAPP.APIDelegateController.removeSalesProcessStage'),
+			 salesProcessStageId, 
+			 blankOpportunityStageToSend,
+			function(result, event) {
+				if (event.type == 'exception') {
+					err(result,event);
+				} else {
+					succ(result);
+				}
+			}, 
+			{escape: false} 
+		);
+    } 
+        
+    function getSalesProcessQualifierAdminJS(salesProcessId, success, error, complete) {
+    
+        var succ = function(data) { try { success(data); } finally { complete(); } };
+        var err = ttg.ajaxErrorFunction(error,complete);
+        
+        ttgInvoker.invokeVFR(
+			ttg.getController('DMAPP.APIDelegateController.getSalesProcessQualifierAdmin'),
+			 salesProcessId, 
+			 function(result, event) {
+				if (event.type == 'exception') {
+					err(result,event);
+				} else {
+					succ(result);
+				}
+			}, 
+			{escape: false} 
+		);
+        
+    }   
+   
+    
+    function putSalesProcessQualifierAdminJS(salesProcessQualifierId, salesProcessQualifierChanges, success, error, complete) {
+
+        var succ = function(data) { try { success(data); } finally { complete(); } };
+        var err = ttg.ajaxErrorFunction(error,complete);
+
+        var salesProcessQualifierIdToSend = (salesProcessQualifierId ? salesProcessQualifierId : '');
+        
+        ttgInvoker.invokeVFR(
+			ttg.getController('DMAPP.APIDelegateController.putSalesProcessQualifierAdmin'),
+				salesProcessQualifierIdToSend, 
+			  	salesProcessQualifierChanges.salesProcessQualifierChanges,
+			 function(result, event) {
+				if (event.type == 'exception') {
+					err(result,event);
+				} else {
+					succ(result);
+				}
+			}, 
+			{escape: false} 
+		);
+   }   
+    
+    function postSalesProcessQualifierAdminJS(salesProcessStageId, qualifierIds, success, error, complete) {
+
+        var succ = function(data) { try { success(data); } finally { complete(); } };
+        var err = ttg.ajaxErrorFunction(error,complete);
+        
+         ttgInvoker.invokeVFR(
+			ttg.getController('DMAPP.APIDelegateController.postSalesProcessQualifierAdmin'),
+			  salesProcessStageId,
+			  qualifierIds.qualifierIds, 
+			 function(result, event) {
+				if (event.type == 'exception') {
+					err(result,event);
+				} else {
+					succ(result);
+				}
+			}, 
+			{escape: false} 
+		);
+    }   
+        
+     
+    function deleteSalesProcessQualifierAdminJS(salesProcessQualifierId, success, error, complete) {
+
+        var succ = function(data) { try { success(data); } finally { complete(); } };
+        var err = ttg.ajaxErrorFunction(error,complete);
+        ttgInvoker.invokeVFR(
+			ttg.getController('DMAPP.APIDelegateController.deleteSalesProcessQualifierAdmin'),
+			  salesProcessQualifierId,
+			 function(result, event) {
+				if (event.type == 'exception') {
+					err(result,event);
+				} else {
+					succ(result);
+				}
+			}, 
+			{escape: false} 
+		);
+        
+        
+    }  
+     
+    
+    function putPlaybookQualifierAdminJS(qualifierId, overwriteQualifierId, playbookQualifierChanges, success, error, complete) {
+
+        var succ = function(data) { try { success(data); } finally { complete(); } };
+        var err = ttg.ajaxErrorFunction(error,complete);
+
+		var overwriteQualifierIdToSend = (overwriteQualifierId ? overwriteQualifierId : '');
+        ttgInvoker.invokeVFR(
+			ttg.getController('DMAPP.APIDelegateController.putPlaybookQualifierAdmin'),
+			  qualifierId,
+			  overwriteQualifierIdToSend,
+			  playbookQualifierChanges.playbookQualifierChanges,
+			 function(result, event) {
+				if (event.type == 'exception') {
+					err(result,event);
+				} else { 
+					succ(result);
+				}
+			}, 
+			{escape: false} 
+		);
+    }                 
+    
+    // alex leave            
+    function getQualificationJS(opportunityId, success, error, complete) {
+    
+        var succ = function(data) { try { success(data); } finally { complete(); } };
+        var err = ttg.ajaxErrorFunction(error,complete);
+        
+        ttgInvoker.invokeVFR(
+			ttg.getController('DMAPP.OMStandardController.getQualification'),
+			 opportunityId,
+			function(result, event) {
+				if (event.type == 'exception') {
+					err(result,event);
+				} else {
+					succ(result);
+				}
+			}, 
+			{escape: false}
+		)
+    }
+    
+    function putQualificationJS(opportunityId, qualification, success, error, complete) {
+
+        var succ = function(data) { try { success(data); } finally { complete(); } };
+        var err = ttg.ajaxErrorFunction(error,complete);
+
+        ttgInvoker.invokeVFR(
+			ttg.getController('DMAPP.APIDelegateController.putQualification'),
+			 qualification.params,
+			function(result, event) {
+				if (event.type == 'exception') {
+					err(result,event);
+				} else {
+					succ(result);
+				}
+			}, 
+			{escape: false}
+		)
+    }
+    
+    function getRoleInformationJS(roleId, success, error, complete) {
+    
+        var succ = function(data) { try { success(data); } finally { complete(); } };
+        var err = ttg.ajaxErrorFunction(error,complete);
+        
+        ttgInvoker.invokeVFR(
+			ttg.getController('DMAPP.APIDelegateController.getRoleInformation'),
+			 roleId, 
+			function(result, event) {
+				if (event.type == 'exception') {
+					err(result,event);
+				} else {
+					succ(result);
+				}
+			}, 
+			{escape: false}
+		)
+    }
+    
+    function getMetadataJS(spec, success, error, complete) {
+    
+        var succ = function(data) { try { success(data); } finally { complete(); } };
+        var err = ttg.ajaxErrorFunction(error,complete);
+    
+        ttgInvoker.invokeVFR(
+			ttg.getController('DMAPP.APIDelegateController.getMetaData'),
+			 spec.entity, 
+			function(result, event) { 
+				if (event.type == 'exception') {
+					err(result,event); 
+				} else {
+					succ(result); 
+				}
+			}, 
+			{escape: false}
+		)
+    }
+    
+    function getValueMapJS(id, success, error, complete) {
+    
+    	if (error === undefined) error = handleError;
+    	
+        var succ = function(data) { try { success(data); } finally { complete(); } };
+        var err = ttg.ajaxErrorFunction(error,complete);
+        
+        ttgInvoker.invokeVFR(
+			ttg.getController('DMAPP.APIDelegateController.getValueMap'),
+			 id, 
+			function(result, event) {
+				if (event.type == 'exception') {
+					err(result,event);
+				} else {
+					succ(result);
+				}
+			}, 
+			{escape: false}
+		)
+
+    }
+    
+    function putValueMapJS(id, qualification, success, error, complete) {
+
+    	if (error === undefined) error = handleError;
+    	
+        var succ = function(data) { try { success(data); } finally { complete(); } };
+        var err = ttg.ajaxErrorFunction(error,complete);
+
+        ttgInvoker.invokeVFR(
+			ttg.getController('DMAPP.APIDelegateController.putValueMap'),
+			id, 
+			qualification.params,
+			function(result, event) {
+				if (event.type == 'exception') {
+					err(result,event);
+				} else {
+					succ(result);
+				}
+			}, 
+			{escape: false}
+		)
+    }
+   
+
+    function getSegmentationJS(id, success, error, complete) {
+    
+    	if (error === undefined) error = handleError;
+    	
+        var succ = function(data) { try { success(data); } finally { complete(); } };
+        var err = ttg.ajaxErrorFunction(error,complete);
+        
+        ttgInvoker.invokeVFR(
+			ttg.getController('DMAPP.APIDelegateController.getSegmentation'),
+			 id,
+			function(result, event) {
+				if (event.type == 'exception') {
+					err(result,event);
+				} else { 
+					succ(result);
+				}
+			}, 
+			{escape: false}
+		)
+    
+    }
+    
+    function putSegmentationJS(id, qualification, success, error, complete) {
+
+    	if (error === undefined) error = handleError;
+    	
+        var succ = function(data) { try { success(data); } finally { complete(); } };
+        var err = ttg.ajaxErrorFunction(error,complete);
+
+        ttgInvoker.invokeVFR(
+			ttg.getController('DMAPP.APIDelegateController.putSegmentation'),
+			 id,
+			 qualification.params,
+			function(result, event) {
+				if (event.type == 'exception') {
+					err(result,event);
+				} else {
+					succ(result);
+				}
+			}, 
+			{escape: false}
+		)
+    }
+
+    function getPlanDetailsJS(planId, success, error, complete) {
+    
+    	if (error === undefined) error = handleError;
+    	
+        var succ = function(data) { try { success(data); } finally { complete(); } };
+        var err = ttg.ajaxErrorFunction(error,complete);
+        
+        ttgInvoker.invokeVFR(
+			ttg.getController('DMAPP.APIDelegateController.getPlanDetails'),
+			 planId,
+			function(result, event) {
+				if (event.type == 'exception') {
+					err(result,event);
+				} else {
+					succ(result);
+				}
+			}, 
+			{escape: false}
+		)
+
+    }
+
+    function putPlanDetailsJS(planId, planDetail, success, error, complete) {
+
+    	if (error === undefined) error = handleError;
+    	
+        var succ = function(data) { try { success(data); } finally { complete(); } };
+        var err = ttg.ajaxErrorFunction(error,complete);
+
+        ttgInvoker.invokeVFR(
+			ttg.getController('DMAPP.APIDelegateController.putPlanDetails'),
+			 planId, planDetail.line,
+			function(result, event) {
+				if (event.type == 'exception') {
+					err(result,event);
+				} else {
+					succ(result);
+				}
+			}, 
+			{escape: false}
+		)
+    }     
+    
+
+	// alex leave
+	function getPlanObjectives(planId, accountUnitId, success, error, complete) {
+    
+    	if (error === undefined) error = handleError;
+    	
+        var succ = function(data) { try { success(data); } finally { complete(); } };
+        var err = ttg.ajaxErrorFunction(error,complete);
+   
+   		var restUrl = ttg.vfpurl+'/AccountPlanObjectives/' + encodeURIComponent(planId);
+   		
+   		if (accountUnitId != null && accountUnitId != '') {
+   			restUrl = restUrl + '/' +encodeURIComponent(accountUnitId);
+   		}
+        
+     	ttgInvoker.invokeVFR(
+			ttg.getController('DMAPP.APIDelegateController.getJSR'), 
+			planId, accountUnitId,
+			function(result, event) {
+				if (event.type == 'exception') {
+					err(result,event);
+				} else {
+					succ(result);
+				}
+			}, 
+			{escape: false}
+		)
+    }
+    
+    // cloned getPlanObjectives() for redesigned Objectives page
+    function getPlanObjectives2(planId, accountUnitId, success, error, complete) {
+    
+    	if (error === undefined) error = handleError;
+    	
+        var succ = function(data) { try { success(data); } finally { complete(); } };
+        var err = ttg.ajaxErrorFunction(error,complete);
+   
+   		var restUrl = ttg.vfpurl+'/AccountPlanObjectives/' + encodeURIComponent(planId);
+   		
+   		if (accountUnitId != null && accountUnitId != '') {
+   			restUrl = restUrl + '/' +encodeURIComponent(accountUnitId);
+   		}
+        
+     	ttgInvoker.invokeVFR(
+			ttg.getController('DMAPP.APIDelegateController.getJSR'), 
+			planId, accountUnitId,
+			function(result, event) {
+				if (event.type == 'exception') {
+					err(result,event);
+				} else {
+					succ(adapter.adaptGetPlanObjectives(result));
+				}
+			}, 
+			{escape: false}
+		)
+    }
+        
+    function getForecastTeamJS(ownerId, success, error, complete) {
+    
+        var succ = function(data) { try { success(data); } finally { if(complete) { complete(); } } };
+        var err = ttg.ajaxErrorFunction(error,complete);
+    
+        ttgInvoker.invokeVFR(
+			ttg.getController('DMAPP.APIDelegateController.getForecastTeam'), 
+			ownerId,
+			function(result, event) {
+				if (event.type == 'exception') {
+					err(result,event);
+				} else {
+					succ(result);
+				}
+			}, 
+			{escape: false}
+		)
+    } 
+    
+    function putForecastTeamJS(teamId, forecastTeamChanges, success, error, complete) {
+
+    	if (error === undefined) error = handleError;
+    	
+        var succ = function(data) { try { success(data); } finally { if(complete) { complete(); } } };
+        var err = ttg.ajaxErrorFunction(error,complete);
+        
+        ttgInvoker.invokeVFR(
+			ttg.getController('DMAPP.APIDelegateController.putForecastTeam'), 
+			teamId,
+			forecastTeamChanges.forecastTeamChanges, 
+			function(result, event) {
+				if (event.type == 'exception') {
+					err(result,event);
+				} else {
+					succ(result);
+				}
+			}, 
+			{escape: false}
+		)
+    }  
+    
+    function postForecastTeamJS(ownerId, forecastTeamChanges, success, error, complete) {
+
+    	if (error === undefined) error = handleError;
+    	
+        var succ = function(data) { try { success(data); } finally { if(complete) { complete(); } } };
+        var err = ttg.ajaxErrorFunction(error,complete);
+        
+        
+        ttgInvoker.invokeVFR(
+			ttg.getController('DMAPP.APIDelegateController.postForecastTeam'), 
+			ownerId,
+			forecastTeamChanges.forecastTeamChanges, 
+			function(result, event) {
+				if (event.type == 'exception') {
+					err(result,event);
+				} else {
+					succ(result);
+				}
+			}, 
+			{escape: false}
+		)
+    } 
+       
+    
+    function deleteForecastTeamJS(teamId, success, error, complete) {
+
+    	if (error === undefined) error = handleError;
+    	
+        var succ = function(data) { try { success(data); } finally { if(complete) { complete(); } } };
+        var err = ttg.ajaxErrorFunction(error,complete);
+        
+        ttgInvoker.invokeVFR(
+			ttg.getController('DMAPP.APIDelegateController.deleteForecastTeam'), 
+			teamId,
+			function(result, event) {
+				if (event.type == 'exception') {
+					err(result,event);
+				} else {
+					succ(result);
+				}
+			}, 
+			{escape: false}
+		)
+    }        
+    
+    function saveCollaborationMapNodes(mapId, nodesArray, mapType, nodeTypes, success, error, complete) {
+    
+    	var req = {
+            collaborationmapnodes : {
+                mapId   :   mapId,
+                nodes   :   {
+                    node : []
+                }
+            }
+        };
+        
+        jQuery.each(nodesArray, function(idx, n) {
+            var newn = {
+                id                  :   n.id ? n.id : '',
+                mapid               :   mapId,
+                type                :   n.type,
+                confirmed           :   n.confirmed,
+                isprivate           :   n.isprivate,
+                blocked             :   n.isblocked == undefined ? false : n.isblocked,
+                contactid           :   n.ownerid ? n.ownerid : null,
+                shortdescription    :   n.short_description,
+                longdescription     :   n.long_description,
+                notes               :   n.notes,
+                parentnodes         :   {
+                    parent : []
+                },
+                competitors         : {
+                    competitor : []
+                }   
+            };
+            
+            jQuery.each(n.getParents(), function(idxx, parent) {                
+                if (!parent.isVirtual()) {
+                    newn.parentnodes.parent.push({ id : parent.getId() });
+                }
+            });
+            
+            var ourpositions = ['unknown','up','equal','down'];
+            
+            jQuery.each(n.competitors, function(idxx, c) {
+                newn.competitors.competitor.push( { id : c.id, name : c.name, position : ourpositions[c.ourposition] });
+            })
+            
+            req.collaborationmapnodes.nodes.node.push(newn);
+        });
+
+        var succ = function(data) { try { success(adapter.adaptSaveCollaborationMapNodes(data)); } finally { complete(); } };
+        
+      	var err = ttg.ajaxErrorFunction(error,complete);
+    	
+    	var myApexType = ttg.vfpurl + '.CollaborationMapRestResource.CollaborationMap'
+    	
+    	// alex leave
+    	ttgInvoker.invokeVFR(
+			ttg.getController('DMAPP.APIDelegateController.upsertNodes'),
+			{'apexType' : myApexType, 'mapId' : req.collaborationmapnodes.mapId, 'nodes' : req.collaborationmapnodes.nodes },
+			function(result, event) {
+				if (event.type == 'exception') {
+					err(result,event);
+				} else {
+					succ(result);
+				}
+			}, 
+			{escape: false}
+		)
+    } 
+       
+    
+    
+    function getOpportunityMapUnitSolutionJS(planId, solutionId, unitId, success, error, complete) {
+    
+    	if (error === undefined) error = handleError;
+    	
+        var succ = function(data) { try { success(data); } finally { complete(); } };
+        var err = ttg.ajaxErrorFunction(error,complete);
+    
+        ttgInvoker.invokeVFR(
+			ttg.getController('DMAPP.APIDelegateController.getOpportunityMapUnitSolution'),
+			planId, solutionId, unitId,
+			function(result, event) {
+				if (event.type == 'exception') {
+					err(result,event);
+				} else {
+					succ(result);
+				}
+			}, 
+			{escape: false}
+		)
+		
+    } 
+
+    function putOpportunityMapUnitSolutionJS(unitSolutionId, changes, success, error, complete) {
+
+    	if (error === undefined) error = handleError;
+    	
+        var succ = function(data) { try { success(data); } finally { complete(); } };
+        var err = ttg.ajaxErrorFunction(error,complete);
+
+        ttgInvoker.invokeVFR(
+			ttg.getController('DMAPP.APIDelegateController.putOpportunityMapUnitSolution'),
+			unitSolutionId, changes.unitSolutionChanges,
+			function(result, event) {
+				if (event.type == 'exception') {
+					err(result,event);
+				} else {
+					succ(result);
+				}
+			}, 
+			{escape: false}
+		)
+    }     
+	   
+    
+    function postOpportunityMapUnitSolutionJS(planId, solutionId, unitId, unitSolution, success, error, complete) {
+
+    	if (error === undefined) error = handleError;
+    	
+        var succ = function(data) { try { success(data); } finally { complete(); } };
+        var err = ttg.ajaxErrorFunction(error,complete);
+        
+        ttgInvoker.invokeVFR(
+			ttg.getController('DMAPP.APIDelegateController.postOpportunityMapUnitSolution'),
+			planId, solutionId, unitId, unitSolution,
+			function(result, event) {
+				if (event.type == 'exception') {
+					err(result,event);
+				} else {
+					succ(result); 
+				}
+			}, 
+			{escape: false}
+		)
+    }  
+     
+    function deleteOpportunityMapUnitSolutionOppJS(unitSolutionOppId, success, error, complete) {
+    
+    	if (error === undefined) error = handleError;
+    	
+        var succ = function(data) { try { success(data); } finally { complete(); } };
+        var err = ttg.ajaxErrorFunction(error,complete);
+    
+    	// change rest resource end point name
+        ttgInvoker.invokeVFR(
+			ttg.getController('DMAPP.APIDelegateController.deleteOpportunityMapUnitSolutionOpp'),
+			unitSolutionOppId,
+			function(result, event) {
+				if (event.type == 'exception') {
+					err(result,event);
+				} else {
+					succ(result); 
+				}
+			}, 
+			{escape: false}
+		)
+    } 
+
+    function putOpportunityMapUnitSolutionOppJS(unitSolutionOppId, changes, success, error, complete) {
+    
+    	if (error === undefined) error = handleError;
+    	
+        var succ = function(data) { try { success(data); } finally { complete(); } };
+        var err = ttg.ajaxErrorFunction(error,complete);
+        
+        ttgInvoker.invokeVFR(
+			ttg.getController('DMAPP.APIDelegateController.putOpportunityMapUnitSolutionOpp'),
+			unitSolutionOppId, changes.unitSolutionOppChange, 
+			function(result, event) {
+				if (event.type == 'exception') {
+					err(result,event);
+				} else {
+					succ(result); 
+				}
+			}, 
+			{escape: false}
+		)
+    } 
+    
+    function postOpportunityMapUnitSolutionOppJS(solution, changes, success, error, complete) {
+
+    	if (error === undefined) error = handleError;
+    	
+        var succ = function(data) { try { success(data); } finally { complete(); } };
+        var err = ttg.ajaxErrorFunction(error,complete);
+
+		var extra = solution ? '?solution=' + encodeURIComponent(solution) : '';
+		
+		ttgInvoker.invokeVFR(
+			ttg.getController('DMAPP.APIDelegateController.postOpportunityMapUnitSolutionOpp'),
+			solution, changes.unitSolutionOppChanges,
+			function(result, event) {
+				if (event.type == 'exception') {
+					err(result,event);
+				} else {
+					succ(result); 
+				}
+			}, 
+			{escape: false}
+		)
+
+    }
+
+    
+    function getOpportunityMapUnitSolutionCompetitorJS(unitSolutionId, success, error, complete) {
+    
+    	if (error === undefined) error = handleError;
+    	
+        var succ = function(data) { try { success(data); } finally { complete(); } };
+        var err = ttg.ajaxErrorFunction(error,complete);
+    
+        ttgInvoker.invokeVFR(
+			ttg.getController('DMAPP.APIDelegateController.getOpportunityMapUnitSolutionCompetitor'),
+			unitSolutionId,
+			function(result, event) {
+				if (event.type == 'exception') {
+                    err(result,event);
+				} else {
+					succ(result); 
+				}
+			}, 
+			{escape: false}
+		)
+    }
+
+    function putOpportunityMapUnitSolutionCompetitorJS(changes, success, error, complete) {
+    
+    	if (error === undefined) error = handleError;
+    	
+        var succ = function(data) { try { success(data); } finally { complete(); } };
+        var err = ttg.ajaxErrorFunction(error,complete);
+       
+        ttgInvoker.invokeVFR(
+			ttg.getController('DMAPP.APIDelegateController.putOpportunityMapUnitSolutionCompetitor'),
+			changes.unitSolutionCompetitorChanges,
+			function(result, event) {
+				if (event.type == 'exception') {
+                    err(result,event);
+				} else {
+					succ(result); 
+				}
+			}, 
+			{escape: false}
+		);
+    }
+    
+    function postOpportunityMapUnitSolutionCompetitorJS(unitSolutionId, changes, success, error, complete) {
+    
+    	if (error === undefined) error = handleError;
+    	
+        var succ = function(data) { try { success(data); } finally { complete(); } };
+        var err = ttg.ajaxErrorFunction(error,complete);
+       
+        ttgInvoker.invokeVFR(
+			ttg.getController('DMAPP.APIDelegateController.postOpportunityMapUnitSolutionCompetitor'),
+			unitSolutionId,
+			changes.unitSolutionCompetitorChanges,
+			function(result, event) {
+				if (event.type == 'exception') {
+					err(result,event);
+				} else {
+					succ(result); 
+				}
+			}, 
+			{escape: false}
+		);
+    }    
+    
+    function deleteOpportunityMapUnitSolutionCompetitorJS(competitorId, success, error, complete) {
+    
+    	if (error === undefined) error = handleError;
+    	
+        var succ = function(data) { try { success(data); } finally { complete(); } };
+        var err = ttg.ajaxErrorFunction(error,complete);
+       
+        ttgInvoker.invokeVFR(
+			ttg.getController('DMAPP.APIDelegateController.deleteOpportunityMapUnitSolutionCompetitor'),
+			competitorId,
+			function(result, event) {
+				if (event.type == 'exception') {
+					err(result,event);
+				} else {
+					succ(result); 
+				}
+			}, 
+			{escape: false}
+		);
+    }    
+   
+    function getPlanCompetitorJS(searchString, success, error, complete) {
+    
+    	if (error === undefined) error = handleError;
+    	
+        var succ = function(data) { try { success(data); } finally { complete(); } };
+        var err = ttg.ajaxErrorFunction(error,complete);
+    
+        ttgInvoker.invokeVFR(
+			ttg.getController('DMAPP.APIDelegateController.getPlanCompetitor'),
+			searchString,
+			function(result, event) {
+				if (event.type == 'exception') {
+					err(result,event);
+				} else {
+					succ(result);
+				}
+			}, 
+			{escape: false}
+		)
+    }  
+    
+            
+    function postPlanCompetitorJS(changes, success, error, complete) {
+    
+    	if (error === undefined) error = handleError;
+    	
+        var succ = function(data) { try { success(data); } finally { complete(); } };
+        var err = ttg.ajaxErrorFunction(error,complete);
+    
+        ttgInvoker.invokeVFR(
+			ttg.getController('DMAPP.APIDelegateController.postPlanCompetitor'),
+			changes.planCompetitorChanges,
+			function(result, event) {
+				if (event.type == 'exception') {
+					err(result,event);
+				} else {
+					succ(result);
+				}
+			}, 
+			{escape: false}
+		)
+    }
+   
+        
+    function getAccountPlanOpportunityJS(planId, unitId, isWon, searchString, config, success, error, complete) {
+    
+        if (error === undefined) error = handleError;
+        
+        function adaptResult(data) {
+            // Patch 8.13 Hack
+            jQuery.each(data.opportunities, function(index, opp) {
+                opp.ancestorAccountIds = [];
+                if(opp.accountId) {
+                    var ancestorAccountIds = opp.accountId.split(' ');
+                    if(ancestorAccountIds.length > 0) {
+                        opp.accountId = ancestorAccountIds[0];
+                    }
+                    if(ancestorAccountIds.length > 1) {
+                        opp.ancestorAccountIds = ancestorAccountIds.slice(1);
+                    }
+                }
+            });
+            return data;
+        }
+        
+        var succ = function(data) { 
+            try { 
+                success(adaptResult(data)); 
+            } finally { 
+                complete(); 
+            } 
+        };
+
+        var err = ttg.ajaxErrorFunction(error,complete);
+		
+		var searchParams = searchString;
+		var extra = 'planid=' + planId;
+		if(isWon === true || isWon === false) {
+    	   extra += '&iswon=' + isWon;
+    	}
+
+		if(config.whereClause != undefined) {
+           extra += '&whereClause=' + encodeURIComponent(config.whereClause);
+        }
+
+		if(config.fieldsToSelect != undefined) {
+           extra += '&fieldsToSelect=' + config.fieldsToSelect;
+        }        
+
+        if(config.multiCurrency) {
+			if(config.maxFields != undefined) {
+	           extra += '&maxFields=' + config.maxFields;
+	        }   
+			if(config.sumFields != undefined) {
+	           extra += '&sumFields=' + config.sumFields;
+	        }                  
+        }        
+        if(unitId) {
+            extra += '&unitid=' + unitId;
+        }
+		
+        ttgInvoker.invokeVFR(
+			ttg.getController('DMAPP.APIDelegateController.getPlanOpportunity'),
+			extra,
+			function(result, event) {
+				if (event.type == 'exception') {
+					err(result,event);
+				} else {
+					succ(result);
+				}
+			}, 
+			{escape: false}
+		)
+    }  
+    
+    function getIncludedPlanOpportunityIdsJS(planId, success, error, complete) {
+    
+        if (error === undefined) error = handleError;
+
+        
+        var succ = function(data) { 
+            try { 
+                success(data); 
+            } finally { 
+                complete(); 
+            } 
+        };
+
+        var err = ttg.ajaxErrorFunction(error,complete);
+		
+        ttgInvoker.invokeVFR(
+			ttg.getController('DMAPP.APIDelegateController.getIncludedPlanOpportunityIds'),
+			planId,
+			function(result, event) {
+				if (event.type == 'exception') {
+					err(result,event);
+				} else {
+					succ(result);
+				}
+			}, 
+			{escape: false}
+		)
+    }    
+    
+    function postAccountPlanOpportunityJS(unitSolutionId, changes, success, error, complete) {
+
+    	if (error === undefined) error = handleError;
+    	
+        var succ = function(data) { try { success(data); } finally { complete(); } };
+        var err = ttg.ajaxErrorFunction(error,complete);
+
+        ttgInvoker.invokeVFR(
+			ttg.getController('DMAPP.APIDelegateController.postAccountPlanOpportunity'),
+			unitSolutionId,
+			changes.accountPlanOpportunityChange,
+			function(result, event) {
+				if (event.type == 'exception') {
+					err(result,event);
+				} else {
+					succ(result);
+				}
+			}, 
+			{escape: false}
+		)
+	
+    }      
+       
+
+    var am = (function() {
+       
+        function adaptAddOrgChartContact(data) {
+        
+            var adapted = {
+                links : {
+                    link : []
+                }
+            };
+            
+            jQuery.each(data.contacts, function(idx,c) {
+                adapted.links.link.push({ id : c.orgchartcontactid, accountUnitId: c.accountUnitId });
+            })
+            
+            return adapted;
+        }
+        
+        function adaptSearchOrgCharts(data) {
+        
+            var adapted = {
+                "org_charts": {
+                    "org_chart": []
+                    }
+            }
+                        
+            jQuery.each(data.records, function(idx,rec) {
+                adapted.org_charts.org_chart.push({
+                    id      :   rec.Id,
+                    name    :   rec.Name,//rec[ttg.vfp+'Account__r'].Name,
+                    type    :   rec.attributes.type
+                });
+            });
+            
+            return adapted;
+        }
+        
+                
+        function adaptSearchOrgChartsJS(data, typevar) {
+        
+            var adapted = {
+                "org_charts": {
+                    "org_chart": []
+                    }
+            }
+                        
+            jQuery.each(data.records, function(idx,rec) {
+                adapted.org_charts.org_chart.push({
+                    id      :   rec.Id,
+                    name    :   rec.Name,//rec[ttg.vfp+'Account__r'].Name,
+                    type    :   typevar
+                });
+            });
+            
+            return adapted;
+        }
+        
+                
+        function adaptSearchOrgChartsJS(data, typevar) {
+        
+            var adapted = {
+                "org_charts": {
+                    "org_chart": []
+                    }
+            }
+                        
+            jQuery.each(data.records, function(idx,rec) {
+                adapted.org_charts.org_chart.push({
+                    id      :   rec.Id,
+                    name    :   rec.Name,//rec[ttg.vfp+'Account__r'].Name,
+                    type    :   typevar
+                });
+            });
+            
+            return adapted;
+        }
+        
+		//
+		// The Org Chart related calls
+		//
+		function createGraph(graph, success, error, complete) {
+		    // in sfdc native we dont have an org chart object
+		    // every org chart is assumed to have one and so we 
+		    // will always be able to load one and hence never 
+		    // have to create one
+		};
+		
+		function addOrgChartContactJS(graphId, orgChartContacts, success, error, complete) {
+		    
+		    var succ = function(data) { try { success( adaptAddOrgChartContact(data) ); } finally { complete(); } };
+            var err = ttg.ajaxErrorFunction(error,complete);
+		    
+		    // handle the array ness in the orgChartContact param
+		    
+		    var req =  { "occs" : { "contacts" : [] } };
+		    
+		    jQuery.each( jQuery.makeArray(orgChartContacts), function(idx, occ) {
+		            req.occs.contacts.push( { 
+		                accountUnitId       :   graphId, 
+		                contactid           :   occ.id,
+		                hookstoid           :   occ.hookstoid
+		            }); 
+		    });
+		    
+		    ttgInvoker.invokeVFR(ttg.getController('DMAPP.APIDelegateController.addOrgChartContactAM'),
+				req.occs, 
+				function(result, event) { 
+					if (event.type == 'exception') { 
+						err(result,event);
+					} else {
+						succ(result); 
+					} 
+				}, {escape: false}
+			)          
+		}
+	
+		
+		function updateContactAttributeJS(contactId, contactAttr, orgChartMetadata, success, error, complete) {
+		
+		    var succ = function(data) { try { success(data); } finally { complete(); } };
+            var err = ttg.ajaxErrorFunction(error,complete);
+		
+		    function makeContactsList(arr) {
+		        var cl = {
+		            contactid : []
+		        }
+		        
+		        jQuery.each(arr, function(idx, a) { cl.contactid.push(a); });
+		        
+		        return cl;
+		    }
+		            
+		    adaptedPost = {
+		        occs    :   {
+		            contacts : []
+		        }
+		    };
+		    
+		    
+		    jQuery.each(jQuery.makeArray(contactAttr), function(idx, cntct) {
+		        var newCntct = {
+		                accountUnitId       :   cntct.accountUnitId,
+		                contactid           :   cntct.id,
+		                orgchartcontactid   :   cntct.orgchartcontactid, 
+		                ownerid             :   cntct.ownerid,
+		                note                :   cntct.note,
+		                political           :   cntct.political,
+		                adaptability        :   cntct.adaptability,
+		                coverage            :   cntct.coverage,
+		                status              :   cntct.status,
+		                decisionorientation :   cntct.decisionorientation,
+		                keyplayer           :   cntct.keyplayer,
+		                approved            :   cntct.approved,
+		                influences          :   makeContactsList(cntct.influences),
+		                influencedby        :   makeContactsList(cntct.influencedBy),
+                        hookstoid           :   cntct.hookstoid,
+                        alwaysonmap         :   cntct.alwaysonmap
+		            };
+		
+		        adaptedPost.occs.contacts.push(newCntct);
+		    })
+		    
+		    
+		    var req = JSON.stringify(adaptedPost);
+		    
+		    ttgInvoker.invokeVFR(ttg.getController('DMAPP.APIDelegateController.updateContactAttributeAM'),
+				adaptedPost.occs, 
+				function(result, event) { 
+					if (event.type == 'exception') { 
+						err(result,event);
+					} else {
+						succ(result); 
+					}
+				}, {escape: false}
+			)                       
+		}
+		
+		
+
+		function removeOrgChartContactJS(contactId, success, error, complete) {   
+		
+		    var succ = function(data) { try { success(data); } finally { complete(); } };
+            var err = ttg.ajaxErrorFunction(error,complete);
+		
+			ttgInvoker.invokeVFR(ttg.getController('DMAPP.APIDelegateController.removeOrgChartContactAM'),
+				contactId, 
+				function(result, event) { 
+					if (event.type == 'exception') { 
+						err(result,event);
+					} else {
+						succ(result); 
+					}
+				}, {escape: false}
+			)   
+		}
+
+	    function importFromOpportunityOrgCharts(accountmapid, oppids, success, error, complete) {
+	        complete = complete || function() {};
+	        var succ = function(data) { try { success(data); } finally { complete(); } };
+	        var err = ttg.ajaxErrorFunction(error,complete);     
+	        
+	        ttgInvoker.invokeVFR(
+	            ttg.getController('DMAPP.APIDelegateController.importFromOpportunityOrgChartsToAccount'),
+	            accountmapid,
+	             oppids,
+	            function(result, event) { 
+	                if (event.type == 'exception') { 
+	                    err(result,event);
+	                } else {
+	                    succ(result); 
+	                }
+	            }, {escape: false}
+	        ) 
+	    }
+	    
+	    function importFromAccountOrgCharts(accountmapid, mapids, success, error, complete) {
+	        complete = complete || function() {};
+	        var succ = function(data) { try { success(data); } finally { complete(); } };
+	        var err = ttg.ajaxErrorFunction(error,complete);     
+	        
+	        ttgInvoker.invokeVFR(
+	            ttg.getController('DMAPP.APIDelegateController.importFromAccountOrgChartsToAccount'),
+	            accountmapid,
+	             mapids,
+	            function(result, event) { 
+	                if (event.type == 'exception') { 
+	                    err(result,event);
+	                } else {
+	                    succ(result); 
+	                }
+	            }, {escape: false}
+	        ) 
+	    }
+
+        var that = {};
+    
+	    //that.loadOrgChart = loadOrgChart;
+	    that.createGraph = createGraph;    // No need to migrate as it is redundant.
+		that.updateContactAttribute = updateContactAttributeJS;   // Migrated to use JS Remoting
+		that.removeOrgChartContact = removeOrgChartContactJS;     // Migrated to use JS remoting
+		that.addOrgChartContact = addOrgChartContactJS;           // Migrated to use JS remoting
+		that.getOrgChartContact = getOrgChartContact;  // No need to migrate as it is redundant.
+		that.adaptSearchOrgCharts = adaptSearchOrgCharts;
+		that.adaptSearchOrgChartsJS = adaptSearchOrgChartsJS;
+		
+		that.importFromOpportunityOrgCharts = importFromOpportunityOrgCharts;
+		that.importFromAccountOrgCharts = importFromAccountOrgCharts;
+		
+	    return that;
+    })();
+    	
+	   
+
+    function saveUnitLORJS(unitId, lor, success, error, complete) {
+        if (error === undefined) error = handleError;
+        if (complete === undefined) complete = function() {};
+        
+        var succ = function(data) { try { success(data); } finally { complete(); } };
+        var err = ttg.ajaxErrorFunction(error,complete);
+
+        var au =  { };
+        au['Id'] = unitId;
+        au[ttg.vfp+'Level_Of_Relationship__c']   =   lor;
+        
+        ttgInvoker.invokeVFR(
+			ttg.getController('DMAPP.APIDelegateController.saveUnitLOR'),
+			au,
+			function(result, event) {
+				if (event.type == 'exception') {
+					err(result,event);
+				} else {
+					succ(result);
+				}
+			}, 
+			{escape: false}
+		)
+    }
+
+    
+    function getUnmappedOpportunityLinesJS(planid, success, error, complete) {
+        if (error === undefined) error = handleError;
+        if (complete === undefined) complete = function() {};
+        
+        var succ = function(data) { try { success(data); } finally { complete(); } };
+        var err = ttg.ajaxErrorFunction(error,complete);
+
+
+        ttgInvoker.invokeVFR(
+			ttg.getController('DMAPP.APIDelegateController.getUnmappedOpportunityLines'),
+			planid,
+			function(result, event) {
+				if (event.type == 'exception') {
+					err(result,event);
+				} else {
+					succ(result);
+				}
+			}, 
+			{escape: false}
+		)
+
+    }
+
+    function insertPlanSolutionJS(planid, solutionid, success, error, complete) {
+        if (error === undefined) error = handleError;
+        if (complete === undefined) complete = function() {};
+        
+        var succ = function(data) { try { success(data); } finally { complete(); } };
+        var err = ttg.ajaxErrorFunction(error,complete);
+
+        var req = {sol: {}};
+        req.sol['Account_Plan__c'] = planid;
+        req.sol['AM_Solution__c'] = solutionid;
+        
+        ttgInvoker.invokeVFR(
+			ttg.getController('DMAPP.APIDelegateController.insertPlanSolution'),
+			req.sol,
+			function(result, event) {
+				if (event.type == 'exception') {
+					err(result,event);
+				} else {
+					succ(result);
+				}
+			}, 
+			{escape: false}
+		)
+    }
+
+    function planCloneJS(planid, newname, success, error, complete) {
+        if (error === undefined) error = handleError;
+        if (complete === undefined) complete = function() {};
+        
+        var succ = function(data) { try { success(data); } finally { complete(); } };
+        var err = ttg.ajaxErrorFunction(error,complete);
+
+        ttgInvoker.invokeVFR(
+			ttg.getController('DMAPP.APIDelegateController.planClone'),
+			planid, newname,
+			function(result, event) {
+				if (event.type == 'exception') {
+					err(result, event);
+				} else {
+					succ(result);
+				}
+			}, 
+			{escape: false}
+		)
+    }
+
+
+   function genericSearchJS(spec, success, error, complete) {
+    
+        var succ = function(data) { try { success(data); } finally { complete(); } };
+        var err = ttg.ajaxErrorFunction(error,complete);
+        var extra = spec.extraSearchParams ? spec.extraSearchParams() : ''
+        var orderdir = spec.orderdir ? spec.orderdir : 'ASC';
+        var orderby = spec.orderby ? ' ORDER BY ' + spec.orderby + ' ' + orderdir + ' ' : ' ';
+
+		var newQuery = 'SELECT ';
+		jQuery.each(spec.fields, function(key, value) {
+				if(spec.amountField && value.key === spec.amountField) {
+					return;
+				}
+				if (key != 0) newQuery += ',';
+				if(value.type === 'LOCATION') {
+					newQuery += value.key.slice(0,-3) + '__Latitude__s,' + value.key.slice(0,-3) + '__Longitude__s'
+				}
+				else {
+					newQuery += value.key;
+				}
+			}
+		);
+		
+		var whereClause = (spec.term + extra).trim() ? ' WHERE '+spec.term + ' ' + extra : '';
+		newQuery += ' FROM '+spec.entity+ whereClause + orderby +' LIMIT 201' ;
+
+        queryJS(newQuery,succ,err,true);
+    }   
+      
+
+    function upsertObjectJS(spec, success, error, complete) {
+    	// local function to addpate return date.  Lower case and upper case Id are included.
+        // JS remoting uses upper. 
+        function adaptReturnedData(data) {
+        	if (!data.id) {
+        		data.id = data.Id;
+        	} 
+        	return data;
+        }
+        
+        var succ = function(data) { try { success(adaptReturnedData(data)); } finally { complete(); } };
+        var err = ttg.ajaxErrorFunction(error,complete);
+		if (spec.disableErrorHandlier) {
+		
+			err = function(responseInfo,event,b,c) { try { error(responseInfo,event,b,c); } finally { complete(); } }
+			
+		}        
+        
+        if (spec.id == undefined) {
+			
+			ttgInvoker.invokeVFR(
+				ttg.getController('DMAPP.APIDelegateController.createObjectUsingMap'),
+				spec.entity, spec.fields,
+				function(result, event) {
+					if (event.type == 'exception') {
+						err(result,event);
+					} else {
+						succ(result);
+					}
+				}, 
+				{escape: false}
+			)
+			         
+        }
+        else {
+			 ttgInvoker.invokeVFR(
+				ttg.getController('DMAPP.APIDelegateController.upsertObjectUsingMap'),
+				spec.entity, spec.id, spec.fields,
+				function(result, event) {
+					if (event.type == 'exception') {
+						err(result,event);
+					} else {
+						succ(result);
+					}
+				}, 
+				{escape: false}
+			)			         
+        }
+    }  
+    
+   
+    function getObjectJS(spec, success, error, complete) {
+    
+        var succ = function(data) { try { success(data); } finally { complete(); } };
+        var err = ttg.ajaxErrorFunction(error,complete);
+        
+		var query = 'SELECT ';
+		jQuery.each(spec.fields, function(key, value) {
+				if (key != 0) query += ',';
+				query += value
+			}
+		)
+		query += ' FROM '+spec.entity+' WHERE Id=\''+spec.id + '\'';
+        
+        queryJS(query, succ, err);
+    }  
+    
+    function genericAjaxGetJS(endpoint, id, success, error, complete) {
+    
+        var succ = function(data) { try { success(data); } finally { complete(); } };
+        var err = ttg.ajaxErrorFunction(error,complete);
+    
+        ttgInvoker.invokeVFR(
+			ttg.getController('DMAPP.APIDelegateController.genericAjaxGet'),
+			endpoint,
+			id,
+			function(result, event) {
+				if (event.type == 'exception') {
+					err(result,event);
+				} else {
+					succ(result);
+				}
+			}, 
+			{escape: false}
+		)
+    }
+
+    
+    function genericAjaxPutJS(endpoint, id, params, success, error, complete) {
+
+        var succ = function(data) { try { success(data); } finally { complete(); } };
+        var err = ttg.ajaxErrorFunction(error,complete);
+        // horrible hack. But works.
+        if (endpoint === 'MarketViewAdmin') {
+             ttgInvoker.invokeVFR(
+				ttg.getController('DMAPP.APIDelegateController.marketViewPut'),
+				id,
+				params.param,
+				function(result, event) {
+					if (event.type == 'exception') {
+						err(result,event);
+					} else {
+						succ(result);
+					}
+				}, 
+				{escape: false}
+			);
+        } else if (endpoint === 'OpportunityMapAdmin') {
+             var oppMapAdminParams = params.param;
+             // have to update dates to UTC format.
+             oppMapAdminParams.fromDate = oppMapAdminParams.fromDate.ttg_toUTCDate("yy-mm-dd");
+             oppMapAdminParams.toDate = oppMapAdminParams.toDate.ttg_toUTCDate("yy-mm-dd");
+		     jQuery.each(oppMapAdminParams.revenueTargets, function(idx, revenueTarget) {
+		  	 	revenueTarget.fromDate = revenueTarget.fromDate.ttg_toUTCDate("yy-mm-dd");
+			 	revenueTarget.toDate = revenueTarget.toDate.ttg_toUTCDate("yy-mm-dd");
+			 });
+
+       		 ttgInvoker.invokeVFR(
+				ttg.getController('DMAPP.APIDelegateController.putOpportunityMapAdmin'),
+				id,
+				oppMapAdminParams,
+				function(result, event) {
+					if (event.type == 'exception') {
+						err(result,event);
+					} else {
+						succ(result);
+					}
+				}, 
+				{escape: false}
+			);
+        
+        }
+
+
+    }
+
+    function genericAjaxDeleteJS(endpoint, id, success, error, complete) {
+
+        var succ = function(data) { try { success(data); } finally { complete(); } };
+        var err = ttg.ajaxErrorFunction(error,complete);
+        
+        ttgInvoker.invokeVFR(
+			ttg.getController('DMAPP.APIDelegateController.genericAjaxDelete'),
+			endpoint,
+			id,
+			function(result, event) {
+				if (event.type == 'exception') {
+					err(result,event);
+				} else {
+					succ(result);
+				}
+			}, 
+			{escape: false}
+		)
+    }
+    
+    
+   function getMarketViewReportJS(reportid, targeted, success, error, complete) {
+        if (error === undefined) error = handleError;
+        if (complete === undefined) complete = function() {};
+        
+        var succ = function(data) { try { success(data); } finally { complete(); } };
+        var err = ttg.ajaxErrorFunction(error,complete);
+        
+        var extra = '';
+        if(targeted === true) {
+            extra = 'target=1';
+		}
+
+    	ttgInvoker.invokeVFR(
+			ttg.getController('DMAPP.APIDelegateController.getMarketViewReport'),
+			reportid,
+			extra,
+			function(result, event) {
+				if (event.type == 'exception') {
+					err(result,event);
+				} else {
+					succ(result);
+				}
+			}, 
+			{escape: false}
+		)
+    }
+    
+    function getMarketViewDetailJS(reportid, solutionid, planid, success, error, complete) {
+    
+        if (error === undefined) error = handleError;
+        if (complete == undefined) complete = function() {};
+        var succ = function(data) { try { success(data); } finally { complete(); } };
+        var err = ttg.ajaxErrorFunction(error,complete);
+    
+        var extra = '';
+        if(solutionid) {
+            extra += '?solutionid=' + encodeURIComponent(solutionid);
+        }
+        if(planid) {
+            if(extra != '') {
+                extra += '&';
+            } else {
+                extra += '?';
+            }
+            extra += 'planid=' + encodeURIComponent(planid);
+        }
+        
+        ttgInvoker.invokeVFR(
+			ttg.getController('DMAPP.APIDelegateController.getMarketViewDetail'),
+			reportid,
+			solutionid,
+			planid,
+			function(result, event) {
+				if (event.type == 'exception') {
+					err(result,event);
+				} else {
+					succ(result);
+				}
+			}, 
+			{escape: false}
+		)
+
+    }
+       
+
+    function getMarketViewDoubleCountJS(reportid, success, error, complete) {
+        if (error === undefined) error = handleError;
+        if (complete == undefined) complete = function() {};
+        var succ = function(data) { try { success(data); } finally { complete(); } };
+        var err = ttg.ajaxErrorFunction(error,complete);
+        
+        ttgInvoker.invokeVFR(
+			ttg.getController('DMAPP.APIDelegateController.getMarketViewDoubleCount'), 
+			reportid,
+			function(result, event) {
+				if (event.type == 'exception') {
+					err(result,event);
+				} else {
+					succ(result);
+				}
+			}, 
+			{escape: false}
+		)
+    }
+    
+    // Plan Objective APIs
+    function upsertObjectiveJS(id, planid, unitid, description, type, strategy, ownerid, successFunc, error, complete) {
+
+        var err = ttg.ajaxErrorFunction(error,complete);
+       	var req = { 
+       		objective : { 
+       		}
+		};
+	
+		if (id) {
+			req.objective.Id = id;        	
+		}
+           
+           if(unitid == 'NULL') {
+              unitid = null;
+           }
+           
+		req.objective[ttg.vfp+'Account_Plan__c'] = planid;        	
+		req.objective[ttg.vfp+'Plan_Unit__c'] = unitid;        	
+		req.objective[ttg.vfp+'Objective_Description__c'] = description;        	
+		req.objective[ttg.vfp+'Type__c'] = type;        	
+		req.objective[ttg.vfp+'Strategy__c'] = strategy;        	
+		req.objective[ttg.vfp+'Owner__c'] = ownerid;        	
+       		        	
+       		        	
+       	ttgInvoker.invokeVFR(ttg.getController('DMAPP.APIDelegateController.upsertObjective'),
+			req.objective, 
+			function(result, event) { 
+				if (event.type == 'exception') { 
+					err(result,event);
+				} else {
+					successFunc(result); 
+				}
+			}, {escape: false}); 
+   	}
+   	
+   	function upsertObjectiveJS2(id, planid, unitid, description, type, strategy, ownerid, duedate, subject, priority, status, successFunc, error, complete) {
+
+        var err = ttg.ajaxErrorFunction(error,complete);
+       	var req = { 
+       		objective : { 
+       		}
+		};
+	
+		if (id) {
+			req.objective.Id = id;        	
+		}
+           
+           if(unitid == 'NULL') {
+              unitid = null;
+           }
+           
+		req.objective[ttg.vfp+'Account_Plan__c'] = planid;        	
+		req.objective[ttg.vfp+'Plan_Unit__c'] = unitid;        	
+		req.objective[ttg.vfp+'Objective_Description__c'] = description;        	
+		req.objective[ttg.vfp+'Type__c'] = type;        	
+		req.objective[ttg.vfp+'Strategy__c'] = strategy;        	
+		req.objective[ttg.vfp+'Owner__c'] = ownerid;
+       		        	
+       	req.objective[ttg.vfp+'Due_Date__c'] = duedate;			// FIXME
+       	req.objective[ttg.vfp+'Subject__c'] = subject;
+       	req.objective[ttg.vfp+'Priority__c'] = priority;
+       	req.objective[ttg.vfp+'Status__c'] = status;
+       		        	
+       	ttgInvoker.invokeVFR(ttg.getController('DMAPP.APIDelegateController.upsertObjective'),
+			req.objective, 
+			function(result, event) { 
+				if (event.type == 'exception') { 
+					err(result,event);
+				} else {
+					successFunc(result); 
+				}
+			}, {escape: false}); 
+   	}    	
+	    	 
+   	function upsertActionJS(id, whatid, subject, description, priority, status, ownerid, activityDate, contactid, primeAction, successFunc, error, complete) {
+   	
+        var err = ttg.ajaxErrorFunction(error,complete);
+       	var req = { 
+       		task : { 
+       		}
+		};
+		
+		if (id) {
+			req.task.Id = id;        	
+		}
+		
+		req.task['WhatId'] = whatid;    // This was appending ttg.vfg when thirdpartyId was being used.    	
+		req.task['Subject'] = subject;        	
+		req.task['Description'] = description;        	
+		req.task['Priority'] = priority;        	
+		req.task['Status'] = status;        	
+		req.task['OwnerId'] = ownerid ;   
+		req.task['Owner'] = null;    	
+		req.task['ActivityDate'] = activityDate;    
+        req.task['WhoId'] = contactid ;   
+        req.task['primeAction'] = primeAction;         
+		    	
+		ttgInvoker.invokeVFR(ttg.getController('DMAPP.APIDelegateController.upsertAction'),
+			req.task, 
+			function(result, event) { 
+				if (event.type == 'exception') { 
+					err(result,event);
+				} else {
+					successFunc(result); 
+				} 
+			}, {escape: false}); 
+
+   	}
+   		    		    	
+   	function deleteObjectiveJS(id,successFunc, errorFunc) {	    		
+        var err = ttg.ajaxErrorFunction(errorFunc, function() {});
+   		ttgInvoker.invokeVFR(ttg.getController('DMAPP.APIDelegateController.deleteObjective'),
+			id, 
+			function(result, event) { 
+				if (event.type == 'exception') { 
+					err(result,event);
+				} else {
+					successFunc(result); 
+				}
+			}, {escape: false}); 
+	}
+	    	
+   	function deleteActionJS(id,successFunc,deleteFunc) {
+        var err = ttg.ajaxErrorFunction(deleteFunc, function() {});
+   		ttgInvoker.invokeVFR(ttg.getController('DMAPP.APIDelegateController.deleteAction'),
+			id, 
+			function(result, event) { 
+				if (event.type == 'exception') { 
+					err(result,event);
+				} else {
+					successFunc(result); 
+				}
+			}, {escape: false}); 
+   	}
+    
+
+    
+    //// Decision critieria API's ////
+    
+	function deleteDecisionCriterionJS(id, success, error, complete) {
+ 		var succ = function(data) { try { success(data); } finally { complete && complete(); } };
+        var err = ttg.ajaxErrorFunction(error,complete);
+	 	ttgInvoker.invokeVFR(ttg.getController('DMAPP.APIDelegateController.deleteDecisionCriteria'),  
+			id, 
+			function(result, event) { 
+				if (event.type == 'exception') { 
+					err(result,event);
+				} else {
+					succ(result); 
+				}
+			},{escape: false} 
+		) 
+    }
+    
+    
+    function updateDecisionCriterionJS(criterion, success, error, complete) {
+         var id = criterion.Id;
+         var opportunityId = criterion[ttg.vfp+'DM_Opportunity_Extra__c'];
+         var criterionText = criterion[ttg.vfp+'Criterion__c']; 
+         var ourPosition = criterion[ttg.vfp+'Our_Position__c'];
+         
+         var succ = function(data) { try { success(data); } finally { complete && complete(); } };
+         var err = ttg.ajaxErrorFunction(error,complete);
+                  
+         ttgInvoker.invokeVFR(
+			ttg.getController('DMAPP.APIDelegateController.updateDecisionCriteria'),  
+			id, opportunityId, criterionText, ourPosition,     // ourPosition  
+			function(result, event) { 
+				if (event.type == 'exception') { 
+					err(result,event);
+				} else {
+					succ(result);
+				}
+			},{escape: false} 
+		 );
+	}
+                
+    function getDecisionCriterionJS(opportunityExtraId, success, error, complete) {
+        var succ = function(data) { try { success(data); } finally { complete && complete(); } };
+        var err = ttg.ajaxErrorFunction(error,complete);
+        ttgInvoker.invokeVFR(ttg.getController('DMAPP.APIDelegateController.getDecisionCriteria'),  
+            opportunityExtraId, // opportunityExtraId 
+            function(result, event) { 
+                if (event.type == 'exception') { 
+                    err(result,event)
+                } else {
+                    succ(result); 
+                }
+            },{escape: false} 
+        )
+    }
+                
+    function createNewDecisionCriterionJS(opportunityExtraId, newCritText, success, error, complete) {
+        var succ = function(data) { try { success(data); } finally { complete && complete(); } };
+        var err = ttg.ajaxErrorFunction(error,complete);
+    	ttgInvoker.invokeVFR(ttg.getController('DMAPP.APIDelegateController.createDecisionCriteria'),  
+			opportunityExtraId, // opportunityExtraId 
+			newCritText, // criterion
+			'Equal',     // ourPosition  
+			function(result, event) { 
+				if (event.type == 'exception') { 
+					err(result,event)
+				} else {
+					succ(); 
+				}
+			},{escape: false} 
+		)
+    }
+                
+    function updateDecisionCriteriaScoreJS(id, importance, success, error, complete) {  
+        var succ = function(data) { try { success(data); } finally { complete && complete(); } };
+        var err = ttg.ajaxErrorFunction(error,complete);             
+        ttgInvoker.invokeVFR(ttg.getController('DMAPP.APIDelegateController.updateDecisionCriteriaScore'),  
+			id, // rankId 
+			importance, 
+			function(result, event) { 
+				if (event.type == 'exception') { 
+					err(result,event);
+				} else { 
+					succ(result); 
+				}
+			},{escape: false});
+ 	}
+    
+    function updatePoliticalMapContactJS(id, newval, success, error, complete) {
+        var succ = function(data) { try { success(data); } finally { complete && complete(); } };
+        var err = ttg.ajaxErrorFunction(error,complete); 
+        ttgInvoker.invokeVFR(ttg.getController('DMAPP.APIDelegateController.updatePoliticalMapContact'),  
+			id, // rankId 
+			newval, 
+			function(result, event) { 
+				if (event.type == 'exception') { 
+					err(result,event);
+				} else { 
+					succ(result); 
+				}
+			},{escape: false});  
+    }
+    
+
+
+    // New API's added by Alex in 8.20. 
+    function queryJS(soql, success, error, complete, avoidUnencoding) {
+        var succ = function(data) { 
+        	try { 
+        		success(data); 
+        	} finally {
+        		if ((arguments.length >= 4) && (typeof complete === "function")) {
+        			complete();
+        		}
+        	} 
+       	};
+        var err = ttg.ajaxErrorFunction(error,complete);
+        
+        //soql = decodeURIComponent(soql);
+        // remove the +' symbols'
+
+        if(!avoidUnencoding) {
+			/*
+			soql = soql.replace(/\+/g, " ");
+			soql = soql.replace(/\%20/g, " ");			// 20 => Space
+			soql = soql.replace(/\%3D/g, "=");			// 3D => =
+			soql = soql.replace(/\%25/g, "%");			// 25 => %
+			soql = soql.replace(/\%26/g, "&");			// 26 => &
+			soql = soql.replace(/\%5C\'/g, "\\\'");		// 5c => \
+			*/
+			soql = soql.replace(/\]/g, "\\\]");
+		}
+
+        ttgInvoker.invokeVFR(ttg.getController('DMAPP.APIDelegateController.query'), 
+        	soql, 
+        	function(result, event) { 
+				if (event.type == 'exception') { 
+					err(result,event);
+				} else {
+					succ(result); 
+				}
+			}, 
+			{escape: false});	
+    }
+
+    function getPPTXJS(id, success, error, complete) {
+        var succ = function(data) { try { success(data); } finally { complete(); } };
+        var err = ttg.ajaxErrorFunction(error,complete);
+        ttgInvoker.invokeVFR(ttg.getController('DMAPP.APIDelegateController.getPPTX'), 
+            id, 
+            function(result, event) { 
+                if (event.type == 'exception') { 
+                    err(result,event);
+                } else {
+                    succ(result); 
+                }
+            }, 
+            {escape: false});   
+    }
+   
+	function getPPTXJS(id, success, error, complete) {
+        var succ = function(data) { try { success(data); } finally { complete(); } };
+        var err = ttg.ajaxErrorFunction(error,complete);
+		ttgInvoker.invokeVFR(ttg.getController('DMAPP.APIDelegateController.getPPTX'), 
+        	id, 
+        	function(result, event) { 
+				if (event.type == 'exception') { 
+					err(result,event);
+				} else {
+					succ(result); 
+				}
+			}, 
+			{escape: false});	
+	}
+   
+	function postPPTXJS(id, params, success, error, complete) {
+        var succ = function(data) { try { success(data); } finally { complete(); } };
+        var err = ttg.ajaxErrorFunction(error,complete);
+        ttgInvoker.invokeVFR(ttg.getController('DMAPP.APIDelegateController.postPPTX'), 
+        	id, params.param, 
+        	function(result, event) { 
+				if (event.type == 'exception') { 
+					err(result,event);
+				} else {
+					succ(result); 
+				}
+			}, 
+			{escape: false});
+	}   
+
+	function putPPTXJS(params, success, error, complete) {
+        var succ = function(data) { try { success(data); } finally { complete(); } };
+        var err = ttg.ajaxErrorFunction(error,complete);
+		ttgInvoker.invokeVFR(ttg.getController('DMAPP.APIDelegateController.putPPTX'), 
+        	id, params,
+        	function(result, event) { 
+				if (event.type == 'exception') { 
+					err(result,event);
+				} else {
+					succ(result); 
+				}
+			}, 
+			{escape: false});
+	}   
+
+	function deletePPTXJS(id, success, error, complete) {
+        var succ = function(data) { try { success(data); } finally { complete(); } };
+        var err = ttg.ajaxErrorFunction(error,complete);
+		ttgInvoker.invokeVFR(ttg.getController('DMAPP.APIDelegateController.delPPTX'), 
+        	id, 
+        	function(result, event) { 
+				if (event.type == 'exception') { 
+					err(result,event);
+				} else {
+					succ(result); 
+				} 
+			}, 
+			{escape: false});
+	}    
+    // End APIs added by Alex in 8.20
+    
+    
+    // the remote calls 
+    
+   function sfdcClient() {
+        var client = new forcetk.Client();
+        client.setSessionToken(spec.sessionid);        
+        return client;
+    }
+
+    
+    var that = {};
+    // Note: I added comments to give examples of where API where called. Some of these may be redundant but difficult to be 100% sure. See: DG-56
+    that.am = am;
+    that.loadOrgChart = loadOrgChart;            //  [AM / OM]
+    that.createGraph = createGraph;              // Redundant? 
+    
+    that.associatePlanUnitAccountOrgChart = associatePlanUnitAccountOrgChart;
+    that.markOrgChartAsPrimary = markOrgChartAsPrimary;
+    
+    that.importFromAccountOrgCharts = importFromAccountOrgCharts;
+    that.importFromOpportunityOrgCharts = importFromOpportunityOrgCharts;
+    that.associateAccountLevelMap = associateAccountLevelMap;
+    that.updateContactAttribute = updateContactAttributeJS; // [OM]
+    that.updateReportsTo = updateReportsToJS;				// [OM /AM]
+    that.removeOrgChartContact = removeOrgChartContactJS;    // [OM]
+    that.addOrgChartContact = addOrgChartContactJS;      // [OM]
+    that.getOrgChartContact = getOrgChartContact;		// Redundant ?
+    that.searchOwners = searchOwnersJS;                   //  Called by contact left hand div on political map during search
+    that.searchAccountPlanTeamMembers = searchAccountPlanTeamMembersJS;  // Redundant? Called by OpportunityMapDialog.page findOwner() but that is not is called anywhere.
+    that.getAccountPlanTeamMembers = getAccountPlanTeamMembersJS;      // page load of Opp Map [AM]
+    that.getAccountPlanOwner = getAccountPlanOwnerJS;                  // page load of Opp Map [AM]
+    that.searchAccountPlanTeamMembersWithCurrency = searchAccountPlanTeamMembersWithCurrencyJS;  // Alex - Could not test this. Implemented best effort.
+    that.getAccountPlanTeamMembersWithCurrency = getAccountPlanTeamMembersWithCurrencyJS;   // Alex - Could not test this. Implemented best effort.
+    that.getAccountPlanOwnerWithCurrency = getAccountPlanOwnerWithCurrencyJS;    // Alex - Could not test this. Implemented best effort.
+    that.searchQualifiers = searchQualifiersJS;						// PB Admin, Add Qualifier, Search
+    that.putQualifier = putQualifierJS;								// PB Admin, Add Qualifier, add new
+    that.searchOrgCharts = searchOrgChartsJS;						// OrgChart. Search.  AM. Opp Map. Political MAp. Import.
+    that.searchPlanOpportunities = searchPlanOpportunitiesJS;		// Alex: updated but was not able to test
+    that.searchContacts = searchContactsJS;							// Alex: updated but was not able to test
+    that.searchCurrencys = searchCurrencysJS;						// Alex - Could not test this. Implemented best effort.
+    that.searchCollaborationMaps = searchCollaborationMapsJS;        // [OM]
+    that.searchStrategyMaps = searchStrategyMapsJS; 				//  [AM / Opp Map / Strat Map]
+    that.loadCollaborationMaps = loadCollaborationMapsJS;     // [OM]
+    that.loadStrategyMaps = loadStrategyMapsJS;					// [AM] 
+    that.createCollaborationMap = createCollaborationMapJS;    // [OM]
+    that.createStrategyMap = createStrategyMapJS;              // [AM / OppMap / StratMap]
+    that.updateStrategyMap = updateStrategyMapJS;              // [AM / OppMap / StratMap]
+    that.saveCollaborationMapNodes = saveCollaborationMapNodes;   // [OM]
+    that.saveStrategyMapNodes = saveStrategyMapNodesJS;                 // [ AM/ Opp Map / Strat Map / Save Nodes]
+    that.deleteCollaborationMapNode = deleteCollaborationMapNodeJS;   // [OM]
+    that.deleteStrategyMapNode = deleteStrategyMapNodeJS;      //  [AM / Opp Map / Strat Map / Delete Map]
+    that.getCollaborationMapNode = getCollaborationMapNode;    // empty method so did not migration to JS remoting [OM]
+    that.getStrategyMapNode = getStrategyMapNode;              // empty method so did not migration to JS remoting [AM]
+    that.getSearchableFields = getSearchableFieldsJS;            //  called on political map  when the advanced contact search screen is loaded. [OM]
+    that.doSearch = doSearchJS;                                  //  advanced search contact in political map [OM]
+    that.autocomplete = autocompleteJS;			 				//  called by political amap, add contact, advanced, type in first few letters for account
+    that.getCoachMeRules = getCoachMeRulesJS;                           // [Coach]
+    that.getCoachMeOpportunitiesView = getCoachMeOpportunitiesViewJS;  // [Coach]
+    that.getAssessment = getAssessmentJS;                       // TASAssessment [OM]
+    that.putAssessment = putAssessmentJS; 						// TASAssessment [OM]
+    that.getMilestonesJS = getMilestonesJS;                     //
+    that.putMilestonesJS = putMilestonesJS;  					// 
+
+    that.logQuicklinkUsageHitJS = logQuicklinkUsageHitJS;    
+    that.logDVLSQuicklinkUsageHitJS = logDVLSQuicklinkUsageHitJS;    
+
+    that.getCompetitiveStrategy = getCompetitiveStrategyJS;					//   [OM]
+    that.putCompetitiveStrategy = putCompetitiveStrategyJS;					//   [OM]
+    that.getCompetitiveStrategyCompetitors = getCompetitiveStrategyCompetitorsJS;  // [OM]
+    that.putCompetitiveStrategyCompetitor = putCompetitiveStrategyCompetitorJS;    // [OM]
+    that.postCompetitiveStrategyCompetitor = postCompetitiveStrategyCompetitorJS;  // [OM]
+    that.deleteCompetitiveStrategyCompetitor = deleteCompetitiveStrategyCompetitorJS;  // [OM]
+    that.getDVLSCurricula = getDVLSCurriculaJS;                 // (E-learning load page)
+    that.startDVLSCurriculum = startDVLSCurriculumJS;           // (E-learning page)
+    that.updateDVLSQuicklinkProgress = updateDVLSQuicklinkProgressJS; // (E-learning page / start showing a video)
+    that.getDVLSAssessment = getDVLSAssessmentJS;			   //   [E-learning load page]
+    that.submitDVLSAssessment = submitDVLSAssessmentJS;              //  [E-learning load page / submit answers]
+    that.resetDVLSAssessmentAnswers = resetDVLSAssessmentAnswersJS;  //  [E-learning load page / retest]
+    that.getDealmakerStageAdmin = getDealmakerStageAdminJS;    // [PB admin load page]
+	that.postPlaybookQuicklink = postPlaybookQuicklinkJS;      // [PB admin load page / quick links]
+	that.putPlaybookQuicklink = putPlaybookQuicklinkJS;         // [PB admin load page / quick links]
+	that.getPlaybookQuicklink = getPlaybookQuicklinkJS;         // [PB admin page / quick links]
+	that.deletePlaybookQuicklink = deletePlaybookQuicklinkJS;  //  [PB admin page / quick links] 
+	that.putPlaybookQualifierQuicklinkAdmin = putPlaybookQualifierQuicklinkAdminJS; // [PB admin page / quick links] 
+	that.postPlaybookQualifierQuicklinkAdmin = postPlaybookQualifierQuicklinkAdminJS; //  [PB admin page / quick links] 
+	that.deletePlaybookQualifierQuicklinkAdmin = deletePlaybookQualifierQuicklinkAdminJS;  // [PB admin page / quick links] 
+	that.getSalesProcessAdmin = getSalesProcessAdminJS;          // [PB Admin load page]                       
+	that.putSalesProcessAdmin = putSalesProcessAdminJS;            // [PB Admin page] 
+	that.postSalesProcessAdmin = postSalesProcessAdminJS;          // [PB Admin page] 
+	that.deleteSalesProcessAdmin = deleteSalesProcessAdminJS;		   // [PB Admin page]
+	that.getSalesProcessStageAdmin = getSalesProcessStageAdminJS;      // [PB Admin load page]  
+	that.putSalesProcessStageAdmin = putSalesProcessStageAdminJS;      // [PB Admin page]
+	that.postSalesProcessStageAdmin = postSalesProcessStageAdminJS;    // [PB Admin page]
+	that.deleteSalesProcessStageAdmin = deleteSalesProcessStageAdminJS; // [PB Admin page]
+	that.getSalesProcessQualifierAdmin = getSalesProcessQualifierAdminJS;   // [PB Admin load page]
+	that.putSalesProcessQualifierAdmin = putSalesProcessQualifierAdminJS;   // [PB Admin page]
+	that.postSalesProcessQualifierAdmin = postSalesProcessQualifierAdminJS;    // [PB Admin page / Add qualifier]
+	that.deleteSalesProcessQualifierAdmin = deleteSalesProcessQualifierAdminJS;  // [PB Admin page]
+	that.putPlaybookQualifierAdmin = putPlaybookQualifierAdminJS;       // [PB Admin page]
+    that.getQualification = getQualificationJS;				// [PB load page]
+    that.getQualificationJS = getQualificationJS;      // [PB page, PB LP]
+    that.putQualification = putQualificationJS;   		// PB Update qualifier]
+    that.getRoleInformation = getRoleInformationJS;     // possibly redundant can't see it invoked anywhere.
+
+    
+    that.getOurCompanyLogo = getOurCompanyLogoJS;   //  [AM/ Opp map / page load]]
+    
+    
+    that.getPlanDetails = getPlanDetailsJS;     // [AM / Plan Details / page load]
+    that.putPlanDetails = putPlanDetailsJS;     //  [AM / Plan Details / update]
+    that.getPlanObjectives = getPlanObjectives;  // Already using JS remoting. [AM / Plan Details / ]
+    that.getPlanObjectives2 = getPlanObjectives2;  // FIXME remove this after DC 31/07/2013
+    that.getOpportunityMapUnitSolution = getOpportunityMapUnitSolutionJS;    //  [AM / Opp Map / click on intersection]
+    that.putOpportunityMapUnitSolution = putOpportunityMapUnitSolutionJS;    // [AM / Opp Map / click on smart intersection / block for opp]
+    that.deleteOpportunityMapUnitSolutionOpp = deleteOpportunityMapUnitSolutionOppJS; // [AM / Opp Map / click on smart intersection / delete opp]
+    that.putOpportunityMapUnitSolutionOpp = putOpportunityMapUnitSolutionOppJS;  // [ am / opp map / intersection / potential  tab / make edit ]
+    that.postOpportunityMapUnitSolutionOpp = postOpportunityMapUnitSolutionOppJS;  // [ am / opp map / intersection / add new opp ]
+    that.getOpportunityMapUnitSolutionCompetitor = getOpportunityMapUnitSolutionCompetitorJS;  // [AM / Opp Map / Intersection Market View]
+    that.putOpportunityMapUnitSolutionCompetitor = putOpportunityMapUnitSolutionCompetitorJS;  // [AM / Opp Map / Intersection Market View]
+    that.postOpportunityMapUnitSolutionCompetitor = postOpportunityMapUnitSolutionCompetitorJS;    // [AM / Opp Map / Intersection Market View]
+    that.deleteOpportunityMapUnitSolutionCompetitor = deleteOpportunityMapUnitSolutionCompetitorJS;     // [AM / Opp Map / Intersection Market View]
+    that.getIncludedPlanOpportunityIds = getIncludedPlanOpportunityIdsJS; 
+    that.getAccountPlanOpportunity = getAccountPlanOpportunityJS;  // [AM / Opp Map / import opp]
+   	that.postAccountPlanOpportunity = postAccountPlanOpportunityJS;  // [ AM / opp Map / potential opp on intersection / qualify]
+   	that.getPlanCompetitor = getPlanCompetitorJS;     // [AM / Opp Map / page load] 
+   	that.postPlanCompetitor = postPlanCompetitorJS; // [AM  / Opp Map / Add new competitor that does not exist in database]
+    that.getValueMap = getValueMapJS;          // [AM / valueMap load]
+    that.putValueMap = putValueMapJS; 		   // [AM / valueMap update]
+    that.getSegmentation = getSegmentationJS;  // [AM /seg map]
+    that.putSegmentation = putSegmentationJS;  // [AM /seg map]
+
+    that.saveUnitLOR = saveUnitLORJS;    // [AM / Opp Map / click level of relationship on an Account]
+    that.search = genericSearchJS;          // Done - but can't find a place where this is called to test
+    that.getMetadata = getMetadataJS; 		// invoked when setting a potential opp to a real one on the pop up on opp map intersection
+    that.upsertObject = upsertObjectJS;		// called by creating a contact in opp map and by qualitify a potential opportunity in collab map
+    that.getObject = getObjectJS; 			// 
+    that.genericAjaxGet = genericAjaxGetJS;     // See Marketview settings, OppMap Settings
+    that.genericAjaxPut = genericAjaxPutJS;     // Create Marketview settings + Create OppMap Settings
+    that.genericAjaxDelete = genericAjaxDeleteJS; //  Delete Marketview via settings, Delete OppMap via Settings
+    
+    that.getUnmappedOpportunityLines = getUnmappedOpportunityLinesJS; //  Get an Opp which has a solution not on the opp map and then click: Not all opportunities ...
+    that.insertPlanSolution = insertPlanSolutionJS; 				//  Get an Opp which has a solution not on th eopp map and add the plan solution to the map.
+    that.getMarketViewReport = getMarketViewReportJS;               //  [MV load page]
+    that.getMarketViewDetail = getMarketViewDetailJS;               //  [MV page, click cell]
+    that.getMarketViewDoubleCount = getMarketViewDoubleCountJS;     //  [MV page, when opp is across account plans]
+    that.planClone = planCloneJS;
+    
+    that.getForecastTeam = getForecastTeamJS;   // [Team View page]
+    that.putForecastTeam = putForecastTeamJS;   // [Team View page]
+    that.postForecastTeam = postForecastTeamJS; // [Team View page]
+    that.deleteForecastTeam = deleteForecastTeamJS;// [Team View page]
+    
+    that.updateCollaborationMap = updateCollaborationMapJS;  //
+    that.deleteStrategyMap = deleteStrategyMapJS;            // [AM / Opp Map / Strat Map / Delete]
+    that.deleteCollaborationMap = deleteCollaborationMapJS;    // 
+    
+    // PlanObjective APIs
+    that.upsertObjective = upsertObjectiveJS;  // [am] plan objectives - create plan objective
+    that.upsertObjective2 = upsertObjectiveJS2;  // [am] plan objectives - create plan objective
+	that.upsertAction = upsertActionJS;         // [am] plan objectives - create action
+	that.deleteObjective = deleteObjectiveJS;   // [am] plan objectives - delete objective
+	that.deleteAction = deleteActionJS;         // [am] plan objectives - delete action
+	
+	// Decision Criteria APIs
+    that.getDecisionCriterion = getDecisionCriterionJS;
+	that.deleteDecisionCriterion = deleteDecisionCriterionJS;
+	that.updateDecisionCriterion = updateDecisionCriterionJS;
+	that.createNewDecisionCriterion = createNewDecisionCriterionJS;
+	that.updateDecisionCriteriaScore = updateDecisionCriteriaScoreJS;
+	that.updatePoliticalMapContact = updatePoliticalMapContactJS;
+
+   	
+   	// new APIs added by Alex for 8.20
+    that.getPPTX  = getPPTXJS;        // export pptx
+    that.putPPTX = putPPTXJS;		  // export pptx
+    that.postPPTX = postPPTXJS;		  // export pptx
+    that.deletePPTX = deletePPTXJS;   //  export pptx
+    that.queryJS = queryJS;
+    
+    that.getScoreCardDetails = getScoreCardDetailsJS; 
+    that.getPlanActivityDetails = getPlanActivityDetailsJS;
+   
+    // add pre - post logic to all methods.
+    for (var prop in that) {
+        if ((typeof that[prop] === "function") && (getFnName(that[prop]).indexOf("JS") !== -1)) {
+            that[prop] = makePrePostLogic(that[prop]);
+        }
+    }
+
+    function makePrePostLogic(fn) {
+        return function withLogic() {
+            var res = fn.apply(this, arguments);
+            updateHiddenDiv(fn.name);
+            return res;
+        };
+    }
+   
+	function updateHiddenDiv(methodName) {
+    	if (jQuery("#js_methods_invoked").length === 0) {
+    	     var hiddenDiv = jQuery('<div id="js_methods_invoked" style="display:none">');
+    	     jQuery('body').append(hiddenDiv);
+    	}
+    	var myHiddenDiv = jQuery("#js_methods_invoked"); // save the div in a var
+		if ((myHiddenDiv.text() === "") || (myHiddenDiv.text().indexOf(methodName) === -1)){
+  			myHiddenDiv.append(methodName + ",");
+		}  // read from the same DIV
+	}
+	
+	// needed for IE.
+	function getFnName(fn) {
+	    var toReturn =  (fn.name ? fn.name : (fn.toString().match(/function (.+?)\(/)||[,''])[1]);
+	    return toReturn;
+	}
+	
+	
+    return that;
+}; 
+
+
+//  
+// place holder oppmap.Util
+//  
+var ttg = ttg || {};
+ttg.oppmap = ttg.oppmap || {};
+
+ttg.oppmap.util = function() {
+    
+    var maxShortNameSize = 20;
+    var shortNameTooLong = 'Display name should be less than ' + maxShortNameSize + ' chars: ';
+    var pleaseSelect = 'Please select choice';
+        
+    var that = {};
+    that.MAX_SHORT_NAME_SIZE = maxShortNameSize;
+    that.SHORT_NAME_TOO_LONG_MSG = shortNameTooLong;
+    that.PLEASE_SELECT_MSG = pleaseSelect;
+    return that;
+};
+
+ttg.oppmap.Util = ttg.oppmap.util();     
+    
+    
+    
+ 
+</script>
+
+
+
+</apex:page>

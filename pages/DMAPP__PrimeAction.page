@@ -1,0 +1,403 @@
+<apex:page standardController="Opportunity"
+    extensions="DMAPP.PrimeActionController" action="{!logPrimeActionUsage}"
+    sidebar="false" docType="html-5.0">
+    
+    <c:jQuery cookies="true"
+        jQueryUI="true"
+        touchPunch="true"
+        datepickerValidation="true"
+        tooltip="true"
+        validate="true" 
+        paging="true"
+        underscore="true"
+        chosen="true"/>
+    
+    <c:MobileRedirect smartOM="true" />
+
+    <script type="text/javascript" src="{!URLFOR($Resource.ttgomjs, 'ttg/lib/ttgservice.js')}"></script>
+    
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__ttgomjs, 'ttg/lib/modernizr.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__ttgomjs, 'ttg/lib/ttgutils.js')}"/>
+    <script src="{!URLFOR($Resource.OpportunityMapConfiguration)}"></script>
+    
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__ftk, 'forcetk.js')}" />
+    <apex:include pageName="DMAPP__APIDelegate" />
+    
+    <c:AddTask showPRIME="{!NOT(hidePRIMETypeColumn)}" listAllActions="{!listAllActions}" dateFormat="{!jQueryUIDateFormat}" opportunityId="{!JSENCODE(Opportunity.id)}" currencyISO="{!currencyISO}"/>
+
+    <style>
+        @import url("{!URLFOR($Resource.DMAPP__SmartOM,         'css/summarytab.css')}");
+        @import url("{!URLFOR($Resource.DMAPP__SmartOM,         'css/chatterpost.css')}");
+                
+        /* start of additions for Chatter */
+   
+        @import url("{!URLFOR($Resource.DMAPP__ttgomjs,         'ttg/chatter/css/chatter_side_panel.css')}");
+        @import url("{!URLFOR($Resource.DMAPP__ttgomjs,         'ttg/chatter/css/chatter_post.css')}");
+        @import url("{!URLFOR($Resource.DMAPP__ttgomjs,         'ttg/graph/css/glyphs/style.css')}");
+        @import url("{!URLFOR($Resource.DMAPP__ttgomjs,         'ttg/chatter/css/chatter_summary.css')}");
+        
+        /* end of additions for Chatter */
+        
+        /* Restores spinner's original size (AMOF-813) */
+        .spinner {
+            height: auto;
+            width: auto;
+        }
+
+		/* fix for DMDEV-4509 */
+		DIV.CRUD #GLOBALERROR{
+			width:90%;
+		}
+                
+    </style>      
+    <apex:include pageName="DMAPP__SummaryTab2"/>
+
+    <script>
+        var openActions = {
+            <apex:repeat var="action" value="{!openActions}">
+                '{!action.Id}': {
+                                'subject': '{!JSENCODE(action.Subject)}', 
+                                'description': '{!JSENCODE(action.Description)}', 
+                                'primeAction': '{!action.DMAPP__TTG_Prime_Action_Type__c}', 
+                                'contactId': '{!action.Who.Id}', 
+                                'contactName': jQuery.trim('{!JSENCODE(action.Who.FirstName + " " + action.Who.LastName)}'), 
+                                'dueDate': '{!action.ActivityDate}', 
+                                'assignedTo': '{!action.OwnerId}', 
+                                'assignedToName': '{!JSENCODE(action.Owner.Name)}', 
+                                'priority': '{!JSENCODE(action.Priority)}', 
+                                'status': '{!JSENCODE(action.Status)}'
+                            },
+            </apex:repeat>
+                '0': ''
+            };
+            
+        var closedActions = {
+            <apex:repeat var="action" value="{!closedActions}">
+                '{!action.Id}': {
+                                'subject': '{!JSENCODE(action.Subject)}', 
+                                'description': '{!JSENCODE(action.Description)}', 
+                                'primeAction': '{!action.DMAPP__TTG_Prime_Action_Type__c}', 
+                                'contactId': '{!action.Who.Id}', 
+                                'contactName': jQuery.trim('{!JSENCODE(action.Who.FirstName + " " + action.Who.LastName)}'), 
+                                'dueDate': '{!action.ActivityDate}', 
+                                'assignedTo': '{!action.OwnerId}', 
+                                'assignedToName': '{!JSENCODE(action.Owner.Name)}', 
+                                'priority': '{!JSENCODE(action.Priority)}', 
+                                'status': '{!JSENCODE(action.Status)}'
+                            },
+            </apex:repeat>
+                '0': ''
+            };
+    </script>
+
+    <apex:form id="PRIMEActionsTable" rendered="true" styleClass="PRIMEActionsTable">
+
+        <apex:pageBlock title="Open {!$Label.DMAPP__resource_PRIME_Actions}">
+
+            <apex:pageBlockSection columns="1">
+
+                <apex:pageBlockTable value="{!openActions}" var="action"
+                    id="openActionsTable">
+
+                    <apex:column width="60px" rendered="{!isEditable}">
+                        <apex:facet name="header">Action</apex:facet>
+                        <a href="#" class="edit_link" onclick="javascript: ttg_primeactions.editAction('{!action.Id}', openActions, false);"/>
+                        <a href="#" onclick="javascript: ttg_primeactions.editAction('{!action.Id}', openActions, true);">Cls</a>
+                    </apex:column>
+                    <!-- 20px 32px 20% 20% 10% 10% 10% 10% 10% -->
+                    <apex:column width="32px">
+                        <apex:facet name="header">Due</apex:facet>
+                        <apex:image url="{!URLFOR($Resource.DMAPP__SmartOM, 'Clock.png')}"
+                            rendered="{!action.ActivityDate < TODAY()}" style="width:16px;" />
+                    </apex:column>
+                    <apex:column width="15%">
+                        <apex:facet name="header">Subject</apex:facet>
+                        <apex:outputText value="{!action.Subject}" />
+                    </apex:column>
+                    <apex:column width="20%">
+                        <apex:facet name="header">Comments1</apex:facet>
+                        <apex:outputText escape="false" value="{!IF(LEN(action.Description) > 297, RPAD(LEFT(action.Description,297), 300, '...'), action.Description)}" />
+                    </apex:column>
+                    <apex:column rendered="{!NOT(hidePRIMETypeColumn)}">
+                        <apex:facet name="header">{!$Label.DMAPP__resource_PRIME_Action_Type}</apex:facet>
+                        <apex:outputField value="{!action.DMAPP__TTG_Prime_Action_Type__c}" />
+                    </apex:column>
+                    <apex:column >
+                        <apex:facet name="header">Contact</apex:facet>
+                        <apex:outputText value="{!action.Who.FirstName + ' ' + action.Who.LastName}" />
+                    </apex:column>
+                    <apex:column width="80px">
+                        <apex:facet name="header">Due Date</apex:facet>
+                        <apex:outputField value="{!action.ActivityDate}" />
+                    </apex:column>
+                    <apex:column >
+                        <apex:facet name="header">Owner</apex:facet>
+                        <apex:outputField value="{!action.OwnerId}" />
+                    </apex:column>
+                    <apex:column width="80px">
+                        <apex:facet name="header">Priority</apex:facet>
+                        <apex:outputField value="{!action.Priority}" />
+                    </apex:column>
+                    <apex:column >
+                        <apex:facet name="header">Status</apex:facet>
+                        <apex:outputField value="{!action.Status}" />
+                    </apex:column>
+                </apex:pageBlockTable>
+
+            </apex:pageBlockSection>
+
+        </apex:pageBlock>
+
+        <apex:pageBlock title="Closed {!$Label.DMAPP__resource_PRIME_Actions}">
+
+            <apex:pageBlockSection columns="1">
+
+                <apex:pageBlockTable value="{!closedActions}" var="action"
+                    id="closedActionsTable">
+                    <apex:column width="60px" rendered="{!isEditable}">
+                        <apex:facet name="header">Action</apex:facet>
+                        <a href="#" id="edit_{!action.Id}" class="edit_link" onclick="javascript: ttg_primeactions.editAction('{!action.Id}', closedActions, false);"></a>
+                        <apex:commandLink value="Del" reRender="closedActionsTable"
+                            onclick="PRIME.showDeleteConfirmDialog('deleteConfirmDialog{!action.Id}', '{!action.Id}')" styleClass="del_link">
+                        </apex:commandLink>
+                        <div id="deleteConfirmDialog{!action.Id}" style="display: none;"
+                            title="Deleting {!$Label.resource_PRIME_Action}">
+                            <apex:outputText value="Are you sure?" />
+                        </div>
+                    </apex:column>
+                    <apex:column width="15%">
+                        <apex:facet name="header">Subject</apex:facet>
+                        <apex:outputText value="{!action.Subject}" />
+                    </apex:column>
+                    <apex:column width="20%">
+                        <apex:facet name="header">Comments</apex:facet>
+                        <apex:outputText value="{!IF(LEN(action.Description) > 297, RPAD(LEFT(action.Description,297), 300, '...'), action.Description)}" />
+                    </apex:column>
+                    <apex:column rendered="{!NOT(hidePRIMETypeColumn)}">
+                        <apex:facet name="header">{!$Label.DMAPP__resource_PRIME_Action_Type}</apex:facet>
+                        <apex:outputField value="{!action.DMAPP__TTG_Prime_Action_Type__c}" />
+                    </apex:column>
+                    <apex:column >
+                        <apex:facet name="header">Contact</apex:facet>
+                        <apex:outputText value="{!action.Who.FirstName + ' ' + action.Who.LastName}" />
+                    </apex:column>
+                    <apex:column width="80px">
+                        <apex:facet name="header">Due Date</apex:facet>
+                        <apex:outputField value="{!action.ActivityDate}" />
+                    </apex:column>
+                    <apex:column >
+                        <apex:facet name="header">Owner</apex:facet>
+                        <apex:outputField value="{!action.OwnerId}" />
+                    </apex:column>
+                    <apex:column width="80px">
+                        <apex:facet name="header">Priority</apex:facet>
+                        <apex:outputField value="{!action.Priority}" />
+                    </apex:column>
+                    <apex:column >
+                        <apex:facet name="header">Status</apex:facet>
+                        <apex:outputField value="{!action.Status}" />
+                    </apex:column>
+                </apex:pageBlockTable>
+
+            </apex:pageBlockSection>
+
+            <apex:actionFunction name="doActualDeleteAction" action="{!deleteAction}" oncomplete="location.reload(true);">
+                <apex:param name="actionToDeleteParam" value="actionToDeleteParam"
+                    assignTo="{!selectedTaskId}" />
+            </apex:actionFunction>
+
+        </apex:pageBlock>
+
+    </apex:form>
+
+    <apex:outputText rendered="{!isEditable}">
+        <script>
+            var PRIME = (function() {
+                                
+                var deleting = {};
+                
+                var showDeleteConfirmDialog = function(id, taskid) {
+                    
+                    if(deleting[taskid]) {
+                        return;
+                    }
+                    
+                    jQuery('#' + id).dialog({
+                        resizable : false,
+                        modal : true,
+                        buttons : {
+                            'Yes' : function() {
+                                ttg_primeactions.showAjaxSpinner(true);
+                                deleting[taskid] = true;
+                                jQuery(this).dialog('close');
+                                doActualDeleteAction(taskid);
+                                return true;
+                            },
+                            'No' : function() {
+                                jQuery(this).dialog('close');
+                                return false;
+                            }
+                        }
+                    });
+                };
+                
+                var isDeleting = function(taskid) {
+                    return deleting[taskid];
+                }
+
+                return {
+                    showDeleteConfirmDialog : showDeleteConfirmDialog,
+                    isDeleting              : isDeleting
+                };
+
+            }());
+        </script>
+    </apex:outputText>
+
+    <script>
+        var spec = {
+            ttgApi: ttg.apiLayer.sfdcDelegate( { sessionid : '{!JSENCODE($Api.Session_ID)}', opportunityid : '{!JSENCODE(Opportunity.id)}' } ),
+            spinnerURL: '{!JSENCODE(URLFOR($Resource.ttgomjs, '/ttg/graph/images/loader.gif'))}',
+            calendarURL: "{!URLFOR($Resource.Common, 'images/icon_calendar.png')}",
+            dateformat: '{!JSENCODE(dateFormat)}',
+            opportunityid: '{!JSENCODE(Opportunity.id)}'                
+        };
+        
+        var ttg = ttg || {}; 
+            
+        var ttg_primeactions = (function(_spec) {
+    
+            var dateFormat = 'yy-mm-dd';
+            if(spec.dateformat) {
+                dateFormat = spec.dateformat.replace('yy', 'y').replace('yy', 'y');
+            }
+    
+            var that = {};
+            var opportunityId = _spec.opportunityid;    
+            var data;
+            var ttgApi = _spec.ttgApi;
+            var readonly = _spec.readonly;
+            var iPad = ttg.isTouchScreen(); //navigator.userAgent.match(/iPad/i) != null;   
+            var selectedContactId;
+            var selectedOwnerId = '{!currentUserId}';
+            
+            var ajaxSpinnerCnt = 0;
+            var spinner;
+            var noMoreEditsFlag = false;//stop all edits whilst refreshing page
+            
+            jQuery.validator.addMethod("selectedIfSet", function(value, element) {
+                // the contact (Name in the frontend) is not mandatory, but if there is text, it must be matched to a valid selected contact
+                if ( element.name === 'taskcontact' ) {
+                    if ( value.length > 0 && (value != _ttg_l10n.autocomplete_edit_enter_text) && (!selectedContactId || selectedContactId == '') ) {
+                        return false;
+                    }
+                }
+                
+                // Owner (Owner in the frontend) is required - must be selected
+                if ( element.name === 'taskowner' ) {
+                    if ( !selectedOwnerId || selectedOwnerId == '' ) {
+                        return false;
+                    }
+                }
+            
+                return true;
+            }, "Select an entry or remove text");
+
+            function showAjaxSpinner(show) {
+                if (show) { 
+                    ajaxSpinnerCnt++;
+                    if (ajaxSpinnerCnt == 1) {
+                        spinner = jQuery('<div>').css('position', 'absolute').css('z-index', '2000');
+                                    jQuery('#SPINNER').append(spinner);
+                        spinner.append(jQuery('<img>').attr('id', 'tas_ajax_spinner').addClass('spinner').attr('src', '{!JSENCODE(URLFOR($Resource.ttgomjs, '/ttg/graph/images/loader.gif'))}'));
+                        spinner.css("top", ( jQuery(window).height() - spinner.height() ) / 2+jQuery(window).scrollTop() + "px");
+                        spinner.css("left", ( jQuery(window).width() - spinner.width() ) / 2+jQuery(window).scrollLeft() + "px");
+                    }                 
+                } else {
+                    ajaxSpinnerCnt--;
+                    if (ajaxSpinnerCnt <= 0) {                  
+                        if(spinner) {
+                           spinner.remove();
+                        }
+                        ajaxSpinnerCnt = 0;
+                    }
+                }
+            } 
+
+            function renderInitial() {
+                var taskBodyRow = jQuery('<tr>', {id: 'NEW_PRIMEACTION_BUTTON'});
+    
+                var createBtn = jQuery('<span>', {'class': 'add_task', 'ttgid': 'add_new_task'})
+                    .addClass('button ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only');
+                                   
+                var isEditable = '{!isEditable}';
+                if(!('true' == isEditable)) {
+                    <!-- FIX FOR DMPS-1120 -->
+                    taskBodyRow.css('display' , 'none');
+                }                                      
+
+                taskBodyRow.append(jQuery('<td>').addClass('taskActionsCol').append(createBtn).click(function() {
+                    ttg_primeactions.createTaskDialog();
+                }));
+                taskBodyRow.append(jQuery('<td>').addClass('taskDueCol'));
+                taskBodyRow.append(jQuery('<td>').addClass('taskSubjCol'));
+                taskBodyRow.append(jQuery('<td>').addClass('taskDescCol'));
+            <apex:outputText rendered="{!NOT(hidePRIMETypeColumn)}">
+                taskBodyRow.append(jQuery('<td>').addClass('taskPRIMEActionCol'));
+            </apex:outputText>
+                taskBodyRow.append(jQuery('<td>').addClass('taskContactCol'));
+                taskBodyRow.append(jQuery('<td>').addClass('taskDueDateCol'));
+                taskBodyRow.append(jQuery('<td>').addClass('taskOwnerCol'));
+                taskBodyRow.append(jQuery('<td>').addClass('taskPriorityCol'));
+                taskBodyRow.append(jQuery('<td>').addClass('taskStatusCol'));
+    
+                var taskTable = jQuery('[id*="openActionsTable"]');
+                taskTable.find('tr:last').after(taskBodyRow);
+  
+            }
+    
+            function editAction(taskId, primeActions, close) {
+                if(PRIME && PRIME.isDeleting(taskId)) {
+                    return;
+                }
+            
+                var currentTask = jQuery.extend({}, primeActions[taskId]); 
+                currentTask.Id = taskId;
+                if ( close ) {
+                    currentTask.status = 'Completed'
+                }
+                ttg.taskMgr.newTaskDialog(currentTask, close, successFunc, failFunc);
+            }
+            
+            function successFunc(_data) {
+                noMoreEditsFlag = true;
+                showAjaxSpinner(false);
+                location.reload(true);
+            }   
+            
+            function failFunc(_data) {
+                showAjaxSpinner(false);
+            }
+
+            function createTaskDialog() {
+                ttg.taskMgr.newTaskDialog(null, null, successFunc, failFunc);
+            }
+
+            that.createTaskDialog = createTaskDialog;
+            that.editAction = editAction;
+            that.renderInitial = renderInitial;
+            that.showAjaxSpinner = showAjaxSpinner;
+            return that;
+        })(spec);
+    
+        jQuery(document).ready(function() {
+                jQuery('.smartOMPanel a#summary_add_new_task').unbind('click');
+                jQuery('.smartOMPanel a#summary_add_new_task').click(function() {ttg_primeactions.createTaskDialog()});
+                ttg_primeactions.renderInitial();
+            }
+        );
+        
+    </script>
+
+<div id="SPINNER"/>
+</apex:page>

@@ -1,0 +1,109 @@
+<apex:page standardController="agf__eRelease_Request__c" showHeader="true" sidebar="true" title="eRelease Request Create">
+<apex:styleSheet value="{!$Resource.agf__ADM_common_css}" />
+<apex:stylesheet value="{!URLFOR($Resource.agf__jquery_ui_1_9_2_redmond, 'css/redmond/jquery-ui-1.9.2.custom.css')}" />
+<apex:includeScript value="{!$Resource.agf__jquery_1_8_3_min}" />
+<apex:includeScript value="{!URLFOR($Resource.agf__jquery_ui_1_9_2_redmond, 'js/jquery-ui-1.9.2.custom.min.js')}" />
+<apex:includeScript value="{!$Resource.agf__ADM_common_js}" />
+
+<div class="bPageTitle">
+    <div class="ptBody">
+        <div class="content">
+            <img src="/s.gif" class="pageTitleIcon" alt="eRelease Request" title="ERR" />
+             <h1 class="pageType">eRelease Requests &gt;</h1>
+            <h2 class="pageDescription"> New eRelease Request</h2>
+            <div class="blank">&nbsp;</div>         
+        </div>
+    </div>
+    <div class="ptBreadcrumb"></div>    
+</div>
+
+<apex:form target="_parent">
+<apex:messages styleClass="message gusFormMessage"/>
+
+	<div class="gusFieldset gusFieldsetExtraPadding">
+		<div class="gusLegend">eRelease Request Edit</div>
+		<div class="gusRequiredText"></div>
+		<div class="gusFormToolbar gusFormToolbarTop">
+			<apex:commandButton id="errSave" action="{!save}" value="Save"/>
+			<apex:commandButton id="errCancel" action="{!cancel}" immediate="true" value="Cancel"/>  
+		</div>
+		
+		<div class="gusForm">   
+			<!--div class="gusForm3Column gusStackedRows gusAltLabels">
+				<c:ADM_FormRow id="errName" object="{!agf__eRelease_Request__c}" type="eRelease_Request__c" field="Name" value="{!eRelease_Request__c.Name}" />
+			</div-->
+			<div class="gusForm3Column gusStackedRows gusAltLabels">
+				<c:ADM_FormRow id="errApplication" object="{!agf__eRelease_Request__c}" type="eRelease_Request__c" required="true"  field="Application__c" value="{!agf__eRelease_Request__c.agf__Application__c}" />
+			</div>
+			<div class="gusForm3Column gusStackedRows gusAltLabels">
+				<c:ADM_FormRow id="errRequestType" object="{!agf__eRelease_Request__c}" type="eRelease_Request__c" required="true"  field="Request_Type__c" value="{!agf__eRelease_Request__c.agf__Request_Type__c}" />
+			</div>
+         </div>
+	</div>  
+	
+	<div class="gusFieldset gusFieldsetConnected gusFieldsetExtraPadding">
+		<div class="gusLegend">Defect Details</div>
+		<div class="gusForm">   
+			<div class="gusForm2Column gusStackedRows gusAltLabels">
+				<c:ADM_FormRow id="errBugID" object="{!agf__eRelease_Request__c}" type="eRelease_Request__c" required="true"  field="Bug_ID__c" value="{!agf__eRelease_Request__c.agf__Bug_ID__c}" />
+				<c:ADM_FormRow id="errKnownFix" object="{!agf__eRelease_Request__c}" type="eRelease_Request__c" required="true"  field="Known_Fix__c" value="{!agf__eRelease_Request__c.agf__Known_Fix__c}" />
+			</div>
+			<div class="gusForm2Column gusStackedRows gusAltLabels">
+				<c:ADM_FormRow id="errTestingRequired" object="{!agf__eRelease_Request__c}" type="eRelease_Request__c" required="true"  field="Testing_Required__c" value="{!agf__eRelease_Request__c.agf__Testing_Required__c}" />
+				<c:ADM_FormRow id="errOtherTesting" object="{!agf__eRelease_Request__c}" type="eRelease_Request__c" field="Other_Testing__c" value="{!agf__eRelease_Request__c.agf__Other_Testing__c}" />
+			</div>
+		</div>
+	</div>
+
+	<div class="gusFieldset gusFieldsetConnected gusFieldsetExtraPadding">
+		<div class="gusLegend">eRelease Justification</div>
+		<div class="gusForm">
+			<div class="gusForm2Column gusStackedRows gusAltLabels">
+				<style></style>
+				<c:ADM_FormRow id="errExplanation" object="{!agf__eRelease_Request__c}" type="eRelease_Request__c" required="true" field="Explanation_of_eRelease__c" value="{!agf__eRelease_Request__c.agf__Explanation_of_eRelease__c}" />
+			</div>
+			<div class="gusForm2Column gusStackedRows gusAltLabels">      
+				<c:ADM_FormRow id="errCustomerImpact" object="{!agf__eRelease_Request__c}" type="eRelease_Request__c" required="true" field="Customer_Impact__c" value="{!agf__eRelease_Request__c.agf__Customer_Impact__c}" />
+			</div>
+		</div>
+	</div>
+
+	<div class="gusFieldset gusFieldsetConnected gusFieldsetExtraPadding">
+		<div class="gusLegend">Deployment</div>
+		<div class="gusForm">
+			<div class="gusForm2Column gusStackedRows gusAltLabels">
+				<c:ADM_FormRow id="errRequestedDeploy" object="{!agf__eRelease_Request__c}" type="eRelease_Request__c" required="true"  field="Requested_Deployment_Date__c" value="{!agf__eRelease_Request__c.agf__Requested_Deployment_Date__c}" />
+				<c:ADM_FormRow id="errDeployToAll" object="{!agf__eRelease_Request__c}" type="eRelease_Request__c" required="true"  field="Deploy_to_all_Instances__c" value="{!agf__eRelease_Request__c.agf__Deploy_to_all_Instances__c}" />
+				<c:ADM_FormRow id="errUseDefault" object="{!agf__eRelease_Request__c}" type="eRelease_Request__c" required="true"  field="Use_Default_Verification_Instance__c" value="{!agf__eRelease_Request__c.agf__Use_Default_Verification_Instance__c}" />
+				<c:ADM_FormRow id="errWhoIsVerifying" object="{!agf__eRelease_Request__c}" type="eRelease_Request__c" field="Who_is_verifying_fix_in_prod__c" value="{!agf__eRelease_Request__c.agf__Who_is_verifying_fix_in_prod__c}" />
+			</div>
+			<div class="gusForm2Column gusStackedRows gusAltLabels">
+				<c:ADM_FormRow id="errDeploymentType" object="{!agf__eRelease_Request__c}" type="eRelease_Request__c" required="true"  field="Deployment_Type__c" value="{!agf__eRelease_Request__c.agf__Deployment_Type__c}" />
+				<c:ADM_FormRow id="errOtherDeployment" object="{!agf__eRelease_Request__c}" type="eRelease_Request__c" field="Other_Deployment_Type__c" value="{!agf__eRelease_Request__c.agf__Other_Deployment_Type__c}" />
+				<c:ADM_FormRow id="errTargetInstances" object="{!agf__eRelease_Request__c}" type="eRelease_Request__c" field="Target_Instances__c" value="{!agf__eRelease_Request__c.agf__Target_Instances__c}" />
+				<c:ADM_FormRow id="errInstanceForVerification" object="{!agf__eRelease_Request__c}" type="eRelease_Request__c" field="Instance_for_Verification__c" value="{!agf__eRelease_Request__c.agf__Instance_for_Verification__c}" />
+				<c:ADM_FormRow id="errWhoIsGackWatching" object="{!agf__eRelease_Request__c}" type="eRelease_Request__c" field="Who_is_gack_watching__c" value="{!agf__eRelease_Request__c.agf__Who_is_gack_watching__c}" />
+			</div>
+		</div>      
+	</div>
+	
+	<div class="gusFieldset gusFieldsetConnected">
+		<div class="gusLegend">Approval and Checkin</div>
+		<div class="gusForm">
+			<div class="gusForm2Column gusStackedRows gusAltLabels">
+				<c:ADM_FormRow id="errERRStatus" object="{!agf__eRelease_Request__c}" type="eRelease_Request__c" field="eRelease_Status__c" value="{!agf__eRelease_Request__c.agf__eRelease_Status__c}" />
+				<c:ADM_FormRow id="errCheckinLocation" object="{!agf__eRelease_Request__c}" type="eRelease_Request__c" field="Checkin_Location__c" value="{!agf__eRelease_Request__c.agf__Checkin_Location__c}" />        
+			</div>
+			<div class="gusForm2Column gusStackedRows gusAltLabels">
+				<c:ADM_FormRow id="errReleasedIn" object="{!agf__eRelease_Request__c}" type="eRelease_Request__c" field="Released_In__c" value="{!agf__eRelease_Request__c.agf__Released_In__c}" />      
+				<c:ADM_FormRow id="errRTComments" object="{!agf__eRelease_Request__c}" type="eRelease_Request__c" field="Release_Team_Comments__c" value="{!agf__eRelease_Request__c.agf__Release_Team_Comments__c}" />
+			</div>
+		</div>  
+		<div class="gusFormToolbar gusFormToolbarBottom">
+			<apex:commandButton id="errSaveBottom" action="{!save}" value="Save"/>
+			<apex:commandButton id="errCancelBottom" action="{!cancel}" immediate="true" value="Cancel"/>  
+		</div>        
+	</div>
+
+</apex:form>
+</apex:page>

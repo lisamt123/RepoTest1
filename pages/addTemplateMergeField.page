@@ -1,0 +1,64 @@
+<apex:page standardController="Template__c" extensions="ctrl_addTemplateMergeField">
+<apex:form id="form_Main">
+<apex:pageMessages />
+<apex:pageblock >
+	<apex:pageBlockSection columns="1" collapsible="false" title="Pick Type of Merge Field" rendered="{!tableFlag != true && standardFlag != true}">
+		<apex:selectList value="{!mergeFieldType}" size="1">
+			<apex:selectOptions value="{!TemplateTypes}"/>
+			<!-- <apex:actionSupport event="onblur" action="{!findMergeFieldType}" rerender="form_Main" status="actionStatusFindingRecords"/> -->
+		</apex:selectList>
+		<apex:commandButton value="Go" action="{!findMergeFieldType}" rerender="form_Main" status="actionStatusFindingRecords"/>
+	</apex:pageBlockSection>
+	<apex:pageBlockSection columns="1" collapsible="false" title="New Template Merge Field" rendered="{!standardFlag}">
+		<apex:panelGrid columns="2" width="50%">
+			<apex:outputlabel for="inName" value="Replacement Text"/>
+			<apex:inputField value="{!tmf.Name__c}"/>
+			<apex:outputlabel for="slFieldStandard" value="Select which Field"/>
+			<apex:selectList id="slFieldStandard" value="{!fieldSelectedStandard}" size="1">
+				<apex:selectOptions value="{!fieldListStandard}"/>
+			</apex:selectList>
+		</apex:panelGrid>
+		<apex:panelGrid columns="1" width="50%" style="text-align:center">
+			<apex:commandButton value="Save" action="{!saveTMF}" />
+		</apex:panelGrid>
+	</apex:pageBlockSection>
+	<apex:pageBlockSection columns="1" collapsible="false"  title="New Template Merge Field" rendered="{!tableFlag}">
+		<apex:panelGrid columns="2" width="50%">
+			<apex:outputLabel for="slObj" value="Select the child object"/>
+			<apex:selectList value="{!childRelationshipSelected}"  disabled="{!childRelationshipExists}" size="1">
+				<apex:selectOptions value="{!childRelationshipList}"/>
+				<apex:actionSupport event="onchange" action="{!runRefresh}" rerender="form_Main" status="actionStatusFindingRecords"/>
+			</apex:selectList>
+		</apex:panelGrid>
+		<apex:panelGrid id="pg2" columns="2" width="50%" rendered="{!displayFlag}">
+			<apex:outputLabel for="slField" value="Select which field"/>
+			<apex:selectList value="{!fieldSelected}" size="1">
+				<apex:selectOptions value="{!fieldList}"/>
+			</apex:selectList>
+			<apex:outputLabel for="colHead" value="Column Header to Display"/>
+			<apex:inputField value="{!tmf.Column_Header__c}"/>
+		</apex:panelGrid>
+		<apex:panelGrid columns="1" width="50%" style="text-align:center" rendered="{!displayFlag}">
+			<apex:commandButton value="Save" action="{!saveTMF}" />
+		</apex:panelGrid>	
+	</apex:pageBlockSection>
+</apex:pageblock>
+	<apex:outputpanel >
+                <apex:actionstatus id="actionStatusFindingRecords">
+                    <apex:facet name="start">
+                        <div id="el_loading" 
+                             class="waitingSearchDiv" 
+                             style="background-color: #F0F0F0; height: 100%;opacity:0.65;width:100%;"> 
+                            <div class="waitingHolder" style="top: 185px; width: 240px;">
+                                <img class="waitingImage" src="/img/loading.gif" title="Please Wait..." />
+                                <span class="waitingDescription"
+                                        style='font-weight: bold; font-size: 18px;'>
+                                    Updating Selection...
+                                </span>
+                            </div>
+                        </div>
+                    </apex:facet>
+                </apex:actionstatus>
+   </apex:outputpanel>
+</apex:form>
+</apex:page>

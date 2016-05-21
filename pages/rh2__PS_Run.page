@@ -1,0 +1,140 @@
+<apex:page standardController="rh2__RH_Job__c" extensions="rh2.PS_DefineJob_Controller" sidebar="false">
+
+    <apex:includeScript value="{! URLFOR($Resource.PT_Resources_v1, '/js/modernizr-1.7.min.js') }"/>
+    <apex:includeScript value="{! URLFOR($Resource.PT_Resources_v1, '/js/RollupRun.js') }"/>
+    <apex:includeScript value="//code.jquery.com/jquery-1.10.2.js"/>
+    <apex:includeScript value="//code.jquery.com/ui/1.10.4/jquery-ui.js"/>
+    
+    <apex:stylesheet value="{! URLFOR($Resource.PT_Resources_v1, '/css/smoothness/jquery-ui-1.8.21.custom.css') }"/>
+    <apex:stylesheet value="{! URLFOR($Resource.PT_Resources_v1, '/css/reset.css') }"/>
+    <apex:stylesheet value="{! URLFOR($Resource.PT_Resources_v1, '/css/grid.css') }"/>
+    <apex:stylesheet value="{! URLFOR($Resource.PT_Resources_v1, '/css/general.css') }"/>
+    <apex:stylesheet value="{! URLFOR($Resource.PT_Resources_v1, '/css/css3.css') }"/> 
+    
+    
+    <script type="text/javascript">
+        
+        //Verify namespace is ready
+        var rh = rh || {};
+        rh.rollupRun = new RollupRun();
+        var overwriteFlag;
+            
+        
+        rh.j$ = jQuery.noConflict();
+        rh.j$(document).ready(function() {
+            countRecords();
+        });
+
+        function countRecords() {
+        
+         
+        
+        
+            
+              var maxRecords;
+
+                        Visualforce.remoting.Manager.invokeAction('{!$RemoteAction.PS_DefineJob_Controller.maxRecords}',
+                           '{! JSENCODE(parentObjectName) }', function(result, event){           
+                
+                if (event.status && event.result) {
+                    maxRecords = result;
+                } else {
+                   maxRecords = 50000;
+                }
+                
+                rh.j$( "[id$=maxRecords]" ).val(maxRecords);        
+                
+                
+                rh.rollupRun.numRecords = maxRecords;
+                rh.rollupRun.batchSize = {!maxBatchSize};
+                
+                rh.j$( "[id$=estWaitTime]" ).html(rh.rollupRun.duration() + ' to complete');
+                
+                rh.j$( "[id$=runOnce]" ).val('Run Once For ' + maxRecords + ' Records');
+               
+                
+                
+                
+                
+               
+                
+            }, {escape:true, timeout:120000});
+               
+            
+            
+        }
+        
+        
+        function confirmRunOnce(overwrite, fieldName) 
+        {
+          
+            
+            if(overwrite == true)
+            {
+            return confirm("WARNING: Running this rollup will cause the information in " + fieldName + " field to be " +
+                            "overwritten. If this is not the desired action please press cancel and deselect 'Overwrite " +
+                            "existing informaton' in the edit rollup page under the advanced options.");
+            }
+        
+            return true;
+        
+        }
+
+           
+  </script>
+  
+
+    
+    <apex:outputPanel styleClass="row" layout="block">
+        <apex:outputPanel styleClass="col col_16 breadcrumb" id="heading">
+            <apex:outputLink styleClass="bold" value="{!URLFOR($Page.rh2__PS_AllSettings)}">All Rollup Settings</apex:outputLink>                    
+            <apex:outputText value=" > Run Rollup"/>
+        </apex:outputPanel>
+        <apex:outputPanel styleClass="col col_16">
+        </apex:outputPanel>
+    </apex:outputPanel>
+    
+    
+    <apex:form >
+    <apex:outputPanel styleClass="row" layout="block" rendered="{!NOT(ISBLANK(targetField))}">
+    <apex:pageBlock title="Run Rollup">
+    
+    <apex:pageBlockButtons >
+            <!-- Premium Feature Notice -->
+            <apex:outputLink style="margin-left:0px;" rendered="{!notPaid}" target="_blank" value="http://www.passagetechnology.com/rollup-helper-order">
+                <apex:image value="{!URLFOR($Resource.rh2__PT_Resources_v1, 'images/upgrade_icon_green.gif')}" width="16" height="17" style="vertical-align:text-top;"/>
+            </apex:outputLink>
+            <apex:commandButton rendered="{!notPaid}" value="Upgrade to Enterprise Edition" onClick="window.open('http://www.passagetechnology.com/rollup-helper-order');"/>
+            <apex:commandButton id="runOnce" value="Run Once" action="{!runForAllRecords}" onClick="if (!confirmRunOnce({!overwrite}, '{!targetField}')) return false;"/>
+                    <apex:inputHidden value="{!maxRecords}" id="maxRecords"/> 
+ 
+                             
+            <apex:commandButton action="{!URLFOR($Page.rh2__PS_AllSettings)}" 
+                value="Cancel" />
+    </apex:pageBlockButtons>
+    
+
+    <apex:pageBlockSection title="{!targetField} Rollup" columns="1" collapsible="false">
+            <apex:outputPanel styleClass="row" layout="block">
+                <apex:inputHidden value="{!rh2__RH_Job__c.rh2__Rollup_Name__c}" />
+                <br/>
+                
+
+          
+            </apex:outputpanel>
+    </apex:pageBlockSection>
+             <apex:outputtext value="Running this rollup will take an estimated: " styleClass="col col_15 align_center">             
+             </apex:outputtext>
+            
+             <apex:outputtext id="estWaitTime" value="Calculating estimated time..." style="Color:Red" styleClass="col col_15 align_center">
+             </apex:outputtext>
+           
+             <br/>
+             <br/>
+    </apex:pageBlock>
+    </apex:outputpanel>
+    
+    </apex:form>
+    
+    
+</apex:page>

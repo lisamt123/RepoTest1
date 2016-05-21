@@ -1,0 +1,86 @@
+<apex:page showHeader="false" sidebar="false" standardStylesheets="false" id="showstate" readOnly="true">
+    
+    <html>
+        <head>
+            <meta http-equiv="refresh" content="3600"/>
+            <script src="https://use.typekit.net/nsi6vfo.js"></script>
+            <script>try{Typekit.load({ async: true });}catch(e){}</script>
+
+            <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css"/>
+            <script src="https://code.jquery.com/jquery-1.12.1.min.js"></script>
+            <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+            <script src="{!URLFOR($Resource.vAutoDashboardAssets, 'js/BootSideMenu.js')}"></script>
+            <c:FOD_CSS />
+
+            <script type="text/javascript">
+              $(document).ready(function(){
+                  $('#test').BootSideMenu({side:"left", autoClose:true});
+              });
+              </script>
+        </head>
+        <body>
+            <!-- Flyout Legend -->
+            <div id="test">
+                <div class="row">
+                    <div class="col-lg-2 active"></div>
+                    <div class="col-lg-2">
+                        <p>Active</p>
+                    </div>
+                    <div class="col-lg-2 escalated"></div>
+                    <div class="col-lg-2">
+                        <p>Escalated</p>
+                    </div>
+                    <div class="col-lg-2 compMo"></div>
+                    <div class="col-lg-2">
+                        <p>Completed MTD</p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-2 backtosales"></div>
+                    <div class="col-lg-2">
+                        <p>Back to Sales</p>
+                    </div>
+                    <div class="col-lg-2 deferred"></div>
+                    <div class="col-lg-2">
+                        <p>Deferred</p>
+                    </div>
+                    <div class="col-lg-2 compQTD"></div>
+                    <div class="col-lg-2">
+                        <p>Completed QTD</p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-2 budgetMTD"></div>
+                    <div class="col-lg-2">
+                        <p>Budget MTD</p>
+                    </div>
+                    <div class="col-lg-2 budgetQTD"></div>
+                    <div class="col-lg-2">
+                        <p>Budget QTD</p>
+                    </div>
+                    <div class="col-lg-2"></div>
+                    <div class="col-lg-2">
+                        
+                    </div>
+                </div>
+            </div>
+            <!-- end Flyout Legend -->
+            <div class="row first">
+                <c:FOD_SalesPipeline ></c:FOD_SalesPipeline>
+                <c:FOD_Provision ></c:FOD_Provision>
+            </div>
+            
+            <div class="row second">
+                <c:FOD_Conquest ></c:FOD_Conquest>
+                <c:FOD_Upsell ></c:FOD_Upsell>
+            </div>
+            
+            <div class="quadrant overlay" id="processingDiv">
+                <!--<div id="loading-img"></div>-->
+                <img id="loading-img" src="{!$Resource.processingImg}" />
+            </div>
+            
+        </body>
+    </html>
+
+</apex:page>

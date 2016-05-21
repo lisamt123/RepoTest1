@@ -1,0 +1,92 @@
+<apex:page standardController="CRMfusionDBR101__Scenario__c" extensions="CRMfusionDBR101.DB_ScenarioController" showHeader="true" sidebar="true" tabStyle="CRMfusionDBR101__Scenario__c"
+    standardStylesheets="true">
+    <apex:includeScript value="{!URLFOR($Resource.CRMfusionDBR101__DB_Javascript, 'jquery.min.js')}" />
+    <apex:form >
+        <apex:sectionHeader title="{!$ObjectType.CRMfusionDBR101__Scenario__c.Label}" subtitle="{!CRMfusionDBR101__Scenario__c.Name}" help="/apex/DB_Help" />
+        <c:DB_Disabled_Warning />
+        <c:DB_Key_Builder_Running_Warning />
+        <apex:pageBlock title="{!$ObjectType.CRMfusionDBR101__Scenario__c.Label} Detail" mode="maindetail">
+            <apex:pageBlockButtons >
+                <apex:commandButton action="{!edit}" value="{!$Label.CRMfusionDBR101__DB_Edit_Word}" />
+                <apex:commandButton action="{!delete}" value="{!$Label.CRMfusionDBR101__DB_Delete_Word}" />
+                <apex:commandButton action="{!URLFOR($Action.Scenario__c.Edit, Scenario__c.id, [clone='1'])}" value="{!$Label.CRMfusionDBR101__DB_Clone_Word}" />
+                <apex:commandButton action="{!autoMergeOrConvertSettings}"
+                    rendered="{!OR(CRMfusionDBR101__Scenario__c.CRMfusionDBR101__Match_on_Insert_Action__c = 'Auto-Convert Lead', CRMfusionDBR101__Scenario__c.CRMfusionDBR101__Match_on_Insert_Action__c = 'Auto-Merge')}"
+                    value="Auto-{!IF( isMerge, $Label.CRMfusionDBR101__DB_Merge_Word, $Label.CRMfusionDBR101__DB_Convert_Word )} Settings" />
+                <apex:commandButton action="{!rebuildKeys}" value="Rebuild Keys" disabled="{!disableRebuildScenarioButton}"
+                    title="Rebuild keys for this scenario only.  The scenario must be deployed and have scenario rules." />
+                <apex:commandButton action="{!rebuildAllKeys}" value="Rebuild All Keys"
+                    title="Rebuild keys for all deployed scenarios.  There must be at least one deployed scenario with rules."
+                    disabled="{!disableRebuildAllKeysButton}" />
+            </apex:pageBlockButtons>
+            <apex:pageBlockSection showHeader="false" collapsible="false">
+                <apex:outputText value="{!CRMfusionDBR101__Scenario__c.LastModifiedById}" rendered="false" />
+                <apex:outputText value="{!CRMfusionDBR101__Scenario__c.CreatedById}" rendered="false" />
+                <apex:outputField value="{!CRMfusionDBR101__Scenario__c.Name}" />
+                <apex:outputField id="ownerId" value="{!CRMfusionDBR101__Scenario__c.OwnerID}" />
+                <apex:pageBlockSectionItem helpText="{!$ObjectType.CRMfusionDBR101__Scenario__c.Fields.CRMfusionDBR101__Scenario_Type__c.inlineHelpText}">
+                    <apex:outputLabel value="{!$ObjectType.CRMfusionDBR101__Scenario__c.Fields.CRMfusionDBR101__Scenario_Type__c.Label}" />
+                    <apex:outputText escape="false" value="{!scenarioTypeDisplay}" />
+                </apex:pageBlockSectionItem>
+                <apex:outputField value="{!CRMfusionDBR101__Scenario__c.CRMfusionDBR101__Create_Task__c}" />
+                <apex:outputField value="{!CRMfusionDBR101__Scenario__c.CRMfusionDBR101__Scenario_Number__c}" />
+                <apex:outputField value="{!CRMfusionDBR101__Scenario__c.CRMfusionDBR101__Deployed__c}" />
+                <apex:outputField value="{!CRMfusionDBR101__Scenario__c.CRMfusionDBR101__Match_on_Insert_Action__c}" />
+                <apex:outputField value="{!CRMfusionDBR101__Scenario__c.CRMfusionDBR101__Bypass_Security__c}" />
+                <apex:outputField value="{!CRMfusionDBR101__Scenario__c.CRMfusionDBR101__Match_on_Update_Action__c}" />
+                <apex:outputField value="{!CRMfusionDBR101__Scenario__c.CRMfusionDBR101__Enable_Dual_Filters__c}" />
+                <apex:outputField rendered="{!CRMfusionDBR101__Scenario__c.CRMfusionDBR101__Match_on_Insert_Action__c == 'Redirect to VisualForce Page'}"
+                    value="{!CRMfusionDBR101__Scenario__c.CRMfusionDBR101__VisualForce_Handler__c}" />
+                <apex:outputField rendered="{!OR( CRMfusionDBR101__Scenario__c.CRMfusionDBR101__Match_on_Insert_Action__c == 'Custom Apex Code', CRMfusionDBR101__Scenario__c.CRMfusionDBR101__Match_on_Update_Action__c == 'Custom Apex Code' )}"
+                    value="{!CRMfusionDBR101__Scenario__c.CRMfusionDBR101__Apex_Handler__c}" />
+                <apex:pageBlockSectionItem rendered="{!showPersonAccountSpacer}">
+                    <!-- Leave an empty space -->
+                </apex:pageBlockSectionItem>
+                <apex:outputField value="{!CRMfusionDBR101__Scenario__c.CRMfusionDBR101__Person_Account_Scenario__c}" />
+                <apex:pageBlockSectionItem />
+                <apex:outputField value="{!CRMfusionDBR101__Scenario__c.CRMfusionDBR101__Rebuild_Needed__c}" />
+                <apex:pageBlockSectionItem />
+                <apex:outputField value="{!CRMfusionDBR101__Scenario__c.CRMfusionDBR101__Last_Key_Rebuild__c}" />
+                <apex:outputField rendered="{!usesErrorMessage}" value="{!CRMfusionDBR101__Scenario__c.CRMfusionDBR101__Error_Message__c}" />
+                <apex:outputField rendered="{!usesAllowBlockBypass}" value="{!CRMfusionDBR101__Scenario__c.CRMfusionDBR101__Allow_Block_Bypass__c}" />
+                <apex:outputField rendered="{!isBlockingScenario}" value="{!CRMfusionDBR101__Scenario__c.CRMfusionDBR101__Max_Blocks_Shown__c}" />
+                <apex:pageBlockSectionItem rendered="{!AND( isBlockingScenario, !BEGINS( CRMfusionDBR101__Scenario__c.CRMfusionDBR101__Scenario_Type__c, 'Lead to' ) )}">
+                    <!-- Leave an empty space -->
+                </apex:pageBlockSectionItem>
+                <apex:outputField rendered="{!AND( isBlockingScenario, BEGINS( CRMfusionDBR101__Scenario__c.CRMfusionDBR101__Scenario_Type__c, 'Lead to' ) )}"
+                    value="{!CRMfusionDBR101__Scenario__c.CRMfusionDBR101__Block_Related_Matches__c}" />
+                <apex:pageBlockSectionItem >
+                    <apex:outputLabel for="CreatedBy" value="Created By" />
+                    <apex:outputPanel >
+                        <apex:commandLink id="CreatedBy" action="/{!CRMfusionDBR101__Scenario__c.CreatedById}" value="{!createdByName}" />
+                        <apex:outputText value=", {!CRMfusionDBR101__Scenario__c.CreatedDate}" />
+                    </apex:outputPanel>
+                </apex:pageBlockSectionItem>
+                <apex:pageBlockSectionItem >
+                    <apex:outputLabel for="LastModifiedBy" value="Last Modified By" />
+                    <apex:outputPanel >
+                        <apex:commandLink id="LastModifiedBy" action="/{!CRMfusionDBR101__Scenario__c.LastModifiedById}" value="{!lastModifiedByName}" />
+                        <apex:outputText value=", {!CRMfusionDBR101__Scenario__c.LastModifiedDate}" />
+                    </apex:outputPanel>
+                </apex:pageBlockSectionItem>
+            </apex:pageBlockSection>
+            <apex:pageBlockSection title="DupeBlocker Statistics" showHeader="true" collapsible="true">
+                <apex:outputField value="{!CRMfusionDBR101__Scenario__c.CRMfusionDBR101__Duplicate_Warning_Count__c}" />
+                <apex:outputField value="{!CRMfusionDBR101__Scenario__c.CRMfusionDBR101__Potential_Duplicate_Record_Count__c}" />
+                <apex:outputField value="{!CRMfusionDBR101__Scenario__c.CRMfusionDBR101__Duplicates_Blocked__c}" />
+                <apex:outputField value="{!CRMfusionDBR101__Scenario__c.CRMfusionDBR101__Duplicates_Merged__c}" />
+            </apex:pageBlockSection>
+        </apex:pageBlock>
+    </apex:form>
+    <apex:relatedList list="Scenario_Rules__r" />
+    <apex:relatedList list="Scenario_Filters__r" />
+    <apex:relatedList list="Scenario_Target_Filters__r" rendered="{!CRMfusionDBR101__Scenario__c.CRMfusionDBR101__Enable_Dual_Filters__c}" />
+    <apex:relatedList list="Duplicate_Warnings__r" />
+    <script type="text/javascript">
+        // Add the change owner link next to the owner.
+        $('span[id$="ownerId"]')
+                .parent()
+                .append(
+                        '&nbsp;\u003ca href="/{!Scenario__c.Id}/a?retUrl=%2F{!Scenario__c.Id}"\u003e[Change]\u003c/a\u003e');
+    </script>
+</apex:page>

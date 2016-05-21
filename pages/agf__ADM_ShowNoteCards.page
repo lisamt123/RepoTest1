@@ -1,0 +1,18 @@
+<apex:page standardController="agf__ADM_Work__c" recordSetVar="works" extensions="agf.ADM_WorkSetController">
+    <apex:include pageName="agf__ADM_ShowNoteCards_CSS"/>
+    <apex:sectionHeader title="Show / Print Notecards" subtitle="Work"/>
+    <apex:pageMessages ></apex:pageMessages>
+    <apex:repeat value="{!notecards}" var="notecard" >
+        <apex:outputPanel layout="block" styleClass="container">
+            <apex:outputPanel layout="block" styleClass="box">
+                <apex:outputPanel layout="block" styleClass="header">
+                    <em>{!notecard.work.Name}</em><br/>
+                    {!LEFT(notecard.work.agf__Subject__c,40)}<apex:outputPanel rendered="{!LEN(notecard.work.Subject__c) >=40}">...</apex:outputPanel> - {!notecard.work.RecordType.Name}
+                    <apex:outputPanel rendered="{!NOT(ISNULL(notecard.work.agf__Story_Points__c))}"> - Work Points {!TEXT(notecard.work.agf__Story_Points__c)}</apex:outputPanel>
+                </apex:outputPanel>
+                <apex:outputPanel layout="block" styleClass="text">{!notecard.text}</apex:outputPanel>
+            </apex:outputPanel>
+        </apex:outputPanel>
+    </apex:repeat>
+    
+</apex:page>

@@ -1,0 +1,18 @@
+<apex:page standardController="agf__QA_Test_Plan__c" extensions="agf.QA_TPUserStoryListExtension" showHeader="false" sidebar="false">
+    <apex:pageBlock title="User Stories">
+        <apex:pageBlockButtons >
+        <apex:form >
+            <apex:commandButton action="{!workWizard}" value="Add / Remove User Stories"/>
+        </apex:form>
+        </apex:pageBlockButtons>
+        <apex:pageBlockTable value="{!works}" var="work">
+        <apex:column >
+            <apex:facet name="header">Subject</apex:facet>
+            <apex:outputLink value="/{!work.Id}">{!work.agf__Subject__c}</apex:outputLink>
+        </apex:column>
+        <apex:column value="{!work.agf__Sprint__c}"/>
+        <apex:column value="{!work.agf__Scheduled_Build__c}"/>
+        <apex:column value="{!work.agf__Story_Points__c}"/>
+        </apex:pageBlockTable>
+    </apex:pageBlock>
+</apex:page>

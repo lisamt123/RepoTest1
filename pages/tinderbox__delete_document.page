@@ -1,0 +1,33 @@
+<apex:page standardController="tinderbox__Document__c" extensions="tinderbox.documentExtension" action="{! IF(len(TinderboxId)>0,null,URLFOR($Action.tinderbox__document__c.Delete, $CurrentPage.Parameters.id,[retURL=$CurrentPage.Parameters.retURL],true))}" >
+	<!-- MODIFICATION HISTORY:
+			01-30-2013 ProCore Resource Group, Jeff Stevens
+						Created.
+						Copied from ...Proposal to handle new type of proposal - Documents
+	 -->
+    
+    <apex:form >
+    	<apex:inputhidden value="{!tinderbox__Document__c.tinderbox__TBAccount__c}" />
+    </apex:form>
+ 
+    <apex:includeScript value="{!$Resource.tinderbox__TB_scripts}"/>
+    <apex:stylesheet value="{!$Resource.tinderbox__TB_PageStyles}"/>
+
+    <apex:outputText value="{!tinderbox__Document__c.tinderbox__TinderBoxId__c}" rendered="false"/>
+    <apex:outputText value="{!tinderbox__Document__c.id}" rendered="false"/>
+
+    <div id="progressIndicator" class="progressIndicatorStyle">
+        <h1>Loading...</h1>
+        <div id="overlay" style="margin-top:20px;"><apex:image value="{!$Resource.tinderbox__TB_LoadingImage}"/></div>
+    </div>
+
+    <iframe onload="closeProgressIndicator()" frameborder="false" width="100%" height="600px" 
+        src="{!IF(TBAccountEndPoint == null, 
+            		IF(($Setup.tinderbox__TinderBox__c.tinderbox__Use_HTTPS__c), 'https://', 'http://')
+            		+ $Setup.tinderbox__TinderBox__c.tinderbox__Company_URL__c,
+            	TBAccountEndPoint )
+        }/salesforce/delete_document/{!TinderboxId}?sfdc_document_id={!documentId}&remote_systemtype=sfdc&remote_sessionid={!$Api.Session_ID}&remote_serverurl={!
+            $Api.Partner_Server_URL_190
+    }&retUrl={!SfInstance}{!$CurrentPage.Parameters.retURL}">
+    </iframe>
+
+</apex:page>

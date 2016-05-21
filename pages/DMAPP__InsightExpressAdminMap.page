@@ -1,0 +1,119 @@
+<apex:page standardController="DMAPP__Insight_Smart_Business_Map__c" extensions="DMAPP.InsightExpressAdminMapController"
+		   docType="html-5.0"     
+		   showHeader="true" 
+		   sidebar="false">
+		   
+		   
+		   <c:jQuery jQueryUI="true" underscore="true" />
+    
+    	   <apex:include pageName="DMAPP__APIDelegate"/>
+    		
+    		
+    		<style>
+    		
+    			h1, h2, h3, h4, h5, h6 {
+    				display: block;
+				}
+				
+				h1 {
+					font-size: 24px;
+   					margin: 16px;
+				}
+				
+				h2 {
+					font-size: 18px;
+   					margin: 14px;
+   				}
+   				
+				h3 {
+					font-size: 14px;
+   					margin: 14px;
+   				}   				
+   				
+   				ul li {
+   					margin-left: 0;
+   				}
+   				
+   				table.insightExpressTable {
+   					margin: 16px;
+   					border-collapse: collapse;
+   					width: 1024px;
+   				}
+   				
+   				table.insightExpressTable td {
+   				    border: 1px solid black;
+    				padding: 5px;
+   				}
+
+				.shortColumn {
+				    width: 100px;
+				}   
+				
+				.halfColumn {
+				    width: 50%;
+				} 				 		
+    		
+    		</style>
+    		
+    		
+    		   
+		   <div id="mainContainer"></div>
+		   
+		   
+		   
+		   
+		   <script>
+		   
+                function getSmartMap(callback) {
+                
+                    Visualforce.remoting.Manager.invokeAction(
+                        '{!$RemoteAction.InsightExpressAdminMapController.getInsightSmartMap}',
+                        '{!JSENCODE(mapId)}',
+                        function(result, event) {
+	                        if(callback) {
+	                            callback(result, event);
+	                        }
+						}, 
+                        {escape: false}
+                    );                
+                }	   
+		   
+		   		jQuery(function() {
+		   		
+		   			getSmartMap(function(map) {
+		   			
+		   				var mainContainer = jQuery('#mainContainer');
+		   				mainContainer.append(jQuery('<h1/>').text('Business Map - ' + map.name));
+		   				
+		   				var overviewTable = jQuery('<table/>').addClass('insightExpressTable');
+		   				overviewTable.append(jQuery('<tr/>').append(jQuery('<td/>').addClass('shortColumn').text('Description')).append(jQuery('<td/>').text(map.description)));
+		   				var industriesList = jQuery('<ul/>');
+		   				jQuery.each(map.industries, function(idx, industry) {
+		   					industriesList.append(jQuery('<li/>').text(industry.name));
+		   				});		   				
+		   				overviewTable.append(jQuery('<tr/>').append(jQuery('<td/>').addClass('shortColumn').text('Industries')).append(jQuery('<td/>').append(industriesList)));
+		   				var goalsList = jQuery('<ul/>');
+		   				jQuery.each(map.goals, function(idx, goal) {
+			   				goalsList.append(jQuery('<li/>').append(jQuery('<a/>', {href: 'InsightExpressAdmin?id=' + goal.id}).text(goal.name)));
+		   				});			   				
+		   				overviewTable.append(jQuery('<tr/>').append(jQuery('<td/>').addClass('shortColumn').text('Goals')).append(jQuery('<td/>').append(goalsList)));
+		   				var pressuresList = jQuery('<ul/>');
+		   				jQuery.each(map.pressures, function(idx, pressure) {
+			   				pressuresList.append(jQuery('<li/>').append(jQuery('<a/>', {href: 'InsightExpressAdmin?id=' + pressure.id}).text(pressure.name)));
+		   				});			   				
+		   				overviewTable.append(jQuery('<tr/>').append(jQuery('<td/>').addClass('shortColumn').text('Pressures')).append(jQuery('<td/>').append(pressuresList)));
+		   				var initiativesList = jQuery('<ul/>');
+		   				jQuery.each(map.initiatives, function(idx, initiative) {
+			   				initiativesList.append(jQuery('<li/>').append(jQuery('<a/>', {href: 'InsightExpressAdmin?id=' + initiative.id}).text(initiative.name)));
+		   				});			   				
+		   				overviewTable.append(jQuery('<tr/>').append(jQuery('<td/>').addClass('shortColumn').text('Initiatives')).append(jQuery('<td/>').append(initiativesList)));
+		   				mainContainer.append(overviewTable);
+		   						   			
+		   			});
+		   			
+		   		});
+		   
+		   </script>
+		   
+		   
+</apex:page>

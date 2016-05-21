@@ -1,0 +1,63 @@
+<apex:component >
+	
+	<!---------------------------------------------------------------------------------------->
+	<!-- javascript static resource used for open and close callout functions w/ style adds' -->
+	<!---------------------------------------------------------------------------------------->
+	<apex:includeScript value="{!$Resource.hoverLinkButton_js}"/>
+	
+	<!------------------------->   
+	<!-- Command Link Text.. --> 
+	<!------------------------->
+	<apex:attribute name="hoverButtonText" description="Text displayed." type="String" required="true"/>
+	
+	<!--------------------------------------------------------------------------->
+	<!-- Must be unique id, set it to the objects Id to be unique everytime... -->
+	<!--------------------------------------------------------------------------->
+	<apex:attribute name="hoverUniqueId" description="Unique Id for this componenet. Must be unique across all 
+			multiSelectButtons. This is not the component Id." type="String" required="true"/>
+  	
+  	
+  
+	<!--------------------------------------------------------------------------->
+	<!-- Controls structure... the user may input anything that can go inside
+	     a pageBlock which is hardcoded for a uniform structure and look       -->
+	<!--------------------------------------------------------------------------->
+	
+	<span onmouseover="showOptions2Delayed('{!hoverUniqueId}');" onmouseout="hideOptions2Delayed();">
+		<div name="hoverButton" id="hover{!hoverUniqueId}" class="hoverLink">
+				<!-- 
+				<apex:commandLink value="{!hoverButtonText}" styleClass="actionLink" />
+				-->
+				<apex:outputLink value="#" styleClass="actionLink">{!hoverButtonText}</apex:outputLink>
+				
+				<div name="hoverButtonOpts" id="CloneMenuHover{!hoverUniqueId}" class="hoverLinkContent">
+				  
+				  	<div style="padding-left:23px; border:0; background: transparent url(/img/alohaSkin/hover_lookup_tl.png) 0 0px no-repeat; 
+				  			height:auto;">   
+				       
+				       <div style="max-height:280px; overflow:auto; background-color:#FFF; -moz-box-shadow: 0 1px 5px #727272; -webkit-box-shadow: 0 1px 5px #727272; border-left:none;"> 
+				         
+				         	<apex:pageBlock id="pbHoverWrapperStructure">
+								
+								<apex:facet name="header">
+									<apex:outputLabel value="" />
+								</apex:facet>
+								
+											<!-------------------------------------------------------------->
+											<!-- the width of the control placed in the body in the markup
+											     determines the width of the control..---------------------->
+											<!-------------------------------------------------------------->
+											
+											<apex:componentBody />
+						
+				          	</apex:pageBlock>       
+				        
+				        </div>
+				        
+	   				</div>
+					
+				</div>
+		
+		</div>
+	</span>	
+</apex:component>

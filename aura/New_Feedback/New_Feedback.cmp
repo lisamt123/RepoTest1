@@ -1,0 +1,16 @@
+<aura:component implements="forceCommunity:availableForAllPageTypes" controller="NewFeedbackController">
+    <aura:attribute name="newFeedback" type="Feedback__c"
+                    default="{
+                               'sobjectType': 'Feedback__c',
+                               'Description__c' : ''
+                               }"/>
+    <form>
+        <div class="forceCommunityCreateRecordForm">
+            <h1 class="headerLabel">{!$Label.c.New_Feedback_Header}</h1>
+            <ui:inputTextArea aura:id="description" label="{!$Label.c.New_Feedback_Description}" class="textarea" value="{!v.newFeedback.Description__c}"/>
+            <div class="buttonWrapper">
+                <ui:button label="{!$Label.c.New_Feedback_Confirm_Btn}" press="{!c.createFeedback}" class="button uiButton--default uiButton--brand uiButton"/>
+            </div>
+        </div>
+    </form>
+</aura:component>

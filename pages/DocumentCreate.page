@@ -1,0 +1,51 @@
+<apex:page StandardController="Document" extensions="documentExt"
+	showheader="false">
+	<head>
+<apex:stylesheet value="{!$Resource.styles}"></apex:stylesheet>
+	</head>
+	<table border="0" width="100%" height="100%" id="bg">
+		<tr valign="top">
+			<td>
+				<div class="maincontainer">
+
+					<apex:messages />
+
+					<apex:image id="key1" width="100%"
+						value="/resource/1265230873000/Header" />
+
+					<apex:sectionHeader title="Welcome to Vinsolutions"
+						subtitle="Vinsolutions Welcome Packet" />
+
+					<apex:form >
+						<apex:pageBlock title="Upload User List">
+
+							<table border="0" width="100%" align="center">
+								<tr align="center">
+									<td align="center"><apex:commandButton action="{!'/VINWelcomePackets/Welcome_Packet_Confirm_CRM?ID='+document.Description}"
+											value="Previous Step" /> <apex:commandButton action="{!skip}" value="Skip" />
+									</td>
+								</tr>
+							</table>
+
+
+							<apex:pageBlockSection columns="1">
+								<br />
+           	Optionally, you may upload a user list from your computer using the "Choose File" button below. 
+   			<br />
+								<br /> 
+ 			If you don't have a user list at this time, you may either complete this step by 
+ 			returning to the Welcome Packet after your list is prepared, or by contacting your Implementation Manager.
+            <apex:inputFile value="{!document.body}"
+									filename="{!document.name}" />
+								<apex:commandButton value="Save" action="{!docSave}" />
+							</apex:pageBlockSection>
+						</apex:pageBlock>
+
+					</apex:form>
+
+
+				</div>
+			</td>
+		</tr>
+	</table>
+</apex:page>

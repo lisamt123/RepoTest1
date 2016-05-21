@@ -1,0 +1,16 @@
+<apex:page standardController="SFDC_520_Quote__c">
+	<script>
+function confirmCancel()
+{     
+   window.parent.location.href="/{!SFDC_520_Quote__c.Opportunity__r.Deal_Contact__c}";
+}
+</script>
+
+	<div style="background-color: #F3F3EC;">
+		<apex:outputLink onclick="confirmCancel();"
+			value="{!'/'+SFDC_520_Quote__c.Opportunity__r.Deal_Contact__r.FirstName+' '+SFDC_520_Quote__c.Opportunity__r.Deal_Contact__r.LastName}">
+			<apex:outputField value="{!SFDC_520_Quote__c.Opportunity__r.Deal_Contact__r.FirstName}" />&nbsp;
+ <apex:outputField value="{!SFDC_520_Quote__c.Opportunity__r.Deal_Contact__r.LastName}" />
+		</apex:outputLink>
+	</div>
+</apex:page>

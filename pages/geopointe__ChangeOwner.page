@@ -1,0 +1,87 @@
+<apex:page controller="geopointe.ChangeOwner_Controller" showHeader="false" sidebar="false" tabStyle="User" standardStylesheets="false" applyHtmlTag="false" applyBodyTag="false" docType="html-5.0">
+    <apex:stylesheet value="{!URLFOR($Resource.geopointe__jquery, '/css/common/common.css')}"/><!-- Geopointe common css -->
+    <apex:stylesheet value="{!URLFOR($Resource.geopointe__jquery, '/css/common/common-lightning.css')}"/> <!-- Common geopointe CSS for lightning styled pages--> 
+    <apex:stylesheet value="https://maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css"/> <!--Font awesome library for icons and such -->
+    <apex:stylesheet value="{!URLFOR($Resource.geopointe__SLDS, '/0.8.0/assets/styles/salesforce-lightning-design-system-vf.min.css')}"/> <!-- Salesforce Lightning Design System -->
+    <style>
+        .slds td.pbButtonb { text-align: center; }
+    </style>
+
+    <!-- localize.js -->
+    <script src="https://cdn.localizejs.com/localize.js"></script>
+    <script>!function(a){if(!a.Localize){a.Localize={};for(var e=["translate","untranslate","phrase","initialize","translatePage","setLanguage","getLanguage","detectLanguage","untranslatePage","bootstrap","prefetch","on","off"],t=0;t<e.length;t++)a.Localize[e[t]]=function(){}}}(window);</script>
+
+    <script>
+        Localize.initialize({
+            key: '1SeX6sYAXWLng', 
+            rememberLanguage: false,
+            saveNewPhrases: false,
+            translateBody: true
+        });
+        Localize.setLanguage('{!userLanguage}');
+    </script>
+
+    <div class="slds">
+    <apex:form >
+
+        <apex:pageMessages />
+
+        <apex:outputPanel rendered="{!idArrayPresent=false}">
+            <apex:pageBlock title="Error on Page">
+                For this page to function, record IDs must be passed to the page in the idArray parameter.
+            </apex:pageBlock>
+        </apex:outputPanel>
+
+        <apex:outputPanel rendered="{!idArrayPresent=true}" id="updateRecordsPanel">
+            <apex:pageBlock >
+                <apex:repeat value="{!updateSets}" var="theKey">
+                    <div class="slds-card slds-m-bottom--medium">
+                        <header class="slds-card__header slds-grid">
+                            <h3 class="slds-text-heading--small slds-truncate">{!updateSets[theKey].objectLabelPlural}: {!updateSets[theKey].numOfRecords} record(s)</h3>
+                        </header>
+
+                        <section class="slds-card__body slds-text-body--small slds-p-horizontal--medium">
+                            <apex:outputPanel rendered="{!updateSets[theKey].uiStatus=='NOUPDATE'}">
+                                You do not have the authority to update <var>{!updateSets[theKey].objectLabel}</var> records.
+                            </apex:outputPanel>
+
+                            <apex:outputPanel rendered="{!updateSets[theKey].uiStatus=='NOOWNER'}">
+                                This object does not contain an Owner field.
+                            </apex:outputPanel>
+
+                            <apex:outputPanel rendered="{!updateSets[theKey].uiStatus=='OK' && processingComplete=false}">
+                                <div class="uiInput uiInputText uiInput--default uiInput--input">
+                                    <apex:outputLabel styleClass="label inputLabel uiLabel-left form-element__label uiLabel notranslate" value="New Owner"/>
+                                    <apex:inputField value="{!updateSets[theKey].userLookup.OwnerId}" required="false" styleClass="notranslate input"/>
+                                </div>
+                            </apex:outputPanel>
+
+                            <apex:outputPanel rendered="{!updateSets[theKey].uiStatus=='OK' && processingComplete=true}">
+                                <var>{!updateSets[theKey].numOfUpdatedRecords}</var> records successfully updated. <br/>
+                                <var>{!updateSets[theKey].numOfErroredRecords}</var> records had errors.
+                            </apex:outputPanel>
+                        </section>
+                    </div>
+                </apex:repeat>
+
+                <apex:pageBlockButtons location="bottom">
+                    <apex:actionStatus id="updateButtonStatus">
+                        <apex:facet name="start">
+                            Processing <var>{!totalRecordCount}</var> records...
+                        </apex:facet>
+                        <apex:facet name="stop">
+                            <apex:outputPanel >
+                                <apex:outputPanel rendered="{!processingComplete=false}">
+                                    <apex:commandButton styleClass="slds-button slds-button--neutral" action="{!changeOwner}" value="Change Owner" rerender="updateRecordsPanel" status="updateButtonStatus"/>
+                                </apex:outputPanel>
+                                <apex:outputPanel rendered="{!processingComplete=true}">Processing Complete!</apex:outputPanel>
+                            </apex:outputPanel>
+                        </apex:facet>
+                    </apex:actionStatus>
+                </apex:pageBlockButtons>
+            </apex:pageBlock>
+        </apex:outputPanel>
+
+    </apex:form>
+    </div>
+</apex:page>

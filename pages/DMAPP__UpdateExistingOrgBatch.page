@@ -1,0 +1,17 @@
+<apex:page controller="DMAPP.UpdateExistingOrgBatchController">
+
+    <apex:form >
+    
+ 	 	<apex:selectList value="{!batchCommand}" size="1">
+ 	 	 	<apex:selectOptions value="{!batchItems}"/>
+ 	 	</apex:selectList>
+ 	 	<apex:commandButton value="Run" action="{!launchBatch}" rerender="jobs, error" />
+  	 	
+		&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<apex:outputLink value="/apex/DMPermissionSet" target="_parent">Dealmaker Permission Set Admin Page</apex:outputLink>
+    
+        <br/><br/>
+        <c:batchJobs id="jobs" numberOfJobs="20"/>
+
+	</apex:form>
+
+</apex:page>

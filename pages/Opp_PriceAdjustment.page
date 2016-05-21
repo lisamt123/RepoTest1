@@ -1,0 +1,587 @@
+<apex:page standardController="Opportunity" extensions="Opp_PriceAdjustment">
+    
+<apex:form > 
+<!-- <apex:includeScript value="{!$Resource.jQuery}" />
+    <apex:includeScript value="{!$Resource.jMaskedInput}" /> -->
+    <apex:sectionHeader title="Price Adjustment" subtitle="{!oppName}">
+        <apex:outputLink title="Return to Opportunity." style="margin-left:80px; color:blue;" value="/{!oppId}" id="theLink">{!oppName}</apex:outputLink>          <!-- SandBox -->
+        <!-- <apex:outputLink title="Return to Opportunity." style="margin-left:80px; color:blue;" value="/{!oppId}" id="theLink">{!oppName}</apex:outputLink> --> <!-- Production  -->
+    </apex:sectionHeader>
+    <apex:pageBlock title="Decrease or Increase Price?" id="thePageBlock">
+    <apex:outputText style="color:red; font:15pt;" value="If any product group is at $0.00, you will NOT be able to adjust the price of that group. You will need to rebuild your products first, then use this tool to adjust them again to the desired price."/>
+    <apex:pageMessages />
+    <apex:pageBlockSection >
+        <apex:selectList label="Adjustment Type: " value="{!typeOfAdjustment}" size="1">
+            <apex:selectOptions value="{!incDec}" />
+            <apex:actionSupport event="onchange" action="{!typeChange}" reRender="dec, inc, decPer, decFlat, incPer, incFlat" />
+        </apex:selectList>
+    </apex:pageBlockSection>
+    <apex:outputPanel id="dec">
+    <apex:pageBlockSection title="Decrease Price" columns="1" rendered="{!typeOfAdjustment == 'Decrease'}">
+        <apex:SelectList label="Type of Rate: " value="{!typeOfRate}" size="1">
+            <apex:selectOptions value="{!perFlat}" />
+            <apex:actionSupport event="onchange" action="{!rateType}" reRender="decPer, decFlat" />
+        </apex:SelectList>
+    </apex:pageBlockSection>
+    </apex:outputPanel>
+    <apex:outputPanel id="decPer">
+        <apex:pageBlockSection title="Percentage Decrease" columns="2" rendered="{!typeOfRate == 'Percentage' && typeOfAdjustment == 'Decrease'}" >
+            <apex:pageBlockSectionItem >
+                <apex:outputText value="Monthly Recurring Revenue" />
+                <apex:outputText value="${0, number, ###,##0.00}">
+                    <apex:param value="{!oppInfo.Monthly_Recurring_Fees__c}"/>
+                </apex:outputText>
+            </apex:pageBlockSectionItem>
+            <apex:pageBlockSectionItem id="newMRR">
+                <apex:outputText style="color:green;" value="New MRR" />
+                <apex:outputText style="color:green;" value="${0, number, ###,##0.00}" > 
+                    <apex:param value="{!newMrr}"/>
+                </apex:outputText>
+            </apex:pageBlockSectionItem>
+            <apex:pageBlockSectionItem >
+                <apex:outputText value="One Time Fees" />
+                <apex:outputText value="${0, number, ###,##0.00}"> 
+                    <apex:param value="{!oppInfo.One_Time_Fees2__c}" />
+                </apex:outputText>
+            </apex:pageBlockSectionItem>
+             <apex:pageBlockSectionItem id="newOT">
+                <apex:outputText style="color:green;" value="New One Time Fees"/>
+                <apex:outputText style="color:green;" value="${0, number, ###,##0.00}">
+                    <apex:param value="{!newOT}" />
+                </apex:outputText>
+            </apex:pageBlockSectionItem>
+            <apex:pageBlockSectionItem >
+                <apex:outputText value="Set Up Fees"/>
+                <apex:outputText value="${0, number, ###,##0.00}">
+                    <apex:param value="{!oppInfo.Setup_Fees__c}" />
+                </apex:outputText>
+            </apex:pageBlockSectionItem>
+            <apex:pageBlockSectionItem >
+                <apex:outputText style="color:green;" value="New Set Up Fees" />
+                <apex:outputText style="color:green;" value="${0, number, ###,##0.00}">
+                    <apex:param value="{!newSU}"/>
+                </apex:outputText>
+            </apex:pageBlockSectionItem>
+            <apex:pageBlockSectionItem >
+                <apex:outputText value="Training Fees" />
+                <apex:outputText value="${0, number, ###,##0.00}">
+                    <apex:param value="{!oppInfo.Total_Training__c}" />
+                </apex:outputText>
+            </apex:pageBlockSectionItem>
+            <apex:pageBlockSectionItem >
+                <apex:outputText style="color:green;" value="New Training Fees" />
+                <apex:outputText style="color:green;" value="${0, number, ###,##0.00}">
+                    <apex:param value="{!newTR}"/>
+                </apex:outputText>
+            </apex:pageBlockSectionItem> 
+        </apex:pageBlockSection>
+                <apex:pageBlockSection columns="2" rendered="{!typeOfRate == 'Percentage' && typeOfAdjustment == 'Decrease'}" >
+            <apex:pageBlockSectionItem >
+                <apex:outputText style="color:red;" value="PLEASE NOTE"/>
+                <apex:outputText style="color:red;" value="Nothing will be changed on your Opportunity until you hit the Submit button." />
+            </apex:pageBlockSectionItem>
+            <apex:pageBlockSectionItem >
+                <apex:outputText value=""/>
+                <apex:outputText value=""  />  
+            </apex:pageBlockSectionItem>
+            <apex:pageBlockSectionItem >
+                <apex:outputText value="MRR Discount %"/>
+                <apex:inputText id="mrrPercent" value="{!mrrPercent}"  >  
+                </apex:inputText>
+            </apex:pageBlockSectionItem>
+            <apex:pageBlockSectionItem >
+                <apex:outputText style="color:green;" value="Cumulative MRR % to Discount" />
+                <apex:outputText style="color:green;" value="{0, number, ###,##0.000000}%" >
+                    <apex:Param value="{!mrrPerDecTotal}"/>
+                </apex:outputText>
+            </apex:pageBlockSectionItem>
+            <apex:pageBlockSectionItem id="otp" >
+                <apex:outputText value="One Time Discount %" />
+                <apex:inputText value="{!oneTimePercent}" >
+                </apex:inputText>
+            </apex:pageBlockSectionItem>
+            <apex:pageBlockSectionItem >
+                <apex:outputText style="color:green;" value="Cumulative One Time % to Discount" />
+                <apex:outputText style="color:green;" value="{0, number, ###,##0.000000}%" >
+                    <apex:Param value="{!otPerDecTotal}"/>
+                </apex:outputText>
+            </apex:pageBlockSectionItem>
+            <apex:pageBlockSectionItem >
+                <apex:outputText value="Set Up Discount %" />
+                <apex:inputText value="{!setUpPercent}"  >
+                </apex:inputText>
+            </apex:pageBlockSectionItem>
+            <apex:pageBlockSectionItem >
+                <apex:outputText style="color:green;" value="Cumulative Set Up % to Discount" />
+                <apex:outputText style="color:green;" value="{0, number, ###,##0.000000}%" >
+                    <apex:Param value="{!suPerDecTotal}"/>
+                </apex:outputText>
+            </apex:pageBlockSectionItem>
+            <apex:pageBlockSectionItem >
+                <apex:outputText value="Training Discount %" />
+                <apex:inputText value="{!trainPercent}"  >
+                </apex:inputText>
+            </apex:pageBlockSectionItem> 
+            <apex:pageBlockSectionItem >
+                <apex:outputText style="color:green;" value="Cumulative Training % to Discount" />
+                <apex:outputText style="color:green;" value="{0, number, ###,##0.000000}%" >
+                    <apex:Param value="{!trPerDecTotal}"/>
+                </apex:outputText>
+            </apex:pageBlockSectionItem>
+        </apex:pageBlockSection>
+
+        <apex:pageBlockSection columns="1" rendered="{!typeOfRate == 'Percentage' && typeOfAdjustment == 'Decrease'}">
+            <apex:commandButton id="calculate" style="margin-left:232px;" value="Calculate" action="{!calculateDecPer}" reRender="decPer, decPerErrors" />
+            <apex:commandButton id="reset1" style="margin-left:232px;" value="Reset" action="{!resetDecPer}" rendered="{!reset = true}" rerender="decPer, decPerErrors" />
+            <apex:commandButton id="submit" style="margin-left:232px;" value="Submit" action="{!returnToOppSubDecPer}" rendered="{!submitTrue = false && mrrZeroError == false && otZeroError == false && suZeroError == false && trZeroError == false}" /> 
+            <apex:commandButton id="return" style="margin-left:232px;" value="Return To Opp" action="{!returnToOpp}" />
+        </apex:pageBlockSection>
+    </apex:outputPanel>
+    <apex:outputPanel id="decPerErrors">
+    <apex:pageBlockSection >
+        <apex:pageMessage summary="You CANNOT decrease Monthly Recurring Fees that are $0.00 using this tool!" severity="error" strength="3" rendered="{!mrrZeroError == true}"/>
+        <apex:pageMessage summary="You CANNOT decrease One Time Fees that are $0.00 using this tool!" severity="error" strength="3" rendered="{!otZeroError == true}"/>
+        <apex:pageMessage summary="You CANNOT decrease Set-up Fees that are $0.00 using this tool!" severity="error" strength="3" rendered="{!suZeroError == true}"/>
+        <apex:pageMessage summary="You CANNOT decrease Training Fees that are $0.00 using this tool!" severity="error" strength="3" rendered="{!trZeroError == true}"/>
+    </apex:pageBlockSection>
+    </apex:outputPanel>
+    <apex:outputPanel id="decFlat">
+    <apex:pageBlockSection title="Flat Rate Decrease" columns="2" rendered="{!typeOfRate == 'Flat' && typeOfAdjustment == 'Decrease'}">
+    <apex:pageBlockSectionItem >
+            <apex:outputText value="Monthly Recurring Revenue" />
+            <apex:outputText value="${0, number, ###,##0.00}">
+                <apex:param value="{!oppInfo.Monthly_Recurring_Fees__c}"/>
+            </apex:outputText>
+        </apex:pageBlockSectionItem> 
+        <apex:pageBlockSectionItem id="newMRR">
+            <apex:outputText style="color:green;" value="New MRR" />
+            <apex:outputText style="color:green;" value="${0, number, ###,##0.00}" >
+                <apex:param value="{!newMRR}"/>
+            </apex:outputText>
+        </apex:pageBlockSectionItem>
+        <apex:pageBlockSectionItem >
+            <apex:outputText value=""/>
+            <apex:outputText value=""/>
+        </apex:pageBlockSectionItem>
+        <apex:pageBlockSectionItem >
+            <apex:outputText style="color:green;" value="MRR Discount Percentage" />
+            <apex:outputText style="color:green;" value="{0, number, ###,##0.000000}%">
+                <apex:param value="{!mrrFlatPercentage}"/>
+            </apex:outputText>
+        </apex:pageBlockSectionItem>
+        <apex:pageBlockSectionItem >
+            <apex:outputText value="One Time Fees" />
+            <apex:outputText value="${0, number, ###,##0.00}"> 
+                <apex:param value="{!oppInfo.One_Time_Fees2__c}" />
+            </apex:outputText>
+        </apex:pageBlockSectionItem>
+         <apex:pageBlockSectionItem id="newOT">
+            <apex:outputText style="color:green;" value="New One Time Fees"/>
+            <apex:outputText style="color:green;" value="${0, number, ###,##0.00}">
+                <apex:param value="{!newOT}" />
+            </apex:outputText>
+        </apex:pageBlockSectionItem>
+        <apex:pageBlockSectionItem >
+            <apex:outputText value=""/>
+            <apex:outputText value=""/>
+        </apex:pageBlockSectionItem>
+        <apex:pageBlockSectionItem >
+            <apex:outputText style="color:green;" value="One Time Discount Percentage" />
+            <apex:outputText style="color:green;" value="{0, number, ###,##0.000000}%">
+                <apex:param value="{!otFlatPercentage}"/>
+            </apex:outputText>
+        </apex:pageBlockSectionItem>
+        <apex:pageBlockSectionItem >
+            <apex:outputText value="Set Up Fees"/>
+            <apex:outputText value="${0, number, ###,##0.00}">
+                <apex:param value="{!oppInfo.Setup_Fees__c}" />
+            </apex:outputText>
+        </apex:pageBlockSectionItem>
+        <apex:pageBlockSectionItem >
+            <apex:outputText style="color:green;" value="New Set Up Fees" />
+            <apex:outputText style="color:green;" value="${0, number, ###,##0.00}">
+                <apex:param value="{!newSU}"/>
+            </apex:outputText>
+        </apex:pageBlockSectionItem>
+        <apex:pageBlockSectionItem >
+            <apex:outputText value=""/>
+            <apex:outputText value=""/>
+        </apex:pageBlockSectionItem>
+        <apex:pageBlockSectionItem >
+            <apex:outputText style="color:green;" value="Setup Fee Discount Percentage" />
+            <apex:outputText style="color:green;" value="{0, number, ###,##0.000000}%">
+                <apex:param value="{!suFlatPercentage}"/>
+            </apex:outputText>
+        </apex:pageBlockSectionItem>
+        <apex:pageBlockSectionItem >
+            <apex:outputText value="Training Fees" />
+            <apex:outputText value="${0, number, ###,##0.00}">
+                <apex:param value="{!oppInfo.Total_Training__c}" />
+            </apex:outputText>
+        </apex:pageBlockSectionItem>
+        <apex:pageBlockSectionItem >
+            <apex:outputText style="color:green;" value="New Training Fees" />
+            <apex:outputText style="color:green;" value="${0, number, ###,##0.00}">
+                <apex:param value="{!newTR}"/>
+            </apex:outputText>
+        </apex:pageBlockSectionItem>
+        <apex:pageBlockSectionItem >
+            <apex:outputText value=""/>
+            <apex:outputText value=""/>
+        </apex:pageBlockSectionItem>
+        <apex:pageBlockSectionItem >
+            <apex:outputText style="color:green;" value="Training Discount Percentage" />
+            <apex:outputText style="color:green;" value="{0, number, ###,##0.000000}%">
+                <apex:param value="{!trFlatPercentage}"/>
+            </apex:outputText>
+        </apex:pageBlockSectionItem>
+    </apex:pageBlockSection>
+    <apex:pageBlockSection columns="2" rendered="{!typeOfRate == 'Flat' && typeOfAdjustment == 'Decrease'}">
+        <apex:pageBlockSectionItem >
+            <apex:outputText style="color:red;" value="PLEASE NOTE"/>
+            <apex:outputText style="color:red;" value="Nothing will be changed on your Opportunity until you hit the Submit button." />
+        </apex:pageBlockSectionItem>
+        <apex:pageBlockSectionItem >
+            <apex:outputText value="" />
+            <apex:outputText value="" />
+        </apex:pageBlockSectionItem>
+        <apex:pageBlockSectionItem >
+            <apex:outputText value="MRR Discount Flat Rate"/>
+            <apex:inputText id="mrrPercent" value="{!mrrFlat}"  />
+        </apex:pageBlockSectionItem>
+        <apex:pageBlockSectionItem >
+            <apex:outputText style="color:green;" value="Cumulative MRR % to Discount" />
+            <apex:outputText style="color:green;" value="{0, number, ###,##0.00000}%" >
+                <apex:Param value="{!mrrFlatDecTotal}"/>
+            </apex:outputText>
+        </apex:pageBlockSectionItem>
+        <apex:pageBlockSectionItem >
+            <apex:outputText value="One Time Discount Flat Rate" />
+            <apex:inputText value="{!oneTimeFlat}" />
+        </apex:pageBlockSectionItem>
+        <apex:pageBlockSectionItem >
+            <apex:outputText style="color:green;" value="Cumulative One Time % to Discount" />
+            <apex:outputText style="color:green;" value="{0, number, ###,##0.000000}%" >
+                <apex:Param value="{!otFlatDecTotal}"/>
+            </apex:outputText>
+        </apex:pageBlockSectionItem>
+        <apex:pageBlockSectionItem >
+            <apex:outputText value="Set Up Discount Flat Rate" />
+            <apex:inputText value="{!setUpFlat}" />
+        </apex:pageBlockSectionItem>
+        <apex:pageBlockSectionItem >
+            <apex:outputText style="color:green;" value="Cumulative Set Up % to Discount" />
+            <apex:outputText style="color:green;" value="{0, number, ###,##0.000000}%" >
+                <apex:Param value="{!suFlatDecTotal}"/>
+            </apex:outputText>
+        </apex:pageBlockSectionItem>
+        <apex:pageBlockSectionItem >
+            <apex:outputText value="Training Discount Flat Rate" />
+            <apex:inputText value="{!trainFlat}" />
+        </apex:pageBlockSectionItem>
+        <apex:pageBlockSectionItem >
+            <apex:outputText style="color:green;" value="Cumulative Training % to Discount" />
+            <apex:outputText style="color:green;" value="{0, number, ###,##0.000000}%" >
+                <apex:Param value="{!trFlatDecTotal}"/>
+            </apex:outputText>
+        </apex:pageBlockSectionItem>
+    </apex:pageBlockSection>
+    <apex:pageBlockSection columns="1" rendered="{!typeOfRate == 'Flat' && typeOfAdjustment == 'Decrease'}">
+        <apex:commandButton id="calculate" style="margin-left:232px;" value="Calculate" action="{!calculateDecFlat}" reRender="decFlat, decFlatErrors" />
+        <apex:commandButton id="reset1" style="margin-left:232px;" value="Reset" action="{!resetDecFlat}" rendered="{!reset = true}" rerender="decFlat, decFlatErrors" />
+        <apex:commandButton id="submit" style="margin-left:232px;" value="Submit" action="{!returnToOppSubDecFlat}"  rendered="{!submitTrue = false && mrrZeroError == false && otZeroError == false && suZeroError == false && trZeroError == false}" />
+        <apex:commandButton id="return" style="margin-left:232px;" value="Return To Opp" action="{!returnToOpp}" />
+    </apex:pageBlockSection>
+    </apex:outputPanel>
+    <apex:outputPanel id="decFlatErrors">
+    <apex:pageBlockSection >
+        <apex:pageMessage summary="You CANNOT decrease Monthly Recurring Fees that are $0.00 using this tool!" severity="error" strength="3" rendered="{!mrrZeroError == true}"/>
+        <apex:pageMessage summary="You CANNOT decrease One Time Fees that are $0.00 using this tool!" severity="error" strength="3" rendered="{!otZeroError == true}"/>
+        <apex:pageMessage summary="You CANNOT decrease Set-up Fees that are $0.00 using this tool!" severity="error" strength="3" rendered="{!suZeroError == true}"/>
+        <apex:pageMessage summary="You CANNOT decrease Training Fees that are $0.00 using this tool!" severity="error" strength="3" rendered="{!trZeroError == true}"/>
+    </apex:pageBlockSection>
+    </apex:outputPanel>
+    <apex:outputPanel id="inc">
+        <apex:pageBlockSection title="Increase" columns="1" rendered="{!typeOfAdjustment == 'Increase'}">
+        <apex:SelectList label="Type of Rate: " value="{!typeOfRate}" size="1">
+            <apex:selectOptions value="{!perFlat}" />
+            <apex:actionSupport event="onchange" action="{!rateType}" reRender="incPer, incFlat" />
+        </apex:SelectList>
+    </apex:pageBlockSection>
+    </apex:outputPanel>
+    <apex:outputPanel id="incPer">
+    <apex:pageBlockSection title="Percentage Increase" columns="2" rendered="{!typeOfRate == 'Percentage' && typeOfAdjustment == 'Increase'}" >
+            <apex:pageBlockSectionItem >
+                <apex:outputText value="Monthly Recurring Revenue" />
+                <apex:outputText value="${0, number, ###,##0.00}">
+                    <apex:param value="{!oppInfo.Monthly_Recurring_Fees__c}"/>
+                </apex:outputText>
+            </apex:pageBlockSectionItem>
+            <apex:pageBlockSectionItem id="newMRR">
+                <apex:outputText style="color:green;" value="New MRR" />
+                <apex:outputText style="color:green;" value="${0, number, ###,##0.00}" >
+                    <apex:param value="{!newMRR}"/>
+                </apex:outputText>
+            </apex:pageBlockSectionItem>
+            <apex:pageBlockSectionItem >
+                <apex:outputText value="One Time Fees" />
+                <apex:outputText value="${0, number, ###,##0.00}"> 
+                    <apex:param value="{!oppInfo.One_Time_Fees2__c}" />
+                </apex:outputText>
+            </apex:pageBlockSectionItem>
+             <apex:pageBlockSectionItem id="newOT">
+                <apex:outputText style="color:green;" value="New One Time Fees"/>
+                <apex:outputText style="color:green;" value="${0, number, ###,##0.00}">
+                    <apex:param value="{!newOT}" />
+                </apex:outputText>
+            </apex:pageBlockSectionItem>
+            <apex:pageBlockSectionItem >
+                <apex:outputText value="Set Up Fees"/>
+                <apex:outputText value="${0, number, ###,##0.00}">
+                    <apex:param value="{!oppInfo.Setup_Fees__c}" />
+                </apex:outputText>
+            </apex:pageBlockSectionItem>
+            <apex:pageBlockSectionItem >
+                <apex:outputText style="color:green;" value="New Set Up Fees" />
+                <apex:outputText style="color:green;" value="${0, number, ###,##0.00}">
+                    <apex:param value="{!newSU}"/>
+                </apex:outputText>
+            </apex:pageBlockSectionItem>
+            <apex:pageBlockSectionItem >
+                <apex:outputText value="Training Fees" />
+                <apex:outputText value="${0, number, ###,##0.00}">
+                    <apex:param value="{!oppInfo.Total_Training__c}" />
+                </apex:outputText>
+            </apex:pageBlockSectionItem>
+            <apex:pageBlockSectionItem >
+                <apex:outputText style="color:green;" value="New Training Fees" />
+                <apex:outputText style="color:green;" value="${0, number, ###,##0.00}">
+                    <apex:param value="{!newTR}"/>
+                </apex:outputText>
+            </apex:pageBlockSectionItem> 
+        </apex:pageBlockSection>
+        <apex:pageBlockSection columns="2" rendered="{!typeOfRate == 'Percentage' && typeOfAdjustment == 'Increase'}" >
+            <apex:pageBlockSectionItem >
+                <apex:outputText style="color:red;" value="PLEASE NOTE"/>
+                <apex:outputText style="color:red;" value="Nothing will be changed on your Opportunity until you hit the Submit button." />
+            </apex:pageBlockSectionItem>
+            <apex:pageBlockSectionItem >
+                <apex:outputText value=""/>
+                <apex:outputText value=""  />
+            </apex:pageBlockSectionItem>
+            <apex:pageBlockSectionItem >
+                <apex:outputText value="MRR Increase %"/>
+                <apex:inputText id="mrrPercent" value="{!mrrPercent}" />
+            </apex:pageBlockSectionItem>
+            <apex:pageBlockSectionItem >
+                <apex:outputText style="color:green;" value="Cumulative MRR % Increase" />
+                <apex:outputText style="color:green;" value="{0, number, ###,##0.000000}%" >
+                    <apex:Param value="{!mrrPerIncTotal}"/>
+                </apex:outputText>
+            </apex:pageBlockSectionItem>
+            <apex:pageBlockSectionItem >
+                <apex:outputText value="One Time Increase %" />
+                <apex:inputText value="{!oneTimePercent}" />
+            </apex:pageBlockSectionItem>
+            <apex:pageBlockSectionItem >
+                <apex:outputText style="color:green;" value="Cumulative One Time % Increase" />
+                <apex:outputText style="color:green;" value="{0, number, ###,##0.000000}%" >
+                    <apex:Param value="{!otPerIncTotal}"/>
+                </apex:outputText>
+            </apex:pageBlockSectionItem>
+            <apex:pageBlockSectionItem >
+                <apex:outputText value="Set Up Increase %" />
+                <apex:inputText value="{!setUpPercent}"  />
+            </apex:pageBlockSectionItem>
+            <apex:pageBlockSectionItem >
+                <apex:outputText style="color:green;" value="Cumulative Set Up % Increase" />
+                <apex:outputText style="color:green;" value="{0, number, ###,##0.000000}%" >
+                    <apex:Param value="{!suPerIncTotal}"/>
+                </apex:outputText>
+            </apex:pageBlockSectionItem>
+            <apex:pageBlockSectionItem >
+                <apex:outputText value="Training Increase %" />
+                <apex:inputText value="{!trainPercent}" />
+            </apex:pageBlockSectionItem>
+            <apex:pageBlockSectionItem >
+                <apex:outputText style="color:green;" value="Cumulative Training % Increase" />
+                <apex:outputText style="color:green;" value="{0, number, ###,##0.000000}%" >
+                    <apex:Param value="{!trPerIncTotal}"/>
+                </apex:outputText>
+            </apex:pageBlockSectionItem> 
+        </apex:pageBlockSection>
+        <apex:pageBlockSection columns="1" rendered="{!typeOfRate == 'Percentage' && typeOfAdjustment == 'Increase'}" >
+            <apex:commandButton id="calculate" style="margin-left:232px;" value="Calculate" action="{!calculateIncPer}" reRender="incPer, incPerErrors" />
+            <apex:commandButton id="reset1" style="margin-left:232px;" value="Reset" action="{!resetIncPer}" rendered="{!reset = true}" rerender="incPer, incPerErrors" /> 
+            <apex:commandButton id="submit" style="margin-left:232px;" value="Submit" action="{!returnToOppSubIncPer}" rendered="{!submitTrue = false && mrrZeroError == false && otZeroError == false && suZeroError == false && trZeroError == false}" /> 
+            <apex:commandButton id="return" style="margin-left:232px;" value="Return To Opp" action="{!returnToOpp}" />
+        </apex:pageBlockSection>
+    </apex:outputPanel>
+    <apex:outputPanel id="incPerErrors">
+    <apex:pageBlockSection >
+        <apex:pageMessage summary="You CANNOT decrease Monthly Recurring Fees that are $0.00 using this tool!  If you need to increase from zero you can reset your products on the opportunity." severity="error" strength="3" rendered="{!mrrZeroError == true}"/>
+        <apex:pageMessage summary="You CANNOT decrease One Time Fees that are $0.00 using this tool!  If you need to increase from zero you can reset your products on the opportunity." severity="error" strength="3" rendered="{!otZeroError == true}"/>
+        <apex:pageMessage summary="You CANNOT decrease Set-up Fees that are $0.00 using this tool!  If you need to increase from zero you can reset your products on the opportunity." severity="error" strength="3" rendered="{!suZeroError == true}"/>
+        <apex:pageMessage summary="You CANNOT decrease Training Fees that are $0.00 using this tool!  If you need to increase from zero you can reset your products on the opportunity." severity="error" strength="3" rendered="{!trZeroError == true}"/>
+    </apex:pageBlockSection>
+    </apex:outputPanel>
+    <apex:outputPanel id="incFlat">
+    <apex:pageBlockSection title="Flat Rate Increase" columns="2" rendered="{!typeOfRate == 'Flat'&& typeOfAdjustment == 'Increase'}" >
+            <apex:pageBlockSectionItem >
+                <apex:outputText value="Monthly Recurring Revenue" />
+                <apex:outputText value="${0, number, ###,##0.00}">
+                    <apex:param value="{!oppInfo.Monthly_Recurring_Fees__c}"/>
+                </apex:outputText>
+            </apex:pageBlockSectionItem>
+            <apex:pageBlockSectionItem id="newMRR">
+                <apex:outputText style="color:green;" value="New MRR" />
+                <apex:outputText style="color:green;" value="${0, number, ###,##0.00}" >
+                    <apex:param value="{!newMRR}"/>
+                </apex:outputText>
+            </apex:pageBlockSectionItem>
+            <apex:pageBlockSectionItem >
+            <apex:outputText value=""/>
+            <apex:outputText value=""/>
+        </apex:pageBlockSectionItem>
+        <apex:pageBlockSectionItem >
+            <apex:outputText style="color:green;" value="MRR Increase Percentage" />
+            <apex:outputText style="color:green;" value="{0, number, ###,##0.000000}%">
+                <apex:param value="{!mrrFlatPercentage}"/>
+            </apex:outputText>
+        </apex:pageBlockSectionItem>
+            <apex:pageBlockSectionItem >
+                <apex:outputText value="One Time Fees" />
+                <apex:outputText value="${0, number, ###,##0.00}"> 
+                    <apex:param value="{!oppInfo.One_Time_Fees2__c}" />
+                </apex:outputText>
+            </apex:pageBlockSectionItem>
+             <apex:pageBlockSectionItem id="newOT">
+                <apex:outputText style="color:green;" value="New One Time Fees"/>
+                <apex:outputText style="color:green;" value="${0, number, ###,##0.00}">
+                    <apex:param value="{!newOT}" />
+                </apex:outputText>
+            </apex:pageBlockSectionItem>
+            <apex:pageBlockSectionItem >
+            <apex:outputText value=""/>
+            <apex:outputText value=""/>
+        </apex:pageBlockSectionItem>
+        <apex:pageBlockSectionItem >
+            <apex:outputText style="color:green;" value="One Time Increase Percentage" />
+            <apex:outputText style="color:green;" value="{0, number, ###,##0.000000}%">
+                <apex:param value="{!otFlatPercentage}"/>
+            </apex:outputText>
+        </apex:pageBlockSectionItem>
+            <apex:pageBlockSectionItem >
+                <apex:outputText value="Set Up Fees"/>
+                <apex:outputText value="${0, number, ###,##0.00}">
+                    <apex:param value="{!oppInfo.Setup_Fees__c}" />
+                </apex:outputText>
+            </apex:pageBlockSectionItem>
+            <apex:pageBlockSectionItem >
+                <apex:outputText style="color:green;" value="New Set Up Fees" />
+                <apex:outputText style="color:green;" value="${0, number, ###,##0.00}">
+                    <apex:param value="{!newSU}"/>
+                </apex:outputText>
+            </apex:pageBlockSectionItem>
+            <apex:pageBlockSectionItem >
+            <apex:outputText value=""/>
+            <apex:outputText value=""/>
+        </apex:pageBlockSectionItem>
+        <apex:pageBlockSectionItem >
+            <apex:outputText style="color:green;" value="Setup Fees Increase Percentage" />
+            <apex:outputText style="color:green;" value="{0, number, ###,##0.000000}%">
+                <apex:param value="{!suFlatPercentage}"/>
+            </apex:outputText>
+        </apex:pageBlockSectionItem>
+            <apex:pageBlockSectionItem >
+                <apex:outputText value="Training Fees" />
+                <apex:outputText value="${0, number, ###,##0.00}">
+                    <apex:param value="{!oppInfo.Total_Training__c}" />
+                </apex:outputText>
+            </apex:pageBlockSectionItem>
+            <apex:pageBlockSectionItem >
+                <apex:outputText style="color:green;" value="New Training Fees" />
+                <apex:outputText style="color:green;" value="${0, number, ###,##0.00}">
+                    <apex:param value="{!newTR}"/>
+                </apex:outputText>
+            </apex:pageBlockSectionItem> 
+            <apex:pageBlockSectionItem >
+            <apex:outputText value=""/>
+            <apex:outputText value=""/>
+        </apex:pageBlockSectionItem>
+        <apex:pageBlockSectionItem >
+            <apex:outputText style="color:green;" value="Training Increase Percentage" />
+            <apex:outputText style="color:green;" value="{0, number, ###,##0.000000}%">
+                <apex:param value="{!trFlatPercentage}"/>
+            </apex:outputText>
+        </apex:pageBlockSectionItem>
+        </apex:pageBlockSection>
+        <apex:pageBlockSection columns="2" rendered="{!typeOfRate == 'Flat' && typeOfAdjustment == 'Increase'}"> 
+        <apex:pageBlockSectionItem >
+            <apex:outputText style="color:red;" value="PLEASE NOTE"/>
+            <apex:outputText style="color:red;" value="Nothing will be changed on your Opportunity until you hit the Submit button." />
+        </apex:pageBlockSectionItem>
+        <apex:pageBlockSectionItem >
+            <apex:outputText value=""/>
+            <apex:outputText value=""/>
+        </apex:pageBlockSectionItem>
+        <apex:pageBlockSectionItem >
+            <apex:outputText value="MRR Increase Flat Rate"/>
+            <apex:inputText id="mrrPercent" value="{!mrrFlat}"  />
+        </apex:pageBlockSectionItem>
+        <apex:pageBlockSectionItem >
+            <apex:outputText style="color:green;" value="Cumulative MRR % Increase" />
+            <apex:outputText style="color:green;" value="{0, number, ###,##0.000000}%" >
+                <apex:Param value="{!mrrFlatIncTotal}"/>
+            </apex:outputText>
+        </apex:pageBlockSectionItem>
+        <apex:pageBlockSectionItem >
+            <apex:outputText value="One Time Increase Flat Rate" />
+            <apex:inputText value="{!oneTimeFlat}" id="otFlatIncInput" />
+            <!-- <script>document.getElementById('{!Component.otFlatIncInput}').disabled={!mrrZero};</script> -->
+        </apex:pageBlockSectionItem>
+        <apex:pageBlockSectionItem >
+            <apex:outputText style="color:green;" value="Cumulative One Time % Increase" />
+            <apex:outputText style="color:green;" value="{0, number, ###,##0.000000}%" >
+                <apex:Param value="{!otFlatIncTotal}"/>
+            </apex:outputText>
+        </apex:pageBlockSectionItem>
+        <apex:pageBlockSectionItem >
+            <apex:outputText value="Set Up Increase Flat Rate" />
+            <apex:inputText value="{!setUpFlat}" />
+        </apex:pageBlockSectionItem>
+        <apex:pageBlockSectionItem >
+            <apex:outputText style="color:green;" value="Cumulative Set Up % Increase" />
+            <apex:outputText style="color:green;" value="{0, number, ###,##0.000000}%" >
+                <apex:Param value="{!suFlatIncTotal}"/>
+            </apex:outputText>
+        </apex:pageBlockSectionItem>
+        <apex:pageBlockSectionItem >
+            <apex:outputText value="Training Increase Flat Rate" />
+            <apex:inputText value="{!trainFlat}"  />
+        </apex:pageBlockSectionItem>
+        <apex:pageBlockSectionItem >
+            <apex:outputText style="color:green;" value="Cumulative Training % Increase" />
+            <apex:outputText style="color:green;" value="{0, number, ###,##0.000000}%" >
+                <apex:Param value="{!trFlatIncTotal}"/>
+            </apex:outputText>
+        </apex:pageBlockSectionItem>
+    </apex:pageBlockSection>
+    <apex:pageBlockSection columns="1" rendered="{!typeOfRate == 'Flat' && typeOfAdjustment == 'Increase'}">
+        <apex:commandButton id="calculate" style="margin-left:232px;" value="Calculate" action="{!calculateIncFlat}" reRender="incFlat, incFlatErrors" />
+        <apex:commandButton id="reset" style="margin-left:232px;" value="Reset" action="{!resetIncFlat}"  rendered="{!reset = true}" rerender="incFlat, incFlatErrors" />
+        <apex:commandButton id="submit" style="margin-left:232px;" value="Submit" action="{!returnToOppSubIncFlat}" rendered="{!submitTrue = false && mrrZeroError == false && otZeroError == false && suZeroError == false && trZeroError == false}" />
+        <apex:commandButton id="return" style="margin-left:232px;" value="Return To Opp" action="{!returnToOpp}" />
+    </apex:pageBlockSection>
+    </apex:outputPanel>
+    <apex:outputPanel id="incFlatErrors">
+    <apex:pageBlockSection >
+        <apex:pageMessage summary="You CANNOT increase Monthly Recurring Fees that are $0.00 using this tool!  If you need to increase from zero you can reset your products on the opportunity." severity="error" strength="3" rendered="{!mrrZeroError == true}"/>
+        <apex:pageMessage summary="You CANNOT increase One Time Fees that are $0.00 using this tool!  If you need to increase from zero you can reset your products on the opportunity." severity="error" strength="3" rendered="{!otZeroError == true}"/>
+        <apex:pageMessage summary="You CANNOT increase Set-up Fees that are $0.00 using this tool!  If you need to increase from zero you can reset your products on the opportunity." severity="error" strength="3" rendered="{!suZeroError == true}"/>
+        <apex:pageMessage summary="You CANNOT increase Training Fees that are $0.00 using this tool!  If you need to increase from zero you can reset your products on the opportunity." severity="error" strength="3" rendered="{!trZeroError == true}"/>
+    </apex:pageBlockSection>
+    </apex:outputPanel>
+    </apex:pageBlock>
+</apex:form> 
+</apex:page>

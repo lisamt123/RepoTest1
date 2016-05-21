@@ -1,0 +1,92 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<script type="text/javascript" src="/js/functions.js"></script>
+<script src="/soap/ajax/12.0/connection.js"></script>
+<script language="javascript">
+
+function invoices()
+{
+var stage='{!Case_Runner__c.Runner_Action__c}';
+var AssignTo='{!Case_Runner__c.Assigned_To__c}';
+var AssignToId='{!Case_Runner__c.Assigned_ToId__c}';
+var EscTo='{!Case_Runner__c.Escalated_To__c}';
+var CStage='';
+var Created='{!Case_Runner__c.Created__c}';
+
+
+//alert(EscTo);
+//============================================test data to determine if Case Runner is new============
+
+if(Created == "0")//case runner is new
+{
+//===============================================set created to T====================================
+var caserunner= new sforce.SObject("Case_Runner__c");
+var runnerId = '{!Case_Runner__c.Id}';
+caserunner.Id = runnerId;
+caserunner.Created__c = "True";
+
+saveResult = sforce.connection.update([caserunner]);
+if (saveResult[0].getBoolean("success"))
+{
+//alert("success1");
+}
+
+if( stage=="Escalate")
+{
+CStage="Escalated";
+}
+if(stage=="Assign")
+{
+CStage="Assigned";
+}
+if(stage=="Bug Fix")
+{
+CStage="Assigned";
+}
+if(stage=="Feature Request")
+{
+CStage="Assigned";
+}
+if(stage=="Additional Information Needed")
+{
+CStage="Information Requested";
+}
+if(stage=="Resolved")
+{
+CStage="Resolved";
+}
+if(stage=="Unresolved")
+{
+CStage="Unresolved";
+}
+if(stage=="Submitting Additional Information")
+{
+CStage="Information Submitted";
+}
+//alert("CStage = "+CStage);
+//alert("Stage = "+stage);
+//=======================Update the Case=============================
+var caseupdate= new sforce.SObject("Case");
+var CaseId = '{!Case_Runner__c.CaseId__c}';
+caseupdate.Id = CaseId;
+caseupdate.Status = CStage;
+caseupdate.Escalate_To__c = EscTo;
+caseupdate.Assigned_To__c = AssignToId;
+
+saveResult = sforce.connection.update([caseupdate]);
+if (saveResult[0].getBoolean("success"))
+{
+//alert("success2");
+}
+
+
+}
+
+
+}
+</script>
+</head>
+<body onload="invoices();">
+</body>
+</html>

@@ -1,0 +1,87 @@
+<apex:page standardController="echosign_dev1__Recipient_Template__c" extensions="echosign_dev1.RecipientTemplateController" tabStyle="echosign_dev1__Agreement_Template__c">
+    <script>
+        function confirmCancel() {
+            var isCancel = confirm("{!$Label.echosign_dev1__Cancel_Confirm_Prompt}");
+            if( isCancel ) {
+                return true;
+            }
+            
+            return false;
+        }  
+    </script>
+  
+    <apex:sectionHeader title="{!$Label.echosign_dev1__Recipient_Template_Section_Header}" subtitle="{!sectionSubtitle}" />
+    
+    <apex:form >
+        <apex:pagemessages id="theMessages"/>
+        <apex:pageBlock id="wizardPageBlock" title="{!blockTitle}">
+            <apex:pageBlockButtons >
+                <apex:commandButton id="backButton" action="{!doBack}" value="{!$Label.echosign_dev1__Back_Button_Label}" rerender="theMessages,stepTypeSection,stepValueSection,wizardPageBlock,saveButton,backButton,nextButton" rendered="{!isStepValue}" />
+                <apex:commandButton id="nextButton" action="{!doNext}" value="{!$Label.echosign_dev1__Next_Button_Label}" rerender="theMessages,stepTypeSection,stepValueSection,wizardPageBlock,saveButton,backButton,nextButton" rendered="{! AND( isStepType, NOT(isTypeOppPrimary), NOT(isTypeOppRoleAll), NOT(isTypeAccountPrimary), NOT(isTypeAccountRoleAll) ) }" />
+                <apex:commandButton id="saveButton" action="{!doSave}" value="{!$Label.echosign_dev1__Save_Button_Label}" rendered="{! OR( isStepValue, isTypeOppPrimary, isTypeOppRoleAll, isTypeAccountPrimary, isTypeAccountRoleAll ) }" />
+                <apex:commandButton action="{!cancel}" value="{!$Label.echosign_dev1__Cancel_Button_Label}" onclick="return confirmCancel()" immediate="true"/>
+            </apex:pageBlockButtons>
+            <apex:outputPanel id="recipientTemplateTypeDescription" rendered="{!isStepType}">
+                {!$Label.echosign_dev1__Recipient_Template_Description_One}<br/>
+                <br/>{!$Label.echosign_dev1__Recipient_Template_Description_Two}{!masterObjectName} {!$Label.echosign_dev1__Recipient_Template_Description_Three}
+                <br/><br/>
+            </apex:outputPanel>
+            <apex:outputPanel id="recipientTemplateConstantValueDescription" rendered="{! isStepValue && isTypeConstant && NOT(isRecipientTypeEmail) }">
+                {!$Label.echosign_dev1__Recipient_Template_Description_Four}
+                <br/><br/>
+            </apex:outputPanel>
+            <apex:outputPanel id="recipientTemplateConstantValueEmailDescription" rendered="{! isStepValue && isTypeConstant && isRecipientTypeEmail }">
+                {!$Label.echosign_dev1__Recipient_Template_Description_Five}
+                <br/><br/>
+            </apex:outputPanel>
+            <apex:outputPanel id="recipientTemplateLookupValueDescription" rendered="{! isStepValue && isTypeLookup }">
+                {!$Label.echosign_dev1__Recipient_Template_Description_Six}{!masterObjectName} {!$Label.echosign_dev1__Recipient_Template_Description_Seven}
+                <br/><br/>
+            </apex:outputPanel>
+            <apex:pageBlockSection id="stepTypeSection" columns="1">
+                <apex:selectList id="recipientTemplateType" value="{!recipientTemplate.echosign_dev1__Type__c}" size="1" rendered="{!isStepType}"> 
+                    <apex:selectOptions value="{!recipientTemplateTypeOptions}"/>
+                    <apex:actionSupport event="onchange" action="{!onRecipientTemplateTypeChange}" rerender="theMessages,stepTypeSection,stepValueSection,wizardPageBlock,saveButton,backButton,nextButton,recipientTemplateOppContactRoleValue,recipientTemplateAccountContactRoleValue"/>   
+                </apex:selectList>
+                <apex:inputField id="recipientTemplateRecipientType" value="{!recipientTemplate.echosign_dev1__Recipient_Type__c}" required="true" rendered="{! AND( isStepType, NOT(isTypeOppPrimary), NOT(isTypeOppRole), NOT(isTypeOppRoleAll), NOT(isTypeAccountPrimary), NOT(isTypeAccountRoleAll), NOT(isTypeAccountRole) ) }"/>
+                <apex:inputField id="recipientTemplateRecipientRole" value="{!recipientTemplate.echosign_dev1__Recipient_Role__c}" required="true" rendered="{!isStepType}"/>
+                <apex:pageBlockSectionItem id="recipientVerificationPanel" rendered="{!isStepType}">	
+                	<apex:outputLabel for="recipientTemplateRecipientVerification" value="{!$ObjectType.echosign_dev1__Recipient_Template__c.fields.echosign_dev1__Signer_Verification_Method__c.label}"/>
+                	<apex:outputPanel id="recipientVerificationMethodPanel" >
+	                	<apex:inputField id="recipientTemplateRecipientVerification" value="{!recipientTemplate.echosign_dev1__Signer_Verification_Method__c}" required="false" rendered="{!isStepType}">
+	                		<apex:actionSupport event="onchange" rerender="recipientVerificationMethodPanel"/>
+	                	</apex:inputField>        
+	                	<apex:outputPanel style="padding-left: 20px;" rendered="{! recipientTemplate.Signer_Verification_Method__c = 'Password' }">                     
+	                    	<apex:inputSecret html-placeholder="{!$Label.echosign_dev1__Password_Prompt}" redisplay="true" value="{!password}" id="recPassword"/>
+	                        <apex:inputSecret html-placeholder="{!$Label.echosign_dev1__Password_Confirm_Prompt}" redisplay="true" value="{!confirmPassword}" id="recConfirmPassword"/>                        
+	                	</apex:outputPanel>      
+	                	<apex:outputPanel style="padding-left: 20px;" rendered="{! recipientTemplate.Signer_Verification_Method__c = 'Phone' }">
+	                    	<apex:selectList id="recCountryCode" value="{!recipientTemplate.echosign_dev1__Phone_Verification_Country_Code__c}" size="1"> 
+                    			<apex:selectOptions value="{!countryCodeOptions}"/>    
+                			</apex:selectList>
+	                        <apex:inputText html-placeholder="{!$Label.echosign_dev1__Recipient_Phone_Verification_Number}" value="{!recipientTemplate.echosign_dev1__Phone_Verification_Phone_Number__c}" id="recPhoneNumber"/>                        
+	                	</apex:outputPanel>
+                	</apex:outputPanel>   
+                </apex:pageBlockSectionItem>
+                <apex:inputField id="recipientTemplateRecipientCreateEmpty" value="{!recipientTemplate.echosign_dev1__Do_Not_Create_Empty__c}" rendered="{!isStepType}"/>  
+            </apex:pageBlockSection>
+            <apex:pageBlockSection id="stepValueSection" columns="1">
+                <apex:inputField id="recipientTemplateConstantContactValue" value="{!recipientTemplate.echosign_dev1__Contact_Recipient__c}" rendered="{! isStepValue && isTypeConstant && isRecipientTypeContact }"/>
+                <apex:inputField id="recipientTemplateConstantUserValue" value="{!recipientTemplate.echosign_dev1__User_Recipient__c}" rendered="{! isStepValue && isTypeConstant && isRecipientTypeUser }"/>
+                <apex:inputField id="recipientTemplateConstantLeadValue" value="{!recipientTemplate.echosign_dev1__Lead_Recipient__c}" rendered="{! isStepValue && isTypeConstant && isRecipientTypeLead }"/>
+                <apex:inputField id="recipientTemplateConstantEmailValue" value="{!recipientTemplate.echosign_dev1__Email_Recipient__c}" rendered="{! isStepValue && isTypeConstant && isRecipientTypeEmail }"/>
+                <apex:selectList id="recipientTemplateLookupValue" value="{!recipientTemplate.echosign_dev1__Recipient_Field__c}" size="1" rendered="{! isStepValue && isTypeLookup }"> 
+                    <apex:selectOptions value="{!masterFieldOptions}"/>    
+                </apex:selectList>
+                <apex:selectList id="recipientTemplateOppContactRoleValue" value="{!recipientTemplate.echosign_dev1__Opportunity_Contact_Role__c}" size="1" rendered="{! isStepValue && isTypeOppRole }"> 
+                    <apex:selectOptions value="{!oppContactRolesOptions}"/>    
+                </apex:selectList>
+                <apex:selectList id="recipientTemplateAccountContactRoleValue" value="{!recipientTemplate.echosign_dev1__Account_Contact_Role__c}" size="1" rendered="{! isStepValue && isTypeAccountRole }"> 
+                    <apex:selectOptions value="{!accountContactRolesOptions}"/>    
+                </apex:selectList>
+                <apex:inputField id="recipientTemplateVariableValue" value="{!recipientTemplate.echosign_dev1__Variable_Name__c}" rendered="{! isStepValue && isTypeVariable }"/>
+            </apex:pageBlockSection>
+        </apex:pageBlock>
+    </apex:form>
+
+</apex:page>

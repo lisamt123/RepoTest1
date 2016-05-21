@@ -1,0 +1,39 @@
+<apex:page controller="rh2.PS_Manage_Trigger_Controller" sidebar="false" action="{!startupManageTrigger}" tabStyle="PS_Enable_Real_Time__tab">  
+	<apex:includeScript value="{!URLFOR($Resource.rh2__PT_JSZip, '/jszip.js')}"/>
+	<apex:includeScript value="{!URLFOR($Resource.rh2__PT_JSZip, '/jszip-load.js')}"/>
+	<apex:includeScript value="{!URLFOR($Resource.rh2__PT_JSZip, '/jszip-inflate.js')}"/>
+	<apex:includeScript value="{!URLFOR($Resource.rh2__PT_JSZip, '/jszip-deflate.js')}"/>
+	<script type="text/javascript"
+        src="https://raw.github.com/Stuk/jszip/master/jszip.js"></script>
+	<script>
+		// Create JSZip (currently global) instance to receive files 
+		var zipFile = new JSZip();
+		zipFile.generate();
+	</script>
+	<apex:form id="form">  
+	    <apex:sectionHeader title="Rollup Helper" id="header" subtitle="Add/Remove Real Time Trigger for {!deployObjectName}"/>
+		<apex:pageMessages escape="false" />
+		<apex:pageBlock title="Real Time Triggers in Org">
+		<apex:pageBlockButtons rendered="{!renderButton}">  
+		<input type="button" id="deployRemove" onclick="generateZip();" value="{!IF(Deployed, 'Remove', 'Deploy')} {!deployObjectName} Trigger" class="btn" />
+		<apex:commandButton value="Back" action="{!backPressed}" />
+		</apex:pageBlockButtons>	
+		<apex:repeat value="{!apexTriggersToDisplayMap}" var="trigKey">
+			<a href="/{!apexTriggersToDisplayMap[trigKey]}" target="_blank">{!trigKey}</a><br />
+		</apex:repeat>
+		</apex:pageBlock>
+		
+		<apex:actionPoller action="{!checkAsyncRequest}" interval="5" rerender="form" rendered="{!NOT(ISNULL(AsyncResult))}"/>
+		<apex:actionFunction name="deployZip" action="{!deployZip}" rendered="{!ISNULL(AsyncResult)}" rerender="form">
+			<apex:param name="data" assignTo="{!ZipData}" value=""/>
+		</apex:actionFunction> 
+		<c:zip name="generateZip" id="czip" oncomplete="deployZip(data);" rendered="{!ISNULL(AsyncResult)}">
+			<c:zipEntry path="package.xml" data="{!PackageXml}"/>
+			<c:zipEntry path="destructiveChanges.xml" data="{!DestructiveChangesXml}" rendered="{!Deployed}"/>
+			<c:zipEntry path="classes/{!RollupTriggerTestName}.cls-meta.xml" data="{!TriggerTestCodeMetadata}" rendered="{!NOT(Deployed)}"/>
+			<c:zipEntry path="classes/{!RollupTriggerTestName}.cls" data="{!TriggerTestCode}" rendered="{!NOT(Deployed)}"/>
+			<c:zipEntry path="triggers/{!RollupTriggerName}.trigger-meta.xml" data="{!TriggerCodeMetadata}" rendered="{!NOT(Deployed)}"/>
+			<c:zipEntry path="triggers/{!RollupTriggerName}.trigger" data="{!TriggerCode}" rendered="{!NOT(Deployed)}"/>
+		</c:zip>
+ 	</apex:form>
+</apex:page>

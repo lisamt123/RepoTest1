@@ -1,0 +1,276 @@
+<apex:page controller="DMAPP.GeniusNewProcessController" 
+		   docType="html-5.0"     
+		   showHeader="true" 
+		   tabStyle="Playbook_Admin__tab"		   
+		   sidebar="false">
+
+   	<c:jQuery jQueryUI="true"
+   		tools="true" />
+
+	<style>
+		@import url("{!URLFOR($Resource.Genius, 	'genius_builder.css')}");
+
+		#geniusMsgDialogMsg {
+		    padding: 7px 0 0;
+		    position: absolute;
+		    text-align: center;
+		    width: 310px;
+		}
+		
+		#geniusMsgDialogLinkDiv {
+		    padding: 5px;
+    		text-align: center;
+		}
+		
+		.geniusStageTitle {
+			font-weight: bold;
+			display: block;
+			margin-bottom: 5px;
+		}
+		
+		.geniusStageDescription {
+			display: block;
+		}
+
+		#geniusSpinner {
+		    padding-bottom: 10px;
+		    text-align: center;
+		}
+		
+		#geniusMsgDialogBar {
+		    margin-bottom: 10px;
+		}
+		
+		.stage_map_instructions {
+			margin-bottom: 25px;
+		}
+		
+		select.geniusDropDown { width: 100%; }	
+	</style>
+
+    <script>
+    
+    var $j = jQuery.noConflict();
+        
+    $j.ajaxSetup({
+        jsonp: null,
+        jsonpCallback: null
+    });
+    
+    </script>
+
+	<img src="{!URLFOR($Resource.Genius, 'images/astro_2.gif')}" style="display:none;"/>
+	<img src="{!URLFOR($Resource.Genius, 'images/astro_static.png')}" style="display:none;"/>	
+
+    <apex:form rendered="true"> 
+        <apex:pageBlock > 
+        	<apex:facet name="header">
+				<table cellspacing="0" cellpadding="0" border="0">
+					<tbody>
+						<tr>
+							<td class="pbTitle">
+								<h2 class="mainTitle">Dealmaker - Sales Process Stages for {!salesProcess.Name}</h2>
+							</td>
+							<td class="geniusLogoCell">
+								<!-- <img src="{!URLFOR($Resource.Genius, 'images/dm_genius_logo.png')}"/>  --> 
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			</apex:facet>
+
+
+            <apex:pageBlockSection columns="1">
+				<ul class="steps">
+					<li class="passed"><span>Playbook Genius</span></li>
+					<li class="passed" style="display: {!IF(isGeniusFirstRun,'inherit','none')};"><span>Company Details</span></li>
+				    <li class="passed"><span>Playbook Settings</span></li>
+				    <li class="active"><span>Sales Stage Mapping</span></li>
+				</ul>
+            </apex:pageBlockSection>	      
+        
+            <apex:pageMessages id="errorMessages"/> 
+                
+				<div class="stage_mapping_container">
+				
+					<div class="stage_map_instructions">
+						Dealmaker Genius has sorted the qualifiers for your sales process into typical sales stages; Prospect, Qualify, Requirements, etc.  Now you must map these stages to your pipeline stages. The Genius stages are on the left, and your pipeline stages are in the drop-down lists on the right. 
+ 						<br/><br/>
+						From each of the drop-down lists on the right-hand side, select one of your pipeline stages that best maps to the Genius stages. Genius will then place the qualifiers in your stages. You will be able to edit the qualifiers later.
+					</div>
+				
+					<div class="stage_titles">
+				    	<div class="stage_title_1">Dealmaker Genius Sales Process Stage</div>
+				        <div class="stage_title_2">Map to Pipeline Stage</div>
+				        <br class="clear"/>
+				    </div>
+				    
+					<apex:repeat value="{!predefinedGeniusStages}" var="geniusStage" id="geniusSalesProcessStagesTable">
+				
+						<div class="stage_item">
+					    	<div class="stage_item_title"><span>{!geniusStage.name}</span></div>
+					        <div class="stage_item_desc"><span>{!geniusStage.description}</span></div>
+					        <div class="stage_item_map">
+					        	<div class="stage_item_image"></div>
+					            <div class="stage_item_select">
+									<apex:selectList styleClass="geniusDropDown" value="{!geniusStage.mappedStage}" multiselect="false" size="1">
+										<apex:selectOption itemValue="" itemLabel=""/>
+					         			<apex:selectOptions value="{!allStages}"/>
+					     			</apex:selectList>            
+					            </div>
+					        </div>
+					        <br class="clear"/>
+					    </div>
+				
+				    </apex:repeat>
+				    
+				  
+				</div>
+                
+
+            <apex:pageBlockButtons location="bottom">
+                <apex:commandButton id="saveButton" value="Save" action="{!validate}" oncomplete="ttg.playbook.geniusValidate();return false;" reRender="errorMessages, newProcessLink"/>
+               	<apex:commandButton id="backButton" value="Back" action="{!navigateBackToProcessDetails}"/>
+                <apex:commandButton id="cancelButton" value="Cancel" action="{!cancel}" immediate="true"/>
+            </apex:pageBlockButtons>
+            
+        </apex:pageBlock>
+        
+        <apex:outputLink id="newProcessLink" value="/apex/PlaybookQualifierAdmin?id={!salesProcessId}" style="visibility:hidden;">{!salesProcessId}</apex:outputLink>
+        <apex:actionFunction name="doNext" action="{!validate}" oncomplete="ttg.playbook.geniusValidate();return false;" reRender="errorMessages, newProcessLink"/>
+        <apex:actionFunction name="doSave" action="{!save}" oncomplete="ttg.playbook.geniusSaveProcessDeferred.resolve();return false;" reRender="errorMessages, newProcessLink"/>
+    </apex:form>
+
+
+    <script>
+    
+			/* 
+			 * Copyright © The TAS Group. All rights reserved.
+			 *  
+			 */    
+    
+        	var ttg = ttg || {};
+    		ttg.playbook = ttg.playbook || {};
+    		
+    		ttg.playbook.geniusValidate = function() {
+    			var errorMsg = jQuery('[id$="errorMessages"]');
+    			
+    			if(jQuery.trim(errorMsg.text()) !== '') {
+    				return false;
+    			}
+    			else {
+					jQuery(document).off('keypress');
+    				doSave();
+    				ttg.playbook.genius();
+    			}
+    			
+    		
+    		};
+    		
+    		ttg.playbook.geniusProgressBarDeferred = jQuery.Deferred().done(function() {
+    			
+    			if (ttg.playbook.geniusSaveProcessDeferred.state() === 'resolved') {
+    				ttg.playbook.geniusShowFinalDialog();
+    			}
+    		});
+    		
+    		ttg.playbook.geniusSaveProcessDeferred = jQuery.Deferred().done(function() {
+    		
+    			if (ttg.playbook.geniusProgressBarDeferred.state() === 'resolved') {
+    				ttg.playbook.geniusShowFinalDialog();
+    			}    		
+    		});
+    		
+    		ttg.playbook.geniusShowAlwaysDeferred = jQuery.Deferred().done(function() {
+    				ttg.playbook.geniusShowFinalDialog();
+    		});    		
+    		
+    		ttg.playbook.genius = function() {
+    			
+    			var msgs = ['Sorting the data...', 'Reviewing the deal size metrics...', 'Matching the buying profile...', 'Reading the industry template...', 'Mapping the stages...' ],
+    				dialogDiv = jQuery('<div/>', {id: 'geniusMsgDialog'}),
+    				msgDiv = jQuery('<div/>', {id: 'geniusMsgDialogMsg'}),
+    				progressBar = jQuery('<div/>', {id: 'geniusMsgDialogBar'}),
+    				linkDiv = jQuery('<div/>', {id: 'geniusMsgDialogLinkDiv'}),
+    				counter = 0,
+    				spinningImg = jQuery('<img/>', {src: "{!URLFOR($Resource.Genius, 'images/astro_2.gif')}"}),
+    				stopImg = jQuery('<img/>', {src: "{!URLFOR($Resource.Genius, 'images/astro_static.png')}"}),
+    				spinnerDiv = jQuery('<div/>', {id: 'geniusSpinner'}).append(spinningImg.show(), stopImg.hide());
+    				
+    			dialogDiv.append(spinnerDiv).append(msgDiv.text(msgs[0])).append(progressBar).append(linkDiv);
+    			progressBar.progressbar({
+            		value: 0
+        		});
+    			dialogDiv.dialog({
+    				title: 'Creating Sales Process',
+    				width: '340px',
+    				modal: true,
+    				close: function(event, ui) {
+    					window.location.href = '/apex/PlaybookAdmin';
+    				}
+    			});
+    			
+    			var interval = setInterval(function() {
+    				msgDiv.text(msgs[++counter]);
+    				progressBar.progressbar('value', (counter/msgs.length)*100);
+    				if(counter == msgs.length) {
+    					//ttg.playbook.geniusShowFinalDialog();
+    					ttg.playbook.geniusProgressBarDeferred.resolve();
+    					clearInterval(interval);
+    					stopImg.show().css('display', 'inline');
+    					spinningImg.hide();
+    				}
+    			}, 1000);
+    			
+    			setTimeout(function() {
+    				ttg.playbook.geniusShowAlwaysDeferred.resolve();
+    			}, 10000);
+    			
+    		};   
+    		
+    		ttg.playbook.geniusShowFinalDialog = function() {
+
+    			var salesProcessId = jQuery('[id$="newProcessLink"]').text();
+ 				jQuery('#geniusMsgDialogMsg').text('Finished...');
+ 				if(jQuery.trim(salesProcessId) !== '') {
+ 					jQuery(document).on('keypress', function(e) {
+ 						if(e.which === 13) {
+ 							window.location.href = '/apex/PlaybookQualifierAdmin?id=' + salesProcessId+'&fromGenius=true';
+ 						}
+ 					});
+    				jQuery('#geniusMsgDialogLinkDiv').empty().append(jQuery('<a/>', {href: '/apex/PlaybookQualifierAdmin?id=' + salesProcessId+'&fromGenius=true'}).text('Click here to review your Sales Process Playbook'));
+    			}
+    			else {
+    				jQuery('#geniusMsgDialogLinkDiv').empty();
+    			}
+    		
+    		}; 	
+    		
+    
+	    	jQuery(function() {
+	    	
+	    		jQuery('[id$="cancelButton"]').attr('ttg_test', 'cancelButton');
+	    		jQuery('[id$="backButton"]').attr('ttg_test', 'backButton');
+	    		jQuery('[id$="saveButton"]').attr('ttg_test', 'saveButton');
+	    		
+	    		jQuery('.geniusDropDown').each(function(index, element) {
+	    			jQuery(element).attr('ttg_test', 'geniusDropDown_' + index);
+	    		});
+	    		
+	    		jQuery(document).keypress(function(event) {
+	    			if(event.which === 13) {
+		    			doNext();
+	    			} 
+	    		});   
+	    		
+                if(navigator.appVersion.indexOf('MSIE 7.') != -1) {
+                	jQuery('.stage_item').css('display', 'inline-block').css('width', '99%');
+                }
+	    		    		
+	    		    		    	
+	    	});	
+    		
+    
+	</script>
+	
+</apex:page>

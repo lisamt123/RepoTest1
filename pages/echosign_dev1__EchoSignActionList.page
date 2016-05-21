@@ -1,0 +1,32 @@
+<apex:page standardController="echosign_dev1__SIGN_Agreement__c" 
+	extensions="echosign_dev1.EchoSignActionListController"
+	recordSetVar="agreements" 
+	action="{!onLoad}">
+	
+	<apex:outputPanel >
+		<apex:pageMessages />
+	</apex:outputPanel>
+
+	<apex:outputPanel rendered="{!isSuccess}">
+		<div class="message infoM3" role="alert">
+	        <table border="0" cellpadding="0" cellspacing="0" class="messageTable" style="padding:0px; margin:0px;">
+	            <tbody><tr valign="top">
+	                <td>
+	                    <img alt="INFO" class="msgIcon" src="/s.gif" title="INFO"/>
+	                </td>
+	                <td class="messageCell">
+	                	<div class="messageText">
+	                		<span style="font-size: small;">{!$Label.Bulk_Action_Result_Label} <a style="font-size: 100%; margin-top: 0px; margin-right: 0px; margin-bottom: 0px; margin-left: 0px;" href="/apexpages/setup/listAsyncApexJobs.apexp">{!syncProcessId}</a>. {!$Label.Bulk_Action_Result_Label_Two} <a style="font-size: 100%; margin-top: 0px; margin-right: 0px; margin-bottom: 0px; margin-left: 0px;" href="{!URLFOR($Action.SIGN_Agreement__c.Tab,$ObjectType.SIGN_Agreement__c)}">{!$Label.Bulk_Action_Result_Label_Three}</a> {!$Label.Bulk_Action_Result_Label_Four}</span>
+	                		<br/>
+	                	</div>
+	                </td>
+	            </tr>
+	            <tr>
+	                <td></td>
+	                <td></td>
+	            </tr>
+	        </tbody></table>
+	    </div>
+	</apex:outputPanel>
+
+</apex:page>

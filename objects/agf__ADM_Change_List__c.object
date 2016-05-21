@@ -1,0 +1,304 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <actionOverrides>
+        <actionName>Accept</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>CancelEdit</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Clone</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Delete</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Edit</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Follow</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>List</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>New</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>SaveEdit</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Tab</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>View</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <allowInChatterGroups>false</allowInChatterGroups>
+    <compactLayoutAssignment>SYSTEM</compactLayoutAssignment>
+    <deploymentStatus>Deployed</deploymentStatus>
+    <deprecated>false</deprecated>
+    <description>Perforce change lists for checking in code changes.  Related to bugs and user stories.</description>
+    <enableActivities>false</enableActivities>
+    <enableBulkApi>true</enableBulkApi>
+    <enableEnhancedLookup>false</enableEnhancedLookup>
+    <enableFeeds>false</enableFeeds>
+    <enableHistory>true</enableHistory>
+    <enableReports>true</enableReports>
+    <enableSearch>true</enableSearch>
+    <enableSharing>true</enableSharing>
+    <enableStreamingApi>true</enableStreamingApi>
+    <fields>
+        <fullName>agf__Changelist__c</fullName>
+        <deprecated>false</deprecated>
+        <description>Link back to the changelist description</description>
+        <externalId>false</externalId>
+        <formula>IF(ISPICKVAL(agf__Source__c, &apos;Perforce&apos;), 
+
+
+
+HYPERLINK( &quot;https://build.soma.salesforce.com/build/Perforce/describe?change=&quot; &amp; agf__Perforce_Changelist__c, agf__Perforce_Changelist__c), 
+
+
+
+IF(ISPICKVAL(agf__Source__c, &apos;&apos;), 
+
+
+
+HYPERLINK( &quot;https://build.soma.salesforce.com/build/Perforce/describe?change=&quot; &amp; agf__Perforce_Changelist__c, agf__Perforce_Changelist__c), 
+
+
+
+IF(ISPICKVAL(agf__Source__c, &apos;GitHub&apos;),  HYPERLINK( &quot;https://github.com/&quot; &amp; agf__Perforce_Changelist__c, &quot;github.com/&quot; &amp; agf__Perforce_Changelist__c),
+
+
+IF(ISPICKVAL(agf__Source__c, &apos;Stash&apos;),  
+
+HYPERLINK( &quot;https://stash.soma.salesforce.com/&quot; &amp; agf__Perforce_Changelist__c, &quot;stash.soma.salesforce.com/&quot; &amp; agf__Perforce_Changelist__c),
+
+
+HYPERLINK(&quot;https://git.soma.salesforce.com/&quot; &amp; agf__Perforce_Changelist__c, &quot;git.soma.salesforce.com/&quot; &amp; agf__Perforce_Changelist__c)
+
+)
+
+
+)
+
+
+
+)
+
+
+
+)</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>Changelist Link</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>agf__Check_In_By__c</fullName>
+        <deleteConstraint>SetNull</deleteConstraint>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>Check-in By</label>
+        <referenceTo>User</referenceTo>
+        <relationshipName>R00NT0000000lhZvMAI</relationshipName>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Lookup</type>
+    </fields>
+    <fields>
+        <fullName>agf__Check_In_Date__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>Check-in Date</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>DateTime</type>
+    </fields>
+    <fields>
+        <fullName>agf__Comments__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>Comments</label>
+        <length>32000</length>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>LongTextArea</type>
+        <visibleLines>2</visibleLines>
+    </fields>
+    <fields>
+        <fullName>agf__External_ID__c</fullName>
+        <caseSensitive>true</caseSensitive>
+        <deprecated>false</deprecated>
+        <description>An external ID used for syncing between instances.</description>
+        <externalId>true</externalId>
+        <label>External ID</label>
+        <length>255</length>
+        <required>true</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>true</unique>
+    </fields>
+    <fields>
+        <fullName>agf__Local_Check_in_Date__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>Local Check-in Date</label>
+        <length>255</length>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>agf__Perforce_Changelist__c</fullName>
+        <deprecated>false</deprecated>
+        <description>Reference to Perforce Changelist number</description>
+        <externalId>false</externalId>
+        <label>Changelist #</label>
+        <length>255</length>
+        <required>true</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>agf__Release_Name__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>Release Name</label>
+        <length>255</length>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>agf__Source__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>Source</label>
+        <picklist>
+            <picklistValues>
+                <fullName>Perforce</fullName>
+                <default>true</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>GitHub</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Internal Git</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Stash</fullName>
+                <default>false</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Picklist</type>
+    </fields>
+    <fields>
+        <fullName>agf__Task__c</fullName>
+        <deleteConstraint>SetNull</deleteConstraint>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>Task</label>
+        <referenceTo>agf__ADM_Task__c</referenceTo>
+        <relationshipLabel>Change Lists</relationshipLabel>
+        <relationshipName>Change_Lists</relationshipName>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Lookup</type>
+    </fields>
+    <fields>
+        <fullName>agf__Username__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>Username</label>
+        <length>255</length>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>agf__Work_Number__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <formula>VALUE(RIGHT(agf__Work__r.Name, 6))</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>Work Number</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>0</scale>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Number</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>agf__Work__c</fullName>
+        <deleteConstraint>SetNull</deleteConstraint>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>Work</label>
+        <referenceTo>agf__ADM_Work__c</referenceTo>
+        <relationshipName>WorkChangeLists</relationshipName>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Lookup</type>
+    </fields>
+    <label>Change List</label>
+    <nameField>
+        <displayFormat>PF-{0000000}</displayFormat>
+        <label>Changelist ID</label>
+        <trackHistory>false</trackHistory>
+        <type>AutoNumber</type>
+    </nameField>
+    <pluralLabel>Change Lists</pluralLabel>
+    <searchLayouts>
+        <searchFilterFields>OBJECT_ID</searchFilterFields>
+        <searchFilterFields>agf__Check_In_By__c</searchFilterFields>
+        <searchFilterFields>agf__Check_In_Date__c</searchFilterFields>
+        <searchFilterFields>agf__Perforce_Changelist__c</searchFilterFields>
+        <searchFilterFields>agf__Work__c</searchFilterFields>
+        <searchFilterFields>CREATEDBY_USER.ALIAS</searchFilterFields>
+        <searchFilterFields>CREATEDBY_USER</searchFilterFields>
+        <searchFilterFields>CREATED_DATE</searchFilterFields>
+        <searchResultsAdditionalFields>agf__Check_In_By__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields>agf__Check_In_Date__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields>agf__Comments__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields>agf__Perforce_Changelist__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields>agf__Changelist__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields>agf__Work__c</searchResultsAdditionalFields>
+    </searchLayouts>
+    <sharingModel>ReadWrite</sharingModel>
+</CustomObject>

@@ -1,0 +1,186 @@
+<apex:page standardController="DMAPP__DM_Market_View_Report__c" extensions="DMAPP.MarketViewStandardController" >
+
+<script>
+
+	/* 
+	 * Copyright © The TAS Group. All rights reserved.
+	 *  
+	 */    
+
+    var ttg = ttg || {};
+    ttg.am = ttg.am || {};
+
+    ttg.am.marketviewdoublecountdialog = function(spec) {
+    
+        var api = spec.ttgApi,
+            reportid = spec.reportId,
+            config = spec.config,
+            working = false,
+            ajaxSpinnerCnt = 0,
+            dateFormat =  '{!dateFormat}' || 'yy-mm-dd', 
+            jsonDateFormat = 'yy-mm-dd';
+        
+        dateFormat = dateFormat.replace(/yyyy/gi, 'yy');
+        
+        var currencys = null;
+        var corporateCurrency = null;
+
+        var getCurrencys = function(successHandler) {    		
+	   		apilayer.searchCurrencys(function(data) {
+	        	if(data) {
+	                currencys = jQuery.makeArray(data.currencys.currency);
+	                
+					jQuery.each(currencys, function(idx, c) {
+						if ( c.iscorporate ) {
+							corporateCurrency = c.name;
+						}
+					});
+				}
+				else {
+					currencys = [];
+				}	 
+				if(successHandler) {
+					successHandler();      
+				}              
+				
+			}, function() {}, function() {}); 	
+        };
+         
+        var renderTable = function(opps, table) {
+
+			function formatMultiCurrencyAmount(baseAmountFormatted, amountFormatted, currencyIsoCode, corporateCurrency) {
+				var tr1 = jQuery('<div/>').text(amountFormatted || '').addClass('col_amount');
+				var tr2 = jQuery('<div/>').text('(' + baseAmountFormatted + ')').addClass('col_amount');
+				return jQuery('<td/>', {rowspan: rowspan}).append(tr1).append(( !(currencyIsoCode === corporateCurrency) && baseAmountFormatted ) ? tr2 : null );
+			}; 
+
+            for(var i = 0; i < opps.length; i++) {
+            
+                var opp = opps[i];
+                var rowspan = opps[i].plans.length + 1;
+                
+                var amountFormattedHtml = jQuery('<td/>', {rowspan: rowspan}).text((opp.formattedAmount || '')).addClass('col_amount');
+                if ( config.multiCurrency ) {
+                	amountFormattedHtml = formatMultiCurrencyAmount(opp.formattedBaseAmount, opp.formattedAmount, opp.currencyIsoCode, corporateCurrency);
+                }
+
+                jQuery('<tr/>')
+                    .append(jQuery('<td/>', {rowspan: rowspan}).text(opp.owner))
+                    .append(jQuery('<td/>', {rowspan: rowspan}).text(opp.name).addClass('col_opp_name'))
+                    .append(amountFormattedHtml)
+                    .appendTo(table);
+                
+	            for(var j = 0; j < opps[i].plans.length; j++) {
+		            jQuery('<tr/>')
+		                 .append(jQuery('<td/>').text((opp.plans[j].plan ? (opp.plans[j].plan.name || '') : '')))
+		                 .append(jQuery('<td/>').text((opp.plans[j].solution ? (opp.plans[j].solution.name || '') : '')))
+		                .appendTo(table);
+	            }
+            }
+            
+        };
+        
+        var createTable = function(opps) {
+
+            var table = jQuery('<table class="opportunities"/>');
+
+            jQuery('<tr/>')
+                .append(jQuery('<th/>').text('Owner'))
+                .append(jQuery('<th/>').text('Name'))
+                .append(jQuery('<th/>').text('Amount').addClass('col_amount'))
+                .append(jQuery('<th/>').text('Plan'))
+                .append(jQuery('<th/>').text('Solution'))
+                .appendTo(table);
+                
+			if ( config.multiCurrency ) {
+					if ( !currencys ) {
+			            getCurrencys(function() {
+			     			renderTable(opps, table)	       
+			            });
+					}
+					else {
+						renderTable(opps, table);
+					}
+            }
+            else {
+            	renderTable(opps, table);
+            }    
+            return table;
+        };
+        
+        var open = function() {
+            
+            if(working) {
+                return;
+            }
+            
+            function stopWorking() {
+                working = false;
+            }
+            
+            showAjaxSpinner(true);
+        
+	        api.getMarketViewDoubleCount(reportid, function(data) {
+                var holder = jQuery('<div/>');
+                
+                holder
+                    .append(jQuery('<div class="instructions"/>'))
+                    .append(createTable(data.opportunities));
+                
+                holder.dialog({
+                    buttons: [{text: 'Close', click: function() { jQuery(this).dialog( 'close'); }}],
+                    modal: true,
+                    resizable: false,
+                    width: '720px',
+                    height: 'auto',
+                    //autoOpen: false,
+                    title: jQuery('<pre/>')
+                               .text('Market View Double Count Details')
+                               .html(),
+                    close: function() {
+                        holder.remove();
+                    },
+                    open: function() {
+                       stopWorking();
+                       jQuery('span.ui-dialog-title').focus();
+                    }
+                });
+	        },
+	        function(){},
+	        function() {
+	           showAjaxSpinner(false);
+	           stopWorking();
+	        });
+        }
+    
+        function showAjaxSpinner(show) {
+            var spinner = jQuery('#dialogSpinner').css({ position: 'absolute', 'z-index': 10000});
+            if (show) { 
+                ajaxSpinnerCnt++;
+                if (ajaxSpinnerCnt == 1) {
+                    spinner.append(jQuery('<img>').attr('id', 'tas_ajax_spinner').addClass('spinner').attr('src', '{!JSENCODE(URLFOR($Resource.ttgomjs, '/ttg/graph/images/loader.gif'))}'));
+                    spinner.css("top", ( jQuery(window).height() - jQuery('#dialogSpinner').height() ) / 2+jQuery(window).scrollTop() + "px");
+                    spinner.css("left", ( jQuery(window).width() - jQuery('#dialogSpinner').width() ) / 2+jQuery(window).scrollLeft() + "px");
+                }                   
+            }
+            else {
+                ajaxSpinnerCnt--;
+                if (ajaxSpinnerCnt <= 0) {                  
+                    jQuery('#dialogSpinner').html('');
+                    ajaxSpinnerCnt = 0;
+                }
+            }
+        }               
+        
+        return {
+            open: open
+            
+            
+            
+        }
+    }
+
+
+</script>
+
+</apex:page>

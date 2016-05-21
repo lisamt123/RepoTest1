@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <choices>
+        <name>Participate_No</name>
+        <choiceText>No</choiceText>
+        <dataType>String</dataType>
+        <value>
+            <stringValue>No</stringValue>
+        </value>
+    </choices>
+    <choices>
+        <name>Participate_Yes</name>
+        <choiceText>Yes</choiceText>
+        <dataType>String</dataType>
+        <value>
+            <stringValue>Yes</stringValue>
+        </value>
+    </choices>
+    <choices>
+        <name>Satisfaction_No_Opinion</name>
+        <choiceText>No Opinion</choiceText>
+        <dataType>String</dataType>
+        <value>
+            <stringValue>No Opinion</stringValue>
+        </value>
+    </choices>
+    <choices>
+        <name>Satisfaction_Satisfied</name>
+        <choiceText>Satisfied</choiceText>
+        <dataType>String</dataType>
+        <value>
+            <stringValue>Satisfied</stringValue>
+        </value>
+    </choices>
+    <choices>
+        <name>Satisfaction_Somewhat_Satisfied</name>
+        <choiceText>Somewhat Satisfied</choiceText>
+        <dataType>String</dataType>
+        <value>
+            <stringValue>Somewhat Satisfied</stringValue>
+        </value>
+    </choices>
+    <choices>
+        <name>Satisfaction_Somewhat_Unsatisfied</name>
+        <choiceText>Somewhat Unsatisfied</choiceText>
+        <dataType>String</dataType>
+        <value>
+            <stringValue>Somewhat Unsatisfied</stringValue>
+        </value>
+    </choices>
+    <choices>
+        <name>Satisfaction_Unsatisfied</name>
+        <choiceText>Unsatisfied</choiceText>
+        <dataType>String</dataType>
+        <value>
+            <stringValue>Unsatisfied</stringValue>
+        </value>
+    </choices>
+    <choices>
+        <name>Service_Excellant</name>
+        <choiceText>Excellant</choiceText>
+        <dataType>String</dataType>
+        <value>
+            <stringValue>Excellent</stringValue>
+        </value>
+    </choices>
+    <choices>
+        <name>Service_Needs_Improvement</name>
+        <choiceText>Needs Improvement</choiceText>
+        <dataType>String</dataType>
+        <value>
+            <stringValue>Needs Improvement</stringValue>
+        </value>
+    </choices>
+    <choices>
+        <name>Service_No_Opinion</name>
+        <choiceText>No Opinion</choiceText>
+        <dataType>String</dataType>
+        <value>
+            <stringValue>No Opinion</stringValue>
+        </value>
+    </choices>
+    <decisions>
+        <name>Want_to_Participate</name>
+        <label>Want to Participate?</label>
+        <locationX>369</locationX>
+        <locationY>58</locationY>
+        <defaultConnectorLabel>No</defaultConnectorLabel>
+        <rules>
+            <name>Yes</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>Customer_Response</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <elementReference>Participate_Yes</elementReference>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Survey_Customer</targetReference>
+            </connector>
+            <label>Yes</label>
+        </rules>
+    </decisions>
+    <description>script for gatherin gcustomer satisfaction data</description>
+    <interviewLabel>Survey Customers {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>Survey Customers</label>
+    <processType>Flow</processType>
+    <screens>
+        <name>Greet_Customer</name>
+        <label>Greet Customer</label>
+        <locationX>199</locationX>
+        <locationY>60</locationY>
+        <allowBack>true</allowBack>
+        <allowFinish>true</allowFinish>
+        <allowPause>true</allowPause>
+        <connector>
+            <targetReference>Want_to_Participate</targetReference>
+        </connector>
+        <fields>
+            <name>WelcomeMessage</name>
+            <fieldText>Hello. My name is [Your First Name] from Acme Wireless
+Customer Relations.
+According to our records, you are currently a Preferred
+Repair customer. We are very interested in hearing about
+your experience with this service. Do you have time to
+answer a few short questions?</fieldText>
+            <fieldType>DisplayText</fieldType>
+        </fields>
+        <fields>
+            <name>Customer_Response</name>
+            <choiceReferences>Participate_Yes</choiceReferences>
+            <choiceReferences>Participate_No</choiceReferences>
+            <dataType>String</dataType>
+            <fieldText>Customer Response</fieldText>
+            <fieldType>RadioButtons</fieldType>
+            <isRequired>false</isRequired>
+        </fields>
+    </screens>
+    <screens>
+        <name>Survey_Customer</name>
+        <label>Survey Customer</label>
+        <locationX>560</locationX>
+        <locationY>62</locationY>
+        <allowBack>true</allowBack>
+        <allowFinish>true</allowFinish>
+        <allowPause>true</allowPause>
+        <fields>
+            <name>ParticipationThanks</name>
+            <fieldText>thank you for agreeing to participate in our survey</fieldText>
+            <fieldType>DisplayText</fieldType>
+        </fields>
+        <fields>
+            <name>Company_Name</name>
+            <dataType>String</dataType>
+            <fieldText>Before we begin, can you confirm the name of the company you work for?</fieldText>
+            <fieldType>InputField</fieldType>
+            <isRequired>false</isRequired>
+        </fields>
+        <fields>
+            <name>Service</name>
+            <choiceReferences>Service_Excellant</choiceReferences>
+            <choiceReferences>Service_No_Opinion</choiceReferences>
+            <choiceReferences>Service_Needs_Improvement</choiceReferences>
+            <dataType>String</dataType>
+            <fieldText>Of the following options, how would you rate your interactions with the Preferred Repair Team?</fieldText>
+            <fieldType>RadioButtons</fieldType>
+            <isRequired>false</isRequired>
+        </fields>
+        <fields>
+            <name>Satisfaction</name>
+            <choiceReferences>Satisfaction_Satisfied</choiceReferences>
+            <choiceReferences>Satisfaction_Somewhat_Satisfied</choiceReferences>
+            <choiceReferences>Satisfaction_No_Opinion</choiceReferences>
+            <choiceReferences>Satisfaction_Somewhat_Unsatisfied</choiceReferences>
+            <choiceReferences>Satisfaction_Unsatisfied</choiceReferences>
+            <dataType>String</dataType>
+            <fieldText>Of the following options, how satisfied are you with Acme&apos;s Preferred Repair Service?</fieldText>
+            <fieldType>DropdownBox</fieldType>
+            <isRequired>false</isRequired>
+        </fields>
+        <fields>
+            <name>OtherComments</name>
+            <fieldText>Do you have other comments you&apos;d like to share with us?</fieldText>
+            <fieldType>LargeTextArea</fieldType>
+            <isRequired>false</isRequired>
+        </fields>
+    </screens>
+    <startElementReference>Greet_Customer</startElementReference>
+</Flow>

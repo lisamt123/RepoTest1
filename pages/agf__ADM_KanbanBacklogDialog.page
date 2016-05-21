@@ -1,0 +1,231 @@
+<apex:page id="kanbanBacklogDialog" sidebar="false" controller="agf.ADM_KanbanBoardController" standardstylesheets="false">
+
+<div id="backlogDialog" class="ui-dialog">
+		<div id="backlogDialogLoading">
+			<div class="fa fa-refresh fa-spin"></div>
+		</div>
+		
+		<div id="backlogDialogHeader">
+			<ul class="sTabs">
+				<li id="tabBacklog" class="on"><a href="#">Backlog</a></li>
+				<li id="tabRecent"><a href="#">Recent</a></li>
+			</ul>
+			
+			<div class="ui-dialog-error"></div>
+	
+			<center>
+				Select column to add work to:
+				<select id="backlogColumnSelect"></select>
+			</center>
+		</div>
+
+		<div class="workList" id="backlogDialogWorkList"></div>
+		<div class="workList" id="backlogDialogRecentWorkList" style="display:none;"></div>
+</div>
+
+<script id="backlog-dialog-worklist-template" type="text/x-handlebars-template">
+	<div class="backlogRow">
+		<div class="backlogCheckbox"><input type="checkbox" name="workList" id="work-{{ id }}" value="{{ id }}" /></div>
+		<div class="backlogWorkId"><label for="work-{{ id }}"><a href="/{{ id }}" target="_blank">{{ workId }}</a></label></div>
+		<div class="backlogRecordType"><label for="work-{{ id }}">{{ recordType }}</label></div>
+		<div class="backlogSubject"><label for="work-{{ id }}">{{ workSubject }}</label></div>
+	</div>
+</script>
+
+<script>
+var backlogWorkListTemplate = Handlebars.compile($("#backlog-dialog-worklist-template").html());
+
+function displayBacklogDialogError(message) {
+	if (message == null) {
+		$('#backlogDialog .ui-dialog-error').html(null).hide();
+	} else {
+		$('#backlogDialog .ui-dialog-error').html('Transaction rolled back: ' + trimErrorMessage(message)).show();
+	}
+}
+
+function showBox(box,tab) {
+	$('#backlogDialogHeader > ul.sTabs > li').removeClass('on');
+	$(tab).closest('li').addClass('on');
+	$('.workList').hide();
+	$(box).appendTo('#backlogDialog').show();
+	$('.workList:hidden').appendTo('#backlogDialog');
+	$('.workList input[type=checkbox]').prop('checked',false);
+}
+
+function resizeBacklogDialog() {
+	if ($('#backlogDialog').is(':visible')) {
+		$('#backlogDialog').height($(window).height() - 175).dialog("option", "position", {my: "center", at: "center", of: window});
+	    $('#backlogDialog .workList').css('height', ($('#backlogDialog').height() - $('#backlogDialogHeader').outerHeight(true) - 10) + 'px');
+	}
+}
+
+function loadBacklogDialog() {
+	$('#backlogDialog').addClass('dialogloading');
+    showBox('#backlogDialogWorkList','#tabBacklog a'); // set tab default back to Backlog
+    $('#backlogSaveButton').hide();
+	$('#backlogDialog').find('select').empty();
+    $('#backlogDialog .workList').html('<div class="spacer"></div>');
+    displayBacklogDialogError(null);
+	resizeBacklogDialog();
+    var backLogCount = 100;
+    var newWorkCount = 100;
+	Visualforce.remoting.Manager.invokeAction('{!$RemoteAction.ADM_KanbanBoardController.getNewAndBacklogWorks}', '{!teamId}', backLogCount, newWorkCount, function(result, event) {
+		if (event.status) {
+			$(backlogDialog).removeClass('dialogloading');
+			console.log(result);
+			
+			// backlog
+			if (result.backLogWorks.length > 0) {
+				$.each(result.backLogWorks, function(index, value) {
+					$('#backlogDialogWorkList').append(backlogWorkListTemplate({
+		                id:value.Id,
+		                workId:value.Name,
+		                workSubject:value[nameSpace + 'Subject__c'],
+		                recordType:value.RecordType.Name
+					}));
+				});
+			} else {
+				$('#backlogDialogWorkList .spacer').html('<br/>No results found');
+			}
+			
+			// recent
+			if (result.recentNewWorks.length > 0) {
+				$.each(result.recentNewWorks, function(index, value) {
+					$('#backlogDialogRecentWorkList').append(backlogWorkListTemplate({
+		                id:value.Id,
+		                workId:value.Name,
+		                workSubject:value[nameSpace + 'Subject__c'],
+		                recordType:value.RecordType.Name
+					}));
+				});
+			} else {
+				$('#backlogDialogRecentWorkList .spacer').html('<br/>No results found');
+			}
+			
+			if (result && result.leafNodeDetails && result.leafNodeDetails.length > 0) {
+            	$.each(result.leafNodeDetails, function(index, leafNode) {
+					if(!leafNode.isClosedColumn){
+						$('#backlogDialog select').append('<option value="' + leafNode.columnId + '">' + leafNode.path + '</option>');
+					}
+				});
+				
+            }
+
+		} else if (event.type === 'exception') {
+			//Fetch exception
+		}
+	}, {escape:false});
+}
+
+$(function() {
+
+	backlogDialog = $("#backlogDialog").dialog({
+        autoOpen: false,
+        resizable: false,
+        width:700,
+        height:$(window).height() - 100,
+        modal: true,
+        title: "Backlog",
+        buttons: {
+            "Save": {
+	            text: "Import",
+	            id: "backlogSaveButton",
+	            click: function() {
+	            	console.log('Import clicked');
+					$(this).addClass('dialogloading');
+			        displayBacklogDialogError(null);
+					//resizeBacklogDialog();
+
+					$('button#backlogSaveButton,button#backlogCloseButton').attr('disabled','disabled')
+					$('button#backlogSaveButton span').text('Importing...');
+					
+					var works = [];
+					$('.workList input[type=checkbox]:checked').each(function(index) {
+						works.push({
+							Id: $(this).val(),
+							Column__c: $('#backlogColumnSelect').val(),
+							Origin__c:'Kanban_Import'
+						});
+					});
+					
+					console.log(works);					
+
+					if (works.length > 0) {
+			            Visualforce.remoting.Manager.invokeAction('{!$RemoteAction.ADM_KanbanBoardController.saveWorks}', works, true, function(result, event) {
+			                if (event.status) {
+			                    console.log('Save good!');
+			                    backlogDialog.removeClass('dialogloading').dialog('close');
+
+			                    $('button#backlogSaveButton,button#backlogCloseButton').removeAttr('disabled');
+								$('button#backlogSaveButton span').text('Import');
+						        refreshBoard();
+
+			                } else if (event.type === 'exception') {
+				                console.warn('Error during save, reverting move.');
+				                //errorDialog.html(trimErrorMessage(event.message)).dialog({ title: "Error During Save" }).dialog("open");
+				                displayBacklogDialogError(event.message);
+				                resizeBacklogDialog();
+				                
+			                    backlogDialog.removeClass('dialogloading');
+			                    $('button#backlogSaveButton,button#backlogCloseButton').removeAttr('disabled');
+								$('button#backlogSaveButton span').text('Import');
+							}
+						});
+					} else {
+	                    backlogDialog.removeClass('dialogloading');
+	                    $('button#backlogSaveButton,button#backlogCloseButton').removeAttr('disabled');
+						$('button#backlogSaveButton span').text('Import');
+					}
+	            	
+				}
+            },
+            "Close": {
+	            text: "Close",
+	            id: "backlogCloseButton",
+	            click: function () {
+	                backlogDialog.dialog("close");
+	            }
+            }
+        },
+        open: function(event, ui) {
+			loadBacklogDialog();
+        }
+    });
+
+	$(document).on('click','#backlogDialog .backlogRow a', function(e) {
+		e.preventDefault();
+	    selectedWork = $(this).attr('href').replace('/','');
+	    if (e.shiftKey) {
+			window.open('/' + selectedWork)
+		} else {
+		    workDialog.dialog("open");
+		}
+    });
+
+    $("#buttonBacklog").on("click", function() {
+	   backlogDialog.dialog("open");
+    });
+
+	$(document).on('click','#tabBacklog a', function(e) {
+		showBox('#backlogDialogWorkList',this);
+		return false;
+    });
+
+	$(document).on('click','#tabRecent a', function(e) {
+		showBox('#backlogDialogRecentWorkList',this);
+		return false;
+    });
+
+	$(document).on('click','.workList input[type=checkbox]', function(e) {
+		if ( $('.workList input[type=checkbox]:checked').length > 0) {
+			$('#backlogSaveButton').show();
+		} else {
+			$('#backlogSaveButton').hide();
+		}
+    });
+    
+
+});
+</script>
+
+</apex:page>

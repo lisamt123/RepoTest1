@@ -1,0 +1,199 @@
+<apex:page showHeader="true" sidebar="true" controller="DMAPP.PostUpgradeTaskCheckController">
+
+	<c:jQuery chosen="false"
+    	jQueryUI="false"
+    	touchPunch="false"
+    	tableDnD="false"
+    	tooltip="false" 
+    	paging="false" />
+
+	<style>
+    	.validationCompleteSuccess {
+    		font-weight: bold;
+    		color:	#22B14C;
+    		display: none;
+    	}
+    </style>
+    
+    <style>
+    	.validationCompleteFail {
+    		font-weight: bold;
+    		color:	#CC0000;
+    		display: none;
+    	}
+    </style>
+
+	<script>
+		var ttg = ttg || {};
+		var spec = spec || {};
+
+		ttg.upgradeCheck = (function(spec) {
+		
+			function validateAll() {
+				var taskNames = [];
+				
+				taskNames.push('plan unit org charts have been upgraded to account level political maps');
+				taskNames.push('plan unit org charts have been upgraded to account level political maps');
+				taskNames.push('no parent units have the targeted field set to true');
+				taskNames.push('Dealmaker Permission Set');
+				if ({!platformLicenceExists}) {
+					taskNames.push('Dealmaker Permission Set Platform');					
+				}
+				taskNames.push('label names for the new Account Political Map Contact attributes');
+				taskNames.push('parent unit segmentation scores have been deleted');
+				taskNames.push('insight maps have been upgraded');
+				taskNames.push('strategy maps have been upgraded');
+			
+				for(var i=0; i < taskNames.length; i++) {
+					var taskName = taskNames[i];
+					validate(taskName);
+				}
+			}
+
+			function validate(taskName) {
+			
+				var id = '#' + taskName;
+				id = id.replace(/ /g,'_');
+				jQuery(id).hide();
+				
+				id = id + '_failed';
+				jQuery(id).hide();
+			
+				Visualforce.remoting.Manager.invokeAction(
+					'{!$RemoteAction.PostUpgradeTaskCheckController.getTaskStatus}', 
+					taskName,
+					function(result, event) {
+						if (event.type == 'exception') {
+							err(result,event);
+						} else {
+							succ(result);
+						}
+					}, 
+					{escape: false}
+				);
+			}
+
+			function err(result, event) {
+				var errorMessage = event.message || '';
+				if(errorMessage) {
+					console.log(errorMessage);
+					alert(errorMessage);
+				}
+			}
+
+			function succ(result) {
+				console.log('Success: ' + JSON.stringify(result));
+				var id = '#' + result.taskName;
+				if(!(result.success)) {
+					var id = id + ' failed';
+				}
+				id = id.replace(/ /g,'_');
+				
+				console.log('showning id: ' + id);
+				jQuery(id).show();
+			}
+
+			return {
+				validateAll : validateAll
+			}
+
+		})(spec);
+	</script>
+	
+	
+	<div>
+		<input type="button" value="Validate all checks" onclick="javascript: ttg.upgradeCheck.validateAll();"/>
+	</div>
+	
+	<table>
+	<tr>
+		<td>Validate all plan unit org charts have been upgraded to account level political maps</td>
+		<td>
+			<div class="validationCompleteSuccess" id='plan_unit_org_charts_have_been_upgraded_to_account_level_political_maps'> 
+				Validation completed successfully
+			</div>
+			<div class="validationCompleteFail" id='plan_unit_org_charts_have_been_upgraded_to_account_level_political_maps_failed'> 
+				Validation failed
+			</div>
+		</td>
+	</tr>
+	<tr>
+		<td>Validate that no parent units have the targeted field set to true</td>
+		<td>
+			<div class="validationCompleteSuccess" id='no_parent_units_have_the_targeted_field_set_to_true'> 
+				Validation completed successfully
+			</div>
+			<div class="validationCompleteFail" id='no_parent_units_have_the_targeted_field_set_to_true_failed'> 
+				Validation failed
+			</div>
+		</td>	
+	</tr>
+	<tr>
+		<td>Validate Dealmaker Permission Set</td>
+		<td>
+			<div class="validationCompleteSuccess" id='Dealmaker_Permission_Set'> 
+				Validation completed successfully
+			</div>
+			<div class="validationCompleteFail" id='Dealmaker_Permission_Set_failed'> 
+				Validation failed
+			</div>
+		</td>	
+	</tr>
+	<tr id='Dealmaker_Permission_Set_Platform_Row' style="{!IF(platformLicenceExists,'','display:none;')}" >
+		<td>Validate Dealmaker Permission Set Platform</td>
+		<td>
+			<div class="validationCompleteSuccess" id='Dealmaker_Permission_Set_Platform'> 
+				Validation completed successfully
+			</div>
+			<div class="validationCompleteFail" id='Dealmaker_Permission_Set_Platform_failed'> 
+				Validation failed
+			</div>
+		</td>	
+	</tr>
+	<tr>
+		<td>Validate label names for the new Account Political Map Contact attributes</td>
+		<td>
+			<div class="validationCompleteSuccess" id='label_names_for_the_new_Account_Political_Map_Contact_attributes'> 
+				Validation completed successfully
+			</div>
+			<div class="validationCompleteFail" id='label_names_for_the_new_Account_Political_Map_Contact_attributes_failed'> 
+				Validation failed
+			</div>
+		</td>	
+	</tr>
+	<tr>
+		<td>Validate parent unit segmentation scores have been deleted</td>
+		<td>
+			<div class="validationCompleteSuccess" id='parent_unit_segmentation_scores_have_been_deleted'> 
+				Validation completed successfully
+			</div>
+			<div class="validationCompleteFail" id='parent_unit_segmentation_scores_have_been_deleted_failed'> 
+				Validation failed
+			</div>
+		</td>
+	</tr>
+	<tr>
+		<td>Validate Insight Maps have been upgraded</td>
+		<td>
+			<div class="validationCompleteSuccess" id='insight_maps_have_been_upgraded'> 
+				Validation completed successfully
+			</div>
+			<div class="validationCompleteFail" id='insight_maps_have_been_upgraded_failed'> 
+				Validation failed
+			</div>
+		</td>
+	</tr>
+	<tr>
+		<td>Validate Strategy Maps have been upgraded</td>
+		<td>
+			<div class="validationCompleteSuccess" id='strategy_maps_have_been_upgraded'> 
+				Validation completed successfully
+			</div>
+			<div class="validationCompleteFail" id='strategy_maps_have_been_upgraded_failed'> 
+				Validation failed
+			</div>
+		</td>
+	</tr>
+	</table>
+	
+</apex:page>

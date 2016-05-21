@@ -1,0 +1,1357 @@
+<apex:page id="kanbanSettings" sidebar="false" controller="agf.ADM_KanbanBoardController" standardstylesheets="false">
+
+<script id="color-card-template" type="text/x-handlebars-template">
+	<div class="cardColorRow"><div class="cardColorCheckbox"><input type="checkbox" name="" id="{{ id }}" value="" /></div><div class="cardColorLabel"><label for="{{ id }}" class="cardColor" style="background:{{ color }};"><i class="fa fa-remove"></i><span>{{ label }}</span></label></div></div>
+</script>
+
+<script id="white-column-item-radio-template" type="text/x-handlebars-template">
+	<div class="columnItem {{ class }}"><div class="columnItemCheckbox"><input type="radio" name="{{ group }}" id="{{ id }}" data-index="{{ index }}" value="{{ value }}"{{#if checked }} checked="checked"{{/if}} /></div><div class="columnItemLabel"><label for="{{ id }}"><span>{{ label }}</span></label></div></div>
+</script>
+
+<script id="white-column-item-checkbox-template" type="text/x-handlebars-template">
+	<div class="columnItem"><div class="columnItemCheckbox"><input type="checkbox" name="{{ id }}" id="{{ id }}" data-index="{{ index }}" value="{{ value }}"{{#if checked }} checked="checked"{{/if}} /></div><div class="columnItemLabel"><label for="{{ id }}"><span>{{ label }}</span></label></div></div>
+</script>
+
+<script id="column-settings-template" type="text/x-handlebars-template">
+    <div class="settingsColumn{{#if isSwimlane}} settingsSwimlane{{/if}}" id="settings-{{ id }}" data-id="{{ id }}" data-title="{{ title }}"{{#if parent}} data-parent="{{ parent }}"{{/if}}{{#if numberOfChildren}} data-children="{{ numberOfChildren }}"{{/if}}{{#if numberOfWork}} data-numberofwork="{{ numberOfWork }}"{{/if}}{{#if wipLimit}} data-wiplimit="{{ wipLimit }}"{{/if}}{{#if statusIds}} data-statusids="{{ statusIds }}"{{/if}} data-level="{{ level }}" data-position="{{ position }}">
+        <div class="holderTitle">
+            <div class="titleText">
+	            <span class="titleOnly">{{ title }}</span>
+	            <span class="progressTitle"{{#if wipLimit}} style="display:inline-block;"{{/if}}>{{ wipLimit }}</span>
+			</div>
+            <div class="statusesText">{{ statuses }}</div>
+        </div>
+    </div>
+</script>
+
+<script id="status-template" type="text/x-handlebars-template">
+	<input type="checkbox" name="statusMapping" class="statusMapping" id="statusMapping{{ num }}" value="{{ value }}" onchange="realtimeUpdate();" /><label for="statusMapping{{ num }}"> {{ label }}</label><br/>
+</script>
+
+<div id="settingsDialog" class="ui-dialog" title="Settings">
+	<ul class="sTabs">
+		<li id="tabSettingsColumns" class="on"><a href="#">Columns</a></li>
+		<li id="tabSettingsCard"><a href="#">Cards</a></li>
+		<li id="tabSettingsMisc"><a href="#">Misc.</a></li>
+	</ul>
+
+	<div id="boxSettingsColumn" class="settingsDialogBox">
+		<div id="kanbanSettingsContents">
+			<div class="kanbanSettingsLoading">
+				<div class="fa fa-refresh fa-spin"></div>
+			</div>
+		</div>
+		<div class="ui-dialog-error"></div>
+		<div id="propertyPanel">
+			<form method="post" action="ADM_Kanban" onSubmit="return false" autocomplete="off">
+				<div id="propertyForm" style="display:table;width:100%;">
+					<div style="display:table-cell;vertical-align:top;width:25%;padding-right:15px;">
+						<div class="propertyHeader"><div class="propertySettings"><i class="fa fa-users"></i>Team Setting</div>Action</div>
+						<div style="display:table;">
+							<div style="display:table-row;">
+								<div style="display:table-cell;vertical-align:middle;padding-bottom:10px;vertical-align:top;">
+									<input type="radio" name="type" onChange="actionSelected(this)" id="typeUpdate" value="update" /><label for="typeUpdate"> Update/Remove</label><br/>
+									<input type="radio" name="type" onChange="actionSelected(this)" id="typeSibling" value="sibling" /><label for="typeSibling"> Create Sibling (to right)</label><br/>
+									<input type="radio" name="type" onChange="actionSelected(this)" id="typeChild" value="child" /><label for="typeChild"> Create Child</label><br/>
+									<input type="radio" name="type" onChange="actionSelected(this)" id="typeSwimlane" value="swimlane" /><label for="typeSwimlane"> Create Swimlane (bottom)</label>
+									<div style="font-size:11px;padding-left:22px;">At this time, we do not support lanes within columns. To create a swimlane, make sure no column is selected. <a href="#" onClick="refreshSettings();return false">Refresh settings</a>.</div>
+								</div>
+							</div>
+						</div>
+					</div>
+		
+					<div class="propertyFormOptions" style="display:table-cell;vertical-align:top;width:25%;padding-right:15px;">
+						<div id="editMode" class="propertyHeader">Update</div>
+						<div style="display:table;">
+							<div style="display:table-row;">
+								<div style="display:table-cell;vertical-align:middle;padding-bottom:5px;padding-right:10px;"><label for="columnName">Label:</label></div>
+								<div style="display:table-cell;vertical-align:middle;padding-bottom:5px;"><input type="text" id="columnName" name="columnName" value="" style="width:100px;" onkeypress="realtimeUpdate();" onkeyup="realtimeUpdate();" /></div>
+							</div>
+							<div style="display:table-row;">
+								<div style="display:table-cell;vertical-align:middle;padding-right:10px;"><label for="wipLimit">WIP Limit:</label></div>
+								<div style="display:table-cell;vertical-align:middle;"><input type="number" id="wipLimit" name="wipLimit" value="" style="width:100px;" onkeypress="realtimeUpdate();" onkeyup="realtimeUpdate();" onchange="realtimeUpdate();" /></div>
+							</div>
+						</div>
+						<div style="text-align:right;visibility:hidden;">
+							<button id="updateButton"><span>Update</span></button>
+						</div>
+					</div>
+					
+		
+					<div class="propertyFormOptions" style="display:table-cell;vertical-align:top;width:30%;padding-right:15px;">
+						<div class="propertyHeader">Status Mapping</div>
+						<div style="font-size:11px;margin-bottom:7px;">Optional. Mapping will help keep your work up-to-date by updating the status on your behalf when moving between columns.</div>
+						<div style="display:table;">
+							<div style="display:table-row;">
+								<div id="statusMappingHolder1" style="display:table-cell;vertical-align:middle;padding-bottom:10px;vertical-align:top;padding-right:15px;"></div>
+								<div id="statusMappingHolder2" style="display:table-cell;vertical-align:middle;padding-bottom:10px;vertical-align:top;"></div>
+							</div>
+						</div>
+					</div>
+	
+					<div class="propertyFormOptions" style="display:table-cell;vertical-align:top;width:20%;">
+						<div class="propertyHeader">Remove</div>
+						<div id="workExists">
+							<i class="fa fa-exclamation-triangle" style="color:#C58E00;"></i> The column you selected contains work. Please move work to another column first.
+						</div>
+						<div id="childrenExist">
+							<i class="fa fa-exclamation-triangle" style="color:#C58E00;"></i> The column you selected contains children columns. Please remove those first.
+						</div>
+						<div id="removeColumnButton">
+							<button id="removeColumn"><span>Remove Column</span></button>
+						</div>
+					</div>
+				</div>
+			</form>
+		</div>
+	</div>
+	<div id="boxSettingsCards" class="settingsDialogBox" style="display:none;">
+		<div style="display:table;width:100%;">
+			<div id="cardColors" style="vertical-align:top;padding-right:20px;">
+				<div id="cardColorHeader" class="propertyHeader"><div class="propertySettings"><i class="fa fa-users"></i>Team Setting</div>Colors</div>
+				<div>
+					<form>
+						<div id="cardColorAddNew">
+							<div id="cardColorPicker" style="display:table-cell;vertical-align:middle;"><input type="color" name="" id="" value="" /></div>
+							<div id="cardColorLabel" style="display:table-cell;vertical-align:middle;padding:0px 10px;width:100%;"><input type="text" name="" id="" value="" style="width:100%;" placeholder="Add new..." /></div>
+							<div id="cardColorButtons" style="display:table-cell;vertical-align:middle;"><button disabled="disabled"><span>Save</span></button></div>
+						</div>
+					</form>
+					<div id="cardColorHolder" class="whiteColumnHolder"></div>
+				</div>
+			</div>
+			<div style="display:table-cell;vertical-align:top;width:70%;">
+				<div class="propertyHeader"><div class="propertySettings"><i class="fa fa-user"></i>Individual Setting</div>Card Customization</div>
+				<div id="cardCustomizationHolder" style="display:table;width:100%;">
+					<div style="display:table-cell;width:100%;vertical-align:top;">
+						<div id="taskPreviewHolder" class="whiteColumnHolder" style="padding-top:110px;"></div>
+					</div>
+					<div style="display:table-cell;vertical-align:top;padding-left:10px;">
+						<div class="propertyOptions">
+							<div>
+								<div><input id="ShowNumberOfDaysInColumn" type="checkbox" /></div>
+								<div><label for="ShowNumberOfDaysInColumn">Show # of days in column</label></div>
+							</div>
+							<div>
+								<div><input id="ShowPriority" type="checkbox" /></div>
+								<div><label for="ShowPriority">Show priority</label></div>
+							</div>
+							<div>
+								<div><input id="ShowNumberOfTasks" type="checkbox" /></div>
+								<div><label for="ShowNumberOfTasks">Show # of tasks</label></div>
+							</div>
+							<div>
+								<div><input id="ShowNumberOfPosts" type="checkbox" /></div>
+								<div><label for="ShowNumberOfPosts">Show # of posts</label></div>
+							</div>
+							<div>
+								<div><input id="ShowScheduledBuild" type="checkbox" /></div>
+								<div><label for="ShowScheduledBuild">Show scheduled build</label></div>
+							</div>
+							<div>
+								<div><input id="ShowStoryPoints" type="checkbox" /></div>
+								<div><label for="ShowStoryPoints">Show story points</label></div>
+							</div>
+							<div>
+								<div><input id="ShowRecordTypeIcon" type="checkbox" /></div>
+								<div><label for="ShowRecordTypeIcon">Show record type icon</label></div>
+							</div>
+							<div>
+								<div><input id="ShowWorkID" type="checkbox" /></div>
+								<div><label for="ShowWorkID">Show work ID</label></div>
+							</div>
+							<div>
+								<div><input id="ShowQEPicture" type="checkbox" /></div>
+								<div><label for="ShowQEPicture">Show QE Picture</label></div>
+							</div>
+							<div>
+								<div><input id="ShowColoredSubjects" type="checkbox" /></div>
+								<div><label for="ShowColoredSubjects">Show subject in matching color</label></div>
+							</div>
+							<div class="hiddenSetting">
+								<div><input id="UseColorCoding" type="checkbox" /></div>
+								<div><label for="UseColorCoding">Use color coding <i class="fa fa-asterisk"></i></label></div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div id="boxSettingsMisc" class="settingsDialogBox" style="display:none;">
+		<div class="kanbanSettingsLoading">
+			<div class="fa fa-refresh fa-spin"></div>
+		</div>
+		<div class="propertyHeader"><div class="propertySettings"><i class="fa fa-user"></i>Individual Setting</div>Horizontal Scrolling Preference</div>
+		<input type="radio" name="scroll" id="scrollWindow" value="1" checked="checked" /><label for="scrollWindow"> <b>By Window</b> - All lanes will be the same width and scrollbar will be located at the bottom of the window (if needed).</label><br/>
+		<input type="radio" name="scroll" id="scrollLane" value="2" /><label for="scrollLane"> <b>By Lane</b> - Lanes will scroll left/right independently and scrollbar will be located at the bottom of each lane (if needed).</label>
+	</div>
+
+	<div id="boxSettingsData" class="settingsDialogBox" style="display:none;">
+		<div class="kanbanSettingsLoading">
+			<div class="fa fa-refresh fa-spin"></div>
+		</div>
+		<div class="ui-dialog-error" style="margin-bottom:10px;"></div>
+		<div style="display:table;width:100%;">
+			<div style="display:table-cell;width:33%;vertical-align:top;">
+				<div class="propertyHeader">Object</div>
+				<div id="objectHolder" class="whiteColumnHolder"></div>
+			</div>
+			<div style="display:table-cell;width:33%;vertical-align:top;padding-left:10px;">
+				<div class="propertyHeader">Columns Based on Field</div>
+				<div style="padding:0px 0px 10px 0px;"><select name="fieldToMakeColumn" class="inactive" id="fieldToMakeColumn" style="width:100%;"></select></div>
+				<div id="fieldsHolder" class="whiteColumnHolder inactive"></div>
+			</div>
+			<div style="display:table-cell;width:33%;vertical-align:top;padding-left:10px;">
+				<div class="propertyHeader">Card Title</div>
+				<div id="cardTitleFieldsHolder" class="whiteColumnHolder inactive"></div>
+			</div>
+
+		</div>
+	</div>
+</div>
+
+
+<script>
+var changeMade = false;
+var columnSettingsTemplate = Handlebars.compile($("#column-settings-template").html());
+var statusTemplate = Handlebars.compile($("#status-template").html());
+var columnItemRadioTemplate = Handlebars.compile($("#white-column-item-radio-template").html());
+var columnItemCheckboxTemplate = Handlebars.compile($("#white-column-item-checkbox-template").html());
+var colorCardTemplate = Handlebars.compile($("#color-card-template").html());
+
+$(document).on('click','#tabSettingsColumns a', function(e) {
+	showSettingsBox('#boxSettingsColumn',this);
+	$('#saveButton').hide();
+	refreshSettings();
+	return false;
+}).on('click','#tabSettingsCard a', function(e) {
+	showSettingsBox('#boxSettingsCards',this);
+	$('#saveButton').hide();
+	return false;
+}).on('click','#tabSettingsMisc a', function(e) {
+	showSettingsBox('#boxSettingsMisc',this);
+
+	if (laneScrolling === true) {
+		$('#scrollWindow').prop('checked',false);
+		$('#scrollLane').prop('checked',true);
+	} else {
+		$('#scrollWindow').prop('checked',true);
+		$('#scrollLane').prop('checked',false);
+	}
+
+	$('#saveButton').show();
+	return false;
+});
+
+function showSettingsBox(box,tab) {
+	$('#settingsDialog > ul.sTabs > li').removeClass('on');
+	$(tab).closest('li').addClass('on');
+	$('.settingsDialogBox').hide();
+	$(box).appendTo('#settingsDialog').show();
+	$('.settingsDialogBox:hidden').appendTo('#settingsDialog');
+	
+
+	var maxHeight = 0;
+	$('.settingsDialogBox').each(function(index) {
+		if ($(this).height() > maxHeight) {
+			maxHeight = $(this).height();
+		}
+	});
+	$('.settingsDialogBox').height(maxHeight);
+	
+	$('#cardColorHolder').height(maxHeight - $('#cardColorAddNew').outerHeight() - $('#cardColorHeader').outerHeight() - 29);
+	
+	/*$('#boxSettingsData .whiteColumnHolder').each(function() {
+		var siblingHeights = 0;
+		$(this).parent().find('>div:not(.whiteColumnHolder)').each(function() {
+			siblingHeights += $(this).outerHeight(true);
+		});
+		
+		$(this).height(maxHeight - siblingHeights - 21);
+	});*/
+
+	$('#boxSettingsCards #cardCustomizationHolder').height( $('#boxSettingsCards #cardCustomizationHolder').parent().height()-$('#boxSettingsCards #cardCustomizationHolder').siblings('.propertyHeader').outerHeight(true) );
+	$('#boxSettingsCards #taskPreviewHolder').outerHeight( $('#boxSettingsCards #taskPreviewHolder').parent().height() );
+}
+
+//-----------------------------------------------------------------------------------------------
+// MISC SETTINGS
+//-----------------------------------------------------------------------------------------------
+function saveMisc() {
+	$('button#saveButton').attr('disabled','disabled');
+	$('button#saveButton span').text('Saving...');
+    $('#settingsDialog').addClass('boardloading');
+
+	if ($('#scrollWindow').is(':checked')) {
+		laneScrolling = false;
+	} else if ($('#scrollLane').is(':checked')) {
+		laneScrolling = true;
+	}
+
+	kanbanPreferences = { laneScrolling: laneScrolling };
+
+	Visualforce.remoting.Manager.invokeAction('{!$RemoteAction.ADM_KanbanBoardController.saveKanbanPreferences}', kanbanPreferences, function(result, event) {
+		$("#settingsDialog").removeClass('boardloading');
+        $('button#saveButton').removeAttr('disabled');
+        $('button#saveButton span').text('Save');
+
+		if (event.status) {
+			settingsDialog.dialog("close");
+		} else if (event.type === 'exception') {
+			errorDialog.html("Well this is embarrassing! We tried to save the preferences and failed:<br/>" + event.message).dialog({ title: "Error During Save" }).dialog("open");
+			console.error(event.message);
+		}
+    },{ escape:false });
+}
+
+//-----------------------------------------------------------------------------------------------
+// COLUMN SETTINGS
+//-----------------------------------------------------------------------------------------------
+function kanbanSettings(children,parentId) {
+    if (isObject(children) && children.length > 0) {
+        for (var i = 0; i < children.length; i++) {
+            var column = children[i];
+            var columnId = column.column.Id;
+            var columnLevel = column.column[nameSpace + 'Level__c'];
+            var columnPosition = column.column[nameSpace + 'Position__c'];
+            var statusMap = column.columnWorkStatusMap;
+            var orderedStatuses = column.orderedWorkStatusIds;
+
+            if (columnLevel != prevLevel) {
+                $('#' + parentId).append('<div class="containerColumns" id="settings-parent-' + parentId + '-row-' + columnLevel + '"></div>');
+            }
+            var prevLevel = columnLevel;
+            
+            var numberOfChildren = 0;
+            if (isObject(column.children)) {
+                numberOfChildren = column.children.length;
+            }
+
+            var wipLimit = null;
+            if (column.column[nameSpace + 'Max_Number_of_Records__c'] > 0) {
+                wipLimit = column.column[nameSpace + 'Max_Number_of_Records__c'];
+            }
+            
+            var statuses = "", statusIds = "";
+            if (isObject(statusMap)) {
+                for(var index=0; index<Object.keys(orderedStatuses).length; index++){
+                    statuses +=  statusMap[orderedStatuses[index]] + ', ';
+                    statusIds += orderedStatuses[index] + ',';
+                    
+                } 
+                statuses = statuses.slice(0, statuses.lastIndexOf(', '));
+                statusIds = statusIds.slice(0, statusIds.lastIndexOf(','));
+            }
+            
+            isSwimlane = false;
+            if (columnLevel > 0) {
+                isSwimlane = true;
+            }
+
+            var columnContents = $('#settings-parent-' + parentId + '-row-' + columnLevel).append(columnSettingsTemplate({
+                    wipLimit:wipLimit,
+                    title:column.columnName,
+                    id:columnId,
+                    parent:column.parentId,
+                    numberOfWork:column.workItems.length,
+                    numberOfChildren:numberOfChildren,
+                    statuses:statuses,
+                    statusIds:statusIds,
+                    level:columnLevel,
+                    position:columnPosition,
+                    isSwimlane:isSwimlane
+                }));
+
+            kanbanSettings(column.children,'settings-' + columnId);
+        }
+    }
+}
+
+// This function populates the GUS statuses into the settings dialog
+function populateStatuses(obj) {
+	var orderedStatuses = obj.orderedWorkStatuses;
+	var statusNameToIdMap = obj.workStatusNameToId;
+	var totalStatuses = Object.keys(orderedStatuses).length;
+	var num = 0;
+	$('#statusMappingHolder1,#statusMappingHolder2').empty();
+	for (var count =0; count< totalStatuses; count++) {
+		var selectedColumn = "#statusMappingHolder1";
+		if (count >= (totalStatuses / 2)) {
+			selectedColumn = "#statusMappingHolder2";
+		}
+		$(selectedColumn).append(statusTemplate({
+			num:count,
+			label:orderedStatuses[count],
+			value:statusNameToIdMap[orderedStatuses[count]]
+		}));
+	}
+}
+
+// This function is used when refreshing the settings dialog
+function refreshSettings() {
+	console.log('Refreshing settings...');
+
+    $("#settingsDialog").addClass('boardloading');
+    displaySettingsError(null);
+    
+    if (hiddenSettings) {
+	    $('.hiddenSetting').css('display','table-row');
+    }
+    
+    Visualforce.remoting.Manager.invokeAction('{!$RemoteAction.ADM_KanbanBoardController.getColumnsAndWorksAsJSON}', '{!teamId}', function(result, event) {
+		if (event.status) {
+			kanbanData = (new Function('return ' + result))();
+		    kanbanObject = kanbanData.columns;
+			console.log(kanbanObject);
+		    
+			if (kanbanObject == null || kanbanObject == '') {
+				errorDialog.html("No data returned from server. Please try your request again.").dialog({ title: "Error During Refresh" }).dialog("open");
+			} else {
+				$("#settingsDialog .containerColumns").remove(); // removes all HTML, not using .html(null) because loader stuff is inside DOM
+				kanbanSettings(kanbanObject,'kanbanSettingsContents');
+				setCardPreferences();
+				$('#settingsDialog').removeClass('boardloading');
+				$('#typeUpdate,#typeSibling,#typeChild,#typeSwimlane').removeAttr('disabled').prop('checked',false);
+				$('.propertyFormOptions').css('visibility','hidden');
+				changeMade = false;
+			}
+		} else if (event.type === 'exception') {
+ 			$('#kanbanContainer').removeClass('boardloading');
+			console.error(event.message);
+			//errorDialog.html("Bad data returned from server: " + event.message).dialog({ title: "Error During Refresh" }).dialog("open");
+		}
+    },{ escape:false });
+}
+
+// This function is used when clicking a column on the settings page
+function processColumn(column) {
+	if ($('.settingsColumn.notcreated').length > 0 || changeMade) {
+		if (confirm('You are about to select another column without saving. Click OK to confirm or CANCEL to continue editing new column.')) {
+			changeMade = false;
+		} else {
+			return;
+		}
+	}
+
+	var titleText = column.data('title');
+	var wipLimitText = column.data('wiplimit');
+	var currentStatuses = column.data('statusids');
+	
+	$('#typeUpdate,#typeSibling,#typeChild').removeAttr('disabled');
+	$('#typeSwimlane').attr('disabled','disabled'); // disable swimlane once a column has been selected (for now)
+
+	$('.settingsColumn').removeClass('highlight');
+	$('.notcreated').remove();
+	column.addClass('highlight');
+	$('#propertyPanel input[type=radio]').prop('checked',false);
+	$('.propertyFormOptions').css('visibility','hidden');
+	$('button#saveButton').hide();
+	displaySettingsError(null);
+}
+
+// This function is called when you modify the label, wip limit, or status mapping of a column
+function realtimeUpdate() {
+	changeMade = true;
+	var newBoxName = $('.settingsColumn.highlight > .holderTitle > .titleText > .titleOnly');
+	if ($('#columnName').val() == '') {
+		newBoxName.text('?');
+	} else {
+		newBoxName.text($('#columnName').val());
+	}
+	if ($('#columnName').val().length > 0) {
+		$('button#saveButton').show();
+		$('button#saveButton,button#updateButton').removeAttr('disabled');
+	} else {
+		$('button#saveButton').hide();
+		$('button#saveButton,button#updateButton').attr('disabled','disabled');
+	}
+
+	var newBoxWipLimit = $('.settingsColumn.highlight > .holderTitle > .titleText > .progressTitle');
+	var wipLimit = parseInt($('#wipLimit').val(),10);
+	if (wipLimit > 0) {
+		newBoxWipLimit.text(wipLimit).show();
+	} else {
+		wipLimit = '';
+		newBoxWipLimit.text(wipLimit).hide();
+	}
+
+	var newStatuses = $('.settingsColumn.highlight > .holderTitle > .statusesText');
+	var statuses = '';
+	$('.statusMapping:checked').each(function(index) {
+		statuses += $(this).next('label').text().trim();
+		if ($('.statusMapping:checked').length > 1 && index !== $('.statusMapping:checked').length-1) {
+			statuses += ', ';
+		}
+	});
+	newStatuses.text(statuses);
+}
+
+// This function is called when you select an action
+function actionSelected(selected) {
+	var originalColumn = $('.settingsColumn.highlight');
+	var isUpdate = (selected.value === 'update');
+	var isSibling = (selected.value === 'sibling');
+	var isChild = (selected.value === 'child');
+	var isSwimlane = (selected.value === 'swimlane');
+	changeMade = false;
+	
+	if (originalColumn.length != 1 && isSwimlane == false) {
+		// must select a column first
+		displaySettingsError('Please select a column first');
+		return;
+	}
+	
+	$('button#saveButton span').text('Save');
+	$('.propertyFormOptions').css('visibility','visible');
+	$('.statusMapping').prop('checked',false);
+	displaySettingsError(null);
+
+	if (isUpdate) {
+		$('button#saveButton').show();
+		$('button#saveButton,button#updateButton,button#removeColumn').removeAttr('disabled');
+		$('#wipLimit').val(originalColumn.data('wiplimit'));
+		$('#columnName').val(originalColumn.data('title')).focus();
+		var currentStatuses = originalColumn.data('statusids');
+		$('.statusMapping').each(function() {
+			var currentId = $(this).val();
+			if (currentStatuses && currentStatuses.indexOf(currentId) > -1) {
+				$(this).prop('checked',true);
+			}
+		});
+		var showRemoveButton = true;
+		/* is there work in that column? */
+		if (originalColumn.data('numberofwork') > 0) {
+			showRemoveButton = false;
+			$('#workExists').show();
+		} else {
+			$('#workExists').hide();
+		}
+		if (originalColumn.data('children') > 0) {
+			showRemoveButton = false;
+			$('#childrenExist').show();
+		} else {
+			$('#childrenExist').hide();
+		}
+		if (showRemoveButton) {
+			$('#removeColumnButton').show();
+		} else {
+			$('#removeColumnButton').hide();
+		}
+		$('#typeSwimlane').attr('disabled','disabled');
+		$('#editMode').text('Update');
+		$('button#updateButton span').text('Update');
+		$('button#removeColumn span').text('Remove Column');
+	} else if (isSibling) {
+		$('button#saveButton').hide();
+		$('button#saveButton,button#updateButton').attr('disabled','disabled');
+		$('#typeUpdate,#typeChild,#typeSwimlane').attr('disabled','disabled');
+		$('#wipLimit').val(null);
+		$('#columnName').val(null).focus();
+		originalColumn.removeClass('highlight').after(columnSettingsTemplate({ title:'?' }));
+		var newColumn = originalColumn.next('.settingsColumn');
+		newColumn.addClass('highlight notcreated');
+		if (originalColumn.hasClass('settingsSwimlane')) {
+			newColumn.addClass('settingsSwimlane');
+		}
+		$('#editMode').text('Create Sibling next to ' + originalColumn.data('title') + ':');
+		$('button#updateButton span').text('Save Sibling');
+		$('#workExists,#childrenExist').hide();
+		$('#removeColumnButton').show();
+		$('button#removeColumn').removeAttr('disabled');
+		$('button#removeColumn span').text('Cancel');
+	} else if (isChild) {
+		$('button#saveButton').hide();
+		$('button#saveButton,button#updateButton').attr('disabled','disabled');
+		$('#typeUpdate,#typeSibling,#typeSwimlane').attr('disabled','disabled');
+		$('#wipLimit').val(null);
+		$('#columnName').val(null).focus();
+		if (originalColumn.find('> .containerColumns').length === 0) {
+			originalColumn.append('<div class="containerColumns"></div>');
+		}
+		originalColumn.removeClass('highlight').find('> .containerColumns').append(columnSettingsTemplate({ title:'?' }));
+		var newColumn = originalColumn.find('> .containerColumns > .settingsColumn:last-child');
+		newColumn.addClass('highlight notcreated');
+		$('#editMode').text('Create Child under ' + originalColumn.data('title') + ':');
+		$('#updateButton span').text('Save Child');
+		$('#workExists,#childrenExist').hide();
+		$('#removeColumnButton').show();
+		$('button#removeColumn span').text('Cancel');
+	} else if (isSwimlane) {
+		$('.settingsColumn.highlight').removeClass('highlight notcreated');
+		$('button#saveButton').hide();
+		$('button#saveButton,button#updateButton').attr('disabled','disabled');
+		$('#typeUpdate,#typeSibling,#typeChild').attr('disabled','disabled');
+		$('#wipLimit').val(null);
+		$('#columnName').val(null).focus();
+		$('#kanbanSettingsContents').append('<div class="containerColumns"></div>');
+		$('#kanbanSettingsContents > .containerColumns:last-child').append(columnSettingsTemplate({ title:'?' }));
+		var newColumn = $('#kanbanSettingsContents > .containerColumns:last-child > .settingsColumn');
+		newColumn.addClass('highlight settingsSwimlane notcreated');
+		$('#editMode').text('Create Swimlane:');
+		$('#updateButton span').text('Save Swimlane');
+		$('#workExists,#childrenExist').hide();
+		$('#removeColumnButton').show();
+		$('button#removeColumn span').text('Cancel');
+	}
+}
+
+// This function is called when you hit save
+function columnUpdate() {
+	displaySettingsError(null);
+	var statusIds = '';
+	var statuses = '';
+	var columnWorkStatusMap = {};
+	var isUpdate   = $('#typeUpdate').is(':checked');
+	var isChild    = $('#typeChild').is(':checked');
+	var isSibling  = $('#typeSibling').is(':checked');
+	var isSwimlane = $('#typeSwimlane').is(':checked');
+
+	if (!isUpdate && !isChild && !isSibling && !isSwimlane) {
+		// must select a column first
+		displaySettingsError('Please select an action first');
+		return;
+	}
+
+	if ($('.settingsColumn').length == 1) {
+		// cannot remove the last column
+		displaySettingsError('You cannot delete the last column');
+		return;
+	}
+
+	$('button#updateButton,button#saveButton').attr('disabled','disabled');
+
+	// Grab values from form
+	var originalColumn = $('.settingsColumn.highlight');
+	var title = $('#columnName').val();
+	var wipLimit = parseInt($('#wipLimit').val(),10);
+	wipLimit = (wipLimit > 0) ? wipLimit : null;
+	$('.statusMapping:checked').each(function(index) {
+		// for object
+		var objectStatusIds = $(this).val();
+		var objectStatuses = $(this).next('label').text().trim();
+		columnWorkStatusMap[objectStatusIds] = objectStatuses;
+		// for DOM
+		statusIds += objectStatusIds;
+		statuses += objectStatuses;
+		if ($('.statusMapping:checked').length > 1 && index !== $('.statusMapping:checked').length-1) {
+			statusIds += ',';
+			statuses += ', ';
+		}
+	});
+
+	if (isUpdate) {
+		// UPDATE
+		var id = originalColumn.data('id');
+		var parentColumn = originalColumn.closest('.settingsColumn:not(.highlight)');
+		if (parentColumn.length > 0) {
+			var parent = parentColumn.data('id');
+		} else {
+			var parent = null;
+		}
+		var level = originalColumn.attr('level');
+		var position = originalColumn.attr('position');
+		// update DOM data
+		originalColumn.data('title',title).attr('data-title',title);
+		originalColumn.data('level',level).attr('data-level',level);
+		originalColumn.data('position',position).attr('data-position',position);
+		originalColumn.data('wiplimit',wipLimit).attr('data-wiplimit',wipLimit);
+		originalColumn.data('statusids',statusIds).attr('data-statusids',statusIds);
+		console.log('UPDATE: Saving change...');
+	} else if (isSibling) {
+		// SIBLING
+		var id = null;
+		var parent = null;
+		if (originalColumn.hasClass('settingsSwimlane')) {
+			var level = originalColumn.siblings('.settingsColumn:first-child').data('level');
+		} else {
+			var parentColumn = originalColumn.closest('.settingsColumn:not(.highlight)');
+			var level = 0;
+			if (parentColumn.length > 0) {
+				parent = parentColumn.data('id');
+			}
+		}
+		var position = originalColumn.index();
+		// update DOM data
+		originalColumn.data('title',title).attr('data-title',title);
+		originalColumn.data('level',level).attr('data-level',level);
+		originalColumn.data('position',position).attr('data-position',position);
+		originalColumn.data('wiplimit',wipLimit).attr('data-wiplimit',wipLimit);
+		originalColumn.data('statusids',statusIds).attr('data-statusids',statusIds);
+		console.log('SIBLING: Saving change...');
+	} else if (isChild) {
+		// CHILD
+		var id = null;
+		var parentColumn = originalColumn.closest('.settingsColumn:not(.highlight)');
+		var parent = parentColumn.data('id');
+		var level = 0;
+		var position = originalColumn.siblings('.settingsColumn').length;
+		// update DOM data
+		originalColumn.data('title',title).attr('data-title',title);
+		originalColumn.data('level',level).attr('data-level',level);
+		originalColumn.data('position',position).attr('data-position',position);
+		originalColumn.data('wiplimit',wipLimit).attr('data-wiplimit',wipLimit);
+		originalColumn.data('statusids',statusIds).attr('data-statusids',statusIds);
+		console.log('CHILD: Saving change...');
+	} else if (isSwimlane) {
+		// SWIMLANE
+		var id = null;
+		var parent = null;
+		var level = $('#kanbanSettingsContents > .containerColumns').length;
+		var position = 0;
+		// update DOM data
+		originalColumn.data('title',title).attr('data-title',title);
+		originalColumn.data('level',level).attr('data-level',level);
+		originalColumn.data('position',position).attr('data-position',position);
+		originalColumn.data('wiplimit',wipLimit).attr('data-wiplimit',wipLimit);
+		originalColumn.data('statusids',statusIds).attr('data-statusids',statusIds);
+		console.log('CHILD: Saving change...');
+	} else {
+		return false;
+	}
+
+	// update object to be sent
+	var columns = [];
+	columns.push({column:{
+		Id:id,
+		Name:title,
+		Parent_Column__c:parent,
+		Team__c:'{!teamId}',
+		Level__c:level,
+		Position__c:position,
+		Max_Number_of_Records__c:wipLimit
+	}, columnWorkStatusMap: columnWorkStatusMap })
+
+	//processColumn(newColumn); // This is good, but if an error occurs, it won't have form data still filled in...
+	
+	//prevSaveText = $('#updateButton span').text();
+	//$('#updateButton span').text('Saving...');
+	$('button#saveButton span').text('Saving...');
+    $('#settingsDialog').addClass('boardloading');
+    $('.propertyFormOptions').css('visibility','hidden');
+
+	console.log(columns);
+    Visualforce.remoting.Manager.invokeAction('{!$RemoteAction.ADM_KanbanBoardController.saveColumns}', columns, function(result, event) {
+        if (event.status) {
+            // Save good, assign ID, clear errors
+            console.log('Save good!');
+            displaySettingsError(null);
+            $('button#saveButton').hide();
+			//$('#updateButton span').text('Saved!');
+            originalColumn.removeClass('notcreated').attr('id','column-' + result.newColumnId).data('id',result.newColumnId).attr('data-id',result.newColumnId);
+            //setTimeout(function() {
+			//	$('.propertyFormOptions').css('visibility','hidden');
+			//	$('#propertyPanel input[type=radio]').prop('checked',false).removeAttr('disabled');
+			//}, 2000);
+			refreshSettings();
+			//$('#propertyPanel input[type=radio]').prop('checked',false).removeAttr('disabled');
+        } else if (event.type === 'exception') {
+			// Save bad, remove new div, show old div
+            console.warn('Error during save, reverting move.');
+	        $("#settingsDialog").removeClass('boardloading');
+	        $('.propertyFormOptions').css('visibility','visible');
+	        $('button#updateButton,button#saveButton,button#removeColumn').removeAttr('disabled');
+            displaySettingsError(event.message);
+            $('button#saveButton span').text('Save');
+            //$('#updateButton span').text(prevSaveText);
+		}
+	});
+}
+
+// This function is called when you hit remove/cancel column
+function columnRemove() {
+	var originalColumn = $('.settingsColumn.highlight');
+	var newColumn = $('.settingsColumn.notcreated');
+	var isUpdate   = $('#typeUpdate').is(':checked');
+	var isChild    = $('#typeChild').is(':checked');
+	var isSibling  = $('#typeSibling').is(':checked');
+	var isSwimlane = $('#typeSwimlane').is(':checked');
+	var columns = [];
+
+	if (isUpdate) {
+		var parentColumn = originalColumn.closest('.settingsColumn:not(.highlight)');
+        if (parentColumn.length > 0) {
+            var parent = parentColumn.data('id');
+        } else {
+            var parent = null;
+        };
+        columns.push({column:{ Id:originalColumn.data('id'), Active__c:false, Parent_Column__c:parent, Team__c:'{!teamId}', Level__c:originalColumn.data('level'), Position__c:originalColumn.data('position')  }, columnWorkStatusMap:null});
+		originalColumn.addClass('remove');
+		//$('button#removeColumn span').text('Removing...');
+	} else if (isSibling) {
+		var prevColumn = newColumn.prev('.settingsColumn');
+		newColumn.remove();
+		processColumn(prevColumn);
+		return;
+	} else if (isChild) {
+		var prevColumn = newColumn.closest('.settingsColumn:not(.highlight)');
+		newColumn.remove();
+		processColumn(prevColumn);
+		return;
+	} else if (isSwimlane) {
+		newColumn.remove();
+		$('button#saveButton').hide();
+	    $('.propertyFormOptions').css('visibility','hidden');
+		$('#propertyPanel input[type=radio]').prop('checked',false).removeAttr('disabled');
+		displaySettingsError(null);
+		changeMade = false;
+		return;
+	}
+	
+	$('button#saveButton').hide();
+	$('button#updateButton,button#saveButton,button#removeColumn').attr('disabled','disabled');
+    $("#settingsDialog").addClass('boardloading');
+    $('.propertyFormOptions').css('visibility','hidden');
+	$('#propertyPanel input[type=radio]').prop('checked',false).removeAttr('disabled');
+
+	console.log(columns);
+    Visualforce.remoting.Manager.invokeAction('{!$RemoteAction.ADM_KanbanBoardController.saveColumns}', columns, function(result, event) {
+        if (event.status) {
+			$('#typeUpdate,#typeChild,#typeSibling,#typeSwimlane').prop('checked',false);
+            $('.settingsColumn.remove').remove();
+			displaySettingsError(null);
+			//$('button#removeColumn span').text('Removed!');
+			$('button#removeColumn').removeAttr('disabled');
+			//setTimeout(function() {
+	        //    processColumn($('#kanbanContents .settingsColumn:first'));
+			//}, 2000);
+            console.log('Column removed');
+			refreshSettings();
+        } else if (event.type === 'exception') {
+	        $("#settingsDialog").removeClass('boardloading');
+			processColumn($('.settingsColumn.remove'));
+			$('#typeUpdate').prop('checked',true);
+			$('button#saveButton').hide();
+			$('button#updateButton,button#saveButton,button#removeColumn').removeAttr('disabled');
+			//$('button#removeColumn span').text('Remove Column');
+            $('.settingsColumn.remove').removeClass('remove').addClass('highlight');
+			$('.propertyFormOptions').css('visibility','visible');
+            displaySettingsError(event.message);
+            console.warn('Error during remove. Reverting.');
+		}
+	});
+}
+
+function displaySettingsError(message) {
+	if (message == null) {
+		$('#settingsDialog .ui-dialog-error').html(null).hide();
+	} else {
+		$('#settingsDialog .ui-dialog-error').html(trimErrorMessage(message)).show();
+	}
+}
+
+function resizeSettingsColumnHeights() {
+    console.log('Resizing settings column heights');
+    
+    // set height on all kanban related items to AUTO. from there we have a baseline to make adjustments to equalize columns, etc.
+    $('#settingsDialog .containerColumns,#settingsDialog .settingsColumn').css('height','auto');
+    
+    // find the bottom most table in a column, that will be the table that'll need height adjustment to the end of the column to make up for the potential gap
+    $('#settingsDialog .containerColumns > .settingsColumn').find('.containerColumns:last').each(function(){
+            var parent = $(this).parents('.settingsColumn:last');
+            if (parent.length > 0) {
+                console.log('2');
+                // add up all children elements heights within a column so they can be taken out of the equation
+                var parentDirectChildrenHeights = 0;
+                $(this).parents('.settingsColumn:last').find('> div').each(function() {
+	                console.log('3');
+                    parentDirectChildrenHeights += $(this).outerHeight();
+                });
+                
+                // make the new height of the table the height of the parent minus all the parents childrens elements
+                var newHeight = $(this).height() + (parent.outerHeight() - parentDirectChildrenHeights);
+                $(this).height(newHeight).css('border-right','0px');
+            }
+    });
+}
+
+//-----------------------------------------------------------------------------------------------
+// CARD CUSTOMIZATION
+//-----------------------------------------------------------------------------------------------
+function saveCardPreferences() {
+	var kanbanPreferences = {
+			UseColorCoding: $('#UseColorCoding').is(':checked'), 
+			ShowNumberOfDaysInColumn: $('#ShowNumberOfDaysInColumn').is(':checked'),
+			ShowNumberOfTasks: $('#ShowNumberOfTasks').is(':checked'),
+			ShowNumberOfPosts: $('#ShowNumberOfPosts').is(':checked'),
+			ShowPriority: $('#ShowPriority').is(':checked'),
+			ShowScheduledBuild: $('#ShowScheduledBuild').is(':checked'),
+			ShowStoryPoints: $('#ShowStoryPoints').is(':checked'),
+			ShowColoredSubjects: $('#ShowColoredSubjects').is(':checked'),
+			ShowWorkID: $('#ShowWorkID').is(':checked'),			
+			ShowRecordTypeIcon: $('#ShowRecordTypeIcon').is(':checked'),
+			ShowQE: $('#ShowQEPicture').is(':checked')
+		};
+
+	$("#settingsDialog").addClass('boardloading');
+    $('button#saveButton').attr('disabled','disabled');
+	$('button#saveButton span').text('Saving...');
+
+	console.log(kanbanPreferences);
+
+    Visualforce.remoting.Manager.invokeAction('{!$RemoteAction.ADM_KanbanBoardController.saveKanbanWorkCardPreferences}', kanbanPreferences, function(result, event) {
+		$("#settingsDialog").removeClass('boardloading');
+        $('button#saveButton').removeAttr('disabled').hide();
+        $('button#saveButton span').text('Save');
+
+		if (event.status) {
+			console.log('Preferences saved!');
+			//settingsDialog.dialog("close");
+		} else if (event.type === 'exception') {
+			errorDialog.html("Well this is embarrassing! We tried to save the preferences and failed:<br/>" + event.message).dialog({ title: "Error During Save" }).dialog("open");
+			console.error(event.message);
+		}
+    });
+}
+
+function setCardPreferences() {
+		if (kanbanData.kanbanPreferences.UseColorCoding) {
+			$('#UseColorCoding').prop('checked',true);
+			$('#cardColors').show();
+			$('#taskPreviewHolder div.inner-card').css('border-left-color','#0079BF');
+		} else {
+			$('#cardColors').hide();
+			$('#taskPreviewHolder div.inner-card').css('border-left-color','');
+		}
+
+		if (kanbanData.kanbanPreferences.ShowQE) {
+			$('#ShowQE').prop('checked',true);
+		}
+
+		if (kanbanData.kanbanPreferences.ShowNumberOfDaysInColumn) {
+			$('#ShowNumberOfDaysInColumn').prop('checked',true);
+			$('#taskPreviewHolder div.cardNumOfDays').show();
+		} else {
+			$('#taskPreviewHolder div.cardNumOfDays').hide();
+		}
+	
+		if (kanbanData.kanbanPreferences.ShowNumberOfTasks) {
+			$('#ShowNumberOfTasks').prop('checked',true);
+			$('#taskPreviewHolder div.cardNumOfTasks').show();
+		} else {
+			$('#taskPreviewHolder div.cardNumOfTasks').hide();
+		}
+	
+		if (kanbanData.kanbanPreferences.ShowNumberOfPosts) {
+			$('#ShowNumberOfPosts').prop('checked',true);
+			$('#taskPreviewHolder div.cardNumOfPosts').show();
+		} else {
+			$('#taskPreviewHolder div.cardNumOfPosts').hide();
+		}
+	
+		if (kanbanData.kanbanPreferences.ShowPriority) {
+			$('#ShowPriority').prop('checked',true);
+			$('#taskPreviewHolder div.cardPriority').show();
+		} else {
+			$('#taskPreviewHolder div.cardPriority').hide();
+		}
+	
+		if (kanbanData.kanbanPreferences.ShowScheduledBuild) {
+			$('#ShowScheduledBuild').prop('checked',true);
+			$('#taskPreviewHolder div.cardScheduledBuild').show();
+		} else {
+			$('#taskPreviewHolder div.cardScheduledBuild').hide();
+		}
+	
+		if (kanbanData.kanbanPreferences.ShowStoryPoints) {
+			$('#ShowStoryPoints').prop('checked',true);
+			$('#taskPreviewHolder div.cardPoints').show();
+		} else {
+			$('#taskPreviewHolder div.cardPoints').hide();
+		}
+	
+		if (kanbanData.kanbanPreferences.ShowRecordTypeIcon) {
+			$('#ShowRecordTypeIcon').prop('checked',true);
+			$('#taskPreviewHolder div.inner-card-toolbar-workid .fa').show();
+		} else {
+			$('#taskPreviewHolder div.inner-card-toolbar-workid .fa').hide();
+		}
+
+
+		if (kanbanData.kanbanPreferences.ShowQE) {
+			$('#ShowQEPicture').prop('checked',true);
+			$('#taskPreviewHolder div.qepicture').show();
+		} else {
+			$('#taskPreviewHolder div.qepicture').hide();
+		}
+
+	
+		if (kanbanData.kanbanPreferences.ShowWorkID) {
+			$('#ShowWorkID').prop('checked',true);
+			$('#taskPreviewHolder div.inner-card-toolbar-workid span').show();
+		} else {
+			$('#taskPreviewHolder div.inner-card-toolbar-workid span').hide();
+		}
+
+		if (kanbanData.kanbanPreferences.ShowRecordTypeIcon && !kanbanData.kanbanPreferences.ShowWorkID) {
+			$('#taskPreviewHolder div.inner-card-toolbar-workid .fa').addClass('solo');
+		} else {
+			$('#taskPreviewHolder div.inner-card-toolbar-workid .fa').removeClass('solo');
+		}
+	
+		if (!kanbanData.kanbanPreferences.ShowRecordTypeIcon && !kanbanData.kanbanPreferences.ShowWorkID) {
+			$('#taskPreviewHolder div.inner-card-toolbar-workid').hide();
+		} else {
+			$('#taskPreviewHolder div.inner-card-toolbar-workid').show();
+		}
+
+		if (kanbanData.kanbanPreferences.UseColorCoding && kanbanData.kanbanPreferences.ShowColoredSubjects) {
+			$('#ShowColoredSubjects').prop('checked',true);
+			$('#taskPreviewHolder div.inner-card-subject').css('color','#0079BF');
+		} else {
+			$('#taskPreviewHolder div.inner-card-subject').css('color','');
+		}
+}
+
+$(function() {
+	$(document).on('click','#cardCustomizationHolder input[type=checkbox]', function(e) {
+	
+		if ($('#ShowNumberOfDaysInColumn').is(':checked')) {
+			$('#taskPreviewHolder div.cardNumOfDays').show();
+		} else {
+			$('#taskPreviewHolder div.cardNumOfDays').hide();
+		}
+	
+		if ($('#ShowNumberOfTasks').is(':checked')) {
+			$('#taskPreviewHolder div.cardNumOfTasks').show();
+		} else {
+			$('#taskPreviewHolder div.cardNumOfTasks').hide();
+		}
+	
+		if ($('#ShowNumberOfPosts').is(':checked')) {
+			$('#taskPreviewHolder div.cardNumOfPosts').show();
+		} else {
+			$('#taskPreviewHolder div.cardNumOfPosts').hide();
+		}
+	
+		if ($('#ShowPriority').is(':checked')) {
+			$('#taskPreviewHolder div.cardPriority').show();
+		} else {
+			$('#taskPreviewHolder div.cardPriority').hide();
+		}
+	
+		if ($('#ShowScheduledBuild').is(':checked')) {
+			$('#taskPreviewHolder div.cardScheduledBuild').show();
+		} else {
+			$('#taskPreviewHolder div.cardScheduledBuild').hide();
+		}
+	
+		if ($('#ShowStoryPoints').is(':checked')) {
+			$('#taskPreviewHolder div.cardPoints').show();
+		} else {
+			$('#taskPreviewHolder div.cardPoints').hide();
+		}
+	
+		if ($('#ShowRecordTypeIcon').is(':checked')) {
+			$('#taskPreviewHolder div.inner-card-toolbar-workid .fa').show();
+		} else {
+			$('#taskPreviewHolder div.inner-card-toolbar-workid .fa').hide();
+		}
+	
+		if ($('#ShowWorkID').is(':checked')) {
+			$('#taskPreviewHolder div.inner-card-toolbar-workid span').show();
+		} else {
+			$('#taskPreviewHolder div.inner-card-toolbar-workid span').hide();
+		}
+
+		if ($('#ShowQEPicture').is(':checked')) {
+			$('#taskPreviewHolder div.qepicture').show();
+		} else {
+			$('#taskPreviewHolder div.qepicture').hide();
+		}
+	
+		if ($('#ShowColoredSubjects').is(':checked')) {
+			if ($('.cardColorCheckbox input[type=checkbox]:checked').length === 1) {
+				originalColor = rgb2hex($('.cardColorCheckbox input[type=checkbox]:checked').closest('.cardColorRow').find('label').css('background-color'));
+				$('#taskPreviewHolder div.inner-card-subject').css('color',originalColor);
+			} else {
+				$('#taskPreviewHolder div.inner-card-subject').css('color','#0079BF');
+			}
+		} else {
+			$('#taskPreviewHolder div.inner-card-subject').css('color','');
+		}
+	
+		if ($('#ShowRecordTypeIcon').is(':checked') && !$('#ShowWorkID').is(':checked')) {
+			$('#taskPreviewHolder div.inner-card-toolbar-workid .fa').addClass('solo');
+		} else {
+			$('#taskPreviewHolder div.inner-card-toolbar-workid .fa').removeClass('solo');
+		}
+
+		if (!$('#ShowWorkID').is(':checked') && !$('#ShowRecordTypeIcon').is(':checked')) {
+			$('#taskPreviewHolder .inner-card-toolbar-workid').hide();
+		} else {
+			$('#taskPreviewHolder .inner-card-toolbar-workid').show();
+		}
+
+		if ($('#UseColorCoding').is(':checked')) {
+			$('#cardColors').show();
+		} else {
+			$('#cardColors').hide();
+		}
+
+		$('#saveButton').show();
+	});
+	
+	$('#taskPreviewHolder').empty().append(cardTemplate({
+		recordtype:'userstory',
+		id:'000',
+		worktitle:'W-123456',
+		assigneepicurl:'{!currentUserPhoto}',
+		qePicUrl:'{!currentUserPhoto}',
+		numberOfTasks:3,
+        numberOfPosts:2,
+        priority:'P1',
+        scheduledBuild:'196',
+        numberOfDays:4,
+        storyPoints:5,
+        subject:'Add card customization to the Kanban work cards',
+        color:'#0079BF'
+	}));
+
+	$(document).on('click','.cardColor .fa', function(e) {
+		e.preventDefault();
+		e.stopPropagation();
+		
+		if (!confirm('Are you sure you want to remove this color? Any associated cards will lose color.')) {
+			return;
+		}
+		
+		var colorId = [$(this).closest('.cardColorRow').find('input[type=checkbox]').attr('id')];
+		
+		// if actively checked thing is removed, reset form
+		if ($(this).closest('.cardColorRow').find('input[type=checkbox]').is(':checked')) {
+			resetColorForm();
+		}
+		
+		$(this).closest('.cardColorRow').fadeOut(500,function() {
+			$(this).remove();
+		});
+
+	    Visualforce.remoting.Manager.invokeAction('{!$RemoteAction.ADM_KanbanBoardController.removeKanbanColors}', colorId, function(result, event) {
+            if (event.status) {
+				console.log('Color removed');
+            } else if (event.type === 'exception') {
+                console.error('Error adding color: ' + event.message);
+            }
+	    });
+		return false;
+	});
+	
+	$(document).on('change','.cardColorCheckbox input[type=checkbox]', function(e) {
+		// uncheck others
+		if ($('.cardColorRow input[type=checkbox]:checked').length > 0) {
+			$('.cardColorCheckbox input[type=checkbox]:not([id=' + $(this).attr('id') + '])').prop('checked', false);
+		}
+		$('#cardColorButtons button').attr('disabled','disabled');
+	
+		originalColor = rgb2hex($(this).closest('.cardColorRow').find('label').css('background-color'));
+		originalText = $(this).closest('.cardColorRow').find('label span').text();
+	
+		if ($(this).is(':checked')) {
+			$('#cardColorPicker input[type=color]').val(originalColor);
+			$('#cardColorLabel input[type=text]').val(originalText).attr('placeholder','');
+			$('#taskPreviewHolder .inner-card').css('border-left','4px ' + originalColor + ' solid');
+			if ($('#ShowColoredSubjects').is(':checked')) {
+				$('#taskPreviewHolder div.inner-card-subject').css('color',originalColor);
+			} else {
+				$('#taskPreviewHolder div.inner-card-subject').css('color','');
+			}
+		} else {
+			$('#taskPreviewHolder .inner-card').css('border-left','4px #0079BF solid');
+			if ($('#ShowColoredSubjects').is(':checked')) {
+				$('#taskPreviewHolder div.inner-card-subject').css('color','#0079BF');
+			} else {
+				$('#taskPreviewHolder div.inner-card-subject').css('color','');
+			}
+			resetColorForm();
+		}
+	});
+	
+	$(document).on('change keydown','#cardColorPicker input[type=color],#cardColorLabel input[type=text]', function(e) {
+		$('#cardColorButtons button').removeAttr('disabled');
+	});
+	
+	$(document).on('click','#cardColorButtons button', function(e) {
+		e.preventDefault();
+		var newColor = $('#cardColorPicker input[type=color]').val() || '#000000';
+		var newText = $('#cardColorLabel input[type=text]').val();
+
+		if ($('.cardColorRow input[type=checkbox]:checked').length === 1) {
+			// Existing
+			var newColorSelection = {teamColors:[{ Id:$('.cardColorRow input[type=checkbox]:checked').attr('id'), Team__c:'{!teamId}', Color__c:newColor, Name:newText }]};
+			$('.cardColorRow input[type=checkbox]:checked').closest('.cardColorRow').find('label.cardColor').css('background',newColor);
+			$('.cardColorRow input[type=checkbox]:checked').closest('.cardColorRow').find('label.cardColor span').text(newText);
+		} else {
+			// New
+			var newColorSelection = {teamColors:[{ Team__c:'{!teamId}', Color__c:newColor, Name:newText }]};
+			$('#cardColorHolder').prepend(colorCardTemplate({
+				id:'box',
+				color:newColor,
+				label:newText	
+			}));
+			resetColorForm();
+		}
+		
+		console.log(newColorSelection);
+		
+	    Visualforce.remoting.Manager.invokeAction('{!$RemoteAction.ADM_KanbanBoardController.saveKanbanColors}', newColorSelection, function(result, event) {
+            if (event.status) {
+				console.log('Color saved');
+            } else if (event.type === 'exception') {
+                console.error('Error adding color: ' + event.message);
+            }
+	    });
+
+		$('#cardColorButtons button').attr('disabled','disabled');
+	});
+});
+
+function resetColorForm() {
+	$('#cardColorPicker input[type=color]').val('');
+	$('#cardColorLabel input[type=text]').val('').attr('placeholder','Add new...');
+	$('.cardColorCheckbox input[type=checkbox]').prop('checked', false);
+}
+
+var hexDigits = new Array("0","1","2","3","4","5","6","7","8","9","a","b","c","d","e","f"); 
+function rgb2hex(rgb) {
+    if (/^#[0-9A-F]{6}$/i.test(rgb)) return rgb;
+
+    rgb = rgb.match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/);
+    function hex(x) {
+        return ("0" + parseInt(x).toString(16)).slice(-2);
+    }
+    return "#" + hex(rgb[1]) + hex(rgb[2]) + hex(rgb[3]);
+}
+
+function populateColorBox() {
+	// TODO: Put loading indicator on box
+	$('#cardColorHolder').empty();
+	if (kanbanData && kanbanData.teamColors) {
+		$.each(kanbanData.teamColors, function(index, item) {
+			$('#cardColorHolder').append(colorCardTemplate({
+				id:item.Id,
+				color:item[nameSpace + 'Color__c'],
+				label:item.Name
+			}));
+		});
+	}
+}
+
+var hiddenSettings = false;
+
+$(function() {
+	populateColorBox();
+	
+	$("#cardColorHolder").sortable({
+        containment: "#cardColorHolder",
+        connectWith: ".holderWork",
+        axis: "y",
+        items: "> div",
+        dropOnEmpty: true,
+        distance: 30,
+        cursor:"move",
+        forcePlaceholderSize: true,
+        tolerance: "pointer",
+        stop: function(event, ui) {
+	        
+	        var listOfColors = [];
+			$('#cardColorHolder > div').each(function(index) {
+				
+				var newColorSection = {
+					Id:$(this).find('input[type=checkbox]').attr('id'),
+					Order__c:index
+				};
+
+				listOfColors.push(newColorSection);
+			});
+
+			newColorOrder = { teamColors:listOfColors };
+			console.log(newColorOrder);
+			
+		    Visualforce.remoting.Manager.invokeAction('{!$RemoteAction.ADM_KanbanBoardController.saveKanbanColors}', newColorOrder, function(result, event) {
+	            if (event.status) {
+					console.log('Color re-order saved');
+	            } else if (event.type === 'exception') {
+	                console.error('Error adding color: ' + event.message);
+	            }
+		    });
+        }
+    }).disableSelection();
+
+	settingsDialog = $("#settingsDialog").dialog({
+        autoOpen: false,
+        resizable: false,
+        width:1100,
+        modal: true,
+        title: "Settings",
+        buttons: {
+            "Save": {
+	            text: "Save",
+	            id: "saveButton",
+	            click: function() {
+	            	if ($('#boxSettingsColumn').is(':visible')) {
+		            	columnUpdate();
+	            	} else if ($('#boxSettingsCards').is(':visible')) {
+		            	saveCardPreferences();
+	            	} else if ($('#boxSettingsData').is(':visible')) {
+		            	saveData();
+	            	} else if ($('#boxSettingsMisc').is(':visible')) {
+		            	saveMisc();
+	            	}
+				}
+            },
+            "Close": function() {
+                settingsDialog.dialog("close");
+            }
+        },
+        open: function(event, ui) {
+	        console.log('Opening settings dialog... refreshing data...');
+			populateStatuses(workStatusesObject);
+			resetColorForm();
+			populateColorBox();
+	        $('button#saveButton').hide();
+			refreshSettings();
+			changeMade = false;
+			$('.whiteColumnHolder').removeClass('error');
+			showSettingsBox('#boxSettingsColumn','#tabSettingsColumns a');
+        },
+        close: function(event, ui) {
+	        refreshBoard();
+        },
+        beforeClose: function(event, ui) {
+	        if ($('.settingsColumn').hasClass('highlight') && $('#typeUpdate,#typeChild,#typeSibling,#typeSwimlane').is(':checked')) {
+				if (confirm('You are about to close settings without saving.\nClick OK to close or CANCEL to continue editing.')) {
+					$('#columnName').focus();
+				} else {
+					return false;
+				}
+	        }
+        }
+    });
+
+    $(window).resize(function() {
+		settingsDialog.dialog("option", "position", {my: "center", at: "center", of: window});
+	});
+
+	// Button on Kanban Board
+    $("#buttonSettings").on("click", function() {
+		settingsDialog.dialog("open");
+    });
+    
+    // Button on Settings Dialog
+	$(document).on('click','button#removeColumn', function(e) {
+		columnRemove();
+		e.stopPropagation();
+    });
+    
+    // On Settings Dialog
+	$(document).on('click','.settingsColumn', function(e) {
+		processColumn($(this));
+		e.stopPropagation();
+	});
+
+	//settingsDialog.dialog("open");
+});	
+</script>
+</apex:page>

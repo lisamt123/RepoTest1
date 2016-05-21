@@ -1,0 +1,29 @@
+<apex:component controller="KnowledgeController">
+	<apex:outputPanel styleClass="pkbGrayPanel" layout="block">
+		<apex:outputPanel styleClass="pkbGrayPanelTop" layout="block" />
+		<apex:outputPanel styleClass="pkbGrayPanelInner" layout="block"
+			rendered="{!rootCategoryName!=''}">
+			<ul>
+				<knowledge:categoryList categoryGroup="{!categoryGroupName}"
+					rootCategory="{!rootCategoryName}" categoryVar="category"
+					level="-1">
+					<apex:variable var="liclass"
+						value="{!IF(category.depth=1, 'maincategory', IF(category.depth=2, 'subcategory', 'subsubcategory'))}" />
+					<li class="{!liclass} "><apex:outputLink value="{!productUrl}"
+							styleClass="{!IF(currentCategory==category.name, 'currentcategory', '')}">
+							<apex:outputText escape="false"
+								value="{!IF(category.depth<4, '', IF(category.depth=4, '.&nbsp;&nbsp;', IF(category.depth=5, '.&nbsp;&nbsp;.&nbsp;&nbsp;', IF(category.depth=6, '.&nbsp;&nbsp;.&nbsp;&nbsp;.&nbsp;&nbsp;', '.&nbsp;&nbsp;.&nbsp;&nbsp;.&nbsp;&nbsp;.&nbsp;&nbsp;'))))}" />
+                           {!category.label}
+                           <apex:param name="{!categoryParameterName}"
+								value="{!category.name}" />
+							<apex:param name="{!keywordParameterName}"
+								value="{!currentKeyword}" />
+							<apex:param name="{!languageParameterName}"
+								value="{!currentLanguage}" />
+						</apex:outputLink>
+					</li>
+				</knowledge:categoryList>
+			</ul>
+		</apex:outputPanel>
+	</apex:outputPanel>
+</apex:component>

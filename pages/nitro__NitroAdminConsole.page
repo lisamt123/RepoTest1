@@ -1,0 +1,23 @@
+<apex:page controller="nitro.NitroAdminConsoleController" showHeader="true" tabStyle="Nitro_Settings_New__tab" action="{!init}">
+   
+    <!-- We need to integrate build verion -->
+    <link href="https://sfdcassets.bunchball.net/v.3.0/nitroforsalesforce.css" rel="stylesheet" type="text/css"></link>
+
+    <script type="text/javascript"> 
+        var page = "settings"; 
+        var buildVersion = "{!buildVersion}";
+        var nitroReadFn = '{!$RemoteAction.NitroAdminConsoleController.nitroRead}'; 
+        var nitroCreateFn = '{!$RemoteAction.NitroAdminConsoleController.nitroCreate}';
+        var nitroUpdateFn = '{!$RemoteAction.NitroAdminConsoleController.nitroUpdate}';
+        var nitroDeleteFn = '{!$RemoteAction.NitroAdminConsoleController.nitroDelete}';
+        var apiSession = '{!$Api.Session_ID}';
+    </script>
+    
+    <script data-main="https://sfdcassets.bunchball.net/v.3.0/js/main-built" src="https://sfdcassets.bunchball.net/v.3.0/js/libs/require.js"></script>
+                        
+    <apex:form rendered="{!!isFree}">
+        <div class="settings-page"></div>
+        <c:DisabledFeatureOverlay isFree="{!isFree}" verifyAction="{!verifyEdition}" />
+    </apex:form>
+
+</apex:page>

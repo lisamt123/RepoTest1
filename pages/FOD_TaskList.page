@@ -1,0 +1,67 @@
+<apex:page controller="FOD_TaskListCtrl" showHeader="false" sidebar="false" readonly="true">
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css"></link>
+<script src="https://use.typekit.net/nsi6vfo.js"></script>
+<script>try{Typekit.load({ async: true });}catch(e){}</script>
+
+<c:FOD_CSS />
+<c:FOD_TableCSS />
+
+<script>
+  function gotodashboard() {
+      top.location.href="/apex/FODashboard";
+  }   
+</script>
+
+<div class="row title">
+    <div class="col-lg-2"></div>
+    <div class="col-lg-10">
+        <h2 class="detailHeader">{!pageTitle}</h2>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-2">
+        <input type="button" class="detailBackBtn" id="backbtn" onclick="gotodashboard();"></input>
+    </div>
+    <div class="col-lg-10">
+        <div class="tableContainer" id="tableContainer">
+        <apex:form >
+            <apex:pageBlock id="theblock">
+                <apex:pageBlockTable value="{!taskList}" var="t" styleClass="scrollTableProject">
+                    <!--apex:column headerValue="Account" value="{!t.accName}"/-->
+                    <apex:column >
+                        <apex:facet name="header">
+                            <apex:commandLink value="Subject" action="{!sortBySubject}" reRender="theblock"/>
+                        </apex:facet>
+                        <apex:outputText value="{!t.subject}"/>
+                    </apex:column>
+                    <apex:column >
+                        <apex:facet name="header">
+                            <apex:commandLink value="Assigned" action="{!sortByAssigned}" reRender="theblock"/>
+                        </apex:facet>
+                        <apex:outputText value="{!t.assigned}"/>
+                    </apex:column>
+                    <apex:column >
+                        <apex:facet name="header">
+                            <apex:commandLink value="Status" action="{!sortByStatus}" reRender="theblock"/>
+                        </apex:facet>
+                        <apex:outputText value="{!t.status}"/>
+                    </apex:column>
+                    <apex:column >
+                        <apex:facet name="header">
+                            <apex:commandLink value="Date" action="{!sortByActDate}" reRender="theblock"/>
+                        </apex:facet>
+                        <apex:outputText value="{0, date, MM'/'dd'/'yyyy}">
+                            <apex:param value="{!t.tdate}" />
+                        </apex:outputText>
+                    </apex:column>
+                </apex:pageBlockTable>
+            </apex:pageBlock>
+        </apex:form>
+        </div>  
+    </div>
+</div>
+
+    
+</apex:page>

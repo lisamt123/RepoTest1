@@ -1,0 +1,70 @@
+<apex:page controller="WelcomePacketWizard" showHeader="false"
+	cache="false">
+	<head>
+<apex:stylesheet value="{!$Resource.styles}"></apex:stylesheet>
+	</head>
+
+	<script>
+function confirmCancel()
+{
+	var isCancel = confirm("Are you sure you wish to quit?");
+	return isCancel;
+}
+</script>
+
+	<table border="0" width="100%" height="100%" id="bg">
+		<tr valign="top">
+			<td>
+				<div class="maincontainer">
+					<apex:image id="key1" width="100%"
+						value="/resource/1265230873000/Header" />
+
+					<apex:sectionHeader title="VinSolutions Welcome Packet"
+						subtitle="{!if(welcome.Packet_Includes__c!=null,'Step 6 of 13', '')}" />
+
+					<apex:form >
+						<apex:pageBlock title="DMS PUSHING">
+
+							<table border="0" width="100%" align="center">
+								<tr align="center">
+									<td align="center"><apex:commandButton action="{!step5}"
+											value="Previous Step" /> <apex:commandButton action="{!step7}" value="Next Step" /> <apex:commandButton action="{!cancel}" value="Save & Quit"
+											onclick="return confirmCancel()" immediate="true" /> <apex:commandButton action="{!confirmCRM}" value="Save - To Confirmation Page"
+											rendered="{!if(welcome.Packet_Includes__c!=null&&welcome.ReachedCRMConfirm__c, true, false)}" />
+									</td>
+								</tr>
+							</table>
+
+
+							<apex:pageBlockSection collapsible="false" title="DMS Push"
+								columns="1"></apex:pageBlockSection>
+					With certain VinSolutions CRM packages, you are able to push deals desked within VinSolutions 
+					to your DMS providing your DMS is Auto Soft, Reynolds, ADP Reflections, or ADP WebSuite 200x.<br />
+							<br /> 
+					
+					In order to push deals from VinSolutions, a DMS connector must be installed on a computer 
+					that has access to the DMS and is not shut off. Additionally - we will need certain access 
+					levels set as well as a username and password created for us on your DMS.<br />
+							<br />
+					
+					A VinSolutions Representative will contact you to install this connector via WebEX.				
+				<apex:pageBlockSection collapsible="false" title=""></apex:pageBlockSection>
+
+							<table border="0" width="100%" align="center">
+								<tr align="center">
+									<td align="center"><apex:commandButton action="{!step5}"
+											value="Previous Step" /> <apex:commandButton action="{!step7}" value="Next Step" /> <apex:commandButton action="{!cancel}" value="Save & Quit"
+											onclick="return confirmCancel()" immediate="true" /> <apex:commandButton action="{!confirmCRM}" value="Save - To Confirmation Page"
+											rendered="{!if(welcome.Packet_Includes__c!=null&&welcome.ReachedCRMConfirm__c, true, false)}" />
+									</td>
+								</tr>
+							</table>
+
+						</apex:pageBlock>
+
+					</apex:form>
+				</div>
+			</td>
+		</tr>
+	</table>
+</apex:page>

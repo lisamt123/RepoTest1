@@ -1,0 +1,1510 @@
+<apex:page standardController="Opportunity"
+	extensions="DMAPP.AssessmentController" 
+	showHeader="true" 
+	sidebar="false"
+	action="{!logTASAssessmentUsage}"
+	docType="html-5.0"
+	>
+		
+	<c:jQuery cookies="true"
+		jQueryUI="true"
+		underscore="true"
+		tooltip="true"
+        paging="true"
+        chosen="true"/>
+		
+	<c:MobileRedirect smartOM="true" />
+    
+	<script type="text/javascript" src="{!$Resource.DMAPP__l10njs}"></script>
+	
+	<script type="text/javascript" src="{!URLFOR($Resource.ttgomjs, 'ttg/lib/ttgservice.js')}"></script>
+	
+	<!-- <script type="text/javascript" src="{! URLFOR($Resource.tooltipjs) }"></script> -->
+	
+	<apex:include pageName="DMAPP__Debug" />
+	<script type="text/javascript" src="{!URLFOR($Resource.ftk, 'forcetk.js')}"></script>
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__ttgomjs, 'ttg/lib/modernizr.js')}"/>	
+	<apex:includeScript value="{!URLFOR($Resource.DMAPP__ttgomjs, 'ttg/lib/ttgutils.js')}"/>		
+	<script type="text/javascript" src="{!URLFOR($Resource.dvls, 'js/flowplayer-3.2.6.js')}"></script>
+	<apex:include pageName="DMAPP__Quicklinks" />
+	
+	<script>
+
+		var ttg = ttg || {};		
+		ttg.pre_fetch = ttg.pre_fetch || {};		
+		ttg.pre_fetch['DMAPP.AssessmentController.getAssessment'] = '{!JSENCODE(prefetchAssessment)}';				
+	
+	</script>
+		
+	<apex:include pageName="DMAPP__JSRemoting" />
+  	
+	<div id="TAS">
+		<apex:include pageName="DMAPP__SummaryTab2" />
+		<br />
+		<div id="AssessmentResult"></div>
+		<div id="NOTEDIALOG" style="display: none;">
+			<TEXTAREA id="NOTEEDITOR" />
+			<span id="NOTE_CRITERIA" /> <span id="NOTE_HELP" /> <input type="hidden" id="NOTEEDITOR_ID" />
+		</div>
+
+		<div id="QUICKEDITDIALOG" style="display: none;">
+			<div id="QE_CRITERIA"></div>
+			<div id="QE_SELECTION"></div>
+		</div>
+		<div id="SPINNER"></div>
+	</div>
+
+
+	<script>
+
+		/* 
+		 * Copyright © The TAS Group. All rights reserved.
+		 *  
+		 */    
+        var spec = {
+            ttgApi: ttg.apiLayer.sfdcDelegate( { sessionid : '{!JSENCODE($Api.Session_ID)}', opportunityid : '{!JSENCODE(Opportunity.id)}' } ),
+            readonly: {!Editable == false}
+            
+        };
+        
+        
+        var ttg_assessment = (function(_spec) {
+
+            var that = {};
+            
+            var data;
+            var ttgApi = _spec.ttgApi;
+            var criteriaToIndex= [];
+            var limitSize = 2048;
+            var readonly = _spec.readonly;
+			var iPad = ttg.isTouchScreen(); //navigator.userAgent.match(/iPad/i) != null;			
+
+            function getAssessment() {
+
+                showAjaxSpinner(true);
+				wrapGet ('{!JSENCODE(Opportunity.id)}', completedGet);
+
+            }
+
+            function updateRawData(d) {
+                data = d;
+                
+            }
+
+            function completedGet() {
+
+                showAjaxSpinner(false);
+                refreshDebug();
+                render();
+                setScores();
+                updateAllSummaryTotals();
+                autoExpandBlocks(5);
+            }
+
+            function completedPut() {
+                showAjaxSpinner(false);
+
+                refreshDebug();
+            }
+
+            function handleResponse(d) {
+                response = d;
+                if (d.debug != undefined && d.debug != null) {
+
+	                jQuery.each(d.debug, 
+	                	function (key, value) {
+                        	_debug.log(value);
+	                	}
+	                )
+
+                }
+                
+            }
+
+
+            function refreshDebug() {
+                _debug.handleResponse(data);
+            }
+            
+            function quicklinkHitSuccess() {}
+            function quicklinkHitError() {} 
+            function quicklinkHitComplete() {}
+            
+            function quicklink(quicklinkRecords, criterionText) {
+
+                var qls = [];
+                var collection = [];                
+
+                jQuery.each(quicklinkRecords, 
+               		function (key, rawLinkData) {
+               		
+	                    collection.push({ id: rawLinkData.Id, name: rawLinkData.Name, type: rawLinkData[ttg.vfp+'Type__c'], description: rawLinkData[ttg.vfp+'Description__c'], link: rawLinkData[ttg.vfp+'Link__c'] });
+	                    
+					}
+                )
+
+                qls.push(collection);
+                var _tasQuicklinks = new QUICKLINKS({});
+                
+                _tasQuicklinks.setQuicklinkHitCallback(function(spec, quicklink) {
+            		if(ttgApi) {
+                        ttgApi.logQuicklinkUsageHitJS(quicklink.id, quicklinkHitSuccess, quicklinkHitError, quicklinkHitComplete);
+                	}
+                });
+                
+                _tasQuicklinks.setDM_Quicklinks(qls);
+                _tasQuicklinks.quicklinkDlg(0, criterionText);
+                
+            }
+
+            function lineChange(){
+
+                setScoreItem(jQuery(this), jQuery(this).val());
+                var index = idToIndex(this.id);
+                if (index != -1) {
+                    showAjaxSpinner(true);
+                    wrapPutPost(packageLine(index), completedPut)
+                }
+                
+                updateSummaryScore(jQuery(this), true);
+            }
+            
+            function updateSummaryScore(ctrl, updateTotal) {
+            
+                var id = jQuery(ctrl).attr('id');
+				if (id != undefined) {
+	                var criteriaIndex = idToIndex(id);
+	
+	                var questionBlock = jQuery(ctrl).parent().attr('QuestionBlock');
+	
+	                var competitorIndex;
+	                if (id.substring(0,4) == 'THEM' ) {
+	                    competitorIndex = id.substring(4, id.length);
+	                    competitorIndex = competitorIndex.substring(competitorIndex.indexOf('_') + 1, competitorIndex.length);
+	                }
+	
+	                updateSummaryScoreItem(ctrl, id, criteriaIndex, questionBlock, competitorIndex);
+	                if (updateTotal) updateSummaryScoreTotal(criteriaIndex, questionBlock, competitorIndex);
+	            }
+            }
+
+            function updateSummaryScoreTotal(criteriaIndex, questionBlock, competitorIndex) {
+            
+                var criteria = getCriteriaInBlock(data.criteria[criteriaIndex][ttg.vfp+'TAS_Question__c']);
+                var id;
+                var total = 0;
+                var minScore = 0;
+                var maxScore = 0;
+                var crit;
+                var anAnswer = false;
+
+                jQuery.each(criteria, 
+                	function(key, crit) {
+	                    if (competitorIndex == undefined) id = 'US_' + crit.index; else id = 'THEM' + crit.index + '_' + competitorIndex;
+	                
+	                    var val = jQuery('#' + id).val();
+	                    maxScore += Math.max(0, Math.max(crit.criteria[ttg.vfp+'Yes_Score__c'], crit.criteria[ttg.vfp+'No_Score__c']));  
+	                    minScore += Math.min(0, Math.min(crit.criteria[ttg.vfp+'Yes_Score__c'], crit.criteria[ttg.vfp+'No_Score__c']));  
+	
+	                    switch(val) {
+	                        case '': break;
+	                        case 'Yes': anAnswer=true;total += crit.criteria[ttg.vfp+'Yes_Score__c']; break;
+	                        case 'No': anAnswer=true;total += crit.criteria[ttg.vfp+'No_Score__c']; break;
+	                        case 'Unknown': anAnswer=true;total += crit.criteria[ttg.vfp+'Unknown_Score__c']; break;
+	                    }
+                	}
+                ) 
+
+				r = 255; g = 190; b = 0
+				if (total > 0 ) {
+					var percent = (total/maxScore) * 100;
+	
+					if (percent > 33) {
+						r = 1; g = 144; b = 64
+					}
+				}
+				else if (total < 0) {
+					var percent = (total/minScore) * 100;
+
+					if (percent > 33) {
+						r = 204; g = 0; b = 0
+					}
+				}
+
+
+				if (competitorIndex == undefined) {
+					jQuery('#QUESTION_SUMMARY_US_' + questionBlock + '_TOTAL').text(total)
+					setRGBStuff('#QUESTION_SUMMARY_US_' + questionBlock + '_TOTAL', r, g, b, anAnswer);
+				}
+				else {
+					jQuery('#QUESTION_SUMMARY_THEM_' + questionBlock + '_' + competitorIndex + '_TOTAL').text(total)
+					jQuery('#QUESTION_SUMMARY_THEM_' + questionBlock + '_' + competitorIndex + '_TOTAL').parent().css('background-color', 'RGB(' + r + ', ' + g + ', ' + b + ')')
+					setRGBStuff('#QUESTION_SUMMARY_THEM_' + questionBlock + '_' + competitorIndex + '_TOTAL', r, g, b, anAnswer);
+				}
+
+            }
+            
+            function setRGBStuff(id, r, g, b, answered) {
+				if (answered) {
+					jQuery(id).parent().css('background-color', 'white').css('border-color', 'RGB(' + r + ', ' + g + ', ' + b + ')');
+				}
+				else {
+					jQuery(id).parent().css('background-color', 'white').css('border-color', 'RGB(160, 160, 160)');
+				}
+            }
+            
+            function updateAllSummaryTotals() {
+                var title = '';
+                var questionBlock = 0;
+
+                jQuery.each(data.criteria, 
+                	function (index, criteria) {
+	                    if (title != criteria[ttg.vfp+'TAS_Question__c']) {
+	
+	                        title = criteria[ttg.vfp+'TAS_Question__c'];
+	                        questionBlock++;
+	
+	                        updateSummaryScoreTotal(index, questionBlock)
+	
+							jQuery.each(data.criteria, 
+                				function (competitorIndex, criteria) {
+	        	                    updateSummaryScoreTotal(index, questionBlock, competitorIndex)
+                				}
+                			)
+	
+	                    }
+                	}
+                ) 
+            }
+            
+            
+            function updateSummaryScoreItem(ctrl, id, criteriaIndex, questionBlock, competitorIndex) {
+            
+                var val = jQuery(ctrl).val();
+
+                var ctrl;
+                if (competitorIndex == undefined) {
+                    ctrl = jQuery('#QUESTION_SUMMARY_US_' + questionBlock + '_' + criteriaIndex);
+                }
+                else {
+                    ctrl = jQuery('#QUESTION_SUMMARY_THEM_' + questionBlock + '_' + competitorIndex + '_' + criteriaIndex);
+                }
+                
+                applySummaryStyle(ctrl, val);
+
+            }
+
+            function applySummaryStyle(ctrl, val) {
+            
+                var style = ''; 
+                
+                switch(val) {
+                    case 'Yes': val ='+'; style='divScoreYes'; break;
+                    case 'No': val ='-'; style='divScoreNo'; break;
+                    case 'Unknown': val ='?'; style='divScoreUnknown'; break;
+                    default: style='divScoreUnscored'; val =' '; break;
+                }
+                
+                ctrl.removeClass('divScoreUnscored');
+                ctrl.removeClass('divScoreYes');
+                ctrl.removeClass('divScoreNo');
+                ctrl.removeClass('divScoreUnknown');
+                ctrl.addClass(style);
+                
+                ctrl.text(val)
+            }
+
+
+            
+
+
+            function idToIndex(id) {
+                var index = -1;
+                if (id.substring(0,3) == 'US_') {
+
+                    index = id.substring(3, id.length);
+
+                }
+                else if (id.substring(0,4) == 'THEM' ) {
+
+                    index = id.substring(4, id.length);
+                    index = index.substring(0, index.indexOf('_'));
+
+                }
+                else if (id.substring(0,4) == 'NOTE' ) {
+
+                    index = id.substring(4, id.length);
+
+                }
+                else {
+                    _debug.error('Something changed but not one of the expected.  Woz ' + id);
+                }
+                
+                return index;
+            }
+
+            function scoreCtrl(id, crit) {
+
+                var scoresOnTheDoor = jQuery('<select>').attr('id', id).change(lineChange);
+                
+                if (readonly) scoresOnTheDoor.attr('disabled', 'true');
+                
+                scoresOnTheDoor.append(jQuery('<option>'))
+                scoresOnTheDoor.append(jQuery('<option>').addClass('optionYesAnswer').attr('value', 'Yes').text('+ ' + crit[ttg.vfp+'Yes_Label__c']))
+                scoresOnTheDoor.append(jQuery('<option>').addClass('optionNoAnswer').attr('value', 'No').text('- ' + crit[ttg.vfp+'No_Label__c']))
+                scoresOnTheDoor.append(jQuery('<option>').addClass('optionUnknownAnswer').attr('value', 'Unknown').text('? Unknown'))
+                
+                return scoresOnTheDoor;
+            } 
+
+            function scoreCtrlShadow (id, crit) {
+
+                var div = jQuery('<div>').attr('id', id+'_SHADOW');
+                
+                div.addClass('SCOREBLOCK_SCORE');
+                div.addClass('SCOREBLOCK_SCORE_SHADOW');
+                div.addClass('divScoreUnscored');
+
+                return div;
+            }
+
+            function hiddenCtrl(id, crit) {
+                return jQuery('<input>').attr('id', id).attr('type', 'hidden');
+            } 
+
+            function packageLine(index) {
+                var line = { }
+                var criteria = data.criteria[index];
+                
+                line.criteriaId = criteria.Id;
+                line.ourAnswer = jQuery('#US_' + index).val();
+
+                line.note = getNoteText('#NOTE_' + index);
+
+                line.competitorAnswers = [];
+
+                jQuery.each(data.competitors,
+                	function (competitorIndex, competitor) {
+	                    line.competitorAnswers.push({ competitorId: competitor[ttg.vfp+'OpportunityCompetitor__c'], answer: jQuery('#THEM' + index + '_' + competitorIndex).val(), id: jQuery('#HIDDEN' + index + '_' + competitorIndex).val() });
+                	}
+                )
+
+                return line;
+            }
+                        
+            function render() {
+                var criteriaInQuestion;
+                var title = '';
+                var criteriaIndex = 1;
+                var questionBlock = 0;
+                var table = jQuery('<div>')
+
+                var noQuestionsSupportingCompetitorAnswers = false;
+                
+                if(data.criteria && data.criteria.length > 0) {
+                	noQuestionsSupportingCompetitorAnswers = !(_.find(data.criteria, function(criteria) { return criteria[ttg.vfp+'Support_Competitor_Answer__c']; }));
+                }
+                
+                appendTitles('competitorBar', 'competitorCommonTitle competitorTitle', true, !noQuestionsSupportingCompetitorAnswers);
+
+                var maxQuestions = 0;
+                var questionsInBlock = 0;
+                var firstblock = true;
+                
+                jQuery.each(data.criteria,
+                	function (index, crit) {
+	                    
+	                    criteriaToIndex[crit.Id] = index;
+	                    questionsInBlock++;
+	
+	                    if (title != crit[ttg.vfp+'TAS_Question__c']) {
+	                        maxQuestions = Math.max(maxQuestions, questionsInBlock);
+	                        questionsInBlock = 1;
+	                        title = crit[ttg.vfp+'TAS_Question__c']
+	                        if (table != null) jQuery('#AssessmentResult').append(table);
+	
+	                        if (!firstblock) {
+	                            appendTitles('competitorBar competitorBarGap', 'competitorCommonTitle competitorGap', false, !noQuestionsSupportingCompetitorAnswers);
+	                        }
+	                        else {
+	                            firstblock = false;
+	                        }
+	
+	                        
+	                        table = jQuery('<div>').addClass('divQuestionsBlock') 
+	
+	                        criteriaInQuestion = getCriteriaInBlock(title)
+	                        questionBlock++;
+	
+	                        tr = jQuery('<div>').addClass('divQuestionBlock').attr('id', 'QUESTIONBLOCKSUMMARY_' + questionBlock);
+	                        tr.append(jQuery('<span>').addClass('spanToggle').addClass('tasPointer').click(toggle));
+	                        
+	                        // Provides for a larger area of toggle for touch devices
+	                        tr.append(
+	                        	jQuery('<span>').addClass('tasPointer')
+	                        		.append(
+			                        	jQuery('<span>').addClass('spanQuestion')
+		                        			.html(crit[ttg.vfp + 'TAS_Question__c'])
+			                        ).click(toggle)
+	                        );
+	                        
+	                        tr.append(jQuery('<span>').addClass('spanQuestionSummary').attr('id', 'QUESTION_SUMMARY_US_' + questionBlock).append(blankSummaryBlock('QUESTION_SUMMARY_US_' + questionBlock, criteriaInQuestion, false)));
+	
+	                        var i = 0;
+							
+							if(!noQuestionsSupportingCompetitorAnswers) {
+				                jQuery.each(data.competitors,
+				                	function (competitorIndex, competitor) {
+			                            tr.append(jQuery('<span>').addClass('spanQuestionSummary').attr('id', 'QUESTION_SUMMARY_THEM_' + questionBlock + '_' + i).append(blankSummaryBlock('QUESTION_SUMMARY_THEM_' + questionBlock + '_' + i, criteriaInQuestion, true)));
+			                            i++;
+			                        }
+								);
+							}
+	    
+	                        
+	                        tr.append(jQuery('<span>').addClass('spanBreak'));
+	                        
+	                        table.append(tr);                                   
+	
+	                    }
+	                    
+	                    jQuery('#QUESTION_SUMMARY_US_' + questionBlock).append(jQuery('<span>').attr('id', 'QUESTION_SUMMARY_US_' + questionBlock + '_SCORE_' + criteriaIndex).text(' '));
+	
+	                    jQuery('#QUESTION_SUMMARY_US_' + questionBlock).append(' ')
+	
+	
+	                    var tr = jQuery('<div>').addClass('divCriteriaBlock').attr('id', 'QUESTIONBLOCK' + questionBlock).addClass('HIDDEN');
+	                    tr.append(jQuery('<span>').addClass('spanCriteriaIndex').text(criteriaIndex++));
+	                    
+	                    tr.append(jQuery('<span>').addClass('spanCriteria').text(crit[ttg.vfp+'Criterion_Text__c']));
+	                    tr.append(jQuery('<span>').addClass('spanCriteriaInfo').append(jQuery('<div>').addClass('NOTEINFOICON').addClass('tasPointer').attr('id', 'NOTEINFOICON_' + index).css('visibility', !iPad ? 'visible' : 'hidden')));
+	                    tr.append(jQuery('<span>').addClass('spanCriteriaNote').append(jQuery('<div>').addClass('NOTEEDITBUTTON').addClass('tasPointer').attr('id', 'NOTEEDITBUTTON_' + index)));
+	                    tr.append(jQuery('<span>').addClass('spanCriteriaSummary').attr('QuestionBlock', questionBlock).append(scoreCtrl('US_' + index, crit)).append(scoreCtrlShadow('US_' + index, crit)))
+	
+						var sca = crit[ttg.vfp+'Support_Competitor_Answer__c'];
+						
+						if(!noQuestionsSupportingCompetitorAnswers) {
+			                jQuery.each(data.competitors,
+			                	function (competitorIndex, competitor) {
+			                        
+			                        tr.append(jQuery('<span>').addClass('spanCriteriaSummary' + (sca ? '' : ' hideCompetitveAnswer')).attr('QuestionBlock', questionBlock).append(scoreCtrl('THEM' + index + '_' + competitorIndex, crit)).append(scoreCtrlShadow('THEM' + index + '_' + competitorIndex, crit)).append(hiddenCtrl('HIDDEN' + index + '_' + competitorIndex)));
+	
+								}	                        
+		                    );
+	                    }
+	
+	                    if (crit[ttg.vfp+'DM_Quicklinks__r'] && crit[ttg.vfp+'DM_Quicklinks__r'].records && crit[ttg.vfp+'DM_Quicklinks__r'].records.length > 0) {
+	                        //var ctrlQuicklink = jQuery('<div>').addClass('QUICKLINK').addClass('tasPointer').click(quicklink).attr('id', index);
+ 							var ctrlQuicklink = jQuery('<div>').addClass('QUICKLINK').addClass('tasPointer').click(function() {
+ 							   	var records = data.criteria[this.id][ttg.vfp+'DM_Quicklinks__r'].records;
+	                        	quicklink(records, crit[ttg.vfp+'Criterion_Text__c']);
+	                        }).attr('id', index);	                        
+	                    	
+	                        tr.append(jQuery('<span>').addClass('spanCriteriaQuicklink').append(ctrlQuicklink));
+	                    }
+	                    
+	                    tr.append(jQuery('<div>').attr('id', 'NOTE_' + index));
+	                    
+	                    table.append(tr);                                   
+	                }
+				)
+				
+                jQuery('#AssessmentResult').append(table);
+                if (!iPad) {
+                	jQuery('.SCOREBLOCK_SCORE').tooltip({ delay: 0, showURL: false, bodyHandler: function() { return getHoverInformation(this, jQuery(this).attr('id')); } });
+	                jQuery('.NOTEINFOICON').tooltip({ delay: 0, showURL: false, bodyHandler: function() { return getHelpInformation(jQuery(this).attr('id')); } });
+                }
+
+                appendTitles('competitorBar', 'competitorCommonTitle competitorFooter', true, !noQuestionsSupportingCompetitorAnswers);
+				maxQuestions = Math.max(maxQuestions, questionsInBlock);
+                var finalWidth = 390 + ((70 + (20 * Math.max(5, maxQuestions))) * ((noQuestionsSupportingCompetitorAnswers ? 0 : data.competitors.length) + 1));
+                jQuery('#AssessmentResult').css('width', finalWidth + 'px')
+                jQuery('.competitorCommonTitle').css('width', (50 + (18 * Math.max(5, maxQuestions))) +'px')
+                jQuery('.spanQuestionSummary').css('width', (70 + (18 * Math.max(5, maxQuestions))) +'px')
+                jQuery('.spanCriteriaSummary').css('width', (60 + (18 * Math.max(5, maxQuestions))) +'px')
+
+				if (!readonly) {
+           			jQuery('.SCOREBLOCK_SCORE').click( handleScoreBlockClick );
+				}
+				
+                setupNoteDialog();
+                setupQuickEditDialog();
+                
+                setUpMaxLimitCheck();
+            }
+
+			function handleScoreBlockClick() {
+				var id = jQuery(this).attr('id');
+				if (0 == id.indexOf('US_') || 0 == id.indexOf('THEM')) {
+					id = id.replace('_SHADOW', '');
+				}
+				else if (0 == id.indexOf('QUESTION_SUMMARY_US_')) {
+					id = id.replace('QUESTION_SUMMARY_US_', '');
+                   	id = id.substring(id.indexOf('_') + 1, id.length);
+                   	id = 'US_' + id;
+				}
+				else if (0 == id.indexOf('QUESTION_SUMMARY_THEM_')) {
+					id = id.replace('QUESTION_SUMMARY_THEM_', '');
+                   	id = id.substring(id.indexOf('_') + 1, id.length);
+					var c = id.substring(0, id.indexOf('_'))
+                   	id = id.substring(id.indexOf('_') + 1, id.length);
+                   	id = 'THEM' + id + '_' + c;
+				}
+				
+				var v = jQuery('#' + id).val();
+                switch (v) {
+                    case 'Yes': v = 'No'; break;
+                    case 'No': v = 'Unknown'; break;
+                    case 'Unknown': v = 'Yes'; break;
+                    default: v = 'Yes'; break;
+                }
+
+				jQuery('#' + id).val(v);				
+				jQuery('#' + id).trigger('change');				
+			}
+
+            function autoExpandBlocks(questionBlocks) {
+                
+                var i;
+                var cookie;
+                var opportunityId = '{!JSENCODE(Opportunity.id)}';
+                
+                for (i = 1; i < questionBlocks; i++) {
+                
+                    cookie = jQuery.cookies.get(opportunityId + 'QUESTIONBLOCKSUMMARY_' + i);
+
+                    if (cookie == null) {
+                        jQuery.cookies.set(opportunityId + 'QUESTIONBLOCKSUMMARY_' + i, false);
+                    }               
+                    if ((cookie == null && i == 1) || cookie == true) {
+
+                        jQuery('#QUESTIONBLOCKSUMMARY_' + i).find('.spanToggle').trigger('click');
+
+                    }
+                }
+            
+            }
+          
+          	function getHelpInformation(id) {
+          		try {
+                	id=id.substring(id.indexOf('_'));
+                	var criteriaIndex = id.substring(1);
+          			return jQuery('<div class="HOVERHELP">').html(data.criteria[criteriaIndex][ttg.vfp+'Help__c'])
+          		}
+          		catch(e) {
+          			return '';
+          		}
+          	}
+          	
+            function getHoverInformation(ctrl, id) {
+                try {
+                
+                
+                    if (id.indexOf('_SHADOW') > -1) id = id.substring(0, id.indexOf('_SHADOW'));
+                    if (id.substring(0, 4) == 'THEM') {
+                    	id = id.substring(4, id.indexOf('_'));
+                    }
+                    else {
+	                    var index = -1;
+	                    while (id.indexOf('_') > -1) {
+	                        id = id.substring(id.indexOf('_') + 1);
+	                    }
+					}
+    
+                    if (id != undefined && data.criteria[id][ttg.vfp+'TAS_Question__c']) {
+						/*                    
+	                    	var answer;
+							var yes = data.criteria[id][ttg.vfp+'Yes_Label__c'];
+							var no = data.criteria[id][ttg.vfp+'No_Label__c'];
+	                    	var unknown = 'Unknown'
+	                    	
+	                    	if (jQuery(ctrl).hasClass('divScoreNo')) answer = no;
+	                    	else if (jQuery(ctrl).hasClass('divScoreYes')) answer = yes;
+	                    	else if (jQuery(ctrl).hasClass('divScoreUnknown')) answer = unknown;
+	                    	else answer = '';
+	                    */
+
+						var result = jQuery('<span>').text(data.criteria[id][ttg.vfp+'Criterion_Text__c']); 
+						/*
+							if (answer != '') {
+								result = jQuery('<span>').append(
+		                        	jQuery("<span>").addClass('HOVERANSWER').text(answer)
+		                        ).append(
+		                        	jQuery('<br>')
+		                        ).append(
+		                        	result
+		                        )
+							}
+						*/
+						return result;
+                    }
+
+                }
+                catch(e) {
+
+                    return '';
+
+                }
+            }
+
+
+            function appendTitles(styleBar, styleCell, includeTitles, includeCompetitorsTitles) {
+                var table = jQuery('<div>')
+                var tr = jQuery('<div>').addClass(styleBar);
+                tr.append(jQuery('<div>').addClass(styleCell).addClass('orgTitle').text(includeTitles ? '{!JSENCODE($Organization.name)}' : ' '));
+
+				if(includeCompetitorsTitles) {
+	                jQuery.each(data.competitors,
+	                	function (competitorIndex, competitor) {
+	
+		                    tr.append(jQuery('<div>').addClass(styleCell).text(includeTitles ? competitor.Name : ''));
+		                }
+		            );
+				}
+
+                table.append(tr);                                   
+
+                jQuery('#AssessmentResult').append(table);
+            }
+
+            function setupQuickEditDialog() {
+
+                if (readonly) {
+                    jQuery('#QUICKEDITDIALOG').dialog({ modal: true, width: "640px", resizable: false, autoOpen: false, buttons: {'Close': function() { jQuery(this).dialog("close"); } }  });
+                }
+                else {
+                    jQuery('#QUICKEDITDIALOG').dialog({ modal: true, width: "640px", resizable: false, autoOpen: false, buttons: {'Cancel': function() { jQuery(this).dialog("close"); }, 'Save': function() { quickEditOk(jQuery(this)); } }  });
+                }
+            }
+
+            function openQuickEditDialog() {
+
+                var id = jQuery(this).attr('id');
+                
+                jQuery('#QUICKEDITDIALOG').dialog('open');
+                jQuery(".ui-widget-overlay").click(function(){ jQuery(".ui-dialog-titlebar-close").trigger('click');});
+
+            }
+
+            function setupNoteDialog() {
+
+                if (readonly) {
+                    jQuery('#NOTEDIALOG').dialog({ modal: true, width: "640px", resizable: false, autoOpen: false, buttons: {'Cancel': function() { jQuery(this).dialog("close"); } }  });
+                    jQuery('#NOTEEDITOR').attr('disabled', 'true');
+                }
+                else {
+                    jQuery('#NOTEDIALOG').dialog({ modal: true, width: "640px", resizable: false, autoOpen: false, buttons: { 'Save': function() { noteOk(jQuery(this)); }, 'Cancel': function() { jQuery(this).dialog("close"); }  }  });
+                }
+                
+                jQuery('.NOTEEDITBUTTON').each( function (index, element) {  
+                
+                        jQuery(this).click(openNoteDialog)              
+
+                    }
+                )
+                
+            }
+            
+            function openNoteDialog() {
+
+                var id = jQuery(this).attr('id');
+                id=id.substring(id.indexOf('_'));
+                criteriaIndex = id.substring(1);
+                
+                var noteText = getNoteText('#NOTE' + id);
+
+                jQuery('#NOTEEDITOR').val(noteText);
+
+                jQuery('#NOTEEDITOR_ID').val(id);
+    
+                jQuery("#NOTEDIALOG").dialog('option', 'title', data.criteria[criteriaIndex][ttg.vfp+'TAS_Question__c'] );              
+
+                jQuery('#NOTE_CRITERIA').html(data.criteria[criteriaIndex][ttg.vfp+'Criterion_Text__c'])
+                jQuery('#NOTE_HELP').html(data.criteria[criteriaIndex][ttg.vfp+'Help__c'])
+
+
+
+                jQuery('#NOTEDIALOG').dialog('open');
+
+                jQuery(".ui-widget-overlay").click(function(){ jQuery(".ui-dialog-titlebar-close").trigger('click');});
+
+		    	var height = jQuery('#NOTEDIALOG').height();
+		    	jQuery('#NOTEEDITOR').height(height);
+
+
+
+            }
+            
+            function noteOk(ctrl) {
+
+
+                var id = jQuery('#NOTEEDITOR_ID').val();
+
+                var value = jQuery('#NOTEEDITOR').val();
+                
+                setNoteText('#NOTE' + id, value);
+
+                resizeNoteDisplayArea(jQuery('#NOTE' + id).parent());
+
+                jQuery('#US' + id).trigger('change');
+                
+                jQuery(ctrl).dialog("close");
+            
+            }
+
+            function setNoteText(id, v) {
+
+                if (v != undefined) {
+                
+                    var items = v.split('\n');
+                    var html = ''
+
+	                jQuery.each(items,
+	                	function (index, item) {
+	                        if (html != '') html += '<br/>';
+	                        html += jQuery('<div/>').text(item).html(); 
+	                	}
+	                )
+
+                    jQuery(id).html(html);
+                    
+                    if (html != '') {
+                        jQuery(id).addClass('divNote');
+                        jQuery(id).click(openNoteDialog)                
+                    }
+                    else {
+                        jQuery(id).removeClass('divNote');
+                    }
+                    
+                    
+                }
+            }
+            
+            function getNoteText(id) {
+                var html = jQuery(id).html()
+
+                html = html.replace(/<br>/gi, '\n');
+
+                var items = html.split('\n');
+                var text = ''
+                
+                jQuery.each(items,
+                	function (index, item) {
+	                    if (text != '') text += '\n';
+	                    text += jQuery('<div/>').html(item).text(); 
+                	}
+                )
+
+                return text;
+            }           
+
+            function getCriteriaInBlock(title) {
+                var i =0;
+                var criteria = [];
+
+                jQuery.each(data.criteria,
+                	function (index, crit) {
+	                    if (crit[ttg.vfp+'TAS_Question__c'] == title) {
+	                        criteria.push({ index: i, criteria: crit })
+	                    }
+	                    i++;
+                	}
+                )
+                
+                return criteria;
+            }
+            
+            function blankSummaryBlock(prefix, criteriaInQuestion, isCompetitor) {
+                var div = jQuery('<div>').attr('id', prefix).addClass('SCOREBLOCK');
+
+                div.append(jQuery('<div>').attr('id', prefix + '_TOTAL').addClass('SCOREBLOCK_TOTAL').text('0'))
+                
+                jQuery.each(criteriaInQuestion,
+                	function (index, crit) {
+
+						var sca = crit.criteria[ttg.vfp+'Support_Competitor_Answer__c']
+	                    div.append(jQuery('<div>').addClass('SCOREBLOCK_SCORE').addClass('divScoreUnscored' + ((sca || !isCompetitor) ? '' : ' hideCompetitveAnswer')).attr('id', prefix + '_' + crit.index).text(' '));
+
+                	}
+                )
+                
+                return div;
+            
+            }
+
+            function toggle() {
+                var id = jQuery(this).parent().attr('id');
+                var index = id.substring(id.indexOf('_') + 1);
+                var expanding = false;
+                 
+                if (jQuery(this).hasClass('spanToggleExpanded')) {
+                    expanding = false;
+                    jQuery(this).removeClass('spanToggleExpanded');
+                }
+                else {
+                    expanding = true;
+                    jQuery(this).addClass('spanToggleExpanded');
+                }
+                
+                    
+                jQuery(this).parent().parent().children('div.divCriteriaBlock').each(
+                    function(index, element) {
+                    
+                        if (expanding) {
+                            jQuery(this).removeClass('HIDDEN');
+                        }
+                        else {
+                            jQuery(this).addClass('HIDDEN');
+                        }
+                        resizeNoteDisplayArea(jQuery(this));
+                    }
+                )
+                
+                var opportunityId = '{!JSENCODE(Opportunity.id)}';
+                jQuery.cookies.set(opportunityId + id, expanding);
+            }
+            
+            function resizeNoteDisplayArea(ctrl) {
+
+                var height = jQuery(ctrl).find('.divNote').height();
+                if (null != height && height != 0) {
+//                    jQuery(ctrl).css('height', jQuery(ctrl).find('.divNote').height() + 60);
+                }
+                else {
+//                    jQuery(ctrl).css('height', 25);
+                }
+                
+
+            }
+            
+            function setScores() {
+                var ourAnswerToIndex = [];
+                _debug.log('About to do data.ourAnswers');
+
+                jQuery.each(data.ourAnswers,
+                	function (index, answer) {
+	                    var mappedIndex = criteriaToIndex[answer[ttg.vfp+'DM_TAS_Criterion__c']];
+	                    if (mappedIndex != undefined) {
+		                    ourAnswerToIndex[answer.Id] = mappedIndex;
+		                    
+		                    setScoreItem(jQuery('#US_' + mappedIndex), answer[ttg.vfp+'Answer__c']);
+		                    setNoteText('#NOTE_' + mappedIndex, answer[ttg.vfp+'Note__c'])
+		                    updateSummaryScore(jQuery('#US_' + mappedIndex), false);
+		                }
+                	}
+                )
+
+                _debug.log('Finished data.ourAnswers');
+
+                _debug.log('About to do data.competitors');
+
+                jQuery.each(data.competitors,
+                	function (index, competitor) {
+                        // DG-60 This used to check the elements variable pre - js remoting refactor
+	                    if (competitor[ttg.vfp+'DM_TAS_Criterion_Competitor_Answers__r'] != undefined) {
+	                    
+	                    	var competitorAnswers = competitor[ttg.vfp+'DM_TAS_Criterion_Competitor_Answers__r'];
+	                    	// there are differences in marshalling between JSRemoting and JSON.serialize :-(
+	                    	competitorAnswers = competitorAnswers || [];
+	                    	competitorAnswers = competitorAnswers.records ? competitorAnswers.records : competitorAnswers;
+	                    		                    	
+			                jQuery.each(competitorAnswers,
+			            
+			                	function (answerIndex, answer) {
+
+		                            var mappedIndex = ourAnswerToIndex[answer[ttg.vfp+'DM_TAS_Criterion_Answer__r'].Id];
+		                            
+		                            setScoreItem(jQuery('#THEM' + mappedIndex + '_' + index), answer[ttg.vfp+'Answer__c']);
+		                            jQuery('#HIDDEN' + mappedIndex + '_' + index).val(answer.Id + '_' + answer[ttg.vfp+'DM_TAS_Criterion_Answer__r'].Id)
+		
+		                            updateSummaryScore(jQuery('#THEM' + mappedIndex + '_' + index), false);
+		                            
+		                        }
+		                    );
+	                    }
+					}
+                );
+
+                _debug.log('Finished data.competitors');
+            }
+
+            function setScoreItem(ctrl, answer) {
+
+                ctrl.removeClass('selectYesAnswer');
+                ctrl.removeClass('selectNoAnswer');
+                ctrl.removeClass('selectUnknownAnswer');
+
+                switch (answer) {
+                    case 'Yes': ctrl.addClass('selectYesAnswer'); break;
+                    case 'No': ctrl.addClass('selectNoAnswer'); break;
+                    case 'Unknown': ctrl.addClass('selectUnknownAnswer'); break;
+                }
+
+                ctrl.val(answer);
+
+                var id = ctrl.attr('id');
+
+                applySummaryStyle(jQuery('#' + id + '_SHADOW'), answer);
+            }
+            
+
+            function setUpMaxLimitCheck() {
+
+                jQuery('TextArea#NOTEEDITOR').on('change keydown keyup mousedown mouseup', function() {
+                    var $this = jQuery(this);
+                        value = $this.val(),
+                        valueLength = value.length || 0;
+                    
+                    if(valueLength > limitSize) {
+                        $this.val(value.substring(0,limitSize));
+                    }
+            
+                });
+
+            };
+            
+            var ajaxSpinnerCnt = 0;
+            
+            function showAjaxSpinner(show) {
+                
+                if (show) { 
+                    ajaxSpinnerCnt++;
+                    if (ajaxSpinnerCnt == 1) {
+
+                        jQuery('#SPINNER').append(jQuery('<img>').attr('id', 'tas_ajax_spinner').addClass('spinner').attr('src', '{!JSENCODE(URLFOR($Resource.ttgomjs, '/ttg/graph/images/loader.gif'))}'));
+                        jQuery('#SPINNER').css("top", ( jQuery(window).height() - jQuery('#SPINNER').height() ) / 2+jQuery(window).scrollTop() + "px");
+                        jQuery('#SPINNER').css("left", ( jQuery(window).width() - jQuery('#SPINNER').width() ) / 2+jQuery(window).scrollLeft() + "px");
+
+                    }                   
+                }
+                else {
+
+                    ajaxSpinnerCnt--;
+                    if (ajaxSpinnerCnt <= 0) {                  
+                        jQuery('#SPINNER').html('');
+                        ajaxSpinnerCnt = 0;
+                    }
+
+                }
+            }
+
+
+
+
+
+
+
+
+
+
+
+
+            
+			function wrapPutPost (params, callback) {
+
+				addSerialiseCalls('put', params, callback);
+
+			}
+
+			function wrapGet (opportunityId, callback) {
+
+				addSerialiseCalls('get', opportunityId, callback);
+
+			}
+
+			function _wrapPutPost (params, callback) {
+
+				showAjaxSpinner(true);
+
+				var ret = function (result) { showAjaxSpinner(false); callback(data); }
+
+				ttgApi.putAssessment('{!JSENCODE(Opportunity.id)}', { line: params }, handleResponse, undefined, ret);
+
+			}
+
+			function _wrapGet (opportunityId, callback) {
+
+				showAjaxSpinner(true);
+				
+				var ret = function (result) { showAjaxSpinner(false); callback(data); }
+
+                ttgApi.getAssessment(opportunityId, updateRawData, undefined, ret);
+
+			}
+
+			var stack = [];
+			function addSerialiseCalls(method, params, callback) {
+
+				stack.push({ method: method, params: params, callback: callback });
+				if (processing == 0) {
+					processSerialiseCalls();
+				}
+			}
+
+			var processing = 0;
+			
+			function processSerialiseCalls() {
+
+				
+				var obj = stack.shift();
+
+				if (obj == undefined) {
+					// Finished
+				}
+				else if (obj.method == 'get') {
+
+					processing++;
+					_wrapGet(obj.params, function (result) { try {obj.callback(result);}finally{ processedSerialiseCalls();} });
+
+				}
+				else if (obj.method == 'put') {
+
+					processing++;
+					_wrapPutPost(obj.params, function (result) { try {obj.callback(result);}finally{ processedSerialiseCalls();} });
+
+				}
+				
+			}
+
+			function processedSerialiseCalls() {
+				processing--;
+				processSerialiseCalls();
+			}				
+
+
+
+
+
+            that.getAssessment = getAssessment;
+            
+            return that;
+        })(spec);
+
+
+        jQuery(
+            function () {
+                ttg_assessment.getAssessment();
+            }
+        )
+    
+        
+    
+    </script>
+	
+	<style>
+		@import url("{!URLFOR($Resource.SmartOM,         'css/summarytab.css')}");
+		@import url("{!URLFOR($Resource.SmartOM,         'css/chatterpost.css')}");
+		
+		/* start of additions for Chatter */
+	
+		@import url("{!URLFOR($Resource.ttgomjs,         'ttg/chatter/css/chatter_side_panel.css')}");
+		@import url("{!URLFOR($Resource.ttgomjs,         'ttg/chatter/css/chatter_post.css')}");
+		@import url("{!URLFOR($Resource.ttgomjs,         'ttg/graph/css/glyphs/style.css')}");
+		@import url("{!URLFOR($Resource.ttgomjs,         'ttg/chatter/css/chatter_summary.css')}");
+        
+        /* end of additions for Chatter */
+        
+       	/* Restores AJAX spinner size to normal (AMOF-813) */
+        .spinner {
+        	height: auto;
+        	width: auto;
+        }
+        
+
+DIV#TAS {
+	
+}
+
+DIV#TAS A {
+	cursor: pointer;
+}
+
+DIV#AssessmentResult {
+	clear: both;
+}
+
+DIV#AssessmentResult TABLE {
+	border: 0 none;
+	border-spacing: 0;
+	padding: 0;
+}
+
+DIV#AssessmentResult TR.QUESTIONBLOCKSUMMARY {
+	background-color: #F0F0F0;
+}
+
+DIV#AssessmentResult TextArea.DMAPP_NOTE {
+	
+}
+
+DIV#AssessmentResult DIV.HIDDEN {
+	display: none;
+}
+
+DIV#AssessmentResult DIV.NOTEDLG {
+	display: none;
+}
+
+DIV#NOTEEDIT {
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 12px;
+}
+
+TEXTAREA#NOTEEDITOR {
+	float: left;
+	height: 120px;
+	width: 260px;
+}
+
+SPAN#NOTE_CRITERIA {
+	float: right;
+	font-weight: bolder;
+	width: 340px;
+}
+
+SPAN#NOTE_HELP {
+	color: #555555;
+	float: right;
+	width: 340px;
+	font-size: 12px;
+}
+
+DIV#AssessmentResult DIV.divQuestionsBlock {
+	background-color: rgb(203,213,226);
+	border: 1px solid rgb(160,181,202);
+	border-radius: 7px;
+	-moz-border-radius: 7px;
+	-webkit-border-radius: 7px;
+	box-shadow: 0 1px 0 rgba(255, 255, 255, 0.7) inset;
+}
+
+DIV#AssessmentResult DIV.divQuestionBlock {
+	bug01-height: 40px;
+	padding: 0px;
+}
+
+DIV#AssessmentResult DIV.NOTEEDITBUTTON {
+	background-image: url('{!URLFOR($Resource.Assessment, 'icon_edit.png')}');
+	width: 16px;
+	height: 16px;
+}
+
+DIV#AssessmentResult DIV.NOTEINFOICON {
+	background-image: url('{!URLFOR($Resource.ttgomjs, 'ttg/graph/feimages/icon_info.png')}');
+	width: 12px;
+	height: 12px;
+	margin: 2px;
+}
+
+DIV#AssessmentResult DIV.QUICKLINK {
+	background-image: url('{!URLFOR($Resource.Assessment, 'icon_movie.png')}');
+	width: 20px;
+	height: 16px;
+	margin: 4px;
+}
+
+DIV#AssessmentResult SPAN.spanToggle {
+	background-image: url('{!URLFOR($Resource.Assessment, 'drawer_expand.png')}');
+	background-repeat: no-repeat;
+	
+	but01-float: left;
+	display: inline-block;
+	vertical-align: top;
+		
+	height: 12px;
+	margin: 3px;
+	width: 12px;
+	margin-top: 13px;
+	clear: left;
+}
+
+DIV#AssessmentResult SPAN.spanToggleExpanded {
+	-webkit-transform: rotate(90deg);
+	-moz-transform: rotate(90deg);
+	filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=1 );
+}
+
+DIV#AssessmentResult SPAN.spanQuestion {
+	but01-float: left;
+	display: inline-block;
+
+	font-size: 16px;
+	font-weight: normal;
+	width: 320px;
+	margin-top: 10px;
+	color: #2C3B51;
+}
+
+DIV#AssessmentResult SPAN.spanQuestionSummary {
+
+	but01-float: left;
+	display: inline-block;
+	vertical-align: top;
+
+	position: relative;
+	width: 160px;
+	margin-right: 5px;
+	height: 40px;
+	padding-left: 1px;
+	padding-right: 1px;
+	border: 0px;
+}
+
+DIV#AssessmentResult .hideCompetitveAnswer {
+	visibility: hidden;
+}
+
+DIV#AssessmentResult SPAN.spanBreak {
+	clear: both;
+}
+
+DIV#AssessmentResult DIV.divCriteriaBlock {
+	background-color: white;
+	border: 1px solid rgb(160,181,202);
+	border-radius: 4px 4px 4px 4px;
+	
+	bug01_height: 20px;
+	
+	margin: 0px 10px 10px;
+	padding: 5px;
+	
+}
+
+DIV#AssessmentResult SPAN.spanCriteriaIndex {
+
+	bug01_float: left;
+	display: inline-block;
+	vertical-align: top;
+
+	width: 20px;
+	margin-top: 3px;
+}
+
+DIV#AssessmentResult SPAN.spanCriteria {
+
+	bug01_float: left;
+	display: inline-block;
+
+	font-weight: bold;
+	width: 260px;
+	margin-top: 2px;
+}
+
+DIV#AssessmentResult DIV.divNote {
+	border: 1px solid #d8d8d8;
+	background-color: #f8f8f8;
+	border-radius: 4px 4px 4px 4px;
+	font-weight: normal;
+	margin-top: 4px;
+	padding: 10px;
+	word-wrap: break-word;
+	color: #808080;
+}
+
+DIV#AssessmentResult SPAN.spanCriteriaNote {
+
+	bug01_float: left;
+	display: inline-block;
+	vertical-align: top;
+
+	width: 20px;
+}
+
+DIV#AssessmentResult SPAN.spanCriteriaInfo {
+	bug01_float: left;
+	display: inline-block;
+	vertical-align: top;
+
+	width: 20px;
+}
+
+DIV#AssessmentResult SPAN.spanCriteriaSummary {
+	bug01_float: left;
+	display: inline-block;
+	vertical-align: top;
+
+	width: 150px;
+	margin-top: -1px;
+	padding-left: 10px;
+	margin-right: 5px;
+	border-left: 1px solid white;
+	border-right: 1px solid white;
+}
+
+DIV#AssessmentResult SPAN.spanCriteriaSummary SELECT {
+	border: 1px solid #C0C0C0;
+	padding: 2px;
+	border-radius: 3px;
+	-moz-border-radius: 3px;
+	-webkit-border-radius: 3px;
+	width: 120px;
+}
+
+DIV#AssessmentResult SPAN.spanCriteriaQuicklink {
+	bug01_float: left;
+	display: inline-block;
+	vertical-align: top;
+}
+
+DIV#AssessmentResult DIV.SCOREBLOCK {
+	border: 1px solid black;
+	border-radius: 4px 4px 4px 4px;
+	height: 14px;
+	padding: 4px 7px 7px 14px;
+	margin: 5px;
+	border-width: 1px 1px 1px 30px;
+}
+
+DIV#AssessmentResult DIV.SCOREBLOCK_TOTAL {
+	color: #2C3B51;
+	float: left;
+	font-weight: bolder;
+	text-align: center;
+	width: 22px;
+	visibility: hidden;
+	display: none;
+}
+
+DIV#AssessmentResult DIV.SCOREBLOCK_SCORE {
+	border-radius: 4px 4px 4px 4px;
+	float: left;
+	height: 16px;
+	margin-left: 2px;
+	text-align: center;
+	width: 16px;
+	cursor: pointer;
+}
+
+DIV#AssessmentResult DIV.SCOREBLOCK_SCORE_SHADOW {
+	margin-top: 2px;
+}
+
+DIV#AssessmentResult DIV.divScoreYes {
+	background-color: #019040;
+	color: white;
+}
+
+DIV#AssessmentResult DIV.divScoreNo {
+	background-color: #CC0000;
+	color: white;
+}
+
+DIV#AssessmentResult DIV.divScoreUnscored {
+	background-color: #ABABAB;
+	color: #efefef;
+}
+
+DIV#AssessmentResult DIV.divScoreUnknown {
+	background-color: #FFBE00;
+	color: white;
+}
+
+DIV#AssessmentResult OPTION {
+	background-color: white;
+}
+
+DIV#AssessmentResult OPTION.optionYesAnswer {
+	color: #019040;
+}
+
+DIV#AssessmentResult OPTION.optionNoAnswer {
+	color: #CC0000;
+}
+
+DIV#AssessmentResult OPTION.optionUnknownAnswer {
+	color: #FFBE00;
+}
+
+DIV#AssessmentResult SELECT {
+	float: left;
+}
+
+DIV#AssessmentResult SELECT.selectYesAnswer {
+	background: none repeat scroll 0 0 #FFFFFF;
+}
+
+DIV#AssessmentResult SELECT.selectNoAnswer {
+	background: none repeat scroll 0 0 #FFFFFF;
+}
+
+DIV#AssessmentResult SELECT.selectUnknownAnswer {
+	background: none repeat scroll 0 0 #FFFFFF;
+}
+
+DIV#AssessmentResult div.competitorBar {
+	height: 39px;
+	padding-left: 339px;
+}
+
+DIV#AssessmentResult div.competitorBarGap {
+	height: 20px;
+}
+
+DIV#AssessmentResult div.competitorCommonTitle {
+	float: left;
+	text-align: center;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	overflow: hidden;
+	width: 140px;
+	border: 1px solid #A0B5CA;
+	margin-right: 5px;
+	padding: 10px 10px 10px 10px;
+	position: relative;
+	text-align: center;
+	color: #374A61;
+}
+
+DIV#AssessmentResult div.competitorTitle {
+	xborder-radius: 5px 5px 0px 0px;
+	x-moz-border-radius: 5px 5px 0px 0px;
+	x-webkit-border-radius: 5px 5px 0px 0px;
+	bottom: -3px;
+	border-bottom: 0px solid #A0B5CA;
+}
+
+DIV#AssessmentResult div.competitorFooter {
+	border-top: 0px solid #A0B5CA;
+	top: -1px;
+}
+
+DIV#AssessmentResult div.competitorGap {
+	border-top: 0px solid #A0B5CA;
+	border-bottom: 0px solid #A0B5CA;
+}
+
+DIV#AssessmentResult div.orgTitle {
+	color: #404080;
+	font-weight: bolder;
+}
+
+DIV#AssessmentResult .tasPointer {
+	cursor: pointer;
+}
+
+#tooltip {
+	position: absolute;
+	z-index: 3000;
+	border: 1px solid #111;
+	background-color: #eee;
+	padding: 5px;
+	opacity: 0.85;
+	border-radius: 4px;
+	-moz-border-radius: 4px;
+	-webkit-border-radius: 4px;
+}
+
+SPAN.HOVERANSWER {
+	font-weight: bolder;
+}
+
+DIV.HOVERHELP {
+	width:340px;
+}
+
+
+DIV#TAS #SPINNER {
+	position: absolute;
+}
+</style>
+</apex:page>

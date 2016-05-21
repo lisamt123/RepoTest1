@@ -1,0 +1,265 @@
+<apex:page >
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__ttgomjs, 'ttg/lib/modernizr.js')}"/>	
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__ttgomjs, 'ttg/lib/ttgutils.js')}"/>		
+	<script>
+	
+		var ttg = ttg || {};
+		ttg.am = ttg.am || {};
+
+		ttg.am.planactivity = function(_spec) {
+		
+			var that = {};
+			
+			var localization = {
+				completenessLabel:						'Completeness',
+				activityLabel:							'Activity',
+				planDetailsAttainment: 					'Plan Details Attainment',
+				segmentationCompletion: 				'Segmentation Completion',
+				whiteSpace: 							'White Space Cover',
+				LORCompletion: 							'LOR Completion',
+				strategyMapLevel: 						'Insight Map',
+				politicalMapLevel: 						'Political Map',
+				valueMapCompletion: 					'Value Map Completion',
+				objectivesLevel: 						'Objectives',
+				teamAccess: 							'Team Plan Access',
+				actions: 								'Actions',
+
+				planDetailsAttainmentHelp: 				'Your completion status for Plan Detail question answers. \n\nIf you are less than 100%, you have not answered all the questions OR you have some answers which require comments that do not have accompanying comments.',
+				segmentationCompletionHelp: 			'Your completion status regarding the number of Plan Units you have included in your segmentation analysis. \n\nIf you are less than 100%, you have some Plan Units that need segmentation analysis.',
+				whiteSpaceHelp: 						'Coverage of cells in targeted units on your opportunity map. \n\nFor the purpose of scoring, \'A\' units are always considered targeted. Targeted units are, therefore, all \'A\' units and any other units that have been specifically targeted. Note that only units where opportunities can be directly added are considered. \n\nWhite Space Cover is the percentage of Solution/Targeted Unit intersections where you have identified opportunities (potential, current or won) or marked the cell as blocked. \n\nExample: You have 4 targeted units and 5 solutions, giving you 20 intersections to work with. You have identified opportunities in 12 of those intersections and blocked 3 intersections due to competitor lockout. This means you have "covered" 15 out of 20 intersections, giving you a coverage score of 75%. The remaining 5 intersections (25%) are available for you to review for potential. \n\nIf you are less than 100%, you have white space available against your \'A\' units or other targeted units. You might want to develop potential opportunities in these white spaces.',
+				LORCompletionHelp: 						'Have you assessed your Level of Relationship for each of your \'A\' and other Targeted Plan Units? Level of Relationship is Trusted Advisor, Problem Solver, Credible Source or Vendor. \n\nIf you are less than 100% you have some \'A\' or other Targeted Plan Units that you have not assessed. You can find LOR (Level of Relationship) on your Opportunity Map represented by a Harvey Ball icon under the Plan Unit Name.',
+				strategyMapLevelHelp: 					'Overall completion level of insight maps in your targeted units.\n\nFor the purpose of scoring, \'A\' units are always considered targeted. Targeted units are, therefore, all \'A\' units and any other units that have been specifically targeted.\n\nHave you completed your Insight Map for each of your A and other Targeted Plan Units?\n\nThe Insight Map for each targeted unit is \'scored\' by counting the percentage of available node types used on the map and multiplying that by the number of nodes to a max of 9. The score of the maps for all targeted units are added together and divided by the number of targeted units to provide the overall score.\n\nExample: You have 4 targeted unit. For each targeted unit, you have the following insight maps:\nUnit 1: 10 nodes, 3 types (score:(10/9) * (3/4) = 100% * 75% = 75%)\nUnit 2: 8 nodes, 4 types (score: (8/9) * (4/4) = 89% * 100% = 89%)\nUnit 3: 14 nodes 4 types (score: (14/9) * (4/4) = 100% * 100% = 100%)\nUnit 4: 12 nodes, 2 types (score: (12/9) * (2/4) = 100% * 50% = 50%)\nThis gives a total of 314 out of a possible 400 = 79% as an overall insight map completion.\n\nIf you are less than 100% look at the Insight Maps for these units and determine what is missing to enhance your picture of the Plan Unit’s Business. A detailed insight map will include at least 9 nodes and 4 node types to complete the story.',
+				politicalMapLevelHelp:
+				
+				'Overall completion level of political maps in your targeted units.' +
+                '\n\n' +
+                'For the purpose of scoring, \'A\' units are always considered targeted. Targeted units are, therefore, all \'A\' units and any other units that have been specifically targeted.' +
+                '\n\n' +
+                'Have you completed your Political Map for each of your A and other Targeted Plan Units?' +
+                '\n\n' +
+                'The Political Map for each targeted unit is \'scored\' by counting the number of contacts on the map (and sub-maps) with at least one attribute set. This is divided by the number of contacts MINIMALLY EXPECTED (as set by your Dealmaker Administrator) for your political maps. The score of the maps for all targeted units are added together and divided by the number of targeted units to provide the overall score.' +  
+                '\n\n' +
+                'Example: You have 4 targeted units, and your Administrator has set the MINIMALLY EXPECTED number of contacts to 8. For each targeted unit, you have the following political maps:\n' +
+                'Unit 1: 12 contacts, 6 with attributes set (score: 6/8 = 75%)\n' +
+                'Unit 2: 10 contacts, all with attributes set (score: 10/8 = 100%)\n' +
+                'Unit 3: 14 contacts, none with attributes set (score: 0/8 = 0%)\n' +
+                'Unit 4: 3 contacts, 2 with attributes set (score: 2/8 = 25%)\n' +
+                'This gives a total of 200 out of a possible 400 = 50% as an overall political map completion.\n\n' +
+                
+                'If you are less than 100%, look at your A and other Targeted Plan Units\' Political Maps and determine what is missing to enhance your picture of the Plan Unit\'s Influential People. Remember, for a targeted plan unit, you would expect to have at least the MINIMALLY EXPECTED (as set by your Administrator) number of contacts with attributes set.',
+                
+				valueMapCompletionHelp:					'Have you completed the Value Map criteria for all of the current and potential opportunities on your \'A\' and other Targeted Units? \n\nIf you are less than 100%, you have some current and potential opportunities from these Units that need Value Map analysis.',
+				objectivesLevelHelp: 					'How complete are the Objectives for your Plan? For each of your \'A\' and other specifically targeted units, you should ensure you have Revenue objectives for those with current opportunities (35% of the score), Business Development objectives for those with potential opportunities (35% of the score), and Relationship objectives for them all (30% of the score). \n\nIf you are less than 100%, you are missing some of these objectives for these key units.',
+				teamAccessHelp:  						'Has your team engaged with your Account Plan? This represents the average percentage of working days your team has engaged online with your plan (based on the number of days each user has been a member of the plan). You’d expect your team to be reviewing the plan a few times a month. \n\nExample: There are 5 members on the account plan. Two have been members since the plan was created 10 weeks ago. Three have been members for the past 4 weeks. The first two members accessed the plan 24 days and 8 days each. The next three have accessed the plan 14, 6 and 2 days: \nSum of score for each team member = (24/50) + (8/50) + (14/20) + (6/20) + (2/20) = 174 \n# Team Members = 5 \nTeam Plan Access Score = 174/5 = 34.8% \n\nIf your access rate is less than 15% you may want to hold a team planning meeting to understand their challenges here. ',
+				actionsHelp: 							'Have you got actions for all of your open objectives? Are you keeping on top of those actions? If your actions score is less than 100%, you have overdue actions or no open actions for objectives that are in progress. \n\nExample: You have 10 objectives in progress. For each of those, the #open actions due in the future / #open actions is as follows: \n0/0 + 1/2 + 1/1 + 0/0 + 4/5 + 0/0 + 0/0 + 3/3 + 1/4 + 2/4 = 40.5% \n\nYou may want to review your open objectives to ensure you have actions to complete them, and for any outstanding actions you may want to complete them so that you stay on plan.'
+			}
+			
+			var ttgApi = _spec.ttgApi;
+			var planId = _spec.planId;
+			var hideSegmentation = _spec.hideSegmentation;
+			
+			var previousSelection = 'planDetailsAttainment';
+			
+			var data = {};
+		
+			function render() {
+				setupPlanActivity();
+			}
+			
+			function handleGetResponse(result) {
+
+				var summaryData = jQuery("#SCORECARD_SUMMARY_DATA").empty()
+					.append(jQuery('<div>').addClass('title-left')
+						.append(jQuery('<span>').addClass('completenessTitle').text(localization.completenessLabel)))
+					.append(jQuery('<div>').addClass('title-right')
+						.append(jQuery('<span>').addClass('activityTitle').text(localization.activityLabel)));
+				
+				var completenessSection = jQuery('<div/>', {id: 'completenessSection'});
+						
+				var completenessScoreTable = jQuery('<table/>', {id: 'COMPLETENESS_SUMMARY_TABLE'}).addClass('metricTable');
+				if(hideSegmentation) {
+				    completenessScoreTable.addClass('segmentless');
+				}
+				
+				var firstRow = jQuery('<tr/>');
+				var secondRow = jQuery('<tr/>');
+				
+				var current = result.completenessScore;
+				
+				var planDetailsAttainmentCell = renderCurrentScoreCell('planDetailsAttainment', localization.planDetailsAttainment, current.planDetailsAttainment.score, current.planDetailsAttainment.formattedScore);
+				
+				var segmentationCompletionCell = hideSegmentation ? null : renderCurrentScoreCell('segmentationCompletion', localization.segmentationCompletion, current.segmentationCompletion.score,  current.segmentationCompletion.formattedScore);
+				
+				var whiteSpaceCell = renderCurrentScoreCell('whiteSpace', localization.whiteSpace, current.whiteSpace.score, current.whiteSpace.formattedScore);
+				var LORCompletionCell = renderCurrentScoreCell('LORCompletion', localization.LORCompletion, current.LORCompletion.score, current.LORCompletion.formattedScore);
+				
+                var strategyMapLevelCell = renderCurrentScoreCell('strategyMapLevel', localization.strategyMapLevel, current.strategyMapLevel.score, current.strategyMapLevel.formattedScore);
+                var politicalMapLevelCell = renderCurrentScoreCell('politicalMapLevel', localization.politicalMapLevel, current.politicalMapLevel.score, current.politicalMapLevel.formattedScore);
+                var valueMapCompletionCell = renderCurrentScoreCell('valueMapCompletion', localization.valueMapCompletion, current.valueMapCompletion.score, current.valueMapCompletion.formattedScore);
+                var objectivesLevelCell = renderCurrentScoreCell('objectivesLevel', localization.objectivesLevel, current.objectivesLevel.score, current.objectivesLevel.formattedScore);
+                
+				if(hideSegmentation) {
+                    firstRow.append(planDetailsAttainmentCell).append(whiteSpaceCell).append(LORCompletionCell).append(strategyMapLevelCell);
+                    secondRow.append(politicalMapLevelCell).append(valueMapCompletionCell).append(objectivesLevelCell);    				
+				} else {
+				    firstRow.append(planDetailsAttainmentCell).append(segmentationCompletionCell).append(whiteSpaceCell).append(LORCompletionCell);
+				    secondRow.append(strategyMapLevelCell).append(politicalMapLevelCell).append(valueMapCompletionCell).append(objectivesLevelCell);    
+				}
+
+				completenessScoreTable.append(firstRow).append(secondRow);
+				
+				summaryData.append(completenessSection.append(completenessScoreTable));
+				
+				var activitySection = jQuery('<div/>', {id: 'activitySection'});
+				
+				var activityScoreTable = jQuery('<table/>', {id: 'ACTIVITY_SUMMARY_TABLE'}).addClass('metricTable');
+				var activity = result.activityScore;
+				
+				var actionsCell = renderCurrentScoreCell('actions', localization.actions, activity.actions.score, activity.actions.formattedScore);
+				activityScoreTable.append(jQuery('<tr/>').append(actionsCell));
+				
+				var teamAccessCell = renderCurrentScoreCell('teamAccess', localization.teamAccess, activity.teamAccess.score, activity.teamAccess.formattedScore);
+				activityScoreTable.append(jQuery('<tr/>').append(teamAccessCell));
+				
+				summaryData.append(activitySection.append(activityScoreTable));
+				
+				
+				jQuery('#' + previousSelection + 'currentCell').addClass('selected');
+				
+				/*
+				var helpText = jQuery('<div/>').addClass('metricHelpText msg_container text_left').append(jQuery('<span/>').addClass('msg_text').text(localization[previousSelection + 'Help']));
+				*/
+				
+				var myTitle = localization[previousSelection];
+				var myHelpText = localization[previousSelection + 'Help'];
+				
+				var helpText = jQuery('<div/>').addClass('metricHelpText2 msg_container text_left').append(jQuery('<div/>').addClass('msg_text2')
+												.append(jQuery('<b id="myTitle"/>')
+												.html(myTitle.replace(/^\s+|\s+$/g, "")))  // trim the title string, otherwise newlines are added
+												.append(jQuery('<br /><br />'))
+												.append(jQuery('<div id="myHelpText"/>')
+												.text(myHelpText)));
+				
+				summaryData.append(helpText);				
+				
+				function renderCurrentScoreCell(id, label, score, formattedScore) {
+				
+					var cell = jQuery('<td/>').attr('id', id + 'currentCell');
+					cell.append(jQuery('<div/>').addClass('badge'));
+					cell.append(jQuery('<div/>').addClass('scoreLabel').text(label));
+					
+					var progressLabel = jQuery('<div/>').addClass('scoreProgressLabel').text(formattedScore);
+					
+					cell.append(jQuery('<div/>').addClass('scoreValue').append(progressLabel).progressbar({value: score}));
+					cell.on('click', function() {
+						completenessScoreTable.find('td.selected').removeClass('selected');
+						activityScoreTable.find('td.selected').removeClass('selected');
+						cell.addClass('selected');					
+						//helpText.find('.msg_text').text(localization[id + 'Help']);
+						
+						var myNewTitle = localization[id];
+						var myNewHelpText = localization[id + 'Help'];
+						
+						helpText.find('#myTitle').html(myNewTitle);
+						helpText.find('#myHelpText').text(myNewHelpText);
+						
+						previousSelection = id;
+					});					
+					return cell;
+				}				
+
+			}
+			
+		
+			function setupPlanActivity() {
+				wrapGet(planId, handleGetResponse ) 
+			}
+			
+			function wrapGet (planid, callback) {
+
+				addSerialiseCalls('get', planid, callback);
+
+			}
+			
+			var stack = [];
+			function addSerialiseCalls(method, params, callback) {
+
+				stack.push({ method: method, params: params, callback: callback });
+				if (processing == 0) {
+					processSerialiseCalls();
+				}
+			}
+
+			var processing = 0;
+			
+			function processSerialiseCalls() {
+
+				
+				var obj = stack.shift();
+
+				if (obj == undefined) {
+					// Finished
+				}
+				else if (obj.method == 'get') {
+
+					processing++;
+					_wrapGet(obj.params, function (result) { try {obj.callback(result);}finally{ processedSerialiseCalls();} });
+
+				}
+				
+			}
+
+			function processedSerialiseCalls() {
+				processing--;
+				processSerialiseCalls();
+			}				
+
+			function _wrapGet (planId, callback) {
+
+				showAjaxSpinner(true);
+				
+				var ret = function (result) { showAjaxSpinner(false); callback(data); }
+
+				ttgApi.getPlanActivityDetails(planId, updateRawData, undefined, ret);
+
+			}
+
+			function updateRawData(d) {
+				
+				data = d;
+
+			}
+			
+			var ajaxSpinnerCnt = 0;
+			
+			function showAjaxSpinner(show) {
+				
+				if (show) { 
+					ajaxSpinnerCnt++;
+					if (ajaxSpinnerCnt == 1) {
+
+						jQuery('#SPINNER').append(jQuery('<img>').attr('id', 'tas_ajax_spinner').addClass('spinner').attr('src', '{!JSENCODE(URLFOR($Resource.ttgomjs, '/ttg/graph/images/loader.gif'))}'));
+						jQuery('#SPINNER').css("top", ( jQuery(window).height() - jQuery('#SPINNER').height() ) / 2+jQuery(window).scrollTop() + "px");
+						jQuery('#SPINNER').css("left", ( jQuery(window).width() - jQuery('#SPINNER').width() ) / 2+jQuery(window).scrollLeft() + "px");
+
+					}				  
+				}
+				else {
+
+					ajaxSpinnerCnt--;
+					if (ajaxSpinnerCnt <= 0) {				
+						jQuery('#SPINNER').html('');
+						ajaxSpinnerCnt = 0;
+					}
+
+				}
+			}
+		
+			that.render = render;
+			
+			return that;
+		
+		};
+		
+	</script>
+</apex:page>

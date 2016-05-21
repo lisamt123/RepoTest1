@@ -1,0 +1,38 @@
+<apex:page showHeader="true" sidebar="true">
+	<c:jQuery jQueryUI="true"/>
+
+	<script type="text/javascript">
+
+		jQuery('html').addClass('salesforce1');
+
+		var placeholderText = "We are working hard to redesign Dealmaker's user interface for Salesforce1 on the phone. We are delivering it in stages, starting from Feb 2014. Check back here for updates. In the meantime Dealmaker is fully Salesforce1 ready on the iPad and most tablets, and of course through your normal web browser access. Thank you."
+		                
+	    jQuery('html.salesforce1 body').remove();
+	    
+	    jQuery('html.salesforce1').append(
+	        jQuery('<body>').append(
+	            jQuery('<img />', {
+	                                     
+	                alt: 'Dealmaker', 
+	                'class': 'dealmaker-img', 
+	                src: '{! URLFOR($Resource.SmartOM, 'DealmakerLogo.png') }'
+	            })
+	        ).append(
+	            jQuery('<h1>').html('Not Ready for Phone yet')
+	        ).append(
+	            jQuery('<p>').addClass('mobile-heading')
+	                .html(placeholderText)
+	        )
+	    );
+	    
+	    jQuery('.salesforce1 head').append(
+            jQuery('<link />').attr({
+            
+                href: '{! URLFOR($Resource.SmartOM, 'css/salesforce1-redirect-style.css') }',
+                rel: 'stylesheet',
+                type: 'text/css'
+            })
+	   	);
+
+	</script>
+</apex:page>

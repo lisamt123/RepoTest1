@@ -1,0 +1,413 @@
+<!--
+  - Page name: Change_Request_RO
+  - Author/Date: Dean Lukowski / September 15, 2014
+  - Purpose: A read only page for Change_Request page.
+  -->
+
+<apex:page standardController="Change_Request__c" extensions="Change_Request_Controller" Id="theCRROPage" >
+
+	<apex:includeScript value="{!URLFOR($Resource.jQueryUi_1_11_1, 'jQueryUi_1.11.1/jquery/external/jquery/jquery.js')}" />
+    <apex:includeScript value="{!URLFOR($Resource.jQueryUi_1_11_1, 'jQueryUi_1.11.1/jquery/jquery-ui.min.js')}" />
+    <apex:stylesheet value="{!URLFOR($Resource.jQueryUi_1_11_1, 'jQueryUi_1.11.1/ui/themes/smoothness/jquery-ui.css')}"/>
+	
+	<style type="text/css">
+        /* .hideButton is used to hide buttons until inline editing is triggered */
+        .hideButton{
+            display:none;
+        }
+
+        .PGStyle1{
+            margin-left:auto;
+            margin-right:auto;
+            width:100%;
+        }
+        .PGStyle1 td:nth-child(odd){
+            width: 40%;
+            text-align: right;
+        }
+        .PGStyle1 td:nth-child(even){
+            width: 50%;
+            text-align: left;
+        }
+        .UserNotes{
+            font-weight: bold;
+            font-family: Arial, Helvetica, sans-serif;
+            color: green;
+        }
+        .HeaderLabel{
+            vertical-align: top;
+            padding-right: 15px;
+            font-weight: bold;
+            font-family: Arial, Helvetica, sans-serif;
+            color: Black !important;
+        }
+        .PGLabel{
+            vertical-align: top;
+            padding-right: 15px;
+            font-size: 91%;
+            font-weight: bold;
+            font-family: Arial, Helvetica, sans-serif;
+            color: #4a4a56 !important;
+        }
+        .PGLabelHT{
+            vertical-align: top;
+            font-size: 91%;
+            font-weight: bold;
+            font-family: Arial, Helvetica, sans-serif;
+            color: #4a4a56 !important;
+        }
+         .custPopup{
+            background-color: white;
+            border-width: 2px;
+            border-style: solid;
+            z-index: 9999;
+            left: 50%;
+            padding:10px;
+            position: absolute;
+            /* These are the 3 css properties you will need to change so the popup 
+            displays in the center of the screen. First set the width. Then set 
+            margin-left to negative half of what the width is. You can add 
+            the height property for a fixed size pop up if you want.*/
+            width: 600px;
+            margin-left: -250px;
+            top:150px;
+        }
+        .popupBackground{
+            background-color:black;
+            opacity: 0.20;
+            filter: alpha(opacity = 20);
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            z-index: 9998;
+        }
+    </style>
+    <script>
+        function formReset(){
+            document.getElementById("CRPage").reset();
+        }
+    </script>
+
+	<apex:sectionHeader title="Change Request" subtitle="{!CRObj.Name}" />
+	<chatter:feedWithFollowers id="cfwf" entityId="{!CRObj.Id}"/>
+	<apex:form id="CRPage">
+
+		<apex:pageMessages id="errors" />
+		<apex:pageBlock title="Change Request Details" >
+
+			<apex:pageBlockButtons >
+                <apex:commandButton value="Save" action="{!Submit}" id="save" styleClass="hideButton" />
+                <apex:commandButton value="Cancel" action="{!Cancel}" id="cancel" styleClass="hideButton" />
+				<apex:commandbutton value="Edit" action="{!EditCR}" id="edit" />
+				<apex:commandButton value="Assign To Me" action="{!AssignToMe}" id="assign" rendered="{!isAdminUser}" />
+				<apex:commandButton value="Escalate" action="{!showPopup}" id="escalate" rerender="tstpopup" rendered="{!isAdminUser}" />
+			</apex:pageBlockButtons>
+
+			<apex:pageBlockSection columns="1">
+				<apex:panelGrid columns="2" styleClass="PGStyle1">
+					<!-- Left Column -->
+                    <apex:panelGrid columns="2" styleClass="PGStyle1">
+                    	<apex:panelGroup >
+                    		<apex:outputLabel value="{!$ObjectType.Change_Request__c.fields.BU__c.label}" for="bu" styleClass="PGLabel" />
+                		</apex:panelGroup>
+                		<apex:panelGroup >
+                    		<apex:outputText value="{!selectedBU}" id="bu" />
+                    	</apex:panelGroup>
+
+                    	<apex:panelGroup >
+                    		<apex:outputLabel value="{!$ObjectType.Change_Request__c.fields.Department__c.label}" for="dept" styleClass="PGLabel" />
+                		</apex:panelGroup>
+                		<apex:panelGroup >
+							<apex:outputText value="{!department}" id="dept" />
+                    	</apex:panelGroup>
+
+                    	<apex:panelGroup >
+                    		<apex:outputLabel value="{!$ObjectType.Change_Request__c.fields.Change_Type__c.label}" for="ct" styleClass="PGLabel" />
+                		</apex:panelGroup>
+                		<apex:panelGroup >
+	                    	<apex:outputText value="{!selectedChangeType}" id="ct" />
+                    	</apex:panelGroup>
+
+                    	<apex:panelGroup id="details1">
+                    		<apex:outputLabel value="{!$ObjectType.Change_Request__c.fields.Change_Type_Details__c.label}" for="ctd"
+                    						rendered="{!IF(selectedChangeType == 'Add/New'
+                    									|| selectedChangeType == 'Change'
+                    									|| selectedChangeType == 'Remove', true, false)}" styleClass="PGLabel" />
+                		</apex:panelGroup>
+                		<apex:panelGroup id="details2">
+	                    	<apex:outputText value="{!selectedChangeTypeDetails}" id="ctd"
+                						rendered="{!IF(selectedChangeType == 'Add/New'
+                									|| selectedChangeType == 'Change'
+                									|| selectedChangeType == 'Remove', true, false)}" />
+                    	</apex:panelGroup>
+
+                    	<apex:panelGroup >
+                    		<apex:outputLabel value="{!$ObjectType.Change_Request__c.fields.Link_to_Record__c.label}" for="link" styleClass="PGLabel" />
+                		</apex:panelGroup>
+                		<apex:panelGroup >
+							<apex:outputLink id="link" value="{!CRObj.Link_to_Record__c}" >{!CRObj.Link_to_Record__c}</apex:outputLink>
+                    	</apex:panelGroup>
+
+                    	<apex:panelGroup >
+	                		<apex:outputLabel value="{!$ObjectType.Change_Request__c.fields.Tier_Level__c.label}" for="displayTier" rendered="{!isAdminUser}" styleClass="PGLabel" />
+	            		</apex:panelGroup>
+	            		<apex:panelGroup id="dt">
+		                    <apex:outputText value="{!selectedTier}" id="displayTier" rendered="{!isAdminUser}" />
+	                	</apex:panelGroup>
+
+                    </apex:panelGrid><!-- End left Column -->
+                    <!-- Right Column -->
+                    <apex:panelGrid columns="2" styleClass="PGStyle1" >
+                    	<apex:panelGroup >
+                    		<apex:outputLabel value="Owner" for="owner" styleClass="PGLabel" />
+                		</apex:panelGroup>
+                		<apex:panelGroup >
+							<apex:outputText value="{!CRObj.Owner.Name}" id="owner" />
+							<apex:outputLink value="/{!CRid}/a?retURL=/{!CRid}" rendered="{!IF(showSaveEscalate && isAdminUser, true, false)}" > [Change]</apex:outputLink>
+                    	</apex:panelGroup>
+
+                    	<apex:panelGroup >
+                    		<apex:outputLabel value="{!$ObjectType.Change_Request__c.fields.Priority__c.label}" for="prior" styleClass="PGLabel" />
+                		</apex:panelGroup>
+                		<apex:panelGroup >
+		                    <apex:outputText value="{!selectedPriority}" id="prior" />
+                    	</apex:panelGroup>
+
+                    	<apex:panelGroup >
+                    		<apex:outputLabel value="{!$ObjectType.Change_Request__c.fields.Date_Needed_By__c.label}" for="need" styleClass="PGLabel" />
+                		</apex:panelGroup>
+                		<apex:panelGroup >
+							<apex:outputText value="{!CRObj.Date_Needed_By__c}" id="need" />
+                    	</apex:panelGroup>
+
+                        <!-- panelGroups for nonAdminUsers -->
+                        <apex:panelGroup rendered="{!IF(isAdminUser == false, true, false)}">
+                            <apex:outputLabel value="{!$ObjectType.Change_Request__c.fields.Review_Date__c.label}" for="userReview" styleClass="PGLabel" />
+                        </apex:panelGroup>
+                        <apex:panelGroup rendered="{!IF(isAdminUser == false, true, false)}">
+                            <apex:outputField value="{!CRObj.Review_Date__c}" id="userReview" />
+                        </apex:panelGroup>
+
+                        <!-- panelGroups for AdminUsers -->
+                        <apex:panelGroup rendered="{!isAdminUser}" >
+                            <apex:outputLabel value="{!$ObjectType.Change_Request__c.fields.Review_Date__c.label}" for="review" styleClass="PGLabel" />
+                        </apex:panelGroup>
+                        <apex:panelGroup rendered="{!isAdminUser}">
+                            <apex:outputField value="{!CRObj.Review_Date__c}" id="review" >
+                                <apex:inlineEditSupport hideOnEdit="edit, assign, escalate" showOnEdit="save, cancel" />
+                            </apex:outputField>
+                        </apex:panelGroup>
+
+                        <!-- panelGroups for nonAdminUsers -->
+                        <apex:panelGroup rendered="{!IF(isAdminUser == false, true, false)}">
+                            <apex:outputLabel value="{!$ObjectType.Change_Request__c.fields.Assigned_To__c.label}" for="useraTo" styleClass="PGLabel" />
+                        </apex:panelGroup>
+                        <apex:panelGroup rendered="{!IF(isAdminUser == false, true, false)}">
+                            <apex:outputField value="{!CRObj.Assigned_To__c}" id="useraTo" />
+                        </apex:panelGroup>
+
+                        <!-- panelGroups for AdminUsers -->
+                    	<apex:panelGroup rendered="{!isAdminUser}" >
+                    		<apex:outputLabel value="{!$ObjectType.Change_Request__c.fields.Assigned_To__c.label}" for="aTo" styleClass="PGLabel" />
+                		</apex:panelGroup>
+                		<apex:panelGroup id="aToName" rendered="{!isAdminUser}">
+							<apex:outputField value="{!CRObj.Assigned_To__c}" id="aTo" >
+                                <apex:inlineEditSupport hideOnEdit="edit, assign, escalate" showOnEdit="save, cancel" />
+                            </apex:outputField>
+                    	</apex:panelGroup>
+
+                        <!-- panelGroups for nonAdminUsers -->
+                        <apex:panelGroup rendered="{!IF(isAdminUser == false, true, false)}">
+                            <apex:outputLabel value="{!$ObjectType.Change_Request__c.fields.Change_Request_Status__c.label}" for="userStatus" styleClass="PGLabel" />
+                        </apex:panelGroup>
+                        <apex:panelGroup rendered="{!IF(isAdminUser == false, true, false)}">
+                            <apex:outputField value="{!CRObj.Change_Request_Status__c}" id="userStatus" />
+                        </apex:panelGroup>
+
+                        <!-- panelGroups for AdminUsers -->
+                    	<apex:panelGroup rendered="{!isAdminUser}">
+                    		<apex:outputLabel value="{!$ObjectType.Change_Request__c.fields.Change_Request_Status__c.label}" for="status" styleClass="PGLabel" />
+                		</apex:panelGroup>
+                		<apex:panelGroup rendered="{!isAdminUser}">
+		                    <apex:outputField value="{!CRObj.Change_Request_Status__c}" id="status" >
+                                <apex:inlineEditSupport hideOnEdit="edit, assign, escalate" showOnEdit="save, cancel" />
+                            </apex:outputField>
+                    	</apex:panelGroup>
+
+                        <apex:panelGroup >
+                            <apex:outputLabel value="Duplicate CR" for="dup" rendered="{!isAdminUser}" styleClass="PGLabel" />
+                        </apex:panelGroup>
+                        <apex:panelGroup >
+                            <apex:outputField value="{!CRObj.Parent_Change__c}" id="dup" rendered="{!isAdminUser}" >
+                                <apex:inlineEditSupport hideOnEdit="edit, assign, escalate" showOnEdit="save, cancel" />
+                            </apex:outputField>
+                        </apex:panelGroup>
+
+                    	<apex:panelGroup >
+                    		<apex:outputLabel value="{!$ObjectType.Change_Request__c.fields.Raise_Hand__c.label}" for="hand" rendered="{!isAdminUser}" styleClass="PGLabel" />
+                		</apex:panelGroup>
+                		<apex:panelGroup >
+							<apex:inputCheckbox value="{!CRObj.Raise_Hand__c}" id="hand" disabled="true" rendered="{!isAdminUser}" />
+                    	</apex:panelGroup>
+
+                    	<apex:panelGroup id="rhn1">
+                    		<apex:outputLabel value="{!$ObjectType.Change_Request__c.fields.Raise_Hand_Notes__c.label}" for="handNotes" rendered="{!CRObj.Raise_Hand__c}" styleClass="PGLabel" />
+                    	</apex:panelGroup>
+                    	<apex:panelGroup id="rhn2">
+                    		<apex:outputText value="{!CRObj.Raise_Hand_Notes__c}" id="handNotes" rendered="{!CRObj.Raise_Hand__c}" />
+                    	</apex:panelGroup>
+
+                    </apex:panelGrid><!-- End Right Column -->
+                </apex:panelGrid><!-- End Change Request Details Section -->
+
+			</apex:pageBlockSection>
+			<apex:pageBlockSection columns="1">
+                <apex:pageBlockSectionItem >
+                    <apex:outputLabel value="{!$ObjectType.Change_Request__c.fields.Subject__c.label}" for="sub" />
+                    <apex:outputText value="{!CRObj.Subject__c}" id="sub" />
+                </apex:pageBlockSectionItem>
+				<apex:pageBlockSectionItem >
+					<apex:outputLabel value="{!$ObjectType.Change_Request__c.fields.Request_Details__c.label}" for="rd" />
+					<apex:inputTextarea value="{!CRObj.Request_Details__c}" id="rd" richText="true" disabled="true" style="width:90%" />
+				</apex:pageBlockSectionItem>
+			</apex:pageBlockSection>
+            <!--
+			<apex:pageBlockSection title="Internal Notes" columns="1" rendered="{!isAdminUser}" >
+
+				<apex:pageBlockSectionItem >
+					<apex:outputLabel value="{!$ObjectType.Change_Request__c.fields.Work_Notes__c.label}" for="wn" />
+					<apex:outputText value="{!CRObj.Work_Notes__c}" id="wn" />
+				</apex:pageBlockSectionItem>
+
+				<apex:pageBlockSectionItem >
+					<apex:outputLabel value="{!$ObjectType.Change_Request__c.fields.Work_Notes_History__c.label}" for="wnh" />
+					<apex:inputTextarea value="{!CRObj.Work_Notes_History__c}" id="wnh" richText="true" disabled="true" style="width:90%;" rows="10" />
+				</apex:pageBlockSectionItem>
+				
+			</apex:pageBlockSection>
+            -->
+			<apex:pageBlockSection title="Planning" rendered="{!isAdminUser}" >
+				<apex:pageBlockSectionItem >
+					<apex:outputLabel value="{!$ObjectType.Change_Request__c.fields.LOE_Hours__c.label}" for="loe" />
+					<apex:outputText value="{!CRObj.LOE_Hours__c}" id="loe" />
+				</apex:pageBlockSectionItem>
+				<apex:pageBlockSectionItem >
+					<apex:outputLabel value="{!$ObjectType.Change_Request__c.fields.Estimated_Date_of_Completion__c.label}" for="estDate" />
+					<apex:outputText value="{!CRObj.Estimated_Date_of_Completion__c}" id="estDate" />
+				</apex:pageBlockSectionItem>
+				<apex:pageBlockSectionItem >
+                    <apex:outputLabel value="{!$ObjectType.Change_Request__c.fields.Order__c.label}" for="order" />
+                    <apex:outputText value="{!CRObj.Order__c}" id="order" />
+				</apex:pageBlockSectionItem>
+				<apex:pageBlockSectionItem >
+					<apex:outputLabel value="{!$ObjectType.Change_Request__c.fields.Date_Completed__c.label}" for="compDate" />
+					<apex:outputText value="{!CRObj.Date_Completed__c}" id="compDate" />
+				</apex:pageBlockSectionItem>
+				<apex:pageBlockSectionItem >
+					<apex:outputLabel value="{!$ObjectType.Change_Request__c.fields.Release_Notes_Details__c.label}" for="relNotes" />
+					<apex:outputText value="{!CRObj.Release_Notes_Details__c}" id="relNotes" />
+				</apex:pageBlockSectionItem>
+			</apex:pageBlockSection>
+
+			<!-- Escalate button popup window -->
+			<apex:outputPanel id="tstpopup">
+	        	<apex:outputPanel styleClass="popupBackground" layout="block" rendered="{!displayPopUp}"/>
+	        	<apex:outputPanel styleClass="custPopup" layout="block" rendered="{!displayPopUp}">
+	        		<apex:panelGrid columns="2" styleClass="PGStyle1"  >
+	        			<apex:panelGroup >
+	                		<apex:outputLabel value="{!$ObjectType.Change_Request__c.fields.Tier_Level__c.label}" for="tier" styleClass="PGLabel" />
+	            		</apex:panelGroup>
+	            		<apex:panelGroup id="st" >
+		                    <apex:selectList value="{!selectedTier}" id="tier" size="1" style="width:125px;" >
+		                        <apex:selectOptions value="{!availableTier}" />
+		                    </apex:selectList>
+		                    <apex:outputPanel layout="inline" rendered="{!crvw.tierLevelRequired}">
+			                        <br></br>
+			                        <apex:outputText style="font-style:itali; color:red;" value="Error: A Tier Level change is Required if you have a Tier Change Reason." />
+			                    </apex:outputPanel>
+	                	</apex:panelGroup>
+
+	                	<apex:panelGroup id="tcr1">
+	                		<apex:outputLabel value="{!$ObjectType.Change_Request__c.fields.Tier_Change_Reason__c.label}" for="tReason" styleClass="PGLabel" />
+	                	</apex:panelGroup>
+	                	<apex:panelGroup id="tcr2">
+							<apex:outputPanel styleClass="requiredInput" layout="block" >
+		                    	<apex:outputPanel styleClass="requiredBlock" layout="block" />
+	            				<apex:inputTextarea value="{!CRObj.Tier_Change_Reason__c}" id="tReason" style="width:300px; height:50px;" />
+			                    <apex:outputPanel layout="inline" rendered="{!crvw.tierChangeReasonRequired}">
+			                        <br></br>
+			                        <apex:outputText style="font-style:itali; color:red;" value="Error: A Tier Change Reason is Required." />
+			                    </apex:outputPanel>                                             
+			                </apex:outputPanel>
+	                	</apex:panelGroup>
+	        		</apex:panelGrid>
+	                
+	                <apex:commandButton value="Back" action="{!closePopup}" rerender="tstpopup,dt,tcran,st,tcr2"/>
+	                <apex:commandButton value="Save Escalation" action="{!saveEscalate}" rendered="{!showSaveEscalate}" style="margin-left:5px;" />
+
+	            </apex:outputPanel>
+        	</apex:outputPanel>
+
+		</apex:pageBlock>
+
+        <apex:pageBlock title="System Information">
+            <apex:pageBlockSection >
+                <apex:pageBlockSectionItem >
+                    <apex:outputLabel value="Created By" for="create" />
+                    <apex:outputText value="{!CRObj.CreatedBy.Name}  {!createdDateStr}" id="create" />
+                </apex:pageBlockSectionItem>
+                <apex:pageBlockSectionItem >
+                    <apex:outputLabel value="Last Modified By" for="mod" />
+                    <apex:outputText value="{!CRObj.LastModifiedBy.Name}  {!lastModDateStr}" id="mod" />
+                </apex:pageBlockSectionItem>
+                <apex:pageBlockSectionItem >
+                    <apex:outputLabel value="Change Request" for="cr" />
+                    <apex:outputText value="{!CRObj.Name}" id="cr" />
+                </apex:pageBlockSectionItem>
+            </apex:pageBlockSection>
+        </apex:pageBlock>
+
+	</apex:form>
+
+    <apex:relatedList subject="{!CRObj.Id}" List="OpenActivities"/>
+    <apex:relatedList subject="{!CRObj.Id}" List="ActivityHistories" />
+    <apex:form >
+        <apex:pageBlock id="CustomCRH" title="Change Request History" >
+            <apex:pageBlockTable value="{!CRHistoriesWrpList}" var="crh" >
+                <apex:column headerValue="Date" >
+                    <apex:outputText value="{!crh.CRHCreatedDate}" />
+                </apex:column>
+                <apex:column headerValue="User" >
+                    <apex:outputLabel value="{!crh.CRHCreatedByName}" />
+                </apex:column>
+                <apex:column headerValue="Action" >
+                    <apex:outputText value="{!crh.CRHActionFormat}" escape="false" >
+                        <apex:param value="{!crh.CRHField}" />
+                        <apex:param value="{!crh.CRHFieldLabel}" />
+                        <apex:param value="{!crh.CRHOldValue}" />
+                        <apex:param value="{!crh.CRHNewValue}" />
+                    </apex:outputText>
+                </apex:column>
+            </apex:pageBlockTable>
+            <apex:outputPanel id="panelShowMore"
+                        layout="block"
+                        styleClass="pShowMore"
+                        rendered="{!AllowShowMore}">
+
+                        <apex:commandLink id="linkShowMore"
+                            action="{!showMore}"
+                            rerender="CustomCRH">Show more »</apex:commandLink>
+
+                            <span> | </span>
+
+                        <apex:outputLink id="linkGotoList"
+                            value="/_ui/common/history/ui/EntityHistoryFilterPage?id={!CRObj.Id}" target="_blank" >Go to list »</apex:outputLink>
+                    </apex:outputPanel>
+            <apex:outputLabel value="No records to display" rendered="{!numOfHistoryRows = 0}" />
+        </apex:pageBlock>
+    </apex:form>
+    <apex:relatedList subject="{!CRObj.Id}" list="CombinedAttachments" />
+
+</apex:page>

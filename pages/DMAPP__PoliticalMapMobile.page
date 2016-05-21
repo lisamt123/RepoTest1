@@ -1,0 +1,20 @@
+<apex:page standardController="Opportunity" 
+	extensions="DMAPP.PoliticalMapLaunchpadController" 
+    cache="false"
+    showHeader="false"
+    sidebar="false"
+    >
+	<c:jQuery paging="true"/>
+    
+    <apex:include pageName="DMAPP__APIDelegate" />
+    
+    <apex:include pageName="DMAPP__PoliticalMapCoachRules"/>
+
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__ttgomjs, 'ttg/lib/modernizr.js')}"/>  
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__ttgomjs, 'ttg/lib/ttgutils.js')}"/>
+    
+    <apex:include pageName="DMAPP__NavTabMobile" rendered="{!hasLicensesForOMOrPlaybook}" />
+    
+    <c:PoliticalMapMobile oppExtraId="{!opportunityExtraId}" />    
+    
+</apex:page>

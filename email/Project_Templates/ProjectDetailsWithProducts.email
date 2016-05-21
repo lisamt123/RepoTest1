@@ -1,0 +1,83 @@
+<messaging:emailTemplate recipientType="Contact" relatedToType="SFDC_520_Quote__c" subject="Training Dates Confirmed for {!relatedTo.name}">
+<messaging:htmlEmailBody >
+
+<!--Header-->
+<table class='MsoNormal' border='0' cellspacing='0' cellpadding='0' width="100%"
+ style='width:100.0%'>
+ <tr>
+  <td style='padding:0in 0in 0in 0in'>
+  <p class='MsoNormal' style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+  normal'><span style='font-size:10.0pt;font-family:"Arial","sans-serif"'><img
+  width='200' height='65' src="https://na5.salesforce.com/servlet/servlet.ImageServer?id=01570000000xU56&oid=00D700000008zHZ&lastMod=1243526330000"
+  title='logo'/></span></p>
+  </td>
+  <td style='padding:0in 0in 0in 0in'>
+  <p class='MsoNormal' align='right' style='margin-bottom:10.0pt;text-align:right;
+  line-height:normal'><span style='font-size:10.0pt;font-family:"Arial","sans-serif"'>{!$Organization.Name}<br/>
+  {!$Organization.Street}<br/>
+  {!$Organization.City}, KS {!$Organization.PostalCode}<br/>
+  www.vinsolutions.com<br/>
+  Sales and Support: 913-825-6124</span></p>
+  </td>
+ </tr>
+</table>
+<!--end header-->
+
+<!--Divider Bar-->
+<div class='MsoNormal' align='center' style='margin-bottom:0in;margin-bottom:.0001pt;
+text-align:center;line-height:normal'><span style='font-size:10.0pt;font-family:
+"Arial","sans-serif";color:black'>
+<hr size='2' width="100%" align='center'/>
+</span></div>
+<!--end Divider Bar-->
+
+<B>Confirmed Dates: </B>{!MID(TEXT(relatedTo.Confirmed_Training_Start__c),6,2)}/{!MID(TEXT(relatedTo.Confirmed_Training_Start__c),9,2)}/{!LEFT(TEXT(relatedTo.Confirmed_Training_Start__c),4)} 
+- {!MID(TEXT(relatedTo.Confirmed_Training_End__c),6,2)}/{!MID(TEXT(relatedTo.Confirmed_Training_End__c),9,2)}/{!LEFT(TEXT(relatedTo.Confirmed_Training_End__c),4)} <br/>
+<B>Implementation Manager:</B> {!relatedTo.Project_Owner_Name__c}<br/>
+<B>Account Manager: </B>{!relatedTo.Account_Manager__c}<br/>
+<B>Regional Manager: </B>{!relatedTo.Acct_Regional__c}<br/>
+<B>DDM: </B>{!relatedTo.Acct_DDM__c}<br/>
+
+<B>Lead Trainer: </B>{!relatedTo.Trainer__r.firstname} {!relatedTo.Trainer__r.lastname}<br/>
+<B>Trainer 2: </B>{!relatedTo.Trainer_2__r.firstname} {!relatedTo.Trainer_2__r.lastname}<br/>
+<B>Trainer 3: </B>{!relatedTo.Trainer_3__r.firstname} {!relatedTo.Trainer_3__r.lastname}<br/>
+<B>Trainer 4: </B>{!relatedTo.Trainer_4__r.firstname} {!relatedTo.Trainer_4__r.lastname}<br/>
+
+<B># of Users: </B>{!relatedTo.Total_number_of_users__c}<br/><br/>
+
+<B>Implementation Contact Information:</B><br/> 
+<a href="https://na5.salesforce.com/{!relatedTo.Opportunity__r.Implementation_Contact__r.Id}">
+{!relatedTo.Opportunity__r.Implementation_Contact__r.Firstname} {!relatedTo.Opportunity__r.Implementation_contact__r.lastname}</a><br/>
+<B>Phone: </B>{!relatedTo.Opportunity__r.Implementation_contact__r.phone}<br/>
+<B>Mobile: </B>{!relatedTo.Opportunity__r.Implementation_contact__r.mobilephone}<br/>
+<B>Email: </B>{!relatedTo.Opportunity__r.Implementation_contact__r.email}<br/><br/>
+
+<B>Dealer Name/Address:</B><br/> 
+<a href="https://na5.salesforce.com/{!relatedTo.Account__r.Id}">{!relatedTo.Account__r.name}</a><br/>{!relatedTo.Account__r.Billingstreet}<br/>
+{!relatedTo.Account__r.Billingcity}, {!relatedTo.Account__r.Billingstate} {!relatedTo.Account__r.BillingPostalCode}<br/><br/>
+
+
+
+<table border="0" width="100%" id="table4">
+<tr>
+       <td width="30%" bgcolor="#C0C0C0"><font face="Arial">Products Sold</font></td>          
+</tr>
+<tr>
+       <apex:repeat value="{!relatedTo.Issues__r}" var="line">
+          <tr>
+            <td>{!line.Piece_Issue__c}</td>                      
+          </tr>
+       </apex:repeat>  
+</tr>
+
+
+</table>
+<div class='MsoNormal' align='center' style='margin-bottom:0in;margin-bottom:.0001pt;
+text-align:center;line-height:normal'><span style='font-size:10.0pt;font-family:
+"Arial","sans-serif";color:black'><hr size='2' width="100%" align='center'/>
+</span></div>
+
+</messaging:htmlEmailBody>
+
+
+</messaging:emailTemplate>

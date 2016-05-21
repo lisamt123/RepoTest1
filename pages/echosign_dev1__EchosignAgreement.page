@@ -1,0 +1,831 @@
+<apex:page title="Agreement: {!agreement.Name}" standardController="echosign_dev1__SIGN_Agreement__c" sidebar="{!IF(NOT ISNULL($CurrentPage.parameters.showheadersidebar),$CurrentPage.parameters.showheadersidebar,'true')}" showHeader="{!IF(NOT ISNULL($CurrentPage.parameters.showheadersidebar),$CurrentPage.parameters.showheadersidebar,'true')}" extensions="echosign_dev1.EchoSignAgreementAdvanced" action="{!initAgreement}" cache="false">
+	<apex:includeScript value="{!URLFOR($Resource.echosign_dev1__jquery1103, 'jquery-ui-1.10.3.custom/js/jquery-1.9.1.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.echosign_dev1__jquery1103, 'jquery-ui-1.10.3.custom/js/jquery-ui-1.10.3.custom.min.js')}"/>
+    <apex:stylesheet value="{!URLFOR($Resource.echosign_dev1__jquery1103, 'jquery-ui-1.10.3.custom/css/ui-lightness/jquery-ui-1.10.3.custom.css')}"/>
+
+            <script type="text/javascript">
+                $jquery = jQuery.noConflict();
+                function getSelectorFromSalesforceId(salesforceId) {
+                    return '#' + salesforceId.replace(/([#;&,.+*~':"!^$\[\]()=>|/])/g, '\\\\$1');
+                }
+                  
+                function salesforceJQuery(salesforceId) {
+                    return jQuery(getSelectorFromSalesforceId(salesforceId));
+                }
+                
+				var popup; 
+				
+				var isAndroid = (navigator.userAgent.match(/Android/i) != null) || isSneakyAndroid();
+
+				function isSneakyAndroid() {
+  					var isMacIntel = false;
+  					var isLinuxArm = false;
+  
+  					if (navigator.userAgent.match(/Intel Mac OS/i) != null) {
+    					isMacIntel = true;
+  					}
+  					
+  					if (navigator.platform.match(/Linux/i) != null) {
+    					isLinuxArm = true;
+  					}
+  					
+  					if (isMacIntel && isLinuxArm) {
+    					return true;
+  					}
+  					
+  					return false;
+				}
+				
+                var isiPad = navigator.userAgent.match(/iPad/i) != null; 
+                var isiPhone = navigator.userAgent.match(/iPhone/i) != null;
+                var isSfdcTouch = navigator.userAgent.match(/SalesforceTouchContainer/i) != null;
+                var isSafari = navigator.userAgent.match(/Safari/i) != null && navigator.userAgent.match(/Chrome/i) == null;
+                
+                var isIosMobile = ( isiPad || isiPhone || isAndroid );
+                   
+                var isIE6 = window.isIE6;
+                
+                if( isIosMobile || isAndroid ) {
+                    isIE6 = true;
+                }
+               	
+               	function showSpinner() {
+    				document.getElementById('{!$Component.agreementPanel}').style.display = 'none';
+    				document.getElementById('{!$Component.loadingSpinnerSection}').style.display = 'block';
+    			}
+        
+    			function hideSpinner() {
+    				document.getElementById('{!$Component.loadingSpinnerSection}').style.display = 'none';
+    				document.getElementById('{!$Component.agreementPanel}').style.display = 'block';
+    			}			
+    			            	
+            	function showCancelAgreementDialog() {
+      				$jquery("#cancelAgreementDialog").dialog("open");
+				}
+				
+            	function hideCancelAgreementDialog() {
+      				$jquery("#cancelAgreementDialog").dialog("close");
+				}
+            	
+            	function showRemoveAgreementDialog() {
+      				$jquery("#removeAgreementDialog").dialog("open");
+				}
+				
+            	function hideRemoveAgreementDialog() {
+      				$jquery("#removeAgreementDialog").dialog("close");
+				}
+												            	
+            	$jquery(document).ready( function() {
+            		$jquery("#cancelAgreementDialog").dialog(
+					{
+						width:"30%",
+						autoOpen:false,
+						position:"center",
+						modal:true,
+						closeable:false,
+						resizable:false,
+						draggable:true,
+						overlay:{opacity:5.0,background:"red"},
+						dialogClass:"esDialogClass",
+						title:"{!$Label.echosign_dev1__Cancel_Agreement_Button_Label}"
+					});
+					
+					$jquery("#removeAgreementDialog").dialog(
+					{
+						width:"30%",
+						autoOpen:false,
+						position:"center",
+						modal:true,
+						closeable:false,
+						resizable:false,
+						draggable:true,
+						overlay:{opacity:5.0,background:"red"},
+						dialogClass:"esDialogClass",
+						title:"{!$Label.echosign_dev1__Delete_Agreement_Button_Label}"
+					});
+            	});
+		    </script> 
+    <style type="text/css">
+        .echo-button {
+            padding-right: 5px;
+        }
+        .apexp .detailList .list td, .apexp .detailList .list th, 
+        .apexp .editPage .bPageBlock .detailList .list tr td, 
+        .apexp .editPage .bPageBlock .detailList .list tr th {
+            border:0 none;
+        }   
+        
+		.echoSignButton {
+			-moz-box-shadow:inset 0px 0px 4px 0px #bbdaf7;
+			-webkit-box-shadow:inset 0px 0px 4px 0px #bbdaf7;
+			box-shadow:inset 0px 0px 4px 0px #bbdaf7;
+			background-color:#27A2C4;
+			-moz-border-radius:5px;
+			-webkit-border-radius:5px;
+			border-radius:5px;
+			border:1px solid #84bbf3;
+			display:inline-block;
+			color:#ffffff;
+			font-family:arial;
+			font-size:13px;
+			font-weight:bold;
+			padding:6px 22px;
+			text-decoration:none;
+			text-shadow:1px 0px 1px #528ecc;
+			margin-right: 5px;
+		}.echoSignButton:hover {
+			background-color:#378de5;
+		}.echoSignButton:active {
+			position:relative;
+			top:1px;
+		}
+		.esDialogClass .ui-widget-header {
+  			background: rgb(124, 197, 234);
+  			border: 1px solid rgb(124, 197, 234);
+		}        
+    </style>
+    
+    <apex:outputpanel id="loadingSpinnerSection" style="display: none; width: 100%; height: 100%;">
+    	<iframe width="100%" height="100%" frameborder="0" src="{!$Page.SendForSignature}"></iframe>
+	</apex:outputpanel>
+    
+    <apex:outputpanel id="agreementPanel" style="display: none;">
+
+    <apex:form id="AgreementFormId">
+    
+        <apex:variable var="hasDocumentKey" value="{!NOT ISNULL(agreement.echosign_dev1__Document_Key__c)}"/>
+        <apex:variable var="errorMsg" value="{!agreement.echosign_dev1__ErrorMessage__c}" />
+        <apex:variable var="agreementStatus" value="{!agreement.echosign_dev1__Status__c}"/>
+        <apex:variable var="agreementStatusVisible" value="{!agreement.echosign_dev1__StatusVisible__c}"/>
+        <apex:variable var="lastEventId" value="{!agreement.echosign_dev1__LastEventId__c}"/>
+        <apex:variable var="isError" value="{! errorMsg != '' }"/>
+        <apex:variable var="isSendInProgress" value="{! AND( agreementStatus == 'Send in Progress', NOT(isError) ) }"/>
+        <apex:variable var="inPresend" value="{!agreementStatus == 'Pre-Send'}"/>
+        <apex:variable var="isApproved" value="{!agreementStatus == 'Approved'}"/>
+        <apex:variable var="isSigned" value="{!agreementStatus == 'Signed'}"/>
+        <apex:variable var="isFiled" value="{! isApproved || isSigned }"/>
+        <apex:variable var="inProgress" value="{!agreementStatus == 'Out for Signature' || agreementStatus == 'Out for Approval' || agreementStatus == 'Waiting for Counter-Signature' || agreementStatus == 'Waiting for Counter-Approval' || agreementStatus == 'WidgetWaitingForVerification' || agreementStatus == 'WIDGET_WAITING_FOR_VERIFICATION' || isSendInProgress}" />
+        <apex:variable var="hasBeenSent" value="{!agreementStatus != 'Draft' && NOT(isError)}" />
+        <apex:variable var="notYetSent" value="{!NOT(hasBeenSent)}" />
+        <apex:variable var="applicableForCancel" value="{!inProgress}" />
+        <apex:variable var="applicableForUpdate" value="{!OR(inProgress, inPresend)}" />
+        <apex:variable var="displayPasswordInput" value="{!notYetSent && ( ( agreement.echosign_dev1__External_Signers_Verification_Method__c = 'Password to sign agreement' ) || ( agreement.echosign_dev1__Internal_Signers_Verification_Method__c = 'Password to sign agreement' ) || agreement.echosign_dev1__PasswordProtectPDF__c)}" id="passwordVar"/> 
+             
+        <apex:variable var="isWindowActionWindowType" value="{! (!ISNULL(cusSettings) && cusSettings.Action_Window_Type__c == 'Window') }" />
+        <apex:variable var="isFrameActionWindowType" value="{! (!ISNULL(cusSettings) && cusSettings.Action_Window_Type__c == 'Frame') }" />
+        
+        <apex:variable var="isDisableEditAttachments" value="{! (!ISNULL(cusSettings) && cusSettings.Disable_Edit_Agreement_Attachments__c) }" />
+        <apex:variable var="isDisableDeleteAttachments" value="{! (!ISNULL(cusSettings) && cusSettings.Disable_Delete_Agreement_Attachments__c) }" />
+        <apex:variable var="isDisableUploadAttachments" value="{! (!ISNULL(cusSettings) && cusSettings.Disable_Upload_Agreement_Attachments__c) }" />
+        <apex:variable var="isDisableAttachAttachments" value="{! (!ISNULL(cusSettings) && cusSettings.Disable_Attach_Agreement_Attachments__c) }" />
+        <apex:variable var="isDisableContentAttachments" value="{! (!ISNULL(cusSettings) && cusSettings.Disable_Content_Agreement_Attachments__c) }" />
+        <apex:variable var="isDisableViewAttachments" value="{! (!ISNULL(cusSettings) && cusSettings.Disable_View_Agreement_Attachments__c) }" />
+        
+        <apex:variable var="isDisableAgreementReviewLogo" value="{! (!ISNULL(cusToolbarSettings) && cusToolbarSettings.Disable_Agreement_Review_Logo__c) }" />
+        
+        <apex:outputPanel rendered="{!AND(echosign_dev1__SIGN_Agreement__c.echosign_dev1__ReturnURL__c!='',echosign_dev1__SIGN_Agreement__c.echosign_dev1__ReturnURL_Text__c!='')}">
+            <!-- a href="{!SIGN_Agreement__c.ReturnURL__c}">Back to {!echosign_dev1__SIGN_Agreement__c.echosign_dev1__ReturnURL_Text__c}</a> -->
+            <apex:commandLink id="ReturnURLLink" action="{!getReturnUrl}">
+                {!echosign_dev1__SIGN_Agreement__c.echosign_dev1__ReturnURL_Text__c}
+            </apex:commandLink>
+        </apex:outputPanel>
+                
+        <apex:pageBlock title="{!$Label.echosign_dev1__Actions_Section_Header}" id="actionPageBlock">
+            <apex:pageBlockSection id="buttonsSection" columns="1">
+            	<apex:pageBlockSectionItem >
+            		<apex:outputPanel id="errorPanelTop">
+                		<apex:outputPanel style="text-align: left;" styleClass="errorMsg" layout="block" rendered="{!pageHaserror}">
+                    		<strong>{!$Label.Correct_Error_Notice} </strong>
+                    		<script>
+                                if (popup && !popup.closed) { popup.close(); }
+                                if( isIosMobile ) { hideSpinner(); }
+                        		salesforceJQuery('{!$Component.AgreementFormId.actionPageBlock.buttonsSection.buttons.sendAgreementButtonImage}').show();
+                        		salesforceJQuery('{!$Component.AgreementFormId.actionPageBlock.buttonsSection.buttons.sendAgreementButtonDisabled}').hide();                                            
+                    		</script>                 
+                			<apex:messages styleClass="pbError" style="text-align: left;" />     
+                		</apex:outputPanel>
+                		<apex:outputPanel rendered="{!!pageHaserror}">
+                			<apex:pagemessages />
+                		</apex:outputPanel> 
+	            	</apex:outputPanel>
+            	</apex:pageBlockSectionItem>
+                <apex:pageBlockSectionItem rendered="{!LEN(errorMsg) > 0}">
+                    <apex:outputText >
+                        <apex:image url="{!$Resource.echosign_dev1__ErrorIcon}"/>
+						<apex:outputPanel styleClass="errorMsg"><b>{!errorMsg}</b></apex:outputPanel>
+                    </apex:outputText>
+                </apex:pageBlockSectionItem>
+                <apex:pageBlockSectionItem rendered="{! !isDisableAgreementReviewLogo }">
+                	<apex:outputPanel style="float: right;">
+            			<a href="https://appexchange.salesforce.com/listingDetail?listingId=a0N300000016ZmCEAU&tab=r" target="_blank"><apex:image url="{!$Resource.echosign_dev1__AppReviewIcon}" style="margin-bottom: 5px;"/></a>
+            			<apex:outputPanel >&nbsp;<a target="_blank" style="vertical-align: super; color: #27A2C4; font-size: 14px; font-weight: bold; text-decoration: none;" href="https://appexchange.salesforce.com/listingDetail?listingId=a0N300000016ZmCEAU&tab=r">{!$Label.EchoSign_Review_Label}</a></apex:outputPanel>
+            		</apex:outputPanel>
+                </apex:pageBlockSectionItem>
+		        <apex:pageBlockSectionItem rendered="{!displayPasswordInput || inPresend}">
+		          <apex:outputText >
+		            <apex:outputText rendered="{!displayPasswordInput}" value="{!$Label.echosign_dev1__Set_Password_Error}"/>
+		            <apex:outputText rendered="{!inPresend}" value="{!$Label.echosign_dev1__Agreement_Not_Sent_Error}"/>
+		          </apex:outputText>
+		        </apex:pageBlockSectionItem>
+		        <apex:pageBlockSectionItem id="password" rendered="{!displayPasswordInput}">
+		          <apex:outputLabel >{!$Label.echosign_dev1__Password_Prompt}</apex:outputLabel>
+		          <apex:inputSecret value="{!password}" title="{!$Label.echosign_dev1__Password_Prompt}" redisplay="true" id="input"/>
+		        </apex:pageBlockSectionItem>
+		        <apex:pageBlockSectionItem id="passwordConfirm" rendered="{!displayPasswordInput}">
+		          <apex:outputLabel >{!$Label.echosign_dev1__Password_Confirm_Prompt}</apex:outputLabel>
+		          <apex:inputSecret value="{!confirmPassword}" title="{!$Label.echosign_dev1__Password_Confirm_Prompt}" redisplay="true" id="input"/>
+		        </apex:pageBlockSectionItem>
+		        <apex:pageBlockSectionItem rendered="{!hasBeenSent || inPresend}">
+		          <apex:outputText >          
+		            <strong>{!$Label.echosign_dev1__Agreement_Status_Label} </strong>
+		            <apex:outputText value="{!agreementStatusVisible}"/>
+		          </apex:outputText>
+		        </apex:pageBlockSectionItem>
+                <apex:pageBlockSectionItem id="buttons">
+                    <apex:outputPanel >
+                        <table width="100%">
+                            <tr>
+                                <td align="left">
+                                    <apex:commandButton id="sendAgreementLink" value="{!$Label.echosign_dev1__Send_Button_Label}" styleClass="echoSignButton" action="{!sendForSignature}" onclick="pageHasError = 'false'; if( isIosMobile ) { showSpinner(); } else { myShow('{!$Page.echosign_dev1__SendForSignature}'); }" oncomplete="onComplete();" rerender="errorPanel,errorPanelTop,agreementDetailsOP,AgreementOptionsSection,recipientsSection,myPanel2" rendered="{!IF( OR(notYetSent,inPresend) && (ISNULL(cusToolbarSettings) || cusToolbarSettings.echosign_dev1__Send_Agreement__c),'true','false')}"/>                        
+                                    <apex:image id="sendAgreementButtonDisabled" url="{!$Resource.echosign_dev1__SendAgreementButtonDisabled}" styleClass="echo-button" style="display:none;" rendered="{!IF(notYetSent && (ISNULL(cusToolbarSettings) || cusToolbarSettings.echosign_dev1__Send_Agreement__c),'true','false')}" />
+                                    <apex:actionFunction name="doSendReminder" action="{!sendReminder}" oncomplete="onFinish();" rerender="errorPanel,errorPanelTop,floatingDiv,agreementDetailsOP,AgreementOptionsSection,recipientsSection,theActionPoller"/>
+                                    <apex:actionFunction name="doCancelAgreement" action="{!cancelAgreement}" oncomplete="if(pageHasError=='false'){updateStatus(); }else{onFinish();}" rerender="errorPanel,errorPanelTop,floatingDiv,agreementDetailsOP,AgreementOptionsSection,recipientsSection,theActionPoller,myPanel2">
+                                    	<apex:param name="cancelReason" assignTo="{!cancelReason}" value="reason" />
+                                        <apex:param name="notifySigner" assignTo="{!notifySigner}" value="notify" />
+                                    </apex:actionFunction>
+                                    <apex:actionFunction name="doDeleteAgreement" action="{!removeAgreement}" oncomplete="if(pageHasError=='false'){updateStatus(); return false;}else{onFinish();}" rerender="errorPanel,errorPanelTop,floatingDiv,agreementDetailsOP,AgreementOptionsSection,recipientsSection,theActionPoller,myPanel2">
+                                    	<apex:param name="cancelReason" assignTo="{!cancelReason}" value="reason" />
+                                        <apex:param name="notifySigner" assignTo="{!notifySigner}" value="notify" />
+                                    </apex:actionFunction>
+                                    <apex:actionFunction name="sendAgreement" action="{!sendAgreement}" oncomplete="if( (pageHasError == 'false') && ( ( !{!agreement.Enable_Hosted_Signing__c} || ( {!agreement.Enable_Hosted_Signing__c} && {!agreement.Authoring__c} ) ) ) ) { sendEnabled = false; if( isIosMobile ) { hideSpinner(); myShow('{!agreementSigningUrl}'); } else { myShow('{!agreementSigningUrl}'); }  if( {! agreement.Authoring__c } ) { window.document.getElementById('dialogCancelButton').style.display = 'block'; } else { window.document.getElementById('dialogCloseButton').style.display = 'block'; } } else if(pageHasError=='false'){ }else{onFinish();}" rerender="errorPanel,errorPanelTop,floatingDiv,agreementDetailsOP,AgreementOptionsSection,recipientsSection,theActionPoller,myPanel2"/>
+                                    <apex:outputpanel id="theActionPoller">
+                                        <apex:outputpanel rendered="{!startActionPoller}">
+                                            <apex:actionPoller action="{!retrieveSigningUrl}" oncomplete="if(pageHasError=='false'){sendEnabled = false; myShow('{!agreementSigningUrl}'); window.document.getElementById('dialogCloseButton').style.display = 'block'; }else{onFinish();}" rerender="errorPanel,errorPanelTop,floatingDiv,agreementDetailsOP,AgreementOptionsSection,recipientsSection,floatingDiv,theSigningPanel,theStatusPanel" interval="5" />
+                                        </apex:outputpanel>
+                                    </apex:outputpanel>
+                                    <apex:commandButton id="updateAgreement" styleClass="echoSignButton" value="{!$Label.echosign_dev1__Update_Agreement_Button_Label}" rendered="{!IF(applicableForUpdate && (ISNULL(cusToolbarSettings) || cusToolbarSettings.echosign_dev1__Update_Status__c),'true','false')}" onclick="updateStatus(); return false;" />                
+                                    <apex:commandButton id="remindAgreement" styleClass="echoSignButton" value="{!$Label.echosign_dev1__Remind_Agreement_Button_Label}" rendered="{!IF(inProgress && (ISNULL(cusToolbarSettings) || cusToolbarSettings.echosign_dev1__Send_Reminder__c),'true','false')}" onclick="sendReminder(); return false;" /> 
+                                    <apex:commandButton id="viewAgreement" styleClass="echoSignButton" value="{!$Label.echosign_dev1__View_Agreement_Button_Label}" rendered="{!IF(hasBeenSent && NOT(isSendInProgress) && (ISNULL(cusToolbarSettings) || cusToolbarSettings.echosign_dev1__View_Agreement__c),'true','false')}" onclick="viewAgreement(); return false;"/>
+                                	
+                                </td>
+                                <td align="right">
+                                    <apex:commandButton id="deleteAgreement" styleClass="echoSignButton" value="{!$Label.echosign_dev1__Delete_Agreement_Button_Label}" rendered="{!IF(hasBeenSent && (ISNULL(cusToolbarSettings) || cusToolbarSettings.echosign_dev1__Delete_Agreement__c),'true','false')}" onclick="showRemoveAgreementDialog(); return false;" />
+                                    <apex:commandButton id="cancelAgreement" styleClass="echoSignButton" value="{!$Label.echosign_dev1__Cancel_Agreement_Button_Label}" rendered="{!IF(applicableForCancel && (ISNULL(cusToolbarSettings) || cusToolbarSettings.echosign_dev1__Cancel_Agreement__c),'true','false')}" onclick="showCancelAgreementDialog(); return false;" />
+                                    <apex:commandButton id="cancelAgreementLink" styleClass="echoSignButton" value="{!$Label.echosign_dev1__Cancel_Button_Label}" action="{!cancelDraft}" rendered="{!IF(notYetSent && (ISNULL(cusToolbarSettings) || cusToolbarSettings.echosign_dev1__Cancel_Draft__c),'true','false')}"/>
+                                </td>
+                            </tr>
+                        </table>
+                    </apex:outputPanel>
+                </apex:pageBlockSectionItem>
+            </apex:pageBlockSection>
+
+            <apex:outputPanel id="errorPanel">
+            	<apex:inputHidden id="pageHasError" value="{!pageHasError}" />
+            	
+               <script>
+               
+               function styleButtons() {
+            	    $jquery( getSelectorFromSalesforceId('{!$Component.AgreementFormId.actionPageBlock.buttonsSection.buttons.sendAgreementLink}') ).removeClass('btn');          	
+                	$jquery( getSelectorFromSalesforceId('{!$Component.AgreementFormId.actionPageBlock.buttonsSection.buttons.saveAgreementLink}') ).removeClass('btn');
+                	
+                	$jquery( getSelectorFromSalesforceId('{!$Component.AgreementFormId.actionPageBlock455.buttonsSection.buttons.sendAgreementLink}') ).removeClass('btn');
+                	$jquery( getSelectorFromSalesforceId('{!$Component.AgreementFormId.actionPageBlock455.buttonsSection.buttons.saveAgreementLink}') ).removeClass('btn');
+                	
+                	$jquery( getSelectorFromSalesforceId('{!$Component.AgreementFormId.actionPageBlock.buttonsSection.buttons.cancelAgreementLink}') ).removeClass('btn');
+                	$jquery( getSelectorFromSalesforceId('{!$Component.AgreementFormId.actionPageBlock.buttonsSection.buttons.cancelAgreement}') ).removeClass('btn');
+                	$jquery( getSelectorFromSalesforceId('{!$Component.AgreementFormId.actionPageBlock.buttonsSection.buttons.deleteAgreement}') ).removeClass('btn');
+                	
+                	$jquery( getSelectorFromSalesforceId('{!$Component.AgreementFormId.actionPageBlock455.buttonsSection.buttons.cancelAgreementLink}') ).removeClass('btn');
+                	$jquery( getSelectorFromSalesforceId('{!$Component.AgreementFormId.actionPageBlock455.buttonsSection.buttons.cancelAgreement}') ).removeClass('btn');
+                	$jquery( getSelectorFromSalesforceId('{!$Component.AgreementFormId.actionPageBlock455.buttonsSection.buttons.deleteAgreement}') ).removeClass('btn');
+                	
+                	$jquery( getSelectorFromSalesforceId('{!$Component.AgreementFormId.actionPageBlock.buttonsSection.buttons.updateAgreement}') ).removeClass('btn');
+                	$jquery( getSelectorFromSalesforceId('{!$Component.AgreementFormId.actionPageBlock.buttonsSection.buttons.viewAgreement}') ).removeClass('btn');
+                	$jquery( getSelectorFromSalesforceId('{!$Component.AgreementFormId.actionPageBlock.buttonsSection.buttons.remindAgreement}') ).removeClass('btn');
+                	
+                	$jquery( getSelectorFromSalesforceId('{!$Component.AgreementFormId.actionPageBlock455.buttonsSection.buttons.updateAgreement}') ).removeClass('btn');
+                	$jquery( getSelectorFromSalesforceId('{!$Component.AgreementFormId.actionPageBlock455.buttonsSection.buttons.viewAgreement}') ).removeClass('btn');
+                	$jquery( getSelectorFromSalesforceId('{!$Component.AgreementFormId.actionPageBlock455.buttonsSection.buttons.remindAgreement}') ).removeClass('btn');
+                	
+                	$jquery( getSelectorFromSalesforceId('{!$Component.AgreementFormId.attachmentSection.attachmentsActionsSection.uploadAgreementLink}') ).removeClass('btn');
+            	}
+            	
+							var isErrorFromServer = false;
+			                var sendEnabled = true;                         
+			                var pageHasError = document.getElementById("{!$Component.AgreementFormId.actionPageBlock.pageHasError}").value;
+                        	if('{!showSecPopup}'=='true'){
+                        		 buildSecurityPopup();	
+                        	}
+                        	
+                    function isNumberKey(evt)
+                    {                    
+                        var charCode = (evt.which) ? evt.which : evt.keyCode;
+                        if (charCode > 31 && (charCode < 47 || charCode > 57 ) )
+                        {
+                            return false;
+                        }
+                        else
+                        {
+                            return true;
+                        }
+                    }
+
+                    function onComplete(){
+                        if(pageHasError=='false'){  
+                            createAgreement();
+                        }else{  
+                            if( isIE6 || {!isWindowActionWindowType} ) {                      
+                                if(popup && !popup.closed){
+                                    if( isIosMobile ) {
+                                        hideSpinner();
+                                    } else {
+                                        popup.close();
+                                    }   
+                                }                               
+                            }else{
+                                box.cancel();
+                            }
+                        }
+                    }                                    
+
+                    function onFinish(){
+                        if( isIE6 || {!isWindowActionWindowType} ) {                 
+                            if(popup && !popup.closed){
+                                if( isIosMobile ) {
+                                    hideSpinner();
+                                } else {
+                                    popup.close();
+                                }
+                            } else if( isIosMobile ) {
+                                box.cancel();
+                            }                             
+                        }else{
+                            box.cancel();
+                        }
+                    } 
+                       
+		       	function buildSecurityPopup() {
+		       		var secbox = sfdcPage.getDialogById("EchoSignSecurityPopup");
+		        	                
+		        	if( secbox == null ) {
+		               secbox = new parent.SimpleDialog("EchoSignSecurityPopup", true); 
+		               secbox.cancel=function() { secbox.hide(); };
+		               parent.secbox = secbox; 
+		               sfdcPage.dialogs[parent.secbox.id] = parent.secbox;
+		               secbox.displayX=false;                   
+		               secbox.createDialog();        
+		               secbox.setWidth("435px");                       
+		         	}
+		         	
+		         	var frameUrl = '{!$Page.ApiKeyInput}?reloadPage=true';
+		         	var srcFrame = '<iframe height="480px" width="400px" frameborder="no" id="popup" style="border:0;" src="'+frameUrl+'"></iframe>';
+		           	secbox.setContentInnerHTML(srcFrame);
+		            secbox.show();
+		       }   
+            function hidesecWindow(){
+                if(pageHasError=='false'){
+                    secbox.hide();
+                    setTimeout("reloadPage()", 750);                            
+                }else{
+                    secbox.hide();
+                }
+            }                          
+			function buildPopup(){   
+				var box = sfdcPage.getDialogById("EchoSignWindow");                   
+			    if( box==null && parent.SimpleDialog != null ){
+			        box = new parent.SimpleDialog("EchoSignWindow", true); 
+			        box.cancel=function(){hideWindow();};
+			        parent.box = box; 
+			        sfdcPage.dialogs[parent.box.id] = parent.box;
+			        box.displayX=true;			        
+			        box.createDialog(); 
+			        box.setWidth("1050px"); //box.setWidth("75%");
+			    }
+			}
+			// Calculate the size of the page so we can set the popup size
+             var viewportwidth;
+             var viewportheight;
+             
+             // the more standards compliant browsers (mozilla/netscape/opera/IE7) use window.innerWidth and window.innerHeight
+             
+             if (typeof window.innerWidth != 'undefined')
+             {
+                  viewportwidth = window.innerWidth,
+                  viewportheight = window.innerHeight
+             }
+             
+            // IE6 in standards compliant mode (i.e. with a valid doctype as the first line in the document)
+            
+             else if (typeof document.documentElement != 'undefined'
+                 && typeof document.documentElement.clientWidth !=
+                 'undefined' && document.documentElement.clientWidth != 0)
+             {
+                   viewportwidth = document.documentElement.clientWidth,
+                   viewportheight = document.documentElement.clientHeight
+             }
+             
+             // older versions of IE
+             
+             else
+             {
+                   viewportwidth = document.getElementsByTagName('body')[0].clientWidth,
+                   viewportheight = document.getElementsByTagName('body')[0].clientHeight
+             }
+ 			var height = viewportheight*.85; 
+        	var frameWidth = 980; //viewportwidth*.72;   //"100%";
+        	
+                    function hideWindow(){
+                        if(pageHasError=='false'){
+                            box.hide();
+                            setTimeout("reloadPage()", 750);                            
+                        }else{
+                            box.hide();
+                        }
+                    }  
+                    
+                    function hideFrame() {
+                    	box.hide();
+                    }
+                    
+                  	function isFrameUrlMobile(url) {
+                		if( ( url.indexOf('{!$Page.RefreshStatus}') != -1 ) ||
+                			( url.indexOf('{!$Page.SendReminder}') != -1 ) ||
+                			( url.indexOf('{!$Page.DeleteAgreement}') != -1 ) ||
+                			( url.indexOf('{!$Page.CancelAgreement}') != -1 ) ) {
+                			return true;
+                		}
+                	
+                		return false;
+                	}
+                    
+                    function myShow(myURL){
+                    	if( {!isWindowActionWindowType} ) {
+                        	echosignPopup(myURL);
+                    	} else if( {!isFrameActionWindowType} ) {
+                    		var mySRC;
+                            mySRC = '<iframe height="'+height+'"px width="'+frameWidth+'"px frameborder="no" id="popup" style="border:0;" src="'+myURL+'"></iframe><div class="buttons"><input id="dialogCloseButton" style="display: none; margin-left: auto; margin-right: auto;" value="{!$Label.Close_Button_Label}" class="btn" name="{!$Label.Close_Button_Label}" onclick="box.cancel()" title="{!$Label.Close_Button_Label}" type="button" /><input id="dialogCancelButton" style="display: none; margin-left: auto; margin-right: auto;" value="{!$Label.echosign_dev1__Cancel_Button_Label}" class="btn" name="{!$Label.echosign_dev1__Cancel_Button_Label}" onclick="box.cancel()" title="{!$Label.echosign_dev1__Cancel_Button_Label}" type="button" /></div>';
+                            box.setContentInnerHTML(mySRC);
+                            box.show();
+                    	} else if( isIosMobile && isFrameUrlMobile(myURL) ) {
+                            var mySRC = '<iframe height="'+height+'"px width="'+frameWidth+'"px frameborder="no" id="popup" style="border:0;" src="'+myURL+'"></iframe><div class="buttons"><input id="dialogCloseButton" style="display: none; margin-left: auto; margin-right: auto;" value="{!$Label.Close_Button_Label}" class="btn" name="{!$Label.Close_Button_Label}" onclick="box.cancel()" title="{!$Label.Close_Button_Label}" type="button" /><input id="dialogCancelButton" style="display: none; margin-left: auto; margin-right: auto;" value="{!$Label.echosign_dev1__Cancel_Button_Label}" class="btn" name="{!$Label.echosign_dev1__Cancel_Button_Label}" onclick="box.cancel()" title="{!$Label.echosign_dev1__Cancel_Button_Label}" type="button" /></div>';
+                            box.setContentInnerHTML(mySRC);
+                            box.show();
+                        } else if(isIE6){
+                    		echosignPopup(myURL);
+                    	} else { 
+							var mySRC;
+							mySRC = '<iframe height="'+height+'"px width="'+frameWidth+'"px frameborder="no" id="popup" style="border:0;" src="'+myURL+'"></iframe><div class="buttons"><input id="dialogCloseButton" style="display: none; margin-left: auto; margin-right: auto;" value="{!$Label.Close_Button_Label}" class="btn" name="{!$Label.Close_Button_Label}" onclick="box.cancel()" title="{!$Label.Close_Button_Label}" type="button" /><input id="dialogCancelButton" style="display: none; margin-left: auto; margin-right: auto;" value="{!$Label.echosign_dev1__Cancel_Button_Label}" class="btn" name="{!$Label.echosign_dev1__Cancel_Button_Label}" onclick="box.cancel()" title="{!$Label.echosign_dev1__Cancel_Button_Label}" type="button" /></div>';
+	                        box.setContentInnerHTML(mySRC);
+	                        box.show();
+                       	}
+                    }               
+
+                    function reloadPage() {
+                    	if( '{!JSENCODE(agreement.ReturnURL__c)}'!='' && !sendEnabled && !isErrorFromServer ) {
+                            window.location.href = '{!JSENCODE(agreement.ReturnURL__c)}';
+                         } else {
+                         	var reloadUrl = window.location.href;
+                         	try {
+								reloadUrl = stripOnloadActionParam(reloadUrl);
+                         	} catch(err) {
+                         	}      
+                            window.location.href = reloadUrl;
+                         }
+                    }
+                   
+                    function stripOnloadActionParam(reloadUrl) {
+                    	if( !getParam().onloadAction &&
+                    		!getParam().onloadaction &&
+                    		!getParam().onLoadAction &&
+                    		!getParam().onLoadaction ) {
+                         	return reloadUrl;	
+                    	}
+                    	
+                    	var convertedUrl = reloadUrl.replace(/&onloadAction=send/gi, '');
+                    	convertedUrl = convertedUrl.replace(/&onloadAction=remind/gi, '');
+                    	convertedUrl = convertedUrl.replace(/&onloadAction=view/gi, '');
+                    	convertedUrl = convertedUrl.replace(/&onloadAction=delete/gi, '');
+                    	convertedUrl = convertedUrl.replace(/&onloadAction=cancel/gi, '');
+                    	convertedUrl = convertedUrl.replace(/&onloadAction=update/gi, '');
+                    	
+                    	convertedUrl = convertedUrl.replace(/onloadAction=send&/gi, '');
+                    	convertedUrl = convertedUrl.replace(/onloadAction=remind&/gi, '');
+                    	convertedUrl = convertedUrl.replace(/onloadAction=view&/gi, '');
+                    	convertedUrl = convertedUrl.replace(/onloadAction=delete&/gi, '');
+                    	convertedUrl = convertedUrl.replace(/onloadAction=cancel&/gi, '');
+                    	convertedUrl = convertedUrl.replace(/onloadAction=update&/gi, '');
+                    	
+                    	convertedUrl = convertedUrl.replace(/onloadAction=send/gi, '');
+                    	convertedUrl = convertedUrl.replace(/onloadAction=remind/gi, '');
+                    	convertedUrl = convertedUrl.replace(/onloadAction=view/gi, '');
+                    	convertedUrl = convertedUrl.replace(/onloadAction=delete/gi, '');
+                    	convertedUrl = convertedUrl.replace(/onloadAction=cancel/gi, '');
+                    	convertedUrl = convertedUrl.replace(/onloadAction=update/gi, '');
+                    	
+                    	return convertedUrl;
+                    }
+                     
+              	function echosignParameters(extraOptions) {
+                    return jQuery.extend({ 
+                      Agreement_ID: '{!JSENCODE(strID)}',
+                      New_Record_ID: '{!JSENCODE(strNewID)}',
+                      Version: '{!JSENCODE(strVersion)}',
+                      namespace: '{!JSENCODE(strNamespace)}',
+                      session: '{!$Api.Session_ID}',
+                      organizationId: '{!$Organization.Id}',
+                      server: '{!$Api.Partner_Server_URL_70}',
+                      Status: '{!agreementStatus}',
+                      LastEventId: '{!lastEventId}',
+                      signerFields: '{!IF(NOT ISNULL(cusSettings.Override_Recipient_Field_List__c),cusSettings.Override_Recipient_Field_List__c,JSENCODE(strNamespace)+"__Recipient_Addresses__c")}',
+                      attachmentIds: '{!JSENCODE(agreement.Attachment_ID_Order__c)}',
+                      mergeFields: '{!JSENCODE(strNamespace)}__Merge__c',
+                      AdditionalOptions: '{!JSENCODE(agreement.AdditionalOptions__c)}'
+                    }, extraOptions);
+                }
+                
+                var ECHOSIGN_URL_BASE = '{! JSENCODE(strBaseURL) }';
+                   	
+                function echosignUrl(subpath, extraOptions) {
+                    return ECHOSIGN_URL_BASE + subpath + '?' + jQuery.param(echosignParameters(extraOptions));
+                }                                                     
+                
+                function checkAndroidPopup() {
+                    try {
+                    	var popupStr = popup + ' ';
+                    } catch(err) {
+	                    if(pageHasError=='false') {
+	                        reloadPage();
+	                    }
+	                    return;
+                    }
+                    setTimeout("checkAndroidPopup()",1000);
+                }
+                  
+                function checkPopup() {
+                    if (!popup || popup.closed) {
+                    	if(pageHasError=='false')
+                        	reloadPage();
+                        return;
+                    }
+                    setTimeout("checkPopup()",1000);
+                }
+                                
+                function echosignPopup(url) {
+                    //12.30.10--use floating div//
+                    if( {!isWindowActionWindowType} ) {
+                        popup = window.open(url, 'EchoSign', 'menubar=0,width=960,height=620,toolbar=0,location=0');
+	                    checkPopup();
+                    } else if( {!isFrameActionWindowType} ) {
+                    	myShow(url);
+                    } else if(isIE6){
+                        if( isAndroid ) {
+                            popup = window.open(url, 'EchoSign');
+                            checkAndroidPopup();
+                        } else if( isIosMobile && isFrameUrlMobile(url) ) {
+                            myShow(url);
+                        } else {
+                            popup = window.open(url, 'EchoSign', 'menubar=0,width=960,height=620,toolbar=0,location=0');
+
+                            checkPopup();
+                        }
+    	            }else{
+                    	myShow(url);
+                    }
+                }
+                  
+                function createAgreement() {
+                    if (sendEnabled) {
+                        sendEnabled = false;                  
+						sendAgreement();
+                    }
+                }
+                      
+                function updateStatus() {
+                    echosignPopup('{!$Page.RefreshStatus}?id={!JSENCODE(strID)}');
+                }
+                  
+                function sendReminder() {
+                    echosignPopup('{!$Page.SendReminder}?id={!JSENCODE(strID)}');
+                    doSendReminder();                                   
+                }
+                  
+                function viewAgreement() {
+                    echosignPopup( echosignUrl('/salesforce-web/page/public/viewAgreement') );
+                    window.document.getElementById('dialogCloseButton').style.display = 'block';
+                }
+                
+                function deleteAgreement() {
+                	deleteAgreement('', '');
+                } 
+                  
+                function deleteAgreement(reason, notify) {                  
+                    echosignPopup('{!$Page.DeleteAgreement}?id={!JSENCODE(strID)}&deleteButton=true');
+                    doDeleteAgreement(reason, notify);                       
+                }
+                
+                function cancelAgreement(reason, notify) {              
+                    echosignPopup('{!$Page.CancelAgreement}?id={!JSENCODE(strID)}');         
+                    doCancelAgreement(reason, notify);                     
+                }
+        
+                function confirmation() {
+                    return confirm('{! JSENCODE($Label.Confirm_Prompt) }');
+                }      
+                                
+                var isClicked = false;
+    			function checkDoubleSubmit(obj) {
+        			if (isClicked) {
+            			return false;
+        			} else {
+            			isClicked = true;
+        			}
+    			}          
+            </script>
+            </apex:outputPanel>      
+        </apex:pageBlock>
+          <apex:detail relatedList="false" title="true"/>
+        <apex:pageBlock title="{!$Label.echosign_dev1__Attachments_Section_Header}" id="attachmentSection" >
+            <apex:pageBlockTable id="bFTablea" style="table-layout: fixed;" value="{!attachmentWrappers}" var="attachmentWrapper" columns="4" columnsWidth="15%,45%,20%,20%">             
+              <apex:column >
+                <apex:facet name="header">{!$Label.echosign_dev1__Attachments_Action_Column_Label}</apex:facet>
+                    <apex:commandButton onclick="window.open('/servlet/servlet.FileDownload?file={!attachmentWrapper.attachment.Id}','viewattachment'); return false;" title="{!$Label.echosign_dev1__View_Attachment_Tooltip}" image="{!$Resource.echosign_dev1__ActionAttachmentView}" rendered="{! NOT(isDisableViewAttachments) }" style="background:transparent;border-width:0px;"/>
+                    <apex:commandButton onclick="window.open('/{!attachmentWrapper.attachment.Id}/e?retURL=/{!agreement.Id}','editattachment'); return false;" title="{!$Label.echosign_dev1__Edit_Attachment_Tooltip}" image="{!$Resource.echosign_dev1__ActionAttachmentEdit}" rendered="{! notYetSent && NOT(isDisableEditAttachments) }" style="background:transparent;border-width:0px;margin-bottom:6px;"/>
+                    <apex:commandButton action="{!onDeleteAttachment}" title="{!$Label.echosign_dev1__Delete_Attachment_Tooltip}" image="{!$Resource.echosign_dev1__ActionDelete}" rendered="{! notYetSent && NOT(isDisableDeleteAttachments) }" onclick="if (!confirmation()){ return false; }else{ }" status="DeletingAttachmentStatus" rerender="attachmentSection,errorPanel,errorPanelTop,floatingDiv" style="background:transparent;border-width:0px;margin-bottom:8px;margin-left:8px;">
+                    	<apex:param assignTo="{!selectedAttachmentIndex}" value="{!attachmentWrapper.index}" name="selectedAttachmentIndex"/>
+                    </apex:commandButton> 
+                    <apex:actionStatus id="DeletingAttachmentStatus">
+                        <apex:facet name="start">
+                        <div class="waitingSearchDiv" style="width: 100%; height: 100%; display: ; opacity:.5;"></div>
+                        </apex:facet>
+                    </apex:actionStatus>                                   
+              </apex:column>  
+              <apex:column style="word-wrap: break-word;">        
+                <apex:facet name="header">{!$Label.echosign_dev1__Attachments_Title_Column_Label}</apex:facet>     
+                    <apex:outputText value="{!attachmentWrapper.attachment.Name}" />
+              </apex:column> 
+              <apex:column >        
+                <apex:facet name="header">{!$Label.echosign_dev1__Attachments_Modified_Column_Label}</apex:facet> 
+                <apex:outputField value="{!attachmentWrapper.attachment.LastModifiedDate}"/>
+              </apex:column>                                   
+              <apex:column >        
+                <apex:facet name="header">{!$Label.echosign_dev1__Attachments_Created_Column_Label}</apex:facet>     
+                    <apex:outputText value="{!attachmentWrapper.attachment.CreatedBy.Name}" />
+              </apex:column> 
+          </apex:pageBlockTable>
+              
+          <apex:pageBlockSection id="attachmentsActionsSection" columns="1">         
+	          <apex:outputpanel rendered="{!!hasBeenSent}">
+              	<apex:commandButton id="uploadAgreementLink" onclick="checkDoubleSubmit(this);" action="{!addAttachment}" rerender="AgreementFormId" value="{!$Label.echosign_dev1__Upload_Button_Label}" styleClass="echoSignButton" rendered="{! !hasBeenSent && NOT(isDisableUploadAttachments) }"/>
+	            	            
+	            <apex:outputpanel rendered="{! NOT(isDisableUploadAttachments) && NOT(isDisableAttachAttachments)  }">&nbsp;<b>{!$Label.Or_Attachments_Label}</b> {!$Label.Select_From_Attachments_Label}:</apex:outputpanel>
+	            <apex:commandLink style="padding-left:5px; color: blue;" rendered="{! !hasBeenSent && NOT(isDisableAttachAttachments) }" value="{!$Label.echosign_dev1__Attachment_Salesforce_Documents_Label}" action="{!addDocument}" />
+	            
+	            <apex:outputpanel rendered="{! NOT(isDisableAttachAttachments) && NOT(isDisableContentAttachments)  }">&nbsp;<b>|</b></apex:outputpanel>
+	            <apex:commandLink style="padding-left:5px; color: blue;" rendered="{! !hasBeenSent && NOT(isDisableContentAttachments) }" value="{!$Label.echosign_dev1__Attachment_Salesforce_Content_Label}" action="{!addContent}" />
+	          </apex:outputpanel>
+          </apex:pageBlockSection>
+
+             
+            <!-- /apex:pageBlockSection> -->
+        </apex:pageBlock>
+                
+        <apex:pageBlock title="{!$Label.echosign_dev1__Agreement_Events_Section_Header}" rendered="{!hasBeenSent}">
+            <apex:pageBlockTable value="{!agreementEvents}" var="agreementEvent">
+                <apex:column value="{!agreementEvent.echosign_dev1__Date__c}" />
+                <apex:column value="{!agreementEvent.echosign_dev1__Description__c}" />
+            </apex:pageBlockTable>
+        </apex:pageBlock>
+        
+        <apex:pageBlock title="{! IF(isApproved, $Label.Approved_Agreement_Section_Header, $Label.Signed_Agreement_Section_Header) }" rendered="{!hasSignedAgreements}">
+            <apex:pageBlockTable value="{!agreementSigned}" var="signedAgreement">
+                <apex:column >
+                    <img src="{!signedAgreement.echosign_dev1__ImageUrl__c}"/>
+                </apex:column>
+            </apex:pageBlockTable>
+        </apex:pageBlock>
+    </apex:form>    
+    
+    </apex:outputpanel>
+    
+	<div id="cancelAgreementDialog" style="display: none;">
+   		<apex:outputPanel id="cancelAgreementOutputPanel">
+			<apex:form >
+				<apex:outputPanel id="cancelAgreementPanel">
+					<div>
+            			<apex:outputLabel value="{! JSENCODE($Label.Cancel_Agreement_Prompt) } {! JSENCODE(agreement.Name) }?"/>
+            		</div>
+            		<div style="margin-top: 10px;">
+            			<input id="cancelAgreementNotifyInput" type="checkbox" name="toggle" />
+						<apex:outputLabel value="{!$ObjectType.echosign_dev1__SIGN_Agreement__c.fields.echosign_dev1__Cancel_Delete_Notify_Signer__c.label}" for="cancelAgreementNotifyInput" />
+            		</div>
+            		<div style="padding-top: 10px;">
+            			<apex:outputLabel value="{!$Label.echosign_dev1__Reason_Cancel_Prompt}"/>
+            			<textarea style="resize: none; border-style: inset; border-width: 2px; width: 95%; height: 75px; border-radius: 3px; margin-top: 5px;" id="cancelAgreementSignerReasonInput" />
+            		</div>
+            		<div style="margin-top: 10px;">
+            			<apex:panelGrid columns="2" id="theGrid">
+                    		<apex:commandButton onclick="var reason = $jquery('#cancelAgreementSignerReasonInput').val(); var notify = $jquery('#cancelAgreementNotifyInput').is(':checked'); hideCancelAgreementDialog(); cancelAgreement(reason, notify); return false;" value="{!$Label.echosign_dev1__OK_Button_Label}" />
+                    		<apex:commandButton onclick="hideCancelAgreementDialog(); return false;" value="{!$Label.echosign_dev1__Cancel_Button_Label}" />
+                 		</apex:panelGrid>
+            		</div>
+				</apex:outputPanel>
+			</apex:form>
+		</apex:outputPanel>
+	</div>
+	
+	<div id="removeAgreementDialog" style="display: none;">
+   		<apex:outputPanel id="removeAgreementOutputPanel">
+			<apex:form >
+        		<apex:variable var="agreementStatus" value="{!agreement.echosign_dev1__Status__c}"/>
+				<apex:variable var="inProgress" value="{! agreementStatus == 'Out for Signature' || agreementStatus == 'Out for Approval' || agreementStatus == 'Waiting for Counter-Signature' || agreementStatus == 'Waiting for Counter-Approval' || agreementStatus == 'WidgetWaitingForVerification' || agreementStatus == 'WIDGET_WAITING_FOR_VERIFICATION' }"/>
+				<apex:outputPanel id="removeAgreementPanel">
+					<div>
+            			<apex:outputLabel value="{! JSENCODE($Label.Delete_Agreement_Prompt) } {! JSENCODE(agreement.Name) }?"/>
+            		</div>
+            		<apex:outputPanel layout="block" rendered="{!inProgress}">
+            			<input id="removeAgreementNotifyInput" type="checkbox" name="toggle" />
+						<apex:outputLabel value="{!$ObjectType.echosign_dev1__SIGN_Agreement__c.fields.echosign_dev1__Cancel_Delete_Notify_Signer__c.label}" for="removeAgreementNotifyInput" />
+            		</apex:outputPanel>
+            		<apex:outputPanel layout="block" rendered="{!inProgress}">
+            			<apex:outputLabel value="{!$Label.echosign_dev1__Reason_Delete_Prompt}"/>
+            			<textarea style="resize: none; border-style: inset; border-width: 2px; width: 95%; height: 75px; border-radius: 3px; margin-top: 5px;" id="removeAgreementSignerReasonInput" />
+            		</apex:outputPanel>
+            		<div style="margin-top: 10px;">
+            			<apex:panelGrid columns="2" id="theGrid">
+                    		<apex:commandButton onclick="var reason = $jquery('#removeAgreementSignerReasonInput').val(); var notify = $jquery('#removeAgreementNotifyInput').is(':checked'); hideRemoveAgreementDialog(); deleteAgreement(reason, notify); return false;" value="{!$Label.echosign_dev1__OK_Button_Label}" />
+                    		<apex:commandButton onclick="hideRemoveAgreementDialog(); return false;" value="{!$Label.echosign_dev1__Cancel_Button_Label}" />
+                 		</apex:panelGrid>
+            		</div>
+				</apex:outputPanel>
+			</apex:form>
+		</apex:outputPanel>	
+	</div>         
+
+  	<script>
+  		function setClassMethod() {
+			if( !document.getElementsByClassName ) {
+				document.getElementsByClassName = function (cn) { 
+					var rx = new RegExp("(?:^|\\s)" + cn+ "(?:$|\\s)");
+					var allT = document.getElementsByTagName("*"), allCN = [], ac="", i = 0, a;
+					while( a = allT[i=i+1] ) {
+			  			ac = a.className;
+			  			if( ac && ac.indexOf(cn) !== -1) {
+							if( ac === cn ) { 
+								allCN[allCN.length] = a; 
+								continue;   
+							}
+							
+							rx.test(ac) ? (allCN[allCN.length] = a) : 0;
+			  			}			
+					}
+
+					return allCN;
+				}
+			}
+		}
+		       
+        jQuery( window ).load(function() {
+           	if( !{!isApiKeySet} ) {
+				window.location = '/apex/EchoSignAdmin';
+		   	} else if( (typeof sforce != 'undefined') && (sforce != null) ) {
+            	sforce.one.navigateToURL('/apex/{!namespace}__AgreementMobile#/pagreement/edit/{! JSENCODE($CurrentPage.parameters.id) }');
+            } else {
+				document.getElementById('{!$Component.agreementPanel}').style.display = 'block';
+			}  
+            
+            buildPopup();
+            styleButtons();
+            setClassMethod();
+            disableRelatedLists();
+		});
+		
+    	function disableRelatedLists() {       			
+			var elements = document.getElementsByClassName('bRelatedList');
+
+			if( !elements || elements.length < 3 ) {
+				return;
+			}
+			
+			for( var i=0; i<4; i++ ) {
+				var element;
+				
+				if( isIE ) {
+					element	= elements[i];
+				} else {
+					element	= elements[0];
+				}
+				
+				removeElement(element);
+			}		
+   		}
+   			
+   		function removeElement(child) {
+   			if( !child || !child.parentNode ) {
+				return;
+			}
+     		
+     		var parent = child.parentNode;
+  			parent.removeChild(child)
+  		} 
+	</script>
+</apex:page>

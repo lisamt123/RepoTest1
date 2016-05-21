@@ -1,0 +1,3589 @@
+<apex:page controller="DMAPP.PlaybookQualifierAdminController" 
+    showHeader="true" 
+    sidebar="false"
+	tabStyle="Playbook_Admin__tab"    
+    docType="html-5.0"
+    >
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__prefix)}"/>
+	<script type="text/javascript" src="{!$Resource.l10njs}"></script>
+	
+	<c:jQuery cookies="true"
+		jQueryUI="true"
+		touchPunch="true"
+		tooltip="true" />
+	
+	<apex:include pageName="DMAPP__tmpCommoncss" />
+	
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__ttgomjs, 'ttg/lib/modernizr.js')}"/>	
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__ttgomjs, 'ttg/lib/ttgutils.js')}"/>	
+	<script type="text/javascript" src="{!URLFOR($Resource.ttgomjs, 'ttg/lib/ttgservice.js')}"></script>
+	
+	<apex:include pageName="DMAPP__Debug" />
+	<script type="text/javascript" src="{!URLFOR($Resource.ftk, 'forcetk.js')}"></script>
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__Underscore, 'underscore-min.js')}"/>
+    <script type="text/javascript" src="{!URLFOR($Resource.dvls, 'js/flowplayer-3.2.6.js')}"></script>  
+    	 	
+	<apex:include pageName="DMAPP__APIDelegate" />
+	<apex:include pageName="DMAPP__Quicklinks" />
+	<apex:include pageName="DMAPP__Note" />
+	<apex:include pageName="DMAPP__PlaybookAdminAddQualifierDialog" />
+	
+	<div id="TAS">
+		<br />
+		<div id="SPINNER"></div>
+		<div class="PAGEWIDTH">
+			<div id="INFORMATION" class="divBlock" style="display:none;">
+				<div class="divQuery">
+					<div id="SUMMARYPANEL"></div>
+				</div>
+			</div>
+			<div id="ADDSTAGEBUTTONBAR"></div>
+			<div id="QUALIFIERS"></div>
+		</div>
+	</div>
+	<script>
+
+		/* 
+		 * Copyright © The TAS Group. All rights reserved.
+		 *  
+		 */    
+		
+		var spec = {
+			ttgApi: ttg.apiLayer.sfdcDelegate( { sessionid : '{!JSENCODE($Api.Session_ID)}', salesProcessId : '{!JSENCODE(salesProcess.id)}' } ),
+			salesProcessId : '{!JSENCODE(salesProcess.id)}',
+			dateformat: '{!JSENCODE(dateFormat)}'					   
+		};
+
+    	var ttg = ttg || {};
+    		ttg.playbook = ttg.playbook || {};
+
+ 		ttg.playbook.admin = (function(_spec) {
+
+			var that = {}
+
+			var PREFIX_QUESTIONID = 'QUESTION_',
+				buttonClass = 'smallerButton ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only';
+
+
+			/*
+			
+			TODO:
+				- Grab help texts and picklist values from metadata instead of harcoding them
+				- After cloning a qualifier, quicklinks don't get cloned, but stay in the ui
+			
+			*/
+
+			var localization = {
+				dlg_cancel:								'Cancel',
+				dlg_ok:									'OK',
+				dlg_save:								'Save',
+				go_back_link:							'<< Go back to sales processes',
+
+				replace_sales_process_title:			'Replace Sales Process In Opportunities',
+				opps_linked_to_sales_process:			'These opportunities are using this sales process you are deleting:',
+				replace_sales_process:					'In order to delete the sales process, you must assign these opportunities to a different one: ',
+				clone_sales_process_title:				'Clone Sales Process',
+				clone_sales_process:					'Name of cloned sales process',
+
+				blank_sales_process_stage_title:		'Blank Sales Process Stage In Opportunities',
+				opps_linked_to_sales_process_stage:		'These opportunities are using this stage you are deleting:',
+				blank_sales_process_stage:				'You must set these opportunities\' stage to blank before you can delete the stage',
+				sales_process_pebbles_greater_rocks:	'Large Deal Size must be greater than Small Deal Size',
+				sales_process_average_greater_rocks:	'Large Deal Size must be greater or equal than Average Deal Size',
+				sales_process_pebbles_greater_average:	'Small Deal Size must be less or equal than Average Deal Size',
+
+				sales_process_company_name:				'Company Name',
+				sales_process_customer_reference:		'Customers are referred to as',
+				sales_process_buyers:					'Multiple Buyers',
+				sales_process_vertical:					'Industry Vertical',												
+				sales_process_average_deal:				'Average Deal Size',
+				sales_process_sales_cycle_duration:		'Sales Cycle Duration (Days)',								
+				sales_process_name:						'Sales Process Name',
+				sales_process_default:					'Default Process',
+				sales_process_closure_duration:			'Closure Duration (Days)',
+				sales_process_final_stage_prob:			'Final Stage Probability %',
+				sales_process_description:				'Description',
+				sales_process_total_sales_cycle:		'Total Sales Cycle Duration',
+				sales_process_last_modified_by:			'Last Modified By',					
+				sales_process_last_modified_date:		'Last Modified Date',				
+				sales_process_pebble_percentage:		'Small Deal Warning %',
+				sales_process_pebble_value:				'Small Deal Size',
+				sales_process_rock_percentage:			'Large Deal Warning %',
+				sales_process_rock_value:				'Large Deal Size',												
+				sales_process_edit:						'Edit',
+				sales_process_delete:					'Delete',
+				sales_process_clone:					'Clone',
+				sales_process_done:						'Done',				
+				sales_process_save:						'Save',
+				sales_process_cancel:					'Cancel',
+				sales_process_restart:					'Restart',
+				sales_process_advanced:					'Advanced',		
+				
+				sales_process_advanced_title:			'Advanced',
+				advanced_cancel:						'Cancel',
+				advanced_save:							'Save',	
+				this_is_default:						'This is the default sales process',
+				no_default:								'There is no default process',				
+				advanced_default_name:					'Default Sales Process Name',
+				
+				default_change_title:					'Set Process As Default Confirmation',	
+				default_change_label:					'There is another sales process in the system set as the default sales process',
+				default_change_confirmation:			'There should be only one default sales process. Do you want to set this process as the new default sales process?',					
+				
+				done_dialog_title:						'Sales Process Playbook Advice',
+				done_dialog_button:						'Sales Process Playbook List',
+				done_dialog_cancel:						'Cancel',
+				done_dialog_label:						'You are now finished configuring your Sales Process Playbook. If you are using automatic sales process mapping then you should confirm that your Sales Process  is correctly mapped.  You should also consider testing this new Sales Process on an opportunity.',
+				
+				single:									'Single',
+				multiple:								'Multiple',
+
+				yes:									'Yes',
+				no:										'No',
+				
+				close_clone_process:					'Close',
+				go_to_clone_process:					'Go To Clone Process',
+				
+				sales_process_clone_successful:			'Sales Process was cloned successfully',	
+				sales_process_clone_successful_title:	'Sales Process Cloned Successfully',	
+
+				sales_process_clone_failed:				'Sales Process clonation failed',	
+				sales_process_clone_failed_title:		'Sales Process Clonation Failed',	
+				sales_process_clone_failed_existing:	'There is an existing sales process with that name',	
+				
+				stage_qualification_threshold:			'Stage Threshold',
+				stage_amber:							'Yellow Status',
+				stage_green:							'Green Status',
+				stage_duration:							'Duration Days',
+				stage_settings:							'Stage Settings',
+				add_qualifier:							'Add Qualifier',
+				stage_amber_greater_green:				'Green % must be greater than Amber %',
+				stage_greater_5000:						'Stage duration cannot be greater than 5000 days',
+				
+				qualifier_long_name:					'Qualifier / Verifiable Outcome',
+				qualifier_tip:							'Tip',
+				qualifier_ui_readonly:					'Smart Qualifier',
+				qualifier_id:							'Qualifier ID',				
+				qualifier_importance:					'Importance',
+				qualifier_mandatory:					'Mandatory',
+				qualifier_placeholder:					'Maybe you should add some qualifiers',
+				quicklink_name:							'Name',
+				quicklink_description:					'Description',
+				quicklink_link:							'Link',
+				quicklink_type:							'Type',								
+				quicklinks:								'Quicklinks',
+				add_quicklink:							'Add quicklink',
+				create_quicklink:						'New Quicklink',
+				quicklinks_search_dialog:				'Quicklink Search',
+				quicklinks_search_dialog_label:			'Quicklink Name',				
+				quicklinks_search_dialog_search:		'Search',
+				quicklinks_search_dialog_add:			'Add',
+				quicklinks_search_dialog_cancel:		'Cancel',
+				create_quicklink_dialog_title: 			'Create Quicklink',
+				edit_quicklink_dialog_title: 			'Edit Quicklink',
+				edit_quicklink_save_button:				'Save',
+				edit_quicklink_delete_button:			'Delete',				
+				edit_quicklink_cancel_button:			'Cancel',				
+				quicklink_name_empty:					'Name is a mandatory field',
+				quicklink_description_empty:			'Description is a mandatory field',
+				quicklink_link_empty:					'Link Name is a mandatory field',
+				quicklink_type_empty:					'Type is a mandatory field',
+				quicklink_delete_dialog_title:			'Deleting Quicklink',				
+				
+				edit_qualifier_dialog_title:			'Edit Qualifier / Verifiable Outcome',
+				edit_qualifier_warning:					'These changes could affect other sales processes',
+				edit_qualifier_confirmation:			'Do you want to change the original qualifier or create a new copy of it?',
+				change_original_qualifier:				'These changes could affect other sales processes',
+				copy_original_qualifier:				'These changes could affect other sales processes',
+				edit_qualifier_warning_dialog:			'Qualifier Overwrite',
+				edit_qualifier_close_button:			'Close',
+				edit_qualifier_edit_button:				'Edit',
+				edit_qualifier_save_button:				'Save',
+				edit_qualifier_cancel_button:			'Cancel',
+				edit_qualifier_make_copy_button:		'Copy Qualifier',
+				edit_qualifier_copy_button:				'Create a copy',
+				edit_qualifier_change_original_button:	'Change original',				
+				sales_process_usage:					'There are other sales processes using this qualifier. Editing this qualifier will also update it in the sales processes listed below.\nIf you wish to leave other sales processes unaffected, rather than editing this qualifier you are advised to remove this qualifier from the sales process and create a new qualifier in its place. (Note, once a qualifier has been removed any answers recorded against it for an opportunity will no longer be visible)',
+				
+				sales_process_restart_dialog_title:		'Restart Sales Process',
+				restart_confirmation_label:				'This sales process will be deleted and you will start the Dealmaker Genius wizard again. Are you sure?',
+				restart_dialog__error_title:			'Sales Process Restart Failed',
+				restart_dialog__error_label:			'Sales process couldn\'t be restarted because it is been used already',
+				delete_confirmation_label:				'Are you sure?',
+				sales_process_delete_dialog_title:		'Deleting Sales Process',
+				stage_delete_dialog_title:				'Deleting Sales Process Stage',
+				qualifier_delete_dialog_title:			'Deleting Sales Process Qualifier',
+				
+				add_stage_button_title:					'Add Stage',
+				add_stages_dialog_title:				'Adding Stages to Sales Process',
+				add_stages_dialog_label:				'Select the stage you want to add to this sales process:'			
+																			
+			};
+			
+			
+			var helpText = {
+				companyName:						'The name of your company as it will appear in the qualifiers or verifiable outcomes.  For example:  Have you presented the capabilities of $COMPANY_NAME to the buyer.  This could be  a common abbreviation used internally or it might be the full company name.   It is selected once for your organization and cannot be edited once selected.  All subsequent sales processes will use this company name.',
+				customerReference:					'How you refer to your customers to reflect the language of your company.',
+				salesProcessName:					'Use a meaningful descriptive name for this sales process so that you will be able to identify it if you want to retrieve it or edit it later.',
+				multipleBuyers:						'Do you usually sell to a single individual or are there many people involved in the buying process? Select Multiple or Single buyer.',
+				vertical:							'The industry that is relevant for your Sales Process Playbook.',
+				averageDealSize:					'Enter the size of a typical or average sales opportunity.',
+				salesCycleDuration:					'Enter the number of days that it usually takes to close a sales opportunity from the time when it first became an opportunity to when you close the deal.',
+				closureDuration:					'Enter the number of days typically taken to close an opportunity after all steps have been completed.  This can be zero.',
+				description:						'Enter a description for the Sales Process Playbook that conveys sufficient information when you are subsequently viewing or editing the process.',
+				finalStageProb:						'This is the probability of the opportunity closing after all steps have been completed.  This is usually 100%.',
+				threshold:							'Used for Forecasting.\n\nAn opportunity must achieve the threshold percentage (and be within the forecasting close date) in order to be deemed "Projected" in the Forecast Analysis for Dealmaker.',
+				totalSalesCycle:					'Sum of all stage durations plus closure duration (days).',
+				rockValue:							'Large deal size is the value of the opportunity that you consider to be very large when compared to your average deal size for this sales process. It is flagged with an icon in Team View (see ‘Using Team Views’ in online help). It is used in conjunction with Large Deal Warning % (accessed via the ‘Advanced’ button) to alert the sales person that their pipeline mix may contain an over dependence on one or more abnormally large deals. This would represent a potential risk in their pipeline.',
+				pebbleValue:						'Small deal size is the value of the opportunity that you consider to be very small when compared to your average deal size for this sales process. It is flagged with an icon in Team View (see ‘Using Team Views’ in online help). It is used in conjunction with Small Deal Warning % (accessed via the ‘Advanced’ button) to alert the sales person that their pipeline may contain a significant number of small deals. This would represent a potential risk in their pipeline.',    
+				rockPercentage:						'The percentage of the pipeline value that is represented by abnormally large deals.   For example if your pipeline value is $100 and your average deal size is $10 a good Mix would be 10 deals at $10.  However if your large deal size is $40 and your Large Deal Warning % is 40%  (recommended) and you have 1 opportunity valued at $50 with a total pipeline of $100 you would see the warning to indicate that half your pipeline is represented by one large deal.',  
+				pebblePercentage:					'The percentage of the pipeline value that is represented by unusually small deals.  For example if your pipeline value is $100 and your average deal size is $10, a good Mix would be 10 deals at $10.  However if your small deal size is $2.5 and your Small Deal Warning % is 40% (recommended) and you have 16 opportunities valued at $2.5, with a total pipeline of $100 you would see the warning to indicate that 40% of your pipeline is represented by too many unusually small deals.',
+				defaultProcess:						'The Default Sales Process is a catch-all process that opportunities will revert to if they are not automatically assigned a Sales Process by the Sales Process Map functionality. Refer to the Playbook Administrators Guide',
+				
+				quicklinkName:						'The name of the quicklink.',
+				quicklinkDescription:				'A description of the quicklink.',
+				quicklinkLink:						'The url to the content of the quicklink.',
+				quicklinkType:						'Set to video, link or download as appropriate.',
+				
+				amber:								'A yellow status means that the action against the Qualifier or Verifiable Outcome is underway, but not complete. Enter the % of the stage that should be completed to turn the stage status from gray to yellow.  Valid values are 0-100.  The recommended default is 50 (%).',
+				green:								'A green check status indicates that the Qualifier or Verifiable Outcome has been satisfied.  Valid values are 0-100.  The recommended default is 80 (%).',
+				duration:							'Enter the number of days that it usually takes to work through the stage, from the day it entered the stage to the day when you complete the stage. For example, stage 1 takes 36 days to complete.  Note that Dealmaker will track the actual days it takes, so that you can see how you\'re tracking against expectations over time.',
+				qualificationThreshold:				'This indicates that you have successfully completed sufficient activities in a particular stage in order to advance to the next stage in the Pipeline. It is the threshold score that must be achieved on the stage before the opportunity can move to the next stage.  Note that all "mandatory" qualifiers must also be achieved before the opportunity will move.',
+				mandatory:							'Mandatory qualifiers must be completed before the opportunity can move to a future stage in the sales process, regardless of whether or not the overall qualification threshold of the stage has been reached.',
+				importance:							'Relative importance of this qualifier in the sales process.\n\nNote that the importance level provided will impact:\n- Closure Probability\n- Close Date\n- Stage (highest importance qualifiers must be completed to move the opp. to the next stage)',
+				qualifierText:						'The text for the qualifiers / verifiable outcomes for each stage displayed to the user in the Dealmaker Sales Playbook as part of the sales process.',
+				qualifierTip:						'The help text associated with the qualifier / verifiable outcome.\n\nUse this section to provide instructions to the user on what the question is asking them to focus on, what steps they should take and/or what details they should provide in the comments',
+				uiReadonly:							'A Readonly qualifier cannot be set by a user on the playbook screen.\n\nIt is anticipated that these qualifiers will be set by other means (triggers etc)'
+			};
+
+			var ttgApi = _spec.ttgApi,
+				salesProcessId = _spec.salesProcessId,
+				dateformat = _spec.dateformat,
+				data = {},
+				iPad = ttg.isTouchScreen(); //navigator.userAgent.match(/iPad/i) != null,
+				comingFromGenius = {!isComingFromGenius},
+				addQualifierDialog = ttg.playbook.adminaddqualifierdialog(_spec);		
+			
+			function render(salesProcess) {
+				try {
+
+					jQuery('#goBackToSalesProcessesLink').remove();						
+					/*var goBackButton = jQuery('<input/>', {id: 'goBackToSalesProcessesLink', type: 'button'}).val(localization.go_back_link).addClass(buttonClass).click(function() {
+						window.location.href = 'apex/PlaybookAdmin';
+					});*/
+					var goBackButton = jQuery('<a/>', {id: 'goBackToSalesProcessesLink', href: 'apex/PlaybookAdmin'}).text(localization.go_back_link).addClass('backlink');
+					//jQuery('#INFORMATION').before(goBackButton);
+					
+					var salesProcessNameTitleDiv = jQuery('<div/>', {id:'salesProcessNameTitleDiv'});
+					var salesProcessNameTitle = jQuery('<span/>', {id:'salesProcessNameTitle'}).text(salesProcess.name);
+					salesProcessNameTitleDiv.append(goBackButton);
+					salesProcessNameTitleDiv.append(jQuery('<strong/>').text('Dealmaker Sales Process Playbook')).append(jQuery('<span/>').text(' - ')).append(salesProcessNameTitle);
+					
+					var playbookHelpDiv = jQuery('<div/>', {id: 'playbookHelpDiv'}).addClass('smartOMMainHelpLink');
+					playbookHelpDiv.append(jQuery('<a/>', {id: 'TASHELPLINK'}).text('Help').on('click', function() {
+						window.open('{!helpURLBase}' + '/Default.htm#Smart_Playbook/Playbook_Administration/Playbook_administration.htm', 'TAS', 'resizable=1,location=1,status=1,scrollbars=1,width=1000,height=600');
+					}));
+					salesProcessNameTitleDiv.append(playbookHelpDiv);
+					
+					jQuery('#INFORMATION').before(salesProcessNameTitleDiv);
+
+					// Reset screen
+					jQuery('#INFORMATION').css('display', 'block');
+					createSummaryPanel(salesProcess);
+
+					var addStageButton = jQuery('<input/>', {id: 'addStageButton', type: 'button'}).val(localization.add_stage_button_title).addClass(buttonClass).click(addStageClicked);
+					jQuery('#ADDSTAGEBUTTONBAR').html('').append(addStageButton);
+	
+					renderStages(salesProcess.stages);
+
+				}
+				finally {
+					showAjaxSpinner(false);
+				}
+			}
+			
+			
+			function renderStages(stages) {
+					var index = 0,
+						qualifiersDiv = jQuery('#QUALIFIERS');
+					
+					/*qualifiersDiv.html('');
+					jQuery.each(stages, function (index, stage) {
+						qualifiersDiv.append(generateStage(index++, stage));
+					});*/
+					
+
+					//qualifiersDiv.html('');  on deletestage delete the stage
+					var lastStage = null, 
+						currentStage = null,
+						stageDiv = null;
+						
+					for(index = 0; index < stages.length; index++) {
+						currentStage = generateStage(index, stages[index]);
+						stageDiv = getStageDivById(stages[index].id);
+						if(stageDiv) {
+							stageDiv.before(currentStage).remove();
+						}
+						else {
+							if(lastStage === null) {
+								qualifiersDiv.prepend(currentStage);
+							}
+							else {
+								lastStage.after(currentStage);
+							}
+						}
+						lastStage = currentStage;
+						
+					}					
+					
+					connectAllSortables();
+
+					var addStageButton = jQuery('#addStageButton');
+					if(stages.length === data.availableStages.length) {
+						addStageButton.attr('disabled', 'disabled').addClass('ui-button-disabled ui-state-disabled');
+					}
+					else {
+						addStageButton.removeAttr('disabled').removeClass('ui-button-disabled ui-state-disabled');
+					}					
+			}
+
+
+			function getStageDivById(stageId) {
+				var stageDiv = jQuery('#STAGE_' + stageId);
+				if(stageDiv.length === 1) {
+					return stageDiv;
+				}
+				else {
+					return null;
+				}
+			}
+
+			function addStageClicked() {
+			
+				var addStageDialog = jQuery('<div/>', {id: 'addStageDialog'});
+				var addStageDialogDiv = jQuery('<div/>', {id: 'addStageDialogTableDiv'});
+				var stagesTable = jQuery('<table/>', {id: 'addStageDialogTable'});
+				var selectedStages = {};
+				var existingStages = {};
+				
+				jQuery.each(data.stages, function(index, stage) {
+					existingStages[stage.stageId] = stage;
+				});
+				
+				
+				jQuery.each(data.availableStages, function(index, stage) {
+					if(!existingStages[stage.id]) {
+						var stageRow = jQuery('<tr/>');
+						var stageCheckbox = jQuery('<input/>', {id: 'stageCheckbox' + stage.id, type: 'radio', name: 'stageRadioGroup'}).click(function() {
+							for(var stageId in selectedStages) {
+								var checkboxId = 'stageCheckbox' + stageId;
+								if(selectedStages.hasOwnProperty(stageId) && (checkboxId !== jQuery(this).attr('id'))) {
+									delete selectedStages[stageId];
+									jQuery('#' + checkboxId).removeProp('checked');
+									jQuery('#' + checkboxId).prop('checked', false);
+																		
+									// jQuery('#' + checkboxId)[0].checked = false;
+								}
+							}
+							this.checked = true;
+							selectedStages[stage.id] = stage;
+														
+							/* if (jQuery(this).prop('checked')) {
+								selectedStages[stage.id] = stage;
+							} else {
+								delete selectedStages[stage.id];
+							} */
+							
+						});
+						stageRow.append(jQuery('<td/>').append(stageCheckbox));
+						stageRow.append(jQuery('<td/>').text(stage.name));
+						stagesTable.append(stageRow);
+					}
+				});
+				
+				addStageDialog.append(jQuery('<div/>').addClass('addStageDialogLabel').text(localization.add_stages_dialog_label));
+				addStageDialog.append(addStageDialogDiv.append(stagesTable));
+				
+				addStageDialog.dialog({
+					title: localization.add_stages_dialog_title,
+					width: '480px',
+					modal: true,
+					buttons: {
+						'Add': function() {
+							addStageDialog.dialog('close');
+							var stagesToInsert = [];
+							for(var s in selectedStages) {
+								if(selectedStages.hasOwnProperty(s)) {
+									stagesToInsert.push(selectedStages[s]);	
+								}
+							}
+							if(stagesToInsert.length > 0) {
+								wrapPostStage(stagesToInsert, function() {
+								});
+							}
+						},
+						'Close': function() {
+							addStageDialog.dialog('close');
+						}						
+					}
+				});
+			
+			}
+
+
+			function updateSummaryPanel(result) {
+				createSummaryPanel(result);
+				jQuery('#salesProcessNameTitle').text(result.name);
+			}
+			
+			function refreshLastModifiedAndSalesCycle(salesProcess, lastModifiedBy, lastModifiedDate, salesCycleDuration, totalSalesCycle) {
+           		salesProcess.lastModifiedDate = lastModifiedDate;
+           		salesProcess.lastModifiedBy = lastModifiedBy;        
+           		salesProcess.salesCycleDuration = salesCycleDuration;		
+           		salesProcess.totalSalesCycle = totalSalesCycle;
+           		jQuery('#processLastModifiedDateLabel').text(salesProcess.lastModifiedDate);           		
+           		jQuery('#processLastModifiedByLabel').text(salesProcess.lastModifiedBy);
+           		jQuery('#processSalesCycleDurationLabel').text(salesProcess.salesCycleDuration);           		
+           		jQuery('#processTotalSalesCycleLabel').text(salesProcess.totalSalesCycle);
+			}	
+
+			function createSummaryPanel(salesProcess) {
+
+				jQuery('#SUMMARYPANEL').html('');
+				
+				var leftTable = jQuery('<table/>', {id: 'salesProcessLeftTable'}),
+				 	rightTable = jQuery('<table/>', {id: 'rightProcessRightTable'});
+				
+				var processCompanyName = jQuery('<span/>', {id: 'processCompanyName'}).text(salesProcess.companyName),					
+					processCustomerReference = jQuery('<span/>', {id: 'processCustomerReference'}).text(salesProcess.customerReference),
+					processNameInput = jQuery('<input/>', {id: 'processNameInput', type: 'text', maxlength: 80}).val(salesProcess.name).addClass('salesProcessInput'),
+					processNameLabel = jQuery('<span/>', {id: 'processNameLabel'}).text(salesProcess.name),
+					processDescriptionInput = jQuery('<textarea/>', {id: 'processDescriptionInput'}).attr('rows', 2).val(salesProcess.description),
+					processDescriptionLabel = jQuery('<pre/>', {id: 'processDescriptionLabel'}).text(trimDescription(salesProcess.description || '')),
+					processSalesCycleDurationLabel = jQuery('<span/>', {id: 'processSalesCycleDurationLabel'}).text(salesProcess.salesCycleDuration),
+					processTotalSalesCycleLabel = jQuery('<span/>', {id: 'processTotalSalesCycleLabel'}).text(salesProcess.totalSalesCycle);
+				
+				ttg.setUpMaxLimitCheck(processDescriptionInput, 32768);
+					
+				var descriptionHelp = createHelpIcon(helpText.description),
+					companyNameHelp = createHelpIcon(helpText.companyName.replace('$COMPANY_NAME', salesProcess.companyName)),
+					customerReferenceHelp = createHelpIcon(helpText.customerReference),
+					verticalHelp = createHelpIcon(helpText.vertical),
+					averageDealSizeHelp = createHelpIcon(helpText.averageDealSize),
+					averageDealSizeHelpAdvanced = createHelpIcon(helpText.averageDealSize),
+					salesProcessNameHelp = createHelpIcon(helpText.salesProcessName),
+					salesCycleDurationHelp = createHelpIcon(helpText.salesCycleDuration),
+					multipleBuyersHelp = createHelpIcon(helpText.multipleBuyers),
+					rockValueHelp = createHelpIcon(helpText.rockValue),
+					rockValueHelpAdvanced = createHelpIcon(helpText.rockValue),
+					rockPercentageHelp = createHelpIcon(helpText.rockPercentage),
+					pebbleValueHelp = createHelpIcon(helpText.pebbleValue),
+					pebbleValueHelpAdvanced = createHelpIcon(helpText.pebbleValue),
+					pebblePercentageHelp = createHelpIcon(helpText.pebblePercentage),
+					defaultProcessHelp = createHelpIcon(helpText.defaultProcess),					
+					defaultProcessHelpAdvanced = createHelpIcon(helpText.defaultProcess),
+					totalSalesCycleHelp = createHelpIcon(helpText.totalSalesCycle);	
+									
+
+				leftTable.append(createRow(localization.sales_process_company_name +':', processCompanyName, null, companyNameHelp))
+							.append(createRow(localization.sales_process_customer_reference +':', processCustomerReference, null, customerReferenceHelp))
+							.append(createRow(localization.sales_process_name +':', processNameLabel, processNameInput, salesProcessNameHelp))
+							.append(createRow(localization.sales_process_description +':', processDescriptionLabel, processDescriptionInput, descriptionHelp))							
+							.append(createRow(localization.sales_process_sales_cycle_duration +':', processSalesCycleDurationLabel, null, salesCycleDurationHelp))
+							.append(createRow(localization.sales_process_total_sales_cycle +':', processTotalSalesCycleLabel, null, totalSalesCycleHelp));
+
+				var processBuyers = jQuery('<span/>', {id: 'processBuyers'}).text(salesProcess.multipleBuyers ? localization.multiple : localization.single),
+					processVertical = jQuery('<span/>', {id: 'processVertical'}).text(salesProcess.industryVertical),
+					processAverageDeal = jQuery('<span/>', {id: 'processAverageDeal'}).text(salesProcess.averageDealSizeFormatted),
+					processRockValueLabel = jQuery('<span/>', {id: 'processRockValueLabel'}).text(salesProcess.rockValueFormatted),
+					processPebbleValueLabel = jQuery('<span/>', {id: 'processPebbleValueLabel'}).text(salesProcess.pebbleValueFormatted),
+					processLastModifiedByLabel = jQuery('<span/>', {id: 'processLastModifiedByLabel'}).text(salesProcess.lastModifiedBy),					
+					processLastModifiedDateLabel = jQuery('<span/>', {id: 'processLastModifiedDateLabel'}).text(salesProcess.lastModifiedDate),					
+					processDefaultLabel = jQuery('<span/>', {id: 'processDefaultLabel'}).text(salesProcess.defaultProcess ? localization.yes : localization.no);
+
+
+				rightTable.append(createRow(localization.sales_process_buyers +':', processBuyers, null, multipleBuyersHelp))
+							.append(createRow(localization.sales_process_vertical +':', processVertical, null, verticalHelp))
+							.append(createRow(localization.sales_process_average_deal +':', processAverageDeal, null, averageDealSizeHelp))
+							.append(createRow(localization.sales_process_rock_value +':', processRockValueLabel, null, rockValueHelp))
+							.append(createRow(localization.sales_process_pebble_value +':', processPebbleValueLabel, null, pebbleValueHelp))
+							.append(createRow(localization.sales_process_last_modified_by +':', processLastModifiedByLabel, null))							
+							.append(createRow(localization.sales_process_last_modified_date +':', processLastModifiedDateLabel, null))
+							.append(createRow(localization.sales_process_default +':', processDefaultLabel, null, defaultProcessHelp));
+							
+
+				var editButton = createButton('editSalesProcessButton', localization.sales_process_edit, editClicked),
+					deleteButton = createButton('deleteSalesProcessButton', localization.sales_process_delete, deleteClicked),
+					advancedButton = createButton('advancedSalesProcessButton', localization.sales_process_advanced, advancedClicked),
+					restartButton = createButton('restartSalesProcessButton', localization.sales_process_restart, restartClicked),
+					cloneButton = createButton('cloneSalesProcessButton', localization.sales_process_clone, cloneClicked),
+					doneButton = createButton('doneSalesProcessButton', localization.sales_process_done, doneClicked),
+					saveButton = createButton('saveSalesProcessButton', localization.sales_process_save, saveClicked),
+					cancelButton = createButton('cancelSalesProcessButton', localization.sales_process_cancel, cancelClicked);			
+				
+				var validationMsg = jQuery('<span/>', {id: 'salesProcessValidationMsg'});//.addClass('validationMsg');
+				
+				var salesProcessButtonBar = jQuery('<div/>', {id: 'salesProcessButtonBar'}).append(validationMsg).append(restartButton).append(editButton).append(advancedButton).append(deleteButton).append(cloneButton).append(doneButton).append(saveButton).append(cancelButton);
+
+				var leftDiv = jQuery('<div/>', {id: 'salesProcessLeftDiv'}).append(leftTable),
+					rightDiv = jQuery('<div/>', {id: 'salesProcessRightDiv'}).append(rightTable).append(salesProcessButtonBar);
+				
+				jQuery('#SUMMARYPANEL').append(leftDiv).append(rightDiv);	
+				
+				
+				setEditionMode(false);
+				
+				function trimDescription(description) {
+					var maxLimit = 125; 
+					if(description.length > maxLimit) {
+						return description.substring(0, maxLimit) + '...';
+					}
+					else {
+						return description;
+					}
+				}
+				
+				function createRow(label, readOnlyInputField, inputField, help) {
+					return jQuery('<tr/>').append(jQuery('<td/>').addClass('salesProcessTableLabelCol').append(jQuery('<span/>').text(label)).append(help ? help : null))
+										  .append(jQuery('<td/>').addClass('salesProcessTableReadonlyCol').addClass(readOnlyInputField === processDescriptionLabel ? 'descriptionCol' : null).append(readOnlyInputField.addClass('salesProcessReadonlyInput')).append(inputField ? inputField.addClass('salesProcessInput').hide() : null));
+				}
+				
+				function createButton(id, label, handler) {
+					return jQuery('<input/>', {id: id, type: 'button'}).addClass(buttonClass).val(label).click(handler);
+				}		
+				
+				function advancedClicked() {
+
+					var advancedDialog = jQuery('<div/>', {id: 'advancedDialog'}),
+					advancedLeftTable = jQuery('<table/>', {id: 'advancedLeftTable'}),
+				 	advancedRightTable = jQuery('<table/>', {id: 'advancedRightTable'});
+				
+					var processSalesCycleDurationLabel = jQuery('<span/>', {id: 'processSalesCycleDurationLabel'}).text(salesProcess.salesCycleDuration),
+						processClosureDurationInput = jQuery('<input/>', {id: 'processClosureDurationInput', type: 'text'}).addClass('rightAligned').val(salesProcess.closureDuration),
+						processFinalStageProbInput = jQuery('<input/>', {id: 'processFinalStageProbInput', type: 'text'}).addClass('rightAligned').val(salesProcess.finalStageProbability);
+						
+					ttg.setUpMaxLimitCheck(processDescriptionInput, 32768);
+					
+					var closureDurationHelp = createHelpIcon(helpText.closureDuration),
+						finalStageProbHelp = createHelpIcon(helpText.finalStageProb),
+						salesCycleDurationHelp = createHelpIcon(helpText.salesCycleDuration),
+						processDefaultInput = jQuery('<select>', { id: 'processDefaultInput', size: 1 }).append(
+							jQuery('<option>')
+								.html(localization.yes)
+								.val('yes')
+								.prop('selected', salesProcess.defaultProcess)
+							).append(
+								jQuery('<option>').html(localization.no)
+									.val('no')
+									.prop('selected', !salesProcess.defaultProcess)),
+						processDefaultNameLabel = jQuery('<span>', { id: 'processDefaultNameLabel' })
+							.html(salesProcess.defaultProcess ? localization.this_is_default : (salesProcess.defaultSalesProcessName ? salesProcess.defaultSalesProcessName : localization.no_default));
+									
+
+					advancedLeftTable.append(createAdvancedRow(localization.sales_process_sales_cycle_duration +':', processSalesCycleDurationLabel, salesCycleDurationHelp))
+									.append(createAdvancedRow(localization.sales_process_closure_duration +':', processClosureDurationInput, closureDurationHelp))
+									.append(createAdvancedRow(localization.sales_process_final_stage_prob +':', processFinalStageProbInput, finalStageProbHelp))
+									.append(createAdvancedRow(localization.advanced_default_name +':', processDefaultNameLabel))
+									.append(createAdvancedRow(localization.sales_process_default +':', processDefaultInput, defaultProcessHelpAdvanced));
+
+					var processAverageValueInput = jQuery('<input/>', {id: 'processAverageValueInput', type: 'text'}).addClass('rightAligned').val(salesProcess.averageDealSize),
+						processRockValueInput = jQuery('<input/>', {id: 'processRockValueInput', type: 'text'}).addClass('rightAligned').val(salesProcess.rockValue),
+						processPebbleValueInput = jQuery('<input/>', {id: 'processPebbleValueInput', type: 'text'}).addClass('rightAligned').val(salesProcess.pebbleValue),
+						processRockPercentageInput = jQuery('<input/>', {id: 'processRockPercentageInput', type: 'text'}).addClass('rightAligned').val(salesProcess.rockPercentage),
+						processPebblePercentageInput = jQuery('<input/>', {id: 'processPebblePercentageInput', type: 'text'}).addClass('rightAligned').val(salesProcess.pebblePercentage);
+
+					advancedRightTable.append(createAdvancedRow(localization.sales_process_average_deal +':', processAverageValueInput, averageDealSizeHelpAdvanced))
+									.append(createAdvancedRow(localization.sales_process_rock_value +':', processRockValueInput, rockValueHelpAdvanced))
+									.append(createAdvancedRow(localization.sales_process_pebble_value +':', processPebbleValueInput, pebbleValueHelpAdvanced))
+									.append(createAdvancedRow(localization.sales_process_rock_percentage +':', processRockPercentageInput, rockPercentageHelp))
+									.append(createAdvancedRow(localization.sales_process_pebble_percentage +':', processPebblePercentageInput, pebblePercentageHelp));					
+						
+					var advancedValidationMsg = jQuery('<span/>', {id: 'advancedSalesProcessValidationMsg'});
+					
+					var salesProcessButtonBar = jQuery('<div/>', {id: 'advancedSalesProcessButtonBar'}).append(advancedValidationMsg.hide());
+					
+					var leftDiv = jQuery('<div/>', {id: 'advancedSalesProcessLeftDiv'}).append(advancedLeftTable),
+						rightDiv = jQuery('<div/>', {id: 'advancedSalesProcessRightDiv'}).append(advancedRightTable).append(salesProcessButtonBar);
+					
+					advancedDialog.append(leftDiv).append(rightDiv);						
+
+			 		advancedDialog.dialog({
+			 			title: localization.sales_process_advanced_title,					 		
+			 			modal: true,
+			 			width: '800px',
+			 			buttons: {
+			 				'Save' : {
+			 					id: 'advancedSaveButton',
+			 					text: localization.advanced_save,
+			 					click: function() {
+			 						advancedSaveClicked();
+			 					}
+			 				},
+			 				'Cancel' : { 
+			 					id: 'advancedCancelButton',
+			 					text: localization.advanced_cancel,
+			 					click: function() { advancedDialog.dialog('close'); }
+			 					}
+			 			}
+			 		});	
+			 		
+					function createAdvancedRow(label, inputField, help) {
+						return jQuery('<tr/>').append(jQuery('<td/>').addClass('advancedSalesProcessTableLabelCol').append(jQuery('<span/>').text(label)).append(help ? help : null))
+											  .append(jQuery('<td/>').addClass('advancedSalesProcessTableInputCol').append(inputField ? inputField.addClass('advancedSalesProcessInput') : null));
+					}
+					
+					function advancedSaveClicked() {
+						var salesProcessChanges = {};
+						salesProcessChanges.name = salesProcess.name;
+						salesProcessChanges.closureDuration = jQuery.trim(processClosureDurationInput.val());
+						salesProcessChanges.finalStageProbability = jQuery.trim(processFinalStageProbInput.val());
+						salesProcessChanges.defaultProcess = processDefaultInput.find('option:selected').val() === 'yes' ? true : false;
+						salesProcessChanges.description = salesProcess.description;
+						salesProcessChanges.averageValue = jQuery.trim(processAverageValueInput.val());
+						salesProcessChanges.pebblePercentage = jQuery.trim(processPebblePercentageInput.val());
+						salesProcessChanges.pebbleValue = jQuery.trim(processPebbleValueInput.val());
+						salesProcessChanges.rockPercentage = jQuery.trim(processRockPercentageInput.val());
+						salesProcessChanges.rockValue = jQuery.trim(processRockValueInput.val());					
+						if(validateAdvancedSalesProcess(salesProcessChanges)) {
+							if(salesProcessChanges.defaultProcess && salesProcess.defaultSalesProcessName && salesProcess.defaultSalesProcessName !== localization.this_is_default) {
+								var defaultProcessChangeDialog = jQuery('<div/>', {id: 'defaultProcessChangeDialog'})
+																		.append(jQuery('<div/>').text(localization.default_change_label + ': ' + salesProcess.defaultSalesProcessName))
+																		.append(jQuery('<div/>').text(localization.default_change_confirmation));
+						 		defaultProcessChangeDialog.dialog({
+						 			title: localization.default_change_title,					 		
+						 			modal: true,
+						 			width: '400px',
+						 			buttons: {
+						 				'Ok' : {
+						 					id: 'defaultChangeOkButton',
+						 					text: localization.dlg_save,
+						 					click: function() {
+												wrapPutSalesProcess(salesProcessChanges, refreshed);
+												defaultProcessChangeDialog.dialog('close');											
+												advancedDialog.dialog('close');
+						 					}
+						 				},
+						 				'Cancel' : { 
+						 					id: 'defaultChangeCancelButton',
+						 					text: localization.dlg_cancel,
+						 					click: function() { defaultProcessChangeDialog.dialog('close'); }
+						 					}
+						 			}
+						 		});									
+								
+							}
+							else {
+								wrapPutSalesProcess(salesProcessChanges, refreshed);
+								advancedDialog.dialog('close');
+							}
+						}						
+					}	
+					
+					function validateAdvancedSalesProcess(salesProcessChanges) {
+						var validationStr = null;
+						validationStr = validationStr || validateField(localization.sales_process_name, salesProcessChanges.name, 'text', null ,true);
+						validationStr = validationStr || validateField(localization.sales_process_final_stage_prob, salesProcessChanges.finalStageProbability, 'numeric', 'percentage', true);
+						validationStr = validationStr || validateField(localization.sales_process_closure_duration, salesProcessChanges.closureDuration, 'numeric',  'positive', true, 1000);					
+						validationStr = validationStr || validateField(localization.sales_process_pebble_percentage, salesProcessChanges.pebblePercentage, 'numeric', 'percentage', true);
+						validationStr = validationStr || validateField(localization.sales_process_pebble_value, salesProcessChanges.pebbleValue, 'numeric',  null, true);					
+						validationStr = validationStr || validateField(localization.sales_process_rock_percentage, salesProcessChanges.rockPercentage, 'numeric', 'percentage', true);
+						validationStr = validationStr || validateField(localization.sales_process_rock_value, salesProcessChanges.rockValue, 'numeric', null, true);
+						validationStr = validationStr || validateField(localization.sales_process_average_deal, salesProcessChanges.averageValue, 'numeric', null, true);						
+						validationStr = validationStr || ((parseInt(salesProcessChanges.pebbleValue, 10) > parseInt(salesProcessChanges.rockValue, 10)) ? (localization.sales_process_pebbles_greater_rocks) : null);
+						//validationStr = validationStr || ((parseInt(salesProcessChanges.pebbleValue, 10) > parseInt(salesProcess.averageDealSize, 10)) ? (localization.sales_process_pebbles_greater_average) : null);
+						//validationStr = validationStr || ((parseInt(salesProcessChanges.rockValue, 10) < parseInt(salesProcess.averageDealSize, 10)) ? (localization.sales_process_average_greater_rocks) : null);
+						if(validationStr) {
+							advancedValidationMsg.text(validationStr).show();
+							return false;
+						}
+						else {
+							advancedValidationMsg.hide();
+							return true;
+						}                   
+					}									 		
+					
+				}		
+				
+				function editClicked() {
+					setEditionMode(true);
+				}
+
+				function saveClicked() {
+					var salesProcessChanges = {};
+					salesProcessChanges.name = processNameInput.val();
+					salesProcessChanges.closureDuration = salesProcess.closureDuration.toString(); //processClosureDurationInput.val();
+					salesProcessChanges.finalStageProbability = salesProcess.finalStageProbability.toString(); //processFinalStageProbInput.val();
+					salesProcessChanges.defaultProcess = salesProcess.defaultProcess; //processDefaultInput.find('option:selected').val() === 'yes' ? true : false;
+					salesProcessChanges.description = processDescriptionInput.val();
+					salesProcessChanges.pebblePercentage = salesProcess.pebblePercentage.toString(); //processPebblePercentageInput.val();
+					salesProcessChanges.pebbleValue = salesProcess.pebbleValue.toString(); //processPebbleValueInput.val();
+					salesProcessChanges.rockPercentage = salesProcess.rockPercentage.toString(); //processRockPercentageInput.val();
+					salesProcessChanges.rockValue = salesProcess.rockValue.toString(); //processRockValueInput.val();					
+					salesProcessChanges.averageValue = salesProcess.averageDealSize.toString();
+					if(validateSalesProcess(salesProcessChanges)) {
+						wrapPutSalesProcess(salesProcessChanges, refreshed);
+						setEditionMode(false);
+					}
+				}
+				
+				function cancelClicked() {
+					processNameInput.val(salesProcess.name);
+					/* jQuery.each(processDefaultInput.find('option'), function(index, option) {
+						if (jQuery(option).val() === 'yes') {
+							if (salesProcess.defaultProcess) {
+								jQuery(option).prop('selected', true);
+							}	
+							else {
+								jQuery(option).removeProp('selected');
+							}
+						}
+						else {
+							if (salesProcess.defaultProcess) {
+								jQuery(option).removeProp('selected');
+							}	
+							else {
+								jQuery(option).prop('selected', true);
+							}
+						
+						}
+					}); */
+					processDescriptionInput.val(salesProcess.description);		
+					setEditionMode(false);
+				}
+				
+				function validateSalesProcess(salesProcessChanges) {
+					var validationStr = null;
+					validationStr = validationStr || validateField(localization.sales_process_name, salesProcessChanges.name, 'text', null ,true);
+					validationStr = validationStr || validateField(localization.sales_process_final_stage_prob, salesProcessChanges.finalStageProbability, 'numeric', 'percentage', true);
+					validationStr = validationStr || validateField(localization.sales_process_closure_duration, salesProcessChanges.closureDuration, 'numeric',  'positive', true, 1000);					
+					validationStr = validationStr || validateField(localization.sales_process_pebble_percentage, salesProcessChanges.pebblePercentage, 'numeric', 'percentage', true);
+					validationStr = validationStr || validateField(localization.sales_process_pebble_value, salesProcessChanges.pebbleValue, 'numeric',  null, true);					
+					validationStr = validationStr || validateField(localization.sales_process_rock_percentage, salesProcessChanges.rockPercentage, 'numeric', 'percentage', true);
+					validationStr = validationStr || validateField(localization.sales_process_rock_value, salesProcessChanges.rockValue, 'numeric', null, true);
+					validationStr = validationStr || ((parseInt(salesProcessChanges.pebbleValue, 10) > parseInt(salesProcessChanges.rockValue, 10)) ? (localization.sales_process_pebbles_greater_rocks) : null);
+					//validationStr = validationStr || ((parseInt(salesProcessChanges.pebbleValue, 10) > parseInt(salesProcess.averageDealSize, 10)) ? (localization.sales_process_pebbles_greater_average) : null);
+					//validationStr = validationStr || ((parseInt(salesProcessChanges.rockValue, 10) < parseInt(salesProcess.averageDealSize, 10)) ? (localization.sales_process_average_greater_rocks) : null);
+					if(validationStr) {
+						validationMsg.text(validationStr).show();
+						return false;
+					}
+					else {
+						validationMsg.hide();
+						return true;
+					}                   
+				}		
+				
+				function setEditionMode(editing) {
+					validationMsg.hide();
+					if(editing) {
+						processNameInput.show();
+						processDescriptionInput.show();						
+						
+						processNameLabel.hide();
+						processDescriptionLabel.hide();
+						
+						editButton.hide();
+						deleteButton.hide();
+						restartButton.hide();
+						cloneButton.hide();
+						doneButton.hide();						
+						advancedButton.hide();
+						saveButton.show();
+						cancelButton.show();
+						
+					}
+					else {
+						processNameInput.hide();
+						processDescriptionInput.hide();
+						
+						processNameLabel.show();
+						processDescriptionLabel.show();
+						
+						editButton.show();
+						deleteButton.show();
+						if(comingFromGenius) {
+							restartButton.show();
+						}
+						else {
+							restartButton.hide();
+						}
+						cloneButton.show();
+						doneButton.show();
+						advancedButton.show();
+						saveButton.hide();
+						cancelButton.hide();										
+					
+					}
+
+				}
+
+				function doneClicked() {
+					var doneDialog = jQuery('<div/>', {id: 'doneDialog'}),
+						geniusDiv = jQuery('<div/>').addClass('genius_panel'),
+						geniusImgTitle = jQuery('<img/>', {src: "{!URLFOR($Resource.Genius,'images/img_genius_title.png')}"}),
+						geniusOKbutton = jQuery('<input/>', {id:'doneOKButton', type: 'button'}).addClass('btn_blue').val(localization.done_dialog_button).click(function() {
+							doneDialog.dialog('close');
+							window.location.href = 'apex/PlaybookAdmin';
+						});
+						
+						geniusCancelbutton = jQuery('<input/>', {id:'doneCancelButton', type:'button'}).addClass('btn_cancel').val(localization.done_dialog_cancel).click(function() {
+							doneDialog.dialog('close');
+						});						
+					
+					geniusDiv.append(jQuery('<p/>').addClass('genius_title')
+							 .append(geniusImgTitle))
+							 .append(jQuery('<p/>').addClass('genius_intro').text(localization.done_dialog_label))
+							 .append(geniusOKbutton)
+							 .append(geniusCancelbutton)
+							 .append(jQuery('<br/>').addClass('clear'));
+							 
+					doneDialog.append(geniusDiv);
+					doneDialog.dialog({
+						modal: true,
+						title: localization.done_dialog_title,
+						width: '640px'
+					});
+				}
+
+				function restartClicked() {
+					var confirmDialog = jQuery('<div/>', {id: 'restartProcessConfirmDialog'}).
+										append(jQuery('<span/>').text(localization.restart_confirmation_label));
+					confirmDialog.dialog({
+						modal: true,
+						title: localization.sales_process_restart_dialog_title,
+						buttons: {
+							'Yes' : function() 	{ 	
+									confirmDialog.dialog('close');
+									restartSalesProcess();
+							},						
+							'No' : function() { confirmDialog.dialog('close'); }
+						}
+					});
+				}
+				
+				function restartSalesProcess() {
+					showAjaxSpinner(true);
+					var ret = function (result) { showAjaxSpinner(false); }
+					ttgApi.deleteSalesProcessAdmin(salesProcessId, null, processRestartRespose, undefined, ret);
+				}			
+				
+				function processRestartRespose(data) {
+					if(data.deletedSuccessfully) {
+						window.location.href = 'apex/GeniusWelcome';
+					}
+					else {
+						var restartErrorDialog = jQuery('<div/>', {id: 'restartProcessErrorDialog'}).
+											append(jQuery('<span/>').text(localization.restart_dialog__error_title));
+						restartErrorDialog.dialog({
+							modal: true,
+							title: localization.restart_dialog__error_label,
+							buttons: {
+								'Close' : function() { restartErrorDialog.dialog('close'); }
+							}
+						});					
+					}
+				}				
+
+				function deleteClicked() {
+					var confirmDialog = jQuery('<div/>', {id: 'deleteProcessConfirmDialog'}).
+										append(jQuery('<span/>').text(localization.delete_confirmation_label));
+					confirmDialog.dialog({
+						modal: true,
+						title: localization.sales_process_delete_dialog_title,
+						buttons: {
+							'Yes' : function() 	{ 	
+									confirmDialog.dialog('close');
+									deleteSalesProcess();
+							},
+							'No' : function() { confirmDialog.dialog('close'); }
+						}
+					});
+				
+				}
+				
+				function deleteSalesProcess(replaceProcessId) {
+					showAjaxSpinner(true);
+					var ret = function (result) { showAjaxSpinner(false); }
+					ttgApi.deleteSalesProcessAdmin(salesProcessId, replaceProcessId, processDeleteRespose, undefined, ret);
+				}
+				
+				function processDeleteRespose(data) {
+					if(data.deletedSuccessfully) {
+						window.location.href = 'apex/PlaybookAdmin';
+					}
+					else {
+						if(data.opportunitiesUsingSalesProcess && data.opportunitiesUsingSalesProcess.length > 0) {
+							var replaceDialog = jQuery('<div/>', {id: 'replaceSalesProcessDialog'});
+							
+							replaceDialog.append(jQuery('<div/>').addClass('replaceSalesProcessLabel').text(localization.opps_linked_to_sales_process));
+							
+							var opportunityDiv = jQuery('<div/>').addClass('replaceProcessOppPanel');
+							jQuery.each(data.opportunitiesUsingSalesProcess, function(index, opportunity) {
+								opportunityDiv.append(jQuery('<div/>').text(' - ' + opportunity));
+							});
+					 		
+					 		replaceDialog.append(opportunityDiv);
+					 		
+					 		var salesProcessesCombo = jQuery('<select/>', {id: 'replaceSalesProcessCombo'});
+					 		
+					 		ttgApi.getSalesProcessAdmin('All', function(data) {
+
+						 		jQuery.each(data, function(index, salesProcess) {
+						 			if(salesProcess.id !== salesProcessId) {
+						 				salesProcessesCombo.append(jQuery('<option/>').val(salesProcess.id).text(salesProcess.name));
+						 			}
+						 		});
+						 		
+					 		
+					 		}, undefined, function() {
+					 			replaceDialog.dialog('open');
+					 		});
+					 		
+							replaceDialog.append(jQuery('<span/>').addClass('replaceSalesProcessLabel').text(localization.replace_sales_process));
+					 		replaceDialog.append(salesProcessesCombo);
+					 		
+					 		replaceDialog.dialog({
+					 			title: localization.replace_sales_process_title,					 		
+					 			modal: true,
+					 			autoOpen: false,
+					 			width: '790px',
+					 			buttons: {
+					 				'Cancel': function() { replaceDialog.dialog('close'); },
+					 				'Replace In Opportunities and Delete': function() { 
+					 					replaceDialog.dialog('close');
+					 					deleteSalesProcess(salesProcessesCombo.val());
+					 				}
+					 			}
+					 		
+					 		});	
+					 		
+					 		
+						}
+						else {
+						// error
+						}
+					}
+					
+				
+				}
+				
+				
+				function cloneClicked() {
+					
+					var cloneNameHint = data.name + ' clone';
+					var cloneSalesProcessNameInput = jQuery('<input/>', {id: 'cloneSalesProcessNameInput', type: 'text', maxlength: 80}).on('keyup keydown change', function() {
+						var value = jQuery(this).val();
+						if(value && jQuery.trim(value) !== '') {
+							jQuery('#cloneSalesProcessDialogButton').button('enable');
+						}
+						else {
+							jQuery('#cloneSalesProcessDialogButton').button('disable');
+						}
+					}).val(cloneNameHint.length > 80 ? cloneNameHint.substring(0, 80) : cloneNameHint);
+				
+					var cloneDialog = jQuery('<div/>', {id: 'cloneProcessDialog'});
+					cloneDialog.append(jQuery('<div/>').text(localization.clone_sales_process))
+								.append(cloneSalesProcessNameInput);
+								
+					var buttons = []; 
+					buttons.push( { text: 'Clone',
+									id: 'cloneSalesProcessDialogButton', 
+									click: function() {
+										cloneDialog.dialog('close');
+										var cloneProcessName = jQuery.trim(cloneSalesProcessNameInput.val());
+										cloneSalesProcess(cloneProcessName);
+									}
+								  } );
+					buttons.push( { text: 'Cancel', click: function() { cloneDialog.dialog('close'); } });
+																		
+					cloneDialog.dialog({
+						title: localization.clone_sales_process_title,
+						modal: true,
+						width: '300px',
+						buttons: buttons
+					});
+					
+				
+				}
+				
+				function cloneSalesProcess(cloneSalesProcessName) {
+					showAjaxSpinner(true);
+					var ret = function (result) { showAjaxSpinner(false);  }
+					var salesProcessChanges = {};
+					salesProcessChanges.name = cloneSalesProcessName;
+					ttgApi.postSalesProcessAdmin(salesProcessId, { salesProcessChanges: salesProcessChanges }, function(data) {
+						
+						if(!data.clonedSuccessfully) {
+							var cloneFailureDialog = jQuery('<div/>', {id: 'cloneFailureDialog'});
+													
+							cloneFailureDialog.append(jQuery('<div/>').text(localization.sales_process_clone_failed));
+							if(data.existingSalesProcessWithSameName) {
+								cloneFailureDialog.append(jQuery('<div/>').text(localization.sales_process_clone_failed_existing));
+							}
+							cloneFailureDialog.dialog({
+								title: localization.sales_process_clone_failed_title,
+								modal: true,
+								width: '350px',
+								buttons: {
+									'Close': {
+										id: 'closeCloneProcessFailed',
+										text: localization.close_clone_process,
+										click: function() {
+											cloneFailureDialog.dialog('close');
+										}
+									}
+								}
+							});
+						}
+						else {
+							var cloneProcessId = data.salesProcess.id;
+							var cloneSuccessDialog = jQuery('<div/>', {id: 'cloneSuccessDialog'});
+													
+							cloneSuccessDialog.append(jQuery('<div/>').text(localization.sales_process_clone_successful));
+							cloneSuccessDialog.dialog({
+								title: localization.sales_process_clone_successful_title,
+								modal: true,
+								buttons: {
+									'Go To Cloned Process': {
+										id: 'goToCloneProcess',
+										text: localization.go_to_clone_process,
+										click: function() {
+											cloneSuccessDialog.dialog('close');
+											window.location.href = 'apex/PlaybookQualifierAdmin?id=' + cloneProcessId;
+										}
+									},
+									'Close': {
+										id: 'closeCloneProcess',
+										text: localization.close_clone_process,
+										click: function() {
+											cloneSuccessDialog.dialog('close');
+										}
+									}
+								}
+							});						
+						}
+					
+					}, undefined, ret);
+				}
+
+
+			}
+
+
+			function generateStage(index, stage) {
+				var id = 'STAGE_' + stage.id,
+					salesProcessId = '{!JSENCODE(salesProcess.id)}',
+					expanded = jQuery.cookies.get(salesProcessId + id + '_Admin') || false,
+					summary = jQuery('<span>').attr('id', 'QUESTION_SUMMARY_' + index).addClass('SCOREBLOCK SCOREBLOCK_SCORE_FLOAT').attr('qindex', index),
+					questions = generateQuestions(stage, stage.qualifiers ? stage.qualifiers : [], summary, expanded, index);
+
+				var stageSettingsButton = jQuery('<input/>', {id: 'stageSettingsButton_' + index, type: 'button'}).val(localization.stage_settings).addClass(buttonClass).click(stageSettingsClicked),
+					addQualifierButton = jQuery('<input/>', {id: 'addQualifierButton_' + index, type: 'button'}).val(localization.add_qualifier).addClass(buttonClass).click(addQualifierClicked),
+					importanceLabel = jQuery('<span/>').text(localization.qualifier_importance).addClass('importanceLabel'),
+					mandatoryLabel = jQuery('<span/>').text(localization.qualifier_mandatory).addClass('mandatoryLabel');
+				
+				
+				var toggleClass = 'spanToggle';
+				if (expanded) {
+					toggleClass += ' spanToggleExpanded'
+				}
+
+				var ret = jQuery('<div>', {id: id}).addClass('divBlock').addClass('droppableStage').attr('sindex', index).append(
+					  	jQuery('<span>', {id: 'spanToggle_' + index}).addClass(toggleClass).addClass('tasPointer').click(toggle)
+					).append(
+						jQuery('<span>').addClass('STAGE_TITLE').addClass('tasPointer').text(stage.name).click(toggle)
+					).append(
+						addQualifierButton
+					).append(
+						stageSettingsButton
+					).append(
+						importanceLabel
+					).append(
+						mandatoryLabel
+					).append(
+						questions
+					);
+
+				toggleButtonAndLabels(expanded);		
+				
+				ret.on('ttg_show_stage', show);			
+				ret.on('ttg_save_sorting', function(event, afterSaveHandler) { 
+					saveSorting(afterSaveHandler); 
+				});
+				ret.on('ttg_stage_just_added', stageSettingsClicked);
+				
+				return ret;
+
+
+				function show() {
+					// Merge with toggle...
+					var id = ret.attr('id');
+					var index = id.substring(id.indexOf('_') + 1);
+					var expanding = true;
+					var ctrl = ret.find('.spanToggle');
+					ctrl.addClass('spanToggleExpanded');
+					addQualifierButton.css('visibility', 'visible');
+					importanceLabel.show();
+					mandatoryLabel.show();											
+					ret.find('.QUESTIONBLOCK').show();
+					var salesProcessId = '{!JSENCODE(salesProcess.id)}';
+					jQuery.cookies.set(salesProcessId + id + '_Admin', expanding);
+				}
+				
+				function saveSorting(afterSaveHandler) {
+					var qualifiersDivs = ret.find('.qualifierSortableList li table.divQuery');
+					var qualifiersIds = [];
+					var debugString = '';
+					jQuery.each(qualifiersDivs, function(index, qualifierDiv) {
+						var qualifierDivId = jQuery(qualifierDiv).attr('id');
+						debugString += jQuery(qualifierDiv).find('.QUALIFIERTEXT').text() + ','
+						var qualifierId = qualifierDivId.substring(qualifierDivId.indexOf('_') + 1);
+						qualifiersIds.push(qualifierId);
+					});
+					/*
+					
+					- The problem is the saveSorting method is using the id of the qualifierDiv in the DOM to build the list of qualifierIds to update or delete after a sort
+					- When you sort qualifiers very quickly from one stage to another, the PUT requests get queued, but the request parameters (qualifierIds in the changes)
+					have the qualifierIds of the qualifiers that were in the DOM when the PUT request was queued
+					- If the PUT request get executed after a previous PUT request has changed the qualifiers on that stage, the qualifierIds sent to the backend will be out
+					of date
+					- A quite convoluted fix could be add an event handler to the queued requests, so their qualifierIds list gets updated after a previous PUT has finished and
+					before the next PUT is issued to the backend 
+					- NO: It also could be possible to extract the logic that grabs the qualifierIds to a handler that gets executed only before actually sending the PUT to the server
+					- The DOM would be in a newer state when grabbing the ids and it wouldn't issue the right request
+					- Also check the stop event of the sortable
+					*/
+					//console.log('SORTING (' + stage.name + '): ' + debugString);
+					updateQualifiersSorting(stage.id, qualifiersIds, afterSaveHandler);
+				}
+				
+				
+				function updateQualifiersSorting(stageId, qualifiersIds, afterSaveHandler) {
+					var salesProcessQualifierChanges = {};
+					salesProcessQualifierChanges.qualifier = null;
+					salesProcessQualifierChanges.qualifierIds = qualifiersIds;
+					salesProcessQualifierChanges.stageId = stageId;
+					
+					var afterSaveHandlerInvoker = {
+						qualifiersIds: qualifiersIds,
+						action: function(d) {
+							if(afterSaveHandler && d && d.length > 0) {
+								var actualQualifierIds = _.pluck(d, 'id');
+								var qualifierIdsToRefresh = _.difference(actualQualifierIds, this.qualifiersIds);
+								var qualifierToRefresh = null;
+								if(qualifierIdsToRefresh.length > 0) {
+									qualifierToRefresh = d[actualQualifierIds.indexOf(qualifierIdsToRefresh[0])];
+									afterSaveHandler(qualifierToRefresh);
+								}								
+							}
+						}
+					};
+					
+					wrapPutQualifier('', stageId, salesProcessQualifierChanges, afterSaveHandlerInvoker);	
+				}
+	
+				function toggle() {
+	
+					var id = ret.attr('id');
+					var index = id.substring(id.indexOf('_') + 1);
+					var expanding = false;
+					var ctrl = ret.find('.spanToggle');
+										
+					if (ctrl.hasClass('spanToggleExpanded')) {
+						expanding = false;
+						ctrl.removeClass('spanToggleExpanded');
+					}
+					else {
+						expanding = true;
+						ctrl.addClass('spanToggleExpanded');
+					}
+					toggleButtonAndLabels(expanding);
+					
+					jQuery(this).parent().find('.QUESTIONBLOCK').toggle();
+					
+					var salesProcessId = '{!JSENCODE(salesProcess.id)}';
+					jQuery.cookies.set(salesProcessId + id + '_Admin', expanding);
+				}
+				
+				function toggleButtonAndLabels(expanding) {
+					if (expanding) {
+						addQualifierButton.css('visibility', 'visible');
+						importanceLabel.show();
+						mandatoryLabel.show();										
+					}
+					else {
+						addQualifierButton.css('visibility', 'hidden');
+						importanceLabel.hide();
+						mandatoryLabel.hide();	
+					}				
+				}
+				
+				function stageSettingsClicked() {
+				
+					var stageSettingsDialog = jQuery('<div/>', {id: 'stageSettingsDialog'});
+					
+					var durationInput = jQuery('<input/>', {id: 'durationInput', type: 'text', maxlength: 16}).val(stage.duration),
+						amberInput = jQuery('<input/>', {id: 'amberInput', type: 'text'}).val(stage.amber),
+						greenInput = jQuery('<input/>', {id: 'greenInput', type: 'text'}).val(stage.green),
+						thresholdInput = jQuery('<input/>', {id: 'thresholdInput', type: 'text'}).val(stage.qualification);										
+					
+					var durationHelp = createHelpIcon(helpText.duration),
+						amberHelp = createHelpIcon(helpText.amber),
+						greenHelp = createHelpIcon(helpText.green),
+						qualificationThresholdHelp = createHelpIcon(helpText.qualificationThreshold);	
+						
+					var validationMsg = jQuery('<span/>', {id: 'salesProcessStageValidationMsg'}).addClass('validationMsg');											
+					
+					var stageSettingsTable = jQuery('<table/>', {id: 'stageTable'})
+																	.append(createRow(localization.stage_duration + ':', durationInput, durationHelp))
+																	.append(createRow(localization.stage_amber + ':', amberInput, amberHelp))
+																	.append(createRow(localization.stage_green + ':', greenInput, greenHelp))
+																	.append(createRow(localization.stage_qualification_threshold + ':',thresholdInput, qualificationThresholdHelp));					
+
+					stageSettingsDialog.append(stageSettingsTable).append(jQuery('<div/>', {id: 'stageSettingsButtonBar'}).append(validationMsg));
+
+					function createRow(label, inputField, help) {
+						return jQuery('<tr/>').append(jQuery('<td/>').addClass('stageTableLabelCol').append(jQuery('<span/>').text(label)).append(help ? help : null))
+											  .append(jQuery('<td/>').append(inputField));
+					}
+					
+					var buttons = []; 
+					buttons.push( { text: 'Save', click: saveClicked } );
+					buttons.push( { text: 'Delete', id: "deleteStageButton", click: deleteClicked });
+					buttons.push( { text: 'Cancel', click: cancelClicked } );
+					
+					function saveClicked() {
+						var salesProcessStageChanges = {};
+						salesProcessStageChanges.duration = jQuery.trim(durationInput.val());
+						salesProcessStageChanges.amber = jQuery.trim(amberInput.val());
+						salesProcessStageChanges.green = jQuery.trim(greenInput.val());
+						salesProcessStageChanges.qualification = jQuery.trim(thresholdInput.val());
+						salesProcessStageChanges.sortOrder = stage.sortOrder;
+						if(validateStage(salesProcessStageChanges)) {
+							stageSettingsDialog.dialog('close');
+							wrapPutStage(stage.id, salesProcessStageChanges, function() {
+							
+							}); 					
+						}
+					}
+				
+					function cancelClicked() {
+						stageSettingsDialog.dialog('close');
+					}
+					
+					function validateStage(salesProcessStageChanges) {
+						var validationStr = null;
+						validationStr = validationStr || validateField(localization.stage_duration, salesProcessStageChanges.duration, 'numeric', 'positive', true);					
+						validationStr = validationStr || validateField(localization.stage_amber, salesProcessStageChanges.amber, 'numeric', 'percentage', true);				
+						validationStr = validationStr || validateField(localization.stage_green, salesProcessStageChanges.green, 'numeric', 'percentage', true);
+						validationStr = validationStr || validateField(localization.stage_qualification_threshold, salesProcessStageChanges.qualification, 'numeric', 'percentage', true);
+						validationStr = validationStr || ((parseInt(salesProcessStageChanges.amber, 10) > parseInt(salesProcessStageChanges.green, 10)) ? (localization.stage_amber_greater_green) : null);
+						validationStr = validationStr || ((parseInt(salesProcessStageChanges.duration, 10) > 5000) ? (localization.stage_greater_5000) : null);						
+						if(validationStr) {
+							validationMsg.text(validationStr).show();
+							return false;
+						}
+						else {
+							validationMsg.hide();
+							return true;
+						}                   
+					}						
+					
+ 					function deleteClicked() {
+						var confirmDialog = jQuery('<div/>', {id: 'deleteStageConfirmDialog'}).
+											append(jQuery('<span/>').text(localization.delete_confirmation_label));
+						confirmDialog.dialog({
+							modal: true,
+							title: localization.stage_delete_dialog_title,
+							buttons: {
+								'Yes' : function() 	{ 	
+										confirmDialog.dialog('close');
+										deleteStage(false);
+								},
+								'No' : function() { confirmDialog.dialog('close'); }
+							}
+						}); 					
+					}
+					
+					function deleteStage(blankOpportunities) {
+						showAjaxSpinner(true);
+						var ret = function (result) { showAjaxSpinner(false); }
+						ttgApi.deleteSalesProcessStageAdmin(stage.id, blankOpportunities, processDeleteStageRespose, undefined, ret);
+					}
+				
+					function processDeleteStageRespose(data) {
+						if(data.deletedSuccessfully) {
+							stageSettingsDialog.dialog('close');
+							updateStageData(data.deletedSalesProcessStage, 'remove');
+						}
+						else {
+							if(data.opportunitiesUsingStage && data.opportunitiesUsingStage.length > 0) {
+								var replaceDialog = jQuery('<div/>', {id: 'replaceSalesProcessStageDialog'});
+								
+								replaceDialog.append(jQuery('<div/>').addClass('replaceSalesProcessLabel').text(localization.opps_linked_to_sales_process_stage));
+								
+								var opportunityDiv = jQuery('<div/>').addClass('replaceProcessOppPanel');
+								jQuery.each(data.opportunitiesUsingStage, function(index, opportunity) {
+									opportunityDiv.append(jQuery('<div/>').text(' - ' + opportunity));
+								});
+						 		
+						 		replaceDialog.append(opportunityDiv);
+						 		replaceDialog.append(jQuery('<span/>').addClass('replaceSalesProcessLabel').text(localization.blank_sales_process_stage));
+						 		
+						 		replaceDialog.dialog({
+						 			title: localization.blank_sales_process_stage_title,					 		
+						 			modal: true,
+						 			width: '550px',
+						 			buttons: {
+						 				'Close': function() { replaceDialog.dialog('close'); }/*,
+						 				'Blank In Opportunities and Delete': function() { 
+						 					replaceDialog.dialog('close');
+						 					deleteStage(true);
+						 				}*/
+						 			}
+						 		
+						 		});	
+						 		
+						 		
+							}
+							else {
+							// error
+							}
+						}
+						
+					
+					}			
+					
+					validationMsg.hide();		
+					
+					stageSettingsDialog.dialog({
+						title: localization.stage_settings + ' - ' + stage.name,
+						modal: true,
+						width: '360px',
+						buttons: buttons
+					});
+				
+				} 
+				
+				
+				function addQualifierClicked() {
+					addQualifierDialog.openAddQualifierPopup(stage);
+					addQualifierDialog.setAddQualifiersHandler(addNewQualifiers);
+				}
+
+				function addNewQualifiers(qualifierIds, newQualifier) {
+					wrapPostQualifiers(stage.id, {qualifierIds: qualifierIds}, function(createdQualifier) {
+						if(newQualifier) {
+							// close add new qualifier dialog
+							addQualifierDialog.closeAddQualifierPopup();
+							createdQualifier.quicklinks = [];
+							editQualifier(stage.id, createdQualifier[0].id, createdQualifier[0]);
+						}
+						else {
+							addQualifierDialog.closeAddQualifierPopup();
+						}
+					});
+				}
+
+			}
+			
+			function generateQuestions(stage, qualifiers, summary, expanded, index) {
+
+				var div = jQuery('<div>').addClass('QUESTIONBLOCK');
+				if (!expanded) div.css('display', 'none');
+				
+				var sortableList = jQuery('<ul/>').addClass('qualifierSortableList');
+				div.append(sortableList);
+				
+				jQuery.each(qualifiers, 
+					function (key, value) {
+						sortableList.append(generateQuestion(stage.id, key, value));
+					}
+				);
+				
+				sortableList.sortable({
+					revert: (navigator.appVersion.indexOf('MSIE 7.') != -1) ? false : true,
+					handle: '.dragHandlerRow',
+					refreshPositions: true,
+					start: function(event, ui) {
+						ui.helper.css('list-style-type', 'none');
+						ui.helper.find('.importanceSelect').val(ui.item.find('.importanceSelect').val());
+					},																
+					update: function(event, ui) {
+						var item = ui.item,
+							targetStageDivId = item.parent().parent().parent().attr('id'),
+							targetStageId = targetStageDivId.substring(targetStageDivId.indexOf('_') + 1),
+							sourceStageId = item.find('#qualifierStageId').val();
+							
+						if(targetStageId === sourceStageId) {
+							item.parent().parent().parent().trigger('ttg_save_sorting');
+						}
+						displayPlaceHolder();
+					},
+					receive: function(event, ui) {
+						var sender = ui.sender;
+						var item = ui.item;
+						var afterSaveHandler = function(refreshedQualifier) {
+							item.trigger('ttg_update_qualifier_id', [ refreshedQualifier ]);
+						};
+						sender.trigger('ttg_save_sorting');
+						item.parent().trigger('ttg_save_sorting', [ afterSaveHandler ]);
+						displayPlaceHolder();
+					},			
+					zIndex: 1000,
+					appendTo: 'body',
+					helper: 'clone',
+					tolerance: 'pointer'
+				});
+				displayPlaceHolder();
+				return div;
+					
+				function displayPlaceHolder() {
+					if(sortableList.find('li').not('.sortableListPlaceholder').length === 0) {
+						sortableList.append(jQuery('<li/>').addClass('sortableListPlaceholder').text(localization.qualifier_placeholder));
+					}
+					else {
+						sortableList.find('.sortableListPlaceholder').remove();
+					}
+				}
+				
+			}
+						
+			function connectAllSortableLists() {
+				var lists = jQuery('.qualifierSortableList');
+				lists.sortable( 'option', 'connectWith', '.qualifierSortableList');
+				/*lists.sortable( 'option', 'zIndex', '1000');*/
+				/*lists.sortable( 'option', 'appendTo', 'body');*/
+			}
+			
+			function refreshAllSortableLists() {
+				var lists = jQuery('.qualifierSortableList');
+				lists.sortable( 'refresh' );
+				/*lists.sortable( 'option', 'zIndex', '1000');*/
+				/*lists.sortable( 'option', 'appendTo', 'body');*/				
+			}
+			
+			function connectAllSortables() {
+				connectAllSortableLists();
+				
+		        var droppableItems = jQuery('.droppableStage').droppable({
+		            accept: '.qualifierSortableList li',
+		            /*hoverClass: 'qualifierSortableHover',*/
+		            over: function( event, ui ) {
+		            	jQuery(this).trigger('ttg_show_stage');
+		            	refreshAllSortableLists();
+		            },
+		            activate: function(event, ui) {
+		            	jQuery('.qualifierSortableList').addClass('qualifierSortableListHover');
+		            },
+		            deactivate: function(event, ui) {
+		            	jQuery('.qualifierSortableList').removeClass('qualifierSortableListHover');
+		            },		            
+		            tolerance: 'pointer'
+		        });				
+				
+			}
+			
+			function generateQuestion(stageId, key, value) {
+				var line = _qualifierline(stageId, value.id);
+				return line.generateQuestion(key, value);
+			}
+
+			function refresh() {
+				wrapPutSalesProcess({ salesProcessId: salesProcessId, cmd: 'refresh' }, refreshed);
+			}
+
+			function wrapGetDealmakerStages(callback) {
+				addSerialiseCalls('getDealmakerStages', null, callback);
+			}
+
+			function wrapGetSalesProcess(salesProcessId, callback) {
+				addSerialiseCalls('getSalesProcess', salesProcessId, callback);
+			}
+
+			function wrapPutSalesProcess(salesProcessChanges, callback) {
+				addSerialiseCalls('putSalesProcess', salesProcessChanges, callback);
+			}
+			
+			function wrapGetStages(salesProcessId, callback) {
+				addSerialiseCalls('getStages', salesProcessId, callback);
+			}			
+
+			function wrapPutStage(salesProcessStageId, salesProcessStageChanges, callback) {
+				addSerialiseCalls('putStage', { id: salesProcessStageId, changes: salesProcessStageChanges}, callback);
+			}
+			
+			function wrapPostStage(stages, callback) {
+				addSerialiseCalls('postStage', { stages: stages}, callback);
+			}	
+			
+			function wrapGetQualifiers(salesProcessId, callback) {
+				addSerialiseCalls('getQualifiers', salesProcessId, callback);
+			}	
+			
+			function wrapPutQualifier(salesProcessQualifierId, stageId, salesProcessQualifierChanges, success) {
+				addSerialiseCalls('putQualifier', { id: salesProcessQualifierId, stageId: stageId, changes: salesProcessQualifierChanges}, success);
+			}	
+			
+			function wrapPostQualifiers(salesProcessStageId, qualifierIds, success) {
+				addSerialiseCalls('postQualifiers', { id: salesProcessStageId, changes: qualifierIds}, success);
+			}				
+
+			function wrapDeleteQualifier(salesProcessQualifierId, callback) {
+				addSerialiseCalls('deleteQualifier', salesProcessQualifierId, callback);
+			}
+			
+			function wrapGetQuicklinks(searchString, success) {
+				addSerialiseCalls('getQuicklinks', searchString, success);
+			}
+			
+			function wrapPostQuicklinks(quicklinkChanges, success) {
+				addSerialiseCalls('postQuicklinks', { changes: quicklinkChanges}, success);
+			}
+			
+			function wrapPutQuicklinks(quicklinkId, quicklinkChanges, success) {
+				addSerialiseCalls('putQuicklinks', { id: quicklinkId, changes: quicklinkChanges}, success);
+			}						
+
+			function wrapDeleteQuicklink(quicklinkId, success) {
+				addSerialiseCalls('deleteQuicklink', quicklinkId, success);
+			}				
+			
+			function wrapPutQualifierQuicklink(quicklinkIds, success) {
+				addSerialiseCalls('putQualifierQuicklink', quicklinkIds, success);
+			}
+			
+			function wrapPostQualifierQuicklink(qualifierId, quicklinkIds, success) {
+				addSerialiseCalls('postQualifierQuicklink', { qualifierId: qualifierId, quicklinkIds: quicklinkIds}, success);
+			}				
+			
+			
+			function wrapDeleteQualifierQuicklink(quicklinkId, success) {
+				addSerialiseCalls('deleteQualifierQuicklink', quicklinkId, success);
+			}			
+			
+
+			var stack = [];
+			function addSerialiseCalls(method, params, callback) {
+
+				stack.push({ method: method, params: params, callback: callback });
+				if (processing == 0) {
+					processSerialiseCalls();
+				}
+			}
+
+			var processing = 0;
+			
+			function processSerialiseCalls() {
+
+				
+				var obj = stack.shift();
+
+				if (obj == undefined) {
+					// Finished
+				}
+				else if (obj.method == 'getDealmakerStages') {
+					processing++;
+					getDealmakerStages(function (result) { try {obj.callback(result);}finally{ processedSerialiseCalls();} });
+				}				
+				else if (obj.method == 'getSalesProcess') {
+					processing++;
+					getSalesProcess(obj.params, function (result) { try {obj.callback(result);}finally{ processedSerialiseCalls();} });
+				}
+				else if (obj.method == 'putSalesProcess') {
+					processing++;
+					putSalesProcess(obj.params, function (result) { try {obj.callback(result);}finally{ processedSerialiseCalls();} });
+				}
+				else if (obj.method == 'getStages') {
+					processing++;
+					getStages(obj.params, function (result) { try {obj.callback(result);}finally{ processedSerialiseCalls();} });
+				}				
+				else if (obj.method == 'putStage') {
+					processing++;
+					putStage(obj.params.id, obj.params.changes, function (result) { try {obj.callback(result);}finally{ processedSerialiseCalls();} });
+				}
+				else if (obj.method == 'postStage') {
+					processing++;
+					postStage(salesProcessId, obj.params.stages, function (result) { try {obj.callback(result);}finally{ processedSerialiseCalls();} });
+				}
+				else if (obj.method == 'getQualifiers') {
+					processing++;
+					getQualifiers(obj.params, function (result) { try {obj.callback(result);}finally{ processedSerialiseCalls();} });
+				}	
+				else if (obj.method == 'putQualifier') {
+					processing++;
+					putQualifier(obj.params.id, obj.params.stageId, obj.params.changes, function (result) { 
+						try {
+							if(obj.callback && obj.callback.action) {
+								obj.callback.action.call(obj.callback, result);
+								//obj.callback(result);
+							}
+						}
+						finally { 
+							processedSerialiseCalls();
+						} 
+					});
+				}
+				else if (obj.method == 'postQualifiers') {
+					processing++;
+					postQualifiers(obj.params.id, obj.params.changes, function (result) { try {obj.callback(result);}finally{ processedSerialiseCalls();} });
+				}					
+				else if (obj.method == 'deleteQualifier') {
+					processing++;
+					deleteQualifier(obj.params, function (result) { try {obj.callback(result);}finally{ processedSerialiseCalls();} });
+				}				
+				else if (obj.method == 'getQuicklinks') {
+					processing++;
+					getQuicklinks(obj.params, function (result) { try {obj.callback(result);}finally{ processedSerialiseCalls();} });
+				}
+				else if (obj.method == 'postQuicklinks') {
+					processing++;
+					postQuicklinks(obj.params.changes, function (result) { try {obj.callback(result);}finally{ processedSerialiseCalls();} });
+				}	
+				else if (obj.method == 'putQuicklinks') {
+					processing++;
+					putQuicklinks(obj.params.id, obj.params.changes, function (result) { try {obj.callback(result);}finally{ processedSerialiseCalls();} });
+				}	
+				else if (obj.method == 'deleteQuicklink') {
+					processing++;
+					deleteQuicklink(obj.params, function (result) { try {obj.callback(result);}finally{ processedSerialiseCalls();} });
+				}													
+				else if (obj.method == 'putQualifierQuicklink') {
+					processing++;
+					putQualifierQuicklink(obj.params, function (result) { try {obj.callback(result);}finally{ processedSerialiseCalls();} });
+				}
+				else if (obj.method == 'postQualifierQuicklink') {
+					processing++;
+					postQualifierQuicklink(obj.params.qualifierId, obj.params.quicklinkIds, function (result) { try {obj.callback(result);}finally{ processedSerialiseCalls();} });
+				}				
+				else if (obj.method == 'deleteQualifierQuicklink') {
+					processing++;
+					deleteQualifierQuicklink(obj.params, function (result) { try {obj.callback(result);}finally{ processedSerialiseCalls();} });
+				}	
+				
+				
+				function getDealmakerStages(callback) {
+					showAjaxSpinner(true);
+					var ret = function (result) { showAjaxSpinner(false); callback(data); }
+					ttgApi.getDealmakerStageAdmin(updateAvailableStagesData, undefined, ret);
+				}										
+				
+				function getSalesProcess(salesProcessId, callback) {
+					showAjaxSpinner(true);
+					var ret = function (result) { showAjaxSpinner(false); callback(data); }
+					ttgApi.getSalesProcessAdmin(salesProcessId, updateRawData, undefined, ret);
+				}						
+				
+				function putSalesProcess(salesProcessChanges, callback) {
+					showAjaxSpinner(true);
+					var ret = function (result) { showAjaxSpinner(false); callback(data); }
+					ttgApi.putSalesProcessAdmin(salesProcessId, { salesProcessChanges: salesProcessChanges }, updateRawData, undefined, ret);
+				}				
+				
+				function getStages(salesProcessId, callback) {
+					showAjaxSpinner(true);
+					var ret = function (result) { showAjaxSpinner(false); callback(data); }
+					ttgApi.getSalesProcessStageAdmin(salesProcessId, updateStageDataRaw, undefined, ret);
+				}				
+				
+				function putStage(salesProcessStageId, salesProcessStageChanges, callback) {
+					showAjaxSpinner(true);
+					var ret = function (result) { showAjaxSpinner(false); callback(data); }
+					ttgApi.putSalesProcessStageAdmin(salesProcessStageId, { salesProcessStageChanges: salesProcessStageChanges }, updateStageData, undefined, ret);
+				}
+				
+				function postStage(salesProcessId, stages, callback) {
+					showAjaxSpinner(true);
+					var ret = function (result) { showAjaxSpinner(false); callback(data); }
+					ttgApi.postSalesProcessStageAdmin(salesProcessId, { stages: stages }, function(data) { updateStageData(data, 'add'); }, undefined, ret);
+				}
+				
+				function getQualifiers(salesProcessId, callback) {
+					showAjaxSpinner(true);
+					var ret = function (result) { showAjaxSpinner(false); callback(data); }
+					ttgApi.getSalesProcessQualifierAdmin(salesProcessId, updateQualifiersDataRaw, undefined, ret);
+				}	
+																	
+				function putQualifier(salesProcessQualifierId, stageId, salesProcessQualifierChanges, success) {
+					showAjaxSpinner(true);
+					enableQualifierSorting(false);
+					var ret = function (result) {  enableQualifierSorting(true); showAjaxSpinner(false); }
+					var operation = salesProcessQualifierChanges.qualifier ? 'update' : 'sort';
+					ttgApi.putSalesProcessQualifierAdmin(salesProcessQualifierId, { salesProcessQualifierChanges: salesProcessQualifierChanges }, function(result) { if(success) { success(result); } updateQualifierData(result, operation, stageId); } , undefined, ret);
+				}	
+
+				function postQualifiers(salesProcessStageId, qualifierIds, success) {
+					showAjaxSpinner(true);
+					var ret = function (result) { showAjaxSpinner(false); }
+					ttgApi.postSalesProcessQualifierAdmin(salesProcessStageId, qualifierIds, function(result) { success(result); updateQualifierData(result, 'add'); } , undefined, ret);
+				}	
+				
+				function deleteQualifier(salesProcessQualifierId, callback) {
+					showAjaxSpinner(true);
+					var ret = function (result) { showAjaxSpinner(false); callback(data); }
+					ttgApi.deleteSalesProcessQualifierAdmin(salesProcessQualifierId, function(data) { updateQualifierData(data, 'remove'); }, undefined, ret);
+				}		
+				
+				function getQuicklinks(searchString, success) {
+					showAjaxSpinner(true);
+					var ret = function (result) { showAjaxSpinner(false); }
+					ttgApi.getPlaybookQuicklink(searchString, function(result) { success(result); }, undefined, ret);
+				}	
+				
+				function postQuicklinks(quicklinkChanges, success) {
+					showAjaxSpinner(true);
+					var ret = function (result) { showAjaxSpinner(false); }
+					ttgApi.postPlaybookQuicklink(quicklinkChanges, function(result) { success(result);} , undefined, ret);
+				}
+				
+				function deleteQuicklink(quicklinkId, success) {
+					showAjaxSpinner(true);
+					var ret = function (result) { showAjaxSpinner(false); }
+					ttgApi.deletePlaybookQuicklink(quicklinkId, function(result) { success(result); }, undefined, ret);
+				}				
+				
+				function putQuicklinks(quicklinkId, quicklinkChanges, success) {
+					showAjaxSpinner(true);
+					var ret = function (result) { showAjaxSpinner(false); }
+					ttgApi.putPlaybookQuicklink(quicklinkId, quicklinkChanges, function(result) { success(result); } , undefined, ret);
+				}								
+				
+				function putQualifierQuicklink(quicklinkIds, success) {
+					showAjaxSpinner(true);
+					var ret = function (result) { showAjaxSpinner(false); }
+					ttgApi.putPlaybookQualifierQuicklinkAdmin(quicklinkIds, function(result) { success(result); }, undefined, ret);
+				}	
+				
+				function postQualifierQuicklink(qualifierId, quicklinkIds, success) {
+					showAjaxSpinner(true);
+					var ret = function (result) { showAjaxSpinner(false); }
+					ttgApi.postPlaybookQualifierQuicklinkAdmin(qualifierId, quicklinkIds, function(result) { success(result); }, undefined, ret);
+				}				
+		
+				function deleteQualifierQuicklink(quicklinkId, success) {
+					showAjaxSpinner(true);
+					var ret = function (result) { showAjaxSpinner(false); }
+					ttgApi.deletePlaybookQualifierQuicklinkAdmin(quicklinkId, function(result) { success(result); }, undefined, ret);
+				}	
+						
+				
+			}
+
+			function processedSerialiseCalls() {
+				processing--;
+				processSerialiseCalls();
+			}	
+			
+			function updateRawData(d) {
+				var previousStages = data.stages || [];
+					previousAvailableStages = data.availableStages || [];
+				if(jQuery.isArray(d)) {
+					if(d && d.length > 0) {
+						data = d[0];
+					}
+					else {
+						data = null;
+					}
+				}
+				else {
+					data = d;
+				}
+				data.stages = previousStages;
+				data.availableStages = previousAvailableStages;
+			}
+			
+			function updateStageDataRaw(stages) {
+				data.stages = stages;
+			}
+			
+			function updateQualifiersDataRaw(qualifiers) {
+				jQuery.each(data.stages, function(index, stage) {
+					var stageId = stage.id;
+					if(qualifiers[stageId]) {
+						stage.qualifiers = qualifiers[stageId];
+					}
+					else {
+						stage.qualifiers = [];
+					}
+				});
+			}			
+			
+			function updateStageData(updatedStages, operation) {
+				var stages = data.stages,
+					i;
+					
+				// It is a single element
+				if(!jQuery.isArray(updatedStages)) {
+					updatedStages = [updatedStages];	
+				}
+				
+				if(operation === 'add') {
+					jQuery.each(updatedStages, function(index, updatedStage) {
+						updatedStage.qualifiers = [];
+					});
+					stages = stages.concat(updatedStages);
+					stages.sort(function(s1, s2) { return s1.sortOrder - s2.sortOrder; });
+					data.stages = stages;
+				}
+				else {
+					for(i = 0; i < stages.length; i++) {
+						if(stages[i].id === updatedStages[0].id) {
+							if(operation === 'remove') {
+								stages.splice(i, 1);
+								// need to remove stage from dom here...
+								var stageDiv = getStageDivById(updatedStages[0].id);
+								if(stageDiv) {
+									stageDiv.remove();
+								}
+							}
+							else {
+								updatedStages[0].qualifiers = stages[i].qualifiers;
+								stages[i] = updatedStages[0];
+							}
+							break;
+						}
+					} 
+				}
+				refreshLastModifiedAndSalesCycle(data, updatedStages[0].salesProcessLastModifiedBy, updatedStages[0].salesProcessLastModifiedDate, updatedStages[0].salesCycleDuration, updatedStages[0].totalSalesCycle);				
+				renderStages(stages);
+				if(operation === 'add' && updatedStages.length > 0) {
+					getStageDivById(updatedStages[0].id).trigger('ttg_stage_just_added');
+				}
+			}	
+			
+			function updateQualifierData(updatedQualifiers, operation, stageId) {
+
+				var stages = data.stages,
+					stagesLength = stages.length,
+					qualifierStage,
+					qualifiersLength, 
+					updatedQualifier = jQuery.isArray(updatedQualifiers) ? updatedQualifiers[0] : updatedQualifiers,
+					currentStageId = updatedQualifier ? updatedQualifier.stageId : stageId,
+					i;
+	
+
+				for(i = 0; i < stagesLength; i++) {
+					if(stages[i].id === currentStageId) {
+						qualifierStage = stages[i];
+						break;
+					}
+				}	
+			
+				if(qualifierStage) {
+					qualifiersLength = qualifierStage.qualifiers.length;
+					if(operation === 'sort') {
+						qualifierStage.qualifiers = updatedQualifiers || [];
+					} 
+					else {
+						if(operation === 'add') {
+							qualifierStage.qualifiers = qualifierStage.qualifiers.concat(updatedQualifiers);
+							renderStages(stages);	
+						}					
+						else {
+							for(i = 0; i < qualifiersLength; i++) {
+								if(qualifierStage.qualifiers[i].id === updatedQualifier.id) {
+									if(operation === 'remove') {
+										qualifierStage.qualifiers.splice(i, 1);
+									}
+									else {
+										updatedQualifier.quicklinks = qualifierStage.qualifiers[i].quicklinks;
+										qualifierStage.qualifiers.splice(i, 1, updatedQualifier);
+									}	
+									renderStages(stages);
+									break;
+								}
+							}
+						}
+					}	
+				}
+				
+				// THIS IS A FIX TO PREVENT A BUG IN JS, BUT IT LEADS TO THE FOLLOWING SCENARIO:
+				// - If you drag a qualifier from a stage that has only that qualifier onto a different stage (so the source stage gets empty),
+				// - The salesProcess lastModified info won't get updated
+				// To solve this, change what the qualifier rest resource gives back when updating qualifiers (instead of a list, an object with the list and the additionalInfo)
+				if(updatedQualifier) {
+					refreshLastModifiedAndSalesCycle(data, updatedQualifier.salesProcessLastModifiedBy, updatedQualifier.salesProcessLastModifiedDate, updatedQualifier.salesCycleDuration, updatedQualifier.totalSalesCycle);
+				}
+			
+			}	
+			
+			function updateAvailableStagesData(d) {
+				if(d) {
+					data.availableStages = d;	
+				}
+			}			
+
+			function getQualifierLine(id) {
+				var line = jQuery('#' + PREFIX_QUESTIONID + id);
+				return line;
+			}
+
+
+			function refreshed(result) {
+				handleResponse(result);
+				updateSummaryPanel(result);
+			}
+
+
+			function setup() {
+				wrapGetSalesProcess(salesProcessId,function() {});
+				wrapGetStages(salesProcessId,function() {}); 
+				wrapGetDealmakerStages(function() {});
+				wrapGetQualifiers(salesProcessId,handleGetResponse);
+			}
+
+			function handleGetResponse(salesProcess) {
+				handleResponse(salesProcess);
+				render(salesProcess);
+			}
+
+
+			function handleResponse(result) {
+				if (result != undefined) {
+					if (result.debug != undefined && result.debug != null) {
+						jQuery.each(result.debug, 
+							function (key, value) {
+								_debug.log(value);
+							}
+						)
+					}
+				}
+				return false;
+			}
+
+
+			var ajaxSpinnerCnt = 0;
+			
+			function showAjaxSpinner(show) {
+				var spinner = jQuery('#SPINNER');
+				if (show) { 
+					ajaxSpinnerCnt++;
+					if (ajaxSpinnerCnt == 1) {
+
+						spinner.append(jQuery('<img>').attr('id', 'tas_ajax_spinner').addClass('spinner').attr('src', '{!JSENCODE(URLFOR($Resource.ttgomjs, '/ttg/graph/images/loader.gif'))}'));
+						spinner.css("top", ( jQuery(window).height() - spinner.height() ) / 2+jQuery(window).scrollTop() + "px");
+						spinner.css("left", ( jQuery(window).width() - spinner.width() ) / 2+jQuery(window).scrollLeft() + "px");
+
+					}				  
+				}
+				else {
+
+					ajaxSpinnerCnt--;
+					if (ajaxSpinnerCnt <= 0) {				
+						spinner.html('');
+						ajaxSpinnerCnt = 0;
+					}
+
+				}
+			}
+			
+			
+					function editQualifier(stageId, id, qualifier) {
+
+						var editQualifierDialog = jQuery('<div/>', {id: 'editQualifierDialog'});
+						
+						var longNameInput = jQuery('<textarea/>', {id: 'longNameInput'}).attr('rows',2).addClass('qualifierInput').val(qualifier.qualifierText),
+							tipInput = jQuery('<textarea/>', {id: 'tipInput'}).attr('rows',2).addClass('qualifierInput').val(qualifier.qualifierTip),
+							uiReadonlyInput = jQuery('<input/>', {id: 'uiReadonlyInput', type: 'checkbox'}).addClass('qualifierInput').prop('checked', qualifier.uiReadonly),
+							longNameLabel = jQuery('<textarea/>', {id: 'longNameLabel', disabled: 'disabled'}).attr('rows',2).addClass('qualifierReadonlyInput').val(qualifier.qualifierText),
+							tipLabel = jQuery('<textarea/>', {id: 'tipLabel', disabled: 'disabled'}).attr('rows',2).addClass('qualifierReadonlyInput').val(qualifier.qualifierTip),
+							uiReadonlyLabel = jQuery('<input/>', {id: 'uiReadonlyLabel', type: 'checkbox'}).addClass('qualifierInput').prop('checked', qualifier.uiReadonly).attr('disabled', 'disabled'),
+							qualifierIdLabel = jQuery('<span/>', {id: 'qualifierIdLabel'}).text(qualifier.qualifierId);
+						
+						ttg.setUpMaxLimitCheck(longNameInput, 1024);
+						ttg.setUpMaxLimitCheck(tipInput, 32768);
+											
+						var longNameHelp = createHelpIcon(helpText.qualifierText),
+							tipHelp = createHelpIcon(helpText.qualifierTip),
+							uiReadonlyHelp = createHelpIcon(helpText.uiReadonly);	
+											
+						var validationMsg = jQuery('<span/>', {id: 'salesProcessQualifierValidationMsg'}).addClass('validationMsg');
+								
+															
+						var editQualifierTable = jQuery('<table/>', {id: 'qualifierTable'})
+																	.append(createRow(localization.qualifier_long_name + ':', longNameLabel, longNameInput, longNameHelp))
+																	.append(createRow(localization.qualifier_tip + ':', tipLabel, tipInput, tipHelp))
+																	.append(createRow(localization.qualifier_ui_readonly + ':', uiReadonlyLabel, uiReadonlyInput, uiReadonlyHelp))
+																	.append(createRow(localization.qualifier_id + ':', qualifierIdLabel));
+						
+						var buttonBar = jQuery('<div/>', {id: 'editQualifierButtonBar'}),
+							editQualifierButton = jQuery('<input/>', {id: 'editQualifierButton', type: 'button'}).addClass(buttonClass).val(localization.edit_qualifier_edit_button).click(editClicked),
+							cancelQualifierButton = jQuery('<input/>', {id: 'cancelQualifierButton', type: 'button'}).addClass(buttonClass).val(localization.edit_qualifier_cancel_button).click(cancelClicked),
+							saveQualifierButton = jQuery('<input/>', {id: 'saveQualifierButton', type: 'button'}).addClass(buttonClass).val(localization.edit_qualifier_save_button).click(saveClicked);
+							
+						buttonBar.append(editQualifierButton).append(saveQualifierButton).append(cancelQualifierButton);
+						
+						var quicklinksDiv = jQuery('<div/>').addClass('quicklinksDiv');
+						var quicklinkTable = jQuery('<table/>', {id: 'quicklinksTable'});
+						quicklinkTable.append(jQuery('<tr/>').append(jQuery('<th/>').addClass('quicklinkNameCol').text(localization.quicklink_name))
+															 .append(jQuery('<th/>').addClass('quicklinkDescriptionCol').text(localization.quicklink_description))
+															 .append(jQuery('<th/>').addClass('editQuicklinkCol'))
+															 .append(jQuery('<th/>').addClass('deleteQuicklinkCol'))); 
+
+						renderQuicklinkTable();
+						function renderQuicklinkTable() {
+							quicklinkTable.find('tr').not(':first').remove();
+							jQuery.each(qualifier.quicklinks, function(index, quicklink) {
+								var editButton = jQuery('<span/>', {id: 'quicklinksTableEditButton_' + quicklink.id}).addClass('quicklinkEditButton').click(function() {
+									editQuicklinkClicked(quicklink, function(updatedQuicklink, isDeleting) {
+										if(isDeleting) {
+											qualifier.quicklinks = _.filter(qualifier.quicklinks, function(q) { return q.quicklinkId !== quicklink.quicklinkId; });
+										}
+										else {
+											quicklink.quicklinkName = updatedQuicklink.quicklinkName;
+											quicklink.quicklinkDescription = updatedQuicklink.quicklinkDescription;
+											quicklink.quicklinkLink = updatedQuicklink.quicklinkLink;
+											quicklink.quicklinkType = updatedQuicklink.quicklinkType;
+										}
+										renderQuicklinkTable();
+									});
+								});
+								var deleteButton = jQuery('<span/>', {id: 'quicklinksTableDeleteButton_' + quicklink.id}).addClass('quicklinkDeleteButton').click(function() { deleteQuicklinkClicked(quicklink); });
+								var dragHandler = jQuery('<span/>', {id: 'quicklinksTableDragHandler_' + quicklink.id}).addClass('quicklinkDragHandler');
+								var row = jQuery('<tr/>').attr('quicklinkId', quicklink.id)
+																 .append(jQuery('<td/>').addClass('quicklinkNameCol').append(dragHandler).append(jQuery('<span/>', {id: 'quicklinksTableName_' + quicklink.id}).addClass('quicklinksTableName').text(quicklink.quicklinkName)))
+																 .append(jQuery('<td/>', {id: 'quicklinksTableDescription_' + quicklink.id}).addClass('quicklinkDescriptionCol').text(quicklink.quicklinkDescription))
+																 .append(jQuery('<td/>').addClass('editQuicklinkCol').append(editButton))
+																 .append(jQuery('<td/>').addClass('deleteQuicklinkCol').append(deleteButton));
+								quicklinkTable.append(row);
+							});		
+							quicklinkTable.find('tbody').sortable({
+								axis: 'y',
+								items: 'tr:not(:first-child)',
+								revert: true,
+								containment: quicklinksDiv,
+								helper: function(e, ui) {
+											ui.children().each(function() {
+												jQuery(this).width(jQuery(this).width());
+											});
+											return ui;
+								},
+								update: function(event, ui) {
+									var quicklinkIds = [];
+									jQuery.each(quicklinkTable.find('tr').not(':first'), function(index, row) {
+										quicklinkIds.push(jQuery(row).attr('quicklinkId'));
+									});
+									wrapPutQualifierQuicklink(quicklinkIds, function(quicklinks) {
+										qualifier.quicklinks = quicklinks;
+									});
+								},
+								tolerance: 'pointer'
+							}).disableSelection();				
+						}
+						
+						quicklinksDiv.append(jQuery('<div/>').addClass('quicklinksTitle').text(localization.quicklinks + ': ')).append(jQuery('<div/>' ,{id:'quicklinksTableScrollDiv'}).append(quicklinkTable));
+						
+						var quicklinkAddButton = jQuery('<input/>', {id: 'quicklinkAddButton', type: 'button'}).addClass(buttonClass).val(localization.add_quicklink).click(addQuicklinkClicked);
+						quicklinksDiv.append(jQuery('<div/>').addClass('quicklinkAddButtonBar').append(quicklinkAddButton));
+																							
+						editQualifierDialog.append(editQualifierTable).append(buttonBar).append(jQuery('<div/>', {id: 'qualifierTableButtonBar'}).append(validationMsg)).append(quicklinksDiv);
+						
+						function deleteQuicklinkClicked(quicklink) {
+							wrapDeleteQualifierQuicklink(quicklink.id, function() {
+								qualifier.quicklinks = _.filter(qualifier.quicklinks, function(q) { return q.quicklinkId !== quicklink.quicklinkId; });
+								renderQuicklinkTable();
+								updateQualifierData(qualifier, 'update');							
+							});
+						}
+						
+						function buildSalesProcessUsageMsg(salesProcessUsageDiv ) {
+							var salesProcessUsageNames = qualifier.salesProcessUsage;
+							if(salesProcessUsageNames && salesProcessUsageNames.length > 0) {
+								var salesProcessUsageList = jQuery('<ul/>');
+								var hasProcess = false;
+								var usageMsgTokens = localization.sales_process_usage.split('\n');
+								jQuery.each(usageMsgTokens, function(index, token) {
+									salesProcessUsageDiv.append(jQuery('<div/>').text(token));
+								});
+								//salesProcessUsageDiv.text(localization.sales_process_usage);
+								salesProcessUsageDiv.append(salesProcessUsageList);
+								jQuery.each(salesProcessUsageNames, function(index, salesProcess) {
+								    hasProcess = true;
+									salesProcessUsageList.append(jQuery('<li/>').text(salesProcess));
+								});
+								
+								if(hasProcess) {
+								    salesProcessUsageList.addClass('processes');
+								}
+								
+								return salesProcessUsageDiv;
+							}	
+							else {
+								return null;
+							}
+						}
+
+						function addQuicklinkClicked() {
+							var searchQuicklinksDialog = jQuery('<div/>', {id: 'searchQuicklinksDialog'}),
+								searchQuicklinksLabel =  jQuery('<span/>').text(localization.quicklinks_search_dialog_label),
+								searchQuicklinksInput =  jQuery('<input/>', {id: 'searchQuicklinksInput', type: 'text'}),
+								searchQuicklinksButton =  jQuery('<input/>', {id: 'searchQuicklinksButton', type: 'button'}).addClass(buttonClass).val(localization.quicklinks_search_dialog_search).click(searchQuicklinksClicked),
+								searchQuicklinksTableDiv =  jQuery('<div/>', {id: 'searchQuicklinksTableDiv'}),
+								searchQuicklinksTable =  jQuery('<table/>', {id: 'searchQuicklinksTable'}),
+								selectedQuicklinks = {},
+								alreadyAddedQuicklinkIds = _.pluck(qualifier.quicklinks, 'quicklinkId');
+
+															
+							searchQuicklinksTable.append(jQuery('<tr>').append(jQuery('<th/>'))
+												  					   .append(jQuery('<th/>').text(localization.quicklink_name))
+												  					   .append(jQuery('<th/>').text(localization.quicklink_description))
+												  					   .append(jQuery('<th/>').text(localization.quicklink_type)));
+							
+							searchQuicklinksDialog.append(searchQuicklinksLabel).append(searchQuicklinksInput).append(searchQuicklinksButton);
+							searchQuicklinksDialog.append(searchQuicklinksTableDiv.append(searchQuicklinksTable));
+							searchQuicklinksDialog.dialog({
+								modal: true,
+								title: localization.quicklinks_search_dialog,
+								width: '600px',
+								buttons: {
+									'Add' : {
+										text: localization.quicklinks_search_dialog_add,
+										id: 'addQuicklinkSearch',
+										click: function() {  	
+											searchQuicklinksDialog.dialog('close');
+											
+											var selectedQuicklinkIds = _.keys(selectedQuicklinks);
+											if(selectedQuicklinkIds.length > 0) {
+												wrapPostQualifierQuicklink(qualifier.qualifierId, selectedQuicklinkIds, function(newQuicklinks) {
+													qualifier.quicklinks = qualifier.quicklinks.concat(newQuicklinks);
+													renderQuicklinkTable();
+													updateQualifierData(qualifier, 'update');
+												});
+											}
+										}
+									},								
+									'Create Quicklink' : {
+										text: localization.create_quicklink,
+										id: 'createQuicklink',
+										click: function() { 
+											var newQuicklink = {};
+											newQuicklink.quicklinkName = '';
+											newQuicklink.quicklinkDescription = '';
+											newQuicklink.quicklinkLink = '';
+											newQuicklink.quicklinkType = 'Link'; 	
+											editQuicklinkClicked(newQuicklink, function(createdQuicklink) {
+												searchQuicklinksDialog.dialog('close');
+												wrapPostQualifierQuicklink(qualifier.qualifierId, [createdQuicklink.quicklinkId], function(newQuicklinks) {
+													qualifier.quicklinks = qualifier.quicklinks.concat(newQuicklinks);
+													renderQuicklinkTable();
+													updateQualifierData(qualifier, 'update');
+												});												
+											});
+										}
+									},									
+									'Cancel' : {
+										text: localization.quicklinks_search_dialog_cancel,
+										id: 'cancelQuicklinkSearch',
+										click: function() { 
+											searchQuicklinksDialog.dialog('close');
+										} 
+									}
+								}
+							});
+							//jQuery('#addQuicklinkSearch').button('disable').button('refresh');
+							
+							function searchQuicklinksClicked() {
+								wrapGetQuicklinks(searchQuicklinksInput.val(), function(quicklinksData) {
+									searchQuicklinksTable.find('tr').not(':first').remove();
+									jQuery.each(quicklinksData, function(index, quicklink) {
+										if(alreadyAddedQuicklinkIds.indexOf(quicklink.quicklinkId) === -1) {
+											addRow(quicklink);
+										}
+									});
+								});
+							}
+							
+							function addRow(q) {
+								var quicklinkCheckbox = jQuery('<input/>', {id : q.quicklinkId + '_check', type: 'checkbox'}).change(checkBoxClicked),
+									row = jQuery('<tr/>').append(jQuery('<td/>').append(quicklinkCheckbox))
+														 .append(jQuery('<td/>', {id : q.quicklinkId + '_name'}).text(q.quicklinkName))
+														 .append(jQuery('<td/>', {id : q.quicklinkId + '_description'}).text(q.quicklinkDescription))
+														 .append(jQuery('<td/>', {id : q.quicklinkId + '_type'}).text(q.quicklinkType));
+								searchQuicklinksTable.append(row);								
+								
+								function checkBoxClicked() {
+									if(quicklinkCheckbox.prop('checked')) {
+										selectedQuicklinks[q.quicklinkId] = q;	
+									} else {
+										delete selectedQuicklinks[q.quicklinkId];
+									}
+									
+									/* if(_.keys(selectedQuicklinks).length > 0) {
+										jQuery('#addQuicklinkSearch').button('enable');	
+									}
+									else {
+										jQuery('#addQuicklinkSearch').button('disable');
+									} */
+									
+								}
+							}
+						}
+
+						
+						function createRow(label, labelField, inputField, help) {
+							return jQuery('<tr/>').append(jQuery('<td/>').addClass('qualifierTableLabelCol').append(jQuery('<span/>').text(label)).append(help ? help : null))
+												  .append(jQuery('<td/>').append(labelField).append(inputField));
+						}
+						
+						function setEditMode(isEditing) {
+							if(isEditing) {
+								quicklinkAddButton.attr('disabled', 'disabled').addClass('ui-button-disabled ui-state-disabled');
+								jQuery('.quicklinkDeleteButton').hide(); 
+								longNameInput.show();
+								tipInput.show(); 
+								uiReadonlyInput.show();
+								longNameLabel.hide();
+								tipLabel.hide(); 
+								uiReadonlyLabel.hide();	
+								editQualifierButton.hide();
+								saveQualifierButton.show();
+								cancelQualifierButton.show();
+								quicklinkTable.find('tbody').sortable('disable');
+								jQuery('.quicklinkDragHandler').css('visibility', 'hidden');
+							}
+							else {
+								quicklinkAddButton.removeAttr('disabled').removeClass('ui-button-disabled ui-state-disabled');
+								jQuery('.quicklinkDeleteButton').show(); 
+								longNameInput.hide();
+								tipInput.hide(); 
+								uiReadonlyInput.hide();
+								longNameLabel.show();
+								tipLabel.show(); 
+								uiReadonlyLabel.show();		
+								editQualifierButton.show();
+								saveQualifierButton.hide();
+								cancelQualifierButton.hide();
+								quicklinkTable.find('tbody').sortable('enable');
+								jQuery('.quicklinkDragHandler').css('visibility', 'visible');
+							}
+						}
+						
+						function editClicked() {
+						    if(qualifier.salesProcessUsage && qualifier.salesProcessUsage.length > 0) {
+						        var salesProcessUsageDiv = jQuery('<div>', { id: 'salesProcessUsage' });
+						        buildSalesProcessUsageMsg(salesProcessUsageDiv);
+						        
+						        salesProcessUsageDiv.dialog({
+						        
+						        	// Workaround for injecting HTML into jQuery UI 1.10.3 dialog titles
+						        	open: function() {
+						        		
+						        		salesProcessUsageDiv.parent()
+						        			.find('.ui-dialog-title')
+						        			.append(
+						        				'<span class="ui-icon ui-icon-alert" style="float: left"></span><span style="float: left">Warning</span>'
+						        			);
+						        	},
+						        	
+						            // title: '<span class="ui-icon ui-icon-alert" style="float: left"></span><span style="float: left">Warning</span>',
+						            
+						            modal: true,
+						            beforeClose: function(event, ui) {
+						                jQuery(salesProcessUsageDiv).remove();
+						            },
+						            buttons: [{
+						                text: 'Edit Globally', click: function() { setEditMode(true); jQuery(this).dialog('close'); }
+						            }, {
+						                text: 'Cancel', click: function() { jQuery(this).dialog('close'); }
+						            }]
+						        });						        
+						    } else {
+						        setEditMode(true);
+						    }
+						}
+						
+						function cancelClicked() {
+							longNameInput.val(longNameLabel.val());
+							tipInput.val(tipLabel.val());
+							if(uiReadonlyLabel.prop('checked')) {
+								uiReadonlyInput.prop('checked', true);
+							} else {
+								uiReadonlyInput.removeProp('checked');
+							}
+							setEditMode(false);
+						}
+						
+						function copyClicked() {
+							savePlaybookQualifier(true);
+						}
+						
+						function saveClicked() {
+							savePlaybookQualifier(false);
+							/*var confirmDialog = jQuery('<div/>', {id: 'saveQualifierConfirmDialog'}).
+												append(jQuery('<div/>').text(localization.edit_qualifier_warning)).
+												append(jQuery('<div/>').text(localization.edit_qualifier_confirmation));
+							confirmDialog.dialog({
+								modal: true,
+								title: localization.edit_qualifier_warning_dialog,
+								buttons: {
+									'Create a copy' : {
+										text: localization.edit_qualifier_copy_button,
+										id: 'copyQualifierButton',
+										click: function() { 
+											confirmDialog.dialog('close');
+											savePlaybookQualifier(true);
+										} 
+									},
+									'Change original' : {
+										text: localization.edit_qualifier_change_original_button, 
+										id: 'changeOriginalButton',
+										click: function() {  	
+											confirmDialog.dialog('close');
+											savePlaybookQualifier(false);
+										}
+									}
+								}
+							});*/ 					
+						
+						}
+		
+						function savePlaybookQualifier(overwriteQualifier) {
+							var playbookQualifierChanges = {};
+							playbookQualifierChanges.qualifierText = longNameInput.val();
+							playbookQualifierChanges.qualifierTip = tipInput.val();							
+							
+							playbookQualifierChanges.uiReadonly = uiReadonlyInput.attr('checked') === 'checked' ? true : false;							
+							
+							// playbookQualifierChanges.uiReadonly = uiReadonlyInput.prop('checked');
+							
+							if(validateQualifier(playbookQualifierChanges)) {
+								showAjaxSpinner(true);
+								var ret = function (result) { showAjaxSpinner(false); }
+								ttgApi.putPlaybookQualifierAdmin(qualifier.qualifierId, overwriteQualifier ? qualifier.id : null, {playbookQualifierChanges: playbookQualifierChanges}, function(data) { processEditQualifierRespose(data, overwriteQualifier); }, undefined, ret);
+							}
+							
+							
+							function validateQualifier(playbookQualifierChanges) {
+								var validationStr = validateField(localization.qualifier_long_name, playbookQualifierChanges.qualifierText, 'text', null ,true);
+								if(validationStr) {
+									validationMsg.text(validationStr).show();
+									return false;
+								}
+								else {
+									validationMsg.hide();
+									return true;
+								}                   
+							}
+
+							
+						}
+					
+						function processEditQualifierRespose(data, overwriteQualifier) {
+							if(data) {
+
+								longNameLabel.val(longNameInput.val());
+								tipLabel.val(tipInput.val());
+								
+								if(uiReadonlyInput.prop('checked')) {
+									uiReadonlyLabel.prop('checked', true);
+								} else {
+									uiReadonlyLabel.removeProp('checked');
+								}														
+								var updatedQualifier = {};
+								updatedQualifier.id = qualifier.id;
+								updatedQualifier.name = qualifier.mandatory;
+								updatedQualifier.qualifierId = data.qualifierId;
+								updatedQualifier.qualifierName = data.qualifierName;
+								updatedQualifier.qualifierText = data.qualifierText;								
+								updatedQualifier.qualifierTip = data.qualifierTip;
+								updatedQualifier.uiReadonly = data.uiReadonly;
+								updatedQualifier.importance = qualifier.importance;								
+								updatedQualifier.mandatory = qualifier.mandatory;
+								updatedQualifier.sortOrder = qualifier.sortOrder;
+								updatedQualifier.stageId = qualifier.stageId;
+								if(overwriteQualifier) {
+									updatedQualifier.salesProcessUsage = [];
+								}
+								else {
+									updatedQualifier.salesProcessUsage = qualifier.salesProcessUsage;
+								}
+								updateQualifierData(updatedQualifier);
+								qualifier = updatedQualifier;
+								
+								setEditMode(overwriteQualifier);
+							}
+						}
+						
+						
+						function editQuicklinkClicked(quicklink, postSaveHandler) {
+							var editQuicklinkDialog = jQuery('<div/>', {id: 'editQuicklinkDialog'});
+							
+							var quicklinkNameInput = jQuery('<input/>', {id: 'quicklinkNameInput', type: 'text', size: 60, maxlength: 80}).addClass('editQuicklinkInput').val(quicklink.quicklinkName),
+								quicklinkDescriptionInput = jQuery('<textarea/>', {id: 'quicklinkDescriptionInput'}).attr('rows',2).addClass('editQuicklinkInput').val(quicklink.quicklinkDescription),
+								quicklinkLinkInput = jQuery('<input/>', {id: 'quicklinkLinkInput', type: 'text', size: 60, maxlength: 255}).addClass('editQuicklinkInput').val(quicklink.quicklinkLink),
+								quicklinkTypeInput = jQuery('<select/>', {id: 'quicklinkTypeInput', size: 1}).addClass('editQuicklinkInput');
+								
+							var quicklinkTypes = ['Link', 'Video', 'Word', 'Excel', 'Powerpoint', 'PDF', 'Image', 'ZIP', 'Web', 'Other'];
+							jQuery.each(quicklinkTypes, function(index, quicklinkType) {
+								quicklinkTypeInput.append(jQuery('<option/>').val(quicklinkType).text(quicklinkType));
+							});
+							quicklinkTypeInput.val(quicklink.quicklinkType);							
+							
+							ttg.setUpMaxLimitCheck(quicklinkDescriptionInput, 1024);
+								
+							var quicklinkNameHelp = createHelpIcon(helpText.quicklinkName),
+								quicklinkDescriptionHelp = createHelpIcon(helpText.quicklinkDescription),
+								quicklinkLinkHelp = createHelpIcon(helpText.quicklinkLink),								
+								quicklinkTypeHelp = createHelpIcon(helpText.quicklinkType);									
+								
+							var editQuicklinkTable = jQuery('<table/>', {id: 'editQuicklinkTable'})
+																		.append(createRow(localization.quicklink_name + ':', quicklinkNameInput, quicklinkNameHelp))
+																		.append(createRow(localization.quicklink_description + ':', quicklinkDescriptionInput, quicklinkDescriptionHelp))
+																		.append(createRow(localization.quicklink_link + ':', quicklinkLinkInput, quicklinkLinkHelp))
+																		.append(createRow(localization.quicklink_type + ':', quicklinkTypeInput, quicklinkTypeHelp));							
+							
+							function createRow(label, inputField, help) {
+								return jQuery('<tr/>').append(jQuery('<td/>').addClass('editQuicklinkTableLabelCol').append(jQuery('<span/>').text(label)).append(help ? help : null))
+													  .append(jQuery('<td/>').append(inputField));
+							}
+							
+							var validationMsg = jQuery('<span/>', {id: 'editQuicklinkValidationMsg'}).addClass('validationMsg');
+
+							function validateQuicklink(quicklinkChanges) {
+								var validationStr = null;
+								validationStr = validationStr || validateField(localization.quicklink_name, quicklinkChanges.quicklinkName, 'text', null, true);
+								validationStr = validationStr || validateField(localization.quicklink_description, quicklinkChanges.quicklinkDescription, 'text', null, true);
+								validationStr = validationStr || validateField(localization.quicklink_link, quicklinkChanges.quicklinkLink, 'text', null, true);
+								validationStr = validationStr || validateField(localization.quicklink_type, quicklinkChanges.quicklinkType, 'text', null, true);																								
+								if(validationStr) {
+									validationMsg.text(validationStr).show();
+									return false;
+								}
+								else {
+									validationMsg.hide();
+									return true;
+								}                   
+							}	
+							
+							editQuicklinkDialog.append(editQuicklinkTable).append(jQuery('<div/>').append(validationMsg.hide()));
+							editQuicklinkDialog.dialog({
+								title: quicklink.quicklinkId ? localization.edit_quicklink_dialog_title : localization.create_quicklink_dialog_title,
+								modal: true,
+								width: '650px',
+								buttons: {  'Save' : {
+											text: localization.edit_quicklink_save_button, 
+											id: 'saveEditQuicklinkButton', 
+											click: function() {
+												var quicklinkChanges = {};											
+												quicklinkChanges.quicklinkName = quicklinkNameInput.val();
+												quicklinkChanges.quicklinkDescription = quicklinkDescriptionInput.val();
+												quicklinkChanges.quicklinkLink = quicklinkLinkInput.val();
+												quicklinkChanges.quicklinkType = quicklinkTypeInput.val();
+												if(!validateQuicklink(quicklinkChanges)) {
+													return;
+												}
+												if(quicklink.quicklinkId) {
+													wrapPutQuicklinks(quicklink.quicklinkId, { quicklinkChanges: quicklinkChanges }, function(updatedQuicklink) {
+														if(postSaveHandler) {
+															postSaveHandler(updatedQuicklink);
+														}
+													});
+												}
+												else {
+													wrapPostQuicklinks({ quicklinkChanges: quicklinkChanges }, function(updatedQuicklink) {
+														if(postSaveHandler) {
+															postSaveHandler(updatedQuicklink);
+														}
+													});
+												}
+												editQuicklinkDialog.dialog('close'); 
+											}
+											}/*, 
+											'Delete' : { 
+											text: localization.edit_quicklink_delete_button,
+											id: 'deleteEditQuicklinkButton',
+											click: function() {  
+												var confirmDialog = jQuery('<div/>', {id: 'deleteEditQuicklinkConfirmDialog'}).
+																			append(jQuery('<span/>').text(localization.delete_confirmation_label));
+												confirmDialog.dialog({
+													modal: true,
+													title: localization.quicklink_delete_dialog_title,
+													buttons: {
+														'Yes' : function() 	{ 	
+																	confirmDialog.dialog('close');
+																	editQuicklinkDialog.dialog('close');
+																	wrapDeleteQuicklink(quicklink.quicklinkId, function(deletedQuicklink) {
+																		if(postSaveHandler) {
+																			postSaveHandler(deletedQuicklink, true);
+																		}
+																	});
+														},
+														'No' : function() { confirmDialog.dialog('close'); }														
+													}
+												});	
+												
+												}  
+											}*/,
+											'Cancel' : {
+											text: localization.edit_quicklink_cancel_button, 
+											id: 'cancelEditQuicklinkButton', 
+											click: function() {editQuicklinkDialog.dialog('close'); }
+											}
+
+								}
+							});
+							if(!quicklink.quicklinkId) {
+								jQuery('#deleteEditQuicklinkButton').remove();
+							}							
+							
+						}
+						
+						
+						validationMsg.hide();
+						setEditMode(false); 					
+						editQualifierDialog.dialog({
+							title: localization.edit_qualifier_dialog_title,
+							modal: true,
+							width: '650px',
+							buttons: { 'Close' : {
+										text: localization.edit_qualifier_close_button, 
+										id: 'closeEditQualifierButton', 
+										click: function() {editQualifierDialog.dialog('close'); }
+									} 
+							}
+						});
+						editQualifierButton.focus();										
+					
+					
+					}			
+
+
+			function createHelpIcon(helpText) {
+
+				return jQuery('<span/>').addClass('formHelpIcon').tooltip({ delay: 0, showURL: false, bodyHandler: function() { return helpHover(helpText); } });
+
+
+				function helpHover() {
+					var lines = helpText ? helpText.split('\n') : [''],
+						tooltipDiv = jQuery('<div/>').addClass('tooltipDiv');
+
+					jQuery.each(lines, function(index, line) {
+						tooltipDiv.append(jQuery('<div/>').text(line).append(line ? null : jQuery('<br/>')));
+					});					
+					return tooltipDiv;
+				}
+
+
+
+			}
+
+			var _qualifierline = function(stageId, id) {
+				var that = {}
+				var line = undefined;
+				
+				function generateQuestion(key, value) {
+
+					var qualifier = value;
+					var listItem = jQuery('<li/>');
+					//var html = jQuery('<div>').addClass('divQuery').attr('id', PREFIX_QUESTIONID + id);
+					var html = jQuery('<table/>').addClass('divQuery').attr('id', PREFIX_QUESTIONID + id);
+					
+					function onChange() {
+						var salesProcessQualifierChanges = {};
+						salesProcessQualifierChanges.qualifier = {};
+						salesProcessQualifierChanges.qualifierIds = [];
+						salesProcessQualifierChanges.stageId = null;
+						
+						// salesProcessQualifierChanges.qualifier.mandatory = (mandatoryInput.attr('checked') === 'checked');
+						
+						salesProcessQualifierChanges.qualifier.mandatory = mandatoryInput.prop('checked');
+						
+						salesProcessQualifierChanges.qualifier.importance = importanceCombo.val();
+						salesProcessQualifierChanges.qualifier.sortOrder = qualifier.sortOrder;
+						wrapPutQualifier(qualifier.id, stageId, salesProcessQualifierChanges, {});					
+					}
+					
+					
+					var mandatoryInput = jQuery('<input/>', {id: 'mandatoryInput_' + id, type: 'checkbox'}).addClass('mandatoryCheck').on('change', onChange);
+					if(qualifier.mandatory) {
+						mandatoryInput.prop('checked', true);
+					}
+					var importanceLevels = ['Nice to have', 'Important', 'Very important', 'Essential'];
+					var importanceCombo = jQuery('<select/>', {id: 'importanceInput_' + id}).addClass('importanceSelect');
+					jQuery.each(importanceLevels, function(index, level) {
+						importanceCombo.append(jQuery('<option/>').val(level).text(level));
+					});
+					importanceCombo.val(qualifier.importance).on('change', onChange);
+
+					var handle = jQuery('<span>').addClass('dragHandler');
+					var hiddenInput = jQuery('<input>').attr('type', 'hidden').attr('id', 'qualifierStageId').val(stageId);
+					var qualifierTextSpan = jQuery('<span>').addClass('QUALIFIERTEXT').attr('id', 'QUALIFIERTEXT_' + id).text(qualifier.qualifierText);
+					var editButton = jQuery('<span>').addClass('NOTEEDITBUTTON').addClass('tasPointer').attr('id', 'NOTEEDITBUTTON_' + id).click(editQualifierClicked);
+					var deleteButton = jQuery('<span>').addClass('DELETEBUTTON').addClass('tasPointer').attr('id', 'QualifierDeleteButton' + id).click(deleteQualifierClicked);
+					var quicklinksSpan = (qualifier.quicklinks != undefined && qualifier.quicklinks.length > 0) ? 
+										 jQuery('<span/>', {id: 'quicklinks_' + qualifier.id}).addClass('QUICKLINK').addClass('tasPointer').click(callQuicklink) :
+										 null;
+					
+					var row = jQuery('<tr/>').addClass('dragHandlerRow');
+							
+					row.append(
+						hiddenInput //jQuery('<td/>').append(hiddenInput)
+					).append(
+						jQuery('<td/>').addClass('dragHandlerCol').addClass('dragHandler')//.append(handle)
+					).append(
+						jQuery('<td/>').addClass('qualiferTextCol').append(qualifierTextSpan)
+					)
+					.append(
+						jQuery('<td/>').addClass('quicklinkCol').append(quicklinksSpan)
+					).append(
+						jQuery('<td/>').addClass('importanceCol').append(jQuery('<span>').addClass('inlineElement').append(importanceCombo))
+					).append(
+						jQuery('<td/>').addClass('mandatoryCol').append(jQuery('<span>').addClass('inlineElement').append(mandatoryInput))
+					).append(
+						jQuery('<td/>').addClass('editQualifierCol').append(editButton)
+					).append(
+						jQuery('<td/>').addClass('deleteQualifierCol').append(deleteButton)
+					);
+					
+					html.append(row);
+					
+					listItem.on('ttg_update_qualifier_id', function(event, refreshedQualifier) {
+						qualifier = refreshedQualifier;
+						html.attr('id',  PREFIX_QUESTIONID + refreshedQualifier.id);
+						mandatoryInput.attr('id',  'mandatoryInput_' + refreshedQualifier.id);
+						importanceCombo.attr('id',  'importanceInput_' + refreshedQualifier.id);
+						hiddenInput.val(refreshedQualifier.stageId);						
+						qualifierTextSpan.attr('id', 'QUALIFIERTEXT_' + refreshedQualifier.id);
+						if(quicklinksSpan) {
+							quicklinksSpan.attr('id', 'quicklinks_' + refreshedQualifier.id);
+						}
+						editButton.attr('id', 'NOTEEDITBUTTON_' + refreshedQualifier.id);
+						deleteButton.attr('id', 'QualifierDeleteButton' + refreshedQualifier.id);
+					});
+					
+					listItem.append(html);					
+					return listItem;
+					
+					function editQualifierClicked() {
+						editQualifier(stageId, id, qualifier);
+					}
+					
+					function deleteQualifierClicked() {
+						var confirmDialog = jQuery('<div/>', {id: 'deleteQualifierConfirmDialog'}).
+											append(jQuery('<span/>').text(localization.delete_confirmation_label));
+						confirmDialog.dialog({
+							modal: true,
+							title: localization.qualifier_delete_dialog_title,
+							buttons: {
+								'Yes' : function() 	{ 	
+										confirmDialog.dialog('close');
+										wrapDeleteQualifier(qualifier.id, function() {});
+								},							
+								'No' : function() { confirmDialog.dialog('close'); }
+							}
+						});					
+					}
+					
+
+					function callQuicklink() {
+		
+						var qls = [];
+						var collection = [];
+						var records = qualifier.quicklinks;
+	
+						jQuery.each(records, 
+							function (key, record) {
+								collection.push({ name: record.quicklinkName, type: record.quicklinkType, description: record.quicklinkDescription, link: record.quicklinkLink, icon: record.quicklinkIconURL });
+							}
+						);
+						
+						qls.push(collection);
+						var _tasQuicklinks = new QUICKLINKS({});
+						_tasQuicklinks.setDM_Quicklinks(qls);
+						_tasQuicklinks.quicklinkDlg(0, qualifier.name);
+						
+						
+					}	
+					
+					
+				}
+				
+				that.id = id;		   
+				that.generateQuestion = generateQuestion; 
+
+				return that;
+			}
+			
+			var sortingRequests = 0;
+			function enableQualifierSorting(enable) {
+				if(enable) {
+					sortingRequests--;
+				}
+				else {
+					sortingRequests++;
+				}
+				//console.log('SORTING REQUESTS: ' + sortingRequests);
+				if(sortingRequests <= 0) {
+					jQuery('.qualifierSortableList').sortable('enable');
+				}
+				else {
+					jQuery('.qualifierSortableList').sortable('disable');				
+				}
+			}
+			
+			
+			function validateField(field, value, type, range, required, upperLimit) {
+				if(required) {
+					if(!value || (jQuery.trim(value) === '')) {
+                   		return field + ' is a mandatory field';
+                   	}
+                   }
+				if(type === 'numeric') {
+                   	//if(value && !jQuery.isNumeric(value) && (jQuery.trim(value) !== '')) {
+					if(value && jQuery.trim(value) !== '' && (!jQuery.isNumeric(value) || value.indexOf(data.decimalSeparator) !== -1  
+																					   || value.indexOf('e') !== -1 || value.indexOf('E') !== -1 
+																					   || value.indexOf('x') !== -1 || value.indexOf('X') !== -1) ) {
+                   		return field + ' must be a numeric, non-decimal value';              		
+                   	}
+                }
+				if(range === 'positive') {
+                   	if(value && (jQuery.trim(value) !== '') && (parseInt(value, 10) < 0)) {
+                   		return field + ' must be positive';              		
+                   	}
+                }                    	
+                else if(range === 'percentage') {
+					if(value && (jQuery.trim(value) !== '') && (parseInt(value, 10) < 0 || parseInt(value, 10) > 100)) {
+                   		return field + ' must be between 0 and 100';              		
+                   	}
+                }
+                if(upperLimit) {
+                   	if(value && (jQuery.trim(value) !== '') && (parseInt(value, 10) > upperLimit)) {
+                   		return field + ' cannot be greater than ' + upperLimit;              		
+                   	}                	
+                }
+                return null;
+           	}			
+
+			that.setup = setup;
+			
+			return that;
+		})(spec);
+	
+		jQuery(
+		
+			function () {
+				ttg.playbook.admin.setup();
+			}
+
+		);
+		
+		
+	</script>
+	
+	<style>
+	
+@media only screen and (max-device-width: 768px) {
+		DIV#TAS DIV.PAGEWIDTH {
+		    font-size: 12px !important;
+		}
+	}		
+		DIV#TAS DIV.PAGEWIDTH {
+		    width: 900px;
+		}
+
+		SPAN.QUALIFIERTEXT {
+		    display: inline-block;
+		    margin-left: 25px;
+			margin-bottom: 5px;
+			margin-top: 5px;		    
+		    padding-right: 15px;
+		    vertical-align: middle;
+		    width: 430px;
+		    word-wrap: break-word;
+		}
+		/*SPAN.COMMENT {
+		    display: block;
+		    padding-left: 4px;
+		    vertical-align: top;
+		    margin-left: 40px;
+		}*/
+		TEXTAREA.HIDDENCOMMENT {
+		    display: none;
+		}
+		DIV#TAS SPAN.STAGE_TITLE {
+		    display: inline-block;
+		    padding-top: 1px;
+		    vertical-align: top;
+		    width: 324px;
+		    word-wrap: break-word;
+		    color: #2C3B51;
+		    font-size: 16px;
+		}
+		DIV#TAS SPAN.STAGE_UPDATED {
+		    display: inline-block;
+		    margin-top: -2px;
+		    text-align: center;
+		    vertical-align: top;
+		    visibility: hidden;
+		    width: 100px;
+		    display: none;
+		}
+		DIV#TAS TABLE.SUMMARY1 {
+		    width: 100%;
+			border-collapse:collapse;
+		}
+		
+		DIV#TAS TABLE.SUMMARY1 tr td {
+			padding:5px;	
+		}
+		
+		DIV#TAS TABLE.SUMMARY2 {
+		    width: 50%;
+		}
+		DIV#TAS TD.PROMPT {
+		    font-weight: bolder;
+		}
+		DIV#TAS .TITLE {
+		    font-weight: bolder;
+		}
+		DIV#TAS .QUESTIONBLOCK {
+		    clear: both;
+		}
+		DIV#TAS DIV.SELECTED {
+		    background-color: #A0B5CA;
+		}
+
+		DIV#TAS SPAN.SUMMARY_DETAILS {
+		    display: inline-block;
+		    padding-left: 530px;
+		    padding-top: 60px;
+		}
+
+		DIV#TAS DIV#SUMMARYPANEL {
+		    height: 230px;
+			position:relative;
+		}
+
+		DIV#ADDSTAGEBUTTONBAR {
+			margin: 10px;
+		}
+
+		SPAN.NOTEINFOICON {
+		    display: inline-block;
+			background-image: url('{!URLFOR($Resource.ttgomjs, 'ttg/graph/feimages/icon_info.png')}');
+			width: 12px;
+			height: 12px;
+			margin: 2px;
+			margin-right: 10px;			
+		}
+
+		SPAN.NOTEEDITBUTTON {
+			margin-right: 10px;
+		    /*left: 190px;*/
+		    margin-right: 10px;
+		    /*position: relative;*/
+		    top: 2px;		
+			background-image: url('{!URLFOR($Resource.Assessment, 'icon_edit.png')}');
+			width: 16px;
+			height: 16px;
+			display: inline-block;		    	
+		}
+		
+		DIV#TAS SPAN.NOTEEDITBUTTON {
+			background-image: url('{!URLFOR($Resource.DecisionCriteria, 'icon_edit_criteria.png')}');
+		}
+		
+		SPAN.DELETEBUTTON {
+		    /*left: 190px;
+		    position: relative;*/
+		    top: 2px;
+			background-image: url('{!URLFOR($Resource.Qualification, 'pb_icon_remove.png')}');
+			width: 16px;
+			height: 16px;
+			display: inline-block;		    
+		}
+		
+		select.importanceSelect {
+			/*left: 120px;
+    		position: relative;*/
+    		margin-top: 5px;
+    		margin-bottom: 5px;
+		}
+		
+		input.mandatoryCheck {
+		    /*left: 140px;
+		    position: relative;*/
+		}
+		
+		span.importanceLabel {
+			display: inline;
+		    font-weight: bold;
+		    left: 60px;
+		    padding: 5px;
+		    position: relative;	
+		    top: 2px;				
+		}
+		
+		span.mandatoryLabel {
+			display: inline;
+		    font-weight: bold;
+		    left: 80px;
+		    padding: 5px;
+		    position: relative;	
+		    top: 2px;				
+		}		
+		
+		.inlineElement {
+			display: inline;
+			padding-right: 5px;
+		}
+
+		div.replaceSalesProcessLabel {
+			padding: 5px;
+		}
+
+		span.replaceSalesProcessLabel {
+			padding: 5px;
+    		margin-top: 10px;
+		}
+		
+		#replaceSalesProcessCombo {
+			display: inline;
+    		margin-top: 10px;
+    		margin-bottom: 10px;
+		}
+		
+		.replaceProcessOppPanel {
+		    border: 1px solid #CCCCCC;
+		    height: 350px;
+		    margin: 5px;
+		    overflow-y: auto;
+		    padding: 0 10px;		    
+		}
+		
+		.replaceProcessOppPanel div {
+			border-bottom: 1px solid #CCCCCC;
+    		padding: 5px;
+		}
+				
+		#deleteStageButton, #deleteEditQuicklinkButton {
+			background: none repeat scroll 0 0 maroon;
+		}
+		
+		/*.dragHandler {
+			padding: 5px 15px 5px 10px;
+            background: url('{!URLFOR($Resource.TAM, 'images/icon_drag.png')}') left center no-repeat;   
+            cursor: default;
+		}*/
+		
+		.dragHandler {
+		    background: url('{!URLFOR($Resource.TAM, 'images/icon_drag2.png')}') no-repeat scroll center center #415873;
+		    border-radius: 3px 0 0 3px;
+		    /*bottom: 0;*/
+		    cursor: move;
+		    /*left: 0;
+		    position: absolute;
+		    top: 0;*/
+		    vertical-align: middle;
+		    width: 20px;
+		}		
+		
+		.qualifierSortableList {
+			list-style: none;
+			padding: 0;
+			min-height: 50px;
+			margin: 0;
+position: relative;			
+		}
+		
+		.qualifierSortableList li {
+			margin: 0;
+		}
+		
+		div.qualifierSortableHover {
+		    border: 1px solid #FFE599;             /* This is New */
+		    background-color: #FFFFCC;             /* This is New */
+		}
+		.qualifierSortableListHover {
+		    border: 1px solid #FFE599;             /* This is New */
+		    background-color: #FFFFCC;             /* This is New */
+		}
+		
+		
+		input.smallerButton {
+		    font-size: 0.9em;
+    		margin-right: 5px;
+    		padding: 0.3em 0.6em;
+    	}
+		
+		.formHelpIcon {
+		    display: inline-block;
+			background-image: url('{!URLFOR($Resource.ttgomjs, 'ttg/graph/feimages/icon_info.png')}');
+			width: 12px;
+			height: 12px;
+			margin-left: 5px;			
+		}	
+		
+
+		#salesProcessValidationMsg {
+		    background-color: #F3CBCB;
+		    border: 1px solid #E57F7F;
+		    border-radius: 5px 5px 5px 5px;
+		    color: #CC0000;
+		    right: 130px;
+		    top: 6px;
+		    padding: 5px 3px;
+		    position: absolute;
+		    text-align: center; 
+		    width: 355px;
+		}
+
+
+		.validationMsg {
+		    background-color: #F3CBCB;
+		    border: 1px solid #E57F7F;
+		    border-radius: 5px;
+		    color: #CC0000;
+		    /*margin-right: 10px;
+		    padding: 5px;*/
+		    margin-right: 5px;
+		    padding: 5px 3px;		    
+		    display: inline;
+		}
+		
+		#editQuicklinkValidationMsg {
+		    text-align: center;
+		    width: 250px;		
+		    margin: auto;
+		}
+		
+		#advancedSalesProcessValidationMsg {
+		    background-color: #F3CBCB;
+		    border: 1px solid #E57F7F;
+		    border-radius: 5px 5px 5px 5px;
+		    color: #CC0000;
+		    right: 5px;
+		    /*top: 6px;*/
+		    padding: 5px 3px;
+		    position: absolute;
+		    text-align: center; 
+		    width: 355px;
+		}
+		
+
+		#defaultProcessChangeDialog div {
+    		padding: 5px;
+	    }
+
+		#salesProcessLeftDiv, #salesProcessRightDiv {
+			float: left;
+			width: 50%;
+		}
+
+		#advancedSalesProcessLeftDiv, #advancedSalesProcessRightDiv {
+			float: left;
+			width: 48%;
+		}
+		
+		#salesProcessButtonBar {
+			/*float: right;
+    		padding: 8px;*/
+			padding: 8px;
+			position: absolute;
+			top: 195px;
+			right: 10px;    		
+		}
+
+		#salesProcessLeftTable, #salesProcessRightTable, #advancedLeftTable, #advancedRightTable, #stageTable, #qualifierTable, #editQuicklinkTable {
+		    font-size: 12px;
+		    width: 100%;
+		}		
+
+		table#qualifierTable, table#editQuicklinkTable {
+		    border-collapse: collapse;
+		    height: 150px;
+		    margin-bottom: 20px;
+		}
+
+		table#qualifierTable tr td, table#editQuicklinkTable tr td {
+		    border-bottom: 1px solid #A0B5CA;
+		    line-height: 150%;
+		    padding: 10px 0;
+		    vertical-align: top;		
+		}
+
+		.salesProcessTableLabelCol {
+		    font-weight: bold;
+		    vertical-align: top;
+		    width: 200px;
+		}		
+		
+		td.salesProcessTableReadonlyCol {
+			height: 19px;
+		}		
+		
+		td.descriptionCol {
+			min-height: 62px;
+			height: 62px;
+			vertical-align: top;
+		}
+		
+		
+		.salesProcessInput {
+			/*width: 95%;*/
+		}
+
+		
+		textarea.salesProcessInput {
+			resize: none;
+			width: 95%;
+		}	
+	
+
+		.advancedSalesProcessTableLabelCol {
+		    font-weight: bold;
+		    padding: 3px 0;
+		    vertical-align: top;
+		    width: 200px;
+			line-height: 150%;    
+		}		
+		
+		.advancedSalesProcessTableInputCol {
+    		line-height: 150%;		
+			width: 150px;
+			vertical-align: top;
+			padding: 3px 0;
+		}	
+		
+
+		.advancedSalesProcessInput { width: 130px; }						
+		
+		.stageTableLabelCol {
+			width: 160px;
+			vertical-align: top;
+		}
+		
+		#stageSettingsButtonBar, #qualifierTableButtonBar  {
+		    height: 20px;
+		    min-height: 20px;
+		    margin: 10px 0 0;
+		    text-align: center;
+		}		
+		
+		.qualifierTableLabelCol {
+			width: 150px;
+			vertical-align: middle;
+		}
+		
+		.qualifierInput {
+			/*width: 95%;*/
+		}
+		
+		textarea.qualifierInput, textarea.editQuicklinkInput {
+			resize: none;
+			width: 95%;
+		}	
+		
+		textarea.qualifierReadonlyInput {
+			resize: none;
+			width: 95%;
+			border: none;
+			background-color: #FCFDFD;
+			color: #222222;
+			cursor: default;			
+		}				
+
+		#addStageDialogTableDiv {
+		    border: 1px solid #CCCCCC;
+		    height: 280px;
+		    margin: 5px;
+		    overflow-y: auto;
+		    padding: 0 10px;	
+		}	
+			
+		#addStageDialogTable {
+			width: 100%;
+		}
+
+		#addStageDialogTable td {
+			padding: 2px;
+		}	
+		
+		.addStageDialogLabel {
+			padding: 5px 10px;
+		}	
+		
+		#cloneProcessDialog div {
+    		padding: 5px;
+		}
+		
+		#cloneProcessDialog input {
+    		margin: 10px 5px;
+    		width: 90%;
+		}
+		
+		.quicklinksDiv {
+		    border: 1px solid #AAAAAA;
+		    border-radius: 6px 6px 6px 6px;
+		    margin: 5px 0;
+		    padding: 0 5px 10px;
+		}
+
+		#quicklinksTable {
+			border-collapse: collapse;
+			width: 100%;
+		}
+
+		#quicklinksTable tr th {
+		    border: 1px solid #999999;
+		    font-size: 90%;
+		    padding: 5px;
+		    text-align: left;
+		    vertical-align: middle;
+		    background-color: #A0B5CA;
+		    color: #364861;
+		}
+		
+		#quicklinksTable tr td {
+		    border: 1px solid #999999;
+		    font-size: 90%;
+		    padding: 5px;
+		    text-align: left;
+		    vertical-align: middle;
+			background: none repeat scroll 0 0 white;		    
+		}
+		
+		
+		#quicklinksTable tr th.quicklinkNameCol, #quicklinksTable tr td.quicklinkNameCol {
+			width: 160px;
+		}
+		
+		#quicklinksTable tr th.deleteQuicklinkCol, #quicklinksTable tr td.deleteQuicklinkCol, #quicklinksTable tr th.editQuicklinkCol, #quicklinksTable tr td.editQuicklinkCol {
+			width: 20px;
+		}
+	
+		.quicklinkDragHandler {
+			padding: 15px;
+			/*float: left;*/
+			vertical-align: middle;
+			width: 20px;
+			min-width: 20px;
+			max-width: 20px;
+			height: 20px;
+			background: url('{!URLFOR($Resource.TAM, 'images/icon_drag.png')}') left center no-repeat;
+            cursor: default;
+		}
+	
+		span.quicklinksTableName {
+			display: inline-block;
+			vertical-align: middle;
+			width: 130px;
+			min-width: 130px;
+			max-width: 130px;
+		}
+	
+		SPAN.quicklinkEditButton {
+			background-image:  url('{!URLFOR($Resource.Assessment, 'icon_edit.png')}');
+			width: 16px;
+			height: 16px;
+			display: inline-block;
+			cursor: pointer;
+		}		
+	
+		SPAN.quicklinkDeleteButton {
+			background-image: url('{!URLFOR($Resource.Qualification, 'pb_icon_remove.png')}');
+			width: 16px;
+			height: 16px;
+			display: inline-block;
+			cursor: pointer;
+		}	
+		
+		div.quicklinksTitle {
+			margin-bottom: 5px;
+    		margin-top: 10px;
+		    /*text-decoration: underline;*/			
+		}	
+		
+		div#quicklinksTableScrollDiv {
+			border: 1px solid #ccc;
+			overflow-y: auto;
+			max-height: 260px;
+		}
+		
+		input#quicklinkAddButton, input#editQualifierButton, input#saveQualifierButton, input#cancelQualifierButton, input#searchQuicklinksButton, input#copyQualifierButton {
+			font-size: 0.9em;
+			margin-top: 5px;
+		}
+		
+		div#searchQuicklinksTableDiv {
+		    /*border: 1px solid #CCCCCC;*/
+		    height: 350px;
+		    margin: 5px;
+		    overflow-y: auto;
+		    /*padding: 0 10px;*/	
+		}
+		
+		#searchQuicklinksTable {
+			border-collapse: collapse;
+			width: 100%;
+		}
+		
+		input#searchQuicklinksInput {
+			margin-left: 5px;
+			margin-right: 5px;
+		}
+
+		#searchQuicklinksTable tr th {
+		    border: 1px solid #999999;
+		    font-size: 90%;
+		    padding: 5px;
+		    text-align: left;
+		    vertical-align: middle;
+		    background-color: #A0B5CA;
+		    color: #364861;
+		}
+		
+		#searchQuicklinksTable tr td {
+		    border: 1px solid #999999;
+		    font-size: 90%;
+		    padding: 5px;
+		    text-align: left;
+		    vertical-align: middle;
+		}	
+		
+		DIV#TAS #SPINNER {
+			position: absolute;
+			z-index: 3000 !important;
+		}
+
+
+		SPAN.QUICKLINK {
+		    height: 16px;
+		    /*margin-top: -8px;*/
+		    /*position: absolute;
+		    right: 280px;*/
+		    top: 50%;
+		    margin-right: 5px;
+			background-image: url('{!URLFOR($Resource.Assessment, 'icon_movie.png')}');
+			width: 20px;
+			float:right;
+			display: inline-block;		    
+		}
+		
+		#salesProcessUsage {
+		    border-radius: 6px 6px 6px 6px;
+		    height: 120px;
+		    overflow: auto;
+		    padding: 10px;
+		}	
+		
+		#salesProcessUsage ul {
+		    margin: 0;
+		    padding: 10px 15px;
+		}			
+
+		#salesProcessUsage li {
+		    line-height: 120%;
+		    margin-left: 0;
+		    padding-bottom: 5px;
+		}		
+		
+		#goBackToSalesProcessesLink {
+			/*color: #364861;
+    		padding: 10px;
+    		margin-left: 10px; */
+		    float: left;
+		    margin-right: 10px;
+		    position: relative;
+		    top: -3px;    		
+		}	
+		
+		.rightAligned {
+			text-align: right;
+		}
+		
+		/*DIV#TAS DIV.divBlock DIV.divQuery {
+			position: relative; 
+		}*/	
+		
+		table.divQuery {
+			width: 100%;
+			margin-top: 5px;
+			margin-bottom: 5px;
+		    border: 1px solid #A0B5CA;
+		    border-collapse: separate;
+		    border-radius: 3px 3px 3px 3px;
+		    border-spacing: 0;			
+		    *border-collapse: collapse;
+		}
+		
+		table.divQuery tr {
+			background-color: white;
+		}
+
+		table.divQuery tr td {
+			background-color: white;
+		}
+	
+		table.divQuery tr td.dragHandler {
+			background-color: #415873;
+		}	
+		
+		
+		table.divQuery tr td.quicklinkCol {
+    		width: 25px;
+		}
+		
+		table.divQuery tr td.mandatoryCol {
+    		width: 60px;
+		}
+		
+		table.divQuery tr td.editQualifierCol {
+			width: 30px;
+		}
+		
+		table.divQuery tr td.deleteQualifierCol {
+			width: 30px;
+		}
+		
+		
+		div.tooltipDiv {
+		    word-wrap: break-word;
+		    width: 300px;
+		}
+		
+		#tooltip {
+			opacity: 1.0;
+			z-index: 1000003 !important;
+			/*position: absolute;
+			border: 1px solid #111;
+			background-color: #eee;
+			padding: 5px;
+			border-radius: 4px;
+			-moz-border-radius: 4px;
+			-webkit-border-radius: 4px;*/ 
+		}	
+		
+		.sortableListPlaceholder {
+		    font-size: 0.9em;
+		    font-style: italic;
+		   	padding: 15px;
+		}			
+		
+		
+		#processDescriptionLabel {
+		    font-family: Arial,Helvetica,sans-serif;
+		    font-weight: normal;
+		    margin: 0;
+		    min-width: 220px;
+		    width: 220px;
+			white-space: pre-wrap;       /* css-3 */
+			white-space: -moz-pre-wrap;  /* Mozilla, since 1999 */
+			white-space: -pre-wrap;      /* Opera 4-6 */
+			white-space: -o-pre-wrap;    /* Opera 7 */
+			word-wrap: break-word;       /* Internet Explorer 5.5+ */	
+		}		
+		
+		#editQualifierButtonBar {
+			text-align: right;
+		}
+		
+		.quicklinkAddButtonBar {
+		    text-align: right;
+		}
+		
+		.genius_panel {
+			width:400px;
+			margin:20px auto; 
+			background:url('{!URLFOR($Resource.Genius,'images/img_genius.png')}') left center no-repeat;
+			padding:40px 0px 40px 200px;
+		}
+		
+		.genius_panel .genius_title {
+			color:#336699;
+			line-height:150%;
+			margin:0px 0px 10px;
+			padding:0px;
+		}
+		
+		.genius_panel .genius_intro {
+			font-size:1.1em;
+			color:#454545;
+			line-height:150%;
+			margin:0px;
+			padding:0px;
+			margin-bottom:30px !important;
+			width: 360px;
+		}
+
+		input.btn_blue {
+			border:0px;
+			border-radius:8px;
+			-moz-border-radius:8px;
+			-webkit-border-radius:8px;
+			outline: 0;
+			font-family:Arial, Helvetica, sans-serif;
+			background: url('{!URLFOR($Resource.Genius,'images/bg_btn_blue.png')}') left top repeat-x;
+			padding: 0px 10px;
+			color:#FFFFFF !important;
+			text-decoration:none !important;
+			float:left;
+			display:block;
+			line-height:40px;
+			font-size:1.10em;
+			cursor:pointer;
+		}
+		
+		input.btn_cancel {
+			border:0px;
+			border-radius:8px;
+			-moz-border-radius:8px;
+			-webkit-border-radius:8px;
+			font-family:Arial, Helvetica, sans-serif;
+			background: transparent none;
+			padding: 0px 10px;
+			color:#50637A !important;
+			text-decoration:none !important;
+			float:left;
+			display:block;
+			line-height:40px;
+			font-size:1.0em;
+			cursor:pointer;
+}
+	
+        a.backlink {
+            /*float:left;*/
+            display:block;
+            text-indent: -999em;
+            width:24px;
+            height:24px;
+            background: url('{!URLFOR($Resource.SmartOM, 'tabs/btn_back_link.png')}') center center no-repeat;  
+        }		
+        
+        #salesProcessNameTitleDiv {
+            font-size: 1.2em;
+            margin: 10px 0 15px 15px;        
+        }	
+	        
+	    div.smartOMMainHelpLink {
+		    margin-right: 15px;
+		    position: relative;
+		    top: -16px;
+	    }
+	    
+
+	    div.smartOMMainHelpLink a {
+	        float:right;
+	        display:block;
+	        background: url('{!URLFOR($Resource.SmartOM, 'tabs/icon_help.png')}') left center no-repeat;
+	        padding: 1px 0 0 20px;
+	        text-decoration:none;
+	        color:#405773;
+	        cursor: pointer; 
+	    }          				
+
+        div#salesProcessUsage div {
+            margin-bottom: 15px;
+        }
+        
+        #salesProcessUsage ul.processes {
+            padding: 10px 20px;
+            background-color: #CCC;
+            border-radius: 5px;
+        }  	
+	
+	
+	</style>
+	
+
+</apex:page>

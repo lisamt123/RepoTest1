@@ -1,0 +1,140 @@
+<apex:page controller="nitro.NitroTeamSetup" action="{!init}">
+   
+   <link href="https://sfdcassets.bunchball.net/v.3.0/nitro_reset.css" rel="stylesheet" type="text/css"></link>
+   <link href="https://sfdcassets.bunchball.net/v.3.0/nitroforsalesforce.css" rel="stylesheet" type="text/css"></link>
+   <script src="https://sfdcassets.bunchball.net/v.3.0/jquery.1.6.1.bunchball.min.js"></script>
+   <script>
+   if(typeof nitro$ !== 'function'){
+      var nitro$ = bunchball_jQuery.noConflict();
+   }
+   //var libVersion = Math.round(Math.random() * 10000);
+   var libVersion = {!libVersion};
+   </script>
+   <script>document.write('<scr' + 'ipt src="https://sfdcassets.bunchball.net/v.3.0/nitroforsalesforce.libs.bunchball.js?r='+libVersion+'" type="text/javascript"></scr' + 'ipt>');</script>
+
+   <apex:pageMessages id="pageMessages" />
+   
+   <apex:form >
+
+      <div class="nitro" id="nitro_sf_league_team_settings">
+      
+         <h1>Edit Leagues and Teams</h1>
+         
+         <div class="column_300" id="nitro_leagues">
+            <div class="content_module" id="nitro_leagues_module">
+               <h2>Leagues <span>(0)</span></h2>
+               <p class="nitro_module_description">Leagues are a group of teams.  Think "Regions", "Industries", "Masters"...</p>
+               <div class="content_module_head_button"><button type="button" class="admin_button accept_button" onClick="addLeague()">Add +</button></div>
+
+               <div class="content_module_body" id="nitro_leagues_module_body">
+                  <div id="leagues_wrapper">
+                     <ul id="leagues" class="nitro_sf_list">
+                     </ul>
+                  </div>
+               </div>
+
+               <div class="content_module_body" id="leagueData" style="display:none">
+                  <h2>League Details:</h2>
+                  <ol class="fieldset">
+                     <li>
+                        <label>League Name:</label>
+                        <input type="text" name="leagueName" id="leagueName" />
+                     </li>
+                     <li>
+                        <button id="createLeague" type="button" class='admin_button accept_button' onClick="leagueHandler('CREATE')">Add League</button>
+                        <img id='leagueSpinner' src='https://sfdcassets.bunchball.net/v.3.0/images/ajaxloadsmall.gif' style="display:none" />
+                        <button id="deleteLeague" type="button" class='admin_button delete_button' onClick="leagueHandler('DELETE')">Delete League</button>
+                     </li>
+                  </ol>
+               </div>
+
+            </div><!-- end leagues module -->
+         </div><!--  end leagues column -->
+   
+   
+         <div class="column_300" id="nitro_teams">
+            <div class="content_module" id="nitro_teams_module">
+               <h2>Teams <span>(0)</span></h2>
+               <p class="nitro_module_description">Each league has teams, which are groups of people.  Think "Northwest", "Southeast"...</p>
+               <div class="content_module_head_button"><button type="button" class="admin_button accept_button" onClick="addTeam()">Add +</button></div>
+
+               <div class="content_module_body" id="nitro_teams_module_body">
+                  <div id="leagues_wrapper">
+                     <ul id="teams" class="nitro_sf_list">
+                     </ul>
+                  </div>
+               </div>
+
+               <div class="content_module_body" id="teamData" style="display:none">
+                  <h2>Team Details:</h2>
+                  <ol class="fieldset">
+                     <li>
+                        <label>Team Name:</label>
+                        <input type="text" name="teamName" id="teamName" />
+                     </li>
+                     <li>
+                        <label>Team Description:</label>
+                        <textarea name="teamDescription" id="teamDescription"></textarea>
+                     </li>
+                     <li>
+                        <label>Team Picture (URL):</label>
+                        <input type="text" name="teamPicture" id="teamPicture" />
+                     </li>
+                     <li>
+                        <button id="createTeam" type="button" class="admin_button accept_button" onClick="teamHandler('CREATE')">Add Team</button>
+                        <img id='teamSpinner' src='https://sfdcassets.bunchball.net/v.3.0/images/ajaxloadsmall.gif' style="display:none" />
+                        <button id="updateTeam" type="button" class="admin_button accept_button"  onClick="teamHandler('UPDATE')">Update Team</button>
+                        <button id="visitTeam" type="button" class="admin_button accept_button" onClick="teamHandler('VISIT')">Visit Team Page</button>
+                        <button id="deleteTeam" type="button" class="admin_button delete_button"  onClick="teamHandler('DELETE')">Delete Team</button>
+                     </li>
+                  </ol>
+               </div>
+            </div><!-- end teams module -->
+         </div><!--  end teams column -->
+   
+   
+         <div class="column_300" id="nitro_users">
+            <div class="content_module" id="nitro_users_module">
+               <h2>Members <span>(0)</span></h2>
+               <p class="nitro_module_description">These are the members of the currently selected group.</p>
+               <div class="content_module_head_button"><button type="button" class="admin_button accept_button" onClick="editMembers();">Edit</button></div>
+               <div class="content_module_body" id="nitro_users_module_body">
+                  <ul id="members"  class="nitro_sf_list"></ul>
+               </div>
+            </div><!-- end profile contests -->
+         </div><!--  end users column -->
+
+      
+      <script>
+         nitroLibsVersion = "current"; 
+      </script>
+
+    <script>document.write('<scr' + 'ipt src="https://sfdcassets.bunchball.net/v.3.0/nitro-noload.js?r='+libVersion+'" type="text/javascript"></scr' + 'ipt>');</script>
+    <script>document.write('<scr' + 'ipt src="https://sfdcassets.bunchball.net/v.3.0/NitroJSConnector-noload.js?r='+libVersion+'" type="text/javascript"></scr' + 'ipt>');</script>
+    <script>document.write('<scr' + 'ipt src="https://sfdcassets.bunchball.net/v.3.0/NitroCookies-noload.js?r='+libVersion+'" type="text/javascript"></scr' + 'ipt>');</script>
+
+    <script type="text/javascript">
+
+        var connectionParams2 = {};
+        connectionParams2.apiKey = "{!JSENCODE(APIKey)}";
+        connectionParams2.server = "{!JSENCODE(Endpoint)}";
+        connectionParams2.sessionKey = "{!SessionKey}";
+        userLocale = "{!JSENCODE(userLocale)}"
+
+        var nitro2 = new Nitro(connectionParams2),
+            currentTeamsPageIndex = 0,
+            maxTeamsPageSize = 50,
+            currentLeague,
+            currentTeam,
+            currentTeamID,
+            groups = [],
+            leagueListPref;
+                                
+      </script>
+      <script src="https://sfdcassets.bunchball.net/v.3.0/js/views/teamsetup/main-legacy.js"></script>
+      <c:DisabledFeatureOverlay isFree="{!isFree}" verifyAction="{!verifyEdition}" />
+      
+      </div>
+         
+   </apex:form>
+</apex:page>

@@ -1,0 +1,106 @@
+<apex:page controller="echosign_dev1.EchoSignSetupWizardController" 
+	tabStyle="echosign_dev1__SIGN_Agreement__c" 
+	showHeader="{!IF(NOT ISNULL($CurrentPage.parameters.showheadersidebar),$CurrentPage.parameters.showheadersidebar,'false')}" 
+	sidebar="{!IF(NOT ISNULL($CurrentPage.parameters.showheadersidebar),$CurrentPage.parameters.showheadersidebar,'false')}">
+	
+	<style type="text/css">
+		.adobePrimaryText {
+			font-size: 14px;
+            font-family: AdobeCleanRegular;
+            color: #4B4B4B;
+            -moz-opacity: 1.0;
+			-khtml-opacity: 1.0;
+			 opacity: 1.0;
+		}
+		
+		.adobePrimaryBoldText {
+			font-size: 14px;
+            font-family: AdobeCleanBold;
+            color: #4B4B4B;
+            -moz-opacity: 1.0;
+			-khtml-opacity: 1.0;
+			 opacity: 1.0;
+		}
+		
+		.adobeLinkText {
+			font-size: 14px;
+            font-family: AdobeCleanRegular;
+            color: #3278BE;
+            text-decoration: none;
+            -moz-opacity: 1.0;
+			-khtml-opacity: 1.0;
+			 opacity: 1.0;
+		}
+	</style>	
+	
+	<script type="text/javascript">
+		var updatesFrameLoadCount = 0;
+		
+		function onUpdatesFrameLoad() {
+			updatesFrameLoadCount++;
+			
+			if( updatesFrameLoadCount == 1 ) {
+				document.getElementById("{!$Component.wizardForm.wizardPageBlock.bottomWizardButtons.nextButton}").disabled = true;
+			} if( updatesFrameLoadCount == 2 ) {
+				document.getElementById("{!$Component.wizardForm.wizardPageBlock.bottomWizardButtons.nextButton}").disabled = false;
+				document.getElementById("{!$Component.wizardForm.wizardPageBlock.bottomWizardButtons.nextButton}").src = "{!$Resource.NextButton}";
+			}
+		}
+	</script>
+	
+	<apex:outputPanel id="wizardSectionHeader">
+		<apex:sectionHeader title="{!$Label.echosign_dev1__Wizard_Page_Header}" subtitle="{!sectionSubtitle}" />
+		<!-- <apex:outputPanel styleClass="adobePrimaryText">some text</apex:outputPanel>
+		<apex:outputPanel styleClass="adobePrimaryBoldText">some bold text</apex:outputPanel>	
+		<apex:outputText styleClass="adobePrimaryText">some text2</apex:outputText>
+		<apex:outputText styleClass="adobePrimaryBoldText">some bold text2</apex:outputText> -->
+    </apex:outputPanel>
+    
+    <apex:form id="wizardForm" styleClass="adobePrimaryText">
+        <apex:actionFunction name="onApiKeyChange" action="{!onApiKeyChange}" rerender="nextButton" />
+    	<apex:pagemessages id="theMessages"/>
+		<apex:pageBlock id="wizardPageBlock" title="{!blockTitle}">
+			<apex:pageBlockButtons location="bottom" id="bottomWizardButtons">
+       			<apex:commandButton id="backButton" style="background:transparent;border-width:0px;" image="{!$Resource.echosign_dev1__BackButton}" action="{!doBack}" value="{!$Label.echosign_dev1__Back_Button_Label}" onclick="document.getElementById('{!$Component.wizardForm.wizardPageBlock.bottomWizardButtons.backButton}').src = '{!$Resource.echosign_dev1__BackButtonPressed}'; if( {!isStepApi} ) { window.location = '/apex/EchoSignSetupWizard?stepName=Updates&showheadersidebar={!$CurrentPage.parameters.showheadersidebar}'; }" rerender="theMessages,wizardSectionHeader,stepAccountSection,stepApiSection,stepNetworkSection,stepUpdatesSection,stepDoneSection,wizardPageBlock,backButton,nextButton" rendered="{! NOT(isStepNetwork) && NOT(isStepDone) }" />
+       			<apex:commandButton id="nextButton" style="background:transparent;border-width:0px;" image="{! IF( ( ( isStepUpdates ) || ( isStepApi && isApiNextDisabled ) || ( isStepNetwork && ( !isClickedNetworkRange1 || !isClickedNetworkRange2 ) ) ), $Resource.NextButtonDisabled, $Resource.NextButton ) }" action="{!doNext}" value="{!$Label.echosign_dev1__Next_Button_Label}" onclick="document.getElementById('{!$Component.wizardForm.wizardPageBlock.bottomWizardButtons.nextButton}').src = '{!$Resource.echosign_dev1__NextButtonPressed}'; if( {!isStepNetwork} ) { window.location = '/apex/EchoSignSetupWizard?stepName=Updates&showheadersidebar={!$CurrentPage.parameters.showheadersidebar}'; }" rerender="theMessages,wizardSectionHeader,stepAccountSection,stepApiSection,stepNetworkSection,stepUpdatesSection,stepDoneSection,wizardPageBlock,backButton,nextButton" disabled="{! ( isStepApi && isApiNextDisabled ) || ( isStepNetwork && ( !isClickedNetworkRange1 || !isClickedNetworkRange2 ) ) }" rendered="{! NOT(isStepDone) }" />
+        		<apex:outputPanel id="updatesButtonsMessage" style="vertical-align: super;" rendered="{! isStepUpdates }"><h2>{!$Label.echosign_dev1__Wizard_Update_Save_Message}</h2></apex:outputPanel>
+        	</apex:pageBlockButtons>
+        	
+      		<apex:pageBlockSection id="stepNetworkSection" columns="1">
+      			<apex:outputPanel rendered="{!isStepNetwork}" id="networkRangesPanel">
+      				<apex:outputPanel styleClass="adobePrimaryBoldText">{!$Label.echosign_dev1__Wizard_Update_Section_Header}<br/><br/></apex:outputPanel>
+      				<img src="{!$Resource.AdobeBlueArrow}" style="vertical-align: top;"/>
+      				&nbsp;<apex:commandLink style="color: blue; vertical-align: super;" action="{!clickNetworkRange1}" onclick="window.open('/05G/e?IpEndAddress=72.3.215.121&IpStartAddress=72.3.215.114', 'EchoSignNetworkRange1', 'menubar=0,width=960,height=620,toolbar=0,location=0');" value="{!$Label.echosign_dev1__Wizard_Range_Label_1}" target="_blank" rerender="nextButton,networkRangesPanel" />
+      				&nbsp;<apex:image value="{!$Resource.echosign_dev1__AdobeCheckbox}" style="vertical-align: top;" rendered="{! isStepNetwork && isClickedNetworkRange1 }"/><br/>
+      				<img src="{!$Resource.AdobeBlueArrow}" style="vertical-align: top;"/>
+      				&nbsp;<apex:commandLink style="color: blue; vertical-align: super;" action="{!clickNetworkRange2}" onclick="window.open('/05G/e?IpEndAddress=166.78.79.127&IpStartAddress=166.78.79.112', 'EchoSignNetworkRange1', 'menubar=0,width=960,height=620,toolbar=0,location=0');" value="{!$Label.echosign_dev1__Wizard_Range_Label_1}" target="_blank" rerender="nextButton,networkRangesPanel" />
+      				&nbsp;<apex:image value="{!$Resource.echosign_dev1__AdobeCheckbox}" style="vertical-align: top;" rendered="{! isStepNetwork && isClickedNetworkRange2 }"/><br/><br/>	
+      				<apex:outputPanel styleClass="adobePrimaryBoldText">{!$Label.echosign_dev1__Wizard_Range_Message}</apex:outputPanel>
+      			</apex:outputPanel>
+      		</apex:pageBlockSection>
+      		<apex:pageBlockSection id="stepApiSection" columns="1">
+      			<apex:outputpanel id="apiKeyInputPanel" rendered="{!isStepApi}">
+      				<apex:outputpanel ><b>{!$Label.echosign_dev1__Wizard_API_Key_Header}</b></apex:outputpanel><br/><br/>
+      				<img src="{!$Resource.AdobeBlueArrow}" style="vertical-align: top;"/>&nbsp;&nbsp;<apex:commandLink style="color: blue; vertical-align: super;" onclick="window.open('{!baseServerUrl}/salesforce-web/page/account/echosignApi?session={!$Api.Session_ID}&server={!$Api.Partner_Server_URL_70}', 'EchoSignApi', 'menubar=0,width=960,height=620,toolbar=0,location=0');" value="{!$Label.echosign_dev1__Wizard_Get_API_Key}" /><br/><br/> 
+      				<apex:outputpanel >{!$Label.echosign_dev1__Wizard_Email_Label}: {!userEmail}</apex:outputpanel><br/>      
+                    <apex:pageblocksectionitem >
+                        {!$Label.Wizard_API_Key_Label}:&nbsp;<apex:inputField value="{!privateSettings.echosign_dev1__API_Key__c}" onkeyup="onApiKeyChange()" onchange="onApiKeyChange()" />
+                    </apex:pageblocksectionitem>  
+    			</apex:outputpanel>
+      		</apex:pageBlockSection>
+      		<apex:pageBlockSection id="stepUpdatesSection" columns="1">
+      			<apex:outputPanel rendered="{!isStepUpdates}">
+      				<iframe onload="onUpdatesFrameLoad()" src="{!baseServerUrl}/salesforce-web/salesforceCredentials?session={!$Api.Session_ID}&server={!$Api.Partner_Server_URL_70}&namespace={!namespace}&Version={!version}" width="100%" height="320px" frameborder="0" />
+      			</apex:outputPanel>
+      		</apex:pageBlockSection>
+      		<apex:pageBlockSection id="stepDoneSection" columns="1">
+      			<apex:outputPanel rendered="{!isStepDone}">
+      				<p>{!$Label.Wizard_Start_Message}</p>
+      				<p><img src="{!$Resource.AdobeBlueArrow}" style="vertical-align: top;"/>&nbsp;&nbsp;<apex:outputPanel style="vertical-align: super;"><a href="{!URLFOR($Action.echosign_dev1__SIGN_Agreement__c.New)}}" target="_parent">{!$Label.echosign_dev1__Wizard_New_Agreement_Label}</a></apex:outputPanel></p>
+      				<p>{!$Label.echosign_dev1__Wizard_Admin_Link_1} <a href="/apex/EchosignAdmin" target="_parent">{!$Label.echosign_dev1__Wizard_Admin_Link_2}</a> {!$Label.echosign_dev1__Wizard_Admin_Link_3}</p>
+      			</apex:outputPanel>
+      		</apex:pageBlockSection>
+  		</apex:pageBlock>
+	</apex:form>
+
+</apex:page>

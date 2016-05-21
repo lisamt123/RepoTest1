@@ -1,0 +1,95 @@
+<apex:page controller="WelcomePacketWizard" showHeader="false"
+	cache="false">
+	<head>
+<apex:stylesheet value="{!$Resource.styles}"></apex:stylesheet>
+	</head>
+
+	<script>
+function confirmCancel()
+{
+	var isCancel = confirm("Are you sure you wish to quit?");
+	return isCancel;
+}
+</script>
+
+	<table border="0" width="100%" height="100%" id="bg">
+		<tr valign="top">
+			<td>
+				<div class="maincontainer">
+					<apex:image id="key1" width="100%"
+						value="/resource/1265230873000/Header" />
+
+					<apex:sectionHeader title="VinSolutions Welcome Packet"
+						subtitle="{!if(welcome.Packet_Includes__c!=null,'Step 11 of 13','')}" />
+
+					<apex:form >
+						<apex:pageBlock title="STANDARD FORMS REQUEST SHEET">
+
+							<table border="0" width="100%" align="center">
+								<tr align="center">
+									<td align="center"><apex:commandButton action="{!step10}"
+											value="Previous Step" /> <apex:commandButton action="{!step12}" value="Next Step" /> <apex:commandButton action="{!cancel}" value="Save & Quit"
+											onclick="return confirmCancel()" immediate="true" /> <apex:commandButton action="{!confirmCRM}" value="Save - To Confirmation Page"
+											rendered="{!if(welcome.Packet_Includes__c!=null&&welcome.ReachedCRMConfirm__c, true, false)}" />
+									</td>
+								</tr>
+							</table>
+
+
+							<apex:pageBlockSection collapsible="false" title="" columns="1">				
+					Included with your purchase of VinSolutions CRM/ILM system, you have complete access to all
+					forms available in our forms library. Below we have listed all forms available. Please check the
+					forms that you would like to use.<small><i>(If you
+										would prefer to view these forms prior to selecting them,
+										please contact your Implementation Manager for access to forms
+										section of our website.)</i> </small>
+								<br />
+								<br />
+
+								<table align="center" width="850">
+									<tr align="center">
+										<td align="center"><b><u>Please check all forms
+													you would like available</u>:</b><br /> <br />
+										</td>
+									</tr>
+								</table>
+
+								<table align="center">
+									<tr>
+										<td><apex:inputField value="{!welcome.Standard_Forms__c}" />
+										</td>
+									</tr>
+								</table>									
+				
+					These forms may be added or deleted from your list at any time by notifying our Support Department.<br />
+								<br />
+					
+					Furthermore – You will be made aware of any additional forms that come available.<br />
+								<br />
+					
+					I certify that I am an authorized representative of the dealership and understand that in order
+					to have these forms available to me during my installation; I need to have this list submitted to
+					my Implementation Manager no less than two weeks prior to my scheduled installation.				
+				</apex:pageBlockSection>
+
+
+							<apex:pageBlockSection collapsible="false" title=""></apex:pageBlockSection>
+
+							<table border="0" width="100%" align="center">
+								<tr align="center">
+									<td align="center"><apex:commandButton action="{!step10}"
+											value="Previous Step" /> <apex:commandButton action="{!step12}" value="Next Step" /> <apex:commandButton action="{!cancel}" value="Save & Quit"
+											onclick="return confirmCancel()" immediate="true" /> <apex:commandButton action="{!confirmCRM}" value="Save - To Confirmation Page"
+											rendered="{!if(welcome.Packet_Includes__c!=null&&welcome.ReachedCRMConfirm__c, true, false)}" />
+									</td>
+								</tr>
+							</table>
+
+						</apex:pageBlock>
+
+					</apex:form>
+				</div>
+			</td>
+		</tr>
+	</table>
+</apex:page>

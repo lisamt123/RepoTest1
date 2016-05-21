@@ -1,0 +1,46 @@
+<apex:page StandardController="Opportunity"
+	extensions="ProjectPieceReconciliation" action="{!initList}"
+	showheader="false">
+
+	<script type="text/javascript">
+function confirmCancel()
+{
+    var isCancel = confirm("Are you sure you wish to Add/Remove these Project Pieces?");
+    return isCancel;
+}
+
+
+
+</script>
+
+	<apex:pageBlock title="Reconciliation Plan">
+
+		<apex:pageBlockTable id="JobList" value="{!PPs}" var="Document"
+			rendered="{!NOT(ISNULL(PPs))}">
+			<apex:column >
+				<apex:facet name="header">
+					<apex:outputText value="Project Pieces to be Removed (Product has been Removed)" />
+				</apex:facet>
+				<apex:outputLink value="{!$Site.Prefix}/{!Document.id}"
+					target="_blank" id="theLink">{!Document.name}</apex:outputLink>
+			</apex:column>
+		</apex:pageBlockTable>
+		<br />
+		<br />
+		<apex:pageBlockTable id="JobList2" value="{!OLIs}" var="Document"
+			rendered="{!NOT(ISNULL(OLIs))}">
+			<apex:column >
+				<apex:facet name="header">
+					<apex:outputText value="Project Pieces to be Added (Product has been Added)" />
+				</apex:facet>
+				<apex:outputLink value="{!$Site.Prefix}/{!Document.id}"
+					target="_blank" id="theLink">{!Document.Product_Issue__c}</apex:outputLink>
+			</apex:column>
+		</apex:pageBlockTable>
+		<hr></hr>
+		<apex:form >
+			<apex:commandButton value="Reconcile" action="{!reconcile}"
+				onclick="return confirmCancel()" immediate="true" />
+		</apex:form>
+	</apex:pageBlock>
+</apex:page>

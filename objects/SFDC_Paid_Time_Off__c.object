@@ -1,0 +1,1783 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <actionOverrides>
+        <actionName>Accept</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>CancelEdit</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Clone</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Delete</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Edit</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Follow</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>List</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>New</actionName>
+        <content>torNewButtonRedirect</content>
+        <skipRecordTypeSelect>true</skipRecordTypeSelect>
+        <type>Visualforce</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>SaveEdit</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Tab</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>View</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <allowInChatterGroups>false</allowInChatterGroups>
+    <compactLayoutAssignment>SYSTEM</compactLayoutAssignment>
+    <deploymentStatus>Deployed</deploymentStatus>
+    <description>Track your Paid Time Off requests and approvals here.</description>
+    <enableActivities>true</enableActivities>
+    <enableBulkApi>true</enableBulkApi>
+    <enableEnhancedLookup>false</enableEnhancedLookup>
+    <enableFeeds>true</enableFeeds>
+    <enableHistory>true</enableHistory>
+    <enableReports>true</enableReports>
+    <enableSearch>true</enableSearch>
+    <enableSharing>true</enableSharing>
+    <enableStreamingApi>true</enableStreamingApi>
+    <fields>
+        <fullName>Alternate_PTO_Approver__c</fullName>
+        <externalId>false</externalId>
+        <formula>Employee_s_Name__r.Alternate_PTO_Approver__r.User_Full_Name__c</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>Alternate PTO Approver</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Approval_Status__c</fullName>
+        <description>Approvers will review the leave application and change the status to approved (if approved, or rejected if not approved)</description>
+        <externalId>false</externalId>
+        <inlineHelpText>this field is updated by the approval process, it is not editable by users</inlineHelpText>
+        <label>Approval Status</label>
+        <picklist>
+            <picklistValues>
+                <fullName>Not Submitted</fullName>
+                <default>true</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Awaiting Manager Approval</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Approved</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Denied</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Cancelled</fullName>
+                <default>false</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>true</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Picklist</type>
+    </fields>
+    <fields>
+        <fullName>Approving_Manager__c</fullName>
+        <externalId>false</externalId>
+        <formula>Employee_s_Name__r.Manager.FirstName&amp;&quot; &quot;&amp; Employee_s_Name__r.Manager.LastName</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>Approving Manager</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Day_1_Date__c</fullName>
+        <externalId>false</externalId>
+        <label>Day 1 Date</label>
+        <required>false</required>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Date</type>
+    </fields>
+    <fields>
+        <fullName>Day_1_End_Time__c</fullName>
+        <externalId>false</externalId>
+        <label>Day 1 End Time</label>
+        <length>255</length>
+        <required>false</required>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Day_1_Hours_to_be_Used__c</fullName>
+        <externalId>false</externalId>
+        <label>Day 1 Hours to be Used</label>
+        <precision>12</precision>
+        <required>false</required>
+        <scale>2</scale>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Number</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Day_1_Lunch__c</fullName>
+        <externalId>false</externalId>
+        <label>Day 1 Lunch</label>
+        <length>5</length>
+        <required>false</required>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Day_1_Start_Time__c</fullName>
+        <externalId>false</externalId>
+        <label>Day 1 Start Time</label>
+        <length>255</length>
+        <required>false</required>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Day_1_Times__c</fullName>
+        <externalId>false</externalId>
+        <label>Day 1 Times</label>
+        <precision>5</precision>
+        <required>false</required>
+        <scale>2</scale>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Number</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Day_2_Date__c</fullName>
+        <externalId>false</externalId>
+        <label>Day 2 Date</label>
+        <required>false</required>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Date</type>
+    </fields>
+    <fields>
+        <fullName>Day_2_End_Time__c</fullName>
+        <externalId>false</externalId>
+        <label>Day 2 End Time</label>
+        <length>255</length>
+        <required>false</required>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Day_2_Hours_to_be_Used__c</fullName>
+        <externalId>false</externalId>
+        <label>Day 2 Hours to be Used</label>
+        <precision>12</precision>
+        <required>false</required>
+        <scale>2</scale>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Number</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Day_2_Lunch__c</fullName>
+        <externalId>false</externalId>
+        <label>Day 2 Lunch</label>
+        <length>5</length>
+        <required>false</required>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Day_2_Start_Time__c</fullName>
+        <externalId>false</externalId>
+        <label>Day 2 Start Time</label>
+        <length>255</length>
+        <required>false</required>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Day_2_Times__c</fullName>
+        <externalId>false</externalId>
+        <label>Day 2 Times</label>
+        <precision>5</precision>
+        <required>false</required>
+        <scale>2</scale>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Number</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Day_3_Date__c</fullName>
+        <externalId>false</externalId>
+        <label>Day 3 Date</label>
+        <required>false</required>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Date</type>
+    </fields>
+    <fields>
+        <fullName>Day_3_End_Time__c</fullName>
+        <externalId>false</externalId>
+        <label>Day 3 End Time</label>
+        <length>255</length>
+        <required>false</required>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Day_3_Hours_to_be_Used__c</fullName>
+        <externalId>false</externalId>
+        <label>Day 3 Hours to be Used</label>
+        <precision>12</precision>
+        <required>false</required>
+        <scale>2</scale>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Number</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Day_3_Lunch__c</fullName>
+        <externalId>false</externalId>
+        <label>Day 3 Lunch</label>
+        <length>5</length>
+        <required>false</required>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Day_3_Start_Time__c</fullName>
+        <externalId>false</externalId>
+        <label>Day 3 Start Time</label>
+        <length>255</length>
+        <required>false</required>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Day_3_Times__c</fullName>
+        <externalId>false</externalId>
+        <label>Day 3 Times</label>
+        <precision>5</precision>
+        <required>false</required>
+        <scale>2</scale>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Number</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Day_4_Date__c</fullName>
+        <externalId>false</externalId>
+        <label>Day 4 Date</label>
+        <required>false</required>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Date</type>
+    </fields>
+    <fields>
+        <fullName>Day_4_End_Time__c</fullName>
+        <externalId>false</externalId>
+        <label>Day 4 End Time</label>
+        <length>255</length>
+        <required>false</required>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Day_4_Hours_to_be_Used__c</fullName>
+        <externalId>false</externalId>
+        <label>Day 4 Hours to be Used</label>
+        <precision>12</precision>
+        <required>false</required>
+        <scale>2</scale>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Number</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Day_4_Lunch__c</fullName>
+        <externalId>false</externalId>
+        <label>Day 4 Lunch</label>
+        <length>5</length>
+        <required>false</required>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Day_4_Start_Time__c</fullName>
+        <externalId>false</externalId>
+        <label>Day 4 Start Time</label>
+        <length>255</length>
+        <required>false</required>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Day_4_Times__c</fullName>
+        <externalId>false</externalId>
+        <label>Day 4 Times</label>
+        <precision>5</precision>
+        <required>false</required>
+        <scale>2</scale>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Number</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Day_5_Date__c</fullName>
+        <externalId>false</externalId>
+        <label>Day 5 Date</label>
+        <required>false</required>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Date</type>
+    </fields>
+    <fields>
+        <fullName>Day_5_End_Time__c</fullName>
+        <externalId>false</externalId>
+        <label>Day 5 End Time</label>
+        <length>255</length>
+        <required>false</required>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Day_5_Hours_to_be_Used__c</fullName>
+        <externalId>false</externalId>
+        <label>Day 5 Hours to be Used</label>
+        <precision>12</precision>
+        <required>false</required>
+        <scale>2</scale>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Number</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Day_5_Lunch__c</fullName>
+        <externalId>false</externalId>
+        <label>Day 5 Lunch</label>
+        <length>5</length>
+        <required>false</required>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Day_5_Start_Time__c</fullName>
+        <externalId>false</externalId>
+        <label>Day 5 Start Time</label>
+        <length>255</length>
+        <required>false</required>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Day_5_Times__c</fullName>
+        <externalId>false</externalId>
+        <label>Day 5 Times</label>
+        <precision>5</precision>
+        <required>false</required>
+        <scale>2</scale>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Number</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Department__c</fullName>
+        <externalId>false</externalId>
+        <formula>Employee_s_Name__r.Department</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <inlineHelpText>formula field that pulls the employee&apos;s department from their User Profile</inlineHelpText>
+        <label>Department</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Description__c</fullName>
+        <externalId>false</externalId>
+        <label>Description</label>
+        <required>false</required>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>TextArea</type>
+    </fields>
+    <fields>
+        <fullName>Dummy__c</fullName>
+        <defaultValue>true</defaultValue>
+        <externalId>false</externalId>
+        <label>Dummy</label>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>Employee_Notes__c</fullName>
+        <defaultValue>&quot;You must click on the Submit for Approval button after Save&quot;</defaultValue>
+        <externalId>false</externalId>
+        <inlineHelpText>please enter any notes if this request is for bereavement, jury duty or medical reasons.</inlineHelpText>
+        <label>Employee Notes</label>
+        <length>32768</length>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>true</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>LongTextArea</type>
+        <visibleLines>10</visibleLines>
+    </fields>
+    <fields>
+        <fullName>Employee_Role__c</fullName>
+        <externalId>false</externalId>
+        <formula>Employee_s_Name__r.UserRole.Name</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>Employee Role</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Employee_s_Name__c</fullName>
+        <deleteConstraint>SetNull</deleteConstraint>
+        <externalId>false</externalId>
+        <inlineHelpText>lookup Salesforce User</inlineHelpText>
+        <label>Employee&apos;s Name</label>
+        <referenceTo>User</referenceTo>
+        <relationshipName>Paid_Time_Off</relationshipName>
+        <required>false</required>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>true</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Lookup</type>
+    </fields>
+    <fields>
+        <fullName>EndTImePH__c</fullName>
+        <externalId>false</externalId>
+        <label>EndTImePH</label>
+        <length>15</length>
+        <required>false</required>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>EndTime1PH__c</fullName>
+        <externalId>false</externalId>
+        <label>EndTime1PH</label>
+        <length>15</length>
+        <required>false</required>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>EndTime2PH__c</fullName>
+        <externalId>false</externalId>
+        <label>EndTime2PH</label>
+        <length>15</length>
+        <required>false</required>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>EndTime3PH__c</fullName>
+        <externalId>false</externalId>
+        <label>EndTime3PH</label>
+        <length>15</length>
+        <required>false</required>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>EndTime4PH__c</fullName>
+        <externalId>false</externalId>
+        <label>EndTime4PH</label>
+        <length>15</length>
+        <required>false</required>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>EndTime5PH__c</fullName>
+        <externalId>false</externalId>
+        <label>EndTime5PH</label>
+        <length>15</length>
+        <required>false</required>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Exclude_Weekends__c</fullName>
+        <externalId>false</externalId>
+        <inlineHelpText>please check this box if your time off requests includes a Saturday and Sunday you do not wanted deducted from your PTO accrual bucket</inlineHelpText>
+        <label>Exclude Weekends</label>
+        <picklist>
+            <picklistValues>
+                <fullName>No</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Yes</fullName>
+                <default>false</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Picklist</type>
+    </fields>
+    <fields>
+        <fullName>From_Date__c</fullName>
+        <description>Date that you will first be on leave.</description>
+        <externalId>false</externalId>
+        <label>From Date</label>
+        <required>false</required>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>true</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>DateTime</type>
+    </fields>
+    <fields>
+        <fullName>From__c</fullName>
+        <externalId>false</externalId>
+        <label>From</label>
+        <required>false</required>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Date</type>
+    </fields>
+    <fields>
+        <fullName>Full_Day_Date__c</fullName>
+        <externalId>false</externalId>
+        <label>Full Day Date</label>
+        <required>false</required>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Date</type>
+    </fields>
+    <fields>
+        <fullName>Help_Information__c</fullName>
+        <description>Let employees know they must Submit for Approval</description>
+        <externalId>false</externalId>
+        <formula>IF(  ISPICKVAL(Approval_Status__c, &quot;Not Submitted&quot;), IMAGE(&quot;/servlet/servlet.ImageServer?id=01570000001U1qS&amp;oid=00D700000008zHZ&amp;lastMod=1309469134000&quot;,&quot;Help&quot;), NULL)</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>Help Information</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Hours_to_be_Used__c</fullName>
+        <externalId>false</externalId>
+        <inlineHelpText>enter the # of PTO hours you will be using for this request</inlineHelpText>
+        <label>Hours to be Used</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>2</scale>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>true</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Number</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Manager_Email_Address__c</fullName>
+        <defaultValue>$User.Manager_Email_Address__c</defaultValue>
+        <externalId>false</externalId>
+        <label>Manager Email Address</label>
+        <required>false</required>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Email</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Manager_Help_Info__c</fullName>
+        <externalId>false</externalId>
+        <formula>IMAGE(&quot;/servlet/servlet.ImageServer?id=01570000001UJOc&amp;oid=00D700000008zHZ&amp;lastMod=1339520859000&quot;, &quot;Manager Notice&quot;)</formula>
+        <label>Manager Help Info</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Manager_Id__c</fullName>
+        <externalId>false</externalId>
+        <formula>Employee_s_Name__r.ManagerId</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>Manager Id</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Manager_s_Notes__c</fullName>
+        <externalId>false</externalId>
+        <inlineHelpText>A place for managers to make specific notes that are viewable to management only.</inlineHelpText>
+        <label>Manager&apos;s Notes</label>
+        <length>500</length>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>LongTextArea</type>
+        <visibleLines>3</visibleLines>
+    </fields>
+    <fields>
+        <fullName>Multi_Day_From__c</fullName>
+        <externalId>false</externalId>
+        <label>Multi Day From</label>
+        <required>false</required>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Date</type>
+    </fields>
+    <fields>
+        <fullName>Multi_Day_To__c</fullName>
+        <externalId>false</externalId>
+        <label>Multi Day To</label>
+        <required>false</required>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Date</type>
+    </fields>
+    <fields>
+        <fullName>Multiple_Days__c</fullName>
+        <externalId>false</externalId>
+        <label>Multiple Days</label>
+        <precision>7</precision>
+        <required>false</required>
+        <scale>2</scale>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Number</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Not_Submitted_Alert__c</fullName>
+        <defaultValue>false</defaultValue>
+        <externalId>false</externalId>
+        <inlineHelpText>updated by workflow when the not submitted workflow notification sent to the requestor</inlineHelpText>
+        <label>Not Submitted Alert</label>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>Notes__c</fullName>
+        <defaultValue>&quot;if logging PTO for your employee change owner to the employee before submitting for approval&quot;</defaultValue>
+        <externalId>false</externalId>
+        <inlineHelpText>if you are logging PTO for another user, change the owner to the employee requesting the PTO before submitting for approval</inlineHelpText>
+        <label>Notes</label>
+        <length>255</length>
+        <required>false</required>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>true</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>PTO_Approver__c</fullName>
+        <externalId>false</externalId>
+        <formula>Employee_s_Name__r.PTO_Approver__r.FirstName &amp;&quot; &quot;&amp;Employee_s_Name__r.PTO_Approver__r.LastName</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>PTO Approver</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Partial_Day_1__c</fullName>
+        <defaultValue>false</defaultValue>
+        <externalId>false</externalId>
+        <label>Partial Day 1</label>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>Partial_Day_2__c</fullName>
+        <defaultValue>false</defaultValue>
+        <externalId>false</externalId>
+        <label>Partial Day 2</label>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>Partial_Day_3__c</fullName>
+        <defaultValue>false</defaultValue>
+        <externalId>false</externalId>
+        <label>Partial Day 3</label>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>Partial_Day_4__c</fullName>
+        <defaultValue>false</defaultValue>
+        <externalId>false</externalId>
+        <label>Partial Day 4</label>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>Partial_Day_5__c</fullName>
+        <defaultValue>false</defaultValue>
+        <externalId>false</externalId>
+        <label>Partial Day 5</label>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>Partial_Day_Date__c</fullName>
+        <externalId>false</externalId>
+        <label>Partial Day Date</label>
+        <required>false</required>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Date</type>
+    </fields>
+    <fields>
+        <fullName>Partial_Day_End_Time__c</fullName>
+        <externalId>false</externalId>
+        <label>Partial Day End Time</label>
+        <length>15</length>
+        <required>false</required>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Partial_Day_Lunch__c</fullName>
+        <externalId>false</externalId>
+        <label>Partial Day Lunch</label>
+        <length>10</length>
+        <required>false</required>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Partial_Day_Start_Time__c</fullName>
+        <externalId>false</externalId>
+        <label>Partial Day Start Time</label>
+        <length>15</length>
+        <required>false</required>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Request_Type__c</fullName>
+        <externalId>false</externalId>
+        <label>Request Type</label>
+        <picklist>
+            <picklistValues>
+                <fullName>PTO</fullName>
+                <default>true</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Picklist</type>
+    </fields>
+    <fields>
+        <fullName>StartTime1PH__c</fullName>
+        <externalId>false</externalId>
+        <label>StartTime1PH</label>
+        <length>15</length>
+        <required>false</required>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>StartTime2PH__c</fullName>
+        <externalId>false</externalId>
+        <label>StartTime2PH</label>
+        <length>15</length>
+        <required>false</required>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>StartTime3PH__c</fullName>
+        <externalId>false</externalId>
+        <label>StartTime3PH</label>
+        <length>15</length>
+        <required>false</required>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>StartTime4PH__c</fullName>
+        <externalId>false</externalId>
+        <label>StartTime4PH</label>
+        <length>15</length>
+        <required>false</required>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>StartTime5PH__c</fullName>
+        <externalId>false</externalId>
+        <label>StartTime5PH</label>
+        <length>15</length>
+        <required>false</required>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>StartTimePH__c</fullName>
+        <externalId>false</externalId>
+        <label>StartTimePH</label>
+        <length>15</length>
+        <required>false</required>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Time_Off_Available_2014__c</fullName>
+        <externalId>false</externalId>
+        <formula>Time_Off_Balance__r.Available_2014__c</formula>
+        <label>Time Off Available (2014)</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>2</scale>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Number</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Time_Off_Available_2015__c</fullName>
+        <externalId>false</externalId>
+        <formula>Time_Off_Balance__r.Available_2015__c</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>Time Off Available (2015)</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>2</scale>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Number</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Time_Off_Available__c</fullName>
+        <externalId>false</externalId>
+        <formula>Time_Off_Balance__r.Starting_Balance__c  -  Time_Off_Balance__r.Total_Approved__c  -  Time_Off_Balance__r.Total_Pending_Requests__c</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>Time Off Available (2013)</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>2</scale>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Number</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Time_Off_Balance__c</fullName>
+        <externalId>false</externalId>
+        <label>Time Off Balance</label>
+        <referenceTo>Time_Off_Balance__c</referenceTo>
+        <relationshipName>Time_Off_Requests</relationshipName>
+        <relationshipOrder>0</relationshipOrder>
+        <reparentableMasterDetail>false</reparentableMasterDetail>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>MasterDetail</type>
+        <writeRequiresMasterRead>false</writeRequiresMasterRead>
+    </fields>
+    <fields>
+        <fullName>To_Date__c</fullName>
+        <description>Last Date that you will be on Leave.</description>
+        <externalId>false</externalId>
+        <label>To Date</label>
+        <required>false</required>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>true</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>DateTime</type>
+    </fields>
+    <fields>
+        <fullName>To__c</fullName>
+        <externalId>false</externalId>
+        <label>To</label>
+        <required>false</required>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Date</type>
+    </fields>
+    <fields>
+        <fullName>Total_Days_Multi_Day_PTO__c</fullName>
+        <externalId>false</externalId>
+        <formula>IF(AND((5 - (CASE(MOD( Multi_Day_From__c - DATE(1900, 1, 6), 7), 0, 0, 1, 5, 2, 5, 3, 4, 4, 3, 5, 2, 6, 1, 0)) &lt; (CASE(MOD(  Multi_Day_To__c  - DATE(1900, 1, 6), 7), 0, 0, 1, 0, 2, 1, 3, 2, 4, 3, 5, 4, 6, 5, 0)) ),
+((( Multi_Day_To__c  -   Multi_Day_From__c ) + 1) &lt; 7)),
+((CASE(MOD(  Multi_Day_To__c  - DATE(1900, 1, 6), 7), 0, 0, 1, 0, 2, 1, 3, 2, 4, 3, 5, 4, 6, 5, 0)) - (5 - (CASE(MOD(  Multi_Day_From__c  - DATE(1900, 1, 6), 7), 0, 0, 1, 5, 2, 5, 3, 4, 4, 3, 5, 2, 6, 1, 0)))),
+(((FLOOR((( Multi_Day_To__c  -  Multi_Day_From__c ) - (CASE(MOD(  Multi_Day_From__c  - DATE(1900, 1, 6), 7), 0, 0, 1, 6, 2, 5, 3, 4, 4, 3, 5, 2, 6, 1, 0))) / 7)) * 5) +
+(CASE(MOD(  Multi_Day_From__c  - DATE(1900, 1, 6), 7), 0, 0, 1, 5, 2, 5, 3, 4, 4, 3, 5, 2, 6, 1, 0)) +
+(CASE(MOD(  Multi_Day_To__c  - DATE(1900, 1, 6), 7), 0, 0, 1, 0, 2, 1, 3, 2, 4, 3, 5, 4, 6, 5, 0))))</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>Total Days Multi Day PTO</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>0</scale>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Number</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Total_Days_Requested__c</fullName>
+        <externalId>false</externalId>
+        <formula>Hours_to_be_Used__c /8</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <inlineHelpText>formula field calculated by the system by taking the hours to be used divided by 8</inlineHelpText>
+        <label>Total Days Requested</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>2</scale>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Number</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Type_Of_PTO__c</fullName>
+        <externalId>false</externalId>
+        <label>Type Of PTO</label>
+        <picklist>
+            <picklistValues>
+                <fullName>Partial Day</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Full Day</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Multiple Days</fullName>
+                <default>false</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Picklist</type>
+    </fields>
+    <fields>
+        <fullName>Type__c</fullName>
+        <externalId>false</externalId>
+        <inlineHelpText>used by Managers to define the request</inlineHelpText>
+        <label>Type</label>
+        <picklist>
+            <picklistValues>
+                <fullName>Planned</fullName>
+                <default>true</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Unpaid Time Off</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Unplanned</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>LOA 1: these hours DO come out of the PTO balance</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>LOA 2: these hours DO NOT come out of the PTO balance</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>JURY: these hours do NOT come out of the PTO balance</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>BEREAVE: these hours do NOT come out of the PTO balance</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>VinGives</fullName>
+                <default>false</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>true</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Picklist</type>
+    </fields>
+    <fields>
+        <fullName>ValidationRules__c</fullName>
+        <defaultValue>false</defaultValue>
+        <externalId>false</externalId>
+        <label>ValidationRules</label>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>partialDayLunch__c</fullName>
+        <externalId>false</externalId>
+        <label>partialDayLunch</label>
+        <picklist>
+            <picklistValues>
+                <fullName>NO</fullName>
+                <default>true</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>YES</fullName>
+                <default>false</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Picklist</type>
+    </fields>
+    <label>Time Off Request</label>
+    <nameField>
+        <displayFormat>PTOFF-{000000}</displayFormat>
+        <label>Paid Time Off Form</label>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <type>AutoNumber</type>
+    </nameField>
+    <pluralLabel>Time Off Requests</pluralLabel>
+    <recordTypeTrackFeedHistory>false</recordTypeTrackFeedHistory>
+    <recordTypeTrackHistory>false</recordTypeTrackHistory>
+    <recordTypes>
+        <fullName>Full_Day</fullName>
+        <active>true</active>
+        <label>Full Day</label>
+        <picklistValues>
+            <picklist>Approval_Status__c</picklist>
+            <values>
+                <fullName>Approved</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Awaiting Manager Approval</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Cancelled</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Denied</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Not Submitted</fullName>
+                <default>true</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Exclude_Weekends__c</picklist>
+            <values>
+                <fullName>No</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Yes</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Request_Type__c</picklist>
+            <values>
+                <fullName>PTO</fullName>
+                <default>true</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Type_Of_PTO__c</picklist>
+            <values>
+                <fullName>Full Day</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Multiple Days</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Partial Day</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Type__c</picklist>
+            <values>
+                <fullName>BEREAVE%3A these hours do NOT come out of the PTO balance</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>JURY%3A these hours do NOT come out of the PTO balance</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>LOA 1%3A these hours DO come out of the PTO balance</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>LOA 2%3A these hours DO NOT come out of the PTO balance</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Planned</fullName>
+                <default>true</default>
+            </values>
+            <values>
+                <fullName>Unpaid Time Off</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Unplanned</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>VinGives</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>partialDayLunch__c</picklist>
+            <values>
+                <fullName>NO</fullName>
+                <default>true</default>
+            </values>
+            <values>
+                <fullName>YES</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+    </recordTypes>
+    <recordTypes>
+        <fullName>Legacy</fullName>
+        <active>true</active>
+        <label>Legacy</label>
+        <picklistValues>
+            <picklist>Approval_Status__c</picklist>
+            <values>
+                <fullName>Approved</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Awaiting Manager Approval</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Cancelled</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Denied</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Not Submitted</fullName>
+                <default>true</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Exclude_Weekends__c</picklist>
+            <values>
+                <fullName>No</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Yes</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Request_Type__c</picklist>
+            <values>
+                <fullName>PTO</fullName>
+                <default>true</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Type_Of_PTO__c</picklist>
+            <values>
+                <fullName>Full Day</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Multiple Days</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Partial Day</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Type__c</picklist>
+            <values>
+                <fullName>BEREAVE%3A these hours do NOT come out of the PTO balance</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>JURY%3A these hours do NOT come out of the PTO balance</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>LOA 1%3A these hours DO come out of the PTO balance</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>LOA 2%3A these hours DO NOT come out of the PTO balance</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Planned</fullName>
+                <default>true</default>
+            </values>
+            <values>
+                <fullName>Unpaid Time Off</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Unplanned</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>VinGives</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>partialDayLunch__c</picklist>
+            <values>
+                <fullName>NO</fullName>
+                <default>true</default>
+            </values>
+            <values>
+                <fullName>YES</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+    </recordTypes>
+    <recordTypes>
+        <fullName>Multiple_Days</fullName>
+        <active>true</active>
+        <label>Multiple Days</label>
+        <picklistValues>
+            <picklist>Approval_Status__c</picklist>
+            <values>
+                <fullName>Approved</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Awaiting Manager Approval</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Cancelled</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Denied</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Not Submitted</fullName>
+                <default>true</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Exclude_Weekends__c</picklist>
+            <values>
+                <fullName>No</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Yes</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Request_Type__c</picklist>
+            <values>
+                <fullName>PTO</fullName>
+                <default>true</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Type_Of_PTO__c</picklist>
+            <values>
+                <fullName>Full Day</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Multiple Days</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Partial Day</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Type__c</picklist>
+            <values>
+                <fullName>BEREAVE%3A these hours do NOT come out of the PTO balance</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>JURY%3A these hours do NOT come out of the PTO balance</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>LOA 1%3A these hours DO come out of the PTO balance</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>LOA 2%3A these hours DO NOT come out of the PTO balance</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Planned</fullName>
+                <default>true</default>
+            </values>
+            <values>
+                <fullName>Unpaid Time Off</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Unplanned</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>VinGives</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>partialDayLunch__c</picklist>
+            <values>
+                <fullName>NO</fullName>
+                <default>true</default>
+            </values>
+            <values>
+                <fullName>YES</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+    </recordTypes>
+    <recordTypes>
+        <fullName>Partial_Day</fullName>
+        <active>true</active>
+        <label>Partial Day</label>
+        <picklistValues>
+            <picklist>Approval_Status__c</picklist>
+            <values>
+                <fullName>Approved</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Awaiting Manager Approval</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Cancelled</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Denied</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Not Submitted</fullName>
+                <default>true</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Exclude_Weekends__c</picklist>
+            <values>
+                <fullName>No</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Yes</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Request_Type__c</picklist>
+            <values>
+                <fullName>PTO</fullName>
+                <default>true</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Type_Of_PTO__c</picklist>
+            <values>
+                <fullName>Full Day</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Multiple Days</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Partial Day</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Type__c</picklist>
+            <values>
+                <fullName>BEREAVE%3A these hours do NOT come out of the PTO balance</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>JURY%3A these hours do NOT come out of the PTO balance</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>LOA 1%3A these hours DO come out of the PTO balance</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>LOA 2%3A these hours DO NOT come out of the PTO balance</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Planned</fullName>
+                <default>true</default>
+            </values>
+            <values>
+                <fullName>Unpaid Time Off</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Unplanned</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>VinGives</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>partialDayLunch__c</picklist>
+            <values>
+                <fullName>NO</fullName>
+                <default>true</default>
+            </values>
+            <values>
+                <fullName>YES</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+    </recordTypes>
+    <searchLayouts>
+        <customTabListAdditionalFields>Employee_s_Name__c</customTabListAdditionalFields>
+        <customTabListAdditionalFields>From_Date__c</customTabListAdditionalFields>
+        <customTabListAdditionalFields>Approval_Status__c</customTabListAdditionalFields>
+        <excludedStandardButtons>Forward</excludedStandardButtons>
+        <excludedStandardButtons>New</excludedStandardButtons>
+        <lookupDialogsAdditionalFields>Request_Type__c</lookupDialogsAdditionalFields>
+        <lookupDialogsAdditionalFields>From_Date__c</lookupDialogsAdditionalFields>
+        <lookupDialogsAdditionalFields>Approval_Status__c</lookupDialogsAdditionalFields>
+        <searchResultsAdditionalFields>Request_Type__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields>From_Date__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields>Approval_Status__c</searchResultsAdditionalFields>
+    </searchLayouts>
+    <sharingModel>ControlledByParent</sharingModel>
+    <validationRules>
+        <fullName>Cannot_Modify_Approval_Status</fullName>
+        <active>true</active>
+        <description>Cannot edit the record if the Approval Status is not Not Submitted and you are not the Approving Manager, PTO Approver, SF Admin, or HR staff.</description>
+        <errorConditionFormula>!ISPICKVAL(Approval_Status__c, &quot;Not Submitted&quot;) &amp;&amp;
+IF(
+   $User.FirstName &amp; &quot; &quot; &amp; $User.LastName = Approving_Manager__c,
+   FALSE,
+   IF(
+      $User.FirstName &amp; &quot; &quot; &amp; $User.LastName = PTO_Approver__c,
+      FALSE,
+      IF(
+         CONTAINS($Profile.Name, &quot;Admin&quot;),
+         FALSE,
+         IF(
+            CONTAINS($Profile.Name, &quot;Human Resources&quot;),
+            FALSE,
+            IF(
+               $User.User_Full_Name__c = Alternate_PTO_Approver__c, 
+               FALSE, 
+               TRUE
+)))))</errorConditionFormula>
+        <errorDisplayField>Approval_Status__c</errorDisplayField>
+        <errorMessage>You do not have permission to edit this field.</errorMessage>
+    </validationRules>
+    <validationRules>
+        <fullName>From_Date_and_To_Date_Same_Week_Only</fullName>
+        <active>false</active>
+        <description>SFDC Support Test Validation Rule</description>
+        <errorConditionFormula>Case( 
+MOD( DATE(YEAR( DATEVALUE(From_Date__c) ), 1, 1) - DATE (1900, 1, 7), 7), 
+0, ( DATEVALUE(From_Date__c) - DATE(YEAR(DATEVALUE(From_Date__c)),1,1) + 3) /7, 
+1, ( DATEVALUE(From_Date__c) - DATE(YEAR(DATEVALUE(From_Date__c)),1,1) + 4) /7, 
+2, ( DATEVALUE(From_Date__c) - DATE(YEAR(DATEVALUE(From_Date__c)),1,1) + 5) /7, 
+3, ( DATEVALUE(From_Date__c) - DATE(YEAR(DATEVALUE(From_Date__c)),1,1) + 6) /7, 
+4, ( DATEVALUE(From_Date__c) - DATE(YEAR(DATEVALUE(From_Date__c)),1,1) + 7) /7, 
+5, ( DATEVALUE(From_Date__c) - DATE(YEAR(DATEVALUE(From_Date__c)),1,1) + 1) /7, 
+6, ( DATEVALUE(From_Date__c) - DATE(YEAR(DATEVALUE(From_Date__c)),1,1) + 2) /7, 
+99) 
+&lt;&gt; 
+Case( 
+MOD( DATE(YEAR(DATEVALUE( To_Date__c )), 1, 1) - DATE (1900, 1, 7), 7), 
+0, ( DATEVALUE( To_Date__c )- DATE(YEAR(DATEVALUE( To_Date__c )),1,1) + 3) /7, 
+1, ( DATEVALUE( To_Date__c )- DATE(YEAR(DATEVALUE( To_Date__c )),1,1) + 4) /7, 
+2, ( DATEVALUE( To_Date__c )- DATE(YEAR(DATEVALUE( To_Date__c )),1,1) + 5) /7, 
+3, ( DATEVALUE( To_Date__c )- DATE(YEAR(DATEVALUE( To_Date__c )),1,1) + 6) /7, 
+4, ( DATEVALUE( To_Date__c )- DATE(YEAR(DATEVALUE( To_Date__c )),1,1) + 7) /7, 
+5, ( DATEVALUE( To_Date__c )- DATE(YEAR(DATEVALUE( To_Date__c )),1,1) + 1) /7, 
+6, ( DATEVALUE( To_Date__c )- DATE(YEAR(DATEVALUE( To_Date__c )),1,1) + 2) /7, 
+99)</errorConditionFormula>
+        <errorDisplayField>From_Date__c</errorDisplayField>
+        <errorMessage>Please make separate Time Off Requests for time off occurring on different weeks.</errorMessage>
+    </validationRules>
+    <webLinks>
+        <fullName>Cancel_Request</fullName>
+        <availability>online</availability>
+        <displayType>button</displayType>
+        <encodingKey>UTF-8</encodingKey>
+        <linkType>url</linkType>
+        <masterLabel>Cancel Request</masterLabel>
+        <openType>replace</openType>
+        <protected>false</protected>
+        <url>/{!SFDC_Paid_Time_Off__c.Id}/e?retURL=%2F{!SFDC_Paid_Time_Off__c.Id}
+&amp;{!SFDC_Paid_Time_Off__c.Approval_Status__c}= Cancelled
+&amp;save=1</url>
+    </webLinks>
+    <webLinks>
+        <fullName>CustomEdit</fullName>
+        <availability>online</availability>
+        <description>Replaces standard edit button as it went to the standard page which has also been overridden</description>
+        <displayType>button</displayType>
+        <encodingKey>UTF-8</encodingKey>
+        <height>600</height>
+        <linkType>url</linkType>
+        <masterLabel>Edit</masterLabel>
+        <openType>sidebar</openType>
+        <protected>false</protected>
+        <url>/apex/PTO_PageOneEmpDaysEdit?userNameEdit={!SFDC_Paid_Time_Off__c.Employee_s_Name__c}&amp;recordId={!SFDC_Paid_Time_Off__c.Id}</url>
+    </webLinks>
+    <webLinks>
+        <fullName>PublicHolidaysWorldwide</fullName>
+        <availability>online</availability>
+        <displayType>link</displayType>
+        <encodingKey>UTF-8</encodingKey>
+        <hasMenubar>false</hasMenubar>
+        <hasScrollbars>true</hasScrollbars>
+        <hasToolbar>false</hasToolbar>
+        <height>600</height>
+        <isResizable>true</isResizable>
+        <linkType>url</linkType>
+        <masterLabel>Public Holidays-Worldwide</masterLabel>
+        <openType>newWindow</openType>
+        <position>none</position>
+        <protected>false</protected>
+        <showsLocation>false</showsLocation>
+        <showsStatus>false</showsStatus>
+        <url>http://www.bank-holidays.com/</url>
+    </webLinks>
+    <webLinks>
+        <fullName>Staffhandbook</fullName>
+        <availability>online</availability>
+        <displayType>link</displayType>
+        <encodingKey>UTF-8</encodingKey>
+        <hasMenubar>false</hasMenubar>
+        <hasScrollbars>true</hasScrollbars>
+        <hasToolbar>false</hasToolbar>
+        <height>600</height>
+        <isResizable>true</isResizable>
+        <linkType>url</linkType>
+        <masterLabel>Staff hand book</masterLabel>
+        <openType>newWindow</openType>
+        <position>none</position>
+        <protected>false</protected>
+        <showsLocation>false</showsLocation>
+        <showsStatus>false</showsStatus>
+        <url>http://www.bucknell.edu/Offices_Resources/Offices/Human_Resources/Current_Staff/Staff_Handbook.html</url>
+    </webLinks>
+</CustomObject>

@@ -1,0 +1,119 @@
+<apex:page sidebar="false" standardController="CRMfusionDBR101__Scenario__c" extensions="CRMfusionDBR101.DB_AutoMerge" showHeader="true" tabStyle="CRMfusionDBR101__Scenario__c"
+    standardStylesheets="true">
+    <apex:sectionHeader title="{!$Label.CRMfusionDBR101__DB_AM_Settings_Edit_Title}" subtitle="{!CRMfusionDBR101__Scenario__c.Name}" />
+
+    <p />
+
+    <!--  Values we need to load for the scenario object. -->
+    <apex:outputText rendered="false" value="{!CRMfusionDBR101__Scenario__c.CRMfusionDBR101__Scenario_Type__c}" />
+
+    <apex:pageMessages />
+    <apex:form >
+        <apex:pageBlock id="primaryBlock" title="{!$Label.CRMfusionDBR101__DB_AM_Primary_Settings_Block_Title}" mode="edit">
+            <apex:actionStatus layout="block" startStyle="text-align: center; font-weight: bold; color: red;" id="settingsStatus" stopText=""
+                startText="{!$Label.CRMfusionDBR101__DB_Updating_Available_Options}" />
+            <apex:pageBlockSection columns="2" collapsible="false">
+                <apex:inputField value="{!mergeSettings.CRMfusionDBR101__Merge_Target__c}" required="true" />
+                <apex:inputField value="{!mergeSettings.CRMfusionDBR101__Merge_Priority__c}" required="true" />
+
+                <apex:inputField value="{!mergeSettings.CRMfusionDBR101__Default_Mergeable_Action__c}" required="true" />
+                <apex:inputField value="{!mergeSettings.CRMfusionDBR101__Default_Nonmergeable_Action__c}" required="true" />
+            </apex:pageBlockSection>
+            
+            <apex:pageBlockSection id="createTaskBlock" columns="2" collapsible="false" rendered="{!supportsTasks}">
+                <apex:inputField value="{!mergeSettings.CRMfusionDBR101__Create_Task__c}">
+                    <apex:actionSupport event="onclick" rerender="primaryBlock" status="settingsStatus" />
+                </apex:inputField>
+                <apex:pageBlockSectionItem >
+                </apex:pageBlockSectionItem>
+            </apex:pageBlockSection>
+
+            <apex:pageBlockSection id="taskBlock" columns="2" collapsible="false" rendered="{!AND(mergeSettings.CRMfusionDBR101__Create_Task__c, supportsTasks)}">
+                <apex:inputField value="{!mergeSettings.CRMfusionDBR101__Task_Subject__c}" />
+                <apex:inputField value="{!mergeSettings.CRMfusionDBR101__Task_Due_Date__c}" />
+
+                <apex:pageBlockSectionItem helpText="The status to assign to the task.">
+                    <apex:outputLabel for="taskStatus" value="Task Status" />
+                    <apex:selectList id="taskStatus" size="1" value="{!mergeSettings.CRMfusionDBR101__Task_Status__c}" multiselect="false">
+                        <apex:selectOptions value="{!taskStatuses}" />
+                    </apex:selectList>
+                </apex:pageBlockSectionItem>
+                <apex:inputField value="{!mergeSettings.CRMfusionDBR101__Task_Owner__c}" rendered="{!hasOwnerField}" />
+                <apex:outputField value="{!mergeSettings.CRMfusionDBR101__Task_Owner__c}" rendered="{!NOT(hasOwnerField)}" />
+                <apex:inputField value="{!mergeSettings.CRMfusionDBR101__Default_Include_in_Task__c}" />
+            </apex:pageBlockSection>
+            
+            <apex:pageBlockButtons >
+                <apex:commandButton value="{!$Label.CRMfusionDBR101__DB_Save_Word}" action="{!saveSettings}" />
+                <apex:commandButton value="{!$Label.CRMfusionDBR101__DB_Cancel_Word}" action="{!cancelSettingsEdit}" />
+            </apex:pageBlockButtons>
+        </apex:pageBlock>
+
+        <apex:pageBlock id="newMappingBlock" title="{!$Label.CRMfusionDBR101__DB_AM_Add_New_Merge_Mapping}">
+            <apex:actionStatus layout="block" startStyle="text-align: center; font-weight: bold; color: red;" id="newMappingStatus" stopText=""
+                startText="{!$Label.CRMfusionDBR101__DB_Updating_Available_Options}" />
+            <apex:pageBlockSection columns="4">
+                <apex:pageBlockSectionItem helpText="{!$ObjectType.CRMfusionDBR101__AutoMerge_Mapping__c.Fields.CRMfusionDBR101__Merge_Field__c.inlineHelpText}">
+                    <apex:outputLabel for="mergeField" value="{!$ObjectType.CRMfusionDBR101__AutoMerge_Mapping__c.Fields.CRMfusionDBR101__Merge_Field__c.label}" />
+                    <apex:outputPanel styleClass="requiredInput" layout="block">
+                        <apex:selectList id="mergeField" size="1" required="true" value="{!newMapping.CRMfusionDBR101__Merge_Field__c}" multiselect="false">
+                            <apex:selectOptions value="{!fields}" />
+                            <apex:actionSupport event="onchange" rerender="newMappingBlock" status="newMappingStatus" />
+                        </apex:selectList>
+                    </apex:outputPanel>
+                </apex:pageBlockSectionItem>
+                <apex:pageBlockSectionItem helpText="{!$Label.CRMfusionDBR101__DB_AM_Merge_Action_Select_Help}">
+                    <apex:outputLabel for="mergeAction" value="{!$ObjectType.CRMfusionDBR101__AutoMerge_Mapping__c.Fields.CRMfusionDBR101__Merge_Action__c.label}" />
+                    <apex:outputPanel styleClass="requiredInput" layout="block">
+                        <apex:selectList id="mergeAction" size="1" required="true" value="{!newMapping.CRMfusionDBR101__Merge_Action__c}" multiselect="false">
+                            <apex:selectOptions value="{!mergeActions}" />
+                        </apex:selectList>
+                    </apex:outputPanel>
+                </apex:pageBlockSectionItem>
+                <apex:inputField value="{!newMapping.CRMfusionDBR101__Include_in_Task__c}" />
+                <apex:commandButton value="Add" action="{!addMapping}" />
+            </apex:pageBlockSection>
+        </apex:pageBlock>
+
+        <apex:pageBlock title="{!$Label.CRMfusionDBR101__DB_Current_Field_Mappings}">
+            <apex:outputPanel id="fieldMappings">
+                <table width="100%">
+                    <tr>
+                        <th>{!$Label.CRMfusionDBR101__DB_Actions_Header}</th>
+                        <th>{!$ObjectType.CRMfusionDBR101__AutoMerge_Mapping__c.Fields.CRMfusionDBR101__Merge_Field__c.label}</th>
+                        <th>{!$ObjectType.CRMfusionDBR101__AutoMerge_Mapping__c.Fields.CRMfusionDBR101__Merge_Action__c.label}</th>
+                        <th>{!$ObjectType.CRMfusionDBR101__AutoMerge_Mapping__c.Fields.CRMfusionDBR101__Include_in_Task__c.label}</th>
+                    </tr>
+                    <apex:repeat value="{!mergeMappings}" var="m">
+                        <tr style="height: 20px">
+                            <apex:outputPanel id="editRow" layout="none" rendered="{!m.CRMfusionDBR101__Key__c == editMapping.CRMfusionDBR101__Key__c}">
+                                <td><apex:commandLink action="{!cancelEdit}" rerender="fieldMappings">{!$Label.CRMfusionDBR101__DB_Cancel_Word}</apex:commandLink> &nbsp;|&nbsp; <apex:commandLink action="{!saveEdit}" rerender="fieldMappings">{!$Label.CRMfusionDBR101__DB_Save_Word}</apex:commandLink>
+                                </td>
+                                <td><apex:outputField value="{!editMapping.CRMfusionDBR101__Merge_Field_Display__c}" />
+                                </td>
+                                <td><apex:selectList id="editMergeAction" size="1" required="true" value="{!editMapping.CRMfusionDBR101__Merge_Action__c}" multiselect="false">
+                                        <apex:selectOptions value="{!editMergeActions}" />
+                                    </apex:selectList></td>
+                                <td><apex:inputField value="{!editMapping.CRMfusionDBR101__Include_in_Task__c}" />
+                                </td>
+                            </apex:outputPanel>
+                            <apex:outputPanel id="viewRow" layout="none" rendered="{!m.CRMfusionDBR101__Key__c != editMapping.CRMfusionDBR101__Key__c}">
+                                <td><apex:commandLink action="{!editMapping}" rerender="fieldMappings">{!$Label.CRMfusionDBR101__DB_Edit_Word}
+                                <apex:param name="editField" value="{!m.CRMfusionDBR101__Merge_Field__c}" />
+                                    </apex:commandLink> &nbsp;|&nbsp; <apex:commandLink action="{!deleteMapping}"
+                                        onclick="return confirm('{!JSINHTMLENCODE($Label.CRMfusionDBR101__DB_Delete_Mapping_Confirmation)}')">
+                                {!$Label.CRMfusionDBR101__DB_Delete_Word}
+                                <apex:param name="deleteField" value="{!m.CRMfusionDBR101__Merge_Field__c}" />
+                                    </apex:commandLink></td>
+                                <td>{!m.Merge_Field_Display__c}</td>
+                                <td>{!m.Merge_Action__c}</td>
+                                <td><IMG src="{!$Resource.DB_Checkboxes}/{!m.Include_in_Task__c}.gif" />
+                                </td>
+                            </apex:outputPanel>
+                        </tr>
+                    </apex:repeat>
+                </table>
+            </apex:outputPanel>
+        </apex:pageBlock>
+    </apex:form>
+</apex:page>

@@ -1,0 +1,219 @@
+<apex:page controller="WelcomePacketWizard" showHeader="false"
+	cache="false">
+	<head>
+<apex:stylesheet value="{!$Resource.styles}"></apex:stylesheet>
+	</head>
+
+	<script>
+function confirmCancel()
+{
+	var isCancel = confirm("Are you sure you wish to quit?");
+	return isCancel;
+}
+</script>
+
+	<table border="0" width="100%" height="100%" id="bg">
+		<tr valign="top">
+			<td>
+				<div class="maincontainer">
+					<apex:image id="key1" width="100%"
+						value="/resource/1265230873000/Header" />
+
+					<apex:sectionHeader title="VinSolutions Welcome Packet"
+						subtitle="{!if(
+																				!CONTAINS(welcome.Packet_Includes__c, 'CRM')
+																				&&!CONTAINS(welcome.Packet_Includes__c, 'ILM')
+																				&&CONTAINS(welcome.Packet_Includes__c, 'DIY'),'Step 3 of 7', 
+																				
+																			if(
+																				!CONTAINS(welcome.Packet_Includes__c, 'CRM')
+																				&&CONTAINS(welcome.Packet_Includes__c, 'ILM')
+																				,'Step 3 of 9', 
+																				
+																			if(
+																				CONTAINS(welcome.Packet_Includes__c, 'CRM')																				
+																				,'Step 3 of 13', 
+																				
+																				'')))}" />
+
+					<apex:form >
+						<apex:pageBlock title="INVENTORY">
+
+							<table border="0" width="100%" align="center">
+								<tr align="center">
+									<td align="center"><apex:commandButton action="{!step2}"
+											value="Previous Step" /> <apex:commandButton action="{!step4}" value="Next Step" /> <apex:commandButton action="{!cancel}" value="Save & Quit"
+											onclick="return confirmCancel()" immediate="true" /> <apex:commandButton action="{!confirmCRM}" value="Save - To Confirmation Page"
+											rendered="{!if(welcome.Packet_Includes__c!=null&&welcome.ReachedCRMConfirm__c, true, false)}" />
+									</td>
+								</tr>
+							</table>
+
+							<apex:pageBlockSection collapsible="false"
+								title="If VinSolutions is NOT pulling inventory from your DMS, please skip to the 'How will we get...?' section below."
+								columns="1">
+				Coordinating the mapping of your inventory data to the correct fields in MotoSnap 
+				will require us to identify the exact fields in your DMS that have the values we’re 
+				looking for. Some Fields are consistent, and easy to find. But we need the following 
+				fields to be identified by root field name, which will take someone from your store 
+				that has a very good understanding of your DMS. Please provide root field names for 
+				the following inventory fields:
+					<apex:inputField value="{!welcome.Selling_Price__c}" />
+								<apex:inputField value="{!welcome.Internet_Price__c}" />
+								<apex:inputField value="{!welcome.Cost_for_commissionable_gross__c}" />
+								<apex:inputField value="{!welcome.Model_Number__c}" />
+								<apex:inputField value="{!welcome.Trim_Level__c}" />
+								<apex:inputField value="{!welcome.Interior_Color_Code__c}" />
+								<apex:inputField value="{!welcome.Exterior_Color_Code__c}" />
+								<apex:inputField value="{!welcome.Certification_Flag__c}" />
+								<apex:inputField value="{!welcome.Certification__c}" />
+
+							</apex:pageBlockSection>
+
+							<apex:pageBlockSection collapsible="false"
+								title="How will we get...?" columns="2">
+								<apex:inputField value="{!welcome.Inventory_Data_for_Initial_Setup__c}" />
+								<apex:inputField value="{!welcome.Inventory_Data_on_Daily_recurring_basis__c}" />
+								<apex:inputField value="{!welcome.Photo_s_for_Initial_Setup__c}" />
+								<apex:inputField value="{!welcome.Photo_s_on_a_daily_recurring_basis__c}" />
+							</apex:pageBlockSection>
+
+							<apex:pageBlockSection collapsible="false"
+								title="Including/Excluding certain vehicles" columns="1">
+					Sometimes there are vehicles in your DMS Inventory that you do not wish to have in the CRM. 
+					Examples might be cars you intend to wholesale, Lake House truck, boat, etc. 
+					Please use this area to identify the criteria that will allow us to exclude them from or include 
+					them in your CRM Inventory. Like include all status code “1” and “2”, or exclude inventory type “W”, etc.<br />
+								<apex:inputTextArea cols="180" rows="4"
+									value="{!welcome.Including_Excluding_certain_vehicles__c}" />
+							</apex:pageBlockSection>
+						</apex:pageBlock>
+
+						<apex:pageBlock >
+
+							<apex:pageBlockSection collapsible="false"
+								title="Including/Excluding certain vehicles" columns="1">
+					Please list 3 new and 3 used stock # examples and the corresponding Selling price, Internet price, 
+					and cost you would like to have imported to MotoSnap Inventory Module.</apex:pageBlockSection>
+
+
+							<table width="100%" align="center">
+								<tr align="center">
+									<td><b>New Stock #</b></td>
+									<td><b>Selling Price</b></td>
+									<td><b>Internet Price</b></td>
+									<td><b>Cost</b></td>
+								</tr>
+								<tr align="center">
+									<td>1<apex:inputField value="{!welcome.X1_New_Stock__c}" />
+									</td>
+									<td>$<apex:inputField value="{!welcome.X1_New_Selling_Price__c}" /></td>
+									<td>$<apex:inputField value="{!welcome.X1_NEw_Internet_Price__c}" /></td>
+									<td>$<apex:inputField value="{!welcome.X1_New_Cost__c}" />
+									</td>
+								</tr>
+								<tr align="center">
+									<td>2<apex:inputField value="{!welcome.X2_New_Stock__c}" />
+									</td>
+									<td>$<apex:inputField value="{!welcome.X2_New_Selling_Price__c}" /></td>
+									<td>$<apex:inputField value="{!welcome.X2_New_Internet_Price__c}" /></td>
+									<td>$<apex:inputField value="{!welcome.X2_New_Cost__c}" />
+									</td>
+								</tr>
+								<tr align="center">
+									<td>3<apex:inputField value="{!welcome.X3_New_Stock__c}" />
+									</td>
+									<td>$<apex:inputField value="{!welcome.X3_New_Selling_Price__c}" /></td>
+									<td>$<apex:inputField value="{!welcome.X3_New_Internet_Price__c}" /></td>
+									<td>$<apex:inputField value="{!welcome.X3_New_Cost__c}" />
+									</td>
+								</tr>
+							</table>
+
+
+							<apex:pageBlockSection collapsible="false" title=""></apex:pageBlockSection>
+
+							<table width="100%" align="center">
+								<tr align="center">
+									<td><b>Used Stock #</b></td>
+									<td><b>Selling Price</b></td>
+									<td><b>Internet Price</b></td>
+									<td><b>Cost</b></td>
+								</tr>
+								<tr align="center">
+									<td>1<apex:inputField value="{!welcome.X1_Used_Stock__c}" />
+									</td>
+									<td>$<apex:inputField value="{!welcome.X1_Used_Selling_Price__c}" /></td>
+									<td>$<apex:inputField value="{!welcome.X1_Used_Internet_Price__c}" /></td>
+									<td>$<apex:inputField value="{!welcome.X1_Used_Cost__c}" />
+									</td>
+								</tr>
+								<tr align="center">
+									<td>2<apex:inputField value="{!welcome.X2_Used_Stock__c}" />
+									</td>
+									<td>$<apex:inputField value="{!welcome.X2_Used_Selling_Price__c}" /></td>
+									<td>$<apex:inputField value="{!welcome.X2_Used_Internet_Price__c}" /></td>
+									<td>$<apex:inputField value="{!welcome.X2_Used_Cost__c}" />
+									</td>
+								</tr>
+								<tr align="center">
+									<td>3<apex:inputField value="{!welcome.X3_Used_Stock__c}" />
+									</td>
+									<td>$<apex:inputField value="{!welcome.X3_Used_Selling_Price__c}" /></td>
+									<td>$<apex:inputField value="{!welcome.X3_Used_Internet_Price__c}" /></td>
+									<td>$<apex:inputField value="{!welcome.X3_Used_Cost__c}" />
+									</td>
+								</tr>
+							</table>
+
+							<apex:pageBlockSection collapsible="false" title="Photo's"
+								columns="1">
+								<b>New inventory:</b> New inventory can be populated with color matched stock photos if you so choose. 
+				In order to match color for stock photos, VinSolutions needs to know which field the Manufacturer’s 
+				color code is located in within the DMS, as well as the inventory file that is sent to VinSolutions. 
+				<U>Without this color code or field, your new inventory will
+									have stock photos but they <b>will not</b> be color matched.</U>
+								<br />
+								<br />
+								<b>Used Inventory:</b> To get you started, VinSolutions can often receive a one time inventory feed from a source that 
+				contains your most current inventory/photos. This is wholly up to the source, whether they are willing to send us 
+				this information. <b>In addition, VinSolutions can do a Photo
+									Scrape from Dealer Specialties or Auto Trader, which doesn’t
+									require any effort on their part. If you have any questions,
+									please call your IM.</b>
+							</apex:pageBlockSection>
+							<apex:pageBlockSection >
+								<apex:pageBlockSection collapsible="false" columns="1"
+									title="New Inventory"></apex:pageBlockSection>
+								<apex:pageBlockSection collapsible="false" columns="1"
+									title="Used Inventory"></apex:pageBlockSection>
+							</apex:pageBlockSection>
+							<apex:pageBlockSection >
+								<apex:inputField value="{!welcome.Enable_stock_photos__c}" />
+								<apex:inputField value="{!welcome.Current_Dealer_Specialties_Client__c}" />
+								<apex:inputField value="{!welcome.Enable_color_matched_stock_photos__c}" />
+								<apex:inputField value="{!welcome.Auto_Trader_Username__c}" />
+								<apex:outputText value="" />
+								<apex:inputField value="{!welcome.Auto_Trader_Password__c}" />
+							</apex:pageBlockSection>
+
+							<apex:pageBlockSection collapsible="false" title=""></apex:pageBlockSection>
+
+							<table border="0" width="100%" align="center">
+								<tr align="center">
+									<td align="center"><apex:commandButton action="{!step2}"
+											value="Previous Step" /> <apex:commandButton action="{!step4}" value="Next Step" /> <apex:commandButton action="{!cancel}" value="Save & Quit"
+											onclick="return confirmCancel()" immediate="true" /> <apex:commandButton action="{!confirmCRM}" value="Save - To Confirmation Page"
+											rendered="{!if(welcome.Packet_Includes__c!=null&&welcome.ReachedCRMConfirm__c, true, false)}" />
+									</td>
+								</tr>
+							</table>
+
+						</apex:pageBlock>
+
+					</apex:form>
+				</div>
+			</td>
+		</tr>
+	</table>
+</apex:page>

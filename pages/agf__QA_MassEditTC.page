@@ -1,0 +1,79 @@
+<apex:page controller="agf.QA_MassEditTCController">
+<style type="text/css">
+        .TableHeader {border-bottom:solid; border-bottom-width:1px; border-bottom-color:#CCCCCC}
+        .TableColumn {border-right:solid; border-right-width:1px; border-right-color:#CCCCCC}
+        .TableDark {background-color:#E9E9DA}
+        .errorText {
+                font-family: Arial, Helvetica, sans-serif;
+                font-style: italic;
+                color: #990000;
+        }
+</style>
+<apex:sectionHeader title="Test Cases Mass Edit"></apex:sectionHeader>
+
+<apex:pageBlock id="Error" title="Error!" mode="detail" rendered="{!init}">
+<apex:form id="errorAndCancel">
+<strong><font color="red">{!errorMessage}</font></strong><br />
+<apex:commandButton action="{!handleCancel}" id="Back" value="Back" />
+</apex:form>
+</apex:pageBlock>
+<apex:outputPanel id="messages" style="color:red">         
+	<apex:messages />
+</apex:outputPanel>
+
+<apex:pageBlock title="Selected Test Cases" mode="detail" rendered="{!ifError}">
+<apex:dataTable value="{!cases}" var="case" cellpadding="2" cellspacing="0" headerClass="TableHeader TableDark">
+        <apex:column styleClass="TableColumn TableHeader">
+                <apex:facet name="header"><strong>Brief Description</strong></apex:facet>
+                <a href="/{!case.id}">{!case.agf__Brief_Description__c}</a>
+        </apex:column>
+        <apex:column styleClass="TableColumn TableHeader">
+                <apex:facet name="header"><strong>Hierarchy</strong></apex:facet>
+                {!case.agf__Hierarchy__c}
+        </apex:column>
+        <apex:column styleClass="TableColumn TableHeader">
+                <apex:facet name="header"><strong>Priority</strong></apex:facet>
+                {!case.agf__Priority__c}
+        </apex:column>
+        <apex:column styleClass="TableColumn TableHeader">
+                <apex:facet name="header"><strong>Execution Type</strong></apex:facet>
+                {!case.agf__Execution_Type__c}
+        </apex:column>
+</apex:dataTable>
+</apex:pageBlock>
+
+<apex:form id="massEditForm" rendered="{!ifError}">
+<apex:pageBlock title="Mass Edit Fields" mode="detail">
+<table width="600" cellpadding="2" cellspacing="0">
+        <tr>
+                <td width="130"><strong>Field</strong></td>
+                <td width="70"><strong>Change</strong></td>
+                <td width="400"><strong>Value</strong></td>
+        </tr>
+        <tr>
+                <td width="130">Hierarchy</td>
+                <td width="70"><apex:inputCheckBox id="hierarchy_cbox" value="{!changeHierarchy}" /></td>
+                <td width="400"><apex:inputField required="false" id="hierarchy" value="{!base.agf__Hierarchy__c}" /><br /><div class="errorText">{!hierarchyError}</div></td>
+        </tr>
+        <tr>
+                <td>Priority</td>
+                <td width="70"><apex:inputCheckBox id="priority_cbox" value="{!changePriority}" /></td>
+                <td><apex:inputField id="priority" value="{!base.agf__Priority__c}" /></td>
+        </tr>
+        <tr>
+                <td>Execution Type</td>
+                <td width="70"><apex:inputCheckBox id="execution_cbox" value="{!changeEType}" /></td>
+                <td><apex:inputField id="execution" value="{!base.agf__Execution_Type__c}" /></td>
+        </tr>
+        <tr>
+                <td colspan="3">
+                <apex:outputPanel id="commandPanel">
+                        <apex:commandButton id="save" value="Mass Edit" action="{!handleSave}" rerender="messages,commandPanel"/>
+                        <apex:commandButton action="{!handleCancel}" id="cancel" value="Cancel" />
+                </apex:outputPanel>
+                </td>
+        </tr>
+</table>
+</apex:pageBlock>
+</apex:form>
+</apex:page>

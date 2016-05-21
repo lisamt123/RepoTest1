@@ -1,0 +1,3730 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <actionOverrides>
+        <actionName>Accept</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>CancelEdit</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Clone</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Delete</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Edit</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Follow</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>List</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>New</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>SaveEdit</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Tab</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>View</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <allowInChatterGroups>false</allowInChatterGroups>
+    <compactLayoutAssignment>SYSTEM</compactLayoutAssignment>
+    <deploymentStatus>Deployed</deploymentStatus>
+    <enableActivities>true</enableActivities>
+    <enableBulkApi>true</enableBulkApi>
+    <enableFeeds>false</enableFeeds>
+    <enableHistory>true</enableHistory>
+    <enableReports>true</enableReports>
+    <enableSearch>true</enableSearch>
+    <enableSharing>true</enableSharing>
+    <enableStreamingApi>true</enableStreamingApi>
+    <fields>
+        <fullName>Account_ID__c</fullName>
+        <externalId>false</externalId>
+        <formula>Account__r.Id</formula>
+        <label>Account ID</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Account_Implementation_Date__c</fullName>
+        <externalId>false</externalId>
+        <formula>Account__r.Implementation_Date__c</formula>
+        <inlineHelpText>Pulled from the related Account. The date of the last full install that was completed.</inlineHelpText>
+        <label>Account Implementation Date</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Date</type>
+    </fields>
+    <fields>
+        <fullName>Account_Location__c</fullName>
+        <externalId>false</externalId>
+        <formula>Account__r.ShippingStreet &amp; BR() &amp;
+Account__r.ShippingCity &amp; &quot;, &quot; &amp; Account__r.ShippingState &amp; &quot;  &quot; &amp; Account__r.ShippingPostalCode &amp; BR() &amp;
+Account__r.ShippingCountry</formula>
+        <inlineHelpText>Formula pulling from the Account&apos;s shipping address.</inlineHelpText>
+        <label>Account Location</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Account_Number__c</fullName>
+        <externalId>false</externalId>
+        <formula>Account__r.AccountNumber</formula>
+        <label>Vin Account Number</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Account_State__c</fullName>
+        <description>Used for views and reports.</description>
+        <externalId>false</externalId>
+        <formula>Account__r.ShippingState</formula>
+        <label>Account State</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Account__c</fullName>
+        <deleteConstraint>SetNull</deleteConstraint>
+        <externalId>false</externalId>
+        <label>Account</label>
+        <referenceTo>Account</referenceTo>
+        <relationshipLabel>Trainings</relationshipLabel>
+        <relationshipName>Trainings</relationshipName>
+        <required>false</required>
+        <trackHistory>true</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Lookup</type>
+    </fields>
+    <fields>
+        <fullName>Airport_Distance__c</fullName>
+        <externalId>false</externalId>
+        <inlineHelpText>in miles</inlineHelpText>
+        <label>Airport Distance</label>
+        <precision>5</precision>
+        <required>false</required>
+        <scale>2</scale>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Number</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Assigned_Trainer__c</fullName>
+        <deleteConstraint>SetNull</deleteConstraint>
+        <externalId>false</externalId>
+        <inlineHelpText>The lead trainer in cases where there is no group lead. Is also the mentor if there are any mentees.</inlineHelpText>
+        <label>Assigned Trainer</label>
+        <referenceTo>User</referenceTo>
+        <relationshipLabel>Trainings</relationshipLabel>
+        <relationshipName>Trainings</relationshipName>
+        <required>false</required>
+        <trackHistory>true</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Lookup</type>
+    </fields>
+    <fields>
+        <fullName>Block_Number__c</fullName>
+        <externalId>false</externalId>
+        <inlineHelpText>Which block of training dates is this, out of the Total Number of Blocks</inlineHelpText>
+        <label>Block Number</label>
+        <precision>2</precision>
+        <required>false</required>
+        <scale>0</scale>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Number</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Blocks_Generated__c</fullName>
+        <defaultValue>false</defaultValue>
+        <externalId>false</externalId>
+        <inlineHelpText>Updated by Flow when blocks are generated from a Parent Shell.</inlineHelpText>
+        <label>Blocks Generated</label>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>Canceled_Date__c</fullName>
+        <externalId>false</externalId>
+        <inlineHelpText>Captures the date this training was canceled</inlineHelpText>
+        <label>Canceled Date</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Date</type>
+    </fields>
+    <fields>
+        <fullName>Cancellation_Fee__c</fullName>
+        <description>cancellation fee field for travel team</description>
+        <externalId>false</externalId>
+        <label>Cancellation Fee</label>
+        <precision>7</precision>
+        <required>false</required>
+        <scale>2</scale>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Currency</type>
+    </fields>
+    <fields>
+        <fullName>Confirmed_Training_End__c</fullName>
+        <description>Background field. Not on page layout, but value is replicated in formula field &apos;Training End&apos;. This forces user to use the &apos;Set Dates&apos; button instead of changing the fields directly.</description>
+        <externalId>false</externalId>
+        <label>Training End BG</label>
+        <required>false</required>
+        <trackHistory>true</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Date</type>
+    </fields>
+    <fields>
+        <fullName>Confirmed_Training_Start__c</fullName>
+        <description>Background field. Not on page layout, but value is replicated in formula field &apos;Training Start&apos;. This forces user to use the &apos;Set Dates&apos; button instead of changing the fields directly.</description>
+        <externalId>false</externalId>
+        <label>Training Start BG</label>
+        <required>false</required>
+        <trackHistory>true</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Date</type>
+    </fields>
+    <fields>
+        <fullName>Conversion_Type__c</fullName>
+        <externalId>false</externalId>
+        <formula>TEXT(Account__r.Conversion_Type__c)</formula>
+        <label>Conversion Type</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Cost_Exception_Notes__c</fullName>
+        <externalId>false</externalId>
+        <inlineHelpText>If you are filling in proposed costs, please note why here.</inlineHelpText>
+        <label>Cost Exception Notes</label>
+        <length>32768</length>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>LongTextArea</type>
+        <visibleLines>3</visibleLines>
+    </fields>
+    <fields>
+        <fullName>Current_Desking_Version__c</fullName>
+        <description>Used by Desking 3.0 UTS training tracking.</description>
+        <externalId>false</externalId>
+        <formula>TEXT(Account__r.Current_Desking_Version__c)</formula>
+        <label>Current Desking Version</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Cut_Off_Date__c</fullName>
+        <externalId>false</externalId>
+        <formula>(Confirmed_Training_Start__c +
+(6 - 
+   MOD(
+      Confirmed_Training_Start__c -DATE(1900,1,6), 
+      7
+      )
+   )
+) -14</formula>
+        <inlineHelpText>refers to the scheduling of training</inlineHelpText>
+        <label>Cut-Off Date</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Date</type>
+    </fields>
+    <fields>
+        <fullName>DMS_System__c</fullName>
+        <externalId>false</externalId>
+        <formula>TEXT(Account__r.DMS_System__c)</formula>
+        <inlineHelpText>Formula pulling from the Account&apos;s DMS System field.</inlineHelpText>
+        <label>DMS System</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Date_Override__c</fullName>
+        <externalId>false</externalId>
+        <inlineHelpText>If this field has anything in it, its month and year will override what goes in the Training Name field.</inlineHelpText>
+        <label>Date Override</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Date</type>
+    </fields>
+    <fields>
+        <fullName>Desking_Version_when_Created__c</fullName>
+        <description>Used by Desking 3.0 Up-to-Speed trainings only.</description>
+        <externalId>false</externalId>
+        <label>Desking Version when Training Created</label>
+        <picklist>
+            <picklistValues>
+                <fullName>Legacy</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>3.0</fullName>
+                <default>false</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Picklist</type>
+    </fields>
+    <fields>
+        <fullName>Follow_Up_Needed__c</fullName>
+        <defaultValue>false</defaultValue>
+        <description>Used for Desking Trainings.</description>
+        <externalId>false</externalId>
+        <inlineHelpText>Check this if the customer needs more training after this one has been completed.</inlineHelpText>
+        <label>Follow-Up Needed</label>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>General_Notes__c</fullName>
+        <externalId>false</externalId>
+        <inlineHelpText>A general use notes field</inlineHelpText>
+        <label>General Notes</label>
+        <length>32768</length>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>LongTextArea</type>
+        <visibleLines>3</visibleLines>
+    </fields>
+    <fields>
+        <fullName>Generated_by_Flow__c</fullName>
+        <defaultValue>false</defaultValue>
+        <description>Set by Flow. Used by Validation Rule to prevent creation of records from scratch.</description>
+        <externalId>false</externalId>
+        <label>Generated by Flow</label>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>Group_Lead_Trainer__c</fullName>
+        <deleteConstraint>SetNull</deleteConstraint>
+        <externalId>false</externalId>
+        <inlineHelpText>In cases where an auto group is being trained, who is the lead in charge of the trip</inlineHelpText>
+        <label>Group Lead Trainer</label>
+        <referenceTo>User</referenceTo>
+        <relationshipName>Trainings4</relationshipName>
+        <required>false</required>
+        <trackHistory>true</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Lookup</type>
+    </fields>
+    <fields>
+        <fullName>Hotel_Distance__c</fullName>
+        <externalId>false</externalId>
+        <inlineHelpText>in miles</inlineHelpText>
+        <label>Hotel Distance</label>
+        <precision>5</precision>
+        <required>false</required>
+        <scale>2</scale>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Number</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Implementation_Manager__c</fullName>
+        <externalId>false</externalId>
+        <formula>Related_Project__r.Owner:User.User_Full_Name__c</formula>
+        <inlineHelpText>Also known as Project Owner!</inlineHelpText>
+        <label>Implementation Consultant</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Implementation_Notes__c</fullName>
+        <externalId>false</externalId>
+        <formula>Related_Opportunity__r.We_Owe__c</formula>
+        <inlineHelpText>Formula pulling from the related opportunity</inlineHelpText>
+        <label>Implementation Notes</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Incidental_Expenses__c</fullName>
+        <defaultValue>100</defaultValue>
+        <externalId>false</externalId>
+        <inlineHelpText>Fixed at $100</inlineHelpText>
+        <label>Incidental Expenses</label>
+        <precision>3</precision>
+        <required>false</required>
+        <scale>0</scale>
+        <trackHistory>true</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Currency</type>
+    </fields>
+    <fields>
+        <fullName>Internet_Access_Present__c</fullName>
+        <externalId>false</externalId>
+        <inlineHelpText>Obtain this information from the dealer</inlineHelpText>
+        <label>Internet Access Present</label>
+        <picklist>
+            <picklistValues>
+                <fullName>No</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Yes</fullName>
+                <default>false</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Picklist</type>
+    </fields>
+    <fields>
+        <fullName>Last_Block_in_Series__c</fullName>
+        <description>Used by Flow to determine if this is the last block in an ongoing series. Also used by reports to show active series that have not been renewed.</description>
+        <externalId>false</externalId>
+        <formula>IF(
+   !ISPICKVAL(Training_Type__c,&quot;Ongoing&quot;),
+   FALSE,
+   IF(
+      Block_Number__c = Total_Number_of_Blocks__c,
+      TRUE,
+      FALSE
+   )
+)</formula>
+        <label>Last Block in Series</label>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>Last_Generated_Block__c</fullName>
+        <defaultValue>false</defaultValue>
+        <externalId>false</externalId>
+        <inlineHelpText>Set by flow, indicates this was the last block generated. To be used by automation.</inlineHelpText>
+        <label>Last Generated Block</label>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>Location__c</fullName>
+        <externalId>false</externalId>
+        <label>Location</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>TextArea</type>
+    </fields>
+    <fields>
+        <fullName>Manuals_Delivered__c</fullName>
+        <externalId>false</externalId>
+        <inlineHelpText>The date that training manuals were delivered to the dealer for this training, if any.</inlineHelpText>
+        <label>Manuals Delivered</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Date</type>
+    </fields>
+    <fields>
+        <fullName>Manuals_Ordered__c</fullName>
+        <externalId>false</externalId>
+        <inlineHelpText>The date that manuals were ordered for this training, if any.</inlineHelpText>
+        <label>Manuals Ordered</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Date</type>
+    </fields>
+    <fields>
+        <fullName>Manuals_Progress__c</fullName>
+        <description>Used by reporting to show status of any pertinent training manuals order on this Training.</description>
+        <externalId>false</externalId>
+        <formula>IF(
+   !ISPICKVAL(Manuals__c,&quot;Yes&quot;),
+   &quot;N/A&quot;,
+   IF(
+      !ISBLANK(Manuals_Ordered__c) &amp;&amp; !ISBLANK(Manuals_Shipped__c) &amp;&amp; !ISBLANK(Manuals_Delivered__c),
+      &quot;Delivered&quot;,
+      IF(
+         !ISBLANK(Manuals_Ordered__c) &amp;&amp; !ISBLANK(Manuals_Shipped__c),
+         &quot;Shipped&quot;,
+         IF(
+            !ISBLANK(Manuals_Ordered__c),
+            &quot;Ordered&quot;,
+            &quot;Not Ordered&quot;
+         )
+      )
+   )
+)</formula>
+        <label>Manuals Progress</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Manuals_Shipped_By__c</fullName>
+        <externalId>false</externalId>
+        <label>Manuals Shipped By</label>
+        <picklist>
+            <picklistValues>
+                <fullName>FedEx</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>UPS</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>USPS</fullName>
+                <default>false</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Picklist</type>
+    </fields>
+    <fields>
+        <fullName>Manuals_Shipped__c</fullName>
+        <externalId>false</externalId>
+        <inlineHelpText>The date that training manuals were shipped for this training, if any.</inlineHelpText>
+        <label>Manuals Shipped</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Date</type>
+    </fields>
+    <fields>
+        <fullName>Manuals_Tracking_Number__c</fullName>
+        <description>The tracking number for the manuals shipment that is going out to the dealer.</description>
+        <externalId>false</externalId>
+        <label>Manuals Tracking Number</label>
+        <length>100</length>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Manuals__c</fullName>
+        <externalId>false</externalId>
+        <label>Manuals</label>
+        <picklist>
+            <picklistValues>
+                <fullName>No</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Yes</fullName>
+                <default>false</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Picklist</type>
+    </fields>
+    <fields>
+        <fullName>Mentee_1__c</fullName>
+        <deleteConstraint>SetNull</deleteConstraint>
+        <externalId>false</externalId>
+        <inlineHelpText>Enter the name of any trainer who is being mentored on this training.</inlineHelpText>
+        <label>Mentee 1</label>
+        <referenceTo>User</referenceTo>
+        <relationshipName>Trainings3</relationshipName>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Lookup</type>
+    </fields>
+    <fields>
+        <fullName>Mentee_2__c</fullName>
+        <deleteConstraint>SetNull</deleteConstraint>
+        <externalId>false</externalId>
+        <inlineHelpText>Enter the name of any trainer who is being mentored on this training.</inlineHelpText>
+        <label>Mentee 2</label>
+        <referenceTo>User</referenceTo>
+        <relationshipName>Trainings5</relationshipName>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Lookup</type>
+    </fields>
+    <fields>
+        <fullName>Mileage_Information__c</fullName>
+        <externalId>false</externalId>
+        <inlineHelpText>Please list all the potential mileages from various point-to-point</inlineHelpText>
+        <label>Mileage Information</label>
+        <length>100</length>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>More_Ongoing_Generated__c</fullName>
+        <defaultValue>false</defaultValue>
+        <description>Set by Flow when more ongoing is generated from this Training set. Used by Reports to determine if an ongoing training set has been renewed.</description>
+        <externalId>false</externalId>
+        <inlineHelpText>Set by Flow when more ongoing is generated from this Training set. Used by Reports to determine if an ongoing training set has been renewed.</inlineHelpText>
+        <label>More Ongoing Generated</label>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>Nearest_Airport__c</fullName>
+        <externalId>false</externalId>
+        <label>Nearest Airport</label>
+        <length>100</length>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Net_Access_Keys_Passwords_IP_Addresses__c</fullName>
+        <externalId>false</externalId>
+        <label>Net Access Keys/Passwords/IP Addresses</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>TextArea</type>
+    </fields>
+    <fields>
+        <fullName>Not_Needed_Confirmed_On__c</fullName>
+        <description>Date dealer told us that they did not require training. Used by Vin</description>
+        <externalId>false</externalId>
+        <inlineHelpText>Set by workflow. do not edit this field. used for reporting only</inlineHelpText>
+        <label>Not Needed Confirmed On</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Date</type>
+    </fields>
+    <fields>
+        <fullName>Number_of_Days_This_Training__c</fullName>
+        <externalId>false</externalId>
+        <inlineHelpText>Applies to this training only. Not for ongoing shells.</inlineHelpText>
+        <label>Number of Days This Training</label>
+        <precision>4</precision>
+        <required>false</required>
+        <scale>2</scale>
+        <trackHistory>true</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Number</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>PM_Email__c</fullName>
+        <description>Set by system workflow.</description>
+        <externalId>false</externalId>
+        <label>PM Email</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Email</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Parent_Training_Shell__c</fullName>
+        <deleteConstraint>SetNull</deleteConstraint>
+        <externalId>false</externalId>
+        <label>Parent Training Shell</label>
+        <referenceTo>Training__c</referenceTo>
+        <relationshipLabel>Trainings</relationshipLabel>
+        <relationshipName>Trainings</relationshipName>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Lookup</type>
+    </fields>
+    <fields>
+        <fullName>Per_Diem__c</fullName>
+        <externalId>false</externalId>
+        <label>Per Diem</label>
+        <precision>6</precision>
+        <required>false</required>
+        <scale>0</scale>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Currency</type>
+    </fields>
+    <fields>
+        <fullName>Performance_Manager__c</fullName>
+        <description>Not in page layouts, but present for reporting and email templates.</description>
+        <externalId>false</externalId>
+        <formula>Account__r.VinPro2__r.User_Full_Name__c</formula>
+        <label>Performance Manager</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Products_to_Be_Discussed__c</fullName>
+        <externalId>false</externalId>
+        <label>Products to Be Discussed</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>TextArea</type>
+    </fields>
+    <fields>
+        <fullName>Project_Recurring_Revenue__c</fullName>
+        <externalId>false</externalId>
+        <formula>Related_Project__r.Project_Value_2__c</formula>
+        <inlineHelpText>Formula pulling from the Related Project&apos;s Project Recurring Revenue field.</inlineHelpText>
+        <label>Project Recurring Revenue</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>2</scale>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Currency</type>
+    </fields>
+    <fields>
+        <fullName>Project_Type__c</fullName>
+        <externalId>false</externalId>
+        <formula>Related_Project__r.Project_Type__c</formula>
+        <inlineHelpText>Pulls from the &apos;Project Type&apos; field on the Related Project.</inlineHelpText>
+        <label>Project Type</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Projector_That_Can_Display_PC_Screen__c</fullName>
+        <externalId>false</externalId>
+        <inlineHelpText>Obtain this information from the dealer</inlineHelpText>
+        <label>Projector That Can Display PC Screen</label>
+        <picklist>
+            <picklistValues>
+                <fullName>No</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Yes</fullName>
+                <default>false</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Picklist</type>
+    </fields>
+    <fields>
+        <fullName>Proposed_Air_Cost__c</fullName>
+        <externalId>false</externalId>
+        <label>Air Cost</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>2</scale>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Currency</type>
+    </fields>
+    <fields>
+        <fullName>Proposed_Hotel_Cost__c</fullName>
+        <externalId>false</externalId>
+        <label>Hotel Cost</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>2</scale>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Currency</type>
+    </fields>
+    <fields>
+        <fullName>Proposed_Rental_Car_Cost__c</fullName>
+        <externalId>false</externalId>
+        <label>Rental Car Cost</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>2</scale>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Currency</type>
+    </fields>
+    <fields>
+        <fullName>Proposed_Transportation_Cost__c</fullName>
+        <externalId>false</externalId>
+        <inlineHelpText>Proposed cost of shuttle/taxi/other transport arrangements for inhouse visits.</inlineHelpText>
+        <label>Transportation Cost</label>
+        <precision>6</precision>
+        <required>false</required>
+        <scale>2</scale>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Currency</type>
+    </fields>
+    <fields>
+        <fullName>Reason_for_Push_Notes__c</fullName>
+        <externalId>false</externalId>
+        <label>Reason for Push Notes</label>
+        <length>32768</length>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>LongTextArea</type>
+        <visibleLines>3</visibleLines>
+    </fields>
+    <fields>
+        <fullName>Reason_for_Push__c</fullName>
+        <externalId>false</externalId>
+        <inlineHelpText>Why a training pushed dates so we can run a report and better address the issues for the dealer.</inlineHelpText>
+        <label>Reason for Push</label>
+        <picklist>
+            <picklistValues>
+                <fullName>Implementation Issues / Setup</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Dealer requested change</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Dealer not ready for training</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Cost</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Other</fullName>
+                <default>false</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Picklist</type>
+    </fields>
+    <fields>
+        <fullName>Recent_Cancellation__c</fullName>
+        <description>Used by Flow to determine if this Training was canceled within the last 7 days.</description>
+        <externalId>false</externalId>
+        <formula>IF(
+   Canceled_Date__c + 7 &gt; TODAY(),
+   TRUE,
+   FALSE
+)</formula>
+        <label>Recent Cancellation</label>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>Recommended_Local_Hotel__c</fullName>
+        <externalId>false</externalId>
+        <inlineHelpText>Ask the dealer</inlineHelpText>
+        <label>Recommended Local Hotel</label>
+        <length>100</length>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Related_Opportunity__c</fullName>
+        <deleteConstraint>SetNull</deleteConstraint>
+        <externalId>false</externalId>
+        <label>Related Opportunity</label>
+        <referenceTo>Opportunity</referenceTo>
+        <relationshipLabel>Trainings</relationshipLabel>
+        <relationshipName>Trainings</relationshipName>
+        <required>false</required>
+        <trackHistory>true</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Lookup</type>
+    </fields>
+    <fields>
+        <fullName>Related_POA__c</fullName>
+        <deleteConstraint>SetNull</deleteConstraint>
+        <externalId>false</externalId>
+        <label>Related POA</label>
+        <referenceTo>POA__c</referenceTo>
+        <relationshipLabel>Trainings</relationshipLabel>
+        <relationshipName>Trainings</relationshipName>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Lookup</type>
+    </fields>
+    <fields>
+        <fullName>Related_Product__c</fullName>
+        <deleteConstraint>SetNull</deleteConstraint>
+        <externalId>false</externalId>
+        <label>Related Product</label>
+        <referenceTo>Product2</referenceTo>
+        <relationshipLabel>Trainings</relationshipLabel>
+        <relationshipName>Trainings</relationshipName>
+        <required>false</required>
+        <trackHistory>true</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Lookup</type>
+    </fields>
+    <fields>
+        <fullName>Related_Project__c</fullName>
+        <deleteConstraint>SetNull</deleteConstraint>
+        <externalId>false</externalId>
+        <label>Related Project</label>
+        <referenceTo>SFDC_520_Quote__c</referenceTo>
+        <relationshipLabel>Trainings</relationshipLabel>
+        <relationshipName>Trainings</relationshipName>
+        <required>false</required>
+        <trackHistory>true</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Lookup</type>
+    </fields>
+    <fields>
+        <fullName>Requested_Combined_Training__c</fullName>
+        <externalId>false</externalId>
+        <inlineHelpText>Did the dealer ask to have more than one rooftop training at once?</inlineHelpText>
+        <label>Requested Combined Training</label>
+        <picklist>
+            <picklistValues>
+                <fullName>No</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Yes</fullName>
+                <default>false</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Picklist</type>
+    </fields>
+    <fields>
+        <fullName>Room_for_10_Students_Plus_Trainers__c</fullName>
+        <externalId>false</externalId>
+        <inlineHelpText>Obtain this information from the dealer</inlineHelpText>
+        <label>Room for 10 Students Plus Trainers?</label>
+        <picklist>
+            <picklistValues>
+                <fullName>No</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Yes</fullName>
+                <default>false</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Picklist</type>
+    </fields>
+    <fields>
+        <fullName>Scheduled_Training_Time__c</fullName>
+        <description>Used by Desking 3.0 UTS training. Just needed a single date/time field instead of multiple date fields.</description>
+        <externalId>false</externalId>
+        <label>Scheduled Training Time</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>DateTime</type>
+    </fields>
+    <fields>
+        <fullName>Screen_or_Wall_for_Projection__c</fullName>
+        <externalId>false</externalId>
+        <inlineHelpText>Obtain this information from the dealer</inlineHelpText>
+        <label>Screen or Wall for Projection</label>
+        <picklist>
+            <picklistValues>
+                <fullName>No</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Yes</fullName>
+                <default>false</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Picklist</type>
+    </fields>
+    <fields>
+        <fullName>Shipping_Contact_Phone__c</fullName>
+        <description>Used by email template for submitting manual orders</description>
+        <externalId>false</externalId>
+        <formula>IF(
+   !ISBLANK(Shipping_Contact__c),
+   Shipping_Contact__r.Phone,
+   Account__r.Phone 
+)</formula>
+        <label>Shipping Contact Phone</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Shipping_Contact__c</fullName>
+        <deleteConstraint>SetNull</deleteConstraint>
+        <externalId>false</externalId>
+        <inlineHelpText>The contact at the dealership or dealer group for coordination of manual shipment/delivery.</inlineHelpText>
+        <label>Shipping Contact</label>
+        <referenceTo>Contact</referenceTo>
+        <relationshipLabel>Trainings (Shipping Contact)</relationshipLabel>
+        <relationshipName>Trainings3</relationshipName>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Lookup</type>
+    </fields>
+    <fields>
+        <fullName>Status__c</fullName>
+        <externalId>false</externalId>
+        <label>Status</label>
+        <picklist>
+            <picklistValues>
+                <fullName>No Dates</fullName>
+                <default>true</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Ongoing</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Proposed Dates</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Confirmed Dates</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Travel Purchased</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Completed</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Canceled</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Not Needed</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Frozen</fullName>
+                <default>false</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <trackHistory>true</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Picklist</type>
+    </fields>
+    <fields>
+        <fullName>Suspected_Reschedule__c</fullName>
+        <defaultValue>false</defaultValue>
+        <externalId>false</externalId>
+        <inlineHelpText>Marked by automation as being suspected of being a reschedule; another training has been canceled within the past 7 days.</inlineHelpText>
+        <label>Suspected Reschedule</label>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>System_Requirement_Notes__c</fullName>
+        <externalId>false</externalId>
+        <label>System Requirement Notes</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>TextArea</type>
+    </fields>
+    <fields>
+        <fullName>Total_Number_of_Blocks__c</fullName>
+        <externalId>false</externalId>
+        <inlineHelpText>How many trips are we taking to the dealer on this ongoing purchase</inlineHelpText>
+        <label>Total Number of Blocks</label>
+        <precision>2</precision>
+        <required>false</required>
+        <scale>0</scale>
+        <trackHistory>true</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Number</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Total_Number_of_Users__c</fullName>
+        <externalId>false</externalId>
+        <inlineHelpText>Enter the # Admins, # Managers, # Salespeople-Breakdown of users for the current install-input by the Implementation Manager-upon input Project Piece for manuals triggered</inlineHelpText>
+        <label>Total Number of Users/Attendees</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>TextArea</type>
+    </fields>
+    <fields>
+        <fullName>Total_Ongoing_Days__c</fullName>
+        <externalId>false</externalId>
+        <inlineHelpText>The number of days that was purchased for Ongoing Training. Shells only.</inlineHelpText>
+        <label>Total Ongoing Days</label>
+        <precision>2</precision>
+        <required>false</required>
+        <scale>0</scale>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Number</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Total_Travel_Cost__c</fullName>
+        <externalId>false</externalId>
+        <formula>IF(
+   RecordType.Name = &quot;Travel&quot;,
+   IF(
+      Proposed_Air_Cost__c=0 &amp;&amp; Proposed_Hotel_Cost__c=0 &amp;&amp; Proposed_Rental_Car_Cost__c=0 &amp;&amp; Per_Diem__c=0,
+      IF(
+         CreatedDate &gt;= DATETIMEVALUE(DATE(2014,2,11)),
+         CASE(Number_of_Days_This_Training__c,
+            1,1099.00,
+            2,1299.00,
+            3,1499.00,
+            4,1599.00,
+            5,1699.00,
+            0),
+         CASE(Number_of_Days_This_Training__c,
+            1,1299.00,
+            2,1499.00,
+            3,1699.00,
+            4,1899.00,
+            0)
+      ),
+      Proposed_Air_Cost__c + Proposed_Hotel_Cost__c + Proposed_Rental_Car_Cost__c + Per_Diem__c + Incidental_Expenses__c
+   ),
+   IF(
+      RecordType.Name = &quot;Inhouse&quot;,
+      Proposed_Hotel_Cost__c + Proposed_Transportation_Cost__c + Incidental_Expenses__c,
+      0
+   )
+)</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>Total Travel Cost</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>2</scale>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Currency</type>
+    </fields>
+    <fields>
+        <fullName>Trainer_2__c</fullName>
+        <deleteConstraint>SetNull</deleteConstraint>
+        <externalId>false</externalId>
+        <label>Trainer 2</label>
+        <referenceTo>User</referenceTo>
+        <relationshipLabel>Trainings (Trainer 2)</relationshipLabel>
+        <relationshipName>Trainings1</relationshipName>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Lookup</type>
+    </fields>
+    <fields>
+        <fullName>Trainer_3__c</fullName>
+        <deleteConstraint>SetNull</deleteConstraint>
+        <externalId>false</externalId>
+        <label>Virtual Trainer</label>
+        <referenceTo>User</referenceTo>
+        <relationshipLabel>Trainings (Trainer 3)</relationshipLabel>
+        <relationshipName>Trainings2</relationshipName>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Lookup</type>
+    </fields>
+    <fields>
+        <fullName>Trainer_Expenses_Submitted__c</fullName>
+        <externalId>false</externalId>
+        <label>Trainer Expenses Submitted</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Date</type>
+    </fields>
+    <fields>
+        <fullName>Training_Completed__c</fullName>
+        <externalId>false</externalId>
+        <inlineHelpText>Trainer must fill this in when the training is completed</inlineHelpText>
+        <label>Training Completed</label>
+        <required>false</required>
+        <trackHistory>true</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Date</type>
+    </fields>
+    <fields>
+        <fullName>Training_Contact__c</fullName>
+        <deleteConstraint>SetNull</deleteConstraint>
+        <externalId>false</externalId>
+        <label>Training Contact</label>
+        <referenceTo>Contact</referenceTo>
+        <relationshipLabel>Trainings</relationshipLabel>
+        <relationshipName>Trainings</relationshipName>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Lookup</type>
+    </fields>
+    <fields>
+        <fullName>Training_Dates_Confirmed__c</fullName>
+        <defaultValue>false</defaultValue>
+        <externalId>false</externalId>
+        <label>Training Dates Confirmed</label>
+        <trackHistory>true</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>Training_End_formula__c</fullName>
+        <externalId>false</externalId>
+        <formula>Confirmed_Training_End__c</formula>
+        <inlineHelpText>Set the value of this field by clicking the &apos;Set Dates&apos; button.</inlineHelpText>
+        <label>Training End</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Date</type>
+    </fields>
+    <fields>
+        <fullName>Training_Expenses_Paid_by_Dealer__c</fullName>
+        <externalId>false</externalId>
+        <label>Travel Expenses Paid by Dealer</label>
+        <picklist>
+            <picklistValues>
+                <fullName>No</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Yes</fullName>
+                <default>false</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <trackHistory>true</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Picklist</type>
+    </fields>
+    <fields>
+        <fullName>Training_Notes_from_Project__c</fullName>
+        <externalId>false</externalId>
+        <formula>Related_Project__r.Training_Notes__c</formula>
+        <inlineHelpText>Formula that updates directly from the Training Notes field on the Related Project.</inlineHelpText>
+        <label>Training Notes from Project</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Training_Push__c</fullName>
+        <defaultValue>false</defaultValue>
+        <description>If training is pushed more than 14 days past due date, the training team will check this box and notate in the notes field.</description>
+        <externalId>false</externalId>
+        <inlineHelpText>Check this is training is pushed more than 14 days past the due date.</inlineHelpText>
+        <label>Training Push</label>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>Training_Questionnaire_Completed_By__c</fullName>
+        <externalId>false</externalId>
+        <inlineHelpText>Updated by ClickTools when new Training Questionnaire is submitted.</inlineHelpText>
+        <label>Training Questionnaire Completed By</label>
+        <length>255</length>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Training_Questionnaire_Link_for_Merging__c</fullName>
+        <description>Used for merge fields. Not on page layouts.</description>
+        <externalId>false</externalId>
+        <formula>&quot;http://www.clicktools.com/survey?iv=skmx6wnumks6&amp;q1=&quot; &amp; Id</formula>
+        <label>Training Questionnaire Link for Merging</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Training_Start_Formula__c</fullName>
+        <externalId>false</externalId>
+        <formula>Confirmed_Training_Start__c</formula>
+        <inlineHelpText>Set the value of this field by clicking the &apos;Set Dates&apos; button.</inlineHelpText>
+        <label>Training Start</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Date</type>
+    </fields>
+    <fields>
+        <fullName>Training_Type__c</fullName>
+        <externalId>false</externalId>
+        <label>Training Type</label>
+        <picklist>
+            <picklistValues>
+                <fullName>Conversion</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Desking - Upgrade</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Desking - Upgrade - Follow up</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Desking - Validation</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>In-House</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Install Follow-Up</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>New Install</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Ongoing</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Requested</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Requested Heat</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Requested Retrain</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Upsell</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Virtual Classroom</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Virtual Consultation</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Workshop</fullName>
+                <default>false</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <trackHistory>true</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Picklist</type>
+    </fields>
+    <fields>
+        <fullName>Travel_Contact__c</fullName>
+        <deleteConstraint>SetNull</deleteConstraint>
+        <externalId>false</externalId>
+        <label>Travel Contact</label>
+        <referenceTo>Contact</referenceTo>
+        <relationshipLabel>Trainings (Travel Contact)</relationshipLabel>
+        <relationshipName>Trainings1</relationshipName>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Lookup</type>
+    </fields>
+    <fields>
+        <fullName>Travel_Expenses_Approved_By__c</fullName>
+        <deleteConstraint>SetNull</deleteConstraint>
+        <externalId>false</externalId>
+        <label>Travel Expenses Approved By</label>
+        <referenceTo>Contact</referenceTo>
+        <relationshipLabel>Trainings (Travel Expenses Approved By)</relationshipLabel>
+        <relationshipName>Trainings2</relationshipName>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Lookup</type>
+    </fields>
+    <fields>
+        <fullName>Travel_Purchased__c</fullName>
+        <externalId>false</externalId>
+        <label>Travel Purchased</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Date</type>
+    </fields>
+    <fields>
+        <fullName>Trusted_Sites_Set__c</fullName>
+        <externalId>false</externalId>
+        <inlineHelpText>Has the dealer enabled all needed sites within their security settings? If not necessary, set to N/A.</inlineHelpText>
+        <label>Trusted Sites Set</label>
+        <picklist>
+            <picklistValues>
+                <fullName>Yes</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>No</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>N/A</fullName>
+                <default>false</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Picklist</type>
+    </fields>
+    <fields>
+        <fullName>Type_of_Internet_Access__c</fullName>
+        <externalId>false</externalId>
+        <label>Type of Internet Access</label>
+        <picklist>
+            <picklistValues>
+                <fullName>Wi-Fi</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Dial-Up</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>DSL/Cable</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>T-1</fullName>
+                <default>false</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Picklist</type>
+    </fields>
+    <fields>
+        <fullName>User_List_Finalized__c</fullName>
+        <defaultValue>false</defaultValue>
+        <externalId>false</externalId>
+        <label>User List Finalized</label>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>Vehicle_Size_Needed__c</fullName>
+        <externalId>false</externalId>
+        <label>Vehicle Size Needed</label>
+        <picklist>
+            <picklistValues>
+                <fullName>Compact</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Economy</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Intermediate</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Full Size</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Standard</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Dealer Will Provide</fullName>
+                <default>false</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Picklist</type>
+    </fields>
+    <fields>
+        <fullName>VinPaid__c</fullName>
+        <externalId>false</externalId>
+        <inlineHelpText>Is this training&apos;s costs being covered by Vin?</inlineHelpText>
+        <label>VinPaid</label>
+        <picklist>
+            <picklistValues>
+                <fullName>No</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Yes</fullName>
+                <default>false</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Picklist</type>
+    </fields>
+    <fields>
+        <fullName>Vin_Account_Status__c</fullName>
+        <externalId>false</externalId>
+        <formula>TEXT(Account__r.Status__c)</formula>
+        <label>Vin Account Status</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Warning__c</fullName>
+        <externalId>false</externalId>
+        <formula>IF(
+   Blocks_Generated__c = TRUE,
+   &quot;&quot;,
+   IMAGE(&quot;/servlet/servlet.FileDownload?file=015700000020F5d&quot;, &quot;blocks not generated&quot;)
+)</formula>
+        <label>Warning</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <label>Training</label>
+    <listViews>
+        <fullName>All</fullName>
+        <columns>NAME</columns>
+        <columns>CREATEDBY_USER</columns>
+        <columns>CREATED_DATE</columns>
+        <filterScope>Everything</filterScope>
+        <filters>
+            <field>CREATED_DATE</field>
+            <operation>equals</operation>
+            <value>LAST_N_DAYS:30</value>
+        </filters>
+        <label>All</label>
+        <language>en_US</language>
+    </listViews>
+    <listViews>
+        <fullName>Created_Today</fullName>
+        <columns>NAME</columns>
+        <columns>Account__c</columns>
+        <columns>RECORDTYPE</columns>
+        <columns>Training_Type__c</columns>
+        <filterScope>Everything</filterScope>
+        <filters>
+            <field>CREATED_DATE</field>
+            <operation>equals</operation>
+            <value>TODAY</value>
+        </filters>
+        <label>Created Today</label>
+    </listViews>
+    <listViews>
+        <fullName>Desking_New_No_Dates</fullName>
+        <columns>NAME</columns>
+        <columns>Account__c</columns>
+        <columns>Account_Number__c</columns>
+        <columns>RECORDTYPE</columns>
+        <columns>Training_Type__c</columns>
+        <columns>Account_State__c</columns>
+        <filterScope>Everything</filterScope>
+        <filters>
+            <field>Status__c</field>
+            <operation>equals</operation>
+            <value>No Dates</value>
+        </filters>
+        <filters>
+            <field>RECORDTYPE</field>
+            <operation>equals</operation>
+            <value>Training__c.Desking_3_0_UTS</value>
+        </filters>
+        <label>Desking: New - No Dates</label>
+    </listViews>
+    <listViews>
+        <fullName>Desking_Scheduled_Confirmed_Dates</fullName>
+        <columns>NAME</columns>
+        <columns>Account__c</columns>
+        <columns>Account_Number__c</columns>
+        <columns>RECORDTYPE</columns>
+        <columns>Training_Type__c</columns>
+        <columns>Status__c</columns>
+        <columns>Assigned_Trainer__c</columns>
+        <columns>Confirmed_Training_Start__c</columns>
+        <columns>Confirmed_Training_End__c</columns>
+        <columns>Account_State__c</columns>
+        <filterScope>Everything</filterScope>
+        <filters>
+            <field>Status__c</field>
+            <operation>equals</operation>
+            <value>Confirmed Dates</value>
+        </filters>
+        <filters>
+            <field>RECORDTYPE</field>
+            <operation>equals</operation>
+            <value>Training__c.Desking_3_0_UTS</value>
+        </filters>
+        <label>Desking: Scheduled - Confirmed Dates</label>
+    </listViews>
+    <listViews>
+        <fullName>Desking_Scheduling_In_Progress</fullName>
+        <columns>NAME</columns>
+        <columns>Account__c</columns>
+        <columns>Account_Number__c</columns>
+        <columns>RECORDTYPE</columns>
+        <columns>Training_Type__c</columns>
+        <columns>Status__c</columns>
+        <columns>Confirmed_Training_Start__c</columns>
+        <columns>Confirmed_Training_End__c</columns>
+        <columns>Account_State__c</columns>
+        <filterScope>Everything</filterScope>
+        <filters>
+            <field>Status__c</field>
+            <operation>equals</operation>
+            <value>Proposed Dates</value>
+        </filters>
+        <filters>
+            <field>RECORDTYPE</field>
+            <operation>equals</operation>
+            <value>Training__c.Desking_3_0_UTS</value>
+        </filters>
+        <label>Desking: Scheduling In Progress</label>
+    </listViews>
+    <listViews>
+        <fullName>New_No_Dates</fullName>
+        <columns>NAME</columns>
+        <columns>Account__c</columns>
+        <columns>Account_Number__c</columns>
+        <columns>RECORDTYPE</columns>
+        <columns>Training_Type__c</columns>
+        <filterScope>Everything</filterScope>
+        <filters>
+            <field>Status__c</field>
+            <operation>equals</operation>
+            <value>No Dates</value>
+        </filters>
+        <filters>
+            <field>RECORDTYPE</field>
+            <operation>notEqual</operation>
+            <value>Training__c.Desking_3_0_UTS</value>
+        </filters>
+        <filters>
+            <field>Account__c</field>
+            <operation>notContain</operation>
+            <value>test dealer,vinsolutions</value>
+        </filters>
+        <label>New - No Dates</label>
+    </listViews>
+    <listViews>
+        <fullName>Recently_Canceled</fullName>
+        <columns>NAME</columns>
+        <columns>Account__c</columns>
+        <columns>Account_Number__c</columns>
+        <columns>Canceled_Date__c</columns>
+        <columns>RECORDTYPE</columns>
+        <columns>Training_Type__c</columns>
+        <filterScope>Everything</filterScope>
+        <filters>
+            <field>Recent_Cancellation__c</field>
+            <operation>equals</operation>
+            <value>1</value>
+        </filters>
+        <label>Recently Canceled</label>
+    </listViews>
+    <listViews>
+        <fullName>Scheduled_Awaiting_Completion</fullName>
+        <columns>NAME</columns>
+        <columns>Account__c</columns>
+        <columns>Account_Number__c</columns>
+        <columns>RECORDTYPE</columns>
+        <columns>Training_Type__c</columns>
+        <columns>Status__c</columns>
+        <columns>Assigned_Trainer__c</columns>
+        <columns>Confirmed_Training_Start__c</columns>
+        <columns>Confirmed_Training_End__c</columns>
+        <filterScope>Everything</filterScope>
+        <filters>
+            <field>Status__c</field>
+            <operation>equals</operation>
+            <value>Travel Purchased</value>
+        </filters>
+        <filters>
+            <field>RECORDTYPE</field>
+            <operation>notEqual</operation>
+            <value>Training__c.Desking_3_0_UTS</value>
+        </filters>
+        <label>Scheduled - Awaiting Completion</label>
+    </listViews>
+    <listViews>
+        <fullName>Scheduling_In_Progress</fullName>
+        <columns>NAME</columns>
+        <columns>Account__c</columns>
+        <columns>Account_Number__c</columns>
+        <columns>RECORDTYPE</columns>
+        <columns>Training_Type__c</columns>
+        <columns>Status__c</columns>
+        <columns>Confirmed_Training_Start__c</columns>
+        <columns>Confirmed_Training_End__c</columns>
+        <filterScope>Everything</filterScope>
+        <filters>
+            <field>Status__c</field>
+            <operation>notEqual</operation>
+            <value>No Dates,Completed,Canceled</value>
+        </filters>
+        <filters>
+            <field>RECORDTYPE</field>
+            <operation>notEqual</operation>
+            <value>Training__c.Desking_3_0_UTS</value>
+        </filters>
+        <filters>
+            <field>Account__c</field>
+            <operation>notContain</operation>
+            <value>test dealer,vinsolutions</value>
+        </filters>
+        <label>Scheduling In Progress</label>
+    </listViews>
+    <nameField>
+        <label>Training Name</label>
+        <trackHistory>false</trackHistory>
+        <type>Text</type>
+    </nameField>
+    <pluralLabel>Trainings</pluralLabel>
+    <recordTypeTrackHistory>true</recordTypeTrackHistory>
+    <recordTypes>
+        <fullName>Desking_3_0_UTS</fullName>
+        <active>true</active>
+        <description>Used only for trainings where we are ensuring our dealers are up-to-speed on Desking 3.0.</description>
+        <label>Desking 3.0 UTS</label>
+        <picklistValues>
+            <picklist>Desking_Version_when_Created__c</picklist>
+            <values>
+                <fullName>3%2E0</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Legacy</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Internet_Access_Present__c</picklist>
+            <values>
+                <fullName>No</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Yes</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Manuals_Shipped_By__c</picklist>
+            <values>
+                <fullName>FedEx</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>UPS</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>USPS</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Manuals__c</picklist>
+            <values>
+                <fullName>No</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Yes</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Projector_That_Can_Display_PC_Screen__c</picklist>
+            <values>
+                <fullName>No</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Yes</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Reason_for_Push__c</picklist>
+            <values>
+                <fullName>Dealer not ready for training</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Dealer requested change</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Other</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Requested_Combined_Training__c</picklist>
+            <values>
+                <fullName>No</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Yes</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Room_for_10_Students_Plus_Trainers__c</picklist>
+            <values>
+                <fullName>No</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Yes</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Screen_or_Wall_for_Projection__c</picklist>
+            <values>
+                <fullName>No</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Yes</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Status__c</picklist>
+            <values>
+                <fullName>Completed</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Confirmed Dates</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Frozen</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>No Dates</fullName>
+                <default>true</default>
+            </values>
+            <values>
+                <fullName>Not Needed</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Proposed Dates</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Training_Expenses_Paid_by_Dealer__c</picklist>
+            <values>
+                <fullName>No</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Yes</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Training_Type__c</picklist>
+            <values>
+                <fullName>Desking - Upgrade</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Desking - Upgrade - Follow up</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Desking - Validation</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>In-House</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Requested Heat</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Requested Retrain</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Virtual Classroom</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Virtual Consultation</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Workshop</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Trusted_Sites_Set__c</picklist>
+            <values>
+                <fullName>N%2FA</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>No</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Yes</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Type_of_Internet_Access__c</picklist>
+            <values>
+                <fullName>DSL%2FCable</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Dial-Up</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>T-1</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Wi-Fi</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Vehicle_Size_Needed__c</picklist>
+            <values>
+                <fullName>Compact</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Dealer Will Provide</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Economy</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Full Size</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Intermediate</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Standard</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>VinPaid__c</picklist>
+            <values>
+                <fullName>No</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Yes</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+    </recordTypes>
+    <recordTypes>
+        <fullName>Inhouse</fullName>
+        <active>true</active>
+        <description>For trainings that are performed here inhouse. The dealer comes to us.</description>
+        <label>Inhouse</label>
+        <picklistValues>
+            <picklist>Desking_Version_when_Created__c</picklist>
+            <values>
+                <fullName>3%2E0</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Legacy</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Internet_Access_Present__c</picklist>
+            <values>
+                <fullName>No</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Yes</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Manuals_Shipped_By__c</picklist>
+            <values>
+                <fullName>FedEx</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>UPS</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>USPS</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Manuals__c</picklist>
+            <values>
+                <fullName>No</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Yes</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Projector_That_Can_Display_PC_Screen__c</picklist>
+            <values>
+                <fullName>No</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Yes</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Reason_for_Push__c</picklist>
+            <values>
+                <fullName>Cost</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Dealer not ready for training</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Dealer requested change</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Implementation Issues %2F Setup</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Other</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Requested_Combined_Training__c</picklist>
+            <values>
+                <fullName>No</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Yes</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Room_for_10_Students_Plus_Trainers__c</picklist>
+            <values>
+                <fullName>No</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Yes</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Screen_or_Wall_for_Projection__c</picklist>
+            <values>
+                <fullName>No</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Yes</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Status__c</picklist>
+            <values>
+                <fullName>Canceled</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Completed</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Confirmed Dates</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Frozen</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>No Dates</fullName>
+                <default>true</default>
+            </values>
+            <values>
+                <fullName>Proposed Dates</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Training_Expenses_Paid_by_Dealer__c</picklist>
+            <values>
+                <fullName>No</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Yes</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Training_Type__c</picklist>
+            <values>
+                <fullName>Conversion</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Desking - Upgrade - Follow up</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>In-House</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Install Follow-Up</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>New Install</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Ongoing</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Requested</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Requested Heat</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Requested Retrain</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Upsell</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Virtual Classroom</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Virtual Consultation</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Workshop</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Trusted_Sites_Set__c</picklist>
+            <values>
+                <fullName>N%2FA</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>No</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Yes</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Type_of_Internet_Access__c</picklist>
+            <values>
+                <fullName>DSL%2FCable</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Dial-Up</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>T-1</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Wi-Fi</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Vehicle_Size_Needed__c</picklist>
+            <values>
+                <fullName>Compact</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Dealer Will Provide</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Economy</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Full Size</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Intermediate</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Standard</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>VinPaid__c</picklist>
+            <values>
+                <fullName>No</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Yes</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+    </recordTypes>
+    <recordTypes>
+        <fullName>Parent_Shell</fullName>
+        <active>true</active>
+        <description>Only used as a parent of a collection of ongoing trainings.</description>
+        <label>Parent Shell</label>
+        <picklistValues>
+            <picklist>Desking_Version_when_Created__c</picklist>
+            <values>
+                <fullName>3%2E0</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Legacy</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Internet_Access_Present__c</picklist>
+            <values>
+                <fullName>No</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Yes</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Manuals_Shipped_By__c</picklist>
+            <values>
+                <fullName>FedEx</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>UPS</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>USPS</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Manuals__c</picklist>
+            <values>
+                <fullName>No</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Yes</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Projector_That_Can_Display_PC_Screen__c</picklist>
+            <values>
+                <fullName>No</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Yes</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Reason_for_Push__c</picklist>
+            <values>
+                <fullName>Cost</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Dealer not ready for training</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Dealer requested change</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Implementation Issues %2F Setup</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Other</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Requested_Combined_Training__c</picklist>
+            <values>
+                <fullName>No</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Yes</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Room_for_10_Students_Plus_Trainers__c</picklist>
+            <values>
+                <fullName>No</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Yes</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Screen_or_Wall_for_Projection__c</picklist>
+            <values>
+                <fullName>No</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Yes</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Status__c</picklist>
+            <values>
+                <fullName>Canceled</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Completed</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Frozen</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Ongoing</fullName>
+                <default>true</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Training_Expenses_Paid_by_Dealer__c</picklist>
+            <values>
+                <fullName>No</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Yes</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Training_Type__c</picklist>
+            <values>
+                <fullName>Desking - Upgrade - Follow up</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>In-House</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Install Follow-Up</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>New Install</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Ongoing</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Requested Heat</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Requested Retrain</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Upsell</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Virtual Classroom</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Virtual Consultation</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Workshop</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Trusted_Sites_Set__c</picklist>
+            <values>
+                <fullName>N%2FA</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>No</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Yes</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Type_of_Internet_Access__c</picklist>
+            <values>
+                <fullName>DSL%2FCable</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Dial-Up</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>T-1</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Wi-Fi</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Vehicle_Size_Needed__c</picklist>
+            <values>
+                <fullName>Compact</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Dealer Will Provide</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Economy</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Full Size</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Intermediate</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Standard</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>VinPaid__c</picklist>
+            <values>
+                <fullName>No</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Yes</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+    </recordTypes>
+    <recordTypes>
+        <fullName>Travel</fullName>
+        <active>true</active>
+        <description>The standard Training type. Encompasses all single trainings that involve travel on our part.</description>
+        <label>Travel</label>
+        <picklistValues>
+            <picklist>Desking_Version_when_Created__c</picklist>
+            <values>
+                <fullName>3%2E0</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Legacy</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Internet_Access_Present__c</picklist>
+            <values>
+                <fullName>No</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Yes</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Manuals_Shipped_By__c</picklist>
+            <values>
+                <fullName>FedEx</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>UPS</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>USPS</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Manuals__c</picklist>
+            <values>
+                <fullName>No</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Yes</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Projector_That_Can_Display_PC_Screen__c</picklist>
+            <values>
+                <fullName>No</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Yes</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Reason_for_Push__c</picklist>
+            <values>
+                <fullName>Cost</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Dealer not ready for training</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Dealer requested change</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Implementation Issues %2F Setup</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Other</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Requested_Combined_Training__c</picklist>
+            <values>
+                <fullName>No</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Yes</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Room_for_10_Students_Plus_Trainers__c</picklist>
+            <values>
+                <fullName>No</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Yes</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Screen_or_Wall_for_Projection__c</picklist>
+            <values>
+                <fullName>No</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Yes</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Status__c</picklist>
+            <values>
+                <fullName>Canceled</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Completed</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Confirmed Dates</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Frozen</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>No Dates</fullName>
+                <default>true</default>
+            </values>
+            <values>
+                <fullName>Proposed Dates</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Travel Purchased</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Training_Expenses_Paid_by_Dealer__c</picklist>
+            <values>
+                <fullName>No</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Yes</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Training_Type__c</picklist>
+            <values>
+                <fullName>Conversion</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Desking - Upgrade - Follow up</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>In-House</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Install Follow-Up</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>New Install</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Ongoing</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Requested</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Requested Heat</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Requested Retrain</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Upsell</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Virtual Classroom</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Virtual Consultation</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Workshop</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Trusted_Sites_Set__c</picklist>
+            <values>
+                <fullName>N%2FA</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>No</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Yes</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Type_of_Internet_Access__c</picklist>
+            <values>
+                <fullName>DSL%2FCable</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Dial-Up</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>T-1</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Wi-Fi</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Vehicle_Size_Needed__c</picklist>
+            <values>
+                <fullName>Compact</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Dealer Will Provide</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Economy</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Full Size</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Intermediate</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Standard</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>VinPaid__c</picklist>
+            <values>
+                <fullName>No</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Yes</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+    </recordTypes>
+    <recordTypes>
+        <fullName>Virtual_Training</fullName>
+        <active>true</active>
+        <description>On-LineTraining type. Encompasses all single trainings in virtual classroom setting.</description>
+        <label>Virtual Training</label>
+        <picklistValues>
+            <picklist>Desking_Version_when_Created__c</picklist>
+            <values>
+                <fullName>3%2E0</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Legacy</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Internet_Access_Present__c</picklist>
+            <values>
+                <fullName>No</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Yes</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Manuals_Shipped_By__c</picklist>
+            <values>
+                <fullName>FedEx</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>UPS</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>USPS</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Manuals__c</picklist>
+            <values>
+                <fullName>No</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Yes</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Projector_That_Can_Display_PC_Screen__c</picklist>
+            <values>
+                <fullName>No</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Yes</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Reason_for_Push__c</picklist>
+            <values>
+                <fullName>Cost</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Dealer not ready for training</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Dealer requested change</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Implementation Issues %2F Setup</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Other</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Requested_Combined_Training__c</picklist>
+            <values>
+                <fullName>No</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Yes</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Room_for_10_Students_Plus_Trainers__c</picklist>
+            <values>
+                <fullName>No</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Yes</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Screen_or_Wall_for_Projection__c</picklist>
+            <values>
+                <fullName>No</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Yes</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Status__c</picklist>
+            <values>
+                <fullName>Canceled</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Completed</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Confirmed Dates</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Frozen</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>No Dates</fullName>
+                <default>true</default>
+            </values>
+            <values>
+                <fullName>Not Needed</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Ongoing</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Proposed Dates</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Travel Purchased</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Training_Expenses_Paid_by_Dealer__c</picklist>
+            <values>
+                <fullName>No</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Yes</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Training_Type__c</picklist>
+            <values>
+                <fullName>Conversion</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Desking - Upgrade</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Desking - Upgrade - Follow up</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Desking - Validation</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>In-House</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Install Follow-Up</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>New Install</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Ongoing</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Requested</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Requested Heat</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Requested Retrain</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Upsell</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Virtual Classroom</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Virtual Consultation</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Workshop</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Trusted_Sites_Set__c</picklist>
+            <values>
+                <fullName>N%2FA</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>No</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Yes</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Type_of_Internet_Access__c</picklist>
+            <values>
+                <fullName>DSL%2FCable</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Dial-Up</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>T-1</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Wi-Fi</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Vehicle_Size_Needed__c</picklist>
+            <values>
+                <fullName>Compact</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Dealer Will Provide</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Economy</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Full Size</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Intermediate</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Standard</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>VinPaid__c</picklist>
+            <values>
+                <fullName>No</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Yes</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+    </recordTypes>
+    <recordTypes>
+        <fullName>Workshop</fullName>
+        <active>true</active>
+        <label>Workshop</label>
+        <picklistValues>
+            <picklist>Desking_Version_when_Created__c</picklist>
+            <values>
+                <fullName>3%2E0</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Legacy</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Internet_Access_Present__c</picklist>
+            <values>
+                <fullName>No</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Yes</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Manuals_Shipped_By__c</picklist>
+            <values>
+                <fullName>FedEx</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>UPS</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>USPS</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Manuals__c</picklist>
+            <values>
+                <fullName>No</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Yes</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Projector_That_Can_Display_PC_Screen__c</picklist>
+            <values>
+                <fullName>No</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Yes</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Reason_for_Push__c</picklist>
+            <values>
+                <fullName>Cost</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Dealer not ready for training</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Dealer requested change</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Implementation Issues %2F Setup</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Other</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Requested_Combined_Training__c</picklist>
+            <values>
+                <fullName>No</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Yes</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Room_for_10_Students_Plus_Trainers__c</picklist>
+            <values>
+                <fullName>No</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Yes</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Screen_or_Wall_for_Projection__c</picklist>
+            <values>
+                <fullName>No</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Yes</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Status__c</picklist>
+            <values>
+                <fullName>Canceled</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Completed</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Confirmed Dates</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Frozen</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>No Dates</fullName>
+                <default>true</default>
+            </values>
+            <values>
+                <fullName>Not Needed</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Ongoing</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Proposed Dates</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Travel Purchased</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Training_Expenses_Paid_by_Dealer__c</picklist>
+            <values>
+                <fullName>No</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Yes</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Training_Type__c</picklist>
+            <values>
+                <fullName>Conversion</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Desking - Upgrade</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Desking - Upgrade - Follow up</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Desking - Validation</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>In-House</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Install Follow-Up</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>New Install</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Ongoing</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Requested</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Requested Heat</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Requested Retrain</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Upsell</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Virtual Classroom</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Virtual Consultation</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Workshop</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Trusted_Sites_Set__c</picklist>
+            <values>
+                <fullName>N%2FA</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>No</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Yes</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Type_of_Internet_Access__c</picklist>
+            <values>
+                <fullName>DSL%2FCable</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Dial-Up</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>T-1</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Wi-Fi</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>Vehicle_Size_Needed__c</picklist>
+            <values>
+                <fullName>Compact</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Dealer Will Provide</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Economy</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Full Size</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Intermediate</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Standard</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
+            <picklist>VinPaid__c</picklist>
+            <values>
+                <fullName>No</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Yes</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+    </recordTypes>
+    <searchLayouts/>
+    <sharingModel>ReadWrite</sharingModel>
+    <validationRules>
+        <fullName>Need_Trainer_to_Complete_Confirm</fullName>
+        <active>true</active>
+        <errorConditionFormula>RecordType.DeveloperName = &quot;Desking_3_0_UTS&quot; &amp;&amp; 
+ISCHANGED(Status__c) &amp;&amp; 
+ISBLANK(Assigned_Trainer__c) &amp;&amp; 
+OR( 
+   ISPICKVAL(Status__c, &quot;Completed&quot;), 
+   ISPICKVAL(Status__c, &quot;Confirmed Dates&quot;)
+) &amp;&amp; 
+$Setup.Master_Switches__c.Validation_Rules__c = TRUE</errorConditionFormula>
+        <errorDisplayField>Assigned_Trainer__c</errorDisplayField>
+        <errorMessage>A Trainer must be assigned before you can confirm or complete a Training.</errorMessage>
+    </validationRules>
+    <validationRules>
+        <fullName>Need_Training_Contact_for_Desking</fullName>
+        <active>true</active>
+        <errorConditionFormula>RecordType.DeveloperName = &quot;Desking_3_0_UTS&quot; &amp;&amp;
+ISCHANGED(Status__c) &amp;&amp;
+ISBLANK(Training_Contact__c) &amp;&amp;
+OR(
+   ISPICKVAL(Status__c, &quot;Completed&quot;),
+   ISPICKVAL(Status__c, &quot;Confirmed Dates&quot;),
+   ISPICKVAL(Status__c, &quot;Not Needed&quot;)
+) &amp;&amp;
+$Setup.Master_Switches__c.Validation_Rules__c = TRUE</errorConditionFormula>
+        <errorDisplayField>Training_Contact__c</errorDisplayField>
+        <errorMessage>A Training Contact is needed before you can change the status on this Training.</errorMessage>
+    </validationRules>
+    <validationRules>
+        <fullName>Require_Travel_Expenses_Paid_by_Dealer</fullName>
+        <active>true</active>
+        <errorConditionFormula>ISBLANK(TEXT(Training_Expenses_Paid_by_Dealer__c)) &amp;&amp;
+Training_Dates_Confirmed__c = TRUE &amp;&amp;
+ISCHANGED(Training_Dates_Confirmed__c) &amp;&amp;
+RecordType.DeveloperName != &quot;Desking_3_0_UTS&quot;</errorConditionFormula>
+        <errorDisplayField>Training_Expenses_Paid_by_Dealer__c</errorDisplayField>
+        <errorMessage>Please confirm if the Travel Expenses will be paid by the dealer or not before proceeding.</errorMessage>
+    </validationRules>
+    <validationRules>
+        <fullName>Restrict_Creation_of_Trainings</fullName>
+        <active>true</active>
+        <errorConditionFormula>ISNEW() &amp;&amp;
+Generated_by_Flow__c = FALSE &amp;&amp;
+!OR( 
+   $User.UserRoleId = &quot;00E70000001GBsB&quot;, /*Senior Business Analyst*/ 
+   $User.UserRoleId = &quot;00E70000001GJu5&quot;, /*CRM Systems Administrator*/ 
+   $User.UserRoleId = &quot;00E70000001GFEU&quot;, /*Customer Service Representative*/ 
+   $User.UserRoleId = &quot;00E70000001GE8B&quot;, /*Salesforce Developer*/ 
+   $User.UserRoleId = &quot;00E70000001HAge&quot;, /*Vin Corporate Trainer*/ 
+   $User.Alias = &quot;cmeek&quot; /*Cindy Meeks*/ 
+   ) &amp;&amp;
+$Setup.Master_Switches__c.Validation_Rules__c = TRUE</errorConditionFormula>
+        <errorMessage>You do not have the ability to create Trainings from scratch.</errorMessage>
+    </validationRules>
+    <validationRules>
+        <fullName>Restrict_Trainer_Fields</fullName>
+        <active>true</active>
+        <errorConditionFormula>(
+ISCHANGED(Group_Lead_Trainer__c) ||
+ISCHANGED(Mentee_1__c) ||
+ISCHANGED(Mentee_2__c) ||
+ISCHANGED(Assigned_Trainer__c) ||
+ISCHANGED(Trainer_2__c) ||
+ISCHANGED(Trainer_3__c)
+) &amp;&amp;
+NOT ( OR( 
+$User.UserRoleId = &quot;00E70000001GBsB&quot;, /*Senior Business Analyst*/ 
+$User.UserRoleId = &quot;00E70000001GJu5&quot;, /*CRM Systems Administrator*/ 
+$User.UserRoleId = &quot;00E70000001GFEU&quot;, /*Customer Service Representative*/ 
+$User.UserRoleId = &quot;00E70000001GE8B&quot;, /*Salesforce Developer*/ 
+$User.UserRoleId = &quot;00E70000001CFeO&quot;, /*Director of Training*/ 
+$UserRole.DeveloperName = &quot;TrainingCoordinator&quot;, /*Vin Training Coordinator*/
+$UserRole.DeveloperName = &quot;VinPro&quot;, /*Vin Performance Manager*/
+$User.Alias = &quot;kjone&quot;, /*Katie Jones*/
+$User.Alias = &quot;leah&quot;, /*Leah Risener*/
+$User.Alias = &quot;sclar&quot;, /*Shelli Clark*/
+$User.Alias = &quot;bbrow&quot; /*Brittney Brownell*/
+))</errorConditionFormula>
+        <errorMessage>You do not have the capability to change the trainers on this Training.</errorMessage>
+    </validationRules>
+    <validationRules>
+        <fullName>Restrict_Training_Type</fullName>
+        <active>false</active>
+        <errorConditionFormula>ISCHANGED(Training_Type__c) &amp;&amp; 
+NOT ( OR( 
+$User.UserRoleId = &quot;00E70000001GBsB&quot;, /*Senior Business Analyst*/ 
+$User.UserRoleId = &quot;00E70000001GJu5&quot;, /*CRM Systems Administrator*/ 
+$User.UserRoleId = &quot;00E70000001GFEU&quot;, /*Customer Service Representative*/ 
+$User.UserRoleId = &quot;00E70000001GE8B&quot;, /*Salesforce Developer*/ 
+$User.UserRoleId = &quot;00E70000001CFeO&quot;, /*Director of Training*/ 
+$User.Id = &quot;00570000001g7fo&quot; /*Greg Becker*/ 
+))</errorConditionFormula>
+        <errorDisplayField>Training_Type__c</errorDisplayField>
+        <errorMessage>You do not have permission to change the Training Type. Please see the Director of Training for assistance.</errorMessage>
+    </validationRules>
+    <webLinks>
+        <fullName>Create_More_Ongoing</fullName>
+        <availability>online</availability>
+        <displayType>button</displayType>
+        <encodingKey>UTF-8</encodingKey>
+        <linkType>url</linkType>
+        <masterLabel>Create More Ongoing</masterLabel>
+        <openType>replace</openType>
+        <protected>false</protected>
+        <url>/flow/Create_Ongoing_Blocks?
+varAccountID={!Training__c.AccountId__c}&amp;
+varOpportunityID={!Training__c.Related_OpportunityId__c}&amp;
+varProjectID={!Training__c.Related_ProjectId__c}&amp;
+varProductID={!Training__c.Related_ProductId__c}&amp;
+varAccessCred={!Training__c.Net_Access_Keys_Passwords_IP_Addresses__c}&amp;
+varAirportDistance={!Training__c.Airport_Distance__c}&amp;
+varHotelDistance={!Training__c.Hotel_Distance__c}&amp;
+varInternetPresent={!Training__c.Internet_Access_Present__c}&amp;
+varInternetType={!Training__c.Type_of_Internet_Access__c}&amp;
+varMileageInformation={!Training__c.Mileage_Information__c}&amp;
+varNearestAirport={!Training__c.Nearest_Airport__c}&amp;
+varProjector={!Training__c.Projector_That_Can_Display_PC_Screen__c}&amp;
+varReccHotel={!Training__c.Recommended_Local_Hotel__c}&amp;
+varRoomFor10={!Training__c.Room_for_10_Students_Plus_Trainers__c}&amp;
+varScreenOrWall={!Training__c.Screen_or_Wall_for_Projection__c}&amp;
+varTrustedSites={!Training__c.Trusted_Sites_Set__c}&amp;
+varTrainingContactID={!Training__c.Training_ContactId__c}&amp;
+varTravelContactID={!Training__c.Travel_ContactId__c}&amp;
+varSourceIndicator=more&amp;
+varLastGenerated={!Training__c.Last_Block_in_Series__c}&amp;
+varSourceTrainingID={!Training__c.Id}&amp;
+varParentTrainingID={!Training__c.Parent_Training_ShellId__c}&amp;
+retURL=/{!Account.Id}</url>
+    </webLinks>
+    <webLinks>
+        <fullName>Create_Ongoing_Blocks</fullName>
+        <availability>online</availability>
+        <description>Used in Training object to create multiple blocks for Ongoing Parent Shells.</description>
+        <displayType>button</displayType>
+        <encodingKey>UTF-8</encodingKey>
+        <linkType>url</linkType>
+        <masterLabel>Create Ongoing Blocks</masterLabel>
+        <openType>replace</openType>
+        <protected>false</protected>
+        <url>/flow/Create_Ongoing_Blocks?varParentTrainingID={!Training__c.Id}&amp;
+varAccountID={!Training__c.AccountId__c}&amp;
+varOpportunityID={!Training__c.Related_OpportunityId__c}&amp;
+varProjectID={!Training__c.Related_ProjectId__c}&amp;
+varProductID={!Training__c.Related_ProductId__c}&amp;
+varAccessCred={!Training__c.Net_Access_Keys_Passwords_IP_Addresses__c}&amp;
+varAirportDistance={!Training__c.Airport_Distance__c}&amp;
+varHotelDistance={!Training__c.Hotel_Distance__c}&amp;
+varInternetPresent={!Training__c.Internet_Access_Present__c}&amp;
+varInternetType={!Training__c.Type_of_Internet_Access__c}&amp;
+varMileageInformation={!Training__c.Mileage_Information__c}&amp;
+varNearestAirport={!Training__c.Nearest_Airport__c}&amp;
+varProjector={!Training__c.Projector_That_Can_Display_PC_Screen__c}&amp;
+varReccHotel={!Training__c.Recommended_Local_Hotel__c}&amp;
+varRoomFor10={!Training__c.Room_for_10_Students_Plus_Trainers__c}&amp;
+varScreenOrWall={!Training__c.Screen_or_Wall_for_Projection__c}&amp;
+varTotalDays={!Training__c.Total_Ongoing_Days__c}&amp;
+varTrustedSites={!Training__c.Trusted_Sites_Set__c}&amp;
+varTrainingContactID={!Training__c.Training_ContactId__c}&amp;
+varTravelContactID={!Training__c.Travel_ContactId__c}&amp;
+varSourceIndicator=new&amp;
+varLastGenerated={!Training__c.Last_Block_in_Series__c}&amp;
+retURL=/{!Training__c.Id}</url>
+    </webLinks>
+    <webLinks>
+        <fullName>Generate_Records</fullName>
+        <availability>online</availability>
+        <displayType>massActionButton</displayType>
+        <encodingKey>UTF-8</encodingKey>
+        <linkType>url</linkType>
+        <masterLabel>Generate Records</masterLabel>
+        <openType>replace</openType>
+        <protected>false</protected>
+        <requireRowSelection>false</requireRowSelection>
+        <url>/flow/Generate_Training_Records?varOppID={!Opportunity.Id}&amp; 
+varAccountID={!Opportunity.AccountId}&amp; 
+varOppType={!Opportunity.Opportunity_Names__c}&amp; 
+retURL=/{!Opportunity.Id}</url>
+    </webLinks>
+    <webLinks>
+        <fullName>Set_Dates</fullName>
+        <availability>online</availability>
+        <displayType>button</displayType>
+        <encodingKey>UTF-8</encodingKey>
+        <linkType>url</linkType>
+        <masterLabel>Set Dates</masterLabel>
+        <openType>replace</openType>
+        <protected>false</protected>
+        <url>/flow/Set_Training_Dates?
+varProjectID={!Training__c.Related_ProjectId__c}&amp;
+varTrainingID={!Training__c.Id}&amp;
+retURL=/{!Training__c.Id}</url>
+    </webLinks>
+    <webLinks>
+        <fullName>Submit_Manuals_Order</fullName>
+        <availability>online</availability>
+        <displayType>button</displayType>
+        <encodingKey>UTF-8</encodingKey>
+        <linkType>url</linkType>
+        <masterLabel>Submit Manuals Order</masterLabel>
+        <openType>replace</openType>
+        <protected>false</protected>
+        <url>/_ui/core/email/author/EmailAuthor
+?p3_lkid={!Training__c.Id}
+&amp;p2_lkid=0037000000mCcRY 
+&amp;template_id=00X70000001SaZf
+&amp;retURL=/{!Training__c.Id}</url>
+    </webLinks>
+    <webLinks>
+        <fullName>Training_Questionnaire_Link</fullName>
+        <availability>online</availability>
+        <displayType>link</displayType>
+        <encodingKey>UTF-8</encodingKey>
+        <hasMenubar>false</hasMenubar>
+        <hasScrollbars>true</hasScrollbars>
+        <hasToolbar>false</hasToolbar>
+        <height>600</height>
+        <isResizable>true</isResizable>
+        <linkType>url</linkType>
+        <masterLabel>Training Questionnaire Link</masterLabel>
+        <openType>newWindow</openType>
+        <position>none</position>
+        <protected>false</protected>
+        <showsLocation>false</showsLocation>
+        <showsStatus>false</showsStatus>
+        <url>http://www.clicktools.com/survey?iv=skmx6wnumks6&amp;q1={!Training__c.Id}</url>
+    </webLinks>
+</CustomObject>

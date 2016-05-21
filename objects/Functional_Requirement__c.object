@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <actionOverrides>
+        <actionName>Accept</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>CancelEdit</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Clone</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Delete</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Edit</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Follow</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>List</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>New</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>SaveEdit</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Tab</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>View</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <allowInChatterGroups>false</allowInChatterGroups>
+    <compactLayoutAssignment>SYSTEM</compactLayoutAssignment>
+    <deploymentStatus>Deployed</deploymentStatus>
+    <description>This object is to record functional requirements related to a Change Request and then will be transferred to stories within Agile Accelerator.</description>
+    <enableActivities>true</enableActivities>
+    <enableBulkApi>true</enableBulkApi>
+    <enableFeeds>false</enableFeeds>
+    <enableHistory>true</enableHistory>
+    <enableReports>true</enableReports>
+    <enableSearch>true</enableSearch>
+    <enableSharing>true</enableSharing>
+    <enableStreamingApi>true</enableStreamingApi>
+    <fields>
+        <fullName>As_a__c</fullName>
+        <description>This filed is no longer used for this object. It has been moved to the Story object on 3/14/2016.
+Used to record who would benefit from a functional requirement.</description>
+        <externalId>false</externalId>
+        <inlineHelpText>Enter the a description of who will benefit from this functional requirement. e.g. User, Sales Manager, Vin Employee, etc.</inlineHelpText>
+        <label>As a</label>
+        <length>80</length>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Category__c</fullName>
+        <description>This field displays the Category from its associated CR.</description>
+        <externalId>false</externalId>
+        <formula>TEXT(Change_Request__r.Category__c)</formula>
+        <label>Category</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Change_Request__c</fullName>
+        <externalId>false</externalId>
+        <label>Change Request</label>
+        <referenceTo>Change_Request__c</referenceTo>
+        <relationshipLabel>Functional Requirements</relationshipLabel>
+        <relationshipName>Functional_Requirements</relationshipName>
+        <relationshipOrder>0</relationshipOrder>
+        <reparentableMasterDetail>false</reparentableMasterDetail>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>MasterDetail</type>
+        <writeRequiresMasterRead>false</writeRequiresMasterRead>
+    </fields>
+    <fields>
+        <fullName>Created_Story__c</fullName>
+        <defaultValue>false</defaultValue>
+        <description>To show that this functional requirement has been made into a story in Agile Accelerator.</description>
+        <externalId>false</externalId>
+        <label>This has been created into a story.</label>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>Functional_Requirement__c</fullName>
+        <externalId>false</externalId>
+        <label>Functional Requirement</label>
+        <length>32768</length>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>LongTextArea</type>
+        <visibleLines>2</visibleLines>
+    </fields>
+    <fields>
+        <fullName>I_need__c</fullName>
+        <description>This filed is no longer used for this object. It has been moved to the Story object on 3/14/2016.
+Used to record what the beneficiary needs from the functional requirement.</description>
+        <externalId>false</externalId>
+        <inlineHelpText>Enter what is needed from this functional requirement. e.g. I need access to Cases.</inlineHelpText>
+        <label>I need a</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>TextArea</type>
+    </fields>
+    <fields>
+        <fullName>Requirement__c</fullName>
+        <description>This filed is no longer used for this object. It has been moved to the Story object on 3/14/2016.</description>
+        <externalId>false</externalId>
+        <formula>&quot;As a &quot; &amp; As_a__c &amp; &quot;, I need a &quot;&amp; I_need__c &amp; &quot;, so that I can &quot; &amp; so_that__c</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>Requirement</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Story__c</fullName>
+        <deleteConstraint>SetNull</deleteConstraint>
+        <description>Used to record the Work number that represents the story that was created in Agile Accelerator.</description>
+        <externalId>false</externalId>
+        <label>Story</label>
+        <referenceTo>agf__ADM_Work__c</referenceTo>
+        <relationshipLabel>Functional Requirements</relationshipLabel>
+        <relationshipName>Functional_Requirements</relationshipName>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Lookup</type>
+    </fields>
+    <fields>
+        <fullName>Sub_Category__c</fullName>
+        <externalId>false</externalId>
+        <formula>Text(Change_Request__r.Sub_Category__c)</formula>
+        <label>Sub Category</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Technical_Requirement__c</fullName>
+        <externalId>false</externalId>
+        <label>Technical Requirement</label>
+        <length>32768</length>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>LongTextArea</type>
+        <visibleLines>2</visibleLines>
+    </fields>
+    <fields>
+        <fullName>User_Approval__c</fullName>
+        <defaultValue>false</defaultValue>
+        <description>To show if the functional requirement has been approved.</description>
+        <externalId>false</externalId>
+        <label>This has been approved by the user.</label>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>so_that__c</fullName>
+        <description>This filed is no longer used for this object. It has been moved to the Story object on 3/14/2016.
+Used to record the benefit of the functional requirement.</description>
+        <externalId>false</externalId>
+        <inlineHelpText>Enter the benefit that this functional requirement will give the beneficiary when completed. e.g. So that I can enter Cases.</inlineHelpText>
+        <label>so that I can</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>TextArea</type>
+    </fields>
+    <label>Functional Requirement</label>
+    <listViews>
+        <fullName>All</fullName>
+        <filterScope>Everything</filterScope>
+        <label>All</label>
+    </listViews>
+    <nameField>
+        <displayFormat>FR{0000}</displayFormat>
+        <label>Functional Requirement Name</label>
+        <trackHistory>false</trackHistory>
+        <type>AutoNumber</type>
+    </nameField>
+    <pluralLabel>Functional Requirements</pluralLabel>
+    <searchLayouts/>
+    <sharingModel>ControlledByParent</sharingModel>
+</CustomObject>

@@ -1,0 +1,45 @@
+<apex:component controller="KnowledgeController">
+	<apex:attribute name="isNextAvailable" type="Boolean" required="true"
+		description="Tells wether the component shows a 'NEXT 10' link. Most of the time, this information comes from the 'hasMore' parameter of 'knowledge:articleList' component." />
+	<apex:attribute name="urlLink" type="String" required="true"
+		description="The URL to reload when the user changes the current page." />
+
+
+	<apex:outputPanel layout="block" style="text-align:right">
+		<apex:outputLink value="{!urlLink}" rendered="{!currentPageNumber>1}">
+            &lt; {!$Label.PKB_Previous10}
+            <apex:param name="{!categoryParameterName}"
+				value="{!currentCategory}" />
+			<apex:param name="{!pageNumberParameterName}"
+				value="{!currentPageNumber-1}" />
+			<apex:param name="{!keywordParameterName}" value="{!currentKeyword}" />
+			<apex:param name="{!articleTypeParameterName}"
+				value="{!currentArticleType}" />
+			<apex:param name="{!articleTypeLabelParameterName}"
+				value="{!currentArticleTypeLabel}" />
+			<apex:param name="{!languageParameterName}"
+				value="{!currentLanguage}" />
+		</apex:outputLink>
+		<apex:outputText value="&lt; {!$Label.PKB_Previous10}"
+			rendered="{!currentPageNumber=1}" escape="false" />
+        |
+        <apex:outputLink value="{!urlLink}"
+			rendered="{!isNextAvailable=true}">
+            {!$Label.PKB_Next10} &gt;
+            <apex:param name="{!categoryParameterName}"
+				value="{!currentCategory}" />
+			<apex:param name="{!pageNumberParameterName}"
+				value="{!currentPageNumber+1 }" />
+			<apex:param name="{!keywordParameterName}" value="{!currentKeyword}" />
+			<apex:param name="{!articleTypeParameterName}"
+				value="{!currentArticleType}" />
+			<apex:param name="{!articleTypeLabelParameterName}"
+				value="{!currentArticleTypeLabel}" />
+			<apex:param name="{!languageParameterName}"
+				value="{!currentLanguage}" />
+		</apex:outputLink>
+		<apex:outputText value="{!$Label.PKB_Next10} &gt;"
+			rendered="{!isNextAvailable=false}" escape="false" />
+	</apex:outputPanel>
+
+</apex:component>

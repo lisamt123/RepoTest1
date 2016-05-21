@@ -1,0 +1,136 @@
+<apex:page controller="WelcomePacketWizard" showHeader="false"
+	cache="false">
+	<head>
+<apex:stylesheet value="{!$Resource.styles}"></apex:stylesheet>
+	</head>
+
+	<script>
+function confirmCancel()
+{
+	var isCancel = confirm("Are you sure you wish to quit?");
+	return isCancel;
+}
+</script>
+
+	<table border="0" width="100%" height="100%" id="bg">
+		<tr valign="top">
+			<td>
+				<div class="maincontainer">
+					<apex:image id="key1" width="100%"
+						value="/resource/1265230873000/Header" />
+
+					<apex:sectionHeader title="VinSolutions Welcome Packet"
+						subtitle="{!if(
+																				!CONTAINS(welcome.Packet_Includes__c, 'CRM')
+																				&&CONTAINS(welcome.Packet_Includes__c, 'ILM')
+																				,'Step 8 of 9', 
+																				
+																			if(
+																				CONTAINS(welcome.Packet_Includes__c, 'CRM')																				
+																				,'Step 10 of 13', 
+																				
+																				''))}" />
+
+					<apex:form >
+						<apex:pageBlock title="UNSOLD (CRM) PROSPECT DATA">
+
+							<table border="0" width="100%" align="center">
+								<tr align="center">
+									<td align="center"><apex:commandButton action="{!step9}"
+											value="Previous Step" /> <apex:commandButton action="{!skipSteps}" value="Next Step" /> <apex:commandButton action="{!cancel}" value="Save & Quit"
+											onclick="return confirmCancel()" immediate="true" /> <apex:commandButton action="{!confirmCRM}" value="Save - To Confirmation Page"
+											rendered="{!if(welcome.Packet_Includes__c!=null&&welcome.ReachedCRMConfirm__c, true, false)}" />
+									</td>
+								</tr>
+							</table>
+
+
+							<apex:pageBlockSection collapsible="false" title="" columns="1">				
+					Prospect data is any data that has been accumulated by a previous ILM/CRM system that is 
+					intended to be uploaded into the VinSolutions™ software. This data needs to be provided 
+					to your VinSolutions Implementation Manager prior to scheduling training. Any delays in 
+					submitting this information to VinSolutions will delay the Implementation as well as the 
+					Training of this system in your dealership.<br />
+								<br />
+
+								<table align="center">
+									<tr>
+										<td>All data files must be in either .csv or Microsoft
+											Excel™ format containing the following fields:<br /> <br />
+
+											<table border="0" align="center">
+												<tr align="center">
+													<td align="center" width=212 colspan=2 border="0"><b>Customer
+															Information</b></td>
+													<td align="center" width=212 colspan=2 border="0"><b>Vehicle
+															Information</b></td>
+													<td align="center" width=212 colspan=2 border="0"><b>Lead
+															Status</b></td>
+													<td align="center" width=212 colspan=2 border="0"><b>Salesperson</b>
+													</td>
+												</tr>
+
+												<tr>
+													<td align="center" width=79></td>
+													<td align="center" width=162 colspan=2><b>Customer
+															Email Address</b></td>
+													<td align="center" width=156 colspan=2 valign=top><b>Lead
+															Source</b></td>
+													<td align="center" width=79 colspan="2"><b>Lead
+															Creation Date</b></td>
+												</tr>
+
+												<![if !supportMisalignedColumns]>
+												<tr height=0>
+													<td width=79 style='border: none'></td>
+													<td width=80 style='border: none'></td>
+													<td width=82 style='border: none'></td>
+													<td width=78 style='border: none'></td>
+													<td width=84 style='border: none'></td>
+													<td width=76 style='border: none'></td>
+													<td width=80 style='border: none'></td>
+													<td width=79 style='border: none'></td>
+												</tr>
+												<![endif]>
+											</table>
+										</td>
+									</tr>
+								</table>
+							</apex:pageBlockSection>
+
+							<apex:pageBlockSection columns="1">
+					Fields containing customer names must be listed in separate fields to allow for a quicker 
+					and easier integration of data. If the file is not in either .csv or Microsoft Excel™ format 
+					containing the previously mentioned fields, data may be either incompatible with or incomplete 
+					in the VinSolutions™ software.<br />
+								<br />
+
+								<b>Orphaned Prospects</b>
+								<br />
+					If any prospects are assigned to a salesperson who is not on the user list, they will need to be 
+					assigned to one. We can assign these prospects to users that you designate. Please list below who 
+					you would choose to assign these orphaned prospects to.	<br />
+								<apex:inputTextArea cols="180" rows="4"
+									value="{!welcome.Orphaned_Prospects__c}" />
+							</apex:pageBlockSection>
+
+							<apex:pageBlockSection collapsible="false" title=""></apex:pageBlockSection>
+
+							<table border="0" width="100%" align="center">
+								<tr align="center">
+									<td align="center"><apex:commandButton action="{!step9}"
+											value="Previous Step" /> <apex:commandButton action="{!skipSteps}" value="Next Step" /> <apex:commandButton action="{!cancel}" value="Save & Quit"
+											onclick="return confirmCancel()" immediate="true" /> <apex:commandButton action="{!confirmCRM}" value="Save - To Confirmation Page"
+											rendered="{!if(welcome.Packet_Includes__c!=null&&welcome.ReachedCRMConfirm__c, true, false)}" />
+									</td>
+								</tr>
+							</table>
+
+						</apex:pageBlock>
+
+					</apex:form>
+				</div>
+			</td>
+		</tr>
+	</table>
+</apex:page>

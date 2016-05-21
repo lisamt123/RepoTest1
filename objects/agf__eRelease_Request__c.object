@@ -1,0 +1,932 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <actionOverrides>
+        <actionName>Accept</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>CancelEdit</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Clone</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Delete</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Edit</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Follow</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>List</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>New</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>SaveEdit</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Tab</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>View</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <allowInChatterGroups>false</allowInChatterGroups>
+    <compactLayoutAssignment>SYSTEM</compactLayoutAssignment>
+    <deploymentStatus>Deployed</deploymentStatus>
+    <deprecated>false</deprecated>
+    <enableActivities>false</enableActivities>
+    <enableBulkApi>true</enableBulkApi>
+    <enableEnhancedLookup>false</enableEnhancedLookup>
+    <enableFeeds>true</enableFeeds>
+    <enableHistory>true</enableHistory>
+    <enableReports>true</enableReports>
+    <enableSearch>true</enableSearch>
+    <enableSharing>true</enableSharing>
+    <enableStreamingApi>true</enableStreamingApi>
+    <fields>
+        <fullName>agf__All_Associated_Customer_Cases_Linked__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <inlineHelpText>Please verify that all associated Customer Cases are linked to the Bug ID specified in this request. If you answer &quot;Yes,&quot; then all known customer cases are linked to the Bug. Otherwise you are expect to have Cases linked to facilitate the request review.</inlineHelpText>
+        <label>All Associated Customer Cases Linked</label>
+        <picklist>
+            <picklistValues>
+                <fullName>No</fullName>
+                <default>true</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Yes</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Not Applicable - No Customer Cases Logged</fullName>
+                <default>false</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Picklist</type>
+    </fields>
+    <fields>
+        <fullName>agf__Application__c</fullName>
+        <deleteConstraint>SetNull</deleteConstraint>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <inlineHelpText>Select the Application record pertinent to this request.</inlineHelpText>
+        <label>Application</label>
+        <referenceTo>agf__ADM_Application__c</referenceTo>
+        <relationshipLabel>eRelease Requests</relationshipLabel>
+        <relationshipName>eRelease_Requests</relationshipName>
+        <required>false</required>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Lookup</type>
+    </fields>
+    <fields>
+        <fullName>agf__Assignees_Verified__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <inlineHelpText>Select &quot;Yes&quot; if the correct Assignee and QA Engineer are specified in the Bug. If you specify &quot;No,&quot; you must ensure that the assignees are correct prior to eRelease approval and deployment.</inlineHelpText>
+        <label>Assignees Verified</label>
+        <picklist>
+            <picklistValues>
+                <fullName>No</fullName>
+                <default>true</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Yes</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Not Applicable</fullName>
+                <default>false</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Picklist</type>
+    </fields>
+    <fields>
+        <fullName>agf__Bug_Assignee__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>Bug Assignee</label>
+        <required>false</required>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Email</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>agf__Bug_ID__c</fullName>
+        <deleteConstraint>SetNull</deleteConstraint>
+        <deprecated>false</deprecated>
+        <description>Lookup from eRelease to Bugs</description>
+        <externalId>false</externalId>
+        <inlineHelpText>Specify the Bug (Work record) that needs to be fixed by the requested eRelease. If there are multiple bugs, file multiple eRelease Requests.</inlineHelpText>
+        <label>Bug ID</label>
+        <referenceTo>agf__ADM_Work__c</referenceTo>
+        <relationshipLabel>eRelease Requests</relationshipLabel>
+        <relationshipName>eRelease_Requests</relationshipName>
+        <required>false</required>
+        <trackFeedHistory>true</trackFeedHistory>
+        <trackHistory>true</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Lookup</type>
+    </fields>
+    <fields>
+        <fullName>agf__Bug_Name__c</fullName>
+        <deprecated>false</deprecated>
+        <description>This field is only used by the email templates used by the eRelease Request trigger for sending notification emails.</description>
+        <externalId>false</externalId>
+        <formula>agf__Bug_ID__r.Name</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>Bug Name</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>agf__Bug_Product_Owner__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>Bug Product Owner</label>
+        <required>false</required>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Email</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>agf__Bug_QE__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>Bug QE</label>
+        <required>false</required>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Email</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>agf__Bug_Subject__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <formula>agf__Bug_ID__r.agf__Subject__c</formula>
+        <label>Bug Subject</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>agf__Checkin_Location__c</fullName>
+        <defaultValue>&quot;The Release Manager will specify the checkin location for the fix and Scheduled Build to use for the checkin.&quot;</defaultValue>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <inlineHelpText>The Release Manager will specify in this field the checkin location for the fix and the Scheduled Build to use for the checkin.</inlineHelpText>
+        <label>Checkin Details</label>
+        <required>false</required>
+        <trackFeedHistory>true</trackFeedHistory>
+        <trackHistory>true</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>TextArea</type>
+    </fields>
+    <fields>
+        <fullName>agf__Customer_Impact__c</fullName>
+        <deprecated>false</deprecated>
+        <description>Describes the customer impact of the eRelease</description>
+        <externalId>false</externalId>
+        <inlineHelpText>Describe the customer impact of the defect driving this request, including the impact that will result based on when and whether this eRelease is deployed.</inlineHelpText>
+        <label>Customer Impact</label>
+        <required>true</required>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>TextArea</type>
+    </fields>
+    <fields>
+        <fullName>agf__Deploy_to_all_Instances__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <inlineHelpText>Select &quot;Yes&quot; if this fix is to be deployed to all instances. Otherwise, select &quot;No&quot; and specify instances that must receive this fix in the &quot;Target Instances&quot; field.</inlineHelpText>
+        <label>Deploy to all Instances?</label>
+        <picklist>
+            <picklistValues>
+                <fullName>Yes - all instances</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>No - specific instances</fullName>
+                <default>false</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Picklist</type>
+    </fields>
+    <fields>
+        <fullName>agf__Deployment_Type__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <inlineHelpText>Please indicate what type of deployment is required for this eRelease.</inlineHelpText>
+        <label>Deployment Type</label>
+        <picklist>
+            <picklistValues>
+                <fullName>CONFIG</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>DOCS (Chatter HTML)</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>DOCS (H&amp;T 2.0)</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>DOCS (PDF)</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>JAVA, PLSQL</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>JSP Pages</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Other</fullName>
+                <default>false</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <trackFeedHistory>true</trackFeedHistory>
+        <trackHistory>true</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>MultiselectPicklist</type>
+        <visibleLines>3</visibleLines>
+    </fields>
+    <fields>
+        <fullName>agf__Do_the_number_of_Cases_meet_criteria__c</fullName>
+        <deprecated>false</deprecated>
+        <description>Evaluates the number of cases associated to the referenced Bug and displays whether it meets eRelease Request criteria.</description>
+        <externalId>false</externalId>
+        <formula>IF( ISPICKVAL(agf__Request_Type__c, &quot;Planned eRelease&quot;), 
+&quot;Number of Cases not part of the Planned eRelease justification criteria.&quot;, 
+IF(ISPICKVAL( agf__Bug_ID__r.agf__Priority__c , &quot;P0&quot;), 
+&quot;Cases are not required for P0 defects&quot;, 
+IF(agf__Bug_ID__r.agf__Number_of_Cases__c = 0, &quot;NO CASES: DOES NOT MEET CRITERIA&quot;, 
+IF(agf__Bug_ID__r.agf__Number_of_Cases__c = 1, &quot;ONE CASE: MAY NOT MEET CRITERIA&quot;, 
+TEXT(agf__Bug_ID__r.agf__Number_of_Cases__c) + &quot; CASES: MEETS CRITERIA&quot;))))</formula>
+        <inlineHelpText>Displays whether the number of Cases associated to the referenced Bug meets the eRelease Request criteria.</inlineHelpText>
+        <label>Do the number of Cases meet criteria?</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>agf__Does_Bug_Priority_meet_criteria__c</fullName>
+        <deprecated>false</deprecated>
+        <description>Evaluates the referenced Bug&apos;s Priority and displays whether it meets eRelease Request criteria.</description>
+        <externalId>false</externalId>
+        <formula>CASE(agf__Request_Type__c , 
+&quot;Planned eRelease&quot;, &quot;Priority is not part of the Planned eRelease justification criteria.&quot;, 
+&quot;Emergency Late Checkin&quot;, 
+IF(ISPICKVAL(agf__Bug_ID__r.agf__Priority__c, &quot;P0&quot;), &quot;P0: MEETS Emergency Late Checkin Criteria&quot;, 
+IF(ISPICKVAL(agf__Bug_ID__r.agf__Priority__c, &quot;P1&quot;), &quot;P1: MAY MEET Emergency Late Checkin criteria if issue has a Sev1 or Sev2 Investigation or Sev3 Red Account Investigation&quot;, 
+TEXT(agf__Bug_ID__r.agf__Priority__c) + &quot;: DOES NOT MEET Emergency Late Checkin criteria&quot;)), 
+&quot;Emergency Release&quot;, 
+IF(ISPICKVAL(agf__Bug_ID__r.agf__Priority__c, &quot;P0&quot;), &quot;P0: MEETS Emergency Release criteria&quot;, 
+IF(ISPICKVAL(agf__Bug_ID__r.agf__Priority__c, &quot;P1&quot;), &quot;P1: MAY MEET Emergency Release criteria if issue has a Sev1 or Sev2 Investigation or Sev3 Red Account Investigation&quot;, 
+TEXT(agf__Bug_ID__r.agf__Priority__c) + &quot;: DOES NOT MEET Emergency Release criteria&quot;)), 
+&quot;Unrecognized Request Type&quot;)</formula>
+        <inlineHelpText>Displays whether the referenced Bug&apos;s Priority meets the eRelease Request criteria.</inlineHelpText>
+        <label>Does Bug Priority meet criteria?</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>agf__Escalate_for_nonstandard_deployment__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <inlineHelpText>Please indicate if this issue is critical enough to warrant discussing an eRelease outside of the standard instance-based release times (GUS, CSx&apos;s and EUx can start at 3PM PST. NAx after 4PM PST. APx is the next day before 11AM PST)</inlineHelpText>
+        <label>Escalate for nonstandard deployment?</label>
+        <picklist>
+            <picklistValues>
+                <fullName>No</fullName>
+                <default>true</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Yes</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Not Applicable</fullName>
+                <default>false</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Picklist</type>
+    </fields>
+    <fields>
+        <fullName>agf__Executive_Override__c</fullName>
+        <defaultValue>false</defaultValue>
+        <deprecated>false</deprecated>
+        <description>Used to denote when an exec overrides the decision of the release team.</description>
+        <externalId>false</externalId>
+        <inlineHelpText>Check this box when the decision of the release team is overridden by executive decision.</inlineHelpText>
+        <label>Executive Override</label>
+        <trackFeedHistory>true</trackFeedHistory>
+        <trackHistory>true</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>agf__Explanation_of_eRelease__c</fullName>
+        <deprecated>false</deprecated>
+        <description>Explanation of the need for an eRelease</description>
+        <externalId>false</externalId>
+        <inlineHelpText>Please explain why this bug must be deployed in an eRelease.  Include sufficient justification (customer impact, defect severity, etc.) for the eRelease Request review panel to make an informed decision.</inlineHelpText>
+        <label>Justification for eRelease Request</label>
+        <required>true</required>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>TextArea</type>
+    </fields>
+    <fields>
+        <fullName>agf__Instance_for_Verification__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <inlineHelpText>If instances that are not the default verification instances must be used to verify this fix, provide instance or instances in this field.</inlineHelpText>
+        <label>Verification Instance</label>
+        <required>false</required>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>TextArea</type>
+    </fields>
+    <fields>
+        <fullName>agf__Known_Fix__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <inlineHelpText>Please indicate whether a fix is known, and readiness for checkin.</inlineHelpText>
+        <label>Fix Known?</label>
+        <picklist>
+            <picklistValues>
+                <fullName>Fix Known - Ready for checkin</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Fix Known - Not ready for checkin</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Fix Unknown - Under research</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Not Applicable</fullName>
+                <default>false</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Picklist</type>
+    </fields>
+    <fields>
+        <fullName>agf__Other_Deployment_Type__c</fullName>
+        <deprecated>false</deprecated>
+        <description>Used when the request for Deployment Type includes &quot;Other.&quot;</description>
+        <externalId>false</externalId>
+        <inlineHelpText>Use this field when the request for Deployment Type includes &quot;Other.&quot;</inlineHelpText>
+        <label>Other Deployment Type</label>
+        <required>false</required>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>TextArea</type>
+    </fields>
+    <fields>
+        <fullName>agf__Other_Notes__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>Other Notes</label>
+        <length>32000</length>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>LongTextArea</type>
+        <visibleLines>5</visibleLines>
+    </fields>
+    <fields>
+        <fullName>agf__Other_Testing__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <inlineHelpText>Please specify testing details if &quot;None Required&quot; or &quot;Other&quot; selected.</inlineHelpText>
+        <label>Testing Notes</label>
+        <required>false</required>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>TextArea</type>
+    </fields>
+    <fields>
+        <fullName>agf__Peripheral_Impacts__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <inlineHelpText>Please explain any other peripheral impacts of this eRelease that may require follow-up.</inlineHelpText>
+        <label>Peripheral Impacts</label>
+        <required>false</required>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>TextArea</type>
+    </fields>
+    <fields>
+        <fullName>agf__QA_Testing_Impact_Understood__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <inlineHelpText>Please indicate if the QA testing impact is understood.  If you specify &quot;Yes,&quot; then the information in the Testing Required and Other Testing fields should be considered correct. If you specify &quot;No,&quot; then you must determine this as soon as possible.</inlineHelpText>
+        <label>QA Testing Impact Understood</label>
+        <picklist>
+            <picklistValues>
+                <fullName>No</fullName>
+                <default>true</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Yes</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Not Applicable</fullName>
+                <default>false</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Picklist</type>
+    </fields>
+    <fields>
+        <fullName>agf__Release_Team_Comments__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <inlineHelpText>Instructions related to the approval or rejection of this request. If more information is needed to evaluate this request, the required information will be specified in this field.</inlineHelpText>
+        <label>Additional Instructions</label>
+        <length>32000</length>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>LongTextArea</type>
+        <visibleLines>3</visibleLines>
+    </fields>
+    <fields>
+        <fullName>agf__Released_In__c</fullName>
+        <deleteConstraint>SetNull</deleteConstraint>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <inlineHelpText>After deployment has been completed, the Release Manager sets this field to the name of the Release where the code related to this request has been delivered.</inlineHelpText>
+        <label>Released In</label>
+        <referenceTo>agf__ADM_Release__c</referenceTo>
+        <relationshipLabel>eRelease Requests</relationshipLabel>
+        <relationshipName>eRelease_Requests</relationshipName>
+        <required>false</required>
+        <trackFeedHistory>true</trackFeedHistory>
+        <trackHistory>true</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Lookup</type>
+    </fields>
+    <fields>
+        <fullName>agf__Request_Type__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <inlineHelpText>Use &quot;Emergency Late Checkin&quot; for checkin requests after release freeze. 
+Use &quot;Planned eRelease&quot; for scheduled eReleases. 
+Use &quot;Emergency Release&quot; in all other cases.</inlineHelpText>
+        <label>Request Type</label>
+        <picklist>
+            <picklistValues>
+                <fullName>Emergency Release</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Emergency Late Checkin</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Planned eRelease</fullName>
+                <default>false</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <trackFeedHistory>true</trackFeedHistory>
+        <trackHistory>true</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Picklist</type>
+    </fields>
+    <fields>
+        <fullName>agf__Requested_Deployment_Date__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>Requested Deployment Date</label>
+        <required>true</required>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Date</type>
+    </fields>
+    <fields>
+        <fullName>agf__Scheduled_Build__c</fullName>
+        <deprecated>false</deprecated>
+        <description>Scheduled Build for the Bug for which the eRelease has been requested</description>
+        <externalId>false</externalId>
+        <formula>agf__Bug_ID__r.agf__Scheduled_Build__r.Name</formula>
+        <inlineHelpText>The Scheduled Build of this Bug</inlineHelpText>
+        <label>Scheduled Build</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>agf__Staging_Instructions__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <inlineHelpText>To be filled out by Release Manager</inlineHelpText>
+        <label>Staging Instructions</label>
+        <length>500</length>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Html</type>
+        <visibleLines>10</visibleLines>
+    </fields>
+    <fields>
+        <fullName>agf__Target_Instances__c</fullName>
+        <defaultValue>&quot;Specify target instances for this fix as a comma-separated list when not all instances are to receive this fix.&quot;</defaultValue>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <inlineHelpText>Specify target instances for this fix as a comma-separated list when not all instances are to receive this fix.</inlineHelpText>
+        <label>Target Instances</label>
+        <required>true</required>
+        <trackFeedHistory>true</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>TextArea</type>
+    </fields>
+    <fields>
+        <fullName>agf__Testing_Required__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <inlineHelpText>Please indicate what type of testing is required for this change.</inlineHelpText>
+        <label>Testing Required</label>
+        <picklist>
+            <picklistValues>
+                <fullName>Basic ftest</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Entity Basic ftest</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Full ftest</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Extended ftest</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Selenium</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>None required</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Other</fullName>
+                <default>false</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <trackFeedHistory>true</trackFeedHistory>
+        <trackHistory>true</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>MultiselectPicklist</type>
+        <visibleLines>3</visibleLines>
+    </fields>
+    <fields>
+        <fullName>agf__Use_Default_Verification_Instance__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <inlineHelpText>Select &quot;Yes&quot; if the default verification instance can be used to verify this fix. Select &quot;No&quot; if a specific instance or instances must be used for verification. You must specify the verification instances when &quot;No&quot; is selected.</inlineHelpText>
+        <label>Use Default Verification Instance?</label>
+        <picklist>
+            <picklistValues>
+                <fullName>Yes</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>No</fullName>
+                <default>false</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Picklist</type>
+    </fields>
+    <fields>
+        <fullName>agf__Who_is_gack_watching__c</fullName>
+        <deleteConstraint>SetNull</deleteConstraint>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <inlineHelpText>Specify who will be watching for gacks (or performing other stability monitoring) in production during the deployment of this fix.</inlineHelpText>
+        <label>Who is gack-watching?</label>
+        <referenceTo>User</referenceTo>
+        <relationshipName>eRelease_Requests1</relationshipName>
+        <required>false</required>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Lookup</type>
+    </fields>
+    <fields>
+        <fullName>agf__Who_is_verifying_fix_in_prod__c</fullName>
+        <deleteConstraint>SetNull</deleteConstraint>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <inlineHelpText>Specify who will be verifying the bug in production following the deployment of this fix.</inlineHelpText>
+        <label>Who is verifying fix in prod?</label>
+        <referenceTo>User</referenceTo>
+        <relationshipName>eRelease_Requests</relationshipName>
+        <required>false</required>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Lookup</type>
+    </fields>
+    <fields>
+        <fullName>agf__Who_is_working_with_ProductOps__c</fullName>
+        <deleteConstraint>SetNull</deleteConstraint>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <inlineHelpText>Who is working with Product Operations on customer communications for this issue?</inlineHelpText>
+        <label>Who is working with ProductOps?</label>
+        <referenceTo>User</referenceTo>
+        <relationshipName>eRelease_Requests2</relationshipName>
+        <required>false</required>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Lookup</type>
+    </fields>
+    <fields>
+        <fullName>agf__eRelease_Status__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <inlineHelpText>NOTE: do not check in fix until this field is set to Approved and the Checkin Details are specified.</inlineHelpText>
+        <label>eRelease Status</label>
+        <picklist>
+            <picklistValues>
+                <fullName>Pending</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Request Withdrawn</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Need More Information</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Rejected</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Approved</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Released</fullName>
+                <default>false</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <trackFeedHistory>true</trackFeedHistory>
+        <trackHistory>true</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Picklist</type>
+    </fields>
+    <label>eRelease Request</label>
+    <listViews>
+        <fullName>agf__All</fullName>
+        <filterScope>Everything</filterScope>
+        <label>All</label>
+    </listViews>
+    <nameField>
+        <displayFormat>ERR-{00000}</displayFormat>
+        <label>eRelease Request ID</label>
+        <trackFeedHistory>true</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <type>AutoNumber</type>
+    </nameField>
+    <pluralLabel>eRelease Requests</pluralLabel>
+    <searchLayouts>
+        <customTabListAdditionalFields>agf__Application__c</customTabListAdditionalFields>
+        <customTabListAdditionalFields>agf__eRelease_Status__c</customTabListAdditionalFields>
+        <customTabListAdditionalFields>agf__Bug_ID__c</customTabListAdditionalFields>
+        <customTabListAdditionalFields>agf__Bug_Subject__c</customTabListAdditionalFields>
+        <customTabListAdditionalFields>agf__Scheduled_Build__c</customTabListAdditionalFields>
+        <customTabListAdditionalFields>agf__Explanation_of_eRelease__c</customTabListAdditionalFields>
+        <searchResultsAdditionalFields>agf__Application__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields>agf__eRelease_Status__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields>agf__Bug_ID__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields>agf__Bug_Subject__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields>agf__Explanation_of_eRelease__c</searchResultsAdditionalFields>
+    </searchLayouts>
+    <sharingModel>ReadWrite</sharingModel>
+    <startsWith>Vowel</startsWith>
+    <validationRules>
+        <fullName>agf__Checkin_Location_Must_Be_Specified</fullName>
+        <active>true</active>
+        <description>When the eRelease Status is set to Approved, the default message must be replaces with checkin location and scheduled build.</description>
+        <errorConditionFormula>AND( ISPICKVAL( agf__eRelease_Status__c , &quot;Approved&quot;), OR( ISBLANK(agf__Checkin_Location__c), 
+BEGINS( agf__Checkin_Location__c , &quot;The Release Manager will specify the checkin location for the fix and Scheduled Build to use for the checkin.&quot;)))</errorConditionFormula>
+        <errorDisplayField>agf__Checkin_Location__c</errorDisplayField>
+        <errorMessage>You must remove the default text in the Checkin Details field and specify the checkin location and scheduled build.</errorMessage>
+    </validationRules>
+    <validationRules>
+        <fullName>agf__Instances_must_be_specified</fullName>
+        <active>true</active>
+        <errorConditionFormula>AND(ISPICKVAL(agf__Use_Default_Verification_Instance__c, &apos;No&apos;), ISBLANK(agf__Instance_for_Verification__c))</errorConditionFormula>
+        <errorDisplayField>agf__Instance_for_Verification__c</errorDisplayField>
+        <errorMessage>Verification instances must be specified when &quot;No&quot; selected for the &quot;Default Verification Instance?&quot; field.</errorMessage>
+    </validationRules>
+    <validationRules>
+        <fullName>agf__Release_required_when_ERR_is_Released</fullName>
+        <active>true</active>
+        <errorConditionFormula>( agf__Released_In__c = NULL)   &amp;&amp;  ISPICKVAL(agf__eRelease_Status__c, &quot;Released&quot;)</errorConditionFormula>
+        <errorDisplayField>agf__Released_In__c</errorDisplayField>
+        <errorMessage>Release must be specified when eRelease Status is &quot;Released&quot;</errorMessage>
+    </validationRules>
+    <validationRules>
+        <fullName>agf__Specify_Target_Instances</fullName>
+        <active>true</active>
+        <errorConditionFormula>AND( ISPICKVAL(agf__Deploy_to_all_Instances__c, &quot;No - specific instances&quot;), 
+OR( ISBLANK(agf__Target_Instances__c), 
+BEGINS(agf__Target_Instances__c, &quot;Specify target instances for this fix as a comma-separated list when not all instances are to receive this fix.&quot;)))</errorConditionFormula>
+        <errorDisplayField>agf__Target_Instances__c</errorDisplayField>
+        <errorMessage>You must specify target instances for this fix as a comma-separated list when not all instances are to receive this fix.</errorMessage>
+    </validationRules>
+    <validationRules>
+        <fullName>agf__Status_must_be_Released_when_Released_In</fullName>
+        <active>true</active>
+        <description>When the Released In field is used, the eRelease Status must be &apos;Released&apos; or &apos;Approved&apos;.</description>
+        <errorConditionFormula>AND(
+  NOT(
+      OR(ISPICKVAL(agf__eRelease_Status__c, &quot;Released&quot;),   
+         ISPICKVAL(agf__eRelease_Status__c, &quot;Approved&quot;))),  
+  NOT(ISBLANK(agf__Released_In__c))
+)</errorConditionFormula>
+        <errorDisplayField>agf__eRelease_Status__c</errorDisplayField>
+        <errorMessage>eRelease Status must be &apos;Released&apos; or &apos;Approved&apos; when Released In is specified. Please clear the Released In field or set the eRelease Status to &apos;Released&apos; or &apos;Approved&apos;.</errorMessage>
+    </validationRules>
+    <validationRules>
+        <fullName>agf__Testing_Notes_required_if_Other_or_None</fullName>
+        <active>true</active>
+        <errorConditionFormula>AND(OR( INCLUDES(agf__Testing_Required__c, &quot;Other&quot;), 
+INCLUDES(agf__Testing_Required__c, &quot;None required&quot;)), 
+OR( ISBLANK( agf__Other_Testing__c ), BEGINS(agf__Other_Testing__c, &apos;Please specify testing details if &quot;None Required&quot; or &quot;Other&quot; selected.&apos;)) )</errorConditionFormula>
+        <errorDisplayField>agf__Other_Testing__c</errorDisplayField>
+        <errorMessage>You must specify testing details if &quot;None Required&quot; or &quot;Other&quot; selected for Testing Required.</errorMessage>
+    </validationRules>
+    <webLinks>
+        <fullName>agf__Defect_Priority_Matrix</fullName>
+        <availability>online</availability>
+        <displayType>link</displayType>
+        <encodingKey>UTF-8</encodingKey>
+        <hasMenubar>false</hasMenubar>
+        <hasScrollbars>true</hasScrollbars>
+        <hasToolbar>false</hasToolbar>
+        <height>600</height>
+        <isResizable>true</isResizable>
+        <linkType>url</linkType>
+        <masterLabel>Defect Priority Matrix</masterLabel>
+        <openType>newWindow</openType>
+        <position>none</position>
+        <protected>false</protected>
+        <showsLocation>false</showsLocation>
+        <showsStatus>false</showsStatus>
+        <url>https://docs.google.com/a/salesforce.com/spreadsheet/ccc?key=0AgN3tCsQZNqYckZFZXpKWXdFRF9PNjE1NXdHQUhIUHc&amp;hl=en#gid=1</url>
+    </webLinks>
+    <webLinks>
+        <fullName>agf__Emergency_Release_Process</fullName>
+        <availability>online</availability>
+        <displayType>link</displayType>
+        <encodingKey>UTF-8</encodingKey>
+        <hasMenubar>false</hasMenubar>
+        <hasScrollbars>true</hasScrollbars>
+        <hasToolbar>false</hasToolbar>
+        <height>600</height>
+        <isResizable>true</isResizable>
+        <linkType>url</linkType>
+        <masterLabel>Emergency Release Process</masterLabel>
+        <openType>newWindow</openType>
+        <position>none</position>
+        <protected>false</protected>
+        <showsLocation>false</showsLocation>
+        <showsStatus>false</showsStatus>
+        <url>https://sites.google.com/a/salesforce.com/release-operations-program-management/Home/release-processes/emergency-release-process</url>
+    </webLinks>
+    <webLinks>
+        <fullName>agf__Guide_to_Investigation_Severity</fullName>
+        <availability>online</availability>
+        <displayType>link</displayType>
+        <encodingKey>UTF-8</encodingKey>
+        <hasMenubar>false</hasMenubar>
+        <hasScrollbars>true</hasScrollbars>
+        <hasToolbar>false</hasToolbar>
+        <height>600</height>
+        <isResizable>true</isResizable>
+        <linkType>url</linkType>
+        <masterLabel>Guide to Investigation Severity</masterLabel>
+        <openType>newWindow</openType>
+        <position>none</position>
+        <protected>false</protected>
+        <showsLocation>false</showsLocation>
+        <showsStatus>false</showsStatus>
+        <url>{!$Site.OriginalUrl}/apex/ADM_InvestigationSeverityExamples</url>
+    </webLinks>
+    <webLinks>
+        <fullName>agf__Set_ERR_Status_To_Released</fullName>
+        <availability>online</availability>
+        <displayType>massActionButton</displayType>
+        <linkType>javascript</linkType>
+        <masterLabel>Set ERR Status To Released</masterLabel>
+        <openType>onClickJavaScript</openType>
+        <protected>false</protected>
+        <requireRowSelection>true</requireRowSelection>
+        <url>{!REQUIRESCRIPT (&quot;/soap/ajax/13.0/connection.js&quot;)} 
+var records = {!GETRECORDIDS($ObjectType.agf__eRelease_Request__c)};
+var newRecords = []; 
+if (records[0] == null) { 
+	alert(&quot;Please select at least one row.&quot;) 
+} else {
+	for (var n=0; n&lt;records.length; n++) {
+		var c = new sforce.SObject(&quot;eRelease_Request__c&quot;); 
+		c.id = records[n]; 
+		c.eRelease_Status__c = &quot;Released&quot;;
+		newRecords.push(c); 
+	} 
+	result = sforce.connection.update(newRecords); 
+	window.location.reload(); 
+}</url>
+    </webLinks>
+</CustomObject>

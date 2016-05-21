@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ApprovalProcess xmlns="http://soap.sforce.com/2006/04/metadata">
+    <active>false</active>
+    <allowRecall>true</allowRecall>
+    <allowedSubmitters>
+        <type>allInternalUsers</type>
+    </allowedSubmitters>
+    <allowedSubmitters>
+        <type>owner</type>
+    </allowedSubmitters>
+    <approvalPageFields>
+        <field>Name</field>
+        <field>Owner</field>
+        <field>Discount_One_Time__c</field>
+        <field>Discount_Subscription__c</field>
+        <field>Monthly_Recurring_Fees__c</field>
+        <field>Floor_Target_Monthly__c</field>
+        <field>Total_Non_Monthly__c</field>
+        <field>Floor_Target_Non_Monthly__c</field>
+    </approvalPageFields>
+    <approvalStep>
+        <allowDelegate>false</allowDelegate>
+        <assignedApprover>
+            <approver>
+                <name>dfavero@vinsolutions.com</name>
+                <type>user</type>
+            </approver>
+            <approver>
+                <name>stephen.keen@vinsolutions.com</name>
+                <type>user</type>
+            </approver>
+            <whenMultipleApprovers>FirstResponse</whenMultipleApprovers>
+        </assignedApprover>
+        <label>Sales Leadership</label>
+        <name>Sales_Leadership</name>
+    </approvalStep>
+    <approvalStep>
+        <allowDelegate>false</allowDelegate>
+        <assignedApprover>
+            <approver>
+                <name>brian.skutta@vinsolutions.com</name>
+                <type>user</type>
+            </approver>
+            <approver>
+                <name>lucas.baerg@vinsolutions.com</name>
+                <type>user</type>
+            </approver>
+            <whenMultipleApprovers>FirstResponse</whenMultipleApprovers>
+        </assignedApprover>
+        <label>Financial Leadership</label>
+        <name>Financial_Leadership</name>
+        <rejectBehavior>
+            <type>RejectRequest</type>
+        </rejectBehavior>
+    </approvalStep>
+    <emailTemplate>Sales1/Opp_Below_Floor_Approval_Requested</emailTemplate>
+    <enableMobileDeviceAccess>false</enableMobileDeviceAccess>
+    <entryCriteria>
+        <formula>(
+   (Monthly_Recurring_Fees__c &lt; Floor_Target_Monthly__c) || 
+   (Total_Non_Monthly__c &lt; Floor_Target_Non_Monthly__c)
+) &amp;&amp;
+Price_Book_Used__c != &quot;Fulfillment&quot;</formula>
+    </entryCriteria>
+    <finalApprovalActions>
+        <action>
+            <name>Discount_Request_Approved</name>
+            <type>Alert</type>
+        </action>
+        <action>
+            <name>Discount_Request_Approved</name>
+            <type>FieldUpdate</type>
+        </action>
+    </finalApprovalActions>
+    <finalApprovalRecordLock>false</finalApprovalRecordLock>
+    <finalRejectionActions>
+        <action>
+            <name>Discount_Request_Denied</name>
+            <type>Alert</type>
+        </action>
+        <action>
+            <name>Discount_Request_Denied</name>
+            <type>FieldUpdate</type>
+        </action>
+    </finalRejectionActions>
+    <finalRejectionRecordLock>false</finalRejectionRecordLock>
+    <initialSubmissionActions>
+        <action>
+            <name>Update_Discount_Approval_Status</name>
+            <type>FieldUpdate</type>
+        </action>
+    </initialSubmissionActions>
+    <label>Discount Restriction Approval Feb14</label>
+    <recordEditability>AdminOrCurrentApprover</recordEditability>
+    <showApprovalHistory>true</showApprovalHistory>
+</ApprovalProcess>

@@ -1,0 +1,309 @@
+<apex:page standardController="DMAPP__DM_Market_View_Report__c" extensions="DMAPP.MarketViewStandardController" >
+
+<script>
+
+	/* 
+	 * Copyright © The TAS Group. All rights reserved.
+	 *  
+	 */    
+
+    var ttg = ttg || {};
+    ttg.am = ttg.am || {};
+
+    ttg.am.marketviewdetaildialog = function(spec) {
+    
+        var api = spec.api,
+            reportid = spec.reportid,
+            config = spec.config,
+            userid = spec.userid,
+            user = spec.user,
+            view = spec.view,
+            opps = null;
+        
+        var working = false;
+        
+        var ajaxSpinnerCnt = 0;
+
+        var currencys = null;
+        var corporateCurrency = null;
+        
+        var getCurrencys = function() {    		
+	   		apilayer.searchCurrencys(function(data) {
+	        	if(data) {
+	                currencys = jQuery.makeArray(data.currencys.currency);
+	                
+					jQuery.each(currencys, function(idx, c) {
+						if ( c.iscorporate ) {
+							corporateCurrency = c.name;
+						}
+					});
+				}
+				else {
+					currencys = [];
+				}	                     
+				
+			}, function() {}, function() {}); 	
+        };
+        
+        var openIntersectionPopup = function(plan, solution, opptype) {
+            view = opptype;
+            
+            //if(!plan && !solution) {
+            //    return;//we need at least one specified ...
+            //}
+            
+            if(working) {
+                return;//ensure only one dialog can appear
+            }
+            
+      			if ( config.multiCurrency && !currencys ) {
+      	            getCurrencys();
+      			}
+
+            var tabs, potentialDiv, currentDiv, wonDiv,
+                dateFormat =  '{!dateFormat}' || 'yy-mm-dd', 
+                jsonDateFormat = 'yy-mm-dd',
+
+            dateFormat = dateFormat.replace(/yyyy/gi, 'yy');
+            working = true;
+  
+            function stopWorking() {
+                working = false;
+            }
+
+            function createTabs() {
+                var tabs = jQuery('<div/>', {id: 'intersectionDialog'}).append(jQuery('<ul/>')
+                                .append(jQuery('<li/>').append(jQuery('<a/>', {href: '#potentialDiv'}).text('Potential')))
+                                .append(jQuery('<li/>').append(jQuery('<a/>', {href: '#currentDiv'}).text('Current')))
+                                .append(jQuery('<li/>').append(jQuery('<a/>', {href: '#closedWonDiv'}).text('Won')))
+                );
+
+                jQuery('#intersectionDialog').parent().addClass('intersectionDialogParent');
+                
+                potentialDiv = createPotentialDiv();
+                currentDiv = createCurrentDiv('current');
+                wonDiv = createCurrentDiv('won');
+                
+                tabs.append(jQuery('<div/>', {id: 'potentialDiv'}).append(potentialDiv.getContainer()))
+                    .append(jQuery('<div/>', {id: 'currentDiv'}).append(currentDiv.getContainer()))
+                    .append(jQuery('<div/>', {id: 'closedWonDiv'}).append(wonDiv.getContainer()));
+                
+                var selectedTab = 0;
+                switch(view) {
+                    case 'current':
+                        selectedTab = 1;
+                        break;
+                    case 'won':
+                        selectedTab = 2;
+                        break;
+                    default: 
+                    break;
+                }
+
+                tabs.tabs({selected: selectedTab, active: selectedTab});
+                
+                return tabs;
+            }
+            
+            function createPotentialDiv() {
+            
+                var potentialDiv = jQuery('<div/>').addClass('tabMainContainer'),
+                    errorMsg = jQuery('<span/>').addClass('potentialOppErrorMsg'),
+                    potentialTable = jQuery('<table/>', { id: 'potentialTable'}).addClass('opportunities'),
+                    metadata;
+                    
+                // IE7 and IE8 hack
+                if(navigator.appVersion.indexOf('MSIE 8.') != -1) {
+                    potentialTable.css('table-layout','fixed');
+                }
+                
+                potentialTable.append(jQuery('<tr/>').append(jQuery('<th/>').text('Owner'))
+                                                     .append(jQuery('<th/>').text('Opportunity Name'))
+                                                     .append(jQuery('<th/>').text('Plan'))
+                                                     //.append(jQuery('<th/>').text('Solution'))
+                                                     .append(jQuery('<th/>').text('Amount').addClass('col_amount'))
+                                                     .append(null)
+                                                     .append(null)
+                                                     .append(null)
+                                     );
+                
+                potentialDiv.append(potentialTable);
+                potentialDiv.on('ttg_disable_all', function() {
+                    jQuery(this).find('button').attr('disabled', 'disabled');
+                });
+                potentialDiv.on('ttg_enable_all', function() {
+                    jQuery(this).find('button').removeAttr('disabled');
+                }); 
+
+                if(opps && opps.potential) {
+                    for(var i = 0; i < opps.potential.length; i++) {
+                        var opportunityRow = jQuery('<tr/>');
+                        potentialTable.append(createOpportunityRow(opps.potential[i]));
+                    }
+                }
+
+                function createOpportunityRow(opp) {
+                
+		                var amountFormattedHtml = jQuery('<td/>').text((opp.amountFormatted || '')).addClass('col_amount');
+		                if ( config.multiCurrency ) {
+		                	amountFormattedHtml = ttg.formatMultiCurrencyAmount(opp.baseAmountFormatted, opp.amountFormatted, opp.isocode, corporateCurrency);
+		                }
+
+                        var opportunityRow = jQuery('<tr/>');
+                        opportunityRow.append(jQuery('<td/>').text(opp.owner))
+                                      .append(jQuery('<td/>').text(opp.name).addClass('col_opp_name'))
+                                      .append(jQuery('<td/>').text(opp.planname))
+                                      //.append(jQuery('<td/>').text(opp.solutionname))
+                                      .append(amountFormattedHtml)
+                                      .append(null)                                      
+                                      .append(null)
+                                      .append(null)
+                        return opportunityRow;              
+                }
+                
+                return { 
+                        getContainer : function() { return potentialDiv; }
+                       };
+            }
+
+            function createCurrentDiv(oppType) {
+            
+                var currentDiv = jQuery('<div/>').addClass('tabMainContainer');
+    
+                var currentTable = jQuery('<table/>', {id: oppType + 'Table'}).addClass('opportunities');
+                currentTable.append(jQuery('<tr/>').append(jQuery('<th/>').text('Owner'))
+                                                   .append(jQuery('<th/>').text('Opportunity Name'))
+                                                   .append(jQuery('<th/>').text('Plan'))
+                                                   //.append(jQuery('<th/>').text('Solution'))
+                                                   .append(jQuery('<th/>').text('Solution Amount').addClass('col_amount'))
+                                                   .append(jQuery('<th/>').text('Total').addClass('col_amount'))
+                                                   .append(jQuery('<th/>').text('Stage'))
+                                                   .append(jQuery('<th/>').text('Close'))
+                                                   .append(jQuery('<th/>').text('%'))
+                                                   .append(null)
+                                     );
+                
+                currentDiv.append(currentTable);
+
+                if(opps && opps[oppType]) {
+                    for(var i = 0; i < opps[oppType].length; i++) {
+                        var opportunityRow = jQuery('<tr/>');
+                        currentTable.append(createOpportunityRow(opps[oppType][i]));
+                    }
+                }
+                
+                 function createOpportunityRow(opp) {
+                        var linkid = opp.lineItemId ? opp.lineItemId : opp.opportunityId; 
+                
+		                var amountFormattedHtml = jQuery('<td/>').text((opp.amountFormatted || '')).addClass('col_amount');
+		                var solutionAmountFormattedHtml = jQuery('<td/>').text((opp.solutionAmountFormatted || '')).addClass('col_amount');
+		                
+		                if ( config.multiCurrency ) {
+		                
+		                	amountFormattedHtml = ttg.formatMultiCurrencyAmount(opp.baseAmountFormatted, opp.amountFormatted, opp.isocode, corporateCurrency);
+		                	solutionAmountFormattedHtml = ttg.formatMultiCurrencyAmount(opp.baseSolutionAmountFormatted, opp.solutionAmountFormatted, opp.isocode, corporateCurrency);
+		                }
+
+
+                        var opportunityRow = jQuery('<tr/>');
+                          opportunityRow.append(jQuery('<td/>').text(opp.owner))
+                                      .append(jQuery('<td/>').append(
+                                      	jQuery('<a/>', {
+                                      		href: '/' + linkid
+                                      	}).text(opp.name)).addClass('col_opp_name'))
+                                      .append(jQuery('<td/>').text(opp.planname))
+                                      //.append(jQuery('<td/>').text(opp.solutionname))
+                                      .append(solutionAmountFormattedHtml)
+                                      .append(amountFormattedHtml)
+                                      .append(jQuery('<td/>').text((opp.stageName || '')))
+                                      .append(jQuery('<td/>').text(jQuery.datepicker.formatDate(dateFormat,new Date(opp.closeDate))))                                                                     
+                                      .append(jQuery('<td/>').text(opp.probability))
+                                      .append(null);
+                        return opportunityRow;              
+                }
+                
+                return { 
+                    getContainer : function() { return currentDiv; }
+                };
+            }
+
+            function showAjaxSpinner(show) {
+                var spinner = jQuery('#dialogSpinner').css({ position: 'absolute', 'z-index': 10000});
+                if (show) { 
+                    ajaxSpinnerCnt++;
+                    if (ajaxSpinnerCnt == 1) {
+                        spinner.append(jQuery('<img>').attr('id', 'tas_ajax_spinner').addClass('spinner').attr('src', '{!JSENCODE(URLFOR($Resource.ttgomjs, '/ttg/graph/images/loader.gif'))}'));
+                        spinner.css("top", ( jQuery(window).height() - jQuery('#dialogSpinner').height() ) / 2+jQuery(window).scrollTop() + "px");
+                        spinner.css("left", ( jQuery(window).width() - jQuery('#dialogSpinner').width() ) / 2+jQuery(window).scrollLeft() + "px");
+                    }                   
+                }
+                else {
+                    ajaxSpinnerCnt--;
+                    if (ajaxSpinnerCnt <= 0) {                  
+                        jQuery('#dialogSpinner').html('');
+                        ajaxSpinnerCnt = 0;
+                    }
+                }
+            }               
+            
+            function openActualDialog() {
+                var dialog = jQuery('<div/>', {id: 'intersectionDialog'});
+				        var hiddenOppsMsg = jQuery('<span/>', {id: 'hiddenOppsErrorMsg'}).text('You do not have access to all the opportunities for this plan/solution');
+                dialog.dialog({
+                    buttons     : 
+                    [ 
+                        {
+                            text: 'Close', click: function() { jQuery(this).dialog('close'); } 
+                        } 
+                    ],
+                    modal: true,
+                    resizable: false,
+                    width: 720,
+                    height: 'auto',
+                    autoOpen: false,
+                    title: jQuery('<pre/>')
+                               .text('Market View Details - Plan: ' + (plan && plan.name ? plan.name : 'All') + ' ~ Solution: ' + (solution && solution.name ? solution.name : 'All'))
+                               .html() ,
+                    close: function() {
+                        dialog.remove();
+                    },
+                    open: function() {
+                       stopWorking();
+                       jQuery('span.ui-dialog-title').focus();
+                    }                    
+                });
+                dialog.prepend(hiddenOppsMsg);
+                
+                //expect as opps = { current: [], won: [], potential: [] }
+                showAjaxSpinner(true);
+                apilayer.getMarketViewDetail(
+                    reportid, 
+                    solution ? solution.id : null, 
+                    plan ? plan.id : null, 
+                    function(data) 
+                    {
+                        opps = data;
+                        tabs = createTabs();
+		                dialog.append(tabs);
+		                dialog.dialog('open');
+                        if(data.hiddenOpps) {
+                        	jQuery('#hiddenOppsErrorMsg').show().css('display', 'inline-block');
+                        }
+                        else {
+                        	jQuery('#hiddenOppsErrorMsg').hide();
+                        }		                
+                    }, 
+                    function() {}, 
+                    function() { showAjaxSpinner(false); }
+                );
+            }
+            
+            openActualDialog();
+        };
+
+        return { openIntersectionPopup: openIntersectionPopup };
+    }
+
+</script>
+
+</apex:page>

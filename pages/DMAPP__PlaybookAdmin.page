@@ -1,0 +1,445 @@
+<apex:page controller="DMAPP.PlaybookAdminController" extensions="DMAPP.BrandOverrideController" 
+	sidebar="false"
+	tabStyle="Playbook_Admin__tab"
+    docType="html-5.0"
+    >
+
+<style>
+	@import url("{!URLFOR($Resource.TAM,         'css/common.css')}");
+
+    div#smartAM {
+        border: 1px solid #CCCCCC;
+        /**
+        border-top-color: #096;
+        border-top-left-radius: 4px;
+        border-top-right-radius: 4px;
+        border-top-width: 3px;
+        **/
+        border-radius: 8px;
+        -moz-border-radius: 8px;
+        -webkit-border-radius: 8px;
+        cursor: default;
+        padding: 49px 14px 9px;
+        position:relative;
+    }
+    
+    div#smartAM table {
+        width:100%; 
+    }
+    div#smartAMBranding {
+        clear: both;
+        background: url('{!URLFOR($Resource.Common, 'panel/images/bg_pad_header.png')}') left bottom repeat-x;
+        position:absolute;
+        width:100%;
+        display:block;
+        left:0px;
+        top:0px;
+        border-radius:8px 8px 0px 0px;
+        -moz-border-radius:8px 8px 0px 0px;
+        -webkit-border-radius:8px 8px 0px 0px;
+    }
+    
+    div#smartAMBrandingLeft {
+        float: left;
+    }
+    
+    div#smartAMBrandingLeft span {
+        float: right;
+        margin-left: 10px;
+        font-size:1.4em;
+        line-height:30px;
+    }
+    div#smartAMBrandingLeft div strong {
+        display: block;
+    }
+    div#smartAMBrandingRight {
+        float: right;
+        margin-left: 30px;
+    }
+    
+    div#smartAMBrandingRight img {
+        margin-right: 10px;
+    }
+    
+    body .apexp .bPageBlock.apexDefaultPageBlock div.pbHeader {
+        display: none;
+    }
+    
+    .apexp .bPageBlock.apexDefaultPageBlock div.pbBody {
+        margin: 0 !important;
+    }
+    
+    body .individualPalette div.secondaryPalette.bPageBlock {
+        border-top-color: #EAEAEA;
+        border-top-width: 1px;
+    }
+
+    body .bPageBlock .pbBody td.data2Col {
+        padding: 5px;
+    }
+    
+    .inactiveCell, a.inactiveCell, a.inactiveCell span {
+        color: #999999;
+    }
+    
+    th.headerCell, body .pbBody table.list tr.headerRow td, body .pbBody table.list tr.headerRow th.headerCell {
+        background-image: url('{!URLFOR($Resource.TAM, 'images/bg_table_header.jpg')}'); 
+        color: #FFFFFF;
+        padding-right: 5px;
+    }
+    
+    .headerLeft {
+        border-radius: 4px 0px 0px 0px;
+    }
+    
+    .headerRight {
+        border-radius: 0px 4px 0px 0px;
+    }
+    
+    th.headerCell a, th.headerCell, body .pbBody table.list tr.headerRow td, body .pbBody table.list tr.headerRow th.headerCell a {
+        color: #FFFFFF;
+    }  
+      
+    .settingsCell, body .pbBody table.list tr.dataRow th, body .pbBody table.list tr.dataRow td.settingsCell {
+        padding-left: 10px;
+    }    
+    
+    div.smartOMMainHelpLink {
+        float:right;    
+        margin-right: 5px;
+    }
+    
+    div.smartOMMainHelpLink a {
+        float:left;
+        display:block;
+        background: url('{!URLFOR($Resource.SmartOM, 'tabs/icon_help.png')}') left center no-repeat;
+        padding: 1px 0 0 20px;
+        text-decoration:none;
+        color:#405773;
+        cursor: pointer; 
+    }           
+
+
+</style>
+
+<script language="JavaScript">
+	function gotoGeniusNewProcess() {
+		window.parent.location.href="/apex/GeniusWelcome";
+	}
+</script>
+
+    <apex:include pageName="DMAPP__OpportunityMapConfiguration" />
+    <apex:includeScript value="{! URLFOR($Resource.prefix) }" />
+    
+    <c:jQuery jQueryUI="true"
+    	touchPunch="true" 
+    	paging="true" />
+    
+    <apex:includeScript value="{! URLFOR($Resource.ftk, 'forcetk.js') }" />
+	<apex:include pageName="DMAPP__CRUD" />
+    <apex:include pageName="DMAPP__APIDelegate" />
+     
+    <apex:form > 
+
+
+
+
+        <apex:actionFunction name="filterPage" action="{!filter}" />
+        <apex:actionFunction name="filterMore" action="{!more}" />
+        <apex:actionFunction name="filterLess" action="{!less}" />
+        <apex:inputText value="{!salesProcessStartsWith}" id="startWith" styleClass="hidden startsWith" />
+ 
+
+        <div id="smartAM">  
+        
+            <div id="AM_table_container">
+                
+                <apex:outputPanel layout="block" rendered="{!isLicensedForPlaybook}">
+					<div style="clear:both;">
+						<div id='accountPlansMainHelp' class="smartOMMainHelpLink">
+			                <a id="TASHELPLINK" onclick="javascript: ttg_accountPlan.showHelp();">Help</a>
+			            </div> 
+		            </div> 
+                    <table>
+                        <tr>
+                            <td>
+                                <div class="rolodex">
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                        	<td colspan="5" style="text-align: center;">
+                        		<input class="btn" type="button" id="NEWSALESPROCESS" value="New Playbook" onclick="gotoGeniusNewProcess();"/>
+                        	</td>
+                        </tr>
+                    </table>
+                </apex:outputPanel>
+        
+                <apex:outputText value="Current user has no license for Playbook module" styleClass="noLicenseText" rendered="{!NOT(isLicensedForPlaybook)}"/>
+                <apex:pageBlock title="" rendered="{!isLicensedForPlaybook}">
+            
+
+                    <apex:pageBlockSection columns="1">
+        
+                        <apex:pageBlockTable value="{!salesProcesses}" var="salesProcess" id="salesProcessTable">
+                            
+                            <apex:column headerClass="headerCell headerLeft">
+                                <apex:facet name="header">
+                                    <apex:commandLink value="Default" action="{!doSort}">
+                                        <apex:param name="sortField" value="DefaultProcess" assignTo="{!sortField}"/>
+                                        <img title="Sorted Ascending" class="hidden tabDefaultProcess sortAsc" alt="Sorted Ascending" src="/s.gif" />
+                                        <img title="Sorted Descending" class="hidden tabDefaultProcess sortDesc" alt="Sorted Descending" src="/s.gif" />
+                                    </apex:commandLink> 
+                                </apex:facet>
+                                <apex:image value="/img/checkbox_{!IF(salesProcess.DefaultProcess,'checked', 'unchecked')}.gif" />
+                                <!--  <apex:inputCheckbox value="{!salesProcess.DefaultProcess}" disabled="true"/> -->
+                            </apex:column>  
+                                                        
+                            <apex:column headerClass="headerCell headerLeft">
+                                <apex:facet name="header">
+                                    <apex:commandLink value="Sales Process Playbook" action="{!doSort}">
+                                        <apex:param name="sortField" value="Name" assignTo="{!sortField}"/>
+                                        <img title="Sorted Ascending" class="hidden tabName sortAsc" alt="Sorted Ascending" src="/s.gif" />
+                                        <img title="Sorted Descending" class="hidden tabName sortDesc" alt="Sorted Descending" src="/s.gif" />
+                                    </apex:commandLink>
+                                </apex:facet>
+                                <apex:outputLink value="/apex/PlaybookQualifierAdmin?id={!salesProcess.Id}" target="_top">
+                                    <apex:outputText value="{!salesProcess.Name}"/>
+                                </apex:outputLink>
+                            </apex:column>         
+                            
+                            <apex:column headerClass="headerCell headerLeft">
+                                <apex:facet name="header">
+										Description
+                                </apex:facet>
+                                <apex:outputText value="{!salesProcess.Description}"/>&nbsp;                        
+                            </apex:column>        
+                            
+                            <apex:column headerClass="headerCell headerLeft">
+                                <apex:facet name="header">
+                                    <apex:commandLink value="Days In Sales Cycle" action="{!doSort}">
+                                        <apex:param name="sortField" value="TotalSalesCycleDuration" assignTo="{!sortField}"/>
+                                        <img title="Sorted Ascending" class="hidden tabTotalSalesCycleDuration sortAsc" alt="Sorted Ascending" src="/s.gif" />
+                                        <img title="Sorted Descending" class="hidden tabTotalSalesCycleDuration sortDesc" alt="Sorted Descending" src="/s.gif" />
+                                    </apex:commandLink>
+                                </apex:facet>
+                                <apex:outputText value="{0, number, ###,###,##0}"><apex:param value="{!salesProcess.TotalSalesCycleDuration}" /></apex:outputText>
+                          	</apex:column>                                                         
+                            
+                            <!-- 
+                            <apex:column headerClass="headerCell headerLeft">
+                                <apex:facet name="header">
+                                    <apex:commandLink value="Closure Duration" action="{!doSort}">
+                                        <apex:param name="sortField" value="ClosureDuration" assignTo="{!sortField}"/>
+                                        <img title="Sorted Ascending" class="hidden tabClosureDuration sortAsc" alt="Sorted Ascending" src="/s.gif" />
+                                        <img title="Sorted Descending" class="hidden tabClosureDuration sortDesc" alt="Sorted Descending" src="/s.gif" />
+                                    </apex:commandLink>
+                                </apex:facet>
+                                <apex:outputText value="{!salesProcess.ClosureDuration}"/>
+                          	</apex:column>                
+                            
+                            <apex:column headerClass="headerCell headerLeft">
+                                <apex:facet name="header">
+                                    <apex:commandLink value="Final Stage Probability" action="{!doSort}">
+                                        <apex:param name="sortField" value="FinalStageProbability" assignTo="{!sortField}"/>
+                                        <img title="Sorted Ascending" class="hidden tabFinalStageProbability sortAsc" alt="Sorted Ascending" src="/s.gif" />
+                                        <img title="Sorted Descending" class="hidden tabFinalStageProbability sortDesc" alt="Sorted Descending" src="/s.gif" />
+                                    </apex:commandLink>
+                                </apex:facet>
+                                <apex:outputText value="{!salesProcess.FinalStageProbability}"/>
+                            </apex:column>    
+                             -->
+                            
+                            <apex:column headerClass="headerCell headerLeft">
+                                <apex:facet name="header">
+                                    <apex:commandLink value="Number Of Stages" action="{!doSort}">
+                                        <apex:param name="sortField" value="NumberOfStages" assignTo="{!sortField}"/>
+                                        <img title="Sorted Ascending" class="hidden tabNumberOfStages sortAsc" alt="Sorted Ascending" src="/s.gif" />
+                                        <img title="Sorted Descending" class="hidden tabNumberOfStages sortDesc" alt="Sorted Descending" src="/s.gif" />
+                                    </apex:commandLink>
+                                </apex:facet>
+                                <apex:outputText value="{!salesProcess.NumberOfStages}"/>
+                           	</apex:column>                                                                                  
+                            
+                           <!--  <apex:column width="80px" styleClass="date" headerClass="date headerCell" >
+                                <apex:facet name="header">
+                                    <apex:commandLink value="Last Modified" action="{!doSort}">
+                                        <apex:param name="sortField" value="LastModifiedDate" assignTo="{!sortField}"/>
+                                        <img title="Sorted Ascending" class="hidden tabLastModifiedDate sortAsc" alt="Sorted Ascending" src="/s.gif" />
+                                        <img title="Sorted Descending" class="hidden tabLastModifiedDate sortDesc" alt="Sorted Descending" src="/s.gif" />
+                                    </apex:commandLink>
+                                </apex:facet>
+                                <apex:outputText value="{0, date, {!dateFormat}}">
+                                    <apex:param value="{!salesProcess.LastModifiedDate}"></apex:param>
+                                </apex:outputText>
+                            </apex:column>
+                            
+                             -->                      
+			
+                        </apex:pageBlockTable>  
+          
+                    </apex:pageBlockSection>
+                    
+                    <div style="width:100%;text-align: center;">
+                        <div id="morefewerbar" class="hidden">Show me  <span class="link more"><img title="Show More" class="moreArrow" alt="Show More" src="/s.gif" />more</span> / <span class="link less">fewer<img title="Show Fewer" class="fewerArrow" alt="Show Fewer" src="/s.gif" /></span> records per list page</div>
+                        <div id="morebar" class="hidden">Show me  <span class="link more"><img title="Show More" class="moreArrow" alt="Show More" src="/s.gif" />more</span>  records per list page</div>
+                        <div id="fewerbar" class="hidden">Show me <span class="link less">fewer<img title="Show Fewer" class="fewerArrow" alt="Show Fewer" src="/s.gif" /></span> records per list page</div>
+                    </div>
+            
+                </apex:pageBlock>
+
+                <div id="smartAMBranding">
+                    <div id="smartAMBrandingLeft"><apex:image url="{!URLFOR($Resource.DMAPP__Common, 'panel/images/SmartOM50.png')}"/></div>
+                    <div id="smartAMBrandingRight">
+                        <apex:image url="{!URLFOR($Resource.DMAPP__Qualification, 'TASLogo50.png')}" alt="TAS Group Logo" rendered="{!NOT(hasBrandOverrideLogo)}"/>
+                        <apex:image url="{!brandOverrideLogo}" rendered="{!hasBrandOverrideLogo}"/>
+                    </div>
+                </div>
+           </div>
+        </div>
+
+    </apex:form>
+    
+    <style>
+    
+        td.date {
+            text-align: right;
+        }
+        th.date {
+            text-align: right;
+        }
+        
+        span.link {
+            color: #4E6B8F;
+            cursor: pointer;
+            
+        }
+        
+        div.rolodex {
+        	text-align: right;
+        }
+    </style>
+    
+    <script>
+
+
+		/* 
+		 * Copyright © The TAS Group. All rights reserved.
+		 *  
+		 */    
+    
+        var spec = {};
+        
+        var ttg_accountPlan = (function(_spec) {
+            var that = {}
+        
+            function setup() {
+                var range = "AZ";
+                var i;
+                for (i = range.charCodeAt(0); i <= range.charCodeAt(1); i++) {
+                    
+                    jQuery('.rolodex').append(
+                        jQuery('<A>').addClass('listItem').append(
+                            jQuery('<span>').addClass('listItemPad').text(String.fromCharCode(i)).click(filter) 
+                        )
+                    )
+                
+                }
+                
+                jQuery('.rolodex').append(
+                    jQuery('<A>').addClass('listItem').append(
+                        jQuery('<span>').addClass('listItemPad').text('Other').click(filter)
+                    )
+                )
+                .append(
+                    jQuery('<A>').addClass('listItem').append(
+                        jQuery('<span>').addClass('listItemPad').text('All').click(filter)
+                    )
+                )
+                
+                
+                jQuery('.ownership').change(ownershipChange);
+                jQuery('.status').change(statusChange);
+                jQuery('.less').click(less);
+                jQuery('.more').click(more);
+                
+                if ({!moreRecords == true && fewerRecords == true}) {
+                    jQuery('#morefewerbar').removeClass('hidden')
+                }
+                else if ({!moreRecords == true}) { 
+                    jQuery('#morebar').removeClass('hidden')
+                }
+                else if ({!fewerRecords == true}) {
+                    jQuery('#fewerbar').removeClass('hidden')
+                }
+                
+                if ('{!sortOrder}' == 'asc') {
+                    jQuery('.sortDesc').css('display', 'none');             
+                }
+                else {
+                    jQuery('.sortAsc').css('display', 'none');              
+                }
+
+                jQuery('.tab{!sortField}').removeClass('hidden')                
+                                
+                
+            }
+            
+            function filter() {
+                
+                jQuery('.startsWith').val(jQuery(this).text());
+            
+                filterPage();
+                
+            }
+
+            function ownershipChange() {
+                
+                filterPage();
+                
+            }
+
+            function statusChange() {
+                
+                filterPage();
+                
+            }
+
+            function more() {
+                
+                filterMore();
+                
+            }
+
+            function less() {
+                
+                filterLess();
+                
+            }
+            
+            function showHelp() {
+            	window.open('{!helpURLBase}' + "/Default.htm#Smart_Playbook/Playbook_Administration/Automatically_generate_a_sales_process.htm", "TAS", "resizable=1,location=1,status=1,scrollbars=1,width=1000,height=600");
+            }              
+
+            
+            that.setup = setup;
+            that.showHelp = showHelp;
+        
+            return that;
+        })(spec);
+    
+        jQuery(
+        
+            function () {
+                ttg_accountPlan.setup();
+            }
+
+        );
+    
+    
+	    var ttg = ttg || {};
+	    ttg.am = ttg.am || {};
+	
+	</script>
+    
+</apex:page>

@@ -1,0 +1,1527 @@
+<apex:page standardController="DMAPP__DM_Market_View_Report__c" extensions="DMAPP.MarketViewStandardController"
+    showHeader="true" sidebar="false" docType="html-5.0">
+        
+	<!--[if IE 7]>
+	    <link type="text/css" href="{!URLFOR($Resource.TAM,    'css/superGridIE7.css')}" rel="stylesheet" />	    
+	<![endif]-->
+    
+    <style>
+        
+    	@import url("{!URLFOR($Resource.ttgcss,		'ttgcss/layout.css')}");
+		@import url("{!URLFOR($Resource.ttgomjs,	'ttg/uberOpportunityMapImports.css')}");
+		@import url("{!URLFOR($Resource.TAM,		'css/uberOpportunityMapImports.css')}");
+
+		/* CSS TO FIX LAYOUT (AMOF-1025) */
+		.marketViewContainer table#superGrid tr.level1 td.rowName div.rowNameContainer {
+			background: url("image/indent_level1_green.jpg") repeat-y scroll left top #FFFFFF !important;
+		}
+		table#superGrid tr.level1 td.rowName div.rowNameContainer {
+			background: url("image/indent_level1.jpg") repeat-y scroll left top #FFFFFF !important;
+			color: #526E93;
+		}
+		
+		.parent .unitname{
+			font-size: 14px !important;
+			font-weight: bold !important;
+			text-align: left !important;
+			margin-left: -20px;
+		}
+		/* END (AMOF-1025) */
+
+        @media only screen and (max-width : 1500px) {
+            table#superGrid tr.parent td#total span.unitname.doublewarn {
+                white-space: normal;
+            }
+        }
+        
+        div.oppMapHeader {
+            overflow: hidden;
+        }
+        
+        td#node_edit_error {
+            color       :   red;
+            font-weight :   bold;
+        }
+        
+        table#superGrid tr.child td.rowName div.simple_click {
+            display     :   inline;
+            background  :   none;
+        }
+    
+            
+        table#superGrid tr td.rowName div div.mini_clicker_container ,
+        table#superGrid tr td.rowName div div.mini_clicker_container div {
+            padding     :   0px;
+            background  :   none;
+            text-align  :   left;           
+        }
+        
+        
+        table#superGrid tr td.rowName div div.mini_clicker_container, 
+        table#superGrid tr td.rowName div div.mini_clicker_container div.ttg-mini-clicker-menu {
+            height      :   auto;
+        }
+        
+        table#superGrid tr td.rowName div div.mini_clicker_container div.ttg-mini-clicker-menu div.ttg-mini-clicker-title,
+        table#superGrid tr td.rowName div div.mini_clicker_container div.ttg-mini-clicker-menu div.ttg-mini-clicker-title div,
+        table#superGrid tr td.rowName div div.mini_clicker_container div.ttg-mini-clicker-menu div.ttg-mini-clicker-menu-item,
+        table#superGrid tr td.rowName div div.mini_clicker_container div.ttg-mini-clicker-menu div.ttg-mini-clicker-menu-item div
+         {
+            height      :   15px;
+        }
+        
+        table#superGrid div.ttg-mini-clicker-title {
+          background-color: #EFF0F4 !important;
+        }
+    
+       table#superGrid div.ttg-mini-clicker-menu-item, table#superGrid div.ttg-mini-clicker-menu-item div {
+          background-color: white !important;
+          cursor: pointer;
+        }
+    
+        SPAN#SHADOWMAP {
+            background-color: #FFFFE0;
+            width: 100px;
+            height: 100px;
+            float: right;
+            display: inline-block;
+        }
+        
+        
+        .droppableAcceptionCurrent {
+            background: none repeat scroll 0 0 #FFFFCC !important;
+            border-bottom: 1px solid #CBD5E2 !important;
+        }
+        
+        .droppableAcceptionWon {
+            background: none repeat scroll 0 0 #FFFFCC !important;
+        }
+        .droppableHover {
+            background: none repeat scroll 0 0 #FFFF66 !important;
+        }
+        
+        .droppableAcceptionCurrent span, 
+        .droppableAcceptionWon span {
+            display: none !important;
+        }       
+    
+
+        .fadedDialog {
+            opacity: 0.1;
+            filter: alpha(opacity=10); 
+        }
+        
+        div.draggableOpportunity  {
+            display: block;
+            background: url('{!URLFOR($Resource.TAM, 'images/icon_drag.png')}') left center no-repeat;
+            padding: 5px 10px 5px 25px;
+            cursor: default;
+            z-index: 11;
+        }       
+        
+        div.draggableOpportunityHelper  {
+            border : 1px outset black;
+            background: url('{!URLFOR($Resource.TAM, 'images/icon_drag.png')}') 5px center no-repeat;            
+        }
+
+        DIV#LEGEND {
+            /**
+            left: 9px;
+            position: relative;
+            top: -34px;
+            display: inline-block;**/
+            float: left;
+            height: 0px;
+            position: absolute;
+            top: 50px;
+            left: 50px;
+        }
+        
+        DIV#LEGEND IMG {
+            position: relative;
+            top: 25px;
+            left: 200px;
+        }
+        
+        DIV.LEGEND_POPUP {
+            position          :   absolute;
+            border-radius     :   7px 7px 7px 7px;
+            border            :   2px solid #9C9C9C;
+            font-size         :   9px;
+            background-color  :   #FFFFFF;
+            z-index           :   25;
+            overflow          :   hidden;
+            padding           :   5px;
+        }
+
+        div.LEGEND_POPUP .ttg_org_chart_legend_box_panel ul {
+            font-size         :   12px;
+        }
+        
+        
+        div.LEGEND_POPUP .ttg_org_chart_legend_box_panel div {
+            font-size         :   12px;
+            text-align        :   left;
+            font-weight       :   bold;
+        }
+
+        .ttg_org_chart_legend_box_panel .ttg_org_chart_legend_box_panel_title {
+            font-size         :   10px;
+            text-align        :   left;
+            font-weight       :   bold;
+            padding-left      :   18px;
+        }
+
+        .ttg_org_chart_legend_box_panel ul li {
+            font-size         :   12px;
+        }
+
+        button.potential {
+            background-image: none;
+            background-color: #4572A7;
+        }
+        
+        button.current {
+            background-image: none;
+            background-color: #89A54E;
+        }
+        
+        button.won {
+            background-image: none;
+            background-color: #80699B;
+        }
+        
+        button.opportunity {
+        	background: url('{!URLFOR($Resource.TAM, '/images/icon_opp_map.png')}') left center no-repeat;           
+        }
+        
+        button.opportunity:hover {
+        	background: url('{!URLFOR($Resource.TAM, '/images/icon_opp_map.png')}') left center no-repeat;           
+        }
+        
+        div.LEGEND_POPUP .ttg_org_chart_legend_box_panel div {
+            padding-left: 10px;
+        }
+        
+        div#LEGEND div#legendDiv {
+            height: 202px;
+            width: 283px;
+        }
+
+        div#LEGEND.Competitors div#legendDiv {
+            width: 450px;
+        }
+        
+        div#mapNodeEditor {
+            height: auto !important;
+        }
+        
+        div#LEGEND.Value div#legendDiv div.tool_tip_opp_type {
+            display: block;
+        }
+        
+        div#LEGEND.Wallet div#legendDiv div.tool_tip_wallet {
+            display: block;
+        }
+        
+        div#LEGEND.Competitors div#legendDiv div.tool_tip_opp_type, 
+        div#LEGEND.Wallet div#legendDiv div.tool_tip_opp_type {
+            display: none;
+        }
+        
+        div#LEGEND.Competitors div#legendDiv div.tool_tip_wallet, 
+        div#LEGEND.Value div#legendDiv div.tool_tip_wallet {
+            display: none;
+        }
+        
+        #legendDiv .ttg_org_chart_legend_box_panel .ttg_org_chart_legend_box_panel_title {
+            height: 28px;
+            font-size: 10px !important;
+        }
+        
+		#legendDiv .ttg_org_chart_legend_box_panel ul {
+		    min-height: 150px;
+		}
+		
+		.ttg_org_chart_legend_box_panel_title{
+			font-size: 10px !important;		
+		}
+        
+        .oppMapTitle .unmapped_alert {
+            display: none;
+            color: #F33;
+            font-style: italic;
+        }
+        
+        TABLE.opportunities TR TD.multiline,
+        td.multiline {
+            background: url('{!URLFOR($Resource.ttgomjs, '/ttg/graph/feimages/icon_legend.png')}') left center no-repeat;
+            padding-left: 30px;
+        }
+        
+        a.tooppmap {
+            cursor: pointer;
+            display: block;
+            float: left;
+            padding-left: 20px;
+        }
+        
+        span.planname {
+            background: url('{!URLFOR($Resource.TAM, '/images/icon_opp_map.png')}') left center no-repeat;
+            display: block;
+            margin-left: 15px;
+            padding-left:20px !important;
+        }
+        
+        td.cell div.value_potential,
+        td.cell div.value_current,
+        td.cell div.value_won {
+            cursor: pointer !important;
+        }
+        
+        td.cell div.value_potential.blank,
+        td.cell div.value_current.blank,
+        td.cell div.value_won.blank {
+            cursor: default !important;
+        }
+        
+        td.total div span {
+            cursor: pointer !important;
+        }
+        
+        table#superGrid tr.level1 td.rowName div.rowNameContainer span.unitowner {
+            color: #999;
+        }
+        
+        table#superGrid tr.parent td#total span.unitname.doublewarn {
+            background: url('{!URLFOR($Resource.TAM, '/images/icon_link_info.png')}') left center no-repeat;
+            color: #999;
+            margin-top: 10px;
+            cursor: pointer;
+            white-space: normal;
+    		width: 100%;
+        }
+        
+        .childless-parent td.cell:hover div.blank, .child td.cell:hover div.blank {
+            background-color: white !important;
+        }
+        
+        .unitname.doublewarn img {
+            padding-left: 5px;
+        }
+        
+        td#total {
+            padding-right: 15px !important;
+        }
+        
+        table#superGrid tr.parent td.rowName {
+            cursor: default;
+        }
+        
+        div.tabMainContainer {
+    		max-height: 450px;
+    		overflow-y: auto;
+		}
+        
+        span.planname a {
+            color: #526e93;
+            text-overflow: ellipsis;
+        }
+        
+		table#superGrid tr.parent td.rowName span.unitname,
+		table#superGrid tr.childless-parent td.rowName span.unitname,
+	    table#superGrid tr.parent td.rowName span.unitowner,
+	    table#superGrid tr.childless-parent td.rowName span.unitowner {
+		    display: block;
+		    float: left;
+		    padding-left: 20px;
+		    overflow: hidden;
+		    max-width: 300px;
+		    text-overflow: ellipsis;
+		    clear: left;
+		}
+		
+	    table#superGrid tr.parent td.rowName span.unitname,
+	    table#superGrid tr.childless-parent td.rowName span.unitname {
+	        line-height:150%;
+	    }
+		
+		.marketViewContainer .total .oppAmt {
+		    background-color: #F4F6EF !important;
+		}
+		
+		div.ttg_org_chart_legend_box_panel IMG#LEGENDCLOSER {
+		    left: auto;
+		    position: absolute;
+		    right: 5px;
+		    top: 5px;
+		    z-index: 100;
+		}
+		
+		.ttg_org_chart_legend_box_panel li{
+			font-size: 10px !important;
+		
+		}
+		
+		
+		button.ui-button, input.ui-button {
+		    background-color: #A0B5CA !important;
+		    background-image: none !important;
+		    border: 1px solid #A0B5CA !important;
+		    color: #364861 !important;
+		    font-weight: normal !important;
+		    padding: 0.2em 0.5em !important;
+		}
+		
+		@media only screen 
+			and (min-device-width : 768px) 
+			and (max-device-width : 1024px) 
+			and (orientation : portrait) {
+				.salesforce1 div.smartOMHelpLink, .salesforce1 div.TAMAdminLink {
+					float: right;
+					margin: 10px;
+				}
+				
+				.salesforce1 .superGridContainer{
+					width: 96.5% !important;
+					position:relative;
+					margin: 0 auto;
+				}
+				.salesforce1 .rowNameContainer, .rowName {
+					min-width: 150px !important;
+					width: 150px !important;
+				}
+				.salesforce1 .oppMapHeader .oppMapTitle {
+					float: left;
+					width: 25%;
+				}
+				.salesforce1 #LEGENDTOGGLER  {
+					position: relative;
+					top: -42px;
+					left: 130px;
+				}
+	
+				.salesforce1 #legendDiv{
+					position: relative !important;
+					top: -77px !important;
+					left: 161px !important;
+				}
+	
+				.salesforce1 div.ttg_org_chart_legend_box_panel IMG#LEGENDCLOSER {
+					left: auto;
+					position: absolute;
+					right: 5px;
+					top: 5px;
+					z-index: 100;
+				}
+	
+				.salesforce1 .intersectionDialogParent{
+					top: 1% !important;
+					left: 20px !important;
+				}
+					
+	 	}
+	 	
+	
+		/* TABLET LANDSCAPE*/ 	
+		@media only screen 
+			and (min-device-width : 768px) 
+			and (max-device-width : 1024px) 
+			and (orientation : landscape) {
+	
+				.salesforce1 #LEGENDTOGGLER {
+					position: relative;
+					top: -45px;
+					left: 130px;
+				}
+		
+				.salesforce1 #legendDiv{
+					position: relative !important;
+					top: -80px !important;
+					left: 165px !important;	
+				}
+				
+				.salesforce1 div.ttg_org_chart_legend_box_panel IMG#LEGENDCLOSER {
+					left: auto;
+					position: absolute;
+					right: 5px;
+					top: 5px;
+					z-index: 100;
+				}
+							
+				.salesforce1 .smartOMOpportunitySummary {
+					margin: 13px 0 0 0 !important;
+				}
+				
+				.salesforce1 div.TAMAdminLink {
+					margin-top: 10px !important;
+				}
+				
+				.salesforce1 .superGridContainer {		 			
+					width: 97% !important;
+				 	position: relative;
+				 	margin: 0 auto;
+				}
+				
+				.salesforce1 .intersectionDialogParent{
+					top: 1% !important;
+					left: 165px !important;
+				}	
+						
+		}
+
+	/*   iPAD PORTRAIT STYLES  */
+	@media only screen 
+		and (min-device-width : 768px) 
+		and (max-device-width : 1024px) 
+		and (orientation : portrait) {
+			.salesforce1 div.smartOMHelpLink, .salesforce1 div.TAMAdminLink {
+				float: right;
+				margin: 10px;
+			}
+			
+			.salesforce1 .superGridContainer{
+				width: 96.5% !important;
+				position:relative;
+				margin: 0 auto;
+			}
+			.salesforce1 .rowNameContainer, .rowName {
+				min-width: 150px !important;
+				width: 150px !important;
+			}
+			.salesforce1 .oppMapHeader .oppMapTitle {
+				float: left;
+				width: 25%;
+			}
+			.salesforce1 #LEGENDTOGGLER  {
+				position: relative;
+				top: -42px;
+				left: 130px;
+			}
+
+			.salesforce1 #legendDiv{
+				position: relative !important;
+				top: -77px !important;
+				left: 161px !important;
+			}
+
+			.salesforce1 div.ttg_org_chart_legend_box_panel IMG#LEGENDCLOSER {
+				left: auto;
+				position: absolute;
+				right: 5px;
+				top: 5px;
+				z-index: 100;
+			}
+
+			.salesforce1 .intersectionDialogParent{
+				top: 1% !important;
+				left: 20px !important;
+			}
+				
+ 	}
+ 	
+ 	/*   iPAD LANDSCAPE STYLES  */	
+	@media only screen 
+		and (min-device-width : 768px) 
+		and (max-device-width : 1024px) {
+		
+		.ui-dialog {
+			top: 1% !important;
+		}	
+	} 	
+
+	/*   iPAD LANDSCAPE STYLES  */	
+	@media only screen 
+		and (min-device-width : 768px) 
+		and (max-device-width : 1024px) 
+		and (orientation : landscape) {
+
+			.salesforce1 #LEGENDTOGGLER {
+				position: relative;
+				top: -45px;
+				left: 130px;
+			}
+	
+	
+			.salesforce1 #legendDiv{
+				position: relative !important;
+				top: -80px !important;
+				left: 165px !important;	
+			}
+			
+			.salesforce1 div.ttg_org_chart_legend_box_panel IMG#LEGENDCLOSER {
+				left: auto;
+				position: absolute;
+				right: 5px;
+				top: 5px;
+				z-index: 100;
+			}
+						
+			.salesforce1 .smartOMOpportunitySummary {
+				margin: 13px 0 0 0 !important;
+			}
+			
+			.salesforce1 div.TAMAdminLink {
+				margin-top: 10px !important;
+			}
+			
+			.salesforce1 .superGridContainer {		 			
+				width: 97% !important;
+			 	position: relative;
+			 	margin: 0 auto;
+			}
+			
+			.salesforce1 .intersectionDialogParent{
+				top: 1% !important;
+				left: 165px !important;
+			}	
+					
+	}
+	
+    .LIMIT_MSG_CONTAINER {
+    	clear: both;
+    }
+    
+    #LIMIT_MSG {
+    	padding: 10px 0;
+    }
+    
+    #MARKETVIEW_CONFIGURATION_CONTAINER {
+    	min-height: 450px !important;
+    }    	
+	
+    </style>
+    
+    <apex:include pageName="DMAPP__OpportunityMapConfiguration" />
+    <script src="{!URLFOR($Resource.MarketViewConfiguration)}"></script>
+    
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__prefix)}"/>    
+        	
+    <c:jQuery jQueryUI="true"
+        cookies="true"
+        underscore="true"
+        tooltip="true"
+        paging="true"
+        dropdown="true"
+    	touchPunch="true"
+    	chosen="true"
+    />
+
+    <c:MobileRedirect TAM="true" />
+    
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__ftk, 'forcetk.js')}"/>
+    
+    <!-- l10n data -->
+    <apex:includeScript value="{!$Resource.DMAPP__l10njs}"/>
+    
+
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__ttgomjs, 'ttg/lib/simple_context.js')}"/>
+
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__Common, 'js/util.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__ttgomjs, 'ttg/lib/modernizr.js')}"/>	
+    <apex:includeScript value="{!URLFOR($Resource.DMAPP__ttgomjs, 'ttg/lib/ttgutils.js')}"/>	
+    <apex:include pageName="DMAPP__CRUD" />
+    <apex:include pageName="DMAPP__APIDelegate" />
+    <apex:include pageName="DMAPP__MarketViewReportDetailDialog" />
+    <apex:include pageName="DMAPP__MarketViewDoubleCountDialog" />
+
+
+    <!--[if lt IE 9]>
+    <apex:includeScript value="{!URLFOR($Resource.ttgomjs, 'ttg/lib/ie.js')}"/> 
+    <apex:includeScript value="{!URLFOR($Resource.ttgomjs, 'ttg/lib/json2.js')}"/> 
+    <!--[endif]-->
+    <div id="dialogSpinner"></div>
+    
+    <div id="TAS" >
+        <apex:include pageName="DMAPP__MarketViewSummaryTab"/> 
+        
+        <div class="clearer"></div>
+        <div class="superGridContainer marketViewContainer">
+              <div class="oppMapHeader">
+                <div class="oppMapTitle">
+                    <h2>Market View Report</h2>
+                    <br/>
+                </div>
+                <div id='LEGEND'><img id='LEGENDTOGGLER' src="{!URLFOR($Resource.ttgomjs, '/ttg/graph/feimages/icon_legend.png')}"/></div>
+                <div class="oppMapFilters">
+                    <form action="#">
+                        <div class="formItem">
+                            <select class="customSelect smallSelect" id="oppMapCurrency">
+                            </select>
+                        </div>
+                        
+                        <div class="formItem">
+                            <label for="oppMapFilterBy">Opportunities:</label>
+                            <select class="customSelect" id="oppMapFilterBy">
+                                <option value="0">All</option>
+                                <option value="1">Targets</option>
+                            </select>
+                        </div>
+                        <br class="clear"/>
+                    </form>
+                </div>
+            </div>
+            
+            <div class="tableContainer">
+            </div>
+        </div>
+    </div>
+    
+<script>
+
+	/* 
+	 * Copyright © The TAS Group. All rights reserved.
+	 *  
+	 */    
+    
+    var ttg_salesforce1 = ((typeof window.sforce != 'undefined') && (typeof window.sforce.one != 'undefined')) ? true : false;
+        
+    var ttg = ttg || {};
+    ttg.am = ttg.am || {};
+    
+    ttg.context.orgchartbase =  '{!$Resource.ttgomjs}' ;
+    ttg.context.orgId = 'RANDOM_ORG_ID';
+    ttg.context.sessionId = '{!JSENCODE($Api.Session_ID)}';
+    ttg.context.url = 'RANDOM_URL';
+
+    var spec = { 
+        sessionid       : '{!JSENCODE($Api.Session_ID)}'
+    };
+
+    var apilayer = ttg.apiLayer.sfdcDelegate( spec );
+    jQuery.extend(apilayer, apilayer.am);
+    
+    ttg.am.marketview = (function(spec) {
+        
+        var api = spec.api;
+        var reportid = spec.reportid;
+        var userid = spec.userid;
+        var user = spec.user;
+        var childnodemargin = 20;
+        var maxBlockReasonText = 45;
+        var report = null;
+        var config = null;
+        var view = {value: 'Value', competitor: 'Competitors', wallet: 'Wallet'};
+        var currentview = view.value;
+        var currentRedenomination = "3";
+        
+        var dialog = null;
+        
+        var targeted = false;
+        
+        var cookie = jQuery.cookies.get('ccy_setting');
+        if(cookie == null) {
+            jQuery.cookies.set('ccy_setting', '3');
+        } else {
+            currentRedenomination = cookie;
+        }
+        cookie = jQuery.cookies.get('view_setting');
+        if(cookie == null) {
+            jQuery.cookies.set('view_setting', view.value);
+        } else {
+            currentview = cookie;
+            jQuery('select#oppMapField').val(cookie);
+        }
+        cookie = jQuery.cookies.get('target_setting');
+        if(cookie == null) {
+            jQuery.cookies.set('target_setting', false);
+        } else {
+            targeted = cookie == true;
+            if(targeted) {
+                jQuery('select#oppMapFilterBy').val('1');
+            } else {
+                jQuery('select#oppMapFilterBy').val('0');
+            }
+        }
+        
+        function updatePreference(key, val) {
+            //console.log(id + ' is opened? ' + open);
+            jQuery.cookies.set(key, val);
+        }
+        
+        function changeCurrencyFigures(val) {
+            if(report == null) {
+                return;
+            }
+            
+            updatePreference('ccy_setting', val);
+            currentRedenomination = val;
+            doRender(jQuery('table#superGrid'), report);
+        }
+        
+        function changeTargeted(val) {
+            if(report == null) {
+                return;
+            }
+            
+            updatePreference('target_setting', val);
+            targeted = val;
+            render(val);
+        }
+
+        var working = function() {
+        
+        }
+        
+        var complete = function() {
+        
+        }
+        
+        /*
+        author: Rob Eberhardt
+        desc: fix MinWidth for IE6 & IE7
+        params: none
+        returns: nothing
+        notes: cannot yet fix childless elements like INPUT or SELECT
+        history:
+           2006-11-20 revised for standards-mode compatibility
+           2006-11-17 first version
+        */
+        var fixMinWidthForIE = function () {
+           var elems=document.getElementsByTagName("*");
+           for(e=0; e<elems.length; e++){
+              var eCurStyle = elems[e].currentStyle;
+              var l_minWidth = (eCurStyle.minWidth) ? eCurStyle.minWidth : eCurStyle.getAttribute("min-width"); //IE7 : IE6
+              if(l_minWidth && l_minWidth != 'auto'){
+                 var shim = document.createElement("DIV");
+                 shim.style.cssText = 'margin:0 !important; padding:0 !important; border:0 !important; line-height:0 !important; height:0 !important; BACKGROUND:RED;';
+                 shim.style.width = l_minWidth;
+                 shim.appendChild(document.createElement("&nbsp;"));
+                 if(elems[e].canHaveChildren){
+                    elems[e].appendChild(shim);
+                 }else{
+                    //??
+                 }
+              }
+           }
+        }
+        
+        var renderComplete = function(table) {
+            spec.config = config;
+            dialog = ttg.am.marketviewdetaildialog(spec);
+            
+            var dcd = ttg.am.marketviewdoublecountdialog({ttgApi: apilayer, reportId: '{!Id}', config : config});
+            jQuery(table).find('span.doublewarn').unbind('click');
+            jQuery(table).find('span.doublewarn').click(function() {
+                dcd.open();
+                return false;
+            });
+        
+            function getChildren(row) {
+                var children = [], level = row.attr('data-level');
+                while(row.next().attr('data-level') > level) {
+                     children.push(row.next());
+                     row = row.next();
+                }
+                return children;
+            }
+
+/**
+                table.find('.parent').on('click', function() {
+                    var thems = jQuery(this);
+                    var unitid = thems.attr('unitid');
+                    thems.toggleClass("collapsed");
+                    var collapsed = thems.hasClass("collapsed");
+                    if(collapsed) {
+                        thems.attr('closed', 'closed');
+                        jQuery.cookies.set('UNIT_' + unitid, true);
+                    } else {
+                        thems.removeAttr('closed');
+                        jQuery.cookies.set('UNIT_' + unitid, false);
+                    }
+                    
+                    var children = getChildren(thems);
+                    var currLevel = (thems.attr('data-level') * 1) + 1;
+                    var ignoring = false;
+                    var firstpass = true;
+                    
+                    jQuery.each(children, function() {
+                        if(!collapsed) {
+                            if(!ignoring && jQuery(this).attr('closed') == 'closed') {
+                               ignoring = true;
+                               firstpass = true;
+                               currLevel = jQuery(this).attr('data-level');
+                            }
+                            
+                            if(jQuery(this).attr('data-level') > currLevel) {
+                               firstpass = false;
+                               
+                               if(ignoring) {
+                                 return true;
+                               }
+                            } else {
+                               if(!firstpass) {
+                                 currLevel = jQuery(this).attr('data-level');
+                                 ignoring = false;
+                                 firstpass = true;
+                               }
+                            }
+                        }
+                        
+                        if(collapsed) {
+                            jQuery(this).toggle(false);
+                        } else {
+                            jQuery(this).toggle(true);
+                        }
+                    })
+                });
+                
+                table.delegate('td','mouseover mouseleave', function(e) {
+                    if (e.type == 'mouseover') {
+                        jQuery(this).parent().addClass("hover");
+                        jQuery("colgroup").eq(jQuery(this).index()).addClass("hover");
+                    }
+                    else {
+                        jQuery(this).parent().removeClass("hover");
+                        jQuery("colgroup").eq(jQuery(this).index()).removeClass("hover");
+                    }
+                });
+                **/
+            }
+        
+        var renderHeader = function(report, table) {
+            jQuery('<colgroup/>').attr('style','background-color:#FFFFFF !important;').appendTo(table);//for start cell
+            jQuery('<colgroup/>').appendTo(table);//for total
+            jQuery.each(report.solutions, function(index, solution) {
+                jQuery('<colgroup/>').appendTo(table);
+            });
+            
+            var headerrow = jQuery('<tr class="header"/>');
+            jQuery('<th/>').addClass('rowName').appendTo(headerrow);//empty cell
+            jQuery('<th class="total"/>').text('Total').appendTo(headerrow);
+            jQuery.each(report.solutions, function(index, solution) {
+                var soldisplayname = solution.name || '';
+                if(soldisplayname.length > 15) {
+                    soldisplayname = soldisplayname.substring(0,12) + '...';
+                }
+
+                var lv_th = jQuery('<th class="cell"/>')
+                             .attr({'ttgid':'solname' + index, 'title' : solution.name})
+                             .text(soldisplayname);
+                if(solution.active == false) {
+                     lv_th.addClass('inactive');
+                }
+                
+                lv_th.appendTo(headerrow);
+            });
+
+            headerrow = jQuery('<thead/>').append(headerrow);
+            jQuery(table).append(headerrow);
+        }
+        
+        var renderTotals = function(report, table) {
+            
+            var baseName = 'totalline';
+            
+            var row = jQuery('<tr/>');
+            row.attr({'unitid': 'total', 'ttgid': baseName });
+            
+            row.addClass('parent');
+
+            var unitcol = jQuery('<td class="rowName"/>').attr('id', 'total');
+            var unitdiv = jQuery('<div class="rowNameContainer"/>');
+
+            unitcol.append(unitdiv);
+            
+            var unitname = jQuery('<span class="unitname"/>')
+                            .attr('ttgid', 'unitname_' + baseName)
+                            .text(report.name);
+
+            unitname.appendTo(unitdiv);
+            
+            if(report.doublecount === true) {
+                jQuery('<span class="unitname doublewarn"/>')
+                    .attr('ttgid', 'doublecountwarning')
+                    .text('Some opportunities appear in more than one plan')
+                    .appendTo(unitdiv);
+            }
+            
+            unitcol.appendTo(row);
+            jQuery(table).append(row);
+            
+            var total = jQuery('<td class="total">').click(function() {
+                return false;//stop toggling behaviour
+            });
+            
+            switch(currentview) {
+                default:
+                var totPot = addRowDetails(total, 'value_potential', report.totals, 'potential', config, baseName, {});
+                var totCurr = addRowDetails(total, 'value_current', report.totals, 'current', config, baseName, {});
+                var totClosed = addRowDetails(total, 'value_won', report.totals, 'won', config, baseName, {});
+            }
+            
+            total.appendTo(row);
+            
+            jQuery.each(report.solutions, function(solIndex, solution) {
+                var cell = jQuery('<td class="cell"/>').attr('solution', solution.id).attr('unit', 'total');
+
+                switch(currentview) {
+                    default:
+                    var solPot = addPlanCellDetails(cell, 'value_potential', report.totalMap[solution.id], 
+                                                   report, 'potential', 
+                                                   config, baseName + '_sol_' + solIndex,
+                                                   {solutionid: solution.id, solutionname: solution.name},
+                                                   true
+                                 );
+                    var solCurr = addPlanCellDetails(cell, 'value_current', report.totalMap[solution.id], 
+                                                   report, 'current', 
+                                                   config, baseName + '_sol_' + solIndex,
+                                                   {solutionid: solution.id, solutionname: solution.name},
+                                                   true
+                                 );
+                    var solClosed = addPlanCellDetails(cell, 'value_won', report.totalMap[solution.id], 
+                                                   report, 'won', 
+                                                   config, baseName + '_sol_' + solIndex,
+                                                   {solutionid: solution.id, solutionname: solution.name},
+                                                   true
+                                 );
+                }
+                
+                cell.appendTo(row);
+            });
+        }
+        
+        var renderPlans = function(report, table) {
+            var tbod = jQuery('<tbody/>');
+            
+            renderTotals(report, tbod);
+            
+            jQuery.each(report.plans, function(index, plan) {
+                renderPlan(report, plan, tbod, 1, {}, index);
+            });
+            tbod.appendTo(table);
+        }
+        
+        var renderPlan = function(report, plan, table, depth, parenttotals, index) {
+            if(! parenttotals['ttgid']) {
+                parenttotals['ttgid'] = 'unit' + index;
+            } else {
+                parenttotals['ttgid'] += '_' + index;
+            }
+            var baseName = parenttotals['ttgid'];
+            
+            var row = jQuery('<tr/>');
+            row.attr({'unitid': plan.planid, 'ttgid': baseName });
+            
+            var toplevel = depth == 0;
+            /**
+            if(toplevel) {
+                if(unit.children && unit.children.length > 0) {
+                    row.addClass('parent');
+                } else {
+                    row.addClass('childless-parent');
+                }
+            } else {
+                row.addClass('child');
+                row.attr('style', 'display: table-row;');
+                if(unit.children && unit.children.length > 0) {
+                    row.addClass('parent');
+                }
+            }**/
+            row.addClass('childless-parent');
+            
+            row.attr('data-level', depth);
+            row.addClass('level' + depth);
+            
+            //is this unit closed?
+            var closed = false;
+            if(row.hasClass('parent')) {
+                var cookie = jQuery.cookies.get('UNIT_' + plan.planid);
+                if(cookie == null) {
+                    jQuery.cookies.set('UNIT_' + plan.planid, false);
+                } else {
+                    closed = cookie == true;
+                }
+            }
+            
+            var parentcollapsed = parenttotals['parent-collapsed'] === true;
+            if(parentcollapsed) {
+                row.css('display', 'none');
+            }
+            
+            if(closed) {
+                row.attr('closed', 'closed');
+                row.toggleClass("collapsed");//add collapsed class
+                parenttotals['parent-collapsed'] = true;
+            }
+            
+            var unitcol = jQuery('<td class="rowName"/>').attr('id', plan.planid);
+            var unitdiv = jQuery('<div class="rowNameContainer"/>');
+
+            unitcol.append(unitdiv);
+            
+            var clickUrl = '/apex/DMAPP__am_opp_map_app?id=' + encodeURIComponent(plan.planid) + '&retURL=' + encodeURIComponent('/apex/DMAPP__marketview?id={!report.Id}');
+            
+            var unitname = jQuery('<span class="unitname planname"/>')
+                            .attr({ttgid: 'unitname_' + baseName, title: plan.planName})
+                            .append(
+                            	!ttg_salesforce1
+                            	 ? jQuery('<a/>', {href: clickUrl}).text(plan.planName)
+                            	 : jQuery('<a/>', {href: ''}).click( function(evt) {
+							                jQuery('.overlay').toggle();
+                            	 			evt.preventDefault();
+                            	 			sforce.one.navigateToURL(clickUrl); 
+                            	 		}).text(plan.planName)
+                            );
+                            
+            unitname.appendTo(unitdiv);
+            
+            unitdiv.append(jQuery('<span class="unitowner"/>')
+                                .attr('ttgid', 'unitname_' + baseName + '_owner')
+                                .text(plan.ownerName)
+            );
+            
+            unitcol.appendTo(row);
+            jQuery(table).append(row);
+            
+            var total = jQuery('<td class="total">');
+            
+            switch(currentview) {
+                default:
+                var totPot = addRowDetails(total, 'value_potential', plan.totals, 'potential', config, baseName, {planid: plan.planid});
+                var totCurr = addRowDetails(total, 'value_current', plan.totals, 'current', config, baseName, {planid: plan.planid});
+                var totClosed = addRowDetails(total, 'value_won', plan.totals, 'won', config, baseName, {planid: plan.planid});
+            }
+            
+            total.appendTo(row);
+            
+            jQuery.each(report.solutions, function(solIndex, solution) {
+                var cell = jQuery('<td class="cell"/>').attr('solution', solution.id).attr('unit', plan.planid);
+
+                switch(currentview) {
+                    default:
+                    var solPot = addPlanCellDetails(cell, 'value_potential', 
+                                                   report.planSolutionTotalMap[plan.planid][solution.id], 
+                                                   report, 'potential', 
+                                                   config, baseName + '_sol_' + solIndex,
+                                                   {solutionid: solution.id, solutionname: solution.name, planid: plan.planid, planname: plan.planName}
+                                 );
+                    var solCurr = addPlanCellDetails(cell, 'value_current',
+                                                   report.planSolutionTotalMap[plan.planid][solution.id],
+                                                   report, 'current', 
+                                                   config, baseName + '_sol_' + solIndex,
+                                                   {solutionid: solution.id, solutionname: solution.name, planid: plan.planid, planname: plan.planName}
+                                 );
+                    var solClosed = addPlanCellDetails(cell, 'value_won',
+                                                    report.planSolutionTotalMap[plan.planid][solution.id],
+                                                   report, 'won', 
+                                                   config, baseName + '_sol_' + solIndex,
+                                                   {solutionid: solution.id, solutionname: solution.name, planid: plan.planid, planname: plan.planName}
+                                 );
+                }
+                
+                cell.appendTo(row);
+            });
+            
+            depth++;
+            /**
+            if(unit.children) {
+                jQuery.each(unit.children, function(_index, child) {
+                    parenttotals['ttgid'] = baseName;
+                    renderPlan(report, child, table, depth, parenttotals, _index);
+                });
+            }
+            
+            if(toplevel) {
+                switch(currentview) {
+                    renderValueTotals(parenttotals, config);
+                }
+            }**/
+        }
+
+        function renderValueTotals(parenttotals, config) {
+            for (var prop in parenttotals) {
+                if (parenttotals.hasOwnProperty(prop)) {
+                   var isTotal = (prop.indexOf('total-potential') > -1 || 
+                                   prop.indexOf('total-current') > -1 || 
+                                   prop.indexOf('total-closed')  > -1 );
+                
+                    if(parenttotals[prop].div && parenttotals[prop].baseName) {
+                       parenttotals[prop].div.attr({'ttgid': parenttotals[prop].type + '_' + parenttotals[prop].baseName});
+                    }
+                    
+                    if(isTotal || parenttotals[prop].total > 0) 
+                    {
+                        var tots = parenttotals[prop].total ? getCcyDisplay(parenttotals[prop].total, config) : '-';
+                        
+                        parenttotals[prop].div.append(jQuery('<span class="oppNum"/>')
+                                                           .text(parenttotals[prop].count)
+                                                           .attr({'ttgid': 'oppCount_' + 
+                                                                   parenttotals[prop].type + '_' + 
+                                                                   parenttotals[prop].baseName})
+                                                      );
+                        parenttotals[prop].div.append(jQuery('<span class="oppAmt"/>')
+                                                           .text(tots)
+                                                           .attr({'ttgid': 'oppAmt_' + 
+                                                                   parenttotals[prop].type + '_' + 
+                                                                   parenttotals[prop].baseName})
+                                                     );
+                    }
+                }
+            }
+        }
+
+        var addRowDetails = function(cell, clazz, plantotals, opptype, config, baseName, detailcallobj) {
+            var div = jQuery('<div/>')
+                .addClass(clazz)
+                .click(function() {
+                            dialog.openIntersectionPopup(
+                              detailcallobj.planid ? {id: detailcallobj.planid} : null, 
+                              null, 
+                              opptype
+                            );
+                });
+            
+            var amt = null;
+            var count = null;
+            
+            switch(opptype) {
+                case 'potential':
+                count = plantotals.potential.count;
+                amt = plantotals.potential.total;
+                break;
+                
+                case 'current':
+                count = plantotals.current.count;
+                amt = plantotals.current.total;
+                break
+                
+                case 'won':
+                count = plantotals.won.count;
+                amt = plantotals.won.total;
+                break;
+            }
+            
+            div.append(jQuery('<span class="oppNum"/>')
+                           .text(count)
+                           .attr({'ttgid': 'oppCount_' + opptype + '_' + baseName})
+                      );
+            div.append(jQuery('<span class="oppAmt"/>')
+                           .text((amt ? getCcyDisplay(amt, config) : '-'))
+                           .attr({'ttgid': 'oppAmt_' + opptype + '_' + baseName})
+                      );
+            div.appendTo(cell);
+            
+            return {div: div, amt: amt, count: count};
+        }
+        
+        var getCcyDisplay = function(amt, config) {
+            if(amt == null) {
+                return '';
+            }
+        
+            var displayamt = null;
+            var suffix = '';
+            switch(currentRedenomination) {
+                case '1':
+                case 1:
+                    displayamt = amt;
+                    return displayamt.ttg_formatCurrency(config.ccy, config.thousandSeparator);
+                    break;
+                case '2':
+                case 2:
+                    displayamt = amt / 1000;
+                    suffix = 'K';
+                    break;
+                default:
+                    displayamt = amt / 1000000;
+                    suffix = 'M';
+            }
+
+            return displayamt.ttg_formatCurrency(config.ccy, config.thousandSeparator, config.decimalSeparator) + suffix;
+        }
+        
+        var addPlanCellDetails = function(cell, clazz, lv_planSolTotals, report, 
+                                        opptype, config, baseName, detailcallobj, totalline) 
+        {
+        
+            var div = jQuery('<div/>')
+                        .addClass(clazz)
+                        .attr({'ttgid': opptype + '_' + baseName});
+            var amt = null;
+            var count = null;
+            
+            if(lv_planSolTotals) {
+	            switch(opptype) {
+	                case 'potential':
+	                count = lv_planSolTotals.potential.count;
+	                amt = lv_planSolTotals.potential.total;
+	                break;
+	                
+	                case 'current':
+	                count = lv_planSolTotals.current.count;
+	                amt = lv_planSolTotals.current.total;
+	                break
+	                
+	                case 'won':
+	                count = lv_planSolTotals.won.count;
+	                amt = lv_planSolTotals.won.total;
+	                break;
+	            }
+	            
+				div.append(jQuery('<span class="oppNum"/>')
+					.attr({'ttgid': 'oppCount_' + opptype + '_' + baseName})
+					.text(count)
+				);
+				div.append(jQuery('<span class="oppAmt"/>')
+					.attr({'ttgid': 'oppAmt_' + opptype + '_' + baseName})
+					.text((amt ? getCcyDisplay(amt, config) : '-'))
+				);
+				
+				div.click(function() {
+                            dialog.openIntersectionPopup(
+                              detailcallobj.planid ? {id: detailcallobj.planid, name: detailcallobj.planname}: null, 
+                              detailcallobj.solutionid ? {id: detailcallobj.solutionid, name: detailcallobj.solutionname} : null, 
+                              opptype
+                            );
+                        });
+            } else if(totalline) {
+                div.append(jQuery('<span class="oppNum"/>')
+                    .attr({'ttgid': 'oppCount_' + opptype + '_' + baseName})
+                    .text(0)
+                );
+                div.append(jQuery('<span class="oppAmt"/>')
+                    .attr({'ttgid': 'oppAmt_' + opptype + '_' + baseName})
+                    .text('-')
+                );
+                
+                div.click(function() {
+                            dialog.openIntersectionPopup(
+                              detailcallobj.planid ? {id: detailcallobj.planid, name: detailcallobj.planname}: null, 
+                              detailcallobj.solutionid ? {id: detailcallobj.solutionid, name: detailcallobj.solutionname} : null, 
+                              opptype
+                            );
+                        });
+            } else {
+                div.addClass('blank');
+            }
+            
+            div.appendTo(cell);
+            
+            return {div:div, amt: amt, count: count};
+        }
+        
+        var gatherCellTotals = function(report) {
+            report.planSolutionTotalMap = {};
+            report.totalMap = {};
+            
+            jQuery.each(report.summary, function(index, sum) {
+                report.totalMap[sum.solutionid] = sum.totals;
+            });
+            
+            jQuery.each(report.plans, function(index, plan) {
+                report.planSolutionTotalMap[plan.planid] = {};
+                jQuery.each(plan.summary, function(inneridx, data) {
+	                report.planSolutionTotalMap[plan.planid][data.solutionid] = data.totals;
+                })
+            });
+        }
+        
+        var doRender = function(table, report) {
+            jQuery('div.tableContainer').empty();
+            table = jQuery('<table id="superGrid"/>');
+            //do currency display
+            var sel = jQuery('select#oppMapCurrency');
+            sel.empty();
+            if(report.config.multiCurrency) {
+            	sel.css('width', '70px');
+            }            
+            var ccy = report.config.ccy;
+            jQuery('<option/>').text(ccy).val('1').appendTo(sel);
+            jQuery('<option/>').text(ccy + 'K').val('2').appendTo(sel);
+            jQuery('<option/>').text(ccy + 'M').val('3').appendTo(sel);
+            sel.val(currentRedenomination);
+
+            jQuery('#LEGEND')
+                .removeClass('Value Competitors Wallet')
+                .addClass(currentview);
+            
+            table.removeClass('Value Competitors Wallet');
+            table.addClass(currentview);
+            
+            gatherCellTotals(report);//make it easier to populate the grid
+            renderHeader(report, table);
+            renderPlans(report, table);
+            renderComplete(table);
+            
+            jQuery('div.tableContainer').append(table);
+            
+            if (navigator.appVersion.indexOf('MSIE 7.') != -1) {
+                try {
+                    fixMinWidthForIE();
+                } catch(ex) {}
+            }
+        }
+        
+        var render = function() {
+            var table = null;
+            table = jQuery('<table id="superGrid"/>');
+            jQuery('div.tableContainer').empty();
+
+            api.getMarketViewReport(reportid, targeted, function(_report) {
+                report = _report;
+                config = report.config;
+
+                if(jQuery('div#legendDiv').length == 0) {
+                    jQuery('#LEGEND')
+                        .append(legend());
+                    jQuery('#LEGEND img#LEGENDTOGGLER').click(toggleOppMapLegend);
+                }
+                
+                doRender(table, report);
+            });
+        }
+
+        function toggleOppMapLegend(evt) {
+            jQuery('div#legendDiv').css({'top':-40, 'left': 300});
+            jQuery('div#legendDiv').toggle();
+            
+            if(evt) {
+                evt.stopPropagation();
+            }
+        }
+
+        function legend() {
+            //o   4 symbols for Strategy Map, Relationship Map etc
+            //o   Colors for Potential vs Current vs Won
+            
+            return jQuery('<div id="legendDiv">')
+                        .addClass('LEGEND_POPUP')
+                        .addClass('ttg_org_chart_legend_box_initial')
+                        .attr('style', 'display:none;')
+                        .append(createOppTypeLegend())
+                        .append(createButtonsLegend())
+                        .draggable()
+                        ;
+        }
+        
+		function createButtonsLegend() {
+            var list = jQuery('<ul/>');
+    
+            var displayDiv = 
+                jQuery('<div/>')
+                    .addClass('ttg_org_chart_legend_box_panel ttg_org_chart_legend_box_panel_last')
+                    .append(jQuery('<img/>', {src: ttg.context.orgchartbase + '/ttg/graph/feimages/icon_delete.png', id: 'LEGENDCLOSER'}).click(toggleOppMapLegend))
+                    .append(jQuery('<div/>').addClass('ttg_org_chart_legend_box_panel_title').text('Plan Actions'))
+                    .append(list)
+                    ;
+                                    
+            list.append(createBoxLegend('opportunity', 'Opportunity'));
+            
+            return displayDiv;
+        }        
+        
+        function createOppTypeLegend() {
+            var list = jQuery('<ul/>');
+    
+            var displayDiv = 
+                jQuery('<div/>')
+                    .addClass('ttg_org_chart_legend_box_panel tool_tip_opp_type')
+                    .append(jQuery('<div/>').addClass('ttg_org_chart_legend_box_panel_title').text('Opportunity Types'))
+                    .append(list)
+                    ;
+            
+            list.append(createBoxLegend('potential', 'Potential'));
+            list.append(createBoxLegend('current', 'Current'));
+            list.append(createBoxLegend('won', 'Closed Won'));
+                        
+            return displayDiv;
+        }
+
+        function createBoxLegend(style, legenddetails) {
+            return jQuery('<li/>')
+                    .append(jQuery('<button/>', 
+                                  { 
+                                     height : '15px', 
+                                     width : '15px'
+                                  }
+                            )
+                            .css('vertical-align','middle')
+                            .addClass(style)
+                    )
+                    .append(jQuery('<span/>')
+                                .text(
+                                    ' = ' + legenddetails
+                                )
+                    );
+        }
+
+        var that = {};
+        
+        that.render = render;
+        that.changeCurrencyFigures = changeCurrencyFigures;
+        that.changeTargeted = changeTargeted;
+        that.getCurrentView = function() { return currentview; };        
+        return that;
+        
+    })({
+        api                 :   apilayer,
+        reportid              :   '{!Id}',
+        userid              :   '{!$User.Id}',
+        user                :   '{!JSENCODE($User.FirstName)} {!JSENCODE($User.LastName)}',
+        readonly            :   true
+    });
+
+    jQuery(document).ready(function() {
+            
+        if('{!settingsOk}' == false || '{!settingsOk}' == 'false') {
+            var toErr = ttg.ajaxErrorFunction(
+                            null, 
+                            null,
+                            {
+                                showDetail: false, 
+                                title: 'Error Opening Dealmaker Market View'
+                            }
+                        );
+            toErr({responseText: 'BAD_CUSTOM_AM_SETTINGS'});
+            return;
+        }
+        
+		var marketview = ttg.am.marketview;
+		var isipad = ttg.isTouchScreen(); //navigator.userAgent.toLowerCase().indexOf('ipad') > -1;
+		
+		jQuery('select#oppMapCurrency').change(function() {
+            marketview.changeCurrencyFigures(jQuery(this).val());
+        });
+		
+        jQuery('select#oppMapFilterBy').change(function() {
+            var targeted = '1' == jQuery(this).val();
+            marketview.changeTargeted(targeted);
+        });
+		
+		marketview.render();
+		
+        var spec = {
+            sessionid : '{!JSENCODE($Api.Session_ID)}',
+            userId: '{!$User.id}',
+            ttgApi: ttg.apiLayer.sfdcDelegate( { sessionid : '{!JSENCODE($Api.Session_ID)}' } ),
+            reportId: '{!Id}',
+            spinnerURL: '{!JSENCODE(URLFOR($Resource.ttgomjs, '/ttg/graph/images/loader.gif'))}',
+            calendarURL: "{!URLFOR($Resource.Common, 'images/icon_calendar.png')}",
+            title: 'Report Configuration',
+            readonly: false,
+            inactive: false,
+            onDelete: function() {
+            	var thisURL =  '/apex/DMAPP__MarketViews';
+            	(window.sforce.one) ? sforce.one.navigateToURL(thisURL) : top.location.href=thisURL; 
+            },
+            onSave: function(data) { 
+                if(data && data.reportId) {
+                    location.reload();
+                } else {
+                	var thisURL =  '/apex/DMAPP__MarketViews';
+                    (window.sforce.one) ? sforce.one.navigateToURL(thisURL) : top.location.href=thisURL;
+                }
+            }
+        };
+        var amConfiguration = ttg.am.reportconfiguration(spec);
+
+        var ctrl = jQuery('#TAMADMINLINK').parent();
+        jQuery('#TAMADMINLINK').remove();
+        
+        ctrl.append(jQuery('<a>').text('Settings').click(amConfiguration.configure));            
+    });	    
+
+</script>
+    
+</apex:page>

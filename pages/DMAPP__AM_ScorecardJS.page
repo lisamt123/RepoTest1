@@ -1,0 +1,770 @@
+<apex:page controller="DMAPP.AMScoreCardController">
+	<script type="text/javascript" src="{! URLFOR($Resource.ttgomjs, 'ttg/lib/highcharts.js') }"></script>
+    <apex:includeScript value="{! URLFOR($Resource.ttgomjs, 'ttg/lib/modernizr.js') }" />	
+    <apex:includeScript value="{! URLFOR($Resource.ttgomjs, 'ttg/lib/ttgutils.js') }" />		
+	<script>
+	
+		var ttg = ttg || {};
+		ttg.am = ttg.am || {};
+
+		ttg.am.scorecard = function(_spec) {
+		
+			var that = {};
+			
+			var currencyPrefix = '{! JSENCODE(orgCurrencySymbol) }';   // '{! JSENCODE(orgCcySymbol) }';
+	        var hideSegmentation = _spec.hideSegmentation;
+			
+			var localization = {
+				startAndToDatesLabel:					'Plan: ',
+				startAndToDatesSeparator:				' to ',
+				revenueAttainment: 						'Plan Revenue',
+				currentOps: 							'Plan Pipeline' + (hideSegmentation ? '\n\n': ''),
+				potentialOps: 							'Potential Opportunities' + (hideSegmentation ? '\n\n': ''),
+				tacticalCoverage: 						'Targeted Unit Coverage' + (hideSegmentation ? '\n\n': ''),
+				strategicCoverage: 						'Targeted Relationship Coverage',
+				valueContribution: 						'Value to Customer' + (hideSegmentation ? '\n\n': ''),
+				segmentationScore: 						'Mutual Value\n\n',
+				strategicPenetration: 					'Targeted Solution Penetration',
+				strategicContribution: 					'Targeted Solution Pipeline\n\n',
+				strategicPotential: 					'Targeted Solution Potential',
+				
+				// Added help text for Scorecard metrics (AMOF-785, DMPS-784)
+				revenueAttainmentHelp:					'Are you making progress with closed deals as the year passes? Are you closing enough revenue to ultimately achieve your Plan Revenue Target? If you are less than the Target, you should check your current plan pipeline (current opportunities) and projected deals to make sure you can make up any monthly shortfall.' +
+														'\n\nGoal = Annual Plan Target (prorated) *  Green Revenue Attainment Percentage (default = 100%)' +
+														'\nClosed Won = Value of won opportunities that have Closed in the Plan Period' +
+														'\n\nScore: Closed Won / Goal' +
+														'\n\nObjectives to consider to support your Revenue Attainment are: Customer Success, Relationship, and potentially Business Development for add-on business.' +
+														'\n\nNOTE: Green Revenue Attainment Percentage is a configured field entered by your company which defines when your Plan Revenue Badge achieves a green status.',
+                
+				currentOpsHelp:							'Do you have sufficient value in your plan pipeline (current opportunities) to continue to make your plan revenue numbers into the future? This score indicates if you have enough in your plan pipeline to make the plan Revenue Target and continue to build business into the future.  If you are less than the goal, you might want to look at your Targeted Potential Opportunities to convert them to Current Opportunities by building value with the customer on the potential identified.' +
+														'\n\nPipeline Goal  = (Annual Plan Target  * Pipeline Multiplier)' +
+														'\n\nScore: $ Current Pipeline / Pipeline Goal' +
+														'\n\nObjectives to create Current Opportunities are: Marketing, Business Development, Revenue and Partner' +
+														'\n\nNOTE: Pipeline Multiplier is a configured field defined by your company',
+				
+				potentialOpsHelp:						'Looking at your Potential Opportunities on the Opportunity map, do you have sufficient value in your Potential pipeline (above the funnel) to fill your Plan Pipeline funnel? If you are less than the goal, you may want to evaluate the accounts Strategy Map to assess where you might help them with their Business Initiatives to identify new Potential Opportunities.' +
+														'\n\nPotential Goal = (Annual Plan Target * Potential Multiplier)' +
+														'\n\nScore: $ Total Potential / Potential Goal' +
+														'\n\nObjectives to create Potential Opportunities are: Research, Marketing, Business Development and Partner' +
+														'\n\nNOTE: Potential Multiplier is a configured field defined by your company',
+				
+				tacticalCoverageHelp:					'Are you spending your time with the right Plan Units, the ones you\'ve targeted?  Do you have Current or Potential Opportunities for all of your Targeted Plan Units? You should not be working opportunities in non-Targeted Plan Units.  If you are less than the goal, you need to review your targeted units and ensure you have either current or potential opportunities, and re-evaluate your non-targeted plan units.' +
+														'\n\nTargeted Units = #A Units + other Targeted Units' +
+														'\n\nScore: (Targeted with Potential or Current) / # Targeted Units' +
+														'\n\nObjectives to create Potential and Current Opportunities for your targeted Plan Units are: Research, Marketing, Business Development, Revenue, Relationship and Partner',
+				
+                strategicCoverageHelp:					'Have you targeted the Plan Units where your Level of Relationship is Trusted Advisor or Problem Solver? Where you have a lesser relationship, have you got relationship objectives in place to move to that status? Plan Units with these relationships are more likely to buy from you.\nIf less than the goal, you may be covering the Plan Units where you have a lower chance of closing business due to your current relationship status and/or not have plans in place to improve your current relationship.  You need to make sure you have Customer Success Objectives and Relationship Objectives to expand your status within those targeted Plan Units where your status is lower than Trusted Advisor or Problem Solver. ' +
+                										'\n\nTargeted Units = # A Units + # other Targeted Units' +
+                										'\nPS = Problem Solver' +
+                										'\nTA = Trusted Advisor' +
+                										'\nLOR = Level of Relationship' +
+                										'\n\nScore: ( # Targeted Units with PS or TA LOR + # Targeted Units without PS/TA status and with at least one Relationship Objective ) / # Targeted Units' +
+                										'\n\nObjectives to improve your Level of Relationship are: Relationship, Customer Success and Partner',
+				
+                valueContributionHelp:					'Of your Total Current Opportunity dollar value, have you identified opportunities that are of high value to the customer, ones you can win? This score represents the percentage of current opportunities that are positioned as A’s and C’s on the Value Map. If an opportunity is of high value to the customer (A’s and C’s on the Value Map) the customer is more likely to buy quickly.  This represents your “low hanging fruit�?.' +
+                										'\n\nCurrent Pipeline = value of the current opportunities in your Opportunity Map ' +
+                										'\nA & C Segments = the A and C quadrants on the Value Map.  A is high value to you and high value to the customer.  C is low value to you and high value to the customer.' +
+                										'\n\nScore: $ Current Pipeline in A&C Segments  / $ Current Pipeline' +
+                										'\n\nObjectives to help you close your A and C opportunities are: Revenue and Relationship',
+                
+				segmentationScoreHelp:					'Are you targeting all your A opportunities and none of your D opportunities on the Value Map? You should be targeting all opportunities identified as high value to you and your customer - the A segment. If you\'re targeting opportunities that are identified as low value to both you and your customer - the D segment - you should review and make sure they\'re justified. If you are targeting B or C opportunities, you should have revenue objectives in place to move them to As.' +
+														'\n\n$ Targeted A / $Total A  = % A targeted' +
+														'\n$ Targeted D / $Total Targeted = % D targeted' +
+														'\n\nScore: % A targeted  -  % D targeted' +
+														'\n\nObjectives to help you identify A opportunities or move B and C opportunities to A\'s are: Research, Revenue, Relationship, Partner',
+				
+                strategicPenetrationHelp:				'Have you sold what the company wants you to sell? Of your closed business, this represents the number of Strategic Solutions sold as compared to the number of Strategic Solutions identified in your Plan.  If you are less than the goal you need to focus on closing opportunities for your Strategic Solutions.  Make sure you have Revenue Objectives for your Strategic Solutions.' +
+                										'\n\nScore: # Targeted Solutions with Closed Won / # Targeted Solutions' +
+                										'\n\nObjectives to consider as part of your plan for closed revenue in your strategic solutions are: Customer Success, Relationship and possibly Business Development for add on business',
+                
+				strategicContributionHelp:				'Are you targeting Current Opportunities for your Strategic Solutions on the Value Map? If you haven\'t reached the target, you may not be selling what the company wants you to sell.  You want to develop more opportunities for your Strategic Solutions or reassess and target your Current Opportunities for your Strategic Solutions.' +
+														'\n\n$ Targeted Solutions / $ Current Pipeline = % from Targeted' +
+														'\n# Targeted Solutions / # Total Solutions = % Solutions Targeted' +
+														'\n\nScore: % from Targeted / % Solutions Targeted' +
+														'\n\nObjectives to create Current Opportunities for your Targeted Strategic Solutions are: Research, Marketing, Business Development and Partner',
+				
+				strategicPotentialHelp:					'Are you Targeting Potential Opportunities for your Strategic Solutions on the Value Map? If you are less than the goal, you may not be focusing on what the company wants you to sell.  You want to identify more Potential Opportunity value for your Strategic Solutions or reassess and target your Potential Opportunities for your Strategic Solutions' +
+														'\n\n$ Targeted Potential Solutions / $ Total Potential = % from Targeted' +
+														'\n# Targeted Solutions / # Total Solutions = % Solutions Targeted' +
+														'\n\nScore: % from Targeted / % Solutions Targeted' +
+														'\n\nObjectives to create Potential Opportunities for your Targeted Strategic Solutions are: Research, Marketing, Business Development and Partner',
+														
+				// Added date label for jQGrid (AMOF-803)
+				date:									'Date',
+				actual:									'Actual',
+				totalPotential:							'Total Potential',
+				closedWon:								'Closed Won',
+				currentPipeline:                        'Current Pipeline',
+				green:									'Green',
+				amber:									'Yellow',
+				goal:                                   'Goal',
+				potentialGoal:							'Potential Goal',
+				pipelineGoal:                           'Pipeline Goal',
+				score:                                  'Score',
+				targetedUnits:                          'Targeted Units',
+				targetedUnitsWithCurrentPotOpps:        'Targeted with Potential or Current',
+				targetedUnitsWithStrategic:             'Targeted with Coverage',
+				currOppsInTargetedSols:                 currencyPrefix + ' Current Opps in Targeted Solutions',
+				totalPipeline:                          'Current Pipeline',
+				targetdSolsWithPotOpps:                 currencyPrefix + ' Targeted Solutions w Potential Opps',
+				totalPot:                               currencyPrefix + ' Total Potential',
+				totalValuableOpps:                      'Pipeline from A & C',
+			    targetedA:                              'Targeted A / Total A',
+			    targetedD:                              'Targeted D/ Total Targeted',
+			    targetedSolsWithWonOpps:                'Targeted with Closed Won',
+			    targetedSols:                           'Targeted Solutions',
+			    valueTargetedSolsWithWonOpps:           'Revenue from Targeted Solutions',
+			    revenueAttainment:                      'Plan Revenue' + (hideSegmentation ? '\n\n': ''),
+			    annualRevTarget:                        'Annual Plan Target',
+			    pipelineMultiplier:                     'Pipeline Multiplier',
+			    potentialMultiplier:                    'Potential Multiplier',
+			    targetedSolPot:                         'Targeted Solutions / Total Potential',
+			    percFromTargeted:                       'Percent from Targeted',
+			    targetedOverTotalSols:                  'Targeted / Total Solutions',
+			    targetedSolutionsOverTotalSolutions:	'Targeted Solutions / Total Solutions',
+			    percTargeted:                           'Percent Targeted',
+			    percentSolutionsTargeted:				'Percent Solutions Targeted',
+                targetedSolCurrent:                     'Targeted Solutions / Current Pipeline',
+                percATargeted:                          'Percent A Targeted',
+                percDTargeted:                          'Percent D Targeted',
+                
+				// Month names for jQGrid dateFormatter
+				monthNames: 							['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],				
+				
+				// Grouping labels
+				closed:									'Closed',
+				current:								'Current',
+				potential:								'Potential',
+				coverage:								'Coverage'
+			}
+			
+			var colModelByMetric = {
+			    revenueAttainment: [{id: 'formattedGreenTarget', label: localization.goal, name: 'goal'}, {id: 'formattedScore', label: localization.closedWon, name: 'actual'}, {id: 'info.score', label: localization.score, name: 'score'}],
+                strategicPenetration: [{id: 'info.targetedSolutions', label: localization.targetedSols, name: 'targetedSols'}, {id: 'info.targetedSolutionsWithClosedOpps', label: localization.targetedSolsWithWonOpps, name: 'targetedSolsWithWonOpps'}, {id: 'formattedScore', label: localization.score, name: 'score'}, {id: 'info.formattedClosedOppsTargetedSols', label: localization.valueTargetedSolsWithWonOpps, name: 'valueTargetedSolsWithWonOpps'}],
+                
+                currentOps: [
+                    {id: 'info.annualRevTarget', label: localization.annualRevTarget, name: 'annualRevTarget'},
+                    {id: 'info.pipelineMultiplier', label: localization.pipelineMultiplier, name: 'pipelineMultiplier'},
+                    {id: 'info.formattedGoal', label: localization.pipelineGoal, name: 'goal'}, 
+                    {id: 'formattedScore', label: localization.currentPipeline, name: 'actual'}, 
+                    {id: 'info.score', label: localization.score, name: 'score'}
+                ],
+                valueContribution: [{id: 'info.formattedTotalPipeline', label: localization.totalPipeline, name: 'totalPipeline'}, {id: 'info.formattedTotalAandCOpps', label: localization.totalValuableOpps, name: 'totalValuableOpps'}, {id: 'formattedScore', label: localization.score, name: 'score'}],
+                strategicContribution: [
+                    {id: 'info.currOppsInTargetedSols', label: localization.targetedSolCurrent, name: 'currOppsInTargetedSols'}, 
+                    {id: 'info.percFromTargeted', label: localization.percFromTargeted, name: 'percFromTargeted'}, 
+                    {id: 'info.targetedOverTotalSols', label: localization.targetedOverTotalSols, name: 'targetedOverTotalSols'}, 
+                    {id: 'info.percTargeted', label: localization.percentSolutionsTargeted, name: 'percTargeted'}, 
+                    {id: 'formattedScore', label: localization.score, name: 'score'}
+                ],
+                segmentationScore: [
+                    {id: 'info.formattedTargetedA', label: localization.targetedA, name: 'targetedA'}, 
+                    {id: 'info.percATargeted', label: localization.percATargeted, name: 'percATargeted'}, 
+                    {id: 'info.formattedTargetedOther', label: localization.targetedD, name: 'targetedD'},
+                    {id: 'info.percDTargeted', label: localization.percDTargeted, name: 'percDTargeted'}, 
+                    {id: 'formattedScore', label: localization.score, name: 'score'}
+                ],
+                potentialOps: [
+                    {id: 'info.annualRevTarget', label: localization.annualRevTarget, name: 'annualRevTarget'},
+                    {id: 'info.potentialMultiplier', label: localization.potentialMultiplier, name: 'potentialMultiplier'},
+                    {id: 'info.formattedGoal', label: localization.potentialGoal, name: 'goal'}, 
+                    {id: 'formattedScore', label: localization.totalPotential, name: 'actual'}, 
+                    {id: 'info.score', label: localization.score, name: 'score'}
+                ],
+                strategicPotential: [
+                    {id: 'info.targetedSolsWithPotentialOpps', label: localization.targetedSolPot, name: 'targetedSolsWithPotOpps'}, 
+                    {id: 'info.percFromTargeted', label: localization.percFromTargeted, name: 'percFromTargeted'}, 
+                    {id: 'info.targetedOverTotalSols', label: localization.targetedSolutionsOverTotalSolutions, name: 'targetedOverTotalSols'}, 
+                    {id: 'info.percTargeted', label: localization.percentSolutionsTargeted, name: 'percTargeted'}, 
+                    {id: 'formattedScore', label: localization.score, name: 'score'}
+                ],
+                
+                tacticalCoverage: [{id: 'info.targetedUnits', label: localization.targetedUnits, name: 'targetedUnits'}, {id: 'info.targetedUnitsWithPotentialOrCurrentOps', label: localization.targetedUnitsWithCurrentPotOpps, name: 'targetedUnitsWithCurrentPotOpps'}, {id: 'formattedScore', label: localization.score, name: 'score'}],                
+                strategicCoverage: [{id: 'info.targetedUnits', label: localization.targetedUnits, name: 'targetedUnits'}, {id: 'info.targetedUnitsWithStrategicStatus', label: localization.targetedUnitsWithStrategic, name: 'targetedUnitsWithStrategic'}, {id: 'formattedScore', label: localization.score, name: 'score'}]
+			}
+			
+			
+			function gatherColModel(metric) {
+				var colModel = _.map(
+				    _.uniq(
+					    _.flatten(colModelByMetric[metric]),
+					    false,
+					    function(col){
+					        return col.name;
+					    }
+					),
+				    function(field) {
+				        return {classes: field.name, name: field.name, sortable: false, title: false, label: field.label}
+				    }
+				);
+				colModel.unshift({ classes: 'date', formatter: dateFormatter , name: 'date', sorttype: 'int', title: false, label: localization.date });
+				colModel.push({ classes: 'current', name: 'current', title: false, label: '', hidden: true });
+				colModel.push({ classes: 'lastBatchDate', name: 'lastBatchDate', title: false, label: '', hidden: true });
+				
+				return colModel;
+			};
+			
+			var colModel = gatherColModel('revenueAttainment');
+			
+			// console.dir(colModel);
+			
+			var ttgApi = _spec.ttgApi;
+			var planId = _spec.planId;
+			
+			var tooltipPrefixSymbol = currencyPrefix;
+			var tooltipSuffixSymbol = '';
+			
+			var data = {};
+
+			function render() {
+				setupScoreCard();			
+				jQuery('#graph').append(jQuery('<div>').attr('id', 'scoreChart'));
+			}		
+						
+			function createDataGrid(colModel, data) {
+                var dataGrid = jQuery('#details').jqGrid({
+	               	autoencode     : true,
+	               	autowidth      : true,
+	               	colModel       : colModel,
+	               	colNames       : _.pluck(colModel, 'label'),
+	                datatype       : 'local',
+	               	gridview       : true,
+	                height         : 'auto',
+	                hidegrid       : 'false',
+	                loadonce       : 'true',
+		            rowNum         : 60,
+		            sortable       : true,
+		            sortname       : 'date',
+					sortorder      : 'desc',
+		            viewrecords    : true,
+		            data           : data || []
+				});
+				return dataGrid;
+		    }
+		   	
+		   	function dateFormatter(cellValue, options, rowObject) {
+
+		   		if (!cellValue) {
+                	return '';
+                }
+
+                if(rowObject && rowObject['current'] == true) {
+                    return rowObject['lastBatchDate'];
+                }
+                
+                var date = new Date(cellValue);
+                
+                // Returns the date in the following format: August 2013
+                return jQuery.datepicker.formatDate('MM yy', date);
+                //localization.monthNames[date.getMonth()] + ' ' + date.getFullYear();
+            }
+		 	
+			function createChart(options) {
+						
+				var series =	[{
+					                name: localization.actual,
+					                data: options.data[0],
+					                color: '#3366FF'
+					            },
+					            {
+					                name: localization.green,
+					                data: options.data[1],
+					                color: '#008000',
+					                dashStyle: 'dash',
+					                marker: {symbol: 'square'}
+					            },
+					            {
+					                name: localization.amber,
+					                data: options.data[2],
+					                color: '#FF6600',
+					                dashStyle: 'dash'
+					            }];				
+				
+				var chartParams = {
+					chart:  {
+								renderTo: options.id,
+				                type: 'line',
+				                marginRight: 130,
+				                marginBottom: 25
+				            },
+				            title: {
+				                text: '',
+				                
+				                // text: options.title,
+				                
+				                x: -20 //center
+				            },
+				            subtitle: {
+				                text: options.subtitle,
+				                x: -20
+				            },
+				            xAxis: {
+				            	type: 'datetime',
+				            	//categories: ['P0', 'P1', 'P2', 'P2', 'P4']
+						        //tickInterval: Date.UTC(2012, 3, 1) - Date.UTC(2012, 0, 1)
+				            },
+				            yAxis: {
+				                title: {
+				                    text: options.yaxislabel
+				                },
+            					/*min: 0,*/
+				                plotLines: [{
+				                    value: 0,
+				                    width: 1,
+				                    color: 'blue'
+				                }]
+				            },
+				            tooltip: {
+				            	//valuePrefix: options.datapointlabelprefix,
+				                //valueSuffix: options.datapointlabelsuffix,
+				                //valueDecimals: 0,
+				                formatter: function() {
+				                	return 	'<span style="font-size: 10px">' + Highcharts.dateFormat('%A, %b %e, %Y', this.point.x) + '</span><br/>' +
+				                			'<span style="color:' + this.series.color + '">' + this.series.name + '</span>: <b>' + tooltipPrefixSymbol + Highcharts.numberFormat(this.point.y, (this.point.y % 1 != 0) ? 2 : 0) + tooltipSuffixSymbol + '</b><br/>';
+				                }
+				            },
+				            legend: {
+				                layout: 'vertical',
+				                align: 'right',
+				                verticalAlign: 'top',
+				                x: -10,
+				                y: 100,
+				                borderWidth: 0
+				            },
+				            series: series
+				    ,        
+				    credits:{
+				    			enabled:false
+				    		}  
+				     
+					};
+					
+				var chart = new Highcharts.Chart(chartParams);
+
+				return chart;				            
+			}
+			
+			function handleGetResponse(result) {
+				
+				// var startAndToDatesText = localization.startAndToDatesLabel +  result.planDates.startDate + localization.startAndToDatesSeparator + result.planDates.toDate;
+				
+				var summaryData = jQuery('#SCORECARD_SUMMARY_DATA').empty(); /*.append(
+						jQuery('<div>').attr('id', 'summaryData')
+					).append(
+						jQuery('<span>').attr('id', 'todayDate').text(result.planDates.todayDate)
+					).append(
+						jQuery('<span>').attr('id', 'startAndToDatesText').text(startAndToDatesText)
+					); */
+				if(hideSegmentation) {
+				    summaryData.addClass('segmentless');
+				}
+				
+				var current = result.currentScore;
+				var lastBatchDate = result.lastExecutionTime;
+				
+				var revenueAttainmentCell = renderCurrentScoreCell('revenueAttainment', localization.revenueAttainment, current.revenueAttainment.badgeColour, current.revenueAttainment.formattedScore, current.revenueAttainment.score, current.revenueAttainment.formattedGreenTarget);
+				var strategicPenetrationCell = renderCurrentScoreCell('strategicPenetration', localization.strategicPenetration, current.strategicPenetration.badgeColour, current.strategicPenetration.formattedScore, current.strategicPenetration.score);
+												
+				var currentOpsCell = renderCurrentScoreCell('currentOps', localization.currentOps, current.currentOpportunities.badgeColour,  current.currentOpportunities.formattedScore, current.currentOpportunities.score, current.currentOpportunities.formattedGreenTarget);
+				var valueContributionCell = renderCurrentScoreCell('valueContribution', localization.valueContribution, current.valueContribution.badgeColour, current.valueContribution.formattedScore, current.valueContribution.score, current.valueContribution.info.formattedTotalAandCOpps);
+				var strategicContributionCell = renderCurrentScoreCell('strategicContribution', localization.strategicContribution, current.strategicContribution.badgeColour, current.strategicContribution.formattedScore, current.strategicContribution.score);
+				var segmentationScoreCell = renderCurrentScoreCell('segmentationScore', localization.segmentationScore, current.segmentationScore.badgeColour, current.segmentationScore.formattedScore, current.segmentationScore.score);
+								
+				var potentialOpsCell = renderCurrentScoreCell('potentialOps', localization.potentialOps, current.potentialOpportunities.badgeColour, current.potentialOpportunities.formattedScore, current.potentialOpportunities.score, current.potentialOpportunities.formattedGreenTarget);
+				var strategicPotentialCell = renderCurrentScoreCell('strategicPotential', localization.strategicPotential, current.strategicPotential.badgeColour, current.strategicPotential.formattedScore, current.strategicPotential.score);
+				
+				var tacticalCoverageCell = renderCurrentScoreCell('tacticalCoverage', localization.tacticalCoverage, current.tacticalCoverage.badgeColour, current.tacticalCoverage.formattedScore, current.tacticalCoverage.score);				
+				var strategicCoverageCell = renderCurrentScoreCell('strategicCoverage', localization.strategicCoverage, current.strategicCoverage.badgeColour, current.strategicCoverage.formattedScore, current.strategicCoverage.score, (hideSegmentation ? 0 : null));
+				
+				var firstRow = jQuery('<tr />').append(currentOpsCell).append(valueContributionCell);
+				var secondRow = jQuery('<tr />').append(strategicContributionCell).append(segmentationScoreCell);  
+		        
+		        if(hideSegmentation) {
+		            tacticalCoverageCell.css('visibility','hidden');
+		        }
+		        
+		        // Renders the groups
+		        summaryData.append(renderGroupTable(revenueAttainmentCell, strategicPenetrationCell, localization.closed))
+					.append(renderGroupTable(firstRow, secondRow, localization.current)
+						.addClass('grouping-large'))
+					.append(renderGroupTable(potentialOpsCell, strategicPotentialCell, localization.potential))
+					.append((hideSegmentation ? renderGroupTable(strategicCoverageCell, tacticalCoverageCell, localization.coverage) : renderGroupTable(tacticalCoverageCell, strategicCoverageCell, localization.coverage))
+						.addClass('right'));					
+				
+				jQuery('#revenueAttainmentcurrentCell').addClass('selected');
+				
+				var helpText = jQuery('div#SCORECARD_HELP')
+				    .empty()
+					.append(renderHelpText(localization.revenueAttainment, localization.revenueAttainmentHelp));
+				
+				jQuery('.title').html(localization.revenueAttainment);
+				
+				var timeSeries = _.pluck(result.historicalScores, 'scoreDate');	
+				var lastBatchRun = _.pluck(result.historicalScores, 'currentScore');
+				
+				var scoreSeries = { 
+					revenueAttainment : _.pluck(_.pluck(result.historicalScores, 'revenueAttainment'), 'score'),
+					revenueAttainmentGreen : _.pluck(_.pluck(result.historicalScores, 'revenueAttainment'), 'greenTarget'),
+					revenueAttainmentAmber : _.pluck(_.pluck(result.historicalScores, 'revenueAttainment'), 'amberTarget'),
+					currentOps : _.pluck(_.pluck(result.historicalScores, 'currentOpportunities'), 'score'),
+					currentOpsGreen : _.pluck(_.pluck(result.historicalScores, 'currentOpportunities'), 'greenTarget'),
+					currentOpsAmber : _.pluck(_.pluck(result.historicalScores, 'currentOpportunities'), 'amberTarget'),
+					potentialOps : _.pluck(_.pluck(result.historicalScores, 'potentialOpportunities'), 'score'),
+					potentialOpsGreen : _.pluck(_.pluck(result.historicalScores, 'potentialOpportunities'), 'greenTarget'),
+					potentialOpsAmber : _.pluck(_.pluck(result.historicalScores, 'potentialOpportunities'), 'amberTarget'),
+					tacticalCoverage : _.pluck(_.pluck(result.historicalScores, 'tacticalCoverage'), 'score'),
+					tacticalCoverageGreen : _.pluck(_.pluck(result.historicalScores, 'tacticalCoverage'), 'greenTarget'),
+					tacticalCoverageAmber : _.pluck(_.pluck(result.historicalScores, 'tacticalCoverage'), 'amberTarget'),
+					strategicCoverage : _.pluck(_.pluck(result.historicalScores, 'strategicCoverage'), 'score'),
+					strategicCoverageGreen : _.pluck(_.pluck(result.historicalScores, 'strategicCoverage'), 'greenTarget'),
+					strategicCoverageAmber : _.pluck(_.pluck(result.historicalScores, 'strategicCoverage'), 'amberTarget'),
+					valueContribution : _.pluck(_.pluck(result.historicalScores, 'valueContribution'), 'score'),
+					valueContributionGreen : _.pluck(_.pluck(result.historicalScores, 'valueContribution'), 'greenTarget'),
+					valueContributionAmber : _.pluck(_.pluck(result.historicalScores, 'valueContribution'), 'amberTarget'),
+					segmentationScore : _.pluck(_.pluck(result.historicalScores, 'segmentationScore'), 'score'),
+					segmentationScoreGreen : _.pluck(_.pluck(result.historicalScores, 'segmentationScore'), 'greenTarget'),
+					segmentationScoreAmber : _.pluck(_.pluck(result.historicalScores, 'segmentationScore'), 'amberTarget'),
+					strategicPenetration : _.pluck(_.pluck(result.historicalScores, 'strategicPenetration'), 'score'),
+					strategicPenetrationGreen : _.pluck(_.pluck(result.historicalScores, 'strategicPenetration'), 'greenTarget'),
+					strategicPenetrationAmber : _.pluck(_.pluck(result.historicalScores, 'strategicPenetration'), 'amberTarget'),
+					strategicContribution : _.pluck(_.pluck(result.historicalScores, 'strategicContribution'), 'score'),
+					strategicContributionGreen : _.pluck(_.pluck(result.historicalScores, 'strategicContribution'), 'greenTarget'),
+					strategicContributionAmber : _.pluck(_.pluck(result.historicalScores, 'strategicContribution'), 'amberTarget'),
+					strategicPotential : _.pluck(_.pluck(result.historicalScores, 'strategicPotential'), 'score'),
+					strategicPotentialGreen : _.pluck(_.pluck(result.historicalScores, 'strategicPotential'), 'greenTarget'),
+					strategicPotentialAmber : _.pluck(_.pluck(result.historicalScores, 'strategicPotential'), 'amberTarget')
+				}
+				
+	            var tablularData = {
+	                revenueAttainment: {
+	                    goal: _.pluck(_.pluck(result.historicalScores, 'revenueAttainment'), 'formattedGreenTarget'), 
+		                actual: _.pluck(_.pluck(result.historicalScores, 'revenueAttainment'), 'formattedScore'),
+		                score: _.pluck(_.pluck(_.pluck(result.historicalScores, 'revenueAttainment'), 'info'), 'score')
+	                },
+	                strategicPenetration: {
+	                    targetedSolsWithWonOpps: _.pluck(_.pluck(_.pluck(result.historicalScores, 'strategicPenetration'), 'info'), 'targetedSolutionsWithClosedOpps'), 
+	                    targetedSols: _.pluck(_.pluck(_.pluck(result.historicalScores, 'strategicPenetration'), 'info'), 'targetedSolutions'), 
+	                    score: _.pluck(_.pluck(result.historicalScores, 'strategicPenetration'), 'formattedScore'), 
+	                    valueTargetedSolsWithWonOpps: _.pluck(_.pluck(_.pluck(result.historicalScores, 'strategicPenetration'), 'info'), 'formattedClosedOppsTargetedSols'), 
+	                    revenueAttainment: _.pluck(_.pluck(_.pluck(result.historicalScores, 'strategicPenetration'), 'info'), 'formattedRevenueAttainment'),
+	                },
+	                currentOps: {
+                        annualRevTarget: _.pluck(_.pluck(_.pluck(result.historicalScores, 'currentOpportunities'), 'info'), 'annualRevTarget'),
+                        pipelineMultiplier: _.pluck(_.pluck(_.pluck(result.historicalScores, 'currentOpportunities'), 'info'), 'pipelineMultiplier'),
+	                    goal: _.pluck(_.pluck(_.pluck(result.historicalScores, 'currentOpportunities'), 'info'), 'formattedGoal'), 
+	                    actual: _.pluck(_.pluck(result.historicalScores, 'currentOpportunities'), 'formattedScore'),
+	                    score: _.pluck(_.pluck(_.pluck(result.historicalScores, 'currentOpportunities'), 'info'), 'score')
+	                },
+	                valueContribution: {
+	                    totalValuableOpps: _.pluck(_.pluck(_.pluck(result.historicalScores, 'valueContribution'), 'info'), 'formattedTotalAandCOpps'), 
+	                    totalPipeline: _.pluck(_.pluck(_.pluck(result.historicalScores, 'valueContribution'), 'info'), 'formattedTotalPipeline'), 
+	                    score: _.pluck(_.pluck(result.historicalScores, 'valueContribution'), 'formattedScore')
+	                },
+	                strategicContribution: {
+	                    currOppsInTargetedSols: _.pluck(_.pluck(_.pluck(result.historicalScores, 'strategicContribution'), 'info'), 'currOppsInTargetedSols'), 
+                        percFromTargeted: _.pluck(_.pluck(_.pluck(result.historicalScores, 'strategicContribution'), 'info'), 'percFromTargeted'),  
+                        targetedOverTotalSols: _.pluck(_.pluck(_.pluck(result.historicalScores, 'strategicContribution'), 'info'), 'targetedOverTotalSols'),  
+                        percTargeted: _.pluck(_.pluck(_.pluck(result.historicalScores, 'strategicContribution'), 'info'), 'percTargeted'),  
+	                    score: _.pluck(_.pluck(result.historicalScores, 'strategicContribution'), 'formattedScore')
+	                },
+	                segmentationScore: {
+	                    targetedA: _.pluck(_.pluck(_.pluck(result.historicalScores, 'segmentationScore'), 'info'), 'formattedTargetedA'),  
+                        percATargeted: _.pluck(_.pluck(_.pluck(result.historicalScores, 'segmentationScore'), 'info'), 'percATargeted'),  
+	                    targetedD: _.pluck(_.pluck(_.pluck(result.historicalScores, 'segmentationScore'), 'info'), 'formattedTargetedOther'),  
+	                    percDTargeted: _.pluck(_.pluck(_.pluck(result.historicalScores, 'segmentationScore'), 'info'), 'percDTargeted'),  
+	                    score: _.pluck(_.pluck(result.historicalScores, 'segmentationScore'), 'formattedScore')
+	                },
+	                potentialOps: {
+                        annualRevTarget: _.pluck(_.pluck(_.pluck(result.historicalScores, 'potentialOpportunities'), 'info'), 'annualRevTarget'), 
+                        potentialMultiplier: _.pluck(_.pluck(_.pluck(result.historicalScores, 'potentialOpportunities'), 'info'), 'potentialMultiplier'), 
+	                    goal: _.pluck(_.pluck(_.pluck(result.historicalScores, 'potentialOpportunities'), 'info'), 'formattedGoal'), 
+	                    actual: _.pluck(_.pluck(result.historicalScores, 'potentialOpportunities'), 'formattedScore'), 
+	                    score: _.pluck(_.pluck(_.pluck(result.historicalScores, 'potentialOpportunities'), 'info'), 'score')
+	                },
+	                strategicPotential: {
+	                    targetedSolsWithPotOpps: _.pluck(_.pluck(_.pluck(result.historicalScores, 'strategicPotential'), 'info'), 'targetedSolsWithPotentialOpps'),  
+	                    percFromTargeted: _.pluck(_.pluck(_.pluck(result.historicalScores, 'strategicPotential'), 'info'), 'percFromTargeted'),  
+                        targetedOverTotalSols: _.pluck(_.pluck(_.pluck(result.historicalScores, 'strategicPotential'), 'info'), 'targetedOverTotalSols'),  
+                        percTargeted: _.pluck(_.pluck(_.pluck(result.historicalScores, 'strategicPotential'), 'info'), 'percTargeted'),  
+	                    score: _.pluck(_.pluck(result.historicalScores, 'strategicPotential'), 'formattedScore')
+	                },
+	                tacticalCoverage: {
+		                targetedUnits: _.pluck(_.pluck(_.pluck(result.historicalScores, 'tacticalCoverage'), 'info'), 'targetedUnits'), 
+		                targetedUnitsWithCurrentPotOpps: _.pluck(_.pluck(_.pluck(result.historicalScores, 'tacticalCoverage'), 'info'), 'targetedUnitsWithPotentialOrCurrentOps'),
+		                score: _.pluck(_.pluck(result.historicalScores, 'tacticalCoverage'), 'formattedScore')              
+	                },
+	                strategicCoverage: {
+		                targetedUnitsWithStrategic: _.pluck(_.pluck(_.pluck(result.historicalScores, 'strategicCoverage'), 'info'), 'targetedUnitsWithStrategicStatus'), 
+		                targetedUnits: _.pluck(_.pluck(_.pluck(result.historicalScores, 'strategicCoverage'), 'info'), 'targetedUnits'), 
+		                score: _.pluck(_.pluck(result.historicalScores, 'strategicCoverage'), 'formattedScore')        
+	                }
+	            }
+				
+				var dataGrid = createDataGrid(gatherColModel('revenueAttainment'));
+                var gridWidth = jQuery('#details').jqGrid('getGridParam', 'width');
+
+				var scoreChart = createChart({
+					id: 'scoreChart',
+					
+					subtitle: '',
+					yaxislabel: localization.revenueAttainment + ' (' + currencyPrefix + ')',
+					//datapointlabelprefix: currencyPrefix,
+					//datapointlabelsuffix: '',
+					data: [_.zip(timeSeries, scoreSeries.revenueAttainment), _.zip(timeSeries, scoreSeries.revenueAttainmentGreen), _.zip(timeSeries, scoreSeries.revenueAttainmentAmber)],
+					datalabels: [''] 
+				});
+				
+				var cols = _.pluck(colModelByMetric.revenueAttainment, 'name');
+				cols.unshift('date');
+				jQuery('#details').hideCol(_.pluck(colModel, 'name'));
+				jQuery('#details').showCol(cols);
+				
+				var scorecardHistory = _.zip(tablularData.revenueAttainment.goal, tablularData.revenueAttainment.actual, tablularData.revenueAttainment.score);
+				renderDetail(jQuery('#details'), _.zip(timeSeries, lastBatchRun, scorecardHistory), cols, 'revenueAttainment');
+				
+				function renderCurrentScoreCell(id, label, badgeColour, score, rawScore, infoScore) {
+					if(badgeColour === 'red' && rawScore !== 0) {
+						badgeColour = 'started';
+					}
+					var cell = jQuery('<td />').attr('id', id + 'currentCell');
+					if(!spec.hasTargetedSolutions && (id === 'strategicPenetration' || id === 'strategicContribution' || id === 'strategicPotential')) {
+						cell.append(jQuery('<div />').addClass('noTargetedSolutions').addClass('badge'));
+						cell.append(jQuery('<div />').addClass('scoreLabel').text(label));
+						cell.append(jQuery('<div />').addClass('scoreValue').text('-'));						
+					}
+					else {
+						cell.append(jQuery('<div />').addClass(id + 'badgeColour_' + badgeColour).addClass('badge'));
+						cell.append(jQuery('<div />').addClass('scoreLabel').text(label));
+						cell.append(jQuery('<div />').addClass('scoreValue').text(score));					
+					}				
+					if (infoScore || infoScore === 0) {
+						cell.append(jQuery('<div />').addClass('scoreInfoValue').text(infoScore));
+					}
+
+					cell.on('click', function() {
+						jQuery('.title').html(label);
+						
+						// False parameters and redraw() method call removed to fix issues with IE8 (AMOF-800)
+						scoreChart.series[0].setData(_.zip(timeSeries, scoreSeries[id]));
+						scoreChart.series[1].setData(_.zip(timeSeries, scoreSeries[id + 'Green']));	
+						scoreChart.series[2].setData(_.zip(timeSeries, scoreSeries[id + 'Amber']));
+						if (id === 'revenueAttainment' || id === 'currentOps' || id === 'potentialOps') {
+							scoreChart.yAxis[0].axisTitle.attr({ text: label + ' (' + currencyPrefix + ')' });
+							tooltipPrefixSymbol = currencyPrefix;
+							tooltipSuffixSymbol = '';
+						}
+						else {
+							scoreChart.yAxis[0].axisTitle.attr({ text: label + ' (%)' });
+							tooltipPrefixSymbol = '';
+							tooltipSuffixSymbol = ' %';
+						}
+												
+						summaryData.find('.selected').removeClass('selected');												
+						cell.addClass('selected');
+						
+						helpText.html(renderHelpText(label, localization[id + 'Help']));
+						
+						var cols = _.pluck(colModelByMetric[id], 'name');
+						cols.unshift('date');
+                        jQuery('#details').hideCol(_.pluck(colModel, 'name'));
+                        jQuery('#details').showCol(cols);
+						
+						var tomerge = [];
+						_.each(
+						    cols, 
+						    function(name) {
+						        if(tablularData[id][name]) {
+						              tomerge.push(tablularData[id][name]);
+				                }
+						    }
+						);
+						
+						scorecardHistory = _.zip.apply(_, tomerge);												
+						renderDetail(jQuery('#details'), _.zip(timeSeries, lastBatchRun, scorecardHistory), cols, id);
+					});
+					return cell;
+				}
+				
+				function renderDetail(parent, result, cols, metric) {
+
+					// Sets the jqGrid data type to JSON for data retrieval
+                    parent.GridUnload();
+					
+					var scoreData = _.map(result, function(elt) {
+						var score = {
+							date: elt[0],
+							current: elt[1]
+						};
+						
+						for(var i = 0; i < cols.length; i++) {
+						    if('date' != cols[i] && 'current' != cols[i]) {
+						      score[cols[i]] = elt[2][i - 1];
+						    }
+						}
+						
+						score.lastBatchDate = lastBatchDate;
+						return score;
+					});	
+					
+                    createDataGrid(gatherColModel(metric), scoreData);
+                	parent.setGridParam({ datatype: 'local' }).trigger('reloadGrid');	         
+                } 
+				
+				// Renders a group table (AMOF-800)
+				function renderGroupTable(firstRow, secondRow, title) {
+				
+					var outerGroup = jQuery('<div />')
+						.addClass('grouping')
+						.append(jQuery('<span />')
+							.addClass('grouping-title')
+							.text(title));
+				
+					var group = jQuery('<div />').addClass('scorecard-group');
+					var table = jQuery('<table />').addClass('scorecard-summary-table');
+										
+					if (firstRow.is('tr') || secondRow.is('tr')) {
+						table.append(firstRow)
+							.append(secondRow
+								.css('height', 'auto'));
+					} else {
+						table.append(jQuery('<tr />')
+							.append(firstRow))
+						.append(jQuery('<tr />')
+							.css('height', 'auto')
+							.append(secondRow));					
+					}
+
+					return outerGroup.append(group
+							.append(table)
+						);							
+				}
+			}
+			
+			function renderHelpText(title, helpText) {
+				/*
+				var firstQuestionMark = helpText.indexOf('?');
+				var firstFullStop = helpText.indexOf('.');				 
+				var cutOffIndex;
+				
+				if ((firstQuestionMark > -1) && (firstQuestionMark < firstFullStop)) {
+					cutOffIndex = ++firstQuestionMark;				
+				} else if ((firstFullStop > -1) && (firstFullStop < firstQuestionMark)) {
+					cutOffIndex = ++firstFullStop;
+				} else {
+					cutOffIndex = 71; // The index for the length of a tweet
+				}
+				*/
+															
+				var summary = jQuery('<div/>').addClass('msg_text2')
+												.append(jQuery('<b />')
+												.html(title.replace(/^\s+|\s+$/g, "")))  // trim the title string, otherwise newlines are added
+												.append(jQuery('<br /><br />'))
+												.append(jQuery('<div/>')
+												.html(helpText));
+					/*
+					.html(helpText.substring(0, cutOffIndex) + ' ... ')
+					.append(jQuery('<a />')
+						.attr('href', '#')
+						.html('Read more')
+					);
+					*/
+					
+				return summary.delegate('a', 'click', function() {
+					jQuery(this).parent().html(helpText);
+					return false;
+				});	
+			}				
+		
+			function setupScoreCard() {
+				wrapGet(planId, handleGetResponse ) 
+
+			}
+			
+			function wrapGet (planid, callback) {
+
+				addSerialiseCalls('get', planid, callback);
+
+			}
+			
+			var stack = [];
+			function addSerialiseCalls(method, params, callback) {
+
+				stack.push({ method: method, params: params, callback: callback });
+				if (processing == 0) {
+					processSerialiseCalls();
+				}
+			}
+
+			var processing = 0;
+			
+			function processSerialiseCalls() {
+
+				
+				var obj = stack.shift();
+
+				if (obj == undefined) {
+					// Finished
+				}
+				else if (obj.method == 'get') {
+
+					processing++;
+					_wrapGet(obj.params, function (result) { try {obj.callback(result);}finally{ processedSerialiseCalls();} });
+
+				}
+				
+			}
+
+			function processedSerialiseCalls() {
+				processing--;
+				processSerialiseCalls();
+			}				
+
+			function _wrapGet (planId, callback) {
+
+				showAjaxSpinner(true);
+				
+				var ret = function (result) { showAjaxSpinner(false); callback(data); }
+
+				ttgApi.getScoreCardDetails(planId, updateRawData, undefined, ret);
+
+			}
+
+			function updateRawData(d) {
+				
+				data = d;
+
+			}
+			
+			var ajaxSpinnerCnt = 0;
+			
+			function showAjaxSpinner(show) {
+				
+				if (show) { 
+					ajaxSpinnerCnt++;
+					if (ajaxSpinnerCnt == 1) {
+
+						jQuery('#SPINNER').append(jQuery('<img>').attr('id', 'tas_ajax_spinner').addClass('spinner').attr('src', '{!JSENCODE(URLFOR($Resource.ttgomjs, '/ttg/graph/images/loader.gif'))}'));
+						jQuery('#SPINNER').css("top", ( jQuery(window).height() - jQuery('#SPINNER').height() ) / 2+jQuery(window).scrollTop() + "px");
+						jQuery('#SPINNER').css("left", ( jQuery(window).width() - jQuery('#SPINNER').width() ) / 2+jQuery(window).scrollLeft() + "px");
+
+					}				  
+				}
+				else {
+
+					ajaxSpinnerCnt--;
+					if (ajaxSpinnerCnt <= 0) {				
+						jQuery('#SPINNER').html('');
+						ajaxSpinnerCnt = 0;
+					}
+
+				}
+			}
+		
+			that.render = render;
+			
+			return that;
+		
+		};
+		
+	</script>
+</apex:page>

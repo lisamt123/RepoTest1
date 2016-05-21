@@ -1,0 +1,2769 @@
+<!--
+  -- Class/Method Name: Vin_Recap_Scorecard
+  -- Author/Date: Dean Lukowski August 27, 2015
+  -- Purpose: VIN CR-00011208: Build Visualforce page for the new recap layout.
+  -->
+
+<apex:page standardController="Recap__c" extensions="Vin_Recap_Scorecard" Id="theRecapPage" showHeader="true" sidebar="true">
+	<apex:includeScript value="{!URLFOR($Resource.jQueryUi_1_11_1, 'jQueryUi_1.11.1/jquery/external/jquery/jquery.js')}" />
+    <apex:includeScript value="{!URLFOR($Resource.jQueryUi_1_11_1, 'jQueryUi_1.11.1/jquery/jquery-ui.min.js')}" />
+    <apex:stylesheet value="{!URLFOR($Resource.jQueryUi_1_11_1, 'jQueryUi_1.11.1/ui/themes/smoothness/jquery-ui.css')}"/>
+	
+	<style type="text/css">
+		/* PGStyle1 is for the Launch Consultant and Implementation Consultant Sections */
+        .PGStyle1{
+            margin-left:auto;
+            margin-right:auto;
+            width:100%;
+            border-collapse: collapse;
+            text-align: center;
+        }
+        .PGStyle1 tr:nth-child(odd){
+        	background-color: #E8F3FD;
+        }
+        .PGStyle1 tr:nth-child(1) td:nth-child(n+1){
+            font-weight: bold;
+            color: #F8FFFF !important;
+            background-color: #1797C0;
+        }
+        .PGStyle1 tr:nth-child(1) td:nth-child(1){
+        	border-right-color: transparent !important;
+        }
+        .PGStyle1 tr:nth-last-child(1){
+        	background-color: #D4D4CF;
+        	font-weight: bold;
+        }
+        .PGStyle1 tr:nth-last-child(1) td:nth-child(n+3):nth-child(-n+4){
+        	border-right-color: transparent !important;
+        }
+        .PGStyle1 td{
+        	border: 1px solid black !important;
+        	padding: 9px;
+        }
+        .PGStyle1 td:nth-child(1){
+        	font-weight: bold;
+        	padding-top: 11px;
+        	width: 25%;
+        }
+        .PGStyle1 td:nth-child(2){
+        	width: 10%;
+        }
+        .PGStyle1 td:nth-child(3){
+        	width: 40%;
+        }
+        .PGStyle1 td:nth-child(4){
+        	width: 10%;
+        }
+        .PGStyle1 td:nth-child(5){
+        	font-weight: bold;
+        	padding-top: 11px;
+        	width: 15%;
+        }
+        /* PGStyle2 is for the Creative Section */
+        .PGStyle2{
+            width:100%;
+            border-collapse: collapse;
+            text-align: center;
+        }
+        .PGStyle2 tr:nth-child(odd){
+        	background-color: #E8F3FD;
+        }
+        .PGStyle2 tr:nth-last-child(1){
+        	background-color: #D4D4CF;
+        	font-weight: bold;
+        }
+        .PGStyle2 tr:nth-child(1) td{
+            font-weight: bold;
+            color: #F8FFFF !important;
+            background-color: #1797C0;
+        }
+        .PGStyle2 tr:nth-child(1) td:nth-child(1){
+        	border-right-color: transparent !important;
+        }
+        .PGStyle2 td{
+        	border: 1px solid black !important;
+        	padding: 9px;
+        }
+        .PGStyle2 td:nth-child(1){
+        	font-weight: bold;
+        	padding-top: 11px;
+        	width: 15%;
+        }
+        .PGStyle2 td:nth-child(2){
+        	width: 5%;
+        }
+        .PGStyle2 td:nth-child(3){
+        	width: 40%;
+        }
+        /* PGStyle3 is for the Scores Sections */
+        .PGStyle3{
+            margin-left:auto;
+            margin-right:auto;
+            width:100%;
+        }
+        .PGStyle3 td:nth-child(odd){
+        	width: 15%;
+            text-align: right;
+            vertical-align: top;
+            padding-right: 15px;
+            font-size: 91%;
+            font-weight: bold;
+            font-family: Arial, Helvetica, sans-serif;
+            color: #4a4a56 !important;
+        }
+        .PGStyle3 td:nth-child(even){
+        	width: 15%;
+            text-align: left;
+        }
+        /* PGStyle4 is for the Virtual Trainer and On-Site Training Sections */
+        .PGStyle4{
+            margin-left:auto;
+            margin-right:auto;
+            width:100%;
+            border-collapse: collapse;
+            text-align: center;
+        }
+        .PGStyle4 tr:nth-child(odd){
+        	background-color: #E8F3FD;
+        }
+        .PGStyle4 tr:nth-child(1) td{
+            font-weight: bold;
+            color: #F8FFFF !important;
+            background-color: #1797C0;
+        }
+        .PGStyle4 tr:nth-child(1) td:nth-child(1){
+        	border-right-color: transparent !important;
+        }
+        .PGStyle4 tr:nth-last-child(-n+2){
+        	background-color: #D4D4CF;
+        	font-weight: bold;
+        }
+        .PGStyle4 td{
+        	border: 1px solid black !important;
+        	padding: 9px;
+        }
+        .PGStyle4 td:nth-child(1){
+        	font-weight: bold;
+        	padding-top: 11px;
+        	width: 25%;
+        }
+        .PGStyle4 td:nth-child(2){
+        	width: 10%;
+        }
+        .PGStyle4 td:nth-child(3){
+        	width: 40%;
+        }
+        .PGStyle4 td:nth-child(4){
+        	width: 10%;
+        }
+        .PGStyle4 td:nth-child(5){
+        	font-weight: bold;
+        	padding-top: 11px;
+        	width: 15%;
+        }
+    </style>
+
+    <script type="text/javascript">
+	    var j$ = jQuery.noConflict();
+	    
+	    window.onload = function(){
+	        jQuery('[id$=q1]').focus();
+	    };
+    
+    </script>
+
+	<apex:sectionHeader title="Scorecard" subtitle="{!RecapObj.Name}" />
+	<apex:form id="RecapPage">
+
+		<apex:pageMessages id="errors" />
+		<apex:pageBlock >
+
+			<apex:pageBlockButtons >
+			<!-- Overriding the Save button in the controller, but using the standard Cancel button -->
+				<apex:commandbutton value="Save" action="{!Save}" />
+				<apex:commandButton value="Cancel" action="{!Cancel}" />
+			</apex:pageBlockButtons>
+
+			<apex:pageBlockSection title="Project Details" >
+				<apex:pageBlockSectionItem >
+					<apex:outputLabel value="Record Type" for="rc" />
+					<apex:inputField value="{!RecapObj.RecordTypeId}" id="rc" />
+				</apex:pageBlockSectionItem>
+				<apex:pageBlockSectionItem >
+					<apex:outputLabel value="Owner" for="owner" />
+					<apex:inputField value="{!RecapObj.OwnerId}" id="Owner" />
+				</apex:pageBlockSectionItem>
+				<apex:pageBlockSectionItem >
+					<apex:outputLabel value="{!$ObjectType.Recap__c.fields.Dealer_ID__c.label}" for="dealerId" />
+					<apex:outputText value="{!projectAcctDealerID}" id="dealerId" />
+				</apex:pageBlockSectionItem>
+				<apex:pageBlockSectionItem >
+					<apex:outputLabel value="{!$ObjectType.Recap__c.fields.Implementation_Project_Manager__c.label}" for="IPM" />
+					<apex:outputText value="{!RecapObj.Implementation_Project_Manager__c}" id="IPM" />
+				</apex:pageBlockSectionItem>
+				<apex:pageBlockSectionItem >
+					<apex:outputLabel value="{!$ObjectType.Recap__c.fields.Account_Name__c.label}" for="aName" />
+					<apex:outputText value="{!projectAcctName}" id="aName" />
+				</apex:pageBlockSectionItem>
+				<apex:pageBlockSectionItem >
+					<apex:outputLabel value="{!$ObjectType.Recap__c.fields.Data_Consultant__c.label}" for="DC" />
+					<apex:outputText value="{!RecapObj.Data_Consultant__c}" id="DC" />
+				</apex:pageBlockSectionItem>
+				<apex:pageBlockSectionItem >
+					<apex:outputLabel value="{!$ObjectType.Recap__c.fields.Project__c.label}" for="pj" />
+					<apex:outputLink target="_blank" value="/{!projectId}" id="pj" >{!projectName}</apex:outputLink>
+				</apex:pageBlockSectionItem>
+				<apex:pageBlockSectionItem >
+					<apex:outputLabel value="{!$ObjectType.Recap__c.fields.Launch_Consultant__c.label}" for="LC" />
+					<apex:outputText value="{!RecapObj.Launch_Consultant__c}" id="LC" />
+				</apex:pageBlockSectionItem>
+				<apex:pageBlockSectionItem >
+					<apex:outputLabel value="Project Created Date" for="pcd" />
+					<apex:outputText value="{0, date, M/d/yyyy}" id="pcd" >
+						<apex:param value="{!projectCreatedDate}" />
+					</apex:outputText>
+				</apex:pageBlockSectionItem>
+				<apex:pageBlockSectionItem >
+					<apex:outputLabel value="{!$ObjectType.SFDC_520_Quote__c.fields.Trainer_4__c.label}" for="VT" />
+					<apex:outputText value="{!projectVirtualTrainerName}" id="VT" />
+				</apex:pageBlockSectionItem>
+				<apex:pageBlockSectionItem >
+					<apex:outputLabel value="Project Alternate Start Date" for="apcd" />
+					<apex:outputText value="{0, date, M/d/yyyy}" id="apcd" >
+						<apex:param value="{!projectAlternateStart}"  />
+					</apex:outputText>
+				</apex:pageBlockSectionItem>
+				<apex:pageBlockSectionItem >
+					<apex:outputLabel value="{!$ObjectType.Recap__c.fields.Product_Trainer__c.label}" for="PT" />
+					<apex:outputText value="{!RecapObj.Product_Trainer__c}" id="PT" />
+				</apex:pageBlockSectionItem>
+				<apex:pageBlockSectionItem >
+					<apex:outputLabel value="{!$ObjectType.SFDC_520_Quote__c.fields.Virtual_Training_Start_Date__c.label}" for="virtStart" />
+					<apex:outputText value="{0, date, M/d/yyyy}" id="virtStart" >
+						<apex:param value="{!projectVirtualTrainingStart}" />
+					</apex:outputText>
+				</apex:pageBlockSectionItem>
+				<apex:pageBlockSectionItem >
+					<apex:outputLabel value="{!$ObjectType.SFDC_520_Quote__c.fields.Vin_Performance_Manager__c.label}" for="PM" />
+					<apex:outputText value="{!projectVinPerformanceManagerName}" id="PM" />
+				</apex:pageBlockSectionItem>
+				<apex:pageBlockSectionItem >
+					<apex:outputLabel value="Training Object(Link)" for="to" />
+					<apex:outputPanel >
+						<apex:outputText value="{!trainingLinkName}" rendered="{!IF(trainingLinkId == '', true, false)}" />
+						<apex:outputLink value="/{!trainingLinkId}" id="to"  target="_blank" rendered="{!IF(trainingLinkId != '', true, false)}" >{!trainingLinkName}
+						</apex:outputLink>
+					</apex:outputPanel>
+				</apex:pageBlockSectionItem>
+				<apex:pageBlockSectionItem >
+					<apex:outputLabel value="Regional Sales Manager" for="RSM" />
+					<apex:outputText value="{!projectRegionalSalesManagerName}" id="VT" />
+				</apex:pageBlockSectionItem>
+				<apex:pageBlockSectionItem >
+					<apex:outputLabel value="{!$ObjectType.SFDC_520_Quote__c.fields.Confirmed_Training_Start__c.label}" for="comStart" />
+					<apex:outputText value="{0, date, M/d/yyyy}" id="comStart" >
+						<apex:param value="{!projectTrainingStart}" />
+					</apex:outputText>
+				</apex:pageBlockSectionItem>
+				<apex:pageBlockSectionItem >
+					<apex:outputLabel value="{!$ObjectType.SFDC_520_Quote__c.fields.Opportunity__c.label}" for="opp" />
+					<apex:outputLink target="_blank" value="/{!projectOppId}" id="opp" >
+																		{!projectOppName}</apex:outputLink>
+				</apex:pageBlockSectionItem>
+				<apex:pageBlockSectionItem >
+					<apex:outputLabel value="{!$ObjectType.SFDC_520_Quote__c.fields.Confirmed_Training_End__c.label}" for="comEnd" />
+					<apex:outputText value="{0, date, M/d/yyyy}" id="comEnd" >
+						<apex:param value="{!projectTrainingEnd}" />
+					</apex:outputText>
+				</apex:pageBlockSectionItem>
+				<apex:pageBlockSectionItem >
+					<apex:outputLabel value="{!$ObjectType.SFDC_520_Quote__c.fields.Build_Type__c.label}" for="buildType" />
+					<apex:outputText value="{!projectBuildType}" id="buildType" />
+				</apex:pageBlockSectionItem>
+			</apex:pageBlockSection>
+
+			<apex:pageBlockSection title="Scores" columns="1" >
+				<apex:panelGrid columns="6" styleClass="PGStyle3" >
+					<apex:panelGroup >
+						<apex:outputLabel value="{!$ObjectType.Recap__c.fields.LC_Score_New__c.label}" for="lcScore" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:outputField value="{!RecapObj.LC_Score_New__c}" id="lcScore" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:outputLabel value="{!$ObjectType.Recap__c.fields.VT_Dealer_Grade__c.label}" for="vtdGrade" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:outputField value="{!RecapObj.VT_Dealer_Grade__c}" id="vtdGrade" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:outputLabel value="{!$ObjectType.Recap__c.fields.PT_Dealer_Grade__c.label}" for="ptdGrade" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:outputField value="{!RecapObj.PT_Dealer_Grade__c}" id="ptdGrade" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:outputLabel value="{!$ObjectType.Recap__c.fields.Implementation_Score_new__c.label}" for="icScore" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:outputField value="{!RecapObj.Implementation_Score_new__c}" id="icScore" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:outputLabel value="{!$ObjectType.Recap__c.fields.VT_Score__c.label}" for="vtScore" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:outputField value="{!RecapObj.VT_Score__c}" id="vtScore" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:outputLabel value="{!$ObjectType.Recap__c.fields.PT_Score__c.label}" for="ptScore" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:outputField value="{!RecapObj.PT_Score__c}" id="ptScore" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:outputLabel value="{!$ObjectType.Recap__c.fields.Creative_Score_New__c.label}" for="cScore" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:outputPanel >
+							<apex:outputText value="{0, number, 0.0}" id="cScore" >
+								<apex:param value="{!RecapObj.Creative_Score_New__c}" />
+							</apex:outputText>
+							<apex:outputText value="%" rendered="{!IF(RecapObj.Creative_Score_New__c != null, true, false)}"/>
+						</apex:outputPanel>
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:outputLabel value="{!$ObjectType.Recap__c.fields.VT_On_Time_Score__c.label}" for="vtOTScore" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:outputField value="{!RecapObj.VT_On_Time_Score__c}" id="vtOTScore" rendered="{!IF(vtOnTimeScoreCount > 0, true, false)}" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:outputLabel value="{!$ObjectType.Recap__c.fields.PT_On_Time_Score__c.label}" for="ptOTScore" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:outputField value="{!RecapObj.PT_On_Time_Score__c}" id="ptOTScore" rendered="{!IF(ptOnTimeScoreCount > 0, true, false)}" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:outputLabel value="IPM Score" for="total" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:outputPanel >
+							<apex:outputText value="{0, number, 0.0}" id="total" >
+								<apex:param value="{!totalScore}" />
+							</apex:outputText>
+							<apex:outputText value="%" rendered="{!IF(totalScore != null, true, false)}"/>
+						</apex:outputPanel>
+					</apex:panelGroup>
+				</apex:panelGrid>
+			</apex:pageBlockSection>
+
+			<apex:pageBlockSection title="Launch Consultant" columns="1" id="LCSection" >
+				 <script>twistSection(document.getElementById("{!$Component.LCSection}").childNodes[0].childNodes[0]); </script>
+				<apex:panelGrid columns="5" styleClass="PGStyle1" >
+					<!--HEADER-->
+					<apex:panelGroup >
+						<apex:outputLabel value="REQUIREMENT" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:outputLabel value="NOTES" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:outputLabel value="Days Until Due" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:outputLabel value="DUE DATE" />
+					</apex:panelGroup>
+					<!--ROW 1-->
+					<apex:panelGroup >
+						<apex:outputLabel value="{!$ObjectType.Recap__c.fields.q1__c.label}" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:selectList value="{!selectedLUE}" size="1" style="width: 74px;" >
+                        	<apex:selectOptions value="{!availableYesNo}" />
+                    	</apex:selectList>
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:inputTextarea value="{!RecapObj.Q1_Notes__c}" style="width: 98%;" rows="1" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:inputField value="{!RecapObj.Users_Entered_Set_Days_Due__c}" style="width: 30px; text-align: center;" >
+							<apex:actionSupport event="onchange" action="{!getDueDate}" reRender="usersEnteredDD" >
+								<apex:param name="firstParam" value="Users_Entered_Due_Date__c" assignTo="{!field}" />
+								<apex:param name="secondParam" value="Users_Entered_Set_Days_Due__c" assignTo="{!setDays}" />
+							</apex:actionSupport>
+						</apex:inputField>
+					</apex:panelGroup>
+					<apex:panelGroup id="usersEnteredDD">
+						<apex:outputField value="{!RecapObj.Users_Entered_Due_Date__c}" />
+					</apex:panelGroup>
+					<!--ROW 2-->
+					<apex:panelGroup >
+						<apex:outputLabel value="{!$ObjectType.Recap__c.fields.R01__c.label}" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:selectList value="{!selectedASV}" size="1" style="width: 74px;" >
+                        	<apex:selectOptions value="{!availableYesNo}" />
+                    	</apex:selectList>
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:inputTextarea value="{!RecapObj.Admin_settings_verification_form_notes__c}" style="width: 98%;" rows="1" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:inputField value="{!RecapObj.Admin_Settings_Set_Days_Due__c}" style="width: 30px; text-align: center;" >
+							<apex:actionSupport event="onchange" action="{!getDueDate}" reRender="adminSettingsDD" >
+								<apex:param name="firstParam" value="Admin_Settings_Verification_Form_Due_Dat__c" assignTo="{!field}" />
+								<apex:param name="secondParam" value="Admin_Settings_Set_Days_Due__c" assignTo="{!setDays}" />
+							</apex:actionSupport>
+						</apex:inputField>
+					</apex:panelGroup>
+					<apex:panelGroup id="adminSettingsDD" >
+						<apex:outputField value="{!RecapObj.Admin_Settings_Verification_Form_Due_Dat__c}" />
+					</apex:panelGroup>
+					<!--ROW 3-->
+					<apex:panelGroup >
+						<apex:outputLabel value="{!$ObjectType.Recap__c.fields.q16__c.label}" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:selectList value="{!selectedLPT}" size="1" style="width: 74px;" >
+                        	<apex:selectOptions value="{!availableYesNo}" />
+                    	</apex:selectList>
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:inputTextarea value="{!RecapObj.Q16_Notes__c}" style="width: 98%;" rows="1" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						
+					</apex:panelGroup>
+					<apex:panelGroup >
+						
+					</apex:panelGroup>
+					<!--ROW 4-->
+					<apex:panelGroup >
+						<apex:outputLabel value="{!$ObjectType.Recap__c.fields.Processes_and_Templates_Verification__c.label}" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:selectList value="{!selectedPTV}" id="ptv" size="1" style="width: 74px;" >
+                        	<apex:selectOptions value="{!availableYesNo}" />
+                    	</apex:selectList>
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:inputTextarea value="{!RecapObj.Processes_verification_form_notes__c}" style="width: 98%;" rows="1" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:inputField value="{!RecapObj.Processes_and_Temp_Set_Days_Due__c}" style="width: 30px; text-align: center;" >
+							<apex:actionSupport event="onchange" action="{!getDueDate}" reRender="procTempDD" >
+								<apex:param name="firstParam" value="Processes_and_Templates_Verification_Due__c" assignTo="{!field}" />
+								<apex:param name="secondParam" value="Processes_and_Temp_Set_Days_Due__c" assignTo="{!setDays}" />
+							</apex:actionSupport>
+						</apex:inputField>
+					</apex:panelGroup>
+					<apex:panelGroup id="procTempDD" >
+						<apex:outputField value="{!RecapObj.Processes_and_Templates_Verification_Due__c}" />
+					</apex:panelGroup>
+					<!--ROW 5-->
+					<apex:panelGroup >
+						<apex:outputLabel value="{!$ObjectType.Recap__c.fields.R07__c.label}" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:selectList value="{!selectedDMS}" size="1" style="width: 74px;" >
+                        	<apex:selectOptions value="{!availableYesNo}" />
+                    	</apex:selectList>
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:inputTextarea value="{!RecapObj.Desking_configuration_from_DMS_notes__c}" style="width: 98%;" rows="1" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						
+					</apex:panelGroup>
+					<apex:panelGroup >
+						
+					</apex:panelGroup>
+					<!--ROW 6-->
+					<apex:panelGroup >
+						<apex:outputLabel value="{!$ObjectType.Recap__c.fields.R08__c.label}" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:selectList value="{!selectedDLF}" size="1" style="width: 74px;" >
+                        	<apex:selectOptions value="{!availableYesNo}" />
+                    	</apex:selectList>
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:inputTextarea value="{!RecapObj.Desking_configuration_fees_notes__c}" style="width: 98%;" rows="1" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						
+					</apex:panelGroup>
+					<apex:panelGroup >
+						
+					</apex:panelGroup>
+					<!--ROW 7-->
+					<apex:panelGroup >
+						<apex:outputLabel value="{!$ObjectType.Recap__c.fields.Desking_Verification__c.label}" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:selectList value="{!selectedLDV}" id="ldv" size="1" style="width: 74px;" >
+                        	<apex:selectOptions value="{!availableYesNo}" />
+                    	</apex:selectList>
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:inputTextarea value="{!RecapObj.Desking_verification_form_notes__c}" style="width: 98%;" rows="1" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:inputField value="{!RecapObj.Desking_Verification_Set_Days_Due__c}" style="width: 30px; text-align: center;" >
+							<apex:actionSupport event="onchange" action="{!getDueDate}" reRender="deskVerDD" >
+								<apex:param name="firstParam" value="Desking_Verification_Due_Date__c" assignTo="{!field}" />
+								<apex:param name="secondParam" value="Desking_Verification_Set_Days_Due__c" assignTo="{!setDays}" />
+							</apex:actionSupport>
+						</apex:inputField>
+					</apex:panelGroup>
+					<apex:panelGroup id="deskVerDD" >
+						<apex:outputField value="{!RecapObj.Desking_Verification_Due_Date__c}" />
+					</apex:panelGroup>
+					<!--ROW 8-->
+					<apex:panelGroup >
+						<apex:outputLabel value="{!$ObjectType.Recap__c.fields.R05__c.label}" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:selectList value="{!selectedUPL}" size="1" style="width: 74px;" >
+                        	<apex:selectOptions value="{!availableYesNo}" />
+                    	</apex:selectList>
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:inputTextarea value="{!RecapObj.Uploaded_forms_notes__c}" style="width: 98%;" rows="1" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						
+					</apex:panelGroup>
+					<apex:panelGroup >
+						
+					</apex:panelGroup>
+					<!--ROW 9-->
+					<apex:panelGroup >
+						<apex:outputLabel value="{!$ObjectType.Recap__c.fields.q21__c.label}" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:selectList value="{!selectedVER}" size="1" style="width: 74px;" >
+                        	<apex:selectOptions value="{!availableYesNo}" />
+                    	</apex:selectList>
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:inputTextarea value="{!RecapObj.Q21_Notes__c}" style="width: 98%;" rows="1" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						
+					</apex:panelGroup>
+					<apex:panelGroup >
+						
+					</apex:panelGroup>
+					<!--ROW 10-->
+					<apex:panelGroup >
+						<apex:outputLabel value="{!$ObjectType.Recap__c.fields.DMS_Push__c.label}" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:selectList value="{!selectedLDP}" id="ldp" size="1" style="width: 74px;" >
+                        	<apex:selectOptions value="{!availableYesNo}" />
+                    	</apex:selectList>
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:inputTextarea value="{!RecapObj.DMS_push_notes__c}" style="width: 98%;" rows="1" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:inputField value="{!RecapObj.DMS_Push_Set_Days_Due__c}" style="width: 30px; text-align: center;" >
+							<apex:actionSupport event="onchange" action="{!getDueDate}" reRender="dmsPushDD" >
+								<apex:param name="firstParam" value="DMS_Push_Due__c" assignTo="{!field}" />
+								<apex:param name="secondParam" value="DMS_Push_Set_Days_Due__c" assignTo="{!setDays}" />
+							</apex:actionSupport>
+						</apex:inputField>
+					</apex:panelGroup>
+					<apex:panelGroup id="dmsPushDD" >
+						<apex:outputField value="{!RecapObj.DMS_Push_Due__c}" />
+					</apex:panelGroup>
+					<!--ROW 11-->
+					<apex:panelGroup >
+						<apex:outputLabel value="{!$ObjectType.Recap__c.fields.q24__c.label}" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:selectList value="{!selectedDTR}" size="1" style="width: 74px;" >
+                        	<apex:selectOptions value="{!availableYesNo}" />
+                    	</apex:selectList>
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:inputTextarea value="{!RecapObj.Q24_Notes__c}" style="width: 98%;" rows="1" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:inputField value="{!RecapObj.DT_R1_Push_Set_Days_Due__c}" style="width: 30px; text-align: center;" >
+							<apex:actionSupport event="onchange" action="{!getDueDate}" reRender="dtr1PushDD" >
+								<apex:param name="firstParam" value="DT_R1_Push_Due__c" assignTo="{!field}" />
+								<apex:param name="secondParam" value="DT_R1_Push_Set_Days_Due__c" assignTo="{!setDays}" />
+							</apex:actionSupport>
+						</apex:inputField>
+					</apex:panelGroup>
+					<apex:panelGroup id="dtr1PushDD" >
+						<apex:outputField value="{!RecapObj.DT_R1_Push_Due__c}" />
+					</apex:panelGroup>
+					<!--ROW 12-->
+					<apex:panelGroup >
+						<apex:outputLabel value="{!$ObjectType.Recap__c.fields.DT_RT_1_Enabled_Tested__c.label}" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:selectList value="{!selectedDR1}" id="dr1" size="1" style="width: 74px;" >
+                        	<apex:selectOptions value="{!availableYesNo}" />
+                    	</apex:selectList>
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:inputTextarea value="{!RecapObj.DT_Route_1_push_notes__c}" style="width: 98%;" rows="1" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						
+					</apex:panelGroup>
+					<apex:panelGroup >
+						
+					</apex:panelGroup>
+					<!--ROW 13-->
+					<apex:panelGroup >
+						<apex:outputLabel value="{!$ObjectType.Recap__c.fields.q34__c.label}" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:selectList value="{!selectedFTP}" size="1" style="width: 74px;" >
+                        	<apex:selectOptions value="{!availableYesNo}" />
+                    	</apex:selectList>
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:inputTextarea value="{!RecapObj.Q34_Notes__c}" style="width: 98%;" rows="1" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						
+					</apex:panelGroup>
+					<apex:panelGroup >
+						
+					</apex:panelGroup>
+					<!--ROW 14-->
+					<apex:panelGroup >
+						<apex:outputLabel value="{!$ObjectType.Recap__c.fields.q7__c.label}" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:selectList value="{!selectedIGC}" size="1" style="width: 74px;" >
+                        	<apex:selectOptions value="{!availableYesNo}" />
+                    	</apex:selectList>
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:inputTextarea value="{!RecapObj.Q7_Notes__c}" style="width: 98%;" rows="1" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						
+					</apex:panelGroup>
+					<apex:panelGroup >
+						
+					</apex:panelGroup>
+					<!--ROW 15-->
+					<apex:panelGroup >
+						<apex:outputLabel value="{!$ObjectType.Recap__c.fields.q6__c.label}" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:selectList value="{!selectedCAR}" size="1" style="width: 74px;" >
+                        	<apex:selectOptions value="{!availableYesNo}" />
+                    	</apex:selectList>
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:inputTextarea value="{!RecapObj.Q6_Notes__c}" style="width: 98%;" rows="1" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:inputField value="{!RecapObj.Carfax_Autocheck_Set_Days_Due__c}" style="width: 30px; text-align: center;" >
+							<apex:actionSupport event="onchange" action="{!getDueDate}" reRender="carfaxDD" >
+								<apex:param name="firstParam" value="CarFax_AutoCheck_Due_Date__c" assignTo="{!field}" />
+								<apex:param name="secondParam" value="Carfax_Autocheck_Set_Days_Due__c" assignTo="{!setDays}" />
+							</apex:actionSupport>
+						</apex:inputField>
+					</apex:panelGroup>
+					<apex:panelGroup id="carfaxDD" >
+						<apex:outputField value="{!RecapObj.CarFax_AutoCheck_Due_Date__c}" />
+					</apex:panelGroup>
+					<!--ROW 16-->
+					<apex:panelGroup >
+						<apex:outputLabel value="{!$ObjectType.Recap__c.fields.q26__c.label}" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:selectList value="{!selectedMES}" size="1" style="width: 74px;" >
+                        	<apex:selectOptions value="{!availableYesNo}" />
+                    	</apex:selectList>
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:inputTextarea value="{!RecapObj.Q26_Notes__c}" style="width: 98%;" rows="1" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:inputField value="{!RecapObj.Text_Messaging_Set_Days_Due__c}" style="width: 30px; text-align: center;" >
+							<apex:actionSupport event="onchange" action="{!getDueDate}" reRender="textDD" >
+								<apex:param name="firstParam" value="Text_Messaging_Due_Date__c" assignTo="{!field}" />
+								<apex:param name="secondParam" value="Text_Messaging_Set_Days_Due__c" assignTo="{!setDays}" />
+							</apex:actionSupport>
+						</apex:inputField>
+					</apex:panelGroup>
+					<apex:panelGroup id="textDD" >
+						<apex:outputField value="{!RecapObj.Text_Messaging_Due_Date__c}" />
+					</apex:panelGroup>
+					<!--ROW 17-->
+					<apex:panelGroup >
+						<apex:outputLabel value="{!$ObjectType.Recap__c.fields.q29__c.label}" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:selectList value="{!selectedCBS}" size="1" style="width: 74px;" >
+                        	<apex:selectOptions value="{!availableYesNo}" />
+                    	</apex:selectList>
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:inputTextarea value="{!RecapObj.Q29_Notes__c}" style="width: 98%;" rows="1" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:inputField value="{!RecapObj.Credit_Bureau_Set_Days_Due__c}" style="width: 30px; text-align: center;" >
+							<apex:actionSupport event="onchange" action="{!getDueDate}" reRender="creditDD" >
+								<apex:param name="firstParam" value="Credit_Bureau_Setup_Due_Date__c" assignTo="{!field}" />
+								<apex:param name="secondParam" value="Credit_Bureau_Set_Days_Due__c" assignTo="{!setDays}" />
+							</apex:actionSupport>
+						</apex:inputField>
+					</apex:panelGroup>
+					<apex:panelGroup id="creditDD" >
+						<apex:outputField value="{!RecapObj.Credit_Bureau_Setup_Due_Date__c}" />
+					</apex:panelGroup>
+					<!--ROW 18-->
+					<apex:panelGroup >
+						<apex:outputLabel value="{!$ObjectType.Recap__c.fields.Target__c.label}" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:selectList value="{!selectedICT}" id="ict" size="1" style="width: 74px;" >
+                        	<apex:selectOptions value="{!availableYesNo}" />
+                    	</apex:selectList>
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:inputTextarea value="{!RecapObj.Target_Notes__c}" style="width: 98%;" rows="1" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						
+					</apex:panelGroup>
+					<apex:panelGroup >
+						
+					</apex:panelGroup>
+					<!--ROW 19-->
+					<apex:panelGroup >
+						<apex:outputLabel value="{!$ObjectType.Recap__c.fields.Limited_Users__c.label}" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:selectList value="{!selectedILU}" id="ilu" size="1" style="width: 74px;" >
+                        	<apex:selectOptions value="{!availableYesNo}" />
+                    	</apex:selectList>
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:inputTextarea value="{!RecapObj.Limited_Users_Notes__c}" style="width: 98%;" rows="1" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						
+					</apex:panelGroup>
+					<apex:panelGroup >
+						
+					</apex:panelGroup>
+					<!--ROW 20-->
+					<apex:panelGroup >
+						<apex:outputLabel value="{!$ObjectType.Recap__c.fields.Test_Lead_Submitted__c.label}" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:selectList value="{!selectedTLS}" id="tls" size="1" style="width: 74px;" >
+                        	<apex:selectOptions value="{!availableYesNo}" />
+                    	</apex:selectList>
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:inputTextarea value="{!RecapObj.Test_Lead_Submitted_Notes__c}" style="width: 98%;" rows="1" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						
+					</apex:panelGroup>
+					<apex:panelGroup >
+						
+					</apex:panelGroup>
+					<!--ROW 21-->
+					<apex:panelGroup >
+						<apex:outputLabel value="{!$ObjectType.Recap__c.fields.LC_Ad_Hoc_1__c.label}" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:selectList value="{!selectedLA1}" id="la1" size="1" style="width: 74px;" >
+                        	<apex:selectOptions value="{!availableYesNo}" />
+                    	</apex:selectList>
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:inputTextarea value="{!RecapObj.LC_Ad_Hoc_1_Notes__c}" style="width: 98%;" rows="1" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						
+					</apex:panelGroup>
+					<apex:panelGroup >
+						
+					</apex:panelGroup>
+					<!--ROW 22-->
+					<apex:panelGroup >
+						<apex:outputLabel value="{!$ObjectType.Recap__c.fields.LC_Ad_Hoc_2__c.label}" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:selectList value="{!selectedLA2}" id="la2" size="1" style="width: 74px;" >
+                        	<apex:selectOptions value="{!availableYesNo}" />
+                    	</apex:selectList>
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:inputTextarea value="{!RecapObj.LC_Ad_Hoc_2_Notes__c}" style="width: 98%;" rows="1" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						
+					</apex:panelGroup>
+					<apex:panelGroup >
+						
+					</apex:panelGroup>
+					<!--ROW 23-->
+					<apex:panelGroup >
+						<apex:outputLabel value="{!$ObjectType.Recap__c.fields.LC_Ad_Hoc_3__c.label}" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:selectList value="{!selectedLA3}" id="la3" size="1" style="width: 74px;" >
+                        	<apex:selectOptions value="{!availableYesNo}" />
+                    	</apex:selectList>
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:inputTextarea value="{!RecapObj.LC_Ad_Hoc_3_Notes__c}" style="width: 98%;" rows="1" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						
+					</apex:panelGroup>
+					<apex:panelGroup >
+						
+					</apex:panelGroup>
+					<!--ROW 24-->
+					<apex:panelGroup >
+						<apex:outputLabel value="GRADE" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:inputField value="{!RecapObj.LC_Score_New__c}" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+					</apex:panelGroup>
+					<apex:panelGroup >
+					</apex:panelGroup>
+					<apex:panelGroup >
+					</apex:panelGroup>
+				</apex:panelGrid>
+			</apex:pageBlockSection>
+
+			<apex:pageBlockSection title="Implementation Consultant" columns="1" id="ICSection" >
+				 <script>twistSection(document.getElementById("{!$Component.ICSection}").childNodes[0].childNodes[0]); </script>
+				<apex:panelGrid columns="5" styleClass="PGStyle1" >
+					<!--HEADER-->
+					<apex:panelGroup >
+						<apex:outputLabel value="REQUIREMENT" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:outputLabel value="NOTES" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:outputLabel value="Days Until Due" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:outputLabel value="DUE DATE" />
+					</apex:panelGroup>
+					<!--ROW 1-->
+					<apex:panelGroup >
+						<apex:outputLabel value="{!$ObjectType.Recap__c.fields.q2__c.label}" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:selectList value="{!selectedIIV}" size="1" style="width: 74px;" >
+                        	<apex:selectOptions value="{!availableYesNo}" />
+                    	</apex:selectList>
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:inputTextarea value="{!RecapObj.Q2_Notes__c}" style="width: 98%;" rows="1" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:inputField value="{!RecapObj.Inventory_Verified_Set_Days_Due__c}" style="width: 30px; text-align: center;" >
+							<apex:actionSupport event="onchange" action="{!getDueDate}" reRender="inventoryDD" >
+								<apex:param name="firstParam" value="Inventory_Verification_Due_Date__c" assignTo="{!field}" />
+								<apex:param name="secondParam" value="Inventory_Verified_Set_Days_Due__c" assignTo="{!setDays}" />
+							</apex:actionSupport>
+						</apex:inputField>
+					</apex:panelGroup>
+					<apex:panelGroup id="inventoryDD" >
+						<apex:outputField value="{!RecapObj.Inventory_Verification_Due_Date__c}" />
+					</apex:panelGroup>
+					<!--ROW 2-->
+					<apex:panelGroup >
+						<apex:outputLabel value="{!$ObjectType.Recap__c.fields.q8__c.label}" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:selectList value="{!selectedIBB}" size="1" style="width: 74px;" >
+                        	<apex:selectOptions value="{!availableYesNo}" />
+                    	</apex:selectList>
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:inputTextarea value="{!RecapObj.Q8_Notes__c}" style="width: 98%;" rows="1" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						
+					</apex:panelGroup>
+					<apex:panelGroup >
+						
+					</apex:panelGroup>
+					<!--ROW 3-->
+					<apex:panelGroup >
+						<apex:outputLabel value="{!$ObjectType.Recap__c.fields.q4__c.label}" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:selectList value="{!selectedIIC}" size="1" style="width: 74px;" >
+                        	<apex:selectOptions value="{!availableYesNo}" />
+                    	</apex:selectList>
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:inputTextarea value="{!RecapObj.Q4_Notes__c}" style="width: 98%;" rows="1" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						
+					</apex:panelGroup>
+					<apex:panelGroup >
+						
+					</apex:panelGroup>
+					<!--ROW 4-->
+					<apex:panelGroup >
+						<apex:outputLabel value="{!$ObjectType.Recap__c.fields.q5__c.label}" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:selectList value="{!selectedISU}" size="1" style="width: 74px;" >
+                        	<apex:selectOptions value="{!availableYesNo}" />
+                    	</apex:selectList>
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:inputTextarea value="{!RecapObj.Q5_Notes__c}" style="width: 98%;" rows="1" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						
+					</apex:panelGroup>
+					<apex:panelGroup >
+						
+					</apex:panelGroup>
+					<!--ROW 5-->
+					<apex:panelGroup >
+						<apex:outputLabel value="{!$ObjectType.Recap__c.fields.q13__c.label}" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:selectList value="{!selectedIBA}" size="1" style="width: 74px;" >
+                        	<apex:selectOptions value="{!availableYesNo}" />
+                    	</apex:selectList>
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:inputTextarea value="{!RecapObj.Q13_Notes__c}" style="width: 98%;" rows="1" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:inputField value="{!RecapObj.BAC_and_Dealer_Code_Set_Days_Due__c}" style="width: 30px; text-align: center;" >
+							<apex:actionSupport event="onchange" action="{!getDueDate}" reRender="bacDD" >
+								<apex:param name="firstParam" value="BAC_and_Dealer_Code_Due__c" assignTo="{!field}" />
+								<apex:param name="secondParam" value="BAC_and_Dealer_Code_Set_Days_Due__c" assignTo="{!setDays}" />
+							</apex:actionSupport>
+						</apex:inputField>
+					</apex:panelGroup>
+					<apex:panelGroup id="bacDD" >
+						<apex:outputField value="{!RecapObj.BAC_and_Dealer_Code_Due__c}" />
+					</apex:panelGroup>
+					<!--ROW 6-->
+					<apex:panelGroup >
+						<apex:outputLabel value="{!$ObjectType.Recap__c.fields.q12__c.label}" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:selectList value="{!selectedICR}" size="1" style="width: 74px;" >
+                        	<apex:selectOptions value="{!availableYesNo}" />
+                    	</apex:selectList>
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:inputTextarea value="{!RecapObj.Q12_Notes__c}" style="width: 98%;" rows="1" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						
+					</apex:panelGroup>
+					<apex:panelGroup >
+						
+					</apex:panelGroup>
+					<!--ROW 7-->
+					<apex:panelGroup >
+						<apex:outputLabel value="{!$ObjectType.Recap__c.fields.Success_Fail_Verification__c.label}" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:selectList value="{!selectedSFV}" id="sfv" size="1" style="width: 74px;" >
+                        	<apex:selectOptions value="{!availableYesNo}" />
+                    	</apex:selectList>
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:inputTextarea value="{!RecapObj.Success_Fail_verification_form_notes__c}" style="width: 98%;" rows="1" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:inputField value="{!RecapObj.Success_Fail_Verification_Set_Days_Due__c}" style="width: 30px; text-align: center;" >
+							<apex:actionSupport event="onchange" action="{!getDueDate}" reRender="sucFailDD" >
+								<apex:param name="firstParam" value="Success_Fail_Verification_Due_Date__c" assignTo="{!field}" />
+								<apex:param name="secondParam" value="Success_Fail_Verification_Set_Days_Due__c" assignTo="{!setDays}" />
+							</apex:actionSupport>
+						</apex:inputField>
+					</apex:panelGroup>
+					<apex:panelGroup id="sucFailDD" >
+						<apex:outputField value="{!RecapObj.Success_Fail_Verification_Due_Date__c}" />
+					</apex:panelGroup>
+					<!--ROW 8-->
+					<apex:panelGroup >
+						<apex:outputLabel value="{!$ObjectType.Recap__c.fields.CRM_Notes_Completed__c.label}" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:selectList value="{!selectedCNC}" id="cnc" size="1" style="width: 74px;" >
+                        	<apex:selectOptions value="{!availableYesNo}" />
+                    	</apex:selectList>
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:inputTextarea value="{!RecapObj.CRM_Notes_Completed_Notes__c}" style="width: 98%;" rows="1" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						
+					</apex:panelGroup>
+					<apex:panelGroup >
+						
+					</apex:panelGroup>
+					<!--ROW 9-->
+					<apex:panelGroup >
+						<apex:outputLabel value="{!$ObjectType.Recap__c.fields.q19__c.label}" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:selectList value="{!selectedISO}" size="1" style="width: 74px;" >
+                        	<apex:selectOptions value="{!availableYesNo}" />
+                    	</apex:selectList>
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:inputTextarea value="{!RecapObj.Q19_Notes__c}" style="width: 98%;" rows="1" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						
+					</apex:panelGroup>
+					<apex:panelGroup >
+						
+					</apex:panelGroup>
+					<!--ROW 10-->
+					<apex:panelGroup >
+						<apex:outputLabel value="{!$ObjectType.Recap__c.fields.R14__c.label}" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:selectList value="{!selectedISA}" size="1" style="width: 74px;" >
+                        	<apex:selectOptions value="{!availableYesNo}" />
+                    	</apex:selectList>
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:inputTextarea value="{!RecapObj.Sales_report_notes__c}" style="width: 98%;" rows="1" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:inputField value="{!RecapObj.Sales_Report_Verification_Set_Days_Due__c}" style="width: 30px; text-align: center;" >
+							<apex:actionSupport event="onchange" action="{!getDueDate}" reRender="salesReportDD" >
+								<apex:param name="firstParam" value="Sales_Report_Verification_Due_Date__c" assignTo="{!field}" />
+								<apex:param name="secondParam" value="Sales_Report_Verification_Set_Days_Due__c" assignTo="{!setDays}" />
+							</apex:actionSupport>
+						</apex:inputField>
+					</apex:panelGroup>
+					<apex:panelGroup id="salesReportDD" >
+						<apex:outputField value="{!RecapObj.Sales_Report_Verification_Due_Date__c}" />
+					</apex:panelGroup>
+					<!--ROW 11-->
+					<apex:panelGroup >
+						<apex:outputLabel value="{!$ObjectType.Recap__c.fields.q20__c.label}" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:selectList value="{!selectedISE}" size="1" style="width: 74px;" >
+                        	<apex:selectOptions value="{!availableYesNo}" />
+                    	</apex:selectList>
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:inputTextarea value="{!RecapObj.Q20_Notes__c}" style="width: 98%;" rows="1" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						
+					</apex:panelGroup>
+					<apex:panelGroup >
+						
+					</apex:panelGroup>
+					<!--ROW 12-->
+					<apex:panelGroup >
+						<apex:outputLabel value="{!$ObjectType.Recap__c.fields.R17__c.label}" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:selectList value="{!selectedIOP}" size="1" style="width: 74px;" >
+                        	<apex:selectOptions value="{!availableYesNo}" />
+                    	</apex:selectList>
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:inputTextarea value="{!RecapObj.Open_ROs_notes__c}" style="width: 98%;" rows="1" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						
+					</apex:panelGroup>
+					<apex:panelGroup >
+						
+					</apex:panelGroup>
+					<!--ROW 13-->
+					<apex:panelGroup >
+						<apex:outputLabel value="{!$ObjectType.Recap__c.fields.q23__c.label}" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:selectList value="{!selectedIDE}" size="1" style="width: 74px;" >
+                        	<apex:selectOptions value="{!availableYesNo}" />
+                    	</apex:selectList>
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:inputTextarea value="{!RecapObj.Q23_Notes__c}" style="width: 98%;" rows="1" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						
+					</apex:panelGroup>
+					<apex:panelGroup >
+						
+					</apex:panelGroup>
+					<!--ROW 14-->
+					<apex:panelGroup >
+						<apex:outputLabel value="{!$ObjectType.Recap__c.fields.q27__c.label}" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:selectList value="{!selectedIAI}" size="1" style="width: 74px;" >
+                        	<apex:selectOptions value="{!availableYesNo}" />
+                    	</apex:selectList>
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:inputTextarea value="{!RecapObj.Q27_Notes__c}" style="width: 98%;" rows="1" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:inputField value="{!RecapObj.AIS_Rebates_Set_Days_Due__c}" style="width: 30px; text-align: center;" >
+							<apex:actionSupport event="onchange" action="{!getDueDate}" reRender="aisDD" >
+								<apex:param name="firstParam" value="AIS_Rebates_Due_Date__c" assignTo="{!field}" />
+								<apex:param name="secondParam" value="AIS_Rebates_Set_Days_Due__c" assignTo="{!setDays}" />
+							</apex:actionSupport>
+						</apex:inputField>
+					</apex:panelGroup>
+					<apex:panelGroup id="aisDD" >
+						<apex:outputField value="{!RecapObj.AIS_Rebates_Due_Date__c}" />
+					</apex:panelGroup>
+					<!--ROW 15-->
+					<apex:panelGroup >
+						<apex:outputLabel value="{!$ObjectType.Recap__c.fields.q28__c.label}" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:selectList value="{!selectedIPB}" size="1" style="width: 74px;" >
+                        	<apex:selectOptions value="{!availableYesNo}" />
+                    	</apex:selectList>
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:inputTextarea value="{!RecapObj.Q28_Notes__c}" style="width: 98%;" rows="1" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:inputField value="{!RecapObj.PBX_Setup_Set_Days_Due__c}" style="width: 30px; text-align: center;" >
+							<apex:actionSupport event="onchange" action="{!getDueDate}" reRender="pbxDD" >
+								<apex:param name="firstParam" value="PBX_Setup_Due_Date__c" assignTo="{!field}" />
+								<apex:param name="secondParam" value="PBX_Setup_Set_Days_Due__c" assignTo="{!setDays}" />
+							</apex:actionSupport>
+						</apex:inputField>
+					</apex:panelGroup>
+					<apex:panelGroup id="pbxDD" >
+						<apex:outputField value="{!RecapObj.PBX_Setup_Due_Date__c}" />
+					</apex:panelGroup>
+					<!--ROW 16-->
+					<apex:panelGroup >
+						<apex:outputLabel value="{!$ObjectType.Recap__c.fields.R18__c.label}" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:selectList value="{!selectedIDA}" size="1" style="width: 74px;" >
+                        	<apex:selectOptions value="{!availableYesNo}" />
+                    	</apex:selectList>
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:inputTextarea value="{!RecapObj.Data_appends_Diamond_Accounts_notes__c}" style="width: 98%;" rows="1" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						
+					</apex:panelGroup>
+					<apex:panelGroup >
+						
+					</apex:panelGroup>
+					<!--ROW 17-->
+					<apex:panelGroup >
+						<apex:outputLabel value="{!$ObjectType.Recap__c.fields.q30__c.label}" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:selectList value="{!selectedICA}" size="1" style="width: 74px;" >
+                        	<apex:selectOptions value="{!availableYesNo}" />
+                    	</apex:selectList>
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:inputTextarea value="{!RecapObj.Q30_Notes__c}" style="width: 98%;" rows="1" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:inputField value="{!RecapObj.Call_Provider_Call_Tracking_Set_Days_Due__c}" style="width: 30px; text-align: center;" >
+							<apex:actionSupport event="onchange" action="{!getDueDate}" reRender="callDD" >
+								<apex:param name="firstParam" value="Call_Provider_Call_Tracking_Due__c" assignTo="{!field}" />
+								<apex:param name="secondParam" value="Call_Provider_Call_Tracking_Set_Days_Due__c" assignTo="{!setDays}" />
+							</apex:actionSupport>
+						</apex:inputField>
+					</apex:panelGroup>
+					<apex:panelGroup id="callDD" >
+						<apex:outputField value="{!RecapObj.Call_Provider_Call_Tracking_Due__c}" />
+					</apex:panelGroup>
+					<!--ROW 18-->
+					<apex:panelGroup >
+						<apex:outputLabel value="{!$ObjectType.Recap__c.fields.q31__c.label}" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:selectList value="{!selectedITR}" size="1" style="width: 74px;" >
+                        	<apex:selectOptions value="{!availableYesNo}" />
+                    	</apex:selectList>
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:inputTextarea value="{!RecapObj.Q31_Notes__c}" style="width: 98%;" rows="1" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:inputField value="{!RecapObj.Trade_Appraisal_Set_Days_Due__c}" style="width: 30px; text-align: center;" >
+							<apex:actionSupport event="onchange" action="{!getDueDate}" reRender="tradeDD" >
+								<apex:param name="firstParam" value="Trade_Appraisal_Push_Due_Date__c" assignTo="{!field}" />
+								<apex:param name="secondParam" value="Trade_Appraisal_Set_Days_Due__c" assignTo="{!setDays}" />
+							</apex:actionSupport>
+						</apex:inputField>
+					</apex:panelGroup>
+					<apex:panelGroup id="tradeDD" >
+						<apex:outputField value="{!RecapObj.Trade_Appraisal_Push_Due_Date__c}" />
+					</apex:panelGroup>
+					<!--ROW 19-->
+					<apex:panelGroup >
+						<apex:outputLabel value="{!$ObjectType.Recap__c.fields.Lot_Vantage__c.label}" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:selectList value="{!selectedILV}" id="ilv" size="1" style="width: 74px;" >
+                        	<apex:selectOptions value="{!availableYesNo}" />
+                    	</apex:selectList>
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:inputTextarea value="{!RecapObj.Lot_Vantage_Notes__c}" style="width: 98%;" rows="1" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:inputField value="{!RecapObj.Lot_Vantage_Set_Days_Due__c}" style="width: 30px; text-align: center;" >
+							<apex:actionSupport event="onchange" action="{!getDueDate}" reRender="lotDD" >
+								<apex:param name="firstParam" value="Lot_Vantage_Due_Date__c" assignTo="{!field}" />
+								<apex:param name="secondParam" value="Lot_Vantage_Set_Days_Due__c" assignTo="{!setDays}" />
+							</apex:actionSupport>
+						</apex:inputField>
+					</apex:panelGroup>
+					<apex:panelGroup id="lotDD" >
+						<apex:outputField value="{!RecapObj.Lot_Vantage_Due_Date__c}" />
+					</apex:panelGroup>
+					<!--ROW 20-->
+					<apex:panelGroup >
+						<apex:outputLabel value="{!$ObjectType.Recap__c.fields.xTime__c.label}" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:selectList value="{!selectedIXT}" id="ixt" size="1" style="width: 74px;" >
+                        	<apex:selectOptions value="{!availableYesNo}" />
+                    	</apex:selectList>
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:inputTextarea value="{!RecapObj.xTime_Notes__c}" style="width: 98%;" rows="1" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						
+					</apex:panelGroup>
+					<apex:panelGroup >
+						
+					</apex:panelGroup>
+					<!--ROW 21-->
+					<apex:panelGroup >
+						<apex:outputLabel value="{!$ObjectType.Recap__c.fields.IC_Ad_Hoc_1__c.label}" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:selectList value="{!selectedIA1}" id="ia1" size="1" style="width: 74px;" >
+                        	<apex:selectOptions value="{!availableYesNo}" />
+                    	</apex:selectList>
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:inputTextarea value="{!RecapObj.IC_Ad_Hoc_1_Notes__c}" style="width: 98%;" rows="1" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						
+					</apex:panelGroup>
+					<apex:panelGroup >
+						
+					</apex:panelGroup>
+					<!--ROW 22-->
+					<apex:panelGroup >
+						<apex:outputLabel value="{!$ObjectType.Recap__c.fields.IC_Ad_Hoc_2__c.label}" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:selectList value="{!selectedIA2}" id="ia2" size="1" style="width: 74px;" >
+                        	<apex:selectOptions value="{!availableYesNo}" />
+                    	</apex:selectList>
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:inputTextarea value="{!RecapObj.IC_Ad_Hoc_2_Notes__c}" style="width: 98%;" rows="1" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						
+					</apex:panelGroup>
+					<apex:panelGroup >
+						
+					</apex:panelGroup>
+					<!--ROW 23-->
+					<apex:panelGroup >
+						<apex:outputLabel value="{!$ObjectType.Recap__c.fields.IC_Ad_Hoc_3__c.label}" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:selectList value="{!selectedIA3}" id="ia3" size="1" style="width: 74px;" >
+                        	<apex:selectOptions value="{!availableYesNo}" />
+                    	</apex:selectList>
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:inputTextarea value="{!RecapObj.IC_Ad_Hoc_3_Notes__c}" style="width: 98%;" rows="1" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						
+					</apex:panelGroup>
+					<apex:panelGroup >
+						
+					</apex:panelGroup>
+					<!--ROW 24-->
+					<apex:panelGroup >
+						<apex:outputLabel value="GRADE" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:outputField value="{!RecapObj.Implementation_Score_new__c}" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+					</apex:panelGroup>
+					<apex:panelGroup >
+					</apex:panelGroup>
+					<apex:panelGroup >
+					</apex:panelGroup>
+				</apex:panelGrid>
+			</apex:pageBlockSection>
+
+			<apex:pageBlockSection title="Creative" columns="1" id="creative" >
+				<script>twistSection(document.getElementById("{!$Component.creative}").childNodes[0].childNodes[0]); </script>
+				<apex:panelGrid columns="3" styleClass="PGStyle2" >
+					<!--HEADER-->
+					<apex:panelGroup >
+						<apex:outputLabel value="REQUIREMENT" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:outputLabel value="NOTES" />
+					</apex:panelGroup>
+					<!--ROW 1-->
+					<apex:panelGroup >
+						<apex:outputLabel value="{!$ObjectType.Recap__c.fields.q11__c.label}" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:selectList value="{!selectedPOC}" size="1" style="width: 74px;" >
+                        	<apex:selectOptions value="{!availableYesNo}" />
+                    	</apex:selectList>
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:inputTextarea value="{!RecapObj.Q11_Notes__c}" style="width: 98%;" rows="1" />
+					</apex:panelGroup>
+					<!--ROW 2-->
+					<apex:panelGroup >
+						<apex:outputLabel value="{!$ObjectType.Recap__c.fields.q15__c.label}" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:selectList value="{!selectedEBC}" size="1" style="width: 74px;" >
+                        	<apex:selectOptions value="{!availableYesNo}" />
+                    	</apex:selectList>
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:inputTextarea value="{!RecapObj.Q15_Notes__c}" style="width: 98%;" rows="1" />
+					</apex:panelGroup>
+					<!--ROW 3-->
+					<apex:panelGroup >
+						<apex:outputLabel value="{!$ObjectType.Recap__c.fields.IPM_Ad_Hoc_1__c.label}" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:selectList value="{!selectedIP1}" id="ip1" size="1" style="width: 74px;" >
+                        	<apex:selectOptions value="{!availableYesNo}" />
+                    	</apex:selectList>
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:inputTextarea value="{!RecapObj.IPM_Ad_Hoc_1_Notes__c}" style="width: 98%;" rows="1" />
+					</apex:panelGroup>
+					<!--ROW 4-->
+					<apex:panelGroup >
+						<apex:outputLabel value="{!$ObjectType.Recap__c.fields.IPM_Ad_Hoc_2__c.label}" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:selectList value="{!selectedIP2}" id="ip2" size="1" style="width: 74px;" >
+                        	<apex:selectOptions value="{!availableYesNo}" />
+                    	</apex:selectList>
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:inputTextarea value="{!RecapObj.IPM_Ad_Hoc_2_Notes__c}" style="width: 98%;" rows="1" />
+					</apex:panelGroup>
+					<!--ROW 5-->
+					<apex:panelGroup >
+						<apex:outputLabel value="{!$ObjectType.Recap__c.fields.IPM_Ad_Hoc_3__c.label}" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:selectList value="{!selectedIP3}" id="ip3" size="1" style="width: 74px;" >
+                        	<apex:selectOptions value="{!availableYesNo}" />
+                    	</apex:selectList>
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:inputTextarea value="{!RecapObj.IPM_Ad_Hoc_3_Notes__c}" style="width: 98%;" rows="1" />
+					</apex:panelGroup>
+					<!--ROW 6-->
+					<apex:panelGroup >
+						<apex:outputLabel value="GRADE" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:inputField value="{!RecapObj.Creative_Score_New__c}" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+					</apex:panelGroup>
+				</apex:panelGrid>
+			</apex:pageBlockSection>
+
+			<apex:pageBlockSection title="Virtual Trainer" columns="1" id="VTSection" >
+				<script>twistSection(document.getElementById("{!$Component.VTSection}").childNodes[0].childNodes[0]); </script>
+				<apex:panelGrid columns="7" styleClass="PGStyle4" >
+					<!--HEADER-->
+					<apex:panelGroup >
+						<apex:outputLabel value="REQUIREMENT" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:outputLabel value="NOTES" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:outputLabel value="Days Until Due" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:outputLabel value="DUE DATE" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:outputLabel value="COMPLETED" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:outputLabel value="ON TIME" />
+					</apex:panelGroup>
+					<!--ROW 1-->
+					<apex:panelGroup >
+						<apex:outputLabel value="{!$ObjectType.Recap__c.fields.VT_Overall_Dealer_Health__c.label}" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:selectList value="{!selectedODH}" size="1" style="width: 74px;" >
+                        	<apex:selectOptions value="{!availableRating}" />
+                    	</apex:selectList>
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:inputTextarea value="{!RecapObj.VT_Overall_Dealer_Health_Notes__c}" style="width: 98%;" rows="1" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						
+					</apex:panelGroup>
+					<apex:panelGroup >
+						
+					</apex:panelGroup>
+					<apex:panelGroup >
+						
+					</apex:panelGroup>
+					<apex:panelGroup >
+						
+					</apex:panelGroup>
+					<!--ROW 2-->
+					<apex:panelGroup >
+						<apex:outputLabel value="{!$ObjectType.Recap__c.fields.VT_Admin_Class_Complete__c.label}" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:selectList value="{!selectedACC}" id="acc" size="1" style="width: 74px;" >
+                        	<apex:selectOptions value="{!availableYesNo}" />
+                    	</apex:selectList>
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:inputTextarea value="{!RecapObj.VT_Admin_Class_Complete_Notes__c}" style="width: 98%;" rows="1" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:inputField value="{!RecapObj.VT_Admin_Class_Set_Days_Due__c}" style="width: 30px; text-align: center;" >
+							<apex:actionSupport event="onchange" action="{!getVirtualDueDate}" reRender="vtAdminDD" >
+								<apex:param name="firstParam" value="VT_Admin_Class_Due_Date__c" assignTo="{!field}" />
+								<apex:param name="secondParam" value="VT_Admin_Class_Set_Days_Due__c" assignTo="{!setDays}" />
+							</apex:actionSupport>
+						</apex:inputField>
+					</apex:panelGroup>
+					<apex:panelGroup id="vtAdminDD">
+						<apex:outputField value="{!RecapObj.VT_Admin_Class_Due_Date__c}" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:inputField value="{!RecapObj.VT_Admin_Class_Completed_Date__c}" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:inputField value="{!RecapObj.VT_Admin_Class_Completed_On_Time__c}" />
+					</apex:panelGroup>
+					<!--ROW 3-->
+					<apex:panelGroup >
+						<apex:outputLabel value="{!$ObjectType.Recap__c.fields.VT_Admin_Engagement_and_Interaction__c.label}" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:selectList value="{!selectedAEI}" size="1" style="width: 74px;" >
+                        	<apex:selectOptions value="{!availableRating}" />
+                    	</apex:selectList>					
+                	</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:inputTextarea value="{!RecapObj.VT_Admin_Engagement_Notes__c}" style="width: 98%;" rows="1" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						
+					</apex:panelGroup>
+					<apex:panelGroup >
+						
+					</apex:panelGroup>
+					<apex:panelGroup >
+						
+					</apex:panelGroup>
+					<apex:panelGroup >
+						
+					</apex:panelGroup>
+					<!--ROW 4-->
+					<apex:panelGroup >
+						<apex:outputLabel value="{!$ObjectType.Recap__c.fields.VT_Manager_Class_Complete__c.label}" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:selectList value="{!selectedMCC}" id="mcc" size="1" style="width: 74px;" >
+                        	<apex:selectOptions value="{!availableYesNo}" />
+                    	</apex:selectList>
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:inputTextarea value="{!RecapObj.VT_Manager_Class_Complete_Notes__c}" style="width: 98%;" rows="1" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:inputField value="{!RecapObj.VT_Manager_Class_Set_Days_Due__c}" style="width: 30px; text-align: center;" >
+							<apex:actionSupport event="onchange" action="{!getVirtualDueDate}" reRender="vtManagerDD" >
+								<apex:param name="firstParam" value="VT_Manager_Class_Due_Date__c" assignTo="{!field}" />
+								<apex:param name="secondParam" value="VT_Manager_Class_Set_Days_Due__c" assignTo="{!setDays}" />
+							</apex:actionSupport>
+						</apex:inputField>
+					</apex:panelGroup>
+					<apex:panelGroup id="vtManagerDD">
+						<apex:outputField value="{!RecapObj.VT_Manager_Class_Due_Date__c}" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:inputField value="{!RecapObj.VT_Manager_Class_Complete_Date__c}" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:inputField value="{!RecapObj.VT_Manager_Class_Complete_On_Time__c}" />
+					</apex:panelGroup>
+					<!--ROW 5-->
+					<apex:panelGroup >
+						<apex:outputLabel value="{!$ObjectType.Recap__c.fields.VT_Manager_Engagement_and_Interaction__c.label}" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:selectList value="{!selectedMEI}" size="1" style="width: 74px;" >
+                        	<apex:selectOptions value="{!availableRating}" />
+                    	</apex:selectList>
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:inputTextarea value="{!RecapObj.VT_Manager_Engagement_Notes__c}" style="width: 98%;" rows="1" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						
+					</apex:panelGroup>
+					<apex:panelGroup >
+						
+					</apex:panelGroup>
+					<apex:panelGroup >
+						
+					</apex:panelGroup>
+					<apex:panelGroup >
+						
+					</apex:panelGroup>
+					<!--ROW 6-->
+					<apex:panelGroup >
+						<apex:outputLabel value="{!$ObjectType.Recap__c.fields.VT_Sales_Classes_Complete__c.label}" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:selectList value="{!selectedSCC}" id="scc" size="1" style="width: 74px;" >
+                        	<apex:selectOptions value="{!availableYesNo}" />
+                    	</apex:selectList>
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:inputTextarea value="{!RecapObj.VT_Sales_Classes_Notes__c}" style="width: 98%;" rows="1" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:inputField value="{!RecapObj.VT_Sales_Classes_Set_Days_Due__c}" style="width: 30px; text-align: center;" >
+							<apex:actionSupport event="onchange" action="{!getVirtualDueDate}" reRender="vtSalesDD" >
+								<apex:param name="firstParam" value="VT_Sales_Classes_Due_Date__c" assignTo="{!field}" />
+								<apex:param name="secondParam" value="VT_Sales_Classes_Set_Days_Due__c" assignTo="{!setDays}" />
+							</apex:actionSupport>
+						</apex:inputField>
+					</apex:panelGroup>
+					<apex:panelGroup id="vtSalesDD">
+						<apex:outputField value="{!RecapObj.VT_Sales_Classes_Due_Date__c}" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:inputField value="{!RecapObj.VT_Sales_Classes_Complete_Date__c}" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:inputField value="{!RecapObj.VT_Sales_Classes_Complete_On_Time__c}" />
+					</apex:panelGroup>
+					<!--ROW 7-->
+					<apex:panelGroup >
+						<apex:outputLabel value="{!$ObjectType.Recap__c.fields.VT_Sales_Engagement_and_Interaction__c.label}" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:selectList value="{!selectedSEI}" size="1" style="width: 74px;" >
+                        	<apex:selectOptions value="{!availableRating}" />
+                    	</apex:selectList>
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:inputTextarea value="{!RecapObj.VT_Sales_Engagement_Notes__c}" style="width: 98%;" rows="1" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						
+					</apex:panelGroup>
+					<apex:panelGroup >
+						
+					</apex:panelGroup>
+					<apex:panelGroup >
+						
+					</apex:panelGroup>
+					<apex:panelGroup >
+						
+					</apex:panelGroup>
+					<!--ROW 8-->
+					<apex:panelGroup >
+						<apex:outputLabel value="{!$ObjectType.Recap__c.fields.VT_Products_Purchased_Issues__c.label}" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:inputTextarea value="{!RecapObj.VT_Products_Purchased_Issues__c}" style="width: 98%;" rows="1" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						
+					</apex:panelGroup>
+					<apex:panelGroup >
+						
+					</apex:panelGroup>
+					<apex:panelGroup >
+						
+					</apex:panelGroup>
+					<apex:panelGroup >
+						
+					</apex:panelGroup>
+					<!--ROW 9-->
+					<apex:panelGroup >
+						<apex:outputLabel value="{!$ObjectType.Recap__c.fields.VT_Additional_Admin_Settings_Complete__c.label}" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:selectList value="{!selectedASC}" id="asc" size="1" style="width: 74px;" >
+                        	<apex:selectOptions value="{!availableYesNo}" />
+                    	</apex:selectList>
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:inputTextarea value="{!RecapObj.VT_Additional_Admin_Settings_Notes__c}" style="width: 98%;" rows="1" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:inputField value="{!RecapObj.VT_Additional_Admin_Set_Days_Due__c}" style="width: 30px; text-align: center;" >
+							<apex:actionSupport event="onchange" action="{!getVirtualDueDate}" reRender="vtAddDD" >
+								<apex:param name="firstParam" value="VT_Additional_Admin_Settings_Due_Date__c" assignTo="{!field}" />
+								<apex:param name="secondParam" value="VT_Additional_Admin_Set_Days_Due__c" assignTo="{!setDays}" />
+							</apex:actionSupport>
+						</apex:inputField>
+					</apex:panelGroup>
+					<apex:panelGroup id="vtAddDD">
+						<apex:outputField value="{!RecapObj.VT_Additional_Admin_Settings_Due_Date__c}" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:inputField value="{!RecapObj.VT_Additional_Admin_Settings_Comp_Date__c}" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:inputField value="{!RecapObj.VT_Additional_Admin_Settings_On_Time__c}" />
+					</apex:panelGroup>
+					<!--ROW 10-->
+					<apex:panelGroup >
+						<apex:outputLabel value="{!$ObjectType.Recap__c.fields.VT_Appraisal_Service_Settings_Mapped__c.label}" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:selectList value="{!selectedSSM}" id="ssm" size="1" style="width: 74px;" >
+                        	<apex:selectOptions value="{!availableYesNo}" />
+                    	</apex:selectList>
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:inputTextarea value="{!RecapObj.VT_Appraisal_Service_Settings_Notes__c}" style="width: 98%;" rows="1" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:inputField value="{!RecapObj.VT_Appraisal_Service_Set_Days_Due__c}" style="width: 30px; text-align: center;" >
+							<apex:actionSupport event="onchange" action="{!getVirtualDueDate}" reRender="vtAppDD" >
+								<apex:param name="firstParam" value="VT_Appraisal_Service_Settings_Due__c" assignTo="{!field}" />
+								<apex:param name="secondParam" value="VT_Appraisal_Service_Set_Days_Due__c" assignTo="{!setDays}" />
+							</apex:actionSupport>
+						</apex:inputField>
+					</apex:panelGroup>
+					<apex:panelGroup id="vtAppDD">
+						<apex:outputField value="{!RecapObj.VT_Appraisal_Service_Settings_Due__c}" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:inputField value="{!RecapObj.VT_Appraisal_Service_Settings_Comp_Date__c}" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:inputField value="{!RecapObj.VT_Appraisal_Service_Settings_On_Time__c}" />
+					</apex:panelGroup>
+					<!--ROW 11-->
+					<apex:panelGroup >
+						<apex:outputLabel value="{!$ObjectType.Recap__c.fields.VT_Dynamic_Comments_Setup__c.label}" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:selectList value="{!selectedDCS}" id="dcs" size="1" style="width: 74px;" >
+                        	<apex:selectOptions value="{!availableYesNo}" />
+                    	</apex:selectList>
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:inputTextarea value="{!RecapObj.VT_Dynamic_Comments_Setup_Notes__c}" style="width: 98%;" rows="1" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:inputField value="{!RecapObj.VT_Dynamic_Comments_Set_Days_Due__c}" style="width: 30px; text-align: center;" >
+							<apex:actionSupport event="onchange" action="{!getVirtualDueDate}" reRender="vtDynamicDD" >
+								<apex:param name="firstParam" value="VT_Dynamic_Comments_Setup_Due__c" assignTo="{!field}" />
+								<apex:param name="secondParam" value="VT_Dynamic_Comments_Set_Days_Due__c" assignTo="{!setDays}" />
+							</apex:actionSupport>
+						</apex:inputField>
+					</apex:panelGroup>
+					<apex:panelGroup id="vtDynamicDD">
+						<apex:outputField value="{!RecapObj.VT_Dynamic_Comments_Setup_Due__c}" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:inputField value="{!RecapObj.VT_Dynamic_Comments_Setup_Complete_Date__c}" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:inputField value="{!RecapObj.VT_Dynamic_Comments_Setup_On_Time__c}" />
+					</apex:panelGroup>
+					<!--ROW 12-->
+					<apex:panelGroup >
+						<apex:outputLabel value="{!$ObjectType.Recap__c.fields.VT_Dealer_Form_Settings__c.label}" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:selectList value="{!selectedDFS}" id="dfs" size="1" style="width: 74px;" >
+                        	<apex:selectOptions value="{!availableYesNo}" />
+                    	</apex:selectList>
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:inputTextarea value="{!RecapObj.VT_Dealer_Form_Settings_Notes__c}" style="width: 98%;" rows="1" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:inputField value="{!RecapObj.VT_Dealer_Form_Set_Days_Due__c}" style="width: 30px; text-align: center;" >
+							<apex:actionSupport event="onchange" action="{!getVirtualDueDate}" reRender="vtDealerDD" >
+								<apex:param name="firstParam" value="VT_Dealer_Form_Settings_Due_Date__c" assignTo="{!field}" />
+								<apex:param name="secondParam" value="VT_Dealer_Form_Set_Days_Due__c" assignTo="{!setDays}" />
+							</apex:actionSupport>
+						</apex:inputField>
+					</apex:panelGroup>
+					<apex:panelGroup id="vtDealerDD">
+						<apex:outputField value="{!RecapObj.VT_Dealer_Form_Settings_Due_Date__c}" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:inputField value="{!RecapObj.VT_Dealer_Forms_Settings_Complete_Date__c}" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:inputField value="{!RecapObj.VT_Dealer_Form_Settings_On_Time__c}" />
+					</apex:panelGroup>
+					<!--ROW 13-->
+					<apex:panelGroup >
+						<apex:outputLabel value="{!$ObjectType.Recap__c.fields.VT_Lead_Assignment_Complete__c.label}" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:selectList value="{!selectedVLA}" id="vla" size="1" style="width: 74px;" >
+                        	<apex:selectOptions value="{!availableYesNo}" />
+                    	</apex:selectList>
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:inputTextarea value="{!RecapObj.VT_Lead_Assignment_Complete_Notes__c}" style="width: 98%;" rows="1" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:inputField value="{!RecapObj.VT_Lead_Assignment_Set_Days_Due__c}" style="width: 30px; text-align: center;" >
+							<apex:actionSupport event="onchange" action="{!getVirtualDueDate}" reRender="vtLeadAssDD" >
+								<apex:param name="firstParam" value="VT_Lead_Assignment_Due_Date__c" assignTo="{!field}" />
+								<apex:param name="secondParam" value="VT_Lead_Assignment_Set_Days_Due__c" assignTo="{!setDays}" />
+							</apex:actionSupport>
+						</apex:inputField>
+					</apex:panelGroup>
+					<apex:panelGroup id="vtLeadAssDD">
+						<apex:outputField value="{!RecapObj.VT_Lead_Assignment_Due_Date__c}" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:inputField value="{!RecapObj.VT_Lead_Assignment_Complete_Date__c}" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:inputField value="{!RecapObj.VT_Lead_Assignment_Complete_On_Time__c}" />
+					</apex:panelGroup>
+					<!--ROW 14-->
+					<apex:panelGroup >
+						<apex:outputLabel value="{!$ObjectType.Recap__c.fields.VT_Lead_Settings_Complete__c.label}" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:selectList value="{!selectedVLS}" id="vls" size="1" style="width: 74px;" >
+                        	<apex:selectOptions value="{!availableYesNo}" />
+                    	</apex:selectList>
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:inputTextarea value="{!RecapObj.VT_Lead_Settings_Complete_Notes__c}" style="width: 98%;" rows="1" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:inputField value="{!RecapObj.VT_Lead_Settings_Set_Days_Due__c}" style="width: 30px; text-align: center;" >
+							<apex:actionSupport event="onchange" action="{!getVirtualDueDate}" reRender="vtLeadDD" >
+								<apex:param name="firstParam" value="VT_Lead_Settings_Due_Date__c" assignTo="{!field}" />
+								<apex:param name="secondParam" value="VT_Lead_Settings_Set_Days_Due__c" assignTo="{!setDays}" />
+							</apex:actionSupport>
+						</apex:inputField>
+					</apex:panelGroup>
+					<apex:panelGroup id="vtLeadDD">
+						<apex:outputField value="{!RecapObj.VT_Lead_Settings_Due_Date__c}" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:inputField value="{!RecapObj.VT_Lead_Settings_Complete_Date__c}" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:inputField value="{!RecapObj.VT_Lead_Settings_Complete_On_Time__c}" />
+					</apex:panelGroup>
+					<!--ROW 15-->
+					<apex:panelGroup >
+						<apex:outputLabel value="{!$ObjectType.Recap__c.fields.VT_Add_Customer_Settings__c.label}" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:selectList value="{!selectedACS}" id="acs" size="1" style="width: 74px;" >
+                        	<apex:selectOptions value="{!availableYesNo}" />
+                    	</apex:selectList>
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:inputTextarea value="{!RecapObj.VT_Add_Customer_Settings_Notes__c}" style="width: 98%;" rows="1" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:inputField value="{!RecapObj.VT_Add_Customer_Set_Days_Due__c}" style="width: 30px; text-align: center;" >
+							<apex:actionSupport event="onchange" action="{!getVirtualDueDate}" reRender="vtCustDD" >
+								<apex:param name="firstParam" value="VT_Add_Customer_Settings_Due__c" assignTo="{!field}" />
+								<apex:param name="secondParam" value="VT_Add_Customer_Set_Days_Due__c" assignTo="{!setDays}" />
+							</apex:actionSupport>
+						</apex:inputField>
+					</apex:panelGroup>
+					<apex:panelGroup id="vtCustDD">
+						<apex:outputField value="{!RecapObj.VT_Add_Customer_Settings_Due__c}" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:inputField value="{!RecapObj.VT_Add_Customer_Settings_Complete_Date__c}" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:inputField value="{!RecapObj.VT_Add_Customer_Settings_On_Time__c}" />
+					</apex:panelGroup>
+					<!--ROW 16-->
+					<apex:panelGroup >
+						<apex:outputLabel value="{!$ObjectType.Recap__c.fields.VT_Road_to_the_Sale_Complete__c.label}" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:selectList value="{!selectedVRS}" id="vrs" size="1" style="width: 74px;" >
+                        	<apex:selectOptions value="{!availableYesNo}" />
+                    	</apex:selectList>
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:inputTextarea value="{!RecapObj.VT_Road_to_the_Sale_Notes__c}" style="width: 98%;" rows="1" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:inputField value="{!RecapObj.VT_Road_to_the_Sale_Set_Days_Due__c}" style="width: 30px; text-align: center;" >
+							<apex:actionSupport event="onchange" action="{!getVirtualDueDate}" reRender="vtRoadDD" >
+								<apex:param name="firstParam" value="VT_Road_to_the_Sale_Due_Date__c" assignTo="{!field}" />
+								<apex:param name="secondParam" value="VT_Road_to_the_Sale_Set_Days_Due__c" assignTo="{!setDays}" />
+							</apex:actionSupport>
+						</apex:inputField>
+					</apex:panelGroup>
+					<apex:panelGroup id="vtRoadDD">
+						<apex:outputField value="{!RecapObj.VT_Road_to_the_Sale_Due_Date__c}" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:inputField value="{!RecapObj.VT_Road_to_the_Sale_Complete_Date__c}" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:inputField value="{!RecapObj.VT_Road_to_the_Sale_On_Time__c}" />
+					</apex:panelGroup>
+					<!--ROW 17-->
+					<apex:panelGroup >
+						<apex:outputLabel value="{!$ObjectType.Recap__c.fields.VT_Items_Not_Complete_Open_Tickets__c.label}" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:inputTextarea value="{!RecapObj.VT_Items_Not_Complete_Open_Tickets__c}" style="width: 98%;" rows="1" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						
+					</apex:panelGroup>
+					<apex:panelGroup >
+						
+					</apex:panelGroup>
+					<apex:panelGroup >
+						
+					</apex:panelGroup>
+					<apex:panelGroup >
+						
+					</apex:panelGroup>
+					<!--ROW 18-->
+					<apex:panelGroup >
+						<apex:outputLabel value="{!$ObjectType.Recap__c.fields.Virtual_Training_Complete__c.label}" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:selectList value="{!selectedVTC}" id="vtc" size="1" style="width: 74px;" >
+                        	<apex:selectOptions value="{!availableYesNo}" />
+                    	</apex:selectList>
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:inputTextarea value="{!RecapObj.Virtual_Training_Complete_Notes__c}" style="width: 98%;" rows="1" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:inputField value="{!RecapObj.Virtual_Training_Set_Days_Due__c}" style="width: 30px; text-align: center;" >
+							<apex:actionSupport event="onchange" action="{!getVirtualDueDate}" reRender="vtTrainDD" >
+								<apex:param name="firstParam" value="Virtual_Training_Due_Date__c" assignTo="{!field}" />
+								<apex:param name="secondParam" value="Virtual_Training_Set_Days_Due__c" assignTo="{!setDays}" />
+							</apex:actionSupport>
+						</apex:inputField>
+					</apex:panelGroup>
+					<apex:panelGroup id="vtTrainDD">
+						<apex:outputField value="{!RecapObj.Virtual_Training_Due_Date__c}" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:inputField value="{!RecapObj.Virtual_Training_Complete_Date__c}" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:inputField value="{!RecapObj.Virtual_Training_Complete_On_Time__c}" />
+					</apex:panelGroup>
+					<!--ROW 19-->
+					<apex:panelGroup >
+						<apex:outputLabel value="{!$ObjectType.Recap__c.fields.VT_Ad_Hoc_1__c.label}" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:selectList value="{!selectedVA1}" id="va1" size="1" style="width: 74px;" >
+                        	<apex:selectOptions value="{!availableYesNo}" />
+                    	</apex:selectList>
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:inputTextarea value="{!RecapObj.VT_Ad_Hoc_1_Notes__c}" style="width: 98%;" rows="1" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						
+					</apex:panelGroup>
+					<apex:panelGroup >
+						
+					</apex:panelGroup>
+					<apex:panelGroup >
+						
+					</apex:panelGroup>
+					<apex:panelGroup >
+						
+					</apex:panelGroup>
+					<!--ROW 20-->
+					<apex:panelGroup >
+						<apex:outputLabel value="{!$ObjectType.Recap__c.fields.VT_Ad_Hoc_2__c.label}" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:selectList value="{!selectedVA2}" id="va2" size="1" style="width: 74px;" >
+                        	<apex:selectOptions value="{!availableYesNo}" />
+                    	</apex:selectList>
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:inputTextarea value="{!RecapObj.VT_Ad_Hoc_2_Notes__c}" style="width: 98%;" rows="1" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						
+					</apex:panelGroup>
+					<apex:panelGroup >
+						
+					</apex:panelGroup>
+					<apex:panelGroup >
+						
+					</apex:panelGroup>
+					<apex:panelGroup >
+						
+					</apex:panelGroup>
+					<!--ROW 21-->
+					<apex:panelGroup >
+						<apex:outputLabel value="{!$ObjectType.Recap__c.fields.VT_Ad_Hoc_3__c.label}" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:selectList value="{!selectedVA3}" id="va3" size="1" style="width: 74px;" >
+                        	<apex:selectOptions value="{!availableYesNo}" />
+                    	</apex:selectList>
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:inputTextarea value="{!RecapObj.VT_Ad_Hoc_3_Notes__c}" style="width: 98%;" rows="1" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						
+					</apex:panelGroup>
+					<apex:panelGroup >
+						
+					</apex:panelGroup>
+					<apex:panelGroup >
+						
+					</apex:panelGroup>
+					<apex:panelGroup >
+						
+					</apex:panelGroup>
+					<!--ROW 22-->
+					<apex:panelGroup >
+						<apex:outputLabel value="{!$ObjectType.Recap__c.fields.VT_Score__c.label}" for="vtScorevt" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:outputField value="{!RecapObj.VT_Score__c}" id="vtScorevt" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+					</apex:panelGroup>
+					<apex:panelGroup >
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:outputLabel value="{!$ObjectType.Recap__c.fields.VT_On_Time_Score__c.label}" for="vtOTScorevt" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:outputField value="{!RecapObj.VT_On_Time_Score__c}" id="vtOTScorevt" rendered="{!IF(vtOnTimeScoreCount > 0, true, false)}"/>
+					</apex:panelGroup>
+					<apex:panelGroup >
+					</apex:panelGroup>
+					<!--ROW 23-->
+					<apex:panelGroup >
+						<apex:outputLabel value="{!$ObjectType.Recap__c.fields.VT_Dealer_Grade__c.label}" for="vtdGradevt" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:outputField value="{!RecapObj.VT_Dealer_Grade__c}" id="vtdGradevt" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+					</apex:panelGroup>
+					<apex:panelGroup >
+					</apex:panelGroup>
+					<apex:panelGroup >
+					</apex:panelGroup>
+					<apex:panelGroup >
+					</apex:panelGroup>
+					<apex:panelGroup >
+					</apex:panelGroup>
+				</apex:panelGrid>
+			</apex:pageBlockSection>
+
+			<apex:pageBlockSection title="On-Site Training" columns="1" id="OSSection">
+				<script>twistSection(document.getElementById("{!$Component.OSSection}").childNodes[0].childNodes[0]); </script>
+				<apex:panelGrid columns="7" styleClass="PGStyle4" >
+					<!--HEADER-->
+					<apex:panelGroup >
+						<apex:outputLabel value="REQUIREMENT" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:outputLabel value="NOTES" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:outputLabel value="Days Until Due" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:outputLabel value="DUE DATE" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:outputLabel value="COMPLETED" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:outputLabel value="ON TIME" />
+					</apex:panelGroup>
+					<!--ROW 1-->
+					<apex:panelGroup >
+						<apex:outputLabel value="{!$ObjectType.Recap__c.fields.PT_Overall_Dealer_Health__c.label}" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:selectList value="{!selectedPOT}" size="1" style="width: 74px;" >
+                        	<apex:selectOptions value="{!availableRating}" />
+                    	</apex:selectList>
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:inputTextarea value="{!RecapObj.PT_Overall_Dealer_Health_Notes__c}" style="width: 98%;" rows="1" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						
+					</apex:panelGroup>
+					<apex:panelGroup >
+						
+					</apex:panelGroup>
+					<apex:panelGroup >
+						
+					</apex:panelGroup>
+					<apex:panelGroup >
+						
+					</apex:panelGroup>
+					<!--ROW 2-->
+					<apex:panelGroup >
+						<apex:outputLabel value="{!$ObjectType.Recap__c.fields.PT_DP_GM_Engagement__c.label}" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:selectList value="{!selectedDGE}" size="1" style="width: 74px;" >
+                        	<apex:selectOptions value="{!availableRating}" />
+                    	</apex:selectList>
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:inputTextarea value="{!RecapObj.PT_DP_GM_Engagement_Notes__c}" style="width: 98%;" rows="1" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						
+					</apex:panelGroup>
+					<apex:panelGroup >
+						
+					</apex:panelGroup>
+					<apex:panelGroup >
+						
+					</apex:panelGroup>
+					<apex:panelGroup >
+						
+					</apex:panelGroup>
+					<!--ROW 3-->
+					<apex:panelGroup >
+						<apex:outputLabel value="{!$ObjectType.Recap__c.fields.PT_Sales_Desk_Managers_Engagement__c.label}" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:selectList value="{!selectedDME}" size="1" style="width: 74px;" >
+                        	<apex:selectOptions value="{!availableRating}" />
+                    	</apex:selectList>
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:inputTextarea value="{!RecapObj.PT_Sales_Desk_Managers_Engagement_Notes__c}" style="width: 98%;" rows="1" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						
+					</apex:panelGroup>
+					<apex:panelGroup >
+						
+					</apex:panelGroup>
+					<apex:panelGroup >
+						
+					</apex:panelGroup>
+					<apex:panelGroup >
+						
+					</apex:panelGroup>
+					<!--ROW 4-->
+					<apex:panelGroup >
+						<apex:outputLabel value="{!$ObjectType.Recap__c.fields.PT_Salespeople_Engagement__c.label}" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:selectList value="{!selectedPSE}" size="1" style="width: 74px;" >
+                        	<apex:selectOptions value="{!availableRating}" />
+                    	</apex:selectList>
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:inputTextarea value="{!RecapObj.PT_Salespeople_Engagement_Notes__c}" style="width: 98%;" rows="1" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						
+					</apex:panelGroup>
+					<apex:panelGroup >
+						
+					</apex:panelGroup>
+					<apex:panelGroup >
+						
+					</apex:panelGroup>
+					<apex:panelGroup >
+						
+					</apex:panelGroup>
+					<!--ROW 5-->
+					<apex:panelGroup >
+						<apex:outputLabel value="{!$ObjectType.Recap__c.fields.PT_VinChampion__c.label}" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:inputTextarea value="{!RecapObj.PT_VinChampion__c}" style="width: 98%;" rows="1" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						
+					</apex:panelGroup>
+					<apex:panelGroup >
+						
+					</apex:panelGroup>
+					<apex:panelGroup >
+						
+					</apex:panelGroup>
+					<apex:panelGroup >
+						
+					</apex:panelGroup>
+					<!--ROW 6-->
+					<apex:panelGroup >
+						<apex:outputLabel value="{!$ObjectType.Recap__c.fields.PT_Number_of_Tickets_Opened__c.label}" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:inputField value="{!RecapObj.PT_Number_of_Tickets_Opened__c}" style="width: 40px; text-align: center;" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:inputTextarea value="{!RecapObj.PT_Tickets_Opened_Notes__c}" style="width: 98%;" rows="1" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						
+					</apex:panelGroup>
+					<apex:panelGroup >
+						
+					</apex:panelGroup>
+					<apex:panelGroup >
+						
+					</apex:panelGroup>
+					<apex:panelGroup >
+						
+					</apex:panelGroup>
+					<!--ROW 7-->
+					<apex:panelGroup >
+						<apex:outputLabel value="{!$ObjectType.Recap__c.fields.PT_Scheduled_Custom_Reports__c.label}" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:selectList value="{!selectedSCR}" id="scr" size="1" style="width: 74px;" >
+                        	<apex:selectOptions value="{!availableYesNo}" />
+                    	</apex:selectList>
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:inputTextarea value="{!RecapObj.PT_Scheduled_Custom_Reports_Notes__c}" style="width: 98%;" rows="1" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:inputField value="{!RecapObj.PT_Scheduled_Custom_Reports_Set_Days_Due__c}" style="width: 30px; text-align: center;" >
+							<apex:actionSupport event="onchange" action="{!getOnSiteDueDate}" reRender="ptScheduledDD" >
+								<apex:param name="firstParam" value="PT_Scheduled_Custom_Reports_Due_Date__c" assignTo="{!field}" />
+								<apex:param name="secondParam" value="PT_Scheduled_Custom_Reports_Set_Days_Due__c" assignTo="{!setDays}" />
+							</apex:actionSupport>
+						</apex:inputField>
+					</apex:panelGroup>
+					<apex:panelGroup id="ptScheduledDD">
+						<apex:outputField value="{!RecapObj.PT_Scheduled_Custom_Reports_Due_Date__c}" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:inputField value="{!RecapObj.PT_Scheduled_Custom_Reports_Complete__c}" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:inputField value="{!RecapObj.PT_Scheduled_Custom_Reports_On_Time__c}" />
+					</apex:panelGroup>
+					<!--ROW 8-->
+					<apex:panelGroup >
+						<apex:outputLabel value="{!$ObjectType.Recap__c.fields.PT_ROI_Settings_Configured__c.label}" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:selectList value="{!selectedRSC}" id="rsc" size="1" style="width: 74px;" >
+                        	<apex:selectOptions value="{!availableYesNo}" />
+                    	</apex:selectList>
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:inputTextarea value="{!RecapObj.PT_ROI_Settings_Configured_Notes__c}" style="width: 98%;" rows="1" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:inputField value="{!RecapObj.PT_ROI_Settings_Configured_Set_Days_Due__c}" style="width: 30px; text-align: center;" >
+							<apex:actionSupport event="onchange" action="{!getOnSiteDueDate}" reRender="ptROIDD" >
+								<apex:param name="firstParam" value="PT_ROI_Settings_Configured_Due_Date__c" assignTo="{!field}" />
+								<apex:param name="secondParam" value="PT_ROI_Settings_Configured_Set_Days_Due__c" assignTo="{!setDays}" />
+							</apex:actionSupport>
+						</apex:inputField>
+					</apex:panelGroup>
+					<apex:panelGroup id="ptROIDD">
+						<apex:outputField value="{!RecapObj.PT_ROI_Settings_Configured_Due_Date__c}" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:inputField value="{!RecapObj.PT_ROI_Settings_Configured_Complete_Date__c}" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:inputField value="{!RecapObj.PT_ROI_Settings_Configured_On_Time__c}" />
+					</apex:panelGroup>
+					<!--ROW 9-->
+					<apex:panelGroup >
+						<apex:outputLabel value="{!$ObjectType.Recap__c.fields.PT_Processes_Enabled__c.label}" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:selectList value="{!selectedPPE}" id="ppe" size="1" style="width: 74px;" >
+                        	<apex:selectOptions value="{!availableYesNo}" />
+                    	</apex:selectList>
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:inputTextarea value="{!RecapObj.PT_Processes_Enabled_Notes__c}" style="width: 98%;" rows="1" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:inputField value="{!RecapObj.PT_Processes_Enabled_Set_Days_Due__c}" style="width: 30px; text-align: center;" >
+							<apex:actionSupport event="onchange" action="{!getOnSiteDueDate}" reRender="ptProcessDD" >
+								<apex:param name="firstParam" value="PT_Processes_Enabled_Due_Date__c" assignTo="{!field}" />
+								<apex:param name="secondParam" value="PT_Processes_Enabled_Set_Days_Due__c" assignTo="{!setDays}" />
+							</apex:actionSupport>
+						</apex:inputField>
+					</apex:panelGroup>
+					<apex:panelGroup id="ptProcessDD">
+						<apex:outputField value="{!RecapObj.PT_Processes_Enabled_Due_Date__c}" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:inputField value="{!RecapObj.PT_Processes_Enabled_Complete_Date__c}" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:inputField value="{!RecapObj.PT_Processes_Enabled_On_Time__c}" />
+					</apex:panelGroup>
+					<!--ROW 10-->
+					<apex:panelGroup >
+						<apex:outputLabel value="{!$ObjectType.Recap__c.fields.PT_Processes_Customized__c.label}" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:selectList value="{!selectedPPC}" id="ppc" size="1" style="width: 74px;" >
+                        	<apex:selectOptions value="{!availableYesNo}" />
+                    	</apex:selectList>
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:inputTextarea value="{!RecapObj.PT_Processes_Customized_Notes__c}" style="width: 98%;" rows="1" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						
+					</apex:panelGroup>
+					<apex:panelGroup >
+						
+					</apex:panelGroup>
+					<apex:panelGroup >
+						
+					</apex:panelGroup>
+					<apex:panelGroup >
+						
+					</apex:panelGroup>
+					<!--ROW 11-->
+					<apex:panelGroup >
+						<apex:outputLabel value="{!$ObjectType.Recap__c.fields.PT_User_List_Configuration__c.label}" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:selectList value="{!selectedULC}" id="ulc" size="1" style="width: 74px;" >
+                        	<apex:selectOptions value="{!availableYesNo}" />
+                    	</apex:selectList>
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:inputTextarea value="{!RecapObj.PT_User_List_Configuration_Notes__c}" style="width: 98%;" rows="1" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						
+					</apex:panelGroup>
+					<apex:panelGroup >
+						
+					</apex:panelGroup>
+					<apex:panelGroup >
+						
+					</apex:panelGroup>
+					<apex:panelGroup >
+						
+					</apex:panelGroup>
+					<!--ROW 12-->
+					<apex:panelGroup >
+						<apex:outputLabel value="{!$ObjectType.Recap__c.fields.PT_Lead_Assignment_Configuration__c.label}" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:selectList value="{!selectedLAC}" id="lac" size="1" style="width: 74px;" >
+                        	<apex:selectOptions value="{!availableYesNo}" />
+                    	</apex:selectList>
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:inputTextarea value="{!RecapObj.PT_Lead_Assignment_Configuration_Notes__c}" style="width: 98%;" rows="1" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						
+					</apex:panelGroup>
+					<apex:panelGroup >
+						
+					</apex:panelGroup>
+					<apex:panelGroup >
+						
+					</apex:panelGroup>
+					<apex:panelGroup >
+						
+					</apex:panelGroup>
+					<!--ROW 13-->
+					<apex:panelGroup >
+						<apex:outputLabel value="{!$ObjectType.Recap__c.fields.PT_Lead_Settings_Configuration__c.label}" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:selectList value="{!selectedLSC}" id="lsc" size="1" style="width: 74px;" >
+                        	<apex:selectOptions value="{!availableYesNo}" />
+                    	</apex:selectList>
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:inputTextarea value="{!RecapObj.PT_Lead_Settings_Configuration_Notes__c}" style="width: 98%;" rows="1" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						
+					</apex:panelGroup>
+					<apex:panelGroup >
+						
+					</apex:panelGroup>
+					<apex:panelGroup >
+						
+					</apex:panelGroup>
+					<apex:panelGroup >
+						
+					</apex:panelGroup>
+					<!--ROW 14-->
+					<apex:panelGroup >
+						<apex:outputLabel value="{!$ObjectType.Recap__c.fields.PT_Desking_Verified_and_Push_Functioning__c.label}" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:selectList value="{!selectedDVF}" id="dvf" size="1" style="width: 74px;" >
+                        	<apex:selectOptions value="{!availableYesNo}" />
+                    	</apex:selectList>
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:inputTextarea value="{!RecapObj.PT_Desking_and_Push_Notes__c}" style="width: 98%;" rows="1" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						
+					</apex:panelGroup>
+					<apex:panelGroup >
+						
+					</apex:panelGroup>
+					<apex:panelGroup >
+						
+					</apex:panelGroup>
+					<apex:panelGroup >
+						
+					</apex:panelGroup>
+					<!--ROW 15-->
+					<apex:panelGroup >
+						<apex:outputLabel value="{!$ObjectType.Recap__c.fields.PT_Inventory_Verified__c.label}" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:selectList value="{!selectedPIV}" id="piv" size="1" style="width: 74px;" >
+                        	<apex:selectOptions value="{!availableYesNo}" />
+                    	</apex:selectList>
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:inputTextarea value="{!RecapObj.PT_Inventory_Verified_Notes__c}" style="width: 98%;" rows="1" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:inputField value="{!RecapObj.PT_Inventory_Verified_Set_Days_Due__c}" style="width: 30px; text-align: center;" >
+							<apex:actionSupport event="onchange" action="{!getOnSiteDueDate}" reRender="ptInventoryDD" >
+								<apex:param name="firstParam" value="PT_Inventory_Verified_Due_Date__c" assignTo="{!field}" />
+								<apex:param name="secondParam" value="PT_Inventory_Verified_Set_Days_Due__c" assignTo="{!setDays}" />
+							</apex:actionSupport>
+						</apex:inputField>
+					</apex:panelGroup>
+					<apex:panelGroup id="ptInventoryDD">
+						<apex:outputField value="{!RecapObj.PT_Inventory_Verified_Due_Date__c}" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:inputField value="{!RecapObj.PT_Inventory_Verified_Complete_Date__c}" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:inputField value="{!RecapObj.PT_Inventory_Verified_On_Time__c}" />
+					</apex:panelGroup>
+					<!--ROW 16-->
+					<apex:panelGroup >
+						<apex:outputLabel value="{!$ObjectType.Recap__c.fields.PT_CRM_DMS_Matching_Review__c.label}" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:selectList value="{!selectedCDM}" id="cdm" size="1" style="width: 74px;" >
+                        	<apex:selectOptions value="{!availableYesNo}" />
+                    	</apex:selectList>
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:inputTextarea value="{!RecapObj.PT_CRM_DMS_Matching_Notes__c}" style="width: 98%;" rows="1" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:inputField value="{!RecapObj.PT_CRM_DMS_Matching_Set_Days_Due__c}" style="width: 30px; text-align: center;" >
+							<apex:actionSupport event="onchange" action="{!getOnSiteDueDate}" reRender="ptCRMDD" >
+								<apex:param name="firstParam" value="PT_CRM_DMS_Matching_Due_Date__c" assignTo="{!field}" />
+								<apex:param name="secondParam" value="PT_CRM_DMS_Matching_Set_Days_Due__c" assignTo="{!setDays}" />
+							</apex:actionSupport>
+						</apex:inputField>
+					</apex:panelGroup>
+					<apex:panelGroup id="ptCRMDD">
+						<apex:outputField value="{!RecapObj.PT_CRM_DMS_Matching_Due_Date__c}" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:inputField value="{!RecapObj.PT_CRM_DMS_Matching_Complete_Date__c}" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:inputField value="{!RecapObj.PT_CRM_DMS_Matching_On_Time__c}" />
+					</apex:panelGroup>
+					<!--ROW 17-->
+					<apex:panelGroup >
+						<apex:outputLabel value="{!$ObjectType.Recap__c.fields.PT_Active_Leads_No_Future_Follow_up__c.label}" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:selectList value="{!selectedALF}" id="alf" size="1" style="width: 74px;" >
+                        	<apex:selectOptions value="{!availableYesNo}" />
+                    	</apex:selectList>
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:inputTextarea value="{!RecapObj.PT_Active_Leads_No_Future_Notes__c}" style="width: 98%;" rows="1" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:inputField value="{!RecapObj.PT_Active_Leads_No_Future_Set_Days_Due__c}" style="width: 30px; text-align: center;" >
+							<apex:actionSupport event="onchange" action="{!getOnSiteDueDate}" reRender="ptActiveDD" >
+								<apex:param name="firstParam" value="PT_Active_Leads_No_Future_Due_Date__c" assignTo="{!field}" />
+								<apex:param name="secondParam" value="PT_Active_Leads_No_Future_Set_Days_Due__c" assignTo="{!setDays}" />
+							</apex:actionSupport>
+						</apex:inputField>
+					</apex:panelGroup>
+					<apex:panelGroup id="ptActiveDD">
+						<apex:outputField value="{!RecapObj.PT_Active_Leads_No_Future_Due_Date__c}" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:inputField value="{!RecapObj.PT_Active_Leads_No_Future_Completed_Date__c}" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:inputField value="{!RecapObj.PT_Active_Leads_No_Future_On_Time__c}" />
+					</apex:panelGroup>
+					<!--ROW 18-->
+					<apex:panelGroup >
+						<apex:outputLabel value="{!$ObjectType.Recap__c.fields.PT_Sales_Opportunity_1__c.label}" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:inputTextarea value="{!RecapObj.PT_Sales_Opportunity_1__c}" style="width: 98%;" rows="1" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						
+					</apex:panelGroup>
+					<apex:panelGroup >
+						
+					</apex:panelGroup>
+					<apex:panelGroup >
+						
+					</apex:panelGroup>
+					<apex:panelGroup >
+						
+					</apex:panelGroup>
+					<!--ROW 19-->
+					<apex:panelGroup >
+						<apex:outputLabel value="{!$ObjectType.Recap__c.fields.PT_Sales_Opportunity_2__c.label}" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:inputTextarea value="{!RecapObj.PT_Sales_Opportunity_2__c}" style="width: 98%;" rows="1" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						
+					</apex:panelGroup>
+					<apex:panelGroup >
+						
+					</apex:panelGroup>
+					<apex:panelGroup >
+						
+					</apex:panelGroup>
+					<apex:panelGroup >
+						
+					</apex:panelGroup>
+					<!--ROW 20-->
+					<apex:panelGroup >
+						<apex:outputLabel value="{!$ObjectType.Recap__c.fields.PT_Sales_Opportunity_3__c.label}" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:inputTextarea value="{!RecapObj.PT_Sales_Opportunity_3__c}" style="width: 98%;" rows="1" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						
+					</apex:panelGroup>
+					<apex:panelGroup >
+						
+					</apex:panelGroup>
+					<apex:panelGroup >
+						
+					</apex:panelGroup>
+					<apex:panelGroup >
+						
+					</apex:panelGroup>
+					<!--ROW 21-->
+					<apex:panelGroup >
+						<apex:outputLabel value="{!$ObjectType.Recap__c.fields.PT_Sales_Opportunity_4__c.label}" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:inputTextarea value="{!RecapObj.PT_Sales_Opportunity_4__c}" style="width: 98%;" rows="1" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						
+					</apex:panelGroup>
+					<apex:panelGroup >
+						
+					</apex:panelGroup>
+					<apex:panelGroup >
+						
+					</apex:panelGroup>
+					<apex:panelGroup >
+						
+					</apex:panelGroup>
+					<!--ROW 22-->
+					<apex:panelGroup >
+						<apex:outputLabel value="{!$ObjectType.Recap__c.fields.PT_Ad_Hoc_1__c.label}" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:selectList value="{!selectedAH1}" id="ah1" size="1" style="width: 74px;" >
+                        	<apex:selectOptions value="{!availableYesNo}" />
+                    	</apex:selectList>
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:inputTextarea value="{!RecapObj.PT_Ad_Hoc_1_Notes__c}" style="width: 98%;" rows="1" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						
+					</apex:panelGroup>
+					<apex:panelGroup >
+						
+					</apex:panelGroup>
+					<apex:panelGroup >
+						
+					</apex:panelGroup>
+					<apex:panelGroup >
+						
+					</apex:panelGroup>
+					<!--ROW 23-->
+					<apex:panelGroup >
+						<apex:outputLabel value="{!$ObjectType.Recap__c.fields.PT_Ad_Hoc_2__c.label}" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:selectList value="{!selectedAH2}" id="ah2" size="1" style="width: 74px;" >
+                        	<apex:selectOptions value="{!availableYesNo}" />
+                    	</apex:selectList>
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:inputTextarea value="{!RecapObj.PT_Ad_Hoc_2_Notes__c}" style="width: 98%;" rows="1" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						
+					</apex:panelGroup>
+					<apex:panelGroup >
+						
+					</apex:panelGroup>
+					<apex:panelGroup >
+						
+					</apex:panelGroup>
+					<apex:panelGroup >
+						
+					</apex:panelGroup>
+					<!--ROW 24-->
+					<apex:panelGroup >
+						<apex:outputLabel value="{!$ObjectType.Recap__c.fields.PT_Ad_Hoc_3__c.label}" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:selectList value="{!selectedAH3}" id="ah3" size="1" style="width: 74px;" >
+                        	<apex:selectOptions value="{!availableYesNo}" />
+                    	</apex:selectList>
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:inputTextarea value="{!RecapObj.PT_Ad_Hoc_3_Notes__c}" style="width: 98%;" rows="1" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						
+					</apex:panelGroup>
+					<apex:panelGroup >
+						
+					</apex:panelGroup>
+					<apex:panelGroup >
+						
+					</apex:panelGroup>
+					<apex:panelGroup >
+						
+					</apex:panelGroup>
+					<!--ROW 25-->
+					<apex:panelGroup >
+						<apex:outputLabel value="{!$ObjectType.Recap__c.fields.Product_Training_Complete__c.label}" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:selectList value="{!selectedPTC}" id="ptc" size="1" style="width: 74px;" >
+                        	<apex:selectOptions value="{!availableYesNo}" />
+                    	</apex:selectList>
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:inputTextarea value="{!RecapObj.Product_Trainer_Comments__c}" style="width: 98%;" rows="1" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:inputField value="{!RecapObj.Product_Training_Complete_Set_Days_Due__c}" style="width: 30px; text-align: center;" >
+							<apex:actionSupport event="onchange" action="{!getOnSiteDueDate}" reRender="ptProductDD" >
+								<apex:param name="firstParam" value="Product_Training_Complete_Due_Date__c" assignTo="{!field}" />
+								<apex:param name="secondParam" value="Product_Training_Complete_Set_Days_Due__c" assignTo="{!setDays}" />
+							</apex:actionSupport>
+						</apex:inputField>
+					</apex:panelGroup>
+					<apex:panelGroup id="ptProductDD">
+						<apex:outputField value="{!RecapObj.Product_Training_Complete_Due_Date__c}" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:inputField value="{!RecapObj.Product_Training_Completed_Date__c}" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:outputField value="{!RecapObj.Product_Training_Complete_On_Time__c}" />
+					</apex:panelGroup>
+					<!--ROW 26-->
+					<apex:panelGroup >
+						<apex:outputLabel value="{!$ObjectType.Recap__c.fields.PT_Score__c.label}" for="ptScorept" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:outputField value="{!RecapObj.PT_Score__c}" id="ptScorept" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+					</apex:panelGroup>
+					<apex:panelGroup >
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:outputLabel value="{!$ObjectType.Recap__c.fields.PT_On_Time_Score__c.label}" for="ptOTScorept" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:outputField value="{!RecapObj.PT_On_Time_Score__c}" id="ptOTScorept" rendered="{!IF(ptOnTimeScoreCount > 0, true, false)}" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+					</apex:panelGroup>
+					<!--ROW 27-->
+					<apex:panelGroup >
+						<apex:outputLabel value="{!$ObjectType.Recap__c.fields.PT_Dealer_Grade__c.label}" for="ptdGradept" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+						<apex:outputField value="{!RecapObj.PT_Dealer_Grade__c}" id="ptdGradept" />
+					</apex:panelGroup>
+					<apex:panelGroup >
+					</apex:panelGroup>
+					<apex:panelGroup >
+					</apex:panelGroup>
+					<apex:panelGroup >
+					</apex:panelGroup>
+					<apex:panelGroup >
+					</apex:panelGroup>
+					<apex:panelGroup >
+					</apex:panelGroup>
+				</apex:panelGrid>
+			</apex:pageBlockSection>
+
+		</apex:pageBlock>
+
+		<apex:pageBlock title="System Information">
+            <apex:pageBlockSection >
+                <apex:pageBlockSectionItem >
+                    <apex:outputLabel value="Recap Scorecard" for="rs" />
+                    <apex:outputText value="{!RecapObj.Name}" id="rs" />
+                </apex:pageBlockSectionItem>
+                <apex:pageBlockSectionItem >
+                    
+                </apex:pageBlockSectionItem>
+                <apex:pageBlockSectionItem >
+                    <apex:outputLabel value="Created By" for="create" />
+                    <apex:outputPanel >
+                    	<apex:outputLink id="create" target="_blank" value="/{!RecapObj.CreatedById}" >{!RecapObj.CreatedBy.Name}</apex:outputLink>
+                    	<apex:outputText value="    {!createdDateStr}" />
+                	</apex:outputPanel>
+                </apex:pageBlockSectionItem>
+                <apex:pageBlockSectionItem >
+                    <apex:outputLabel value="Last Modified By" for="mod" />
+                    <apex:outputPanel >
+                    	<apex:outputLink id="mod" target="_blank" value="/{!RecapObj.LastModifiedById}" >{!RecapObj.LastModifiedBy.Name}</apex:outputLink>
+                    	<apex:outputText value="    {!lastModDateStr}" />
+                	</apex:outputPanel>
+                </apex:pageBlockSectionItem>
+            </apex:pageBlockSection>
+        </apex:pageBlock>
+
+	</apex:form>
+	
+</apex:page>

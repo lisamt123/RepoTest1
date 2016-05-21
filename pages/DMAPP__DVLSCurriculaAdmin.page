@@ -1,0 +1,101 @@
+<apex:page controller="DMAPP.DVLSCurriculaAdminController" action="{!logCurriculumUsage}" sidebar="false" docType="html-5.0">
+
+    <c:jQuery chosen="false" 
+    	jQueryUI="true"
+    	tableDnD="false" 
+    	tooltip="false"
+    	touchPunch="true" 
+    />  
+        
+    <apex:form rendered="true"> 
+
+        <apex:pageBlock title="Curricula">   
+            
+            <apex:pageMessages id="curriculaMsg" />            
+
+            <apex:pageBlockButtons location="top">
+                <apex:commandButton action="{!URLFOR($Action.DM_DVLS_Curriculum__c.New)}" value="New" rendered="{!isEditable}"/>
+            </apex:pageBlockButtons>
+            
+            <apex:pageBlockSection columns="1">
+    
+                <apex:pageBlockTable value="{!curricula}" var="curriculum" id="curriculaTable">
+                    <apex:column width="220px" rendered="{!isEditable}">
+                        <apex:facet name="header">Actions</apex:facet>
+                        <apex:commandLink value="Delete" reRender="curriculaTable" onclick="DVLS.showDeleteConfirmDialog('deleteConfirmDialog{!curriculum.Id}', doActualDeleteCurriculum)">
+                            <apex:param name="curriculumToDeleteParam" value="{!curriculum.Id}" assignTo="{!selectedCurriculumId}"/>
+                        </apex:commandLink> 
+                        <div id="deleteConfirmDialog{!curriculum.Id}" style="display:none;" title="Deleting Curriculum">
+                            <apex:outputText value="Are you sure?"/> 
+                        </div>
+                        &nbsp;|&nbsp;
+                        <apex:commandLink value="Delete All Curriculum Activity" reRender="curriculaTable" onclick="DVLS.showDeleteConfirmDialog('deleteActivityConfirmDialog{!curriculum.Id}', doActualDeleteCurriculumUserData)">
+                            <apex:param name="curriculumToDeleteParam" value="{!curriculum.Id}" assignTo="{!selectedCurriculumId}"/>
+                        </apex:commandLink> 
+                        <div id="deleteActivityConfirmDialog{!curriculum.Id}" style="display:none;" title="Deleting Curriculum User Activity">
+                            <apex:outputText value="Are you sure?"/> 
+                        </div>
+                    </apex:column>
+                    <apex:column width="25%">
+                        <apex:facet name="header">eLearning Curriculum Name</apex:facet>
+                        <apex:outputLink value="/{!curriculum.Id}">{!curriculum.Name}</apex:outputLink>
+                    </apex:column>
+                    <apex:column width="60px">
+                        <apex:facet name="header">Type</apex:facet>
+                        <apex:outputText value="{!curriculum.DMAPP__App__c}"/>      
+                    </apex:column>                      
+                    <apex:column >
+                        <apex:facet name="header">Description</apex:facet>
+                        <apex:outputField value="{!curriculum.DMAPP__Description__c}"/>
+                    </apex:column>                       
+                                                        
+                </apex:pageBlockTable>  
+  
+            </apex:pageBlockSection>
+
+            <apex:actionFunction name="doActualDeleteCurriculum" action="{!deleteCurriculum}" reRender="curriculaTable, curriculaMsg" />        
+            <apex:actionFunction name="doActualDeleteCurriculumUserData" action="{!deleteCurriculumUserData}" reRender="curriculaTable, curriculaMsg" />        
+            
+        </apex:pageBlock>
+
+          
+    </apex:form>
+    
+    <apex:outputText rendered="{!isEditable}">
+        <script>
+        
+            /* 
+             * Copyright © The TAS Group. All rights reserved.
+             *  
+             */    
+        
+            var DVLS = (function() {
+            
+                var showDeleteConfirmDialog = function(id, actionToPerform) {
+                    jQuery('#' + id).dialog({
+                        resizable: false,
+                        modal: true,
+                        buttons: {
+                            'No': function() {
+                                jQuery(this).dialog('close');
+                                return false;
+                            },                           
+                            'Yes': function() {
+                                jQuery(this).dialog('close');
+                                actionToPerform();
+                                return true;
+                            }
+                        }
+                    });
+                };
+                
+                return {
+                    showDeleteConfirmDialog: showDeleteConfirmDialog
+                };
+            
+            }());
+        
+        </script>
+    </apex:outputText>
+    
+</apex:page>

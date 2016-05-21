@@ -1,0 +1,94 @@
+<apex:page standardController="DMAPP__DM_Qualifier__c"
+    recordSetVar="dmQualifiers"
+    extensions="DMAPP.DMQualifierController"
+    sidebar="false"
+>
+
+    <apex:includeScript value="{! URLFOR($Resource.prefix) }" />
+    <script type="text/javascript" src="{! $Resource.l10njs }"></script>
+
+    <c:jQuery jQueryUI="true"
+        cookies="true"
+        underscore="true"
+        tooltip="false"
+        tools="false"
+        validate="false"
+        paging="false"
+        jqGrid="false"
+        textareaMaxlength="false"
+        dropdown="false"
+        chosen="false"
+    />
+
+    <apex:include pageName="DMAPP__tmpCommoncss" />
+    <script type="text/javascript" src="{! URLFOR($Resource.ttgomjs, 'ttg/lib/ttgservice.js') }"></script>
+    <script type="text/javascript" src="{! URLFOR($Resource.JSONFileImportDialog) }"></script>
+    
+    <apex:include pageName="DMAPP__APIDelegate" />
+
+    <style>
+        div.importErrorMessage {
+            color: red;
+            font-weight:bold;
+        }
+        
+    </style>
+     
+    <div class="smartOMPanel">
+        <div class="smartOMTabContainer">
+            <apex:messages />
+            <apex:enhancedList type="DM_Qualifier__c" height="720" rowsPerPage="25" id="DMQualifierList" />
+            <apex:form id="importFileForm" enctype="multipart/form-data">
+                <div>
+                    <apex:actionFunction name="clearImportActive" action="{!clearImportActive}"/>
+                    <apex:inputCheckbox id="importActive" value="{!importActive}" style="display:none;"/>
+                    <apex:inputFile id="importFileField" value="{!contentFile}" filename="{!nameFile}" style="display:none;"/>
+                    <apex:commandButton id="importFileButton" action="{!import}" value="Import" style="display:none;" styleClass="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only"/>
+                </div>
+                <div class='importErrorMessage' id='importFileErrorDiv'>    
+                    <apex:outputText id="importFileError"  value="{!importErrorMessage}" styleClass="importErrorMessage" rendered="{!importActive}"/>
+                </div>
+            </apex:form>
+        </div>
+        
+        <div class="smartOMTabContainerBottom"></div>
+        
+    </div> 
+
+    <script>
+    
+        var ttg = ttg || {};
+        var dialog;
+
+        function handleExport() {
+            var spec = {type: "{!theObjectType}", label: "{!$ObjectType[theObjectType].Label}", exporter: 'DMAPP.DMQualifierController.export', cleanUp: 'DMAPP.DMQualifierController.deleteConfig'};
+            ttg.fileExportDialog(spec);
+        }             
+
+        function handleImport() {
+            dialog.showDialog();
+        }
+             
+
+       jQuery(document).ready(function(){
+            var spec = {
+                spinnerURL: '{!JSENCODE(URLFOR($Resource.ttgomjs, '/ttg/graph/images/loader.gif '))}',
+                type: "{!theObjectType}",
+                label: "{!$ObjectType[theObjectType].Label}"
+            };
+            dialog = ttg.JSONFileImportDialog(spec);
+            dialog.hideSpinner();
+            jQuery("[id*='importFileButton']").click(function () {
+                   dialog.showSpinner();
+                }
+            )
+
+            if ({!importActive}) {
+                dialog.showDialog();
+            }
+        });
+        
+    </script>
+
+
+</apex:page>

@@ -1,0 +1,28 @@
+<apex:page controller="pdfGeneratorController">
+	<apex:sectionHeader title="Save Compile Quote as PDF to Opportunity"
+		subtitle="Attach a PDF"
+		description="Attach Compile Quote to Opportunity." />
+
+	<apex:form >
+		<apex:pageBlock title="PDF Input">
+
+			<apex:pageBlockButtons >
+				<apex:commandButton action="{!savePdf}" value="Save PDF" />
+				<!--  <apex:commandButton action="{!btnSaveandSend_click}" value="Save Attachment and email"/> -->
+			</apex:pageBlockButtons>
+			<apex:pageMessages />
+
+			<apex:pageBlockSection >
+
+				<apex:pageBlockSectionItem >
+					<apex:outputLabel value="File Name" for="pdfName" />
+					<apex:outputLabel value="{!opp.VS_ID__c}-{!opp.Account.Name}-{!Now()}" id="pdfName" /> 
+
+
+				</apex:pageBlockSectionItem>
+
+
+			</apex:pageBlockSection>
+		</apex:pageBlock>
+	</apex:form>
+</apex:page>

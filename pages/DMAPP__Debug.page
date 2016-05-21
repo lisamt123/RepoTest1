@@ -1,0 +1,276 @@
+<apex:page controller="DMAPP.DebugController">
+    <script type="text/javascript" src="{!URLFOR($Resource.Assessment, 'dateformat.js')}"></script> 
+
+<!-- 
+     <style>
+        div#DEBUGPANEL
+        {
+            background-color: InfoBackground;
+            border: 0px;
+            border-bottom: 1px solid gray;
+            height: 30px;
+            font-size: 10px;
+        }
+
+        div#DEBUGPANEL div#DEBUG
+        {
+            height: 16px;
+            overflow: auto;
+            font-size: 10px;                        
+        }
+        
+        div#DEBUGPANEL div#DEBUG table#tblOutput
+        {
+            width:100%;
+        }
+        
+        div#DEBUGPANEL div#DEBUG table#tblOutput TD.tdLogged
+        {
+            width:150px;
+            font-weight:bolder;
+            
+        }
+
+        div#DEBUGPANEL div#DEBUG table#tblOutput TD.CRITICAL
+        {
+            color: maroon;
+        }
+        
+        div#DEBUGPANEL div#DEBUG table#tblOutput TD.ERROR
+        {
+            color: maroon;
+        }
+        
+        div#DEBUGPANEL div#DEBUG table#tblOutput TD.WARNING
+        {
+            color: orange;
+        }
+
+        div#DEBUGPANEL div#DEBUG table#tblOutput TD.DEBUG
+        {
+            color: green;
+        }
+
+    </style>
+ -->
+
+    <div id="DEBUGPANEL" style="display: none;">
+        <div id="DEBUG_EXPCOMP">+ Debug</div>
+        <div id="DEBUG">
+            <table id="tblOutput">
+            </table>
+        </div>
+    </div>
+    <script>
+    
+        var DEBUG = function(spec) {
+    
+            var LEVEL_DEBUG     = 0;
+            var LEVEL_WARNING   = 10;
+            var LEVEL_ERROR     = 20;
+            var LEVEL_CRITICAL  = 30;
+    
+            var debugData = [];
+            var debugLevel = spec.debugLevel || LEVEL_DEBUG;
+            var debug = spec.debug || false;
+    
+            
+            function render() {
+                return;
+
+                jQuery('#tblOutput').html('');
+
+
+                jQuery.each(debugData,
+
+                    function (index, item) {
+                    
+                        if (item.level >= debugLevel) {
+                        
+                            var tr = jQuery('<tr>');
+                            tr.append(jQuery('<td>').addClass('tdLogged').text(item.logged));
+                            switch(item.level) {
+                                case LEVEL_CRITICAL:
+                                    style="CRITICAL";
+                                    break;
+            
+                                case LEVEL_ERROR:
+                                    style="ERROR";
+                                    break;
+            
+                                case LEVEL_WARNING:
+                                    style="WARNING";
+                                    break;
+                                    
+                                default:
+                                    style = "DEBUG";
+                                    break;
+                            }
+                            tr.append(jQuery('<td>').addClass(style).text(item.text));
+                            
+                            jQuery('#tblOutput').append(jQuery(tr))
+                        }
+                        
+                    }
+
+                );
+            }
+            
+            function _log(entry) {
+                return;
+                if (debug) {
+                    
+                    if (console) {
+                    
+                        consoleLog(entry);
+                    
+                    }
+                    else {
+                    
+                        debugData.unshift(entry); 
+                    
+                    }
+                }
+                else if (console) {
+                    consoleLog(entry);
+                }
+            }
+            
+            function consoleLog(item) {
+                switch(item.level) {
+                    case LEVEL_CRITICAL:
+                    case LEVEL_ERROR:
+                        console.error(item.text);
+                        break;
+                
+                    case LEVEL_WARNING:
+                        console.warn(item.text);
+                        break;
+                        
+                    default:
+                        //console.log(item.text);
+                        break;
+                }
+            }
+            
+            function log(entry) {
+                entry = convertToLogEvent(entry);
+    
+                _log(entry);
+    
+                render();
+            }
+    
+            function error(entry) {
+            
+                entry = convertToLogEvent(entry);
+    
+                entry.level = LEVEL_ERROR;
+                            
+                _log(entry);
+    
+                render();
+            }
+    
+            function warning(entry) {
+            
+                entry = convertToLogEvent(entry);
+    
+                entry.level = LEVEL_WARNING;
+                            
+                _log(entry);
+    
+                render();
+            }
+            
+            function convertToLogEvent(entry) {
+                if (typeof entry == "string")
+                {
+                    var logEntry = { text: entry };
+                    entry = logEntry;
+                }
+    
+                if (undefined == entry.logged) entry.logged = dateFormat('isoUtcDateTime');
+                if (undefined == entry.level) entry.level = LEVEL_DEBUG;
+                
+                return entry;
+            }
+    
+    
+            function init() {
+                return;
+                if (console) return;
+                
+                if (debug) 
+                {
+                    jQuery('#DEBUGPANEL').css('display', 'block');
+                }
+                else
+                {
+                    jQuery('#DEBUGPANEL').css('display', 'none');
+                }
+                
+                jQuery('#DEBUG_EXPCOMP').click(toggle);
+            }
+            
+            function toggle() {
+                var text = jQuery('#DEBUG_EXPCOMP').text();
+                if (text.substring(0,1) == '+') {
+                    jQuery('#DEBUG_EXPCOMP').text('- Debug');
+                    jQuery('#DEBUGPANEL').css('height', '224px');
+                    jQuery('#DEBUG').css('height', '200px');
+                }
+                else {
+                    jQuery('#DEBUG_EXPCOMP').text('+ Debug');
+                    jQuery('#DEBUGPANEL').css('height', '30px');
+                    jQuery('#DEBUG').css('height', '16px');
+                }
+            }
+    
+            function refresh(data) {
+                debugData = data;
+                render();
+            }
+    
+            function handleResponse(response) {
+                if (response.debug != undefined && response.debug != null) {
+
+                    jQuery.each(response.debug,
+    
+                        function (index, item) {
+                            _debug.log(item);
+                        }
+                    );
+                    
+                }
+                else {
+                    
+                    _debug.warning('response didn\'t have a debug block');
+
+                }
+                
+            }
+    
+            
+            var that = { };
+            
+            that.debug = spec.debug || false;
+            that.render = render;
+            that.init = init;
+            that.refresh = refresh;
+            that.log = log;
+            that.error = error;
+            that.handleResponse = handleResponse;
+            
+            return that;
+        }
+    </script>   
+    <script>
+        var _debug = new DEBUG({ debug: false });
+        _debug.init();
+        _debug.render();
+    </script>
+    
+
+
+</apex:page>

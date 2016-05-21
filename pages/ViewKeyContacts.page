@@ -1,0 +1,50 @@
+<!--
+ * Page Name: ViewKeyContacts
+ * Author/Date: Dean Lukowski November 7, 2014
+ * Purpose: To create a visualforce related list on the vAuto POA page layout,
+ * as to filter out contacts that are not vAuto on the associated account.
+ -->
+
+<apex:page standardController="POA__c" extensions="ViewKeyContacts" showHeader="false" sidebar="false">
+	
+	<apex:form >
+		<apex:pageblock id="CustomKeyContacts" title="" >
+			<apex:pageBlockButtons ><!-- &AccountName={!poaAccountName} -->
+			<apex:commandButton value="New Contact" onclick="window.open('/003/e?accid={!poaAccount}&00N70000003aHnX=vAuto'); return false;"/>
+			<apex:commandButton value="Refresh" action="{!Refresh}" />
+			<apex:commandButton value="Show All" onclick="window.open('/apex/ViewKeyContacts?id={!POAId}'); return false;"/>
+			</apex:pageBlockButtons>
+			<apex:pageBlockTable id="relatedKC" value="{!keyContactWrapList}" var="kc" >
+				<apex:column HeaderValue="Action" >
+					<apex:outputLink target="_blank" value="/{!kc.contactId}/e" >Edit</apex:outputLink>     
+	            </apex:column>
+				<apex:column HeaderValue="Name" >
+					<apex:outputLink target="_blank" value="/{!kc.contactId}" >{!kc.contactName}</apex:outputLink>     
+	            </apex:column> 
+	            <apex:column HeaderValue="Gone" >
+	            	<apex:inputCheckbox value="{!kc.contactGone}" disabled="true" />
+	            </apex:column>
+	            <apex:column HeaderValue="Title" >
+	            	<apex:outputLabel value="{!kc.contactTitle}" />
+	            </apex:column>
+	            <apex:column HeaderValue="Phone" >
+	            	<apex:outputLabel value="{!kc.contactPhone}" />
+	            </apex:column>
+	            <apex:column HeaderValue="Mobile" >
+	            	<apex:outputLabel value="{!kc.contactMobilePhone}" />
+	            </apex:column>
+	            <apex:column HeaderValue="Email" >
+	            	<apex:outputLink value="mailto:{!kc.contactEmail}" disabled="{!sendEmails}" >{!kc.contactEmail}</apex:outputLink>
+	            </apex:column>
+	            <apex:column HeaderValue="Trained Date" >
+	            	<apex:outputLabel value="{!kc.contactTrainedDate}" />
+	            </apex:column>
+	            <apex:column HeaderValue="Role" >
+	            	<apex:outputLabel value="{!kc.contactRole}" />
+	            </apex:column>                               
+	   		</apex:pageBlockTable>
+	   		<apex:outputLabel value="No records to display" rendered="{!numOfKCRows = 0}" />
+	 	</apex:pageblock>
+	</apex:form>
+
+</apex:page>

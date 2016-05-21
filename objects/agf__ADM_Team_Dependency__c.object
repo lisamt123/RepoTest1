@@ -1,0 +1,616 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <actionOverrides>
+        <actionName>Accept</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>CancelEdit</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Clone</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Delete</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Edit</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Follow</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>List</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>New</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>SaveEdit</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Tab</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>View</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <allowInChatterGroups>false</allowInChatterGroups>
+    <compactLayoutAssignment>SYSTEM</compactLayoutAssignment>
+    <deploymentStatus>Deployed</deploymentStatus>
+    <deprecated>false</deprecated>
+    <description>Used to track dependencies between teams for a given  release</description>
+    <enableActivities>false</enableActivities>
+    <enableBulkApi>true</enableBulkApi>
+    <enableEnhancedLookup>true</enableEnhancedLookup>
+    <enableFeeds>true</enableFeeds>
+    <enableHistory>true</enableHistory>
+    <enableReports>true</enableReports>
+    <enableSearch>true</enableSearch>
+    <enableSharing>true</enableSharing>
+    <enableStreamingApi>true</enableStreamingApi>
+    <fields>
+        <fullName>agf__Associated_with_Program__c</fullName>
+        <deleteConstraint>SetNull</deleteConstraint>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>Associated with Program</label>
+        <referenceTo>agf__ADM_Scrum_Team__c</referenceTo>
+        <relationshipLabel>Team Dependencies (Associated with Program)</relationshipLabel>
+        <relationshipName>Associated_Team_Dependencies</relationshipName>
+        <required>false</required>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Lookup</type>
+    </fields>
+    <fields>
+        <fullName>agf__Deliver_By__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <inlineHelpText>If the deliverable is needed by a specific date, indicate that in this field.</inlineHelpText>
+        <label>Needed by (date)</label>
+        <required>false</required>
+        <trackFeedHistory>true</trackFeedHistory>
+        <trackHistory>true</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Date</type>
+    </fields>
+    <fields>
+        <fullName>agf__Deliverable__c</fullName>
+        <deprecated>false</deprecated>
+        <description>Short description of the work that is needed from the other team.</description>
+        <externalId>false</externalId>
+        <inlineHelpText>Short description (255 chars max) of the work that is needed from the other team. More detailed description can be added to the Notes field.</inlineHelpText>
+        <label>Deliverable</label>
+        <length>255</length>
+        <required>true</required>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>true</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>agf__Dependency_Size__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <inlineHelpText>- Small: requires up to 1 sprint to complete work by 1 resource ^M
+- Medium: requires 1 month to complete work by 1-2 resources ^M
+- Large: requires 1 release to complete work by &gt; 2 resources</inlineHelpText>
+        <label>Dependency Size</label>
+        <picklist>
+            <picklistValues>
+                <fullName>Small</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Medium</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Large</fullName>
+                <default>false</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Picklist</type>
+    </fields>
+    <fields>
+        <fullName>agf__Dependency_Status__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <inlineHelpText>The status of this dependency.
+
+Prioritized = Deliverable has a user story and is prioritized on the backlog.
+
+Committed = Team is confident the work can be done in the needed timeframe and PO committed to maintaining the priority of the deliverable.</inlineHelpText>
+        <label>Dependency Status</label>
+        <picklist>
+            <picklistValues>
+                <fullName>New</fullName>
+                <default>true</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>More Info Needed</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Prioritized</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Committed</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Completed</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Deferred</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Never</fullName>
+                <default>false</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <trackFeedHistory>true</trackFeedHistory>
+        <trackHistory>true</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Picklist</type>
+    </fields>
+    <fields>
+        <fullName>agf__Dependent_Team__c</fullName>
+        <deleteConstraint>SetNull</deleteConstraint>
+        <deprecated>false</deprecated>
+        <description>The team that is dependent on another team to provide the deliverable.</description>
+        <externalId>false</externalId>
+        <inlineHelpText>The team that is dependent on another team to provide the deliverable.</inlineHelpText>
+        <label>Team With Dependency</label>
+        <lookupFilter>
+            <active>true</active>
+            <errorMessage>The Team With Dependency you selected is not active.</errorMessage>
+            <filterItems>
+                <field>agf__ADM_Scrum_Team__c.agf__Active__c</field>
+                <operation>notEqual</operation>
+                <value>False</value>
+            </filterItems>
+            <isOptional>false</isOptional>
+        </lookupFilter>
+        <referenceTo>agf__ADM_Scrum_Team__c</referenceTo>
+        <relationshipLabel>Dependencies we have on other teams</relationshipLabel>
+        <relationshipName>Our_Dependencies</relationshipName>
+        <required>false</required>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>true</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Lookup</type>
+    </fields>
+    <fields>
+        <fullName>agf__Dependent_User_Story__c</fullName>
+        <deleteConstraint>SetNull</deleteConstraint>
+        <deprecated>false</deprecated>
+        <description>The work that is dependent on the completion of the specified deliverable.</description>
+        <externalId>false</externalId>
+        <inlineHelpText>The work that is dependent on the completion of  the specified deliverable.</inlineHelpText>
+        <label>Work With Dependency</label>
+        <referenceTo>agf__ADM_Work__c</referenceTo>
+        <relationshipLabel>Team Dependencies needed for this work</relationshipLabel>
+        <relationshipName>Team_Dependencies_For_Story</relationshipName>
+        <required>false</required>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>true</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Lookup</type>
+    </fields>
+    <fields>
+        <fullName>agf__Epic__c</fullName>
+        <deleteConstraint>Restrict</deleteConstraint>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>Epic</label>
+        <referenceTo>agf__ADM_Epic__c</referenceTo>
+        <relationshipLabel>Team Dependencies</relationshipLabel>
+        <relationshipName>Team_Dependencies</relationshipName>
+        <required>false</required>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Lookup</type>
+    </fields>
+    <fields>
+        <fullName>agf__External_ID__c</fullName>
+        <caseSensitive>false</caseSensitive>
+        <deprecated>false</deprecated>
+        <externalId>true</externalId>
+        <label>External ID</label>
+        <length>50</length>
+        <required>false</required>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>true</unique>
+    </fields>
+    <fields>
+        <fullName>agf__Notes__c</fullName>
+        <deprecated>false</deprecated>
+        <description>Notes concerning the dependency or deliverable (e.g. why it is needed, acceptance criteria, more detailed description, etc.)</description>
+        <externalId>false</externalId>
+        <inlineHelpText>Notes concerning the dependency or deliverable (e.g. why it is needed, acceptance criteria, more detailed description, etc.)</inlineHelpText>
+        <label>Notes</label>
+        <length>2000</length>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>LongTextArea</type>
+        <visibleLines>8</visibleLines>
+    </fields>
+    <fields>
+        <fullName>agf__Provider_Team__c</fullName>
+        <deleteConstraint>SetNull</deleteConstraint>
+        <deprecated>false</deprecated>
+        <description>The team that will provide the deliverable to fulfill this dependency.</description>
+        <externalId>false</externalId>
+        <inlineHelpText>The team that will provide the deliverable to fulfill this dependency.</inlineHelpText>
+        <label>Team Providing Deliverable</label>
+        <lookupFilter>
+            <active>true</active>
+            <errorMessage>The Team Providing Deliverable you selected is not active.</errorMessage>
+            <filterItems>
+                <field>agf__ADM_Scrum_Team__c.agf__Active__c</field>
+                <operation>notEqual</operation>
+                <value>False</value>
+            </filterItems>
+            <isOptional>false</isOptional>
+        </lookupFilter>
+        <referenceTo>agf__ADM_Scrum_Team__c</referenceTo>
+        <relationshipLabel>Dependencies other teams have on us</relationshipLabel>
+        <relationshipName>Dependencies_on_us</relationshipName>
+        <required>false</required>
+        <trackFeedHistory>true</trackFeedHistory>
+        <trackHistory>true</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Lookup</type>
+    </fields>
+    <fields>
+        <fullName>agf__Provider_User_Story__c</fullName>
+        <deleteConstraint>SetNull</deleteConstraint>
+        <deprecated>false</deprecated>
+        <description>The record representing the work to satisfy the deliverable of this dependency.</description>
+        <externalId>false</externalId>
+        <inlineHelpText>The record representing the work to satisfy the deliverable of this dependency.</inlineHelpText>
+        <label>Work For Deliverable</label>
+        <referenceTo>agf__ADM_Work__c</referenceTo>
+        <relationshipLabel>Team Dependencies on this work</relationshipLabel>
+        <relationshipName>Team_Dependencies_On_Story</relationshipName>
+        <required>false</required>
+        <trackFeedHistory>true</trackFeedHistory>
+        <trackHistory>true</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Lookup</type>
+    </fields>
+    <fields>
+        <fullName>agf__Target_Build__c</fullName>
+        <deleteConstraint>SetNull</deleteConstraint>
+        <deprecated>false</deprecated>
+        <description>The build in which you would like the deliverable completed.</description>
+        <externalId>false</externalId>
+        <inlineHelpText>The build in which you would like the deliverable completed. If the deliverable is not associated with a specific build, enter the major product release corresponding to the season in which this deliverable is needed (e.g. 162 - Winter &apos;10).</inlineHelpText>
+        <label>Target Build</label>
+        <referenceTo>agf__ADM_Build__c</referenceTo>
+        <relationshipLabel>Team Dependencies</relationshipLabel>
+        <relationshipName>Team_Dependencies</relationshipName>
+        <required>false</required>
+        <trackFeedHistory>true</trackFeedHistory>
+        <trackHistory>true</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Lookup</type>
+    </fields>
+    <fields>
+        <fullName>agf__User_Story_Position_on_Backlog__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <formula>agf__Provider_User_Story__r.agf__Priority_Rank__c</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <inlineHelpText>The position of the work on the backlog of the team doing the work.</inlineHelpText>
+        <label>Work Position on Backlog</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>0</scale>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Number</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>agf__User_Story_Scheduled_Release__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <formula>NULLVALUE( agf__Provider_User_Story__r.agf__Scheduled_Build__r.Name,&quot;Not Scheduled&quot;)</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <inlineHelpText>The build in which the work is scheduled to be completed.</inlineHelpText>
+        <label>Work Scheduled Build</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>agf__User_Story_Scheduled_Sprint__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <formula>NULLVALUE(agf__Provider_User_Story__r.agf__Sprint__r.Name, &quot;Not Scheduled&quot;)</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <inlineHelpText>The sprint in which the work is scheduled to be completed.</inlineHelpText>
+        <label>Work Scheduled Sprint</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <label>Team Dependency</label>
+    <listViews>
+        <fullName>agf__All</fullName>
+        <columns>agf__Dependent_Team__c</columns>
+        <columns>agf__Provider_Team__c</columns>
+        <columns>agf__Deliverable__c</columns>
+        <columns>NAME</columns>
+        <filterScope>Everything</filterScope>
+        <label>All</label>
+    </listViews>
+    <listViews>
+        <fullName>agf__CSS_UI_Dependencies</fullName>
+        <columns>agf__Deliverable__c</columns>
+        <columns>NAME</columns>
+        <columns>agf__Provider_Team__c</columns>
+        <columns>agf__Dependency_Status__c</columns>
+        <filterScope>Everything</filterScope>
+        <filters>
+            <field>agf__Dependent_Team__c</field>
+            <operation>equals</operation>
+            <value>CSS UI</value>
+        </filters>
+        <label>CSS UI Dependencies</label>
+    </listViews>
+    <listViews>
+        <fullName>agf__Oppty2Quote_Dependencies</fullName>
+        <booleanFilter>1 OR 2</booleanFilter>
+        <columns>NAME</columns>
+        <columns>agf__Dependency_Status__c</columns>
+        <columns>agf__Dependent_Team__c</columns>
+        <columns>agf__Provider_Team__c</columns>
+        <columns>agf__Deliverable__c</columns>
+        <columns>agf__Notes__c</columns>
+        <filterScope>Everything</filterScope>
+        <filters>
+            <field>agf__Dependent_Team__c</field>
+            <operation>equals</operation>
+            <value>Opportunity to Quote</value>
+        </filters>
+        <filters>
+            <field>agf__Provider_Team__c</field>
+            <operation>equals</operation>
+            <value>Opportunity to Quote</value>
+        </filters>
+        <label>Oppty2Quote Dependencies</label>
+    </listViews>
+    <listViews>
+        <fullName>agf__SFA_UI_Dependencies_on_other_Teams</fullName>
+        <columns>NAME</columns>
+        <columns>agf__Deliverable__c</columns>
+        <columns>agf__Notes__c</columns>
+        <columns>agf__Deliver_By__c</columns>
+        <columns>agf__Provider_Team__c</columns>
+        <columns>agf__Dependent_User_Story__c</columns>
+        <columns>agf__Provider_User_Story__c</columns>
+        <columns>agf__Dependency_Status__c</columns>
+        <filterScope>Everything</filterScope>
+        <filters>
+            <field>agf__Dependent_Team__c</field>
+            <operation>equals</operation>
+            <value>SFA UI</value>
+        </filters>
+        <label>162 SFA UI Dependencies Needed</label>
+    </listViews>
+    <listViews>
+        <fullName>agf__Webstore_Dependencies</fullName>
+        <booleanFilter>1 OR 2</booleanFilter>
+        <columns>NAME</columns>
+        <columns>agf__Deliverable__c</columns>
+        <columns>agf__Dependency_Status__c</columns>
+        <columns>agf__Deliver_By__c</columns>
+        <columns>agf__Notes__c</columns>
+        <columns>agf__Provider_Team__c</columns>
+        <columns>agf__Dependent_Team__c</columns>
+        <filterScope>Everything</filterScope>
+        <filters>
+            <field>agf__Dependent_Team__c</field>
+            <operation>equals</operation>
+            <value>Webstore</value>
+        </filters>
+        <filters>
+            <field>agf__Provider_Team__c</field>
+            <operation>equals</operation>
+            <value>Webstore</value>
+        </filters>
+        <label>Webstore Dependencies</label>
+    </listViews>
+    <listViews>
+        <fullName>agf__X160_Team_Dependencies</fullName>
+        <columns>NAME</columns>
+        <columns>agf__Deliverable__c</columns>
+        <columns>agf__Dependency_Status__c</columns>
+        <columns>agf__Deliver_By__c</columns>
+        <columns>agf__Provider_Team__c</columns>
+        <columns>agf__Dependent_Team__c</columns>
+        <columns>agf__Provider_User_Story__c</columns>
+        <filterScope>Everything</filterScope>
+        <label>160 Team Dependencies</label>
+    </listViews>
+    <listViews>
+        <fullName>agf__X162_Core_Team_Dependencies</fullName>
+        <columns>NAME</columns>
+        <columns>agf__Dependent_Team__c</columns>
+        <columns>agf__Deliverable__c</columns>
+        <columns>agf__Deliver_By__c</columns>
+        <columns>agf__Provider_Team__c</columns>
+        <columns>agf__Provider_User_Story__c</columns>
+        <columns>agf__Dependency_Status__c</columns>
+        <filterScope>Mine</filterScope>
+        <filters>
+            <field>agf__Dependent_Team__c</field>
+            <operation>equals</operation>
+            <value>Core Infrastructure</value>
+        </filters>
+        <label>162 Core Team Dependencies</label>
+    </listViews>
+    <listViews>
+        <fullName>agf__X162_Dependencies</fullName>
+        <columns>NAME</columns>
+        <columns>agf__Dependent_Team__c</columns>
+        <columns>agf__Deliverable__c</columns>
+        <columns>agf__Deliver_By__c</columns>
+        <columns>agf__Provider_Team__c</columns>
+        <columns>agf__Provider_User_Story__c</columns>
+        <columns>agf__Dependency_Status__c</columns>
+        <filterScope>Everything</filterScope>
+        <label>162 Dependencies</label>
+    </listViews>
+    <listViews>
+        <fullName>agf__X162_SFA_UI_Dependencies_Needed</fullName>
+        <columns>NAME</columns>
+        <columns>agf__Deliverable__c</columns>
+        <columns>agf__Notes__c</columns>
+        <columns>agf__Deliver_By__c</columns>
+        <columns>agf__Dependency_Status__c</columns>
+        <columns>agf__Dependent_User_Story__c</columns>
+        <columns>agf__Provider_Team__c</columns>
+        <columns>agf__Provider_User_Story__c</columns>
+        <filterScope>Everything</filterScope>
+        <filters>
+            <field>agf__Dependent_Team__c</field>
+            <operation>equals</operation>
+            <value>SFA UI</value>
+        </filters>
+        <label>SFA UI Dependencies Needed</label>
+    </listViews>
+    <listViews>
+        <fullName>agf__X162_Team_Dependencies</fullName>
+        <columns>NAME</columns>
+        <columns>agf__Dependent_Team__c</columns>
+        <columns>agf__Deliverable__c</columns>
+        <columns>agf__Deliver_By__c</columns>
+        <columns>agf__Provider_Team__c</columns>
+        <columns>agf__Provider_User_Story__c</columns>
+        <columns>agf__Dependency_Status__c</columns>
+        <filterScope>Everything</filterScope>
+        <label>162 Team Dependencies</label>
+    </listViews>
+    <listViews>
+        <fullName>agf__X162_Team_Dependencies1</fullName>
+        <columns>NAME</columns>
+        <columns>agf__Dependent_Team__c</columns>
+        <columns>agf__Deliverable__c</columns>
+        <columns>agf__Deliver_By__c</columns>
+        <columns>agf__Provider_Team__c</columns>
+        <columns>agf__Provider_User_Story__c</columns>
+        <columns>agf__Dependency_Status__c</columns>
+        <filterScope>Everything</filterScope>
+        <filters>
+            <field>agf__Dependent_Team__c</field>
+            <operation>contains</operation>
+            <value>Knowledge</value>
+        </filters>
+        <label>162 Knowledge Dependencies</label>
+    </listViews>
+    <nameField>
+        <displayFormat>TD-{0000000}</displayFormat>
+        <label>Team Dependency Name</label>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <type>AutoNumber</type>
+    </nameField>
+    <pluralLabel>Team Dependencies</pluralLabel>
+    <searchLayouts>
+        <customTabListAdditionalFields>agf__Dependent_Team__c</customTabListAdditionalFields>
+        <customTabListAdditionalFields>agf__Provider_Team__c</customTabListAdditionalFields>
+        <customTabListAdditionalFields>agf__Deliverable__c</customTabListAdditionalFields>
+        <customTabListAdditionalFields>agf__Dependency_Status__c</customTabListAdditionalFields>
+        <excludedStandardButtons>Accept</excludedStandardButtons>
+        <excludedStandardButtons>ChangeOwner</excludedStandardButtons>
+        <lookupDialogsAdditionalFields>agf__Dependent_Team__c</lookupDialogsAdditionalFields>
+        <lookupDialogsAdditionalFields>agf__Provider_Team__c</lookupDialogsAdditionalFields>
+        <lookupDialogsAdditionalFields>agf__Deliverable__c</lookupDialogsAdditionalFields>
+        <lookupDialogsAdditionalFields>agf__Dependency_Status__c</lookupDialogsAdditionalFields>
+        <searchResultsAdditionalFields>agf__Dependent_Team__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields>agf__Provider_Team__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields>agf__Deliverable__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields>agf__Dependency_Status__c</searchResultsAdditionalFields>
+    </searchLayouts>
+    <sharingModel>ReadWrite</sharingModel>
+    <validationRules>
+        <fullName>agf__Check_Provider_User_Story</fullName>
+        <active>true</active>
+        <description>In order for the dependency status to be changed to &apos;Prioritized&apos; or &apos;Committed&apos;, there must be a user story linked to the dependency for the work to be done .</description>
+        <errorConditionFormula>(ISPICKVAL( agf__Dependency_Status__c, &quot;Prioritized&quot;) ||  ISPICKVAL( agf__Dependency_Status__c, &quot;Committed&quot;)) &amp;&amp; (ISBLANK(agf__Provider_User_Story__c))</errorConditionFormula>
+        <errorDisplayField>agf__Provider_User_Story__c</errorDisplayField>
+        <errorMessage>A user story for the deliverable must be linked to the dependency in order to set the dependency status to &quot;Prioritized&quot; or &quot;Committed&quot;.</errorMessage>
+    </validationRules>
+    <validationRules>
+        <fullName>agf__Dependent_Team_Is_Active</fullName>
+        <active>true</active>
+        <errorConditionFormula>agf__Dependent_Team__r.agf__Active__c = false</errorConditionFormula>
+        <errorDisplayField>agf__Dependent_Team__c</errorDisplayField>
+        <errorMessage>The Team With Dependency you selected is not active.</errorMessage>
+    </validationRules>
+    <validationRules>
+        <fullName>agf__Needed_By_Date_in_Future</fullName>
+        <active>true</active>
+        <errorConditionFormula>agf__Deliver_By__c &lt;  TODAY()</errorConditionFormula>
+        <errorDisplayField>agf__Deliver_By__c</errorDisplayField>
+        <errorMessage>The &apos;Needed By&apos; date cannot be in the past.</errorMessage>
+    </validationRules>
+    <validationRules>
+        <fullName>agf__Provider_Team_Is_Active</fullName>
+        <active>true</active>
+        <errorConditionFormula>agf__Provider_Team__r.agf__Active__c = false</errorConditionFormula>
+        <errorDisplayField>agf__Provider_Team__c</errorDisplayField>
+        <errorMessage>The Team Providing Deliverable you selected is not active.</errorMessage>
+    </validationRules>
+    <validationRules>
+        <fullName>agf__Teams_Cannot_Be_The_Same</fullName>
+        <active>true</active>
+        <errorConditionFormula>agf__Provider_Team__c = agf__Dependent_Team__c</errorConditionFormula>
+        <errorMessage>Team Providing Deliverable and Team With Dependency cannot be the same!</errorMessage>
+    </validationRules>
+    <webLinks>
+        <fullName>agf__Generate_graph_for_my_team</fullName>
+        <availability>online</availability>
+        <displayType>massActionButton</displayType>
+        <encodingKey>UTF-8</encodingKey>
+        <linkType>url</linkType>
+        <masterLabel>Generate graph for my team</masterLabel>
+        <openType>replace</openType>
+        <protected>false</protected>
+        <requireRowSelection>false</requireRowSelection>
+        <url>https://gus.soma.salesforce.com/apex/TeamDependenciesVisualization?teamId={!agf__ADM_Scrum_Team__c.Id}</url>
+    </webLinks>
+</CustomObject>
